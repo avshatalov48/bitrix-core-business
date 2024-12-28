@@ -21,7 +21,12 @@ export const Error = {
 			<div class="w-loader-icon --error"></div>
 			<div class="w-error-text">
 				<div>{{message}}</div>
-				<a class="w-loader-link" :href="link">linkText: link</a>	
+				<a
+					v-show="link !== null"
+					class="w-loader-link" :href="link"
+				>
+			        {{linkText}}
+				</a>	
 			</div>
 		</div>
 	`,

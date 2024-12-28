@@ -3,7 +3,7 @@ import { Reactions } from 'ui.vue3.components.reactions';
 
 import { Parser } from 'im.v2.lib.parser';
 
-import { MessageAttach, MessageStatus, ReactionList } from '../registry';
+import { Reply, MessageAttach, MessageStatus, ReactionList } from '../registry';
 
 import './default-message-content.css';
 
@@ -17,6 +17,7 @@ export const DefaultMessageContent = {
 		MessageStatus,
 		MessageAttach,
 		ReactionList,
+		Reply,
 	},
 	props:
 	{
@@ -47,6 +48,10 @@ export const DefaultMessageContent = {
 		{
 			return this.item;
 		},
+		isReply(): boolean
+		{
+			return this.message.replyId !== 0;
+		},
 		formattedText(): string
 		{
 			return Parser.decodeMessage(this.item);
@@ -55,9 +60,14 @@ export const DefaultMessageContent = {
 		{
 			return Type.isNumber(this.message.id);
 		},
+		isForward(): boolean
+		{
+			return this.$store.getters['messages/isForward'](this.message.id);
+		},
 	},
 	template: `
 		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope" :class="{'--no-text': !withText}">
+			<Reply v-if="isReply" :dialogId="dialogId" :replyId="message.replyId" :isForward="isForward" />
 			<div v-if="withText" class="bx-im-message-default-content__text" v-html="formattedText"></div>
 			<div v-if="withAttach && message.attach.length > 0" class="bx-im-message-default-content__attach">
 				<MessageAttach :item="message" :dialogId="dialogId" />

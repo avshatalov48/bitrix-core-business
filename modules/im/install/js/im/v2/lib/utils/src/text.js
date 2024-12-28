@@ -217,11 +217,27 @@ export const TextUtil = {
 		return `${location.origin}/online/?${GetParameter.openChat}=${dialogId}&${GetParameter.openMessage}=${messageId}`;
 	},
 
-	async copyToClipboard(textToCopy: string): Promise
+	async copyToClipboard(textToCopy: string): Promise<void>
 	{
-		if (navigator.clipboard)
+		if (!Type.isString(textToCopy))
 		{
-			return navigator.clipboard.writeText(textToCopy);
+			return Promise.reject();
+		}
+
+		// navigator.clipboard defined only if window.isSecureContext === true
+		// so or https should be activated, or localhost address
+		if (window.isSecureContext && navigator.clipboard)
+		{
+			// safari not allowed clipboard manipulation as result of ajax request
+			// so timeout is hack for this, to prevent "not have permission"
+			return new Promise((resolve, reject) => {
+				setTimeout(() => (
+					navigator.clipboard
+						.writeText(textToCopy)
+						.then(() => resolve())
+						.catch((e) => reject(e))
+				), 0);
+			});
 		}
 
 		return BX.clipboard?.copy(textToCopy) ? Promise.resolve() : Promise.reject();

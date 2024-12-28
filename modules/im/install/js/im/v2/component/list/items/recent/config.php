@@ -17,7 +17,7 @@ return [
 		'im.v2.lib.channel',
 		'im.public',
 		'im.v2.lib.call',
-		'im.v2.lib.analytics',
+		'call.lib.analytics',
 		'im.v2.lib.create-chat',
 		'im.v2.component.elements',
 		'main.core',

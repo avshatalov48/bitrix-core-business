@@ -12,7 +12,7 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\MapBuilder;
-use Bitrix\Main\Text\Emoji;
+use Bitrix\Im\Text;
 
 
 /**
@@ -94,8 +94,8 @@ class ChatTable extends Entity\DataManager
 			'DESCRIPTION' => array(
 				'data_type' => 'text',
 				//'title' => Loc::getMessage('CHAT_ENTITY_DESCRIPTION_FIELD'),
-				'save_data_modification' => array('\Bitrix\Im\Model\ChatTable', 'getSaveModificator'),
-				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
+				'save_data_modification' => array(Text::class, 'getSaveModificator'),
+				'fetch_data_modification' => array(Text::class, 'getFetchModificator'),
 				'nullable' => true,
 			),
 			'COLOR' => array(
@@ -186,7 +186,7 @@ class ChatTable extends Entity\DataManager
 			),
 			'LAST_MESSAGE_STATUS' => array(
 				'data_type' => 'string',
-				'default_value' => "IM_MESSAGE_STATUS_RECEIVED",
+				'default_value' => IM_MESSAGE_STATUS_RECEIVED,
 				'validation' => array(__CLASS__, 'validateMessageStatus'),
 			),
 			'DATE_CREATE' => array(
@@ -274,6 +274,11 @@ class ChatTable extends Entity\DataManager
 		if (static::needCacheInvalidate($fields))
 		{
 			Chat::cleanCache($chatId);
+		}
+		elseif (static::needCacheUpdate($fields))
+		{
+			Chat::updateStateAfterOrmEvent($chatId, $fields);
+			Chat::cleanCache($chatId, false);
 		}
 
 		Sync\Logger::getInstance()->add(
@@ -364,14 +369,22 @@ class ChatTable extends Entity\DataManager
 	protected static function needCacheInvalidate(array $updatedFields): bool
 	{
 		$cacheInvalidatingFields = [
+			'TYPE',
+			'ENTITY_TYPE',
+		];
+
+		return !empty(array_intersect($cacheInvalidatingFields, array_keys($updatedFields)));
+	}
+
+	protected static function needCacheUpdate(array $updatedFields): bool
+	{
+		$cacheUpdatingFields = [
 			'TITLE',
 			'DESCRIPTION',
 			'COLOR',
-			'TYPE',
 			'EXTRANET',
 			'AUTHOR_ID',
 			'AVATAR',
-			'ENTITY_TYPE',
 			'ENTITY_ID',
 			'ENTITY_DATA_1',
 			'ENTITY_DATA_2',
@@ -384,7 +397,7 @@ class ChatTable extends Entity\DataManager
 			'CAN_POST',
 		];
 
-		return !empty(array_intersect($cacheInvalidatingFields, array_keys($updatedFields)));
+		return !empty(array_intersect($cacheUpdatingFields, array_keys($updatedFields)));
 	}
 
 
@@ -514,24 +527,5 @@ class ChatTable extends Entity\DataManager
 			'SEARCH_CONTENT' => MapBuilder::create()->addText(self::generateSearchContent($index))->build(),
 			'SEARCH_TITLE' => MapBuilder::create()->addText(self::generateSearchTitle($index))->build(),
 		];
-	}
-
-	public static function getSaveModificator()
-	{
-		return array(
-			array(__CLASS__, 'encode')
-		);
-	}
-
-	public static function encode($text)
-	{
-		if ($text === null)
-		{
-			return null;
-		}
-
-		return Emoji::replace($text, function ($m) {
-			return ":".bin2hex($m[0]).":";
-		});
 	}
 }

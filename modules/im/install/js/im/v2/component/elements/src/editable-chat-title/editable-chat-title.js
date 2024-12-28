@@ -1,4 +1,4 @@
-import { ChatActionType } from 'im.v2.const';
+import { ActionByRole } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 
 import { ChatTitle } from '../chat-title/chat-title';
@@ -39,7 +39,7 @@ export const EditableChatTitle = {
 		},
 		canBeRenamed(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.rename, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.rename, this.dialogId);
 		},
 		inputStyle(): { width: string }
 		{

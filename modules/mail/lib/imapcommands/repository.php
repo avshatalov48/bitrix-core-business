@@ -115,6 +115,8 @@ class Repository
 				'HEADER_MD5' => $messageData['HEADER_MD5'],
 				'MAILBOX_USER_ID' => $mailbox['USER_ID'],
 				'OLD_DIR_MD5' => $messageData['DIR_MD5'],
+				'INTERNALDATE' => $messageData['INTERNALDATE'],
+				'IS_OLD' => $messageData['IS_OLD'],
 			];
 		}
 
@@ -240,6 +242,8 @@ class Repository
 				->addSelect('IS_SEEN')
 				->addSelect('SESSION_ID')
 				->addSelect('MESSAGE_ID')
+				->addSelect('INTERNALDATE')
+				->addSelect('IS_OLD')
 				->addSelect('ref.FIELD_FROM', 'FIELD_FROM')
 				->whereIn('MESSAGE_ID', $messagesSelectedIds)
 				->where('MAILBOX_ID', $this->mailboxId)

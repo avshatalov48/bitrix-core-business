@@ -220,7 +220,7 @@ if ($arResult["SHOW_POST_FORM"] == "Y")
 	$arResult["CAPTCHA_CODE"] = "";
 	if (is_object($this->captcha))
 	{
-		$this->captcha->SetCodeCrypt(COption::GetOptionString("main", "captcha_password", ""));
+		$this->captcha->SetCodeCrypt();
 		$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($this->captcha->getCodeCrypt());
 	}
 }

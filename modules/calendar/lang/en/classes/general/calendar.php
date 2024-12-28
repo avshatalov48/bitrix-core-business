@@ -172,6 +172,7 @@ $MESS["EC_DATE"] = "Date";
 $MESS["EC_DD_DENY_EVENT"] = "Cannot drag'n'drop this event.";
 $MESS["EC_DD_DENY_TASK"] = "Cannot drag'n'drop the task.";
 $MESS["EC_DEC"] = "December";
+$MESS["EC_DECLINE_GROUP_DELETING_WITH_EVENTS"] = "Cannot delete workgroup because there are events in the calendar.";
 $MESS["EC_DECLINE_INFO"] = "You have declined invitation to attend this meeting";
 $MESS["EC_DECLINE_REC_EVENT"] = "Do you want to decline invitation to participate in recurring event?";
 $MESS["EC_DEC_R"] = "December";
@@ -388,6 +389,7 @@ $MESS["EC_MEETING_CALENDAR"] = "Add all invitations from other users to this cal
 $MESS["EC_MEETING_TEXT"] = "Invitation Text";
 $MESS["EC_MEETING_TEXT2"] = "Invitation";
 $MESS["EC_MEET_TEXT_CHANGE_ALERT"] = "Note: changing the invitation text will cause the participants to be notified again.";
+$MESS["EC_MESS_STATUS_NOTIFY_DOWNLOAD_ICS"] = "[url=#LINK#][B]Download ICS file[/B][/url] to add meeting [B]#TITLE#[/B] to external calendar.";
 $MESS["EC_MESS_STATUS_NOTIFY_N"] = "You declined invitation to participate in event \"#TITLE#\" to be held on #ACTIVE_FROM#";
 $MESS["EC_MESS_STATUS_NOTIFY_N_SITE"] = "You declined invitation to participate in event \"[B]#TITLE#[/B]\" to be held on [B]#ACTIVE_FROM#[/B]
 ";

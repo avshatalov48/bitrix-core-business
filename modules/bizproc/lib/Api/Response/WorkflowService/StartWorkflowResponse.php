@@ -6,9 +6,11 @@ use Bitrix\Bizproc\Result;
 
 final class StartWorkflowResponse extends Result
 {
-	public function getWorkflowId(): string
+	public function getWorkflowId(): ?string
 	{
-		return $this->data['workflowId'];
+		$workflowId = $this->data['workflowId'] ?? null;
+
+		return is_string($workflowId) ? $workflowId : null;
 	}
 
 	public function setWorkflowId(string $workflowId): self

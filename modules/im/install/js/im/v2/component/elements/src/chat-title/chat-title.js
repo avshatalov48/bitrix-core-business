@@ -1,7 +1,7 @@
-import { Text } from 'main.core';
+import { Text, Type } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
-import { ChatType, Settings } from 'im.v2.const';
+import { ChatType, Settings, UserType } from 'im.v2.const';
 
 import './chat-title.css';
 
@@ -11,6 +11,7 @@ const DialogSpecialType = {
 	bot: 'bot',
 	extranet: 'extranet',
 	network: 'network',
+	collaber: 'collaber',
 	support24: 'support24',
 };
 
@@ -105,12 +106,7 @@ export const ChatTitle = {
 			let resultText = this.dialog.name;
 			if (this.isUser)
 			{
-				if (this.onlyFirstName)
-				{
-					resultText = this.user.firstName;
-				}
-
-				resultText = this.user.name;
+				resultText = this.onlyFirstName ? this.user.firstName : this.user.name;
 			}
 
 			return Text.encode(resultText);
@@ -119,6 +115,11 @@ export const ChatTitle = {
 		{
 			if (!this.isUser)
 			{
+				if (this.isCollabChat)
+				{
+					return '';
+				}
+
 				if (this.isExtranet)
 				{
 					return DialogSpecialType.extranet;
@@ -142,12 +143,26 @@ export const ChatTitle = {
 				return DialogSpecialType.extranet;
 			}
 
+			if (this.isCollaber)
+			{
+				return DialogSpecialType.collaber;
+			}
+
 			if (this.isNetwork)
 			{
 				return DialogSpecialType.network;
 			}
 
 			return '';
+		},
+		isDialogSpecialTypeWithLeftIcon(): boolean
+		{
+			if (this.isCollaber)
+			{
+				return false;
+			}
+
+			return Type.isStringFilled(this.dialogSpecialType);
 		},
 		leftIcon(): string
 		{
@@ -156,7 +171,7 @@ export const ChatTitle = {
 				return '';
 			}
 
-			if (this.dialogSpecialType)
+			if (this.isDialogSpecialTypeWithLeftIcon)
 			{
 				return this.dialogSpecialType;
 			}
@@ -198,16 +213,24 @@ export const ChatTitle = {
 				return false;
 			}
 
-			return this.user.bot === true;
+			return this.user.type === UserType.bot;
 		},
 		isExtranet(): boolean
 		{
 			if (this.isUser)
 			{
-				return this.user.extranet;
+				return this.user.type === UserType.extranet;
 			}
 
 			return this.dialog.extranet;
+		},
+		isCollaber(): boolean
+		{
+			return this.user.type === UserType.collaber;
+		},
+		isCollabChat(): boolean
+		{
+			return this.dialog.type === ChatType.collab;
 		},
 		isNetwork(): boolean
 		{

@@ -1,8 +1,9 @@
 <?php
-	
+
 namespace Bitrix\Calendar\Sync\Icloud;
 
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromArray;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
 use Bitrix\Calendar\Sync\Managers;
@@ -27,7 +28,7 @@ class VendorSyncManager
 	protected ?VendorSyncService $syncService = null;
 	/** @var Core\Mappers\Factory */
 	private Core\Mappers\Factory $mapperFactory;
-	
+
 	public function __construct()
 	{
 		$this->helper = new Helper();
@@ -77,7 +78,7 @@ class VendorSyncManager
 		}
 
 		Util::addPullEvent(
-			'process_sync_connection',
+			PushCommand::ProcessSyncConnection,
 			$userId,
 			[
 				'vendorName' => $this->helper::ACCOUNT_TYPE,
@@ -96,7 +97,7 @@ class VendorSyncManager
 		}
 
 		Util::addPullEvent(
-			'process_sync_connection',
+			PushCommand::ProcessSyncConnection,
 			$userId,
 			[
 				'vendorName' => $this->helper::ACCOUNT_TYPE,
@@ -214,7 +215,7 @@ class VendorSyncManager
 
 		return $this->syncService;
 	}
-	
+
 	public function getError(): string
 	{
 		return $this->error;

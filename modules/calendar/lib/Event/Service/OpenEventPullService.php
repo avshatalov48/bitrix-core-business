@@ -6,7 +6,7 @@ use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Event\Enum\PushCommandEnum;
 use Bitrix\Calendar\Event\Helper\EventWithAttendeesCountForUserBuilder;
 use Bitrix\Calendar\EventCategory\Enum\PushTagEnum;
-use Bitrix\Calendar\Integration\pull\PushService;
+use Bitrix\Calendar\Integration\Pull\PushService;
 use Bitrix\Main\Loader;
 
 final class OpenEventPullService

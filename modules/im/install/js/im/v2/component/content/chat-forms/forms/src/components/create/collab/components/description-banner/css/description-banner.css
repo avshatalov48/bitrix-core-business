@@ -1,0 +1,78 @@
+.bx-im-create-collab-description-banner__container {
+	--im-create-collab-description-banner__background-color_content: var(--im-color-collab-20);
+	--im-create-collab-description-banner__background-color_border: var(--im-color-collab-60);
+	--im-create-collab-description-banner__text-color_title: rgba(var(--im-color-palette-black-solid-rgb), 0.8);
+	--im-create-collab-description-banner__text-color_text: rgba(var(--im-color-palette-black-solid-rgb), 0.7);
+	--im-create-collab-description-banner__text-color_link: var(--im-color-collab-70);
+	--im-create-collab-description-banner__text-color_link-hover: var(--im-color-collab-80);
+	--im-create-collab-description-banner__text-color_link-underline: rgba(var(--im-color-collab-70-rgb), 0.4);
+	--im-create-collab-description-banner__text-color_link-underline-hover: rgba(var(--im-color-collab-80-rgb), 0.4);
+
+	position: relative;
+	display: flex;
+	align-items: center;
+	max-width: 844px;
+	margin-bottom: 16px;
+	padding: 16px 24px;
+	border-radius: var(--im-border-radius-xs);
+	background-color: var(--im-create-collab-description-banner__background-color_content);
+}
+
+.bx-im-create-collab-description-banner__container:before {
+	position: absolute;
+	content: '';
+	left: 0;
+	width: 2px;
+	height: 100%;
+	border-radius: var(--im-border-radius-xs);
+	border-left: 2px solid var(--im-create-collab-description-banner__background-color_border);
+}
+
+.bx-im-create-collab-description-banner__icon {
+	margin-right: 24px;
+	width: 62px;
+	min-width: 62px;
+	height: 62px;
+	background-image: url('./images/collab-info.svg');
+}
+
+.bx-im-create-collab-description-banner__content {
+	width: 634px;
+}
+
+.bx-im-create-collab-description-banner__title {
+	margin-bottom: 6px;
+	font: var(--im-font-size-lg) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-create-collab-description-banner__text-color_title);
+}
+
+.bx-im-create-collab-description-banner__text {
+	font: var(--im-font-size-sm)/16px var(--im-font-family-system);
+	color: var(--im-create-collab-description-banner__text-color_text);
+}
+
+.bx-im-create-collab-description-banner__text + .bx-im-create-collab-description-banner__text {
+	margin-top: 12px;
+}
+
+.bx-im-create-collab-description-banner__link {
+	color: var(--im-create-collab-description-banner__text-color_link);
+	text-decoration: underline;
+	text-decoration-color: var(--im-create-collab-description-banner__text-color_link-underline);
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
+
+.bx-im-create-collab-description-banner__link:hover {
+	color: var(--im-create-collab-description-banner__text-color_link-hover);
+	text-decoration-color: var(--im-create-collab-description-banner__text-color_link-underline-hover);
+}
+
+.bx-im-create-collab-description-banner__link.--solid {
+	text-decoration-style: solid;
+}
+
+.bx-im-create-collab-description-banner__link.--dashed {
+	text-decoration-style: dashed;
+}

@@ -10,10 +10,6 @@ export const Content = {
 			type: Object,
 			default: null,
 		},
-		fetchable: {
-			type: Boolean,
-			default: false,
-		},
 		clickable: {
 			type: Boolean,
 			default: false,
@@ -64,13 +60,6 @@ export const Content = {
 			if (!this.clickable || this.isFetching)
 			{
 				console.info('Events is disabled now');
-
-				return;
-			}
-
-			if (!this.fetchable)
-			{
-				console.info('Fetch data is impossible now (haven`t handler)');
 
 				return;
 			}

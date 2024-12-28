@@ -1,0 +1,37 @@
+.bx-im-collab-header-title__container {
+	--im-collab-header-title__font-color_subtitle: var(--im-color-palette-gray-60);
+	--im-collab-header-title__font-color_guest-counter: var(--im-color-collab-60);
+
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	min-width: 0;
+}
+
+.bx-im-collab-header-title__title-container {
+	max-width: 100%;
+	margin-bottom: 3px;
+}
+
+.bx-im-collab-header-title__subtitle_container {
+	display: flex;
+	align-items: flex-end;
+	max-width: 100%;
+}
+
+.bx-im-collab-header-title__subtitle_content {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+.bx-im-collab-header-title__user-counter {
+	font: var(--im-font-size-md)/16px var(--im-font-family-system);
+	color: var(--im-collab-header-title__font-color_subtitle);
+}
+
+.bx-im-collab-header-title__guest-counter {
+	margin-left: 4px;
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-collab-header-title__font-color_guest-counter);
+}

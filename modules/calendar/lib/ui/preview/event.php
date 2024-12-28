@@ -2,9 +2,9 @@
 
 namespace Bitrix\Calendar\Ui\Preview;
 
+use Bitrix\Calendar\Core\EventOption\EventOption;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Event\Helper\EventHelper;
-use Bitrix\Calendar\Rooms;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -72,27 +72,30 @@ class Event
 
 		/** @var Factory $mapperFactory */
 		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
-		/** @var \Bitrix\Calendar\Core\Event\Event $event */
-		$event = $mapperFactory->getEvent()->getById($eventId);
-		if (!$event)
+		/** @var \Bitrix\Calendar\Core\Event\Event $eventObject */
+		$eventObject = $mapperFactory->getEvent()->getById($eventId);
+		$eventOptions = $eventObject->getEventOption();
+		$eventForView = \CCalendarEvent::getEventForViewInterface($eventId, [
+			'userId' => \CCalendar::GetCurUserId(),
+			'eventDate' => $params['eventDate'] ?? null,
+		]);
+
+		if (
+			!$eventForView
+			|| !self::shouldShowAttach($eventForView)
+		)
 		{
 			return false;
 		}
 
-		// return attach only for open events to prevent old logic affect
-		if (!$event->isOpenEvent())
-		{
-			return false;
-		}
-
-		$attach = new \CIMMessageParamAttach(1, $event->getColor());
+		$attach = new \CIMMessageParamAttach(1, $eventObject->getColor());
 		$attach->AddLink([
-			'NAME' => $event->getName(),
-			'LINK' => EventHelper::getViewUrl($event),
+			'NAME' => $eventForView['NAME'],
+			'LINK' => EventHelper::getViewUrl($eventObject),
 		]);
 
 		$attach->AddDelimiter();
-		$attach->AddGrid(self::getImAttachGrid($event));
+		$attach->AddGrid(self::getImAttachGrid($eventForView, $eventOptions));
 
 		return $attach;
 	}
@@ -119,12 +122,13 @@ class Event
 		return $USER;
 	}
 
-	private static function getImAttachGrid(\Bitrix\Calendar\Core\Event\Event $event): array
+	private static function getImAttachGrid(array $eventForView, ?EventOption $eventOption = null): array
 	{
 		$grid = [];
 		$display = 'COLUMN';
 		$columnWidth = 120;
-		if ($categoryName = $event->getEventOption()?->getCategory()->getName())
+
+		if ($categoryName = $eventOption?->getCategory()->getName())
 		{
 			$grid[] = [
 				'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_CATEGORY'),
@@ -134,36 +138,94 @@ class Event
 			];
 		}
 
-		if ($location = $event->getLocation())
-		{
-			$parsedLocation = Rooms\Util::parseLocation($location);
-			$roomId = $parsedLocation['room_id'] ?? null;
-			if ($roomId)
-			{
-				$rooms = Rooms\Manager::getRoomById($roomId);
-				$room = $rooms ? $rooms[0] : null;
-				$roomName = $room['NAME'] ?? null;
-				if ($roomName)
-				{
-					$grid[] = [
-						'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_ROOM'),
-						'VALUE' => $roomName,
-						'DISPLAY' => $display,
-						'WIDTH' => $columnWidth,
-					];
-				}
-			}
-		}
-
-		$creator = $event->getCreator();
 		$grid[] = [
-			'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_CREATOR'),
-			'VALUE' => $creator->getFullName(),
-			'USER_ID' => $creator->getId(),
+			'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_TIME'),
+			'VALUE' => self::getDateString($eventForView),
 			'DISPLAY' => $display,
 			'WIDTH' => $columnWidth,
 		];
 
+		if ($roomName = \CCalendar::GetTextLocation($eventForView['LOCATION'] ?? null))
+		{
+			$grid[] = [
+				'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_ROOM'),
+				'VALUE' => $roomName,
+				'DISPLAY' => $display,
+				'WIDTH' => $columnWidth,
+			];
+		}
+
+		$creator = self::getMeetingCreator($eventForView);
+		$grid[] = [
+			'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_CREATOR'),
+			'VALUE' => $creator['DISPLAY_NAME'],
+			'USER_ID' => $creator['ID'],
+			'DISPLAY' => $display,
+			'WIDTH' => $columnWidth,
+		];
+
+		if ($description = ($eventForView['~DESCRIPTION'] ?? null))
+		{
+			$grid[] = [
+				'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_DESCRIPTION'),
+				'VALUE' => HTMLToTxt($description),
+				'DISPLAY' => $display,
+				'WIDTH' => $columnWidth,
+			];
+		}
+
 		return $grid;
+	}
+
+	private static function shouldShowAttach(array $eventForView): bool
+	{
+		// previously this method test:
+		// - event is open event
+		// - event is collab event
+		//
+		// for now rich message should show for every event,
+		// but if this will cause performance impact, we should go back to event type check
+		return true;
+	}
+
+	private static function getDateString(array $eventForView): string
+	{
+		$skipTime = $eventForView['DT_SKIP_TIME'] === 'Y';
+		$fromTs = \CCalendar::Timestamp($eventForView['DATE_FROM']);
+		$toTs = \CCalendar::Timestamp($eventForView['DATE_TO']);
+		if ($skipTime)
+		{
+			$toTs += \CCalendar::DAY_LENGTH;
+		}
+		else
+		{
+			$fromTs -= $eventForView['~USER_OFFSET_FROM'];
+			$toTs -= $eventForView['~USER_OFFSET_TO'];
+		}
+
+		return \CCalendar::GetFromToHtml($fromTs, $toTs, $skipTime, $eventForView['DT_LENGTH']);
+	}
+
+	private static function getMeetingCreator(array $eventForView): ?array
+	{
+		$meetingCreator = [];
+
+		if (
+			$eventForView['IS_MEETING']
+			&& $eventForView['MEETING']['MEETING_CREATOR']
+			&& $eventForView['MEETING']['MEETING_CREATOR'] !== $eventForView['MEETING_HOST']
+		)
+		{
+			$meetingCreator = \CCalendar::GetUser($eventForView['MEETING']['MEETING_CREATOR'], true);
+			$meetingCreator['DISPLAY_NAME'] = \CCalendar::GetUserName($meetingCreator);
+		}
+
+		if (!$meetingCreator)
+		{
+			$meetingCreator = \CCalendar::GetUser($eventForView['MEETING_HOST'], true);
+			$meetingCreator['DISPLAY_NAME'] = \CCalendar::GetUserName($meetingCreator);
+		}
+
+		return $meetingCreator;
 	}
 }

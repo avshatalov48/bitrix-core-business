@@ -3,12 +3,7 @@ export const ThemeType = Object.freeze({
 	dark: 'dark',
 });
 
-export const ThemeFontColor = Object.freeze({
-	white: '#fff',
-	gray: 'gray',
-});
-
-export const ThemeColorScheme = Object.freeze({
+export const SelectableBackground = Object.freeze({
 	// dark ones
 	1: {
 		color: '#9fcfff',
@@ -49,7 +44,18 @@ export const ThemeColorScheme = Object.freeze({
 	},
 });
 
-export type ThemeItem = {
+export const SpecialBackgroundId = {
+	collab: 'collab-v2',
+};
+
+export const SpecialBackground = {
+	[SpecialBackgroundId.collab]: {
+		color: '#76c68b',
+		type: ThemeType.dark,
+	},
+};
+
+export type BackgroundItem = {
 	color: string,
 	type: $Values<typeof ThemeType>
 };

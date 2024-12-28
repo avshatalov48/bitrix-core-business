@@ -2,6 +2,7 @@
 /** var CMain $APPLICATION */
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 
@@ -20,7 +21,14 @@ class CCalendarNotify
 		$mode = $params['mode'];
 		$fromUser = (int)$params["userId"];
 		$toUser = (int)$params["guestId"];
-		if (!$fromUser || !$toUser || ($toUser === $fromUser && !in_array($mode, ['status_accept', 'status_decline', 'fail_ical_invite'])))
+		if (
+			!$fromUser
+			|| !$toUser
+			|| (
+				$toUser === $fromUser
+				&& !in_array($mode, ['status_accept', 'status_decline', 'fail_ical_invite', 'ics_link'])
+			)
+		)
 		{
 			return false;
 		}
@@ -127,6 +135,9 @@ class CCalendarNotify
 				break;
 			case 'cancel_booking':
 				$notifyFields = self::CancelBooking($notifyFields, $params);
+				break;
+			case 'ics_link':
+				$notifyFields = self::IcsLink($notifyFields, $params);
 				break;
 		}
 
@@ -728,8 +739,8 @@ class CCalendarNotify
 		$fields['NOTIFY_EVENT'] = "info";
 		$fields['FROM_USER_ID'] = (int)$params["guestId"];
 		$fields['TO_USER_ID'] = (int)$params["userId"];
-		$fields['NOTIFY_TAG'] = "CALENDAR|STATUS|".$params['eventId']."|". (int)$params["userId"];
-		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|STATUS|".$params['eventId'];
+		$fields['NOTIFY_TAG'] = "CALENDAR|STATUS|" . $params['eventId'] . "|" . (int)$params["userId"];
+		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|STATUS|" . $params['eventId'];
 
 		if (($params['isSharing'] ?? false) && $params['mode'] === 'status_accept')
 		{
@@ -747,16 +758,17 @@ class CCalendarNotify
 		}
 		else
 		{
-			$fields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
-				$params['mode'] === 'status_accept'
-					? 'EC_MESS_STATUS_NOTIFY_Y_SITE'
-					: 'EC_MESS_STATUS_NOTIFY_N_SITE',
-				[
-					'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
-				],
-				$languageId
-			);
+			$fields['MESSAGE'] = static fn (?string $languageId = null) =>
+				Loc::getMessage(
+					$params['mode'] === 'status_accept'
+						? 'EC_MESS_STATUS_NOTIFY_Y_SITE'
+						: 'EC_MESS_STATUS_NOTIFY_N_SITE',
+					[
+						'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
+						'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+					],
+					$languageId
+				);
 
 			$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 		}
@@ -950,11 +962,13 @@ class CCalendarNotify
 			{
 				CIMNotify::DeleteByTag("CALENDAR|INVITE|".$eventId."|".$userId);
 				CIMNotify::DeleteByTag("CALENDAR|STATUS|".$eventId."|".$userId);
+				CIMNotify::DeleteByTag("CALENDAR|ICS|".$eventId."|".$userId);
 			}
 			elseif($eventId)
 			{
 				CIMNotify::DeleteBySubTag("CALENDAR|INVITE|".$eventId);
 				CIMNotify::DeleteBySubTag("CALENDAR|STATUS|".$eventId);
+				CIMNotify::DeleteBySubTag("CALENDAR|ICS|".$eventId);
 			}
 		}
 	}
@@ -1121,6 +1135,46 @@ class CCalendarNotify
 			)
 			. Loc::getMessage('EC_NOTIFY_CANCEL_BOOKING_ENDING', null, $languageId)
 		;
+
+		return $fields;
+	}
+
+	private static function IcsLink(array $fields = [], array $params = []): array
+	{
+		$fields['NOTIFY_EVENT'] = 'info';
+		$fields['FROM_USER_ID'] = (int)$params['guestId'];
+		$fields['TO_USER_ID'] = (int)$params['userId'];
+		$fields['NOTIFY_TAG'] = 'CALENDAR|ICS|' . $params['eventId'] . '|' . (int)$params['userId'];
+		$fields['NOTIFY_SUB_TAG'] = 'CALENDAR|ICS|' . $params['eventId'];
+		$uri = sprintf(
+			'%s/calendar/ics/?EVENT_ID=%d',
+			UrlManager::getInstance()->getHostUrl(),
+			$params['eventId']
+		);
+
+		$fields['MESSAGE'] = static fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_STATUS_NOTIFY_DOWNLOAD_ICS',
+				[
+					'#TITLE#' => '[url=' . $params['pathToEvent'] . ']' . $params['name'] . '[/url]',
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId),
+					'#LINK#' => $uri,
+				],
+				$languageId
+			);
+
+		$fields['MESSAGE_OUT'] = static fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_STATUS_NOTIFY_DOWNLOAD_ICS',
+				[
+					'#TITLE#' => '[url=' . $params['pathToEvent'] . ']' . $params['name'] . '[/url]',
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId),
+					'#LINK#' => $uri,
+				],
+				$languageId
+			);
+
+		$fields['NOTIFY_LINK'] = $params['pathToEvent'];
 
 		return $fields;
 	}

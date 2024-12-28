@@ -19,6 +19,7 @@ use Bitrix\Im\V2\Link\Task\TaskItem;
 use Bitrix\Im\V2\Link\Task\TaskService;
 use Bitrix\Im\V2\Link\Url\UrlService;
 use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\Permission\Action;
 use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
@@ -160,7 +161,7 @@ class DeleteService
 
 		if ($result->isSuccess())
 		{
-			(new MessageAnalytics())->addDeleteMessage($this->chat, $messageType);
+			(new MessageAnalytics($this->message))->addDeleteMessage($messageType);
 		}
 
 		return $result;
@@ -199,7 +200,7 @@ class DeleteService
 
 		if (!$this->isOwnMessage())
 		{
-			if ($this->chat->canDo(Chat\Permission::ACTION_DELETE_OTHERS_MESSAGE))
+			if ($this->chat->canDo(Action::DeleteOthersMessage))
 			{
 				return $this->chat instanceof Chat\CommentChat ? self::DELETE_SOFT : self::DELETE_COMPLETE;
 			}
@@ -209,7 +210,7 @@ class DeleteService
 
 		if ($this->chat instanceof Chat\ChannelChat || $this->chat instanceof Chat\GeneralChat)
 		{
-			if ($this->chat->canDo(Chat\Permission::MANAGE_MESSAGES))
+			if ($this->chat->canDo(Action::Send))
 			{
 				return self::DELETE_COMPLETE;
 			}
@@ -224,7 +225,7 @@ class DeleteService
 
 		if (!$this->message->isViewedByOthers())
 		{
-			return self::DELETE_HARD;
+			return $this->chat instanceof Chat\OpenLineChat ? self::DELETE_SOFT : self::DELETE_HARD;
 		}
 
 		return self::DELETE_SOFT;
@@ -255,7 +256,7 @@ class DeleteService
 		return
 			$this->getContext()->getUserId() === $this->message->getAuthorId()
 			&& !$this->message->isSystem()
-		;
+			;
 	}
 
 	private function deleteSoft(): Result
@@ -380,6 +381,7 @@ class DeleteService
 			'unread' => false,
 			'muted' => false,
 			'counter' => 0,
+			'counterType' => $this->chat->getCounterType()->value,
 		];
 
 		if (!$this->chat instanceof Chat\PrivateChat)

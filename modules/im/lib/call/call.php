@@ -21,22 +21,24 @@ use Bitrix\Main\ErrorCollection;
 
 class Call
 {
-	const STATE_NEW = 'new';
-	const STATE_INVITING = 'inviting';
-	const STATE_ANSWERED = 'answered';
-	const STATE_FINISHED = 'finished';
+	public const
+		STATE_NEW = 'new',
+		STATE_INVITING = 'inviting',
+		STATE_ANSWERED = 'answered',
+		STATE_FINISHED = 'finished'
+	;
 
 	public const
 		TYPE_INSTANT = 1,
 		TYPE_PERMANENT = 2,
-		TYPE_LANGE = 3;
+		TYPE_LANGE = 3
+	;
 
-	const RECORD_TYPE_VIDEO = 'video';
-	const RECORD_TYPE_AUDIO = 'audio';
-
-	const PROVIDER_PLAIN = 'Plain';
-	const PROVIDER_BITRIX = 'Bitrix';
-	const PROVIDER_VOXIMPLANT = 'Voximplant';
+	public const
+		PROVIDER_PLAIN = 'Plain',
+		PROVIDER_BITRIX = 'Bitrix',
+		PROVIDER_VOXIMPLANT = 'Voximplant'
+	;
 
 	protected $id;
 	protected $type;
@@ -49,7 +51,9 @@ class Call
 	protected $entityId;
 	protected $parentId;
 	protected $state;
+	/** @var DateTime|null */
 	protected $startDate;
+	/** @var DateTime|null */
 	protected $endDate;
 	protected $logUrl;
 	protected $chatId;
@@ -57,14 +61,23 @@ class Call
 	protected $secretKey;
 	protected $endpoint;
 
-	/** @var Integration\AbstractEntity */
-	protected $associatedEntity = null;
+	/**
+	 * Current record status
+	 */
+	protected bool $enableAudioRecord = false;
+
+	/**
+	 * Record will be analyzed with AI
+	 */
+	protected bool $enableAiAnalyze = false;
+
+	protected ?Integration\AbstractEntity $associatedEntity = null;
+
 	/** @var CallUser[] */
 	protected $users;
 	protected $userData;
 
-	/** @var Signaling */
-	protected $signaling;
+	protected ?Signaling $signaling = null;
 
 	protected ?ErrorCollection $errorCollection = null;
 
@@ -114,6 +127,8 @@ class Call
 	{
 		return $this->actionUserId;
 	}
+
+	//region Errors
 
 	/**
 	 * Add multiple errors
@@ -169,6 +184,10 @@ class Call
 		return false;
 	}
 
+	//endregion
+
+	//region Users
+
 	public function setActionUserId(int $byUserId): self
 	{
 		$this->actionUserId = $byUserId;
@@ -193,6 +212,16 @@ class Call
 	{
 		$this->loadUsers();
 		return array_keys($this->users);
+	}
+
+	/**
+	 * Returns arrays of the users, currently participating in the call.
+	 * @return CallUser[]
+	 */
+	public function getCallUsers(): array
+	{
+		$this->loadUsers();
+		return $this->users;
 	}
 
 	/**
@@ -292,6 +321,8 @@ class Call
 		return $states[CallUser::STATE_READY] >= 2 || ($states[CallUser::STATE_READY] >= 1 && $states[CallUser::STATE_CALLING] >= 1);
 	}
 
+	//endregion
+
 	public function getSignaling(): Signaling
 	{
 		if (is_null($this->signaling))
@@ -319,7 +350,6 @@ class Call
 	public function setAssociatedEntity($entityType, $entityId): void
 	{
 		$entity = EntityFactory::createEntity($this, $entityType, $entityId);
-
 		if (!$entity)
 		{
 			throw new ArgumentException("Unknown entity " . $entityType . "; " . $entityId);
@@ -328,6 +358,10 @@ class Call
 		$this->associatedEntity = $entity;
 		$this->entityType = $entityType;
 		$this->entityId = $entityId;
+		if ($entityType == EntityType::CHAT)
+		{
+			$this->chatId = $entity->getChatId();
+		}
 		$this->save();
 
 		$this->getSignaling()->sendAssociatedEntityReplaced($this->getCurrentUserId());
@@ -341,7 +375,15 @@ class Call
 	 */
 	public function checkAccess($userId): bool
 	{
-		return in_array($userId, $this->getUsers());
+		if (in_array($userId, $this->getUsers()))
+		{
+			return true;
+		}
+		if ($this->getAssociatedEntity()?->checkAccess($userId))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -403,6 +445,123 @@ class Call
 	public function getEndDate(): ?DateTime
 	{
 		return $this->endDate;
+	}
+
+	/**
+	 * Returns call duration.
+	 * @return int
+	 */
+	public function getDuration(): int
+	{
+		if ($this->startDate)
+		{
+			$end = $this->endDate ?? new DateTime();
+			return $end->getTimestamp() - $this->startDate->getTimestamp();
+		}
+		return -1;
+	}
+
+	/**
+	 * Do need to record call.
+	 * @return bool
+	 */
+	public function autoStartRecording(): bool
+	{
+		// by settings or tariif
+		$enable = false;
+
+		if (
+			\Bitrix\Call\Integration\AI\CallAISettings::isCallAIEnable()
+			&& \Bitrix\Call\Integration\AI\CallAISettings::isAutoStartRecordingEnable()
+		)
+		{
+			// by user limit
+			$minUserCount = (int)\Bitrix\Call\Integration\AI\CallAISettings::getRecordMinUsers();
+			if ($minUserCount > 0)
+			{
+				$userCount = $this->getUserCount();
+				if ($userCount && $userCount >= $minUserCount)
+				{
+					$enable = true;
+				}
+			}
+		}
+
+		return $enable;
+	}
+
+	public function getUserCount(): int
+	{
+		$userCount = 0;
+		if ($this->associatedEntity)
+		{
+			$userCount = count($this->associatedEntity->getUsers());
+		}
+		if (!$userCount && $this->id)
+		{
+			$this->loadUsers();
+			$userCount = count($this->users);
+		}
+
+		return $userCount;
+	}
+
+	/**
+	 * Record call.
+	 * @return bool
+	 */
+	public function isAudioRecordEnabled(): bool
+	{
+		return $this->enableAudioRecord;
+	}
+
+	/**
+	 * Do need to record call.
+	 * @return self
+	 */
+	public function enableAudioRecord(): self
+	{
+		$this->enableAudioRecord = true;
+		return $this;
+	}
+
+	/**
+	 * Disable record call.
+	 * @return self
+	 */
+	public function disableAudioRecord(): self
+	{
+		$this->enableAudioRecord = false;
+		return $this;
+	}
+
+	/**
+	 * Analyze call with AI enabled.
+	 * @return bool
+	 */
+	public function isAiAnalyzeEnabled(): bool
+	{
+		return $this->enableAiAnalyze;
+	}
+
+	/**
+	 * Do AI analyze.
+	 * @return self
+	 */
+	public function enableAiAnalyze(): self
+	{
+		$this->enableAiAnalyze = true;
+		return $this;
+	}
+
+	/**
+	 * Disable AI analyze.
+	 * @return self
+	 */
+	public function disableAiAnalyze(): self
+	{
+		$this->enableAiAnalyze = false;
+		return $this;
 	}
 
 	public function inviteUsers(int $senderId, array $toUserIds, $isLegacyMobile, $video = false, $sendPush = true): void
@@ -472,7 +631,33 @@ class Call
 			}
 			$this->getSignaling()->sendFinish();
 			$this->saveStat();
+
+			$this->fireCallFinishedEvent();
 		}
+	}
+
+	/**
+	 * @event call:onCallStarted
+	 * @return Event
+	 */
+	protected function fireCallStartedEvent(): Event
+	{
+		$event = new Event('call', 'onCallStarted', ['call' => $this]);
+		$event->send();
+
+		return $event;
+	}
+
+	/**
+	 * @event call:onCallFinished
+	 * @return Event
+	 */
+	protected function fireCallFinishedEvent(): Event
+	{
+		$event = new Event('call', 'onCallFinished', ['call' => $this]);
+		$event->send();
+
+		return $event;
 	}
 
 	public function getConnectionData(int $userId): ?array
@@ -500,6 +685,8 @@ class Call
 			'ASSOCIATED_ENTITY' => ($this->associatedEntity) ? $this->associatedEntity->toArray($currentUserId) : [],
 			'UUID' => $this->uuid,
 			'ENDPOINT' => $this->endpoint,
+			'RECORD_AUDIO' => $this->enableAudioRecord,
+			'AI_ANALYZE' => $this->enableAiAnalyze,
 		];
 		if ($withSecrets)
 		{
@@ -786,6 +973,9 @@ class Call
 		$instance->associatedEntity = Integration\EntityFactory::createEntity($instance, $entityType, $entityId);
 		$instance->chatId = (int)$instance->associatedEntity->getChatId();
 
+		$instance->enableAudioRecord = $instance->autoStartRecording();
+		$instance->enableAiAnalyze = $instance->enableAudioRecord;
+
 		$instance->save();
 
 		// todo: remove when the calls are supported in the mobile
@@ -802,6 +992,7 @@ class Call
 			]);
 			$instance->users[$userId]->save();
 		}
+
 
 		$instance->initCall();
 
@@ -827,7 +1018,7 @@ class Call
 
 	protected function initCall(): void
 	{
-		// to be overridden
+		$this->fireCallStartedEvent();
 	}
 
 	/**
@@ -848,8 +1039,8 @@ class Call
 		$instance->provider = $fields['PROVIDER'];
 		$instance->entityType = $fields['ENTITY_TYPE'];
 		$instance->entityId = $fields['ENTITY_ID'];
-		$instance->startDate = isset ($fields['START_DATE']) && $fields['START_DATE'] instanceof DateTime ? $fields['START_DATE'] : null;
-		$instance->endDate = isset ($fields['END_DATE']) && $fields['END_DATE'] instanceof DateTime ? $fields['END_DATE'] : null;
+		$instance->startDate = isset($fields['START_DATE']) && $fields['START_DATE'] instanceof DateTime ? $fields['START_DATE'] : null;
+		$instance->endDate = isset($fields['END_DATE']) && $fields['END_DATE'] instanceof DateTime ? $fields['END_DATE'] : null;
 		$instance->parentId = (int)$fields['PARENT_ID'] ?: null;
 		$instance->state = $fields['STATE'];
 		$instance->logUrl = $fields['LOG_URL'];
@@ -861,6 +1052,24 @@ class Call
 		if ($instance->entityType && $instance->entityId)
 		{
 			$instance->associatedEntity = Integration\EntityFactory::createEntity($instance, $instance->entityType, $instance->entityId);
+		}
+
+		if (isset($fields['RECORD_AUDIO']))
+		{
+			$instance->enableAudioRecord = ($fields['RECORD_AUDIO'] === 'Y');
+		}
+		else
+		{
+			$instance->enableAudioRecord = $instance->autoStartRecording();
+		}
+
+		if (isset($fields['AI_ANALYZE']))
+		{
+			$instance->enableAiAnalyze = ($fields['AI_ANALYZE'] === 'Y');
+		}
+		else
+		{
+			$instance->enableAiAnalyze = $instance->enableAudioRecord;
 		}
 
 		$instance->initCall();

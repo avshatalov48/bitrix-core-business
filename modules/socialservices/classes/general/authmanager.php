@@ -143,7 +143,7 @@ class CSocServAuthManager
 		foreach(self::$arAuthServices as $key=>$service)
 		{
 			$isDisabled = $service["DISABLED"] ?? null;
-			if($service["__active"] === true && $isDisabled !== true)
+			if(isset($service["__active"]) && $service["__active"] === true && $isDisabled !== true)
 			{
 				$cl = new $service["CLASS"];
 				if(is_callable(array($cl, "CheckSettings")))
@@ -360,6 +360,16 @@ class CSocServAuthManager
 				if (!isset($_REQUEST['check_key']) && isset($arState['check_key']))
 				{
 					$_REQUEST['check_key'] = $arState['check_key'];
+				}
+
+				if (isset($arState['backurl']))
+				{
+					InitURLParam($arState['backurl']);
+				}
+
+				if (isset($arState['redirect_url']))
+				{
+					InitURLParam($arState['redirect_url']);
 				}
 			}
 			else
@@ -723,7 +733,7 @@ class CSocServAuthManager
 			$socnetRightsOld = Array("U" => Array());
 			if(!$bError)
 			{
-				preg_match_all("/\\[user\\s*=\\s*([^\\]]*)\\](.+?)\\[\\/user\\]/ies".BX_UTF_PCRE_MODIFIER, $userTwit['text'], $arMention);
+				preg_match_all("/\\[user\\s*=\\s*([^\\]]*)\\](.+?)\\[\\/user\\]/iesu", $userTwit['text'], $arMention);
 
 				$arFields["=DATE_CREATE"] = $DB->GetNowFunction();
 				$arFields["AUTHOR_ID"] = $arParams["USER_ID"];
@@ -1141,7 +1151,7 @@ class CSocServAuth
 		$strUpdate = $DB->PrepareUpdate("b_socialservices_user", $arDbFields);
 
 		$strSql = "UPDATE b_socialservices_user SET ".$strUpdate." WHERE ID = ".$id." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$cache_id = 'socserv_ar_user';
 		$obCache = new CPHPCache;
@@ -1588,6 +1598,11 @@ class CSocServAuth
 				{
 					$socservUserFields['USER_ID'] = $USER_ID;
 					UserTable::add(UserTable::filterFields($socservUserFields));
+
+					foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("socialservices", "OnUserInitialize") as $arEvent)
+					{
+						ExecuteModuleEventEx($arEvent, array($USER_ID));
+					}
 				}
 
 				if(isset($socservUserFields["TIME_ZONE_OFFSET"]) && $socservUserFields["TIME_ZONE_OFFSET"] !== null)
@@ -1707,7 +1722,7 @@ class CSocServAuth
 		}
 
 		$JSScript = '
-			<script type="text/javascript">
+			<script>
 			'.$location.'
 			</script>
 			';
@@ -1726,7 +1741,7 @@ class CSocServUtil
 	{
 		global $APPLICATION;
 
-		$arRemove = array("logout", "auth_service_error", "auth_service_id", "MUL_MODE", "SEF_APPLICATION_CUR_PAGE_URL");
+		$arRemove = array("logout", "auth_service_error", "auth_service_id", "MUL_MODE");
 
 		if($removeParam !== false)
 		{
@@ -1738,7 +1753,7 @@ class CSocServUtil
 			$proxyString = "";
 			foreach(self::$oAuthParams as $param)
 			{
-				if(isset($_GET[$param]))
+				if (isset($_GET[$param]) && (is_string($_GET[$param]) || is_numeric($_GET[$param])))
 				{
 					$arRemove[] = $param;
 					$proxyString .= ($proxyString == "" ? "" : "&").urlencode($param)."=".urlencode($_GET[$param]);
@@ -1831,7 +1846,7 @@ class CSocServAllMessage
 			return false;
 		$strUpdate = $DB->PrepareUpdate("b_socialservices_message", $arFields);
 		$strSql = "UPDATE b_socialservices_message SET ".$strUpdate." WHERE ID = ".$id." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 		$cache_id = 'socserv_mes_user';
 		$obCache = new CPHPCache;
 		$cache_dir = '/bx/socserv_mes_user';

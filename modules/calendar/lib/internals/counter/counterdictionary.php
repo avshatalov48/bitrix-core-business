@@ -15,6 +15,8 @@ class CounterDictionary
 	public const COUNTER_INVITES = 'calendar_invites';
 	public const COUNTER_SYNC_ERRORS = 'calendar_sync_errors';
 	public const COUNTER_OPEN_EVENTS = 'calendar_open_events';
+	public const COUNTER_GROUP_INVITES = 'calendar_group_invites';
+	public const COUNTER_GROUP_INVITES_TPL = 'calendar_group_invites_%d';
 
 	public const COUNTER_NEW_EVENT = 'new_event';
 

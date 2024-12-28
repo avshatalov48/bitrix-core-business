@@ -3,9 +3,12 @@ namespace Bitrix\Rest\Api;
 
 
 use Bitrix\Bitrix24\Feature;
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Rest\AccessException;
 use Bitrix\Rest\AppTable;
@@ -273,7 +276,18 @@ class Event extends \IRestService
 							}
 						}
 
-						$result = EventTable::add($eventHandlerFields);
+						$lockKey = implode('|', [$clientInfo['ID'], $eventName, $eventCallback, $connectorId, $eventUser]);
+
+						if (Application::getConnection()->lock($lockKey))
+						{
+							$result = EventTable::add($eventHandlerFields);
+							Application::getConnection()->unlock($lockKey);
+						}
+						else
+						{
+							$result = (new Result())->addError(new Error('Process of binding the handler has already started'));
+						}
+
 						if($result->isSuccess())
 						{
 							\Bitrix\Rest\Event\Sender::bind($eventInfo[0], $eventInfo[1]);

@@ -108,7 +108,7 @@ class CBPGetUserActivity extends CBPActivity
 			unset($users[$key]);
 		}
 
-		return $users;
+		return array_values($users);
 	}
 
 	public function execute()
@@ -298,7 +298,7 @@ class CBPGetUserActivity extends CBPActivity
 			$this->GetUsersList($allSpecifiedUsers, $skipAbsent, $skipTimeman)
 		);
 
-		$nextUserId = $availableUsers[0];
+		$nextUserId = $availableUsers[0] ?? null;
 		if ($nextUserId !== null)
 		{
 			$this->getStorage()->setValue('lastUserId', $nextUserId);

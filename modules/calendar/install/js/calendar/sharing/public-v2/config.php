@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/public-v2.bundle.js',
 	'rel' => [
 		'ui.icons.b24',
+		'ui.avatar',
 		'calendar.util',
 		'main.core',
 		'main.popup',

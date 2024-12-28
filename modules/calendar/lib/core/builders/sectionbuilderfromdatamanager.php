@@ -3,9 +3,11 @@
 namespace Bitrix\Calendar\Core\Builders;
 
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Section\Section;
+use Bitrix\Calendar\Integration\SocialNetwork\Collab;
 use Bitrix\Calendar\Internals\EO_Section;
 
 class SectionBuilderFromDataManager implements Builder
@@ -43,6 +45,7 @@ class SectionBuilderFromDataManager implements Builder
 			->setXmlId($this->getXmlId())
 			->setOwner($this->getOwner())
 			->setCreator($this->getCreator())
+			->setIsCollab($this->getIsCollab())
 		;
 	}
 
@@ -153,7 +156,12 @@ class SectionBuilderFromDataManager implements Builder
 		{
 			try
 			{
-				return Helper::getUserRole($id);
+				return match ($this->sectionDM->getCalType())
+				{
+					Dictionary::CALENDAR_TYPE['group'] => Helper::getGroupRole($id),
+					Dictionary::CALENDAR_TYPE['company'] => Helper::getCompanyRole($id),
+					default => Helper::getUserRole($id),
+				};
 			}
 			catch (BaseException $e)
 			{
@@ -184,5 +192,15 @@ class SectionBuilderFromDataManager implements Builder
 		}
 
 		return null;
+	}
+
+	private function getIsCollab(): bool
+	{
+		if ($this->getType() !== Dictionary::CALENDAR_TYPE['group'])
+		{
+			return false;
+		}
+
+		return (bool)Collab\Collabs::getInstance()->getCollabIfExists($this->getOwner()->getId());
 	}
 }

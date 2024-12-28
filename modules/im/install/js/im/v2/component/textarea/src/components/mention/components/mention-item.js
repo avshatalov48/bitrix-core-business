@@ -12,6 +12,7 @@ const ItemTextByChatType = {
 	[ChatType.openChannel]: Loc.getMessage('IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE'),
 	[ChatType.generalChannel]: Loc.getMessage('IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE'),
 	[ChatType.channel]: Loc.getMessage('IM_TEXTAREA_MENTION_PRIVATE_CHANNEL_TYPE'),
+	[ChatType.collab]: Loc.getMessage('IM_TEXTAREA_MENTION_COLLAB_TYPE'),
 	default: Loc.getMessage('IM_TEXTAREA_MENTION_CHAT_TYPE'),
 };
 
@@ -65,7 +66,7 @@ export const MentionItem = {
 				return '';
 			}
 
-			return this.user.workPosition;
+			return this.$store.getters['users/getPosition'](this.dialogId);
 		},
 		userItemText(): string
 		{

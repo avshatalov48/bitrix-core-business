@@ -30,13 +30,14 @@ class GroupPushService extends PushService
 
 		$watchPullMessage = $pullMessage;
 		$watchPullMessage['params']['message']['params']['NOTIFY'] = 'N';
+		$watchPullMessage['extra']['is_shared_event'] = true;
 		if ($chat->needToSendPublicPull())
 		{
 			\CPullWatch::AddToStack('IM_PUBLIC_'. $chat->getChatId(), $watchPullMessage);
 		}
 		if ($chat->getType() === Chat::IM_TYPE_OPEN_CHANNEL)
 		{
-			Chat\OpenChannelChat::sendSharedPull($watchPullMessage, $chat->getId(), $chat->getRelationsForSendMessage()->getUserIds());
+			Chat\OpenChannelChat::sendSharedPull($watchPullMessage);
 		}
 		if ($chat->getType() === \Bitrix\Im\V2\Chat::IM_TYPE_COMMENT)
 		{

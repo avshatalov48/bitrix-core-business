@@ -1,5 +1,6 @@
 <?php
 $MESS["IM_SEARCH_ITEM_CHAT_TYPE_GROUP_V2"] = "Group chat";
+$MESS["IM_SEARCH_ITEM_COLLAB_TYPE"] = "Collab";
 $MESS["IM_SEARCH_ITEM_FOUND_BY_USER"] = "Found in chat members";
 $MESS["IM_SEARCH_ITEM_OPEN_CHANNEL_TYPE_GROUP"] = "Public channel";
 $MESS["IM_SEARCH_ITEM_PRIVATE_CHANNEL_TYPE_GROUP"] = "Private channel";

@@ -672,15 +672,8 @@
 				const btnAddNode = BX.Dom.create('span', {
 					events: {
 						click: () => {
-							if (this.canEdit())
-							{
-								this.robotSelector.setStageId(node.dataset.statusId);
-								this.robotSelector.show();
-							}
-							else
-							{
-								BX.Bizproc.Automation.HelpHint.showNoPermissionsHint(btnAddNode);
-							}
+							this.robotSelector.setStageId(node.dataset.statusId);
+							this.robotSelector.show();
 						},
 					},
 					attrs: {
@@ -840,7 +833,7 @@
 		{
 			const button = this.node.querySelector('[data-role="automation-btn-create"]');
 
-			if (button && this.canEdit())
+			if (button)
 			{
 				BX.bind(button, 'click', () => {
 					this.robotSelector.setStageId(this.templateManager.templates[0]?.getStatusId());
@@ -1226,15 +1219,17 @@
 					stageId: this.templateManager.templates[0]?.getStatusId(),
 					events: {
 						robotSelected: (event) => {
+							const originalEvent = event.getData().originalEvent;
 							if (!this.canEdit())
 							{
+								BX.Bizproc.Automation.HelpHint.showNoPermissionsHint(originalEvent.target);
+
 								return;
 							}
 
 							const item = event.getData().item;
 							const stageId = event.getData().stageId;
 							const robotData = BX.Runtime.clone(item.customData.robotData);
-							const originalEvent = event.getData().originalEvent;
 
 							robotData.NAME = item.title;
 							robotData.DIALOG_CONTEXT = { addMenuGroup: item.groupIds[0] };
@@ -1278,15 +1273,17 @@
 							}
 						},
 						triggerSelected: (event) => {
+							const originalEvent = event.getData().originalEvent;
 							if (!this.canEdit())
 							{
+								BX.Bizproc.Automation.HelpHint.showNoPermissionsHint(originalEvent.target);
+
 								return;
 							}
 
 							const item = event.getData().item;
 							const stageId = event.getData().stageId;
 							const triggerData = BX.Runtime.clone(item.customData.triggerData);
-							const originalEvent = event.getData().originalEvent;
 
 							triggerData.DOCUMENT_STATUS = stageId;
 

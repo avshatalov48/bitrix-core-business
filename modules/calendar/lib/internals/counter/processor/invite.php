@@ -38,7 +38,9 @@ class Invite implements Base
 		}
 
 		$counters = [];
-		foreach($this->getEvents($users) as $event)
+		$events = $this->getEvents($users);
+
+		foreach($events as $event)
 		{
 			$counters[$event['OWNER_ID']] = isset($counters[$event['OWNER_ID']])
 				? $counters[$event['OWNER_ID']] + 1

@@ -11,10 +11,14 @@
 	line-height: var(--im-font-line-height-3xs);
 }
 
+.bx-im-sidebar-main-detail__container {
+	padding-top: 12px;
+}
+
 .bx-im-sidebar-main-detail__invitation-button-container {
 	display: flex;
 	justify-content: center;
-	padding: 16px 17px 9px;
+	padding: 4px 17px 9px;
 }
 
 .bx-im-sidebar-main-detail__user {

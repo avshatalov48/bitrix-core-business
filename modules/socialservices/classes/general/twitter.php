@@ -114,7 +114,7 @@ class CSocServTwitter extends CSocServAuth
 			$url .= (preg_match("/\?/", $url) ? '&' : '?').CSocServUtil::getOAuthProxyString();
 
 			echo '
-<script type="text/javascript">
+<script>
 if(window.opener)
 	window.opener.location = \''.CUtil::JSEscape($url).'\';
 window.close();
@@ -364,8 +364,6 @@ class CTwitterInterface
 
 		$result = CHTTP::sGetHeader(self::API_URL.'?user_id='.$user_id, $arHeaders, $this->httpTimeout);
 
-		if(!defined("BX_UTF"))
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 		return CUtil::JsObjectToPhp($result);
 	}
 
@@ -406,11 +404,6 @@ class CTwitterInterface
 		);
 		$result = CHTTP::sGetHeader($url, $arHeaders, $this->httpTimeout);
 
-		if(!defined("BX_UTF"))
-		{
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
-		}
-
 		$res = CUtil::JsObjectToPhp($result);
 
 		$next = $res['next_cursor_str'];
@@ -428,8 +421,6 @@ class CTwitterInterface
 
 		if($this->access_token === false)
 			return false;
-
-		$message = CharsetConverter::ConvertCharset($message, LANG_CHARSET, "utf-8");
 
 		$arParams = array_merge($this->GetDefParams(), array(
 			"oauth_token" => $this->token,
@@ -475,9 +466,6 @@ class CTwitterInterface
 
 	public function SearchByHash($hash, $socServUserArray, $sinceId)
 	{
-		if(!defined("BX_UTF"))
-			$hash = CharsetConverter::ConvertCharset($hash, LANG_CHARSET, "utf-8");
-
 		$arParams = array_merge(array("count" => 100, "include_entities" => "false"), $this->GetDefParams());
 		$arParams = array_merge($arParams, array(
 			"oauth_token" => $this->token,
@@ -492,8 +480,6 @@ class CTwitterInterface
 		$result = @CHTTP::sGetHeader(self::SEARCH_URL."?count=100&include_entities=false&q=".urlencode($hash)."&since_id=".$sinceId, $arHeaders, $this->httpTimeout);
 		if($result)
 		{
-			if(!defined("BX_UTF"))
-				$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 			$arResult = CUtil::JsObjectToPhp($result);
 			//if(isset($arResult["search_metadata"]["next_results"]))
 			//	$arTwits = self::GetAllPages($arResult);
@@ -533,8 +519,6 @@ class CTwitterInterface
 		);
 		$result = CHTTP::sGetHeader(self::SEARCH_URL."?count=".$searchMetaData["count"]."&include_entities=".$searchMetaData["include_entities"]."&max_id=".$searchMetaData["max_id"]."&q=".urlencode($searchMetaData["q"]), $arHeaders, $this->httpTimeout);
 
-		if(!defined("BX_UTF"))
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 		$arResult = CUtil::JsObjectToPhp($result);
 		if(is_array($arResult["statuses"]))
 			$arTwits = array_merge($arTwits, $arResult["statuses"]);
@@ -547,8 +531,6 @@ class CTwitterInterface
 		if(!isset($arResult["next_page"]) || $arResult["page"] == 15 || intval($arResult["page"]) < 1)
 			return $arTwits;
 		$result = CHTTP::sGet(self::SEARCH_URL.$arResult["next_page"]);
-		if(!defined("BX_UTF"))
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 		$arResult = CUtil::JsObjectToPhp($result);
 		$arTwits = array_merge($arTwits, $arResult["results"]);
 		return self::GetAllPages($arResult);
@@ -569,9 +551,6 @@ class CTwitterInterface
 		if(mb_strlen($message) > 139)
 			$message = mb_substr($message, 0, 137)."...";
 
-		if(!defined("BX_UTF"))
-			$message = CharsetConverter::ConvertCharset($message, LANG_CHARSET, "utf-8");
-
 		$arParams = array_merge($this->GetDefParams(), array(
 			"oauth_token" => $this->token,
 			"status"=> $message,
@@ -585,8 +564,6 @@ class CTwitterInterface
 		$result = @CHTTP::sPostHeader($this::POST_URL, $arPost, $arHeaders, $this->httpTimeout);
 		if($result !== false)
 		{
-			if(!defined("BX_UTF"))
-				$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 			return CUtil::JsObjectToPhp($result);
 		}
 		else

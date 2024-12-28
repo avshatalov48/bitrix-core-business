@@ -9,11 +9,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  light: 'light',
 	  dark: 'dark'
 	});
-	const ThemeFontColor = Object.freeze({
-	  white: '#fff',
-	  gray: 'gray'
-	});
-	const ThemeColorScheme = Object.freeze({
+	const SelectableBackground = Object.freeze({
 	  // dark ones
 	  1: {
 	    color: '#9fcfff',
@@ -53,6 +49,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    type: ThemeType.light
 	  }
 	});
+	const SpecialBackgroundId = {
+	  collab: 'collab-v2'
+	};
+	const SpecialBackground = {
+	  [SpecialBackgroundId.collab]: {
+	    color: '#76c68b',
+	    type: ThemeType.dark
+	  }
+	};
 
 	const IMAGE_FOLDER_PATH = '/bitrix/js/im/images/chat-v2-background';
 	const BackgroundPatternColor = Object.freeze({
@@ -62,12 +67,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const ThemeManager = {
 	  isLightTheme() {
 	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.appearance.background);
-	    const selectedColorScheme = ThemeColorScheme[selectedBackgroundId];
+	    const selectedColorScheme = SelectableBackground[selectedBackgroundId];
 	    return (selectedColorScheme == null ? void 0 : selectedColorScheme.type) === ThemeType.light;
 	  },
 	  isDarkTheme() {
 	    const selectedBackgroundId = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.appearance.background);
-	    const selectedColorScheme = ThemeColorScheme[selectedBackgroundId];
+	    const selectedColorScheme = SelectableBackground[selectedBackgroundId];
 	    return (selectedColorScheme == null ? void 0 : selectedColorScheme.type) === ThemeType.dark;
 	  },
 	  getCurrentBackgroundStyle() {
@@ -75,7 +80,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return this.getBackgroundStyleById(selectedBackgroundId);
 	  },
 	  getBackgroundStyleById(backgroundId) {
-	    const colorScheme = ThemeColorScheme[backgroundId];
+	    const backgroundsList = {
+	      ...SelectableBackground,
+	      ...SpecialBackground
+	    };
+	    const colorScheme = backgroundsList[backgroundId];
 	    if (!colorScheme) {
 	      return {};
 	    }
@@ -92,7 +101,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	};
 
-	exports.ThemeColorScheme = ThemeColorScheme;
+	exports.SelectableBackground = SelectableBackground;
+	exports.SpecialBackground = SpecialBackgroundId;
 	exports.ThemeType = ThemeType;
 	exports.ThemeManager = ThemeManager;
 

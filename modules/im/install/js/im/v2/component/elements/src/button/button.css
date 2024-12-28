@@ -61,6 +61,13 @@
 	--im-button__color_copilot-hover: rgba(142, 82, 236, 1);
 	--im-button__background-color_copilot: rgba(142, 82, 236, 0.1);
 	--im-button__background-color_copilot-hover: rgba(142, 82, 236, 0.2);
+
+	--im-button__color_collab: var(--im-color-palette-white-base);
+	--im-button__color_collab-hover: var(--im-color-palette-white-base);
+	--im-button__background-color_collab: var(--im-color-collab-60);
+	--im-button__background-color_collab-hover: var(--im-color-collab-50);
+	--im-button__border-color_collab-border: var(--im-color-collab-60);
+	--im-button__border-color_collab-border-hover: var(--im-color-collab-50);
 }
 
 .bx-im-button__container {
@@ -208,7 +215,7 @@
 	--im-button__color_hover: var(--im-button__color_light-border-hover);
 }
 
-.bx-im-button__container.--color-danger-border{
+.bx-im-button__container.--color-danger-border {
 	--im-button__background-color: var(--im-button__background-color_danger-border);
 	--im-button__background-color_hover: var(--im-button__background-color_danger-border-hover);
 	--im-button__border-color: var(--im-button__border-color_danger-border);
@@ -217,13 +224,22 @@
 	--im-button__color_hover: var(--im-button__color_danger-border-hover);
 }
 
-.bx-im-button__container.--color-primary-border{
+.bx-im-button__container.--color-primary-border {
 	--im-button__background-color: var(--im-button__background-color_primary-border);
 	--im-button__background-color_hover: var(--im-button__background-color_primary-border-hover);
 	--im-button__border-color: var(--im-button__border-color_primary-border);
 	--im-button__border-color_hover: var(--im-button__border-color_primary-border-hover);
 	--im-button__color: var(--im-button__color_primary-border);
 	--im-button__color_hover: var(--im-button__color_primary-border-hover);
+}
+
+.bx-im-button__container.--color-collab {
+	--im-button__background-color: var(--im-button__background-color_collab);
+	--im-button__background-color_hover: var(--im-button__background-color_collab-hover);
+	--im-button__border-color: var(--im-button__border-color_collab-border);
+	--im-button__border-color_hover: var(--im-button__border-color_collab-border-hover);
+	--im-button__color: var(--im-button__color_collab);
+	--im-button__color_hover: var(--im-button__color_collab-hover);
 }
 /* End color */
 
@@ -273,6 +289,7 @@
 
 .bx-im-button__container.--loading {
 	/*background-size: 20px;*/
+	background-image: url('images/loader-white.svg');
 	background-position: center !important;
 	background-repeat: no-repeat !important;
 	color: transparent !important;
@@ -289,7 +306,8 @@
 }
 
 .bx-im-button__container.--loading.--color-primary,
-.bx-im-button__container.--loading.--color-danger
+.bx-im-button__container.--loading.--color-danger,
+.bx-im-button__container.--loading.--color-collab
 {
 	background-image: url('images/loader-white.svg');
 }
@@ -380,9 +398,18 @@
 	--im-button_icon: url('./images/add-user.svg');
 }
 
+.bx-im-button__container .bx-im-button__icon.--delete {
+	--im-button_icon: url('images/delete.svg');
+}
+
+.bx-im-button__container .bx-im-button__icon.--forward {
+	--im-button_icon: url('images/forward.svg');
+}
+
 /* icons for colors */
 .bx-im-button__container.--color-primary .bx-im-button__icon.--plus,
-.bx-im-button__container.--color-danger .bx-im-button__icon.--plus {
+.bx-im-button__container.--color-danger .bx-im-button__icon.--plus,
+.bx-im-button__container.--color-collab .bx-im-button__icon.--plus {
 	--im-button_icon: url('./images/plus-white.svg');
 	background-image: var(--im-button_icon);
 }

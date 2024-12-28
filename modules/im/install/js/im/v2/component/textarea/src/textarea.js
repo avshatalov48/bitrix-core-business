@@ -1,13 +1,17 @@
 import { Extension, Type } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 
-import { ChatType, EventType, LocalStorageKey, SoundType, TextareaPanelType as PanelType } from 'im.v2.const';
+import { EventType, LocalStorageKey, SoundType, TextareaPanelType as PanelType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { DraftManager } from 'im.v2.lib.draft';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
-import { MessageService, SendingService, UploadingService } from 'im.v2.provider.service';
+import {
+	MessageService,
+	SendingService,
+	UploadingService,
+} from 'im.v2.provider.service';
 import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
 import { isSendMessageCombination, isNewLineCombination } from 'im.v2.lib.hotkey';
 import { Textarea } from 'im.v2.lib.textarea';
@@ -19,7 +23,6 @@ import { TypingService } from './classes/typing-service';
 import { AudioInput } from './components/audio-input/audio-input';
 import { SmileSelector } from './components/smile-selector/smile-selector';
 import { UploadMenu } from './components/upload-menu/upload-menu';
-import { CreateEntityMenu } from './components/create-entity-menu/create-entity-menu';
 import { SendButton } from './components/send-button';
 import { UploadPreviewPopup } from './components/upload-preview/upload-preview-popup';
 import { MentionPopup } from './components/mention/mention-popup';
@@ -30,8 +33,9 @@ import './css/textarea.css';
 import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelMessage } from 'im.v2.model';
 import type { InsertTextEvent, InsertMentionEvent } from 'im.v2.const';
+import type { ForwardedEntityConfig } from 'im.v2.provider.service';
 
-const MESSAGE_ACTION_PANELS = new Set([PanelType.edit, PanelType.reply, PanelType.forward]);
+const MESSAGE_ACTION_PANELS = new Set([PanelType.edit, PanelType.reply, PanelType.forward, PanelType.forwardEntity]);
 const TextareaHeight = {
 	max: 400,
 	min: 22,
@@ -41,7 +45,6 @@ const TextareaHeight = {
 export const ChatTextarea = {
 	components: {
 		UploadMenu,
-		CreateEntityMenu,
 		SmileSelector,
 		SendButton,
 		UploadPreviewPopup,
@@ -101,7 +104,9 @@ export const ChatTextarea = {
 			previewPopupUploaderId: '',
 
 			panelType: PanelType.none,
-			panelMessageId: 0,
+			panelContext: {
+				messageId: 0,
+			},
 		};
 	},
 	computed:
@@ -122,6 +127,10 @@ export const ChatTextarea = {
 		{
 			return this.panelType === PanelType.forward;
 		},
+		forwardEntityMode(): boolean
+		{
+			return this.panelType === PanelType.forwardEntity;
+		},
 		editMode(): boolean
 		{
 			return this.panelType === PanelType.edit;
@@ -132,7 +141,7 @@ export const ChatTextarea = {
 		},
 		isDisabled(): boolean
 		{
-			return this.text.trim() === '' && !this.editMode && !this.forwardMode;
+			return this.text.trim() === '' && !this.editMode && !this.forwardMode && !this.forwardEntityMode;
 		},
 		textareaPlaceholder(): string
 		{
@@ -195,6 +204,7 @@ export const ChatTextarea = {
 		EventEmitter.subscribe(EventType.textarea.insertText, this.onInsertText);
 		EventEmitter.subscribe(EventType.textarea.editMessage, this.onEditMessage);
 		EventEmitter.subscribe(EventType.textarea.replyMessage, this.onReplyMessage);
+		EventEmitter.subscribe(EventType.textarea.forwardEntity, this.onForwardEntity);
 		EventEmitter.subscribe(EventType.textarea.sendMessage, this.onSendMessage);
 		EventEmitter.subscribe(EventType.textarea.insertForward, this.onInsertForward);
 		EventEmitter.subscribe(EventType.textarea.openUploadPreview, this.onOpenUploadPreview);
@@ -214,6 +224,7 @@ export const ChatTextarea = {
 		EventEmitter.unsubscribe(EventType.textarea.insertText, this.onInsertText);
 		EventEmitter.unsubscribe(EventType.textarea.editMessage, this.onEditMessage);
 		EventEmitter.unsubscribe(EventType.textarea.replyMessage, this.onReplyMessage);
+		EventEmitter.unsubscribe(EventType.textarea.forwardEntity, this.onForwardEntity);
 		EventEmitter.unsubscribe(EventType.textarea.sendMessage, this.onSendMessage);
 		EventEmitter.unsubscribe(EventType.textarea.insertForward, this.onInsertForward);
 		EventEmitter.unsubscribe(EventType.textarea.openUploadPreview, this.onOpenUploadPreview);
@@ -253,33 +264,37 @@ export const ChatTextarea = {
 		{
 			if (this.editMode && text === '')
 			{
-				void this.getMessageService().deleteMessage(this.panelMessageId);
+				void this.getMessageService().deleteMessage(this.panelContext.messageId);
 			}
 			else if (this.editMode && text !== '')
 			{
-				this.getMessageService().editMessageText(this.panelMessageId, text);
+				this.getMessageService().editMessageText(this.panelContext.messageId, text);
 			}
 			else if (this.forwardMode)
 			{
 				this.getSendingService().forwardMessages({
 					text,
 					dialogId: this.dialogId,
-					forwardIds: [this.panelMessageId],
+					forwardIds: this.panelContext.messagesIds,
 				});
+			}
+			else if (this.forwardEntityMode)
+			{
+				console.error('sending forwarded entity message');
 			}
 			else if (this.replyMode)
 			{
 				this.getSendingService().sendMessage({
 					text,
 					dialogId: this.dialogId,
-					replyId: this.panelMessageId,
+					replyId: this.panelContext.messageId,
 				});
 			}
 		},
 		clear()
 		{
 			this.text = '';
-			this.mentionManager.clearMentionReplacements();
+			this.mentionManager?.clearMentionReplacements();
 		},
 		hasActiveMessageAction(): boolean
 		{
@@ -292,9 +307,11 @@ export const ChatTextarea = {
 				this.clear();
 			}
 			this.panelType = PanelType.none;
-			this.panelMessageId = 0;
+			this.panelContext = {
+				messageId: 0,
+			};
 
-			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 		},
 		openEditPanel(messageId: number)
 		{
@@ -310,7 +327,7 @@ export const ChatTextarea = {
 			}
 
 			this.panelType = PanelType.edit;
-			this.panelMessageId = messageId;
+			this.panelContext.messageId = messageId;
 
 			const mentions = this.mentionManager.extractMentions(message.text);
 			this.mentionManager.setMentionReplacements(mentions);
@@ -319,7 +336,7 @@ export const ChatTextarea = {
 			this.focus();
 
 			this.draftManager.setDraftText(this.dialogId, this.text);
-			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 			this.draftManager.setDraftMentions(this.dialogId, mentions);
 		},
 		openReplyPanel(messageId: number)
@@ -329,19 +346,28 @@ export const ChatTextarea = {
 				this.clear();
 			}
 			this.panelType = PanelType.reply;
-			this.panelMessageId = messageId;
+			this.panelContext.messageId = messageId;
 			this.focus();
 
-			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 		},
-		openForwardPanel(messageId: number)
+		openForwardPanel(messagesIds: number[])
 		{
 			this.panelType = PanelType.forward;
-			this.panelMessageId = messageId;
+			this.panelContext.messageId = 0;
+			this.panelContext.messagesIds = messagesIds;
 			this.clear();
 			this.focus();
 
-			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
+		},
+		async openForwardEntityPanel(entityConfig: ForwardedEntityConfig)
+		{
+			this.panelType = PanelType.forwardEntity;
+			this.panelContext.messageId = 0;
+			this.panelContext.entityConfig = entityConfig;
+			this.clear();
+			this.focus();
 		},
 		toggleMarketPanel()
 		{
@@ -352,7 +378,7 @@ export const ChatTextarea = {
 				return;
 			}
 			this.panelType = PanelType.market;
-			this.panelMessageId = 0;
+			this.panelContext.messageId = 0;
 		},
 		async adjustTextareaHeight()
 		{
@@ -394,12 +420,17 @@ export const ChatTextarea = {
 			const {
 				text = '',
 				panelType = PanelType.none,
-				panelMessageId = 0,
+				panelContext = {
+					messageId: 0,
+				},
 			} = await this.getDraftManager().getDraft(this.dialogId);
 
 			this.text = text;
-			this.panelType = panelType;
-			this.panelMessageId = panelMessageId;
+			if (this.panelType === PanelType.none)
+			{
+				this.panelType = panelType;
+			}
+			this.panelContext = panelContext;
 		},
 		async onKeyDown(event: KeyboardEvent)
 		{
@@ -504,15 +535,11 @@ export const ChatTextarea = {
 			const uploaderId = await this.getUploadingService().uploadFromInput({
 				event,
 				sendAsFile,
-				autoUpload: !this.isChannelType,
 				dialogId: this.dialogId,
 			});
 
-			if (this.isChannelType)
-			{
-				this.showUploadPreviewPopup = true;
-				this.previewPopupUploaderId = uploaderId;
-			}
+			this.showUploadPreviewPopup = true;
+			this.previewPopupUploaderId = uploaderId;
 		},
 		onDiskFileSelect({ files })
 		{
@@ -565,14 +592,24 @@ export const ChatTextarea = {
 			}
 			this.openReplyPanel(messageId);
 		},
-		onInsertForward(event: BaseEvent<{ messageId: number, dialogId: string }>)
+		onForwardEntity(event: BaseEvent<{ dialogId: string, entityConfig: ForwardedEntityConfig }>)
 		{
-			const { messageId, dialogId } = event.getData();
+			const { dialogId, entityConfig } = event.getData();
 			if (this.dialogId !== dialogId)
 			{
 				return;
 			}
-			this.openForwardPanel(messageId);
+			this.openForwardEntityPanel(entityConfig);
+		},
+		onInsertForward(event: BaseEvent<{ messagesIds: number[], dialogId: string }>)
+		{
+			const { messagesIds, dialogId } = event.getData();
+			if (this.dialogId !== dialogId)
+			{
+				return;
+			}
+
+			this.openForwardPanel(messagesIds);
 		},
 		async onPaste(clipboardEvent: ClipboardEvent)
 		{
@@ -584,7 +621,6 @@ export const ChatTextarea = {
 			const uploaderId = await this.getUploadingService().uploadFromClipboard({
 				clipboardEvent,
 				dialogId: this.dialogId,
-				autoUpload: false,
 				imagesOnly: !this.isChannelType,
 			});
 
@@ -610,7 +646,7 @@ export const ChatTextarea = {
 		onMessageDeleted(event: BaseEvent<{ messageId: number }>)
 		{
 			const { messageId } = event.getData();
-			if (this.panelMessageId === messageId)
+			if (this.panelContext.messageId === messageId)
 			{
 				this.closePanel();
 			}
@@ -726,7 +762,7 @@ export const ChatTextarea = {
 		},
 		focus(): void
 		{
-			this.$refs?.textarea.focus({ preventScroll: true });
+			this.$refs.textarea?.focus({ preventScroll: true });
 		},
 		loc(phraseCode: string): string
 		{
@@ -752,14 +788,18 @@ export const ChatTextarea = {
 				<div @mousedown="onResizeStart" class="bx-im-textarea__drag-handle"></div>
 				<TextareaPanel
 					:type="panelType"
-					:messageId="panelMessageId"
+					:context="panelContext"
 					:dialogId="dialogId"
 					@close="closePanel"
 				/>
 				<div class="bx-im-textarea__content" ref="textarea-content">
 					<div class="bx-im-textarea__left">
 						<div v-if="withUploadMenu" class="bx-im-textarea__upload_container">
-							<UploadMenu @fileSelect="onFileSelect" @diskFileSelect="onDiskFileSelect" />
+							<UploadMenu 
+								:dialogId="dialogId" 
+								@fileSelect="onFileSelect" 
+								@diskFileSelect="onDiskFileSelect" 
+							/>
 						</div>
 						<textarea
 							v-model="text"
@@ -780,7 +820,6 @@ export const ChatTextarea = {
 					</div>
 					<div class="bx-im-textarea__right">
 						<div class="bx-im-textarea__action-panel">
-							<CreateEntityMenu v-if="withCreateMenu" :dialogId="dialogId" :textareaValue="text" />
 							<div
 								v-if="withMarket"
 								:title="loc('IM_TEXTAREA_ICON_APPLICATION')"

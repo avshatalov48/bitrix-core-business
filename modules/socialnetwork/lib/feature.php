@@ -8,6 +8,8 @@
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Main\ORM\Query\Join;
 
 /*
 create table b_sonet_features
@@ -79,7 +81,12 @@ class FeatureTable extends Entity\DataManager
 			],
 			'DATE_UPDATE' => [
 				'data_type' => 'datetime'
-			]
+			],
+			(new OneToMany(
+				'PERMISSIONS',
+				FeaturePermTable::class,
+				'FEATURE'
+			))->configureJoinType(Join::TYPE_LEFT),
 		];
 
 		return $fieldsMap;

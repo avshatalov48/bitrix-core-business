@@ -63,7 +63,7 @@ export class DeleteService
 	#canDeleteCompletely(message: ImModelMessage): boolean
 	{
 		const alwaysCompleteDeleteChats = [ChatType.channel, ChatType.openChannel, ChatType.generalChannel];
-		const neverCompleteDeleteChats = [ChatType.comment];
+		const neverCompleteDeleteChats = [ChatType.comment, ChatType.lines];
 
 		const chat = this.#getChat();
 		if (alwaysCompleteDeleteChats.includes(chat.type))

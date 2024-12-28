@@ -136,6 +136,8 @@ catch (\CBPArgumentNullException $e)
 	$sendError('Invalid request [document_type]');
 }
 
+$complexDocumentId = [$documentType[0], $documentType[1], $documentId];
+
 $runtime = CBPRuntime::GetRuntime();
 $runtime->StartRuntime();
 
@@ -303,7 +305,12 @@ switch ($action)
 				]);
 				if ($result->isSuccess())
 				{
-					$updatedTemplates[] = BizprocAutomationComponent::getTemplateViewData($template->toArray(), $documentType);
+					$templateArray = $template->toArray();
+					$templateArray['CUSTOM_ROBOTS'] = BizprocAutomationComponent::getRunningCustomRobots(
+						$complexDocumentId,
+						$template
+					);
+					$updatedTemplates[] = BizprocAutomationComponent::getTemplateViewData($templateArray, $documentType);
 				}
 				else
 				{
@@ -313,6 +320,10 @@ switch ($action)
 			else
 			{
 				$updatedTemplates[] = $template->toArray();
+				$updatedTemplates['CUSTOM_ROBOTS'] = BizprocAutomationComponent::getRunningCustomRobots(
+					$complexDocumentId,
+					$template
+				);
 			}
 		}
 
@@ -382,7 +393,12 @@ switch ($action)
 			&& ($selectedRobotNames || $selectedTriggerIds)
 		) {
 			$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType, $selectedStatus);
-			$originalTemplate = BizprocAutomationComponent::getTemplateViewData($template->toArray(), $documentType);
+			$templateArray = $template->toArray();
+			$templateArray['CUSTOM_ROBOTS'] = BizprocAutomationComponent::getRunningCustomRobots(
+				$complexDocumentId,
+				$template
+			);
+			$originalTemplate = BizprocAutomationComponent::getTemplateViewData($templateArray, $documentType);
 
 			if ($template->getId() > 0)
 			{
@@ -410,8 +426,13 @@ switch ($action)
 				$deletingResult = $template->deleteRobots($robots, $curUser->getId());
 				if ($deletingResult->isSuccess())
 				{
+					$templateArray = $template->toArray();
+					$templateArray['CUSTOM_ROBOTS'] = BizprocAutomationComponent::getRunningCustomRobots(
+						$complexDocumentId,
+						$template
+					);
 					$updatedTemplate = BizprocAutomationComponent::getTemplateViewData(
-						$template->toArray(),
+						$templateArray,
 						$documentType
 					);
 					$result->setData([
@@ -447,8 +468,13 @@ switch ($action)
 				$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType, $status);
 				if ($template->getId() > 0)
 				{
+					$templateArray = $template->toArray();
+					$templateArray['CUSTOM_ROBOTS'] = BizprocAutomationComponent::getRunningCustomRobots(
+						$complexDocumentId,
+						$template
+					);
 					$templates[$status] = BizprocAutomationComponent::getTemplateViewData(
-						$template->toArray(),
+						$templateArray,
 						$documentType
 					);
 				}

@@ -60,12 +60,13 @@ this.BX = this.BX || {};
 	    this.RELOAD_DATA_DELAY = 500;
 	    this.excludedUsers = [];
 	    this.setEventNamespace('BX.Calendar.CompactEventForm');
-	    this.userId = options.userId || calendar_util.Util.getCurrentUserId();
+	    this.BX = calendar_util.Util.getBX();
+	    this.userId = parseInt(options.userId, 10) || calendar_util.Util.getCurrentUserId();
 	    this.type = options.type || 'user';
 	    this.isLocationCalendar = options.isLocationCalendar || false;
 	    this.calendarContext = options.calendarContext || null;
 	    this.ownerId = options.ownerId || this.userId;
-	    this.BX = calendar_util.Util.getBX();
+	    this.isCollabUser = calendar_util.Util.getCalendarContext().isCollabUser || false;
 	    this.checkForChangesDebounce = main_core.Runtime.debounce(this.checkForChanges, this.CHECK_CHANGES_DELAY, this);
 	    this.reloadEntryDataDebounce = main_core.Runtime.debounce(this.reloadEntryData, this.RELOAD_DATA_DELAY, this);
 	    this.checkOutsideClickClose = this.checkOutsideClickClose.bind(this);
@@ -302,22 +303,26 @@ this.BX = this.BX || {};
 	  }
 	  getViewModeButtons() {
 	    const buttons = [this.getOpenButton()];
-	    if (this.entry.isMeeting() && this.entry.getCurrentStatus() === 'N') {
-	      buttons.push(this.getAcceptButtonWithoutBorder());
-	    }
-	    if (this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Y') {
-	      buttons.push(this.getDeclineButton());
+	    if (this.entry.isMeeting() && this.entry.getMeetingHost() !== this.userId) {
+	      if (this.entry.getCurrentStatus() === 'N') {
+	        buttons.push(this.getAcceptButtonWithoutBorder());
+	      } else if (this.entry.getCurrentStatus() === 'Y') {
+	        buttons.push(this.getDeclineButton());
+	      }
 	    }
 	    buttons.push(...this.getEditEventButtons());
 	    return buttons;
 	  }
 	  getEditEventButtons() {
-	    var _this$entry$permissio, _this$entry$permissio2;
+	    var _this$entry$permissio, _this$entry$permissio2, _this$entry$permissio3;
 	    const buttons = [];
 	    if (!this.isNewEntry() && ((_this$entry$permissio = this.entry.permissions) != null && _this$entry$permissio.edit || this.canDo('edit') || this.canDo('editLocation') || this.canDo('editAttendees'))) {
 	      buttons.push(this.getEditButton());
 	    }
-	    if (!this.isNewEntry() && ((_this$entry$permissio2 = this.entry.permissions) != null && _this$entry$permissio2.edit || this.canDo('edit'))) {
+	    if (this.isCollabUser && !this.isNewEntry() && ((_this$entry$permissio2 = this.entry.permissions) != null && _this$entry$permissio2.view_full || this.canDo('viewFull'))) {
+	      buttons.push(this.getDownloadIcsButton());
+	    }
+	    if (!this.isNewEntry() && ((_this$entry$permissio3 = this.entry.permissions) != null && _this$entry$permissio3.edit || this.canDo('edit'))) {
 	      buttons.push(this.getDeleteButton());
 	    }
 	    return buttons;
@@ -422,6 +427,15 @@ this.BX = this.BX || {};
 	    });
 	    fullFormButton.button.setAttribute('data-role', 'fullForm');
 	    return fullFormButton;
+	  }
+	  getDownloadIcsButton() {
+	    return new BX.UI.Button({
+	      text: main_core.Loc.getMessage('CALENDAR_EVENT_DO_DOWNLOAD_ICS'),
+	      className: 'ui-btn ui-btn-link',
+	      events: {
+	        click: () => calendar_entry.EntryManager.downloadIcs(this.getCurrentEntry().id)
+	      }
+	    });
 	  }
 	  getAcceptButtonWithoutBorder() {
 	    return this.getAcceptButton(true);
@@ -618,7 +632,7 @@ this.BX = this.BX || {};
 	    return this.userPlannerSelector && (this.isLocationCalendar || this.userPlannerSelector.attendeesEntityList.length > 1 && this.getMode() !== CompactEventForm.VIEW_MODE);
 	  }
 	  checkLocationForm(event) {
-	    if (event && event instanceof main_core_events.BaseEvent) {
+	    if (!this.isCollabUser && event && event instanceof main_core_events.BaseEvent) {
 	      const data = event.getData();
 	      const usersCount = data.usersCount;
 	      let locationCapacity = calendar_controls.Location.getCurrentCapacity() || 0;
@@ -678,7 +692,7 @@ this.BX = this.BX || {};
 	  }
 	  setParams(params = {}) {
 	    var _params$ownerId;
-	    this.userId = params.userId || calendar_util.Util.getCurrentUserId();
+	    this.userId = parseInt(params.userId, 10) || calendar_util.Util.getCurrentUserId();
 	    this.type = params.type || 'user';
 	    this.isLocationCalendar = params.isLocationCalendar || false;
 	    this.locationAccess = params.locationAccess || false;
@@ -692,6 +706,7 @@ this.BX = this.BX || {};
 	      ownerId: this.ownerId
 	    });
 	    this.sectionValue = null;
+	    this.analyticsSubSection = this.getFormAnalyticsContext();
 	    if (!this.entry.id && main_core.Type.isPlainObject(params.entryTime) && main_core.Type.isDate(params.entryTime.from) && main_core.Type.isDate(params.entryTime.to)) {
 	      this.entry.setDateTimeValue(params.entryTime);
 	    }
@@ -709,18 +724,10 @@ this.BX = this.BX || {};
 	  }
 	  setSections(sections, trackingUsersList = []) {
 	    this.sections = sections;
-	    this.sectionIndex = {};
 	    this.trackingUsersList = trackingUsersList || [];
-	    if (main_core.Type.isArray(this.sections)) {
-	      this.sections.forEach((value, ind) => {
-	        const id = parseInt(value.ID || value.id, 10);
-	        if (id > 0) {
-	          this.sectionIndex[id] = ind;
-	        }
-	      });
-	    }
-	    const section = this.getCurrentSection();
+	    this.updateSectionIndex();
 	    if (this.entry.id) {
+	      const section = this.getCurrentSection();
 	      this.getSectionsForEditEvent(this.sections, section);
 	    }
 	  }
@@ -892,12 +899,18 @@ this.BX = this.BX || {};
 	      outerWrap: this.DOM.sectionSelectWrap,
 	      defaultCalendarType: this.type,
 	      defaultOwnerId: this.ownerId,
-	      sectionList: this.sections,
+	      sectionList: calendar_util.Util.filterSectionsByContext(this.sections, {
+	        isCollabUser: this.isCollabUser,
+	        calendarType: this.type,
+	        calendarOwnerId: this.ownerId
+	      }),
 	      sectionGroupList: calendar_sectionmanager.SectionManager.getSectionGroupList({
 	        type: this.type,
 	        ownerId: this.ownerId,
 	        userId: this.userId,
-	        trackingUsersList: this.trackingUsersList
+	        trackingUsersList: this.trackingUsersList,
+	        isCollabUser: this.isCollabUser,
+	        isCollabContext: this.getCurrentSection().isCollab()
 	      }),
 	      mode,
 	      zIndex: this.zIndex,
@@ -1040,6 +1053,7 @@ this.BX = this.BX || {};
 	    this.locationSelector = new calendar_controls.Location({
 	      wrap: this.DOM.locationWrap,
 	      richLocationEnabled: this.locationFeatureEnabled,
+	      hideLocationLock: this.isCollabUser,
 	      locationList: this.locationList || [],
 	      roomsManager: this.roomsManager || null,
 	      locationAccess: this.locationAccess || false,
@@ -1142,10 +1156,14 @@ this.BX = this.BX || {};
 	  canDo(action) {
 	    const section = this.getCurrentSection();
 	    if (action === 'edit' || action === 'delete') {
+	      var _this$entry2;
 	      if (this.entry.isMeeting() && this.entry.id !== this.entry.parentId) {
 	        return false;
 	      }
 	      if (this.entry.isResourcebooking()) {
+	        return false;
+	      }
+	      if (!this.isNewEntry() && this.isCollabUser && !((_this$entry2 = this.entry) != null && _this$entry2.permissions.edit)) {
 	        return false;
 	      }
 	      return section.canDo('edit');
@@ -1167,20 +1185,20 @@ this.BX = this.BX || {};
 	    }
 	    const isInvitedOrRejected = ['Q', 'N'].includes(this.entry.getCurrentStatus());
 	    if (action === 'editLocation') {
-	      var _this$entry$permissio3, _this$entry$permissio4;
-	      const canEdit = ((_this$entry$permissio3 = this.entry.permissions) == null ? void 0 : _this$entry$permissio3.edit) === true;
-	      const canEditLocation = ((_this$entry$permissio4 = this.entry.permissions) == null ? void 0 : _this$entry$permissio4.edit_location) === true;
+	      var _this$entry$permissio4, _this$entry$permissio5;
+	      const canEdit = ((_this$entry$permissio4 = this.entry.permissions) == null ? void 0 : _this$entry$permissio4.edit) === true;
+	      const canEditLocation = ((_this$entry$permissio5 = this.entry.permissions) == null ? void 0 : _this$entry$permissio5.edit_location) === true;
 	      return this.isNewEntry() || !isInvitedOrRejected && (canEdit || canEditLocation);
 	    }
 	    if (action === 'editAttendees') {
-	      var _this$entry$permissio5, _this$entry$permissio6;
-	      const canEdit = ((_this$entry$permissio5 = this.entry.permissions) == null ? void 0 : _this$entry$permissio5.edit) === true;
-	      const canEditAttendees = ((_this$entry$permissio6 = this.entry.permissions) == null ? void 0 : _this$entry$permissio6.edit_attendees) === true;
+	      var _this$entry$permissio6, _this$entry$permissio7;
+	      const canEdit = ((_this$entry$permissio6 = this.entry.permissions) == null ? void 0 : _this$entry$permissio6.edit) === true;
+	      const canEditAttendees = ((_this$entry$permissio7 = this.entry.permissions) == null ? void 0 : _this$entry$permissio7.edit_attendees) === true;
 	      return this.isNewEntry() || !isInvitedOrRejected && (canEdit || canEditAttendees);
 	    }
 	    if (action === 'editUserPlannerSelector') {
-	      var _this$entry$permissio7;
-	      return this.isNewEntry() || ((_this$entry$permissio7 = this.entry.permissions) == null ? void 0 : _this$entry$permissio7.edit) === true;
+	      var _this$entry$permissio8;
+	      return this.isNewEntry() || ((_this$entry$permissio8 = this.entry.permissions) == null ? void 0 : _this$entry$permissio8.edit) === true;
 	    }
 	    return true;
 	  }
@@ -1304,15 +1322,15 @@ this.BX = this.BX || {};
 	  }
 	  shouldShowFakeLocationControl() {
 	    if (this.entry.isSharingEvent()) {
-	      var _this$entry$permissio8, _this$entry$permissio9;
-	      return this.canDo('editLocation') && (((_this$entry$permissio8 = this.entry.permissions) == null ? void 0 : _this$entry$permissio8.edit) || ((_this$entry$permissio9 = this.entry.permissions) == null ? void 0 : _this$entry$permissio9.edit_location) || this.canDo('edit'));
+	      var _this$entry$permissio9, _this$entry$permissio10;
+	      return this.canDo('editLocation') && (((_this$entry$permissio9 = this.entry.permissions) == null ? void 0 : _this$entry$permissio9.edit) || ((_this$entry$permissio10 = this.entry.permissions) == null ? void 0 : _this$entry$permissio10.edit_location) || this.canDo('edit'));
 	    }
 	    return this.canDo('editLocation') && !this.canDo('edit');
 	  }
 	  shouldShowFakeUserControl() {
 	    if (this.entry.isSharingEvent()) {
-	      var _this$entry$permissio10, _this$entry$permissio11;
-	      return this.canDo('editAttendees') && (((_this$entry$permissio10 = this.entry.permissions) == null ? void 0 : _this$entry$permissio10.edit) || ((_this$entry$permissio11 = this.entry.permissions) == null ? void 0 : _this$entry$permissio11.edit_attendees) || this.canDo('edit'));
+	      var _this$entry$permissio11, _this$entry$permissio12;
+	      return this.canDo('editAttendees') && (((_this$entry$permissio11 = this.entry.permissions) == null ? void 0 : _this$entry$permissio11.edit) || ((_this$entry$permissio12 = this.entry.permissions) == null ? void 0 : _this$entry$permissio12.edit_attendees) || this.canDo('edit'));
 	    }
 	    return this.canDo('editAttendees') && !this.canDo('edit');
 	  }
@@ -1449,20 +1467,13 @@ this.BX = this.BX || {};
 	    if (this.getCurrentSection().color.toLowerCase() !== this.colorSelector.getValue().toLowerCase()) {
 	      data.color = this.colorSelector.getValue();
 	    }
+	    if (this.analyticsSubSection) {
+	      data.analyticsSubSection = this.analyticsSubSection;
+	    }
 	    this.state = this.STATE.REQUEST;
 	    this.freezePopup();
 	    this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
-	      data,
-	      analyticsLabel: {
-	        calendarAction: this.isNewEntry() ? 'create_event' : 'edit_event',
-	        formType: 'compact',
-	        emailGuests: this.userPlannerSelector.hasExternalEmailUsers() ? 'Y' : 'N',
-	        markView: calendar_util.Util.getCurrentView() || 'outside',
-	        markCrm: 'N',
-	        markRrule: 'NONE',
-	        markMeeting: this.entry.isMeeting() ? 'Y' : 'N',
-	        markType: this.type
-	      }
+	      data
 	    }).then(response => {
 	      if (this.isLocationCalendar && this.roomsManager) {
 	        this.roomsManager.unsetHiddenRoom(calendar_controls.Location.parseStringValue(data.location).room_id);
@@ -1600,12 +1611,12 @@ this.BX = this.BX || {};
 	    } else {
 	      const entry = this.getCurrentEntry();
 	      if (entry instanceof calendar_entry.Entry) {
-	        sectionId = parseInt(entry.sectionId);
+	        sectionId = parseInt(entry.sectionId, 10);
 	      }
 
 	      // TODO: refactor - don't take first section
 	      if (!sectionId && this.sections[0]) {
-	        sectionId = parseInt(this.sections[0].id);
+	        sectionId = parseInt(this.sections[0].id, 10);
 	      }
 	    }
 	    return sectionId;
@@ -1759,15 +1770,7 @@ this.BX = this.BX || {};
 	      }
 	    });
 	    this.sections = result;
-	    this.sectionIndex = [];
-	    if (main_core.Type.isArray(this.sections)) {
-	      this.sections.forEach((value, ind) => {
-	        const id = parseInt(value.ID || value.id);
-	        if (id > 0) {
-	          this.sectionIndex[id] = ind;
-	        }
-	      });
-	    }
+	    this.updateSectionIndex();
 	  }
 	  releaseLocation(options = {}) {
 	    const entry = this.getCurrentEntry();
@@ -1858,6 +1861,23 @@ this.BX = this.BX || {};
 	      c_section: 'card_compact',
 	      p5: `eventId_${this.entry.data.PARENT_ID}`
 	    });
+	  }
+	  updateSectionIndex() {
+	    this.sectionIndex = {};
+	    if (main_core.Type.isArray(this.sections)) {
+	      this.sections.forEach((value, ind) => {
+	        const id = parseInt(value.ID || value.id, 10);
+	        if (id > 0) {
+	          this.sectionIndex[id] = ind;
+	        }
+	      });
+	    }
+	  }
+	  getFormAnalyticsContext() {
+	    if (this.type === 'group') {
+	      return 'calendar_collab';
+	    }
+	    return 'calendar_personal';
 	  }
 	}
 	CompactEventForm.VIEW_MODE = 'view';

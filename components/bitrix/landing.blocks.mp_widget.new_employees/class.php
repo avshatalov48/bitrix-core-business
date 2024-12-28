@@ -1,6 +1,6 @@
 <?php
 
-use Bitrix\Main\Config\Option;
+use Bitrix\Landing\Mainpage;
 use Bitrix\Main\Localization\Loc;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -39,7 +39,7 @@ class LandingBlocksMainpageWidgetNewEmployees extends LandingBlocksMainpageWidge
 	protected function getData(): void
 	{
 		$this->arResult['SHOW_EMPTY_STATE'] = false;
-		if (Option::get('landing', 'use_demo_data_in_block_widgets') === 'Y')
+		if (Mainpage\Manager::isUseDemoData())
 		{
 			$usersData = $this->getDemoData();
 		}

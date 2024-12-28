@@ -83,7 +83,7 @@ class CBPSocNetMessageActivity extends CBPActivity
 
 	private function getPushText(string $htmlMessage): string
 	{
-		$text = mb_substr(HTMLToTxt($htmlMessage, '', [], 0), 0, 200);
+		$text = mb_substr(\CTextParser::clearAllTags($htmlMessage), 0, 200);
 		if (mb_strlen($text) === 200)
 		{
 			$text .= '...';

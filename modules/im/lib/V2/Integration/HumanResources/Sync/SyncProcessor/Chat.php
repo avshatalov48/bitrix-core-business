@@ -8,6 +8,7 @@ use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\EntityType;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\QueueItem;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\SyncDirection;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Result\IterationResult;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Relation\Reason;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Config\Option;
@@ -62,7 +63,7 @@ class Chat extends Base
 
 	protected function addUsers(\Bitrix\Im\V2\Chat $chat, array $users): void
 	{
-		$chat->addUsers($users, [], false, false, false, Reason::STRUCTURE);
+		$chat->addUsers($users, new AddUsersConfig(hideHistory: false, withMessage: false, reason: Reason::STRUCTURE));
 		$this->deduplicateUsers($chat);
 	}
 

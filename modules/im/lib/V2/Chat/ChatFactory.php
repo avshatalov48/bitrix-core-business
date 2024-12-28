@@ -186,70 +186,25 @@ class ChatFactory
 	{
 		$type = $params['TYPE'] ?? $params['MESSAGE_TYPE'] ?? '';
 		$entityType = $params['ENTITY_TYPE'] ?? '';
-		switch (true)
+		$chat = match (true)
 		{
-			case $entityType === Chat::ENTITY_TYPE_FAVORITE:
-			case $entityType === 'PERSONAL':
-				$chat = new FavoriteChat($params);
-				break;
-
-			case $entityType === Chat::ENTITY_TYPE_GENERAL:
-				$chat = new GeneralChat($params);
-				break;
-
-			case $entityType === Chat::ENTITY_TYPE_GENERAL_CHANNEL:
-				$chat = new GeneralChannel($params);
-				break;
-
-			case $type === Chat::IM_TYPE_OPEN_LINE:
-			case $entityType === Chat::ENTITY_TYPE_LINE:
-				$chat = new OpenLineChat($params);
-				break;
-
-			case $entityType === Chat::ENTITY_TYPE_LIVECHAT:
-				$chat = new OpenLineLiveChat($params);
-				break;
-
-			case $entityType === Chat::ENTITY_TYPE_VIDEOCONF:
-				$chat = new VideoConfChat($params);
-				break;
-
-			case $type === Chat::IM_TYPE_CHANNEL:
-				$chat = new ChannelChat($params);
-				break;
-
-			case $type === Chat::IM_TYPE_OPEN_CHANNEL:
-				$chat = new OpenChannelChat($params);
-				break;
-
-			case $type === Chat::IM_TYPE_OPEN:
-				$chat = new OpenChat($params);
-				break;
-
-			case $type === Chat::IM_TYPE_SYSTEM:
-				$chat = new NotifyChat($params);
-				break;
-
-			case $type === Chat::IM_TYPE_PRIVATE:
-				$chat = new PrivateChat($params);
-				break;
-
-			case $type === Chat::IM_TYPE_CHAT:
-				$chat = new GroupChat($params);
-				break;
-
-			case $type === Chat::IM_TYPE_COMMENT:
-				$chat = new CommentChat($params);
-				break;
-
-			case $type === Chat::IM_TYPE_COPILOT:
-				$chat = new CopilotChat($params);
-				break;
-
-			default:
-				$chat = new NullChat();
-				break;
-		}
+			$entityType === Chat::ENTITY_TYPE_FAVORITE || $entityType === 'PERSONAL' => new FavoriteChat($params),
+			$entityType === Chat::ENTITY_TYPE_GENERAL => new GeneralChat($params),
+			$entityType === Chat::ENTITY_TYPE_GENERAL_CHANNEL => new GeneralChannel($params),
+			$entityType === Chat::ENTITY_TYPE_LINE || $type === Chat::IM_TYPE_OPEN_LINE => new OpenLineChat($params),
+			$entityType === Chat::ENTITY_TYPE_LIVECHAT => new OpenLineLiveChat($params),
+			$entityType === Chat::ENTITY_TYPE_VIDEOCONF => new VideoConfChat($params),
+			$type === Chat::IM_TYPE_CHANNEL => new ChannelChat($params),
+			$type === Chat::IM_TYPE_OPEN_CHANNEL => new OpenChannelChat($params),
+			$type === Chat::IM_TYPE_OPEN => new OpenChat($params),
+			$type === Chat::IM_TYPE_SYSTEM => new NotifyChat($params),
+			$type === Chat::IM_TYPE_PRIVATE => new PrivateChat($params),
+			$type === Chat::IM_TYPE_CHAT => new GroupChat($params),
+			$type === Chat::IM_TYPE_COMMENT => new CommentChat($params),
+			$type === Chat::IM_TYPE_COPILOT => new CopilotChat($params),
+			$type === Chat::IM_TYPE_COLLAB => new CollabChat($params),
+			default => new NullChat(),
+		};
 
 		$chat->setContext($this->context);
 
@@ -499,8 +454,6 @@ class ChatFactory
 	 */
 	public function addChat(array $params): Result
 	{
-		$addResult = new Result();
-
 		$params['ENTITY_TYPE'] = $params['ENTITY_TYPE'] ?? '';
 
 		$params['TYPE'] = $params['TYPE'] ?? Chat::IM_TYPE_CHAT;
@@ -522,69 +475,21 @@ class ChatFactory
 			}
 		}
 
-		$analytics = new ChatAnalytics();
-		$analytics->blockSingleUserEvents();
+		ChatAnalytics::blockSingleUserEvents();
 
-		switch ($params['ENTITY_TYPE'])
+		$initParams = ['TYPE' => $params['TYPE'] ?? null, 'ENTITY_TYPE' => $params['ENTITY_TYPE'] ?? null];
+		$chat = $this->initChat($initParams);
+		$addResult = $chat->add($params);
+
+		if ($chat instanceof NullChat)
 		{
-			case Chat::ENTITY_TYPE_FAVORITE:
-				$addResult = (new FavoriteChat)->add($params);
-				break;
-			case Chat::ENTITY_TYPE_VIDEOCONF:
-				$addResult = (new VideoConfChat)->add($params);
-				break;
-			case Chat::ENTITY_TYPE_GENERAL:
-				$addResult = (new GeneralChat())->add($params);
-				break;
-			case Chat::ENTITY_TYPE_GENERAL_CHANNEL:
-				$addResult = (new GeneralChannel())->add($params);
-				break;
-			case Chat::ENTITY_TYPE_LIVECHAT:
-				$addResult = (new OpenLineLiveChat())->add($params);
-				break;
-			default:
-				switch ($params['TYPE'])
-				{
-					case Chat::IM_TYPE_CHAT:
-						if ($params['ENTITY_TYPE'])
-						{
-							$addResult = (new EntityChat())->add($params);
-							break;
-						}
-						$addResult = (new GroupChat())->add($params);
-						break;
-					case Chat::IM_TYPE_OPEN:
-						$addResult = (new OpenChat())->add($params);
-						break;
-					case Chat::IM_TYPE_CHANNEL:
-						$addResult = (new ChannelChat())->add($params);
-						break;
-					case Chat::IM_TYPE_OPEN_CHANNEL:
-						$addResult = (new OpenChannelChat())->add($params);
-						break;
-					case Chat::IM_TYPE_PRIVATE:
-						$addResult = (new PrivateChat)->add($params);
-						break;
-					case Chat::IM_TYPE_SYSTEM:
-						$addResult = (new NotifyChat)->add($params);
-						break;
-					case Chat::IM_TYPE_COMMENT:
-						$addResult = (new CommentChat())->add($params);
-						break;
-					case Chat::IM_TYPE_OPEN_LINE:
-						$addResult = (new OpenLineChat())->add($params);
-						break;
-					case Chat::IM_TYPE_COPILOT:
-						$addResult = (new CopilotChat())->add($params);
-						break;
-					default:
-						$addResult->addError(new ChatError(ChatError::CREATION_ERROR));
-				}
+			return $addResult->addError(new ChatError(ChatError::CREATION_ERROR));
 		}
 
-		if ($addResult->hasResult())
+		$resultChat = $addResult->getResult()['CHAT'] ?? null;
+		if ($resultChat instanceof Chat)
 		{
-			$analytics->addSubmitCreateNew($addResult);
+			(new ChatAnalytics($resultChat))->addSubmitCreateNew();
 		}
 
 		return $addResult;
@@ -616,7 +521,7 @@ class ChatFactory
 	{
 		$cacheSubDir = $id % 100;
 
-		return "/bx/imc/chatdata/6/{$cacheSubDir}/{$id}";
+		return "/bx/imc/chatdata/7/{$cacheSubDir}/{$id}";
 	}
 
 	//endregion

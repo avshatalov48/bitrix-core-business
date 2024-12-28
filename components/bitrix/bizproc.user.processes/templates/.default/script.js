@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
-(function (exports,ui_alerts,ui_entitySelector,main_popup,bizproc_types,bizproc_task,bizproc_workflow_faces,bizproc_workflow_faces_summary,ui_cnt,main_core,ui_notification) {
+(function (exports,ui_alerts,ui_entitySelector,main_popup,bizproc_types,bizproc_task,ui_hint,bizproc_workflow_faces,bizproc_workflow_faces_summary,ui_cnt,main_core,ui_notification) {
 	'use strict';
 
 	var _runComponentAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("runComponentAction");
@@ -129,25 +129,48 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    var _babelHelpers$classPr5;
 	    return (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _inlineTaskView)[_inlineTaskView]) == null ? void 0 : _babelHelpers$classPr5.render();
 	  }
+
+	  // eslint-disable-next-line sonarjs/cognitive-complexity
 	  renderTask() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task || babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].userId !== babelHelpers.classPrivateFieldLooseBase(this, _currentUserId)[_currentUserId]) {
 	      const completedClassName = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].isCompleted ? '--success' : '';
-	      return main_core.Tag.render(_t2 || (_t2 = _`
+	      let result = '';
+	      let noRightsClass = '';
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].isCompleted && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult !== null) {
+	        if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult.status === bizproc_types.WorkflowResultStatus.BB_CODE_RESULT) {
+	          var _babelHelpers$classPr6;
+	          result = `${main_core.Loc.getMessage('BIZPROC_RENDERED_RESULT_VALUE')}<br>${(_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult.text) != null ? _babelHelpers$classPr6 : ''}`;
+	        }
+	        if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult.status === bizproc_types.WorkflowResultStatus.USER_RESULT) {
+	          var _babelHelpers$classPr7;
+	          result = main_core.Loc.getMessage('BIZPROC_RENDERED_RESULT_POSITIVE_RESULT_FOR', {
+	            '#USER#': (_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult.text) != null ? _babelHelpers$classPr7 : ''
+	          });
+	        }
+	        if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult.status === bizproc_types.WorkflowResultStatus.NO_RIGHTS_RESULT) {
+	          noRightsClass = 'no-rights';
+	          result = `${main_core.Loc.getMessage('BIZPROC_RENDERED_RESULT_NO_RIGHTS_VIEW')} <span data-hint="${main_core.Loc.getMessage('BIZPROC_RENDERED_RESULT_NO_RIGHTS_TOOLTIP')}"></span>`;
+	        }
+	      }
+	      const panel = main_core.Tag.render(_t2 || (_t2 = _`
 				<div class="bp-status-panel ${0}">
 						<div class="bp-status-item">
 							<div class="bp-status-name">${0}</div>
-							${0}
+							<div class="bp-workflow-result ${0}">${0}</div>
 						</div>
 				</div>
-			`), completedClassName, main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].statusText.toUpperCase()), '' /* completedClassName ? '' : '<div class="ui-icon-set --help bp-status-icon"></div>' */);
+			`), completedClassName, main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].statusText.toUpperCase()), noRightsClass, result);
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult !== null && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult.status === bizproc_types.WorkflowResultStatus.NO_RIGHTS_RESULT) {
+	        BX.UI.Hint.init(panel);
+	      }
+	      return panel;
 	    }
-
 	    return this.renderTaskName();
 	  }
 	  renderDocumentName() {
-	    var _babelHelpers$classPr6, _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9;
-	    const documentName = main_core.Type.isString((_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : (_babelHelpers$classPr7 = _babelHelpers$classPr6.document) == null ? void 0 : _babelHelpers$classPr7.name) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].document.name : '';
-	    if (main_core.Type.isString((_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : (_babelHelpers$classPr9 = _babelHelpers$classPr8.document) == null ? void 0 : _babelHelpers$classPr9.url)) {
+	    var _babelHelpers$classPr8, _babelHelpers$classPr9, _babelHelpers$classPr10, _babelHelpers$classPr11;
+	    const documentName = main_core.Type.isString((_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : (_babelHelpers$classPr9 = _babelHelpers$classPr8.document) == null ? void 0 : _babelHelpers$classPr9.name) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].document.name : '';
+	    if (main_core.Type.isString((_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : (_babelHelpers$classPr11 = _babelHelpers$classPr10.document) == null ? void 0 : _babelHelpers$classPr11.url)) {
 	      const url = new main_core.Uri(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].document.url);
 	      return main_core.Tag.render(_t3 || (_t3 = _`
 				<a href="${0}">
@@ -159,26 +182,33 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	  renderWorkflowFaces() {
 	    const target = main_core.Tag.render(_t4 || (_t4 = _`<div></div>`));
-	    try {
-	      babelHelpers.classPrivateFieldLooseBase(this, _faces)[_faces] = new bizproc_workflow_faces.WorkflowFaces({
-	        workflowId: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId,
-	        targetUserId: babelHelpers.classPrivateFieldLooseBase(this, _targetUserId)[_targetUserId],
-	        target,
-	        data: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress,
-	        showArrow: true
-	      });
-	      babelHelpers.classPrivateFieldLooseBase(this, _faces)[_faces].render();
-	    } catch (e) {
-	      console.error(e);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress) {
+	      try {
+	        babelHelpers.classPrivateFieldLooseBase(this, _faces)[_faces] = new bizproc_workflow_faces.WorkflowFaces({
+	          workflowId: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId,
+	          targetUserId: babelHelpers.classPrivateFieldLooseBase(this, _targetUserId)[_targetUserId],
+	          target,
+	          data: {
+	            steps: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.steps,
+	            progressBox: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.progressBox
+	          },
+	          showArrow: true
+	        });
+	        babelHelpers.classPrivateFieldLooseBase(this, _faces)[_faces].render();
+	      } catch (e) {
+	        console.error(e);
+	      }
 	    }
 	    return target;
 	  }
 	  renderSummary() {
+	    var _babelHelpers$classPr12;
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId || !((_babelHelpers$classPr12 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress) != null && _babelHelpers$classPr12.timeStep)) {
+	      return null;
+	    }
 	    return new bizproc_workflow_faces_summary.Summary({
 	      workflowId: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId,
-	      time: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.time.total,
-	      workflowIsCompleted: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.workflowIsCompleted,
-	      showArrow: false
+	      data: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.timeStep
 	    }).render();
 	  }
 	  renderModified() {
@@ -211,8 +241,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	}
 	function _getWorkflowInfoUrl2() {
-	  var _babelHelpers$classPr10;
-	  const idParam = main_core.Type.isNil((_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task) == null ? void 0 : _babelHelpers$classPr10.id) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId : babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task.id;
+	  var _babelHelpers$classPr13;
+	  const idParam = main_core.Type.isNil((_babelHelpers$classPr13 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task) == null ? void 0 : _babelHelpers$classPr13.id) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId : babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task.id;
 	  const uri = new main_core.Uri(`/company/personal/bizproc/${idParam}/`);
 	  return uri.toString();
 	}
@@ -895,5 +925,5 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	exports.UserProcesses = UserProcesses;
 
-}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX.UI,BX.UI.EntitySelector,BX.Main,BX.Bizproc,BX.Bizproc,BX.Bizproc.Workflow,BX.Bizproc.Workflow.Faces,BX.UI,BX,BX));
+}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX.UI,BX.UI.EntitySelector,BX.Main,BX.Bizproc,BX.Bizproc,BX,BX.Bizproc.Workflow,BX.Bizproc.Workflow.Faces,BX.UI,BX,BX));
 //# sourceMappingURL=script.js.map

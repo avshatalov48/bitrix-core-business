@@ -1,10 +1,11 @@
-import { Text, Loc, type JsonObject } from 'main.core';
+import { Text, Loc } from 'main.core';
 import { DateTimeFormat } from 'main.date';
 
 import { Core } from 'im.v2.application.core';
 import { ChatType, Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
+import { MessageAvatar, AvatarSize } from 'im.v2.component.elements';
 
 import type { ImModelUser, ImModelChat, ImModelRecentItem, ImModelMessage } from 'im.v2.model';
 
@@ -17,6 +18,8 @@ const HiddenTitleByChatType = {
 
 // @vue/component
 export const MessageText = {
+	name: 'MessageText',
+	components: { MessageAvatar },
 	props:
 	{
 		item: {
@@ -24,12 +27,9 @@ export const MessageText = {
 			required: true,
 		},
 	},
-	data(): JsonObject
-	{
-		return {};
-	},
 	computed:
 	{
+		AvatarSize: () => AvatarSize,
 		recentItem(): ImModelRecentItem
 		{
 			return this.item;
@@ -70,21 +70,6 @@ export const MessageText = {
 		isLastMessageAuthor(): boolean
 		{
 			return this.message.authorId === Core.getUserId();
-		},
-		lastMessageAuthorAvatar(): string
-		{
-			const authorDialog = this.$store.getters['chats/get'](this.message.authorId);
-
-			if (!authorDialog)
-			{
-				return '';
-			}
-
-			return authorDialog.avatar;
-		},
-		lastMessageAuthorAvatarStyle(): Object
-		{
-			return { backgroundImage: `url('${this.lastMessageAuthorAvatar}')` };
 		},
 		messageText(): string
 		{
@@ -150,7 +135,7 @@ export const MessageText = {
 				<div v-else-if="recentItem.invitation.isActive" class="bx-im-list-recent-item__balloon_container --invitation">
 					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_INVITATION_NOT_ACCEPTED_MSGVER_1') }}</div>
 				</div>
-				<div v-else-if="needsBirthdayPlaceholder" class="bx-im-list-recent-item__balloon_container --birthday">
+				<div v-else-if="needsBirthdayPlaceholder" class="bx-im-list-recent-item__balloon_container --birthday" :title="loc('IM_LIST_RECENT_BIRTHDAY')">
 					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_BIRTHDAY') }}</div>
 				</div>
 				<div v-else-if="needsVacationPlaceholder" class="bx-im-list-recent-item__balloon_container --vacation">
@@ -162,14 +147,17 @@ export const MessageText = {
 					{{ hiddenMessageText }}
 				</template>
 				<template v-else>
-					<span v-if="isLastMessageAuthor" class="bx-im-list-recent-item__message_author-icon --self"></span>
-					<template v-else-if="isChat && message.authorId">
-						<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-list-recent-item__message_author-icon --user"></span>
-						<span v-else class="bx-im-list-recent-item__message_author-icon --user --default"></span>
-					</template>
+					<span v-if="isLastMessageAuthor" class="bx-im-list-recent-item__self_author-icon"></span>
+					<MessageAvatar
+						v-else-if="isChat && message.authorId"
+						:messageId="message.id"
+						:authorId="message.authorId"
+						:size="AvatarSize.XXS"
+						class="bx-im-list-recent-item__author-avatar"
+					/>
 					<span class="bx-im-list-recent-item__message_text_content">{{ formattedMessageText }}</span>
 				</template>
 			</span>
 		</div>
-	`
+	`,
 };

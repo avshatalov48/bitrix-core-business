@@ -102,7 +102,7 @@ class Limit
 
 		$chat = Chat::getInstance($chatId);
 
-		return !$chat instanceof Chat\ChannelChat && !$chat instanceof Chat\CommentChat;
+		return !$chat instanceof Chat\ChannelChat && !$chat instanceof Chat\CommentChat && !$chat instanceof Chat\CollabChat;
 	}
 
 	public function getLimitDate(): DateTime

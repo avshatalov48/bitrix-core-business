@@ -10,7 +10,7 @@ import { Logger } from 'im.v2.lib.logger';
 import { UploaderWrapper } from './classes/uploader-wrapper';
 import { SendingService } from '../registry';
 
-import type { ImModelChat, ImModelUser } from 'im.v2.model';
+import type { ImModelChat, ImModelUser, ImModelMessage } from 'im.v2.model';
 import type { UploaderFile, UploaderError } from 'ui.uploader.core';
 import type { Store } from 'ui.vue3.vuex';
 import type { RestClient } from 'rest.client';
@@ -145,12 +145,15 @@ export class UploadingService
 		const { dialogId, autoUpload } = params;
 
 		const uploaderId = Utils.text.getUuidV4();
+		const chatId = this.#getChatId(dialogId);
 
 		return this.checkDiskFolderId(dialogId).then((diskFolderId: number) => {
 			this.#uploaderWrapper.createUploader({
 				diskFolderId,
 				uploaderId,
 				autoUpload,
+				chatId,
+				dialogId,
 			});
 
 			return uploaderId;
@@ -260,10 +263,14 @@ export class UploadingService
 
 		this.#uploaderWrapper.subscribe(UploaderWrapper.events.onFileUploadComplete, async (event: BaseEvent) => {
 			const { file, uploaderId }: {file: UploaderFile, uploaderId: string} = event.getData();
-			this.#updateFileProgress(file.getId(), file.getProgress(), FileStatus.wait);
+			const serverFileId: number = file.getServerFileId().toString().slice(1);
+			const temporaryFileId: string = file.getId();
+			this.#setFileMapping({ serverFileId, temporaryFileId });
+
+			this.#updateFileProgress(temporaryFileId, file.getProgress(), FileStatus.wait);
 
 			await this.#uploadPreview(file);
-			this.#setPreviewSentStatus(uploaderId, file.getId());
+			this.#setPreviewSentStatus(uploaderId, temporaryFileId);
 
 			void this.#tryCommit(uploaderId);
 		});
@@ -280,6 +287,11 @@ export class UploadingService
 			const { tempMessageId, tempFileId } = event.getData();
 			this.#cancelUpload(tempMessageId, tempFileId);
 		});
+	}
+
+	#setFileMapping(options: {serverFileId: number, temporaryFileId: string})
+	{
+		void this.#store.dispatch('files/setTemporaryFileMapping', options);
 	}
 
 	checkDiskFolderId(dialogId: string): Promise<number>
@@ -442,8 +454,31 @@ export class UploadingService
 
 	#cancelUpload(tempMessageId: string, tempFileId)
 	{
-		void this.#store.dispatch('messages/delete', { id: tempMessageId });
-		void this.#store.dispatch('files/delete', { id: tempFileId });
+		const message: ImModelMessage = this.#store.getters['messages/getById'](tempMessageId);
+		if (message)
+		{
+			void this.#store.dispatch('messages/delete', { id: tempMessageId });
+			void this.#store.dispatch('files/delete', { id: tempFileId });
+
+			const chat: ImModelChat = this.#store.getters['chats/getByChatId'](message.chatId);
+			const lastMessageId: string | number = this.#store.getters['messages/findLastChatMessageId'](message.chatId);
+
+			if (lastMessageId > -1)
+			{
+				void this.#store.dispatch('recent/update', {
+					id: chat.dialogId,
+					fields: {
+						messageId: lastMessageId,
+					},
+				});
+			}
+			else
+			{
+				void this.#store.dispatch('recent/delete', {
+					id: chat.dialogId,
+				});
+			}
+		}
 	}
 
 	#addFileToStore(file: UploaderFile)

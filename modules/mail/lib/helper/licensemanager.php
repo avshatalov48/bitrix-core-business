@@ -89,22 +89,32 @@ class LicenseManager
 		return true;
 	}
 
-	public static function checkTheMailboxForSyncAvailability(int $checkedMailboxId): bool
+	public static function checkTheMailboxForSyncAvailability(int $checkedMailboxId, ?int $ownerMailboxUserId = null): bool
 	{
 		$maxCountAvailableMailboxes = self::getUserMailboxesLimit();
 		static $checkedMailboxes = [];
 
 		if (!array_key_exists($checkedMailboxId, $checkedMailboxes))
 		{
-			$checkedMailboxes[$checkedMailboxId] = MailboxTable::getList(([
-				'select' => [
-					'ID',
-					'USER_ID',
-				],
-				'filter' => [
-					'=ID' => $checkedMailboxId,
-				],
-			]))->fetch();
+			if (is_null($ownerMailboxUserId))
+			{
+				$checkedMailboxes[$checkedMailboxId] = MailboxTable::getList(([
+					'select' => [
+						'ID',
+						'USER_ID',
+					],
+					'filter' => [
+						'=ID' => $checkedMailboxId,
+					],
+				]))->fetch();
+			}
+			else
+			{
+				$checkedMailboxes[$checkedMailboxId] = [
+					'ID' => $checkedMailboxId,
+					'USER_ID' => $ownerMailboxUserId,
+				];
+			}
 		}
 
 		if ($checkedMailboxes[$checkedMailboxId] && isset($checkedMailboxes[$checkedMailboxId]['USER_ID']))

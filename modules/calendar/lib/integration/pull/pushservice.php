@@ -1,6 +1,6 @@
 <?php
 
-namespace Bitrix\Calendar\Integration\pull;
+namespace Bitrix\Calendar\Integration\Pull;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;

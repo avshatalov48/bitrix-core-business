@@ -493,7 +493,7 @@ class User implements \ArrayAccess {
 		];
 		if ($res = MessageTable::getList([
 			"select" => ["CNT", "LAST_MESSAGE_ID"],
-			"filter" => ["AUTHOR_ID" => $this->getId(), "APPROVED" => "Y"],
+			"filter" => ["AUTHOR_ID" => $this->getId(), "=APPROVED" => "Y"],
 			"runtime" => [
 				new Main\Entity\ExpressionField("CNT", "COUNT(*)"),
 				new Main\Entity\ExpressionField("LAST_MESSAGE_ID", "MAX(%s)", ["ID"])

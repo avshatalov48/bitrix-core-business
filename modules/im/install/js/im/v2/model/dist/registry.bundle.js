@@ -366,14 +366,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      },
 	      /** @function application/isChatOpen */
 	      isChatOpen: state => dialogId => {
-	        const allowedLayouts = [im_v2_const.Layout.chat.name, im_v2_const.Layout.copilot.name, im_v2_const.Layout.channel.name];
+	        const allowedLayouts = [im_v2_const.Layout.chat.name, im_v2_const.Layout.copilot.name, im_v2_const.Layout.channel.name, im_v2_const.Layout.collab.name];
 	        if (!allowedLayouts.includes(state.layout.name)) {
 	          return false;
 	        }
 	        return state.layout.entityId === dialogId.toString();
 	      },
 	      isLinesChatOpen: state => dialogId => {
-	        if (state.layout.name !== im_v2_const.Layout.openlines.name) {
+	        if (state.layout.name !== im_v2_const.Layout.openlines.name && state.layout.name !== im_v2_const.Layout.openlinesV2.name) {
 	          return false;
 	        }
 	        return state.layout.entityId === dialogId.toString();
@@ -1029,6 +1029,76 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return (message == null ? void 0 : message.authorId) === im_v2_application_core.Core.getUserId();
 	}
 
+	class SelectModel extends ui_vue3_vuex.BuilderModel {
+	  getState() {
+	    return {
+	      collection: new Set(),
+	      isBulkActionsMode: false
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      /** @function messages/select/getCollection */
+	      getCollection: state => {
+	        return state.collection;
+	      },
+	      /** @function messages/select/getBulkActionsMode */
+	      getBulkActionsMode: state => {
+	        return state.isBulkActionsMode;
+	      },
+	      /** @function messages/select/isMessageSelected */
+	      isMessageSelected: state => messageId => {
+	        return state.collection.has(messageId);
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      /** @function messages/select/toggle */
+	      toggle: (store, messageId) => {
+	        if (store.state.collection.has(messageId)) {
+	          store.commit('delete', messageId);
+	        } else {
+	          store.commit('add', messageId);
+	        }
+	      },
+	      /** @function messages/select/deleteByMessageId */
+	      deleteByMessageId: (store, messageId) => {
+	        if (!store.state.collection.has(messageId)) {
+	          return;
+	        }
+	        store.commit('delete', messageId);
+	      },
+	      /** @function messages/select/toggleBulkActionsMode */
+	      toggleBulkActionsMode: (store, active) => {
+	        store.commit('toggleBulkActionsMode', active);
+	      },
+	      /** @function messages/select/clear */
+	      clear: store => {
+	        store.commit('clear');
+	      }
+	    };
+	  }
+	  getMutations() {
+	    return {
+	      add: (state, messageId) => {
+	        state.collection.add(messageId);
+	      },
+	      delete: (state, messageId) => {
+	        state.collection.delete(messageId);
+	      },
+	      toggleBulkActionsMode: (state, active) => {
+	        // eslint-disable-next-line no-param-reassign
+	        state.isBulkActionsMode = active;
+	      },
+	      clear: state => {
+	        state.collection.clear();
+	      }
+	    };
+	  }
+	}
+
+	var _findNextLoadingMessages = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("findNextLoadingMessages");
 	var _formatFields$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("formatFields");
 	var _needToSwapAuthorId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("needToSwapAuthorId");
 	var _prepareSwapAuthorId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareSwapAuthorId");
@@ -1038,9 +1108,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _findLastOwnMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("findLastOwnMessageId");
 	var _findFirstUnread = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("findFirstUnread");
 	var _sortCollection = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sortCollection");
+	var _makeFakePreviousSiblingId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("makeFakePreviousSiblingId");
 	class MessagesModel extends ui_vue3_vuex.BuilderModel {
 	  constructor(...args) {
 	    super(...args);
+	    Object.defineProperty(this, _makeFakePreviousSiblingId, {
+	      value: _makeFakePreviousSiblingId2
+	    });
 	    Object.defineProperty(this, _sortCollection, {
 	      value: _sortCollection2
 	    });
@@ -1068,6 +1142,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _formatFields$1, {
 	      value: _formatFields2$1
 	    });
+	    Object.defineProperty(this, _findNextLoadingMessages, {
+	      value: _findNextLoadingMessages2
+	    });
 	  }
 	  getName() {
 	    return 'messages';
@@ -1076,13 +1153,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return {
 	      pin: PinModel,
 	      reactions: ReactionsModel,
-	      comments: CommentsModel
+	      comments: CommentsModel,
+	      select: SelectModel
 	    };
 	  }
 	  getState() {
 	    return {
 	      collection: {},
-	      chatCollection: {}
+	      chatCollection: {},
+	      loadingMessages: {}
 	    };
 	  }
 	  getElementState() {
@@ -1116,13 +1195,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getGetters() {
 	    return {
 	      /** @function messages/getByChatId */
-	      getByChatId: state => chatId => {
+	      getByChatId: (state, getters) => chatId => {
 	        if (!state.chatCollection[chatId]) {
 	          return [];
 	        }
+	        const fakeFirstMessage = {
+	          id: babelHelpers.classPrivateFieldLooseBase(this, _makeFakePreviousSiblingId)[_makeFakePreviousSiblingId](chatId)
+	        };
+	        const firstLoadingMessages = babelHelpers.classPrivateFieldLooseBase(this, _findNextLoadingMessages)[_findNextLoadingMessages](fakeFirstMessage, getters);
 	        return [...state.chatCollection[chatId]].map(messageId => {
 	          return state.collection[messageId];
-	        }).sort(babelHelpers.classPrivateFieldLooseBase(this, _sortCollection)[_sortCollection]);
+	        }).sort(babelHelpers.classPrivateFieldLooseBase(this, _sortCollection)[_sortCollection]).reduce((acc, message) => {
+	          acc.push(message, ...babelHelpers.classPrivateFieldLooseBase(this, _findNextLoadingMessages)[_findNextLoadingMessages](message, getters));
+	          return acc;
+	        }, [...firstLoadingMessages]);
 	      },
 	      /** @function messages/getById */
 	      getById: state => id => {
@@ -1253,6 +1339,45 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return null;
 	        }
 	        return state.collection[desiredMessageId];
+	      },
+	      findPreviousMessageId: (state, getters) => payload => {
+	        const chatCollection = getters.getByChatId(payload.chatId);
+	        const currentMessageIndex = chatCollection.findIndex(message => {
+	          return message.id === payload.messageId;
+	        });
+	        if (currentMessageIndex > 0) {
+	          return chatCollection[currentMessageIndex - 1].id;
+	        }
+	        return -1;
+	      },
+	      findLastChatMessageId: (state, getters) => chatId => {
+	        const lastMessage = getters.getByChatId(chatId).pop();
+	        if (lastMessage) {
+	          return lastMessage.id;
+	        }
+	        return -1;
+	      },
+	      hasLoadingMessageByPreviousSiblingId: state => messageId => {
+	        return Boolean(state.loadingMessages[messageId]);
+	      },
+	      getLoadingMessageByPreviousSiblingId: state => messageId => {
+	        var _state$loadingMessage;
+	        return (_state$loadingMessage = state.loadingMessages[messageId]) != null ? _state$loadingMessage : null;
+	      },
+	      getLoadingMessageByMessageId: state => messageId => {
+	        const message = Object.values(state.loadingMessages).find(currentMessage => {
+	          return currentMessage.id === messageId;
+	        });
+	        if (message) {
+	          return message;
+	        }
+	        return null;
+	      },
+	      hasLoadingMessageByMessageId: (state, getters) => messageId => {
+	        return getters.getLoadingMessageByMessageId(messageId) !== null;
+	      },
+	      isRealMessage: () => messageId => {
+	        return !im_v2_lib_utils.Utils.text.isTempMessage(messageId);
 	      }
 	    };
 	  }
@@ -1410,6 +1535,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!store.state.collection[id]) {
 	          return;
 	        }
+	        if (store.getters.hasLoadingMessageByPreviousSiblingId(id)) {
+	          const currentMessage = store.state.collection[id];
+	          const newPreviousMessageId = store.getters.findPreviousMessageId({
+	            messageId: currentMessage.id,
+	            chatId: currentMessage.chatId
+	          });
+	          store.commit('updateLoadingMessagePreviousSiblingId', {
+	            oldId: currentMessage.id,
+	            newId: newPreviousMessageId
+	          });
+	        }
+	        if (store.getters.hasLoadingMessageByMessageId(id)) {
+	          store.commit('deleteLoadingMessageByMessageId', {
+	            messageId: id
+	          });
+	        }
 	        store.commit('delete', {
 	          id
 	        });
@@ -1445,11 +1586,44 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	            })
 	          }
 	        });
+	      },
+	      /** @function messages/addLoadingMessage */
+	      addLoadingMessage: (store, payload) => {
+	        const message = {
+	          ...this.getElementState(),
+	          ...babelHelpers.classPrivateFieldLooseBase(this, _formatFields$1)[_formatFields$1](payload.message)
+	        };
+	        store.commit('store', {
+	          messages: [message]
+	        });
+	        if (!store.state.chatCollection[message.chatId]) {
+	          store.commit('initChatCollection', {
+	            chatId: message.chatId
+	          });
+	        }
+	        const previousSiblingId = (() => {
+	          const id = store.getters.findLastChatMessageId(message.chatId);
+	          if (id === -1) {
+	            return babelHelpers.classPrivateFieldLooseBase(this, _makeFakePreviousSiblingId)[_makeFakePreviousSiblingId](message.chatId);
+	          }
+	          return id;
+	        })();
+	        store.commit('addLoadingMessage', {
+	          message,
+	          previousSiblingId
+	        });
+	      },
+	      /** @function messages/deleteLoadingMessageByMessageId */
+	      deleteLoadingMessageByMessageId: (store, payload) => {
+	        store.commit('deleteLoadingMessageByMessageId', {
+	          ...payload
+	        });
 	      }
 	    };
 	  }
 
 	  /* eslint-disable no-param-reassign */
+	  // eslint-disable-next-line max-lines-per-function
 	  getMutations() {
 	    return {
 	      setChatCollection: (state, payload) => {
@@ -1460,6 +1634,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          }
 	          state.chatCollection[message.chatId].add(message.id);
 	        });
+	      },
+	      initChatCollection: (state, payload) => {
+	        if (!state.chatCollection[payload.chatId]) {
+	          state.chatCollection[payload.chatId] = new Set();
+	        }
 	      },
 	      store: (state, payload) => {
 	        im_v2_lib_logger.Logger.warn('Messages model: store mutation', payload);
@@ -1549,9 +1728,44 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          }
 	          message.viewedByOthers = true;
 	        });
+	      },
+	      addLoadingMessage: (state, payload) => {
+	        const {
+	          message,
+	          previousSiblingId
+	        } = payload;
+	        state.loadingMessages[previousSiblingId] = message;
+	      },
+	      deleteLoadingMessageByMessageId: (state, payload) => {
+	        const entries = Object.entries(state.loadingMessages);
+	        const entry = entries.find(([, message]) => {
+	          return message.id === payload.messageId;
+	        });
+	        if (entry) {
+	          const [previousSiblingId] = entry;
+	          delete state.loadingMessages[previousSiblingId];
+	        }
+	      },
+	      updateLoadingMessagePreviousSiblingId: (state, payload) => {
+	        const {
+	          oldId,
+	          newId
+	        } = payload;
+	        const loadingMessage = state.loadingMessages[oldId];
+	        if (loadingMessage) {
+	          delete state.loadingMessages[oldId];
+	          state.loadingMessages[newId] = loadingMessage;
+	        }
 	      }
 	    };
 	  }
+	}
+	function _findNextLoadingMessages2(message, getters) {
+	  if (getters.hasLoadingMessageByPreviousSiblingId(message.id)) {
+	    const loadingMessage = getters.getLoadingMessageByPreviousSiblingId(message.id);
+	    return [loadingMessage, ...babelHelpers.classPrivateFieldLooseBase(this, _findNextLoadingMessages)[_findNextLoadingMessages](loadingMessage, getters)];
+	  }
+	  return [];
 	}
 	function _formatFields2$1(rawFields) {
 	  const messageParams = main_core.Type.isPlainObject(rawFields.params) ? rawFields.params : {};
@@ -1666,6 +1880,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return a.date.getTime() - b.date.getTime();
 	  }
 	  return a.id - b.id;
+	}
+	function _makeFakePreviousSiblingId2(chatId) {
+	  return `${chatId}/-1`;
 	}
 
 	const prepareManagerList = managerList => {
@@ -1913,10 +2130,184 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  checkFunction: main_core.Type.isString
 	}];
 
+	const collabFieldsConfig = [{
+	  fieldName: 'collabId',
+	  targetFieldName: 'collabId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'guestCount',
+	  targetFieldName: 'guestCount',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'entities',
+	  targetFieldName: 'entities',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: target => im_v2_model.formatFieldsWithConfig(target, collabEntitiesFieldConfig)
+	}];
+	const collabEntitiesFieldConfig = [{
+	  fieldName: 'tasks',
+	  targetFieldName: 'tasks',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: target => im_v2_model.formatFieldsWithConfig(target, collabEntityFieldConfig)
+	}, {
+	  fieldName: 'files',
+	  targetFieldName: 'files',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: target => im_v2_model.formatFieldsWithConfig(target, collabEntityFieldConfig)
+	}, {
+	  fieldName: 'calendar',
+	  targetFieldName: 'calendar',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: target => im_v2_model.formatFieldsWithConfig(target, collabEntityFieldConfig)
+	}];
+	const collabEntityFieldConfig = [{
+	  fieldName: 'counter',
+	  targetFieldName: 'counter',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'url',
+	  targetFieldName: 'url',
+	  checkFunction: main_core.Type.isStringFilled
+	}];
+
+	var _formatFields$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("formatFields");
+	class CollabsModel extends ui_vue3_vuex.BuilderModel {
+	  constructor(...args) {
+	    super(...args);
+	    Object.defineProperty(this, _formatFields$2, {
+	      value: _formatFields2$2
+	    });
+	  }
+	  getState() {
+	    return {
+	      collection: {}
+	    };
+	  }
+	  getElementState() {
+	    return {
+	      collabId: 0,
+	      guestCount: 0,
+	      entities: {
+	        tasks: {
+	          counter: 0,
+	          url: ''
+	        },
+	        files: {
+	          counter: 0,
+	          url: ''
+	        },
+	        calendar: {
+	          counter: 0,
+	          url: ''
+	        }
+	      }
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      /** @function chats/collabs/getByChatId */
+	      getByChatId: state => chatId => {
+	        var _state$collection$cha;
+	        return (_state$collection$cha = state.collection[chatId]) != null ? _state$collection$cha : this.getElementState();
+	      }
+	    };
+	  }
+	  getActions() {
+	    return {
+	      /** @function chats/collabs/set */
+	      set: (store, payload) => {
+	        const {
+	          chatId,
+	          collabInfo
+	        } = payload;
+	        if (!main_core.Type.isPlainObject(collabInfo)) {
+	          return;
+	        }
+	        store.commit('set', {
+	          chatId,
+	          collabInfo: babelHelpers.classPrivateFieldLooseBase(this, _formatFields$2)[_formatFields$2](collabInfo)
+	        });
+	      },
+	      /** @function chats/collabs/setCounter */
+	      setCounter: (store, payload) => {
+	        const {
+	          chatId,
+	          entity,
+	          counter
+	        } = payload;
+	        const state = store.state;
+	        const currentRecord = state.collection[chatId];
+	        if (!currentRecord || !currentRecord.entities[entity]) {
+	          return;
+	        }
+	        store.commit('setCounter', {
+	          chatId,
+	          entity,
+	          counter
+	        });
+	      },
+	      /** @function chats/collabs/setGuestCount */
+	      setGuestCount: (store, payload) => {
+	        const {
+	          chatId,
+	          guestCount
+	        } = payload;
+	        const state = store.state;
+	        const currentRecord = state.collection[chatId];
+	        if (!currentRecord) {
+	          return;
+	        }
+	        store.commit('setGuestCount', {
+	          chatId,
+	          guestCount
+	        });
+	      }
+	    };
+	  }
+
+	  /* eslint-disable no-param-reassign */
+	  getMutations() {
+	    return {
+	      set: (state, payload) => {
+	        const {
+	          chatId,
+	          collabInfo
+	        } = payload;
+	        state.collection[chatId] = collabInfo;
+	      },
+	      setCounter: (state, payload) => {
+	        const {
+	          chatId,
+	          entity,
+	          counter
+	        } = payload;
+	        const currentRecord = state.collection[chatId];
+	        currentRecord.entities[entity].counter = counter;
+	      },
+	      setGuestCount: (state, payload) => {
+	        const {
+	          chatId,
+	          guestCount
+	        } = payload;
+	        const currentRecord = state.collection[chatId];
+	        currentRecord.guestCount = guestCount;
+	      }
+	    };
+	  }
+	}
+	function _formatFields2$2(fields) {
+	  return im_v2_model.formatFieldsWithConfig(fields, collabFieldsConfig);
+	}
+
 	/* eslint-disable no-param-reassign */
 	class ChatsModel extends ui_vue3_vuex.BuilderModel {
 	  getName() {
 	    return 'chats';
+	  }
+	  getNestedModules() {
+	    return {
+	      collabs: CollabsModel
+	    };
 	  }
 	  getState() {
 	    return {
@@ -2448,16 +2839,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  targetFieldName: 'isAdmin',
 	  checkFunction: main_core.Type.isBoolean
 	}, {
-	  fieldName: 'extranet',
-	  targetFieldName: 'extranet',
-	  checkFunction: main_core.Type.isBoolean
+	  fieldName: 'type',
+	  targetFieldName: 'type',
+	  checkFunction: main_core.Type.isString
 	}, {
 	  fieldName: 'network',
 	  targetFieldName: 'network',
-	  checkFunction: main_core.Type.isBoolean
-	}, {
-	  fieldName: 'bot',
-	  targetFieldName: 'bot',
 	  checkFunction: main_core.Type.isBoolean
 	}, {
 	  fieldName: 'connector',
@@ -2503,6 +2890,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  formatFunction: preparePhones
 	}];
 
+	const UserPositionByType = {
+	  [im_v2_const.UserType.bot]: main_core.Loc.getMessage('IM_MODEL_USERS_CHAT_BOT'),
+	  [im_v2_const.UserType.collaber]: main_core.Loc.getMessage('IM_MODEL_USERS_COLLABER'),
+	  default: main_core.Loc.getMessage('IM_MODEL_USERS_DEFAULT_NAME')
+	};
 	class UsersModel extends ui_vue3_vuex.BuilderModel {
 	  getName() {
 	    return 'users';
@@ -2533,9 +2925,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      workPosition: '',
 	      gender: 'M',
 	      isAdmin: false,
-	      extranet: false,
+	      type: im_v2_const.UserType.user,
 	      network: false,
-	      bot: false,
 	      connector: false,
 	      externalAuthId: 'default',
 	      status: '',
@@ -2622,6 +3013,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      },
 	      /** @function users/getPosition */
 	      getPosition: state => rawUserId => {
+	        var _UserPositionByType$u;
 	        const userId = Number.parseInt(rawUserId, 10);
 	        const user = state.collection[userId];
 	        const isSupportBot = im_v2_application_core.Core.getStore().getters['users/bots/isSupport'](userId);
@@ -2631,10 +3023,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (user.workPosition) {
 	          return user.workPosition;
 	        }
-	        if (user.bot === true) {
-	          return main_core.Loc.getMessage('IM_MODEL_USERS_CHAT_BOT');
-	        }
-	        return main_core.Loc.getMessage('IM_MODEL_USERS_DEFAULT_NAME');
+	        return (_UserPositionByType$u = UserPositionByType[user.type]) != null ? _UserPositionByType$u : UserPositionByType.default;
 	      }
 	    };
 	  }
@@ -2740,7 +3129,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  formatFields(fields) {
 	    const preparedFields = im_v2_model.formatFieldsWithConfig(fields, userFieldsConfig);
-	    const isBot = preparedFields.bot === true;
+	    const isBot = preparedFields.type === im_v2_const.UserType.bot;
 	    if (isBot) {
 	      im_v2_application_core.Core.getStore().dispatch('users/bots/set', {
 	        userId: preparedFields.id,
@@ -2788,7 +3177,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getState() {
 	    return {
-	      collection: {}
+	      collection: {},
+	      temporaryFilesMap: new Map()
 	    };
 	  }
 	  getElementState() {
@@ -2815,21 +3205,54 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getGetters() {
 	    return {
 	      /** @function files/get */
-	      get: state => (fileId, getTemporary = false) => {
+	      get: (state, getters) => (fileId, getTemporary = false) => {
 	        if (!fileId) {
 	          return null;
 	        }
 	        if (!getTemporary && !state.collection[fileId]) {
 	          return null;
 	        }
-	        return state.collection[fileId];
+	        const file = state.collection[fileId];
+	        const hasMappedTemporaryFile = getters.hasMappedTemporaryFile({
+	          serverFileId: fileId
+	        });
+	        if (file && hasMappedTemporaryFile) {
+	          const temporaryFile = getters.getMappedTemporaryFile({
+	            serverFileId: fileId
+	          });
+	          return {
+	            ...file,
+	            urlPreview: temporaryFile.urlPreview,
+	            urlShow: temporaryFile.urlShow
+	          };
+	        }
+	        return file;
 	      },
 	      /** @function files/isInCollection */
 	      isInCollection: state => payload => {
 	        const {
 	          fileId
 	        } = payload;
-	        return !!state.collection[fileId];
+	        return Boolean(state.collection[fileId]);
+	      },
+	      /** @function files/hasMappedTemporaryFile */
+	      hasMappedTemporaryFile: state => payload => {
+	        if (state.temporaryFilesMap.has(payload.serverFileId)) {
+	          const temporaryFileId = state.temporaryFilesMap.get(payload.serverFileId);
+	          return Object.hasOwn(state.collection, temporaryFileId);
+	        }
+	        return false;
+	      },
+	      /** @function files/getMappedTemporaryFile */
+	      getMappedTemporaryFile: state => payload => {
+	        const {
+	          serverFileId
+	        } = payload;
+	        if (state.temporaryFilesMap.has(serverFileId)) {
+	          const temporaryFileId = state.temporaryFilesMap.get(serverFileId);
+	          return state.collection[temporaryFileId];
+	        }
+	        return null;
 	      }
 	    };
 	  }
@@ -2846,18 +3269,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	      },
 	      /** @function files/set */
-	      set: (store, payload) => {
-	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
-	          payload = [payload];
-	        }
-	        payload = payload.map(file => {
+	      set: (store, ...payload) => {
+	        const files = payload.flat().map(file => {
 	          return {
 	            ...this.getElementState(),
 	            ...this.validate(file)
 	          };
 	        });
 	        store.commit('add', {
-	          files: payload
+	          files
 	        });
 	      },
 	      /** @function files/update */
@@ -2871,7 +3291,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return false;
 	        }
 	        store.commit('update', {
-	          id: id,
+	          id,
 	          fields: this.validate(fields)
 	        });
 	        return true;
@@ -2901,9 +3321,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        store.commit('delete', {
 	          id
 	        });
+	      },
+	      /** @function files/setTemporaryFileMapping */
+	      setTemporaryFileMapping: (store, payload) => {
+	        store.commit('setTemporaryFileMapping', payload);
 	      }
 	    };
 	  }
+
+	  /* eslint-disable no-param-reassign */
 	  getMutations() {
 	    return {
 	      add: (state, payload) => {
@@ -2936,10 +3362,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          id
 	        } = payload;
 	        delete state.collection[id];
+	      },
+	      setTemporaryFileMapping: (state, payload) => {
+	        state.temporaryFilesMap.set(payload.serverFileId, payload.temporaryFileId);
 	      }
 	    };
 	  }
-	  validate(file) {
+
+	  // eslint-disable-next-line max-lines-per-function,sonarjs/cognitive-complexity
+	  validate(file, options = {}) {
 	    const result = {};
 	    if (main_core.Type.isNumber(file.id) || main_core.Type.isStringFilled(file.id)) {
 	      result.id = file.id;
@@ -3045,6 +3476,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    if (main_core.Type.isString(viewerAttrs.viewerType)) {
 	      result.viewerType = viewerAttrs.viewerType;
+	    }
+	    if (main_core.Type.isString(viewerAttrs.viewerPreview)) {
+	      result.viewerPreview = viewerAttrs.viewerPreview;
 	    }
 	    if (main_core.Type.isString(viewerAttrs.viewerTypeClass)) {
 	      result.viewerTypeClass = viewerAttrs.viewerTypeClass;
@@ -3254,9 +3688,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 
-	var _formatFields$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("formatFields");
+	var _formatFields$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("formatFields");
 	var _updateUnloadedRecentCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateUnloadedRecentCounters");
 	var _updateUnloadedCopilotCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateUnloadedCopilotCounters");
+	var _updateUnloadedCollabCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateUnloadedCollabCounters");
 	var _updateUnloadedCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateUnloadedCounters");
 	var _getMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessage");
 	var _getDialog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialog");
@@ -3292,14 +3727,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _updateUnloadedCounters, {
 	      value: _updateUnloadedCounters2
 	    });
+	    Object.defineProperty(this, _updateUnloadedCollabCounters, {
+	      value: _updateUnloadedCollabCounters2
+	    });
 	    Object.defineProperty(this, _updateUnloadedCopilotCounters, {
 	      value: _updateUnloadedCopilotCounters2
 	    });
 	    Object.defineProperty(this, _updateUnloadedRecentCounters, {
 	      value: _updateUnloadedRecentCounters2
 	    });
-	    Object.defineProperty(this, _formatFields$2, {
-	      value: _formatFields2$2
+	    Object.defineProperty(this, _formatFields$3, {
+	      value: _formatFields2$3
 	    });
 	  }
 	  getName() {
@@ -3316,7 +3754,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      recentCollection: new Set(),
 	      unreadCollection: new Set(),
 	      copilotCollection: new Set(),
-	      channelCollection: new Set()
+	      channelCollection: new Set(),
+	      collabCollection: new Set()
 	    };
 	  }
 	  getElementState() {
@@ -3371,6 +3810,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      /** @function recent/getChannelCollection */
 	      getChannelCollection: state => {
 	        return [...state.channelCollection].filter(dialogId => {
+	          const dialog = this.store.getters['chats/get'](dialogId);
+	          return Boolean(dialog);
+	        }).map(id => {
+	          return state.collection[id];
+	        });
+	      },
+	      /** @function recent/getCollabCollection */
+	      getCollabCollection: state => {
+	        return [...state.collabCollection].filter(dialogId => {
 	          const dialog = this.store.getters['chats/get'](dialogId);
 	          return Boolean(dialog);
 	        }).map(id => {
@@ -3491,6 +3939,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        const itemIds = await this.store.dispatch('recent/store', payload);
 	        store.commit('setChannelCollection', itemIds);
 	      },
+	      /** @function recent/setCollab */
+	      setCollab: async (store, payload) => {
+	        const itemIds = await this.store.dispatch('recent/store', payload);
+	        store.commit('setCollabCollection', itemIds);
+	        babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedCollabCounters)[_updateUnloadedCollabCounters](payload);
+	      },
 	      /** @function recent/clearChannelCollection */
 	      clearChannelCollection: store => {
 	        store.commit('clearChannelCollection');
@@ -3503,7 +3957,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        const itemsToUpdate = [];
 	        const itemsToAdd = [];
 	        payload.map(element => {
-	          return babelHelpers.classPrivateFieldLooseBase(this, _formatFields$2)[_formatFields$2](element);
+	          return babelHelpers.classPrivateFieldLooseBase(this, _formatFields$3)[_formatFields$3](element);
 	        }).forEach(element => {
 	          const preparedElement = {
 	            ...element
@@ -3541,7 +3995,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        store.commit('update', {
 	          dialogId: existingItem.dialogId,
-	          fields: babelHelpers.classPrivateFieldLooseBase(this, _formatFields$2)[_formatFields$2](fields)
+	          fields: babelHelpers.classPrivateFieldLooseBase(this, _formatFields$3)[_formatFields$3](fields)
 	        });
 	      },
 	      /** @function recent/unread */
@@ -3630,7 +4084,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          }
 	          store.commit(payload.addMethodName, [payload.id.toString()]);
 	        }
-	        const fields = babelHelpers.classPrivateFieldLooseBase(this, _formatFields$2)[_formatFields$2]({
+	        const fields = babelHelpers.classPrivateFieldLooseBase(this, _formatFields$3)[_formatFields$3]({
 	          draft: {
 	            text: payload.text.toString()
 	          }
@@ -3652,6 +4106,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        store.commit('deleteFromRecentCollection', existingItem.dialogId);
 	        store.commit('deleteFromCopilotCollection', existingItem.dialogId);
 	        store.commit('deleteFromChannelCollection', existingItem.dialogId);
+	        store.commit('deleteFromCollabCollection', existingItem.dialogId);
 	        const canDelete = babelHelpers.classPrivateFieldLooseBase(this, _canDelete)[_canDelete](existingItem.dialogId);
 	        if (!canDelete) {
 	          return;
@@ -3700,6 +4155,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      clearChannelCollection: state => {
 	        state.channelCollection = new Set();
 	      },
+	      setCollabCollection: (state, payload) => {
+	        payload.forEach(dialogId => {
+	          state.collabCollection.add(dialogId);
+	        });
+	      },
+	      deleteFromCollabCollection: (state, payload) => {
+	        state.collabCollection.delete(payload);
+	      },
 	      add: (state, payload) => {
 	        if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
 	          payload = [payload];
@@ -3741,7 +4204,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	}
-	function _formatFields2$2(rawFields) {
+	function _formatFields2$3(rawFields) {
 	  const options = main_core.Type.isPlainObject(rawFields.options) ? rawFields.options : {};
 	  const fields = {
 	    ...rawFields,
@@ -3755,13 +4218,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function _updateUnloadedCopilotCounters2(payload) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedCounters)[_updateUnloadedCounters](payload, 'counters/setUnloadedCopilotCounters');
 	}
+	function _updateUnloadedCollabCounters2(payload) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedCounters)[_updateUnloadedCounters](payload, 'counters/setUnloadedCollabCounters');
+	}
 	function _updateUnloadedCounters2(payload, updateMethod) {
 	  if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
 	    payload = [payload];
 	  }
 	  const zeroedCountersForNewItems = {};
-	  payload.forEach(item => {
-	    zeroedCountersForNewItems[item.chat_id] = 0;
+	  const preparedItems = payload.map(item => im_v2_model.convertObjectKeysToCamelCase(item));
+	  preparedItems.forEach(item => {
+	    zeroedCountersForNewItems[item.chatId] = 0;
 	  });
 	  void im_v2_application_core.Core.getStore().dispatch(updateMethod, zeroedCountersForNewItems);
 	}
@@ -3785,7 +4252,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _prepareFakeItemWithDraft2(payload) {
 	  const messageId = babelHelpers.classPrivateFieldLooseBase(this, _createFakeMessageForDraft)[_createFakeMessageForDraft](payload.id);
-	  return babelHelpers.classPrivateFieldLooseBase(this, _formatFields$2)[_formatFields$2]({
+	  return babelHelpers.classPrivateFieldLooseBase(this, _formatFields$3)[_formatFields$3]({
 	    dialogId: payload.id.toString(),
 	    draft: {
 	      text: payload.text.toString()
@@ -6695,6 +7162,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      unloadedChatCounters: {},
 	      unloadedLinesCounters: {},
 	      unloadedCopilotCounters: {},
+	      unloadedCollabCounters: {},
 	      commentCounters: {}
 	    };
 	  }
@@ -6734,6 +7202,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	        let unloadedChatsCounter = 0;
 	        Object.values(state.unloadedCopilotCounters).forEach(counter => {
+	          unloadedChatsCounter += counter;
+	        });
+	        return loadedChatsCounter + unloadedChatsCounter;
+	      },
+	      /** @function counters/getTotalCollabCounter */
+	      getTotalCollabCounter: state => {
+	        let loadedChatsCounter = 0;
+	        const recentCollection = im_v2_application_core.Core.getStore().getters['recent/getCollabCollection'];
+	        recentCollection.forEach(recentItem => {
+	          const recentItemCounter = babelHelpers.classPrivateFieldLooseBase(this, _getRecentItemCounter)[_getRecentItemCounter](recentItem);
+	          loadedChatsCounter += recentItemCounter;
+	        });
+	        let unloadedChatsCounter = 0;
+	        Object.values(state.unloadedCollabCounters).forEach(counter => {
 	          unloadedChatsCounter += counter;
 	        });
 	        return loadedChatsCounter + unloadedChatsCounter;
@@ -6838,6 +7320,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        store.commit('setUnloadedCopilotCounters', payload);
 	      },
+	      /** @function counters/setUnloadedCollabCounters */
+	      setUnloadedCollabCounters: (store, payload) => {
+	        if (!main_core.Type.isPlainObject(payload)) {
+	          return;
+	        }
+	        store.commit('setUnloadedCollabCounters', payload);
+	      },
 	      /** @function counters/setCommentCounters */
 	      setCommentCounters: (store, payload) => {
 	        if (!main_core.Type.isPlainObject(payload)) {
@@ -6852,12 +7341,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        store.commit('readAllChannelComments', channelChatId);
 	      },
-	      /** @function counters/delete */
-	      delete: (store, payload) => {
+	      /** @function counters/deleteForChannel */
+	      deleteForChannel: (store, payload) => {
 	        if (!main_core.Type.isPlainObject(payload)) {
 	          return;
 	        }
-	        store.commit('delete', payload);
+	        store.commit('deleteForChannel', payload);
 	      }
 	    };
 	  }
@@ -6890,6 +7379,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          state.unloadedCopilotCounters[chatId] = counter;
 	        });
 	      },
+	      setUnloadedCollabCounters: (state, payload) => {
+	        Object.entries(payload).forEach(([chatId, counter]) => {
+	          if (counter === 0) {
+	            delete state.unloadedCollabCounters[chatId];
+	            return;
+	          }
+	          state.unloadedCollabCounters[chatId] = counter;
+	        });
+	      },
 	      setCommentCounters: (state, payload) => {
 	        Object.entries(payload).forEach(([channelChatId, countersMap]) => {
 	          if (!state.commentCounters[channelChatId]) {
@@ -6908,12 +7406,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      readAllChannelComments: (state, channelChatId) => {
 	        delete state.commentCounters[channelChatId];
 	      },
-	      delete: (state, payload) => {
+	      deleteForChannel: (state, payload) => {
 	        const {
 	          channelChatId,
 	          commentChatId
 	        } = payload;
 	        if (!state.commentCounters[channelChatId]) {
+	          return;
+	        }
+	        if (!commentChatId) {
+	          delete state.commentCounters[channelChatId];
 	          return;
 	        }
 	        delete state.commentCounters[channelChatId][commentChatId];
@@ -7346,6 +7848,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.CountersModel = CountersModel;
 	exports.CopilotModel = CopilotModel;
 	exports.formatFieldsWithConfig = formatFieldsWithConfig;
+	exports.convertToNumber = convertToNumber;
+	exports.convertToString = convertToString;
+	exports.isNumberOrString = isNumberOrString;
+	exports.convertObjectKeysToCamelCase = convertObjectKeysToCamelCase;
+	exports.prepareDraft = prepareDraft;
+	exports.prepareInvitation = prepareInvitation;
 
 }((this.BX.Messenger.v2.Model = this.BX.Messenger.v2.Model || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Application,BX.Vue3.Vuex,BX,BX.Messenger.v2.Model));
 //# sourceMappingURL=registry.bundle.js.map

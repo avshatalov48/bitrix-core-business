@@ -1,3 +1,7 @@
+body {
+	overflow: hidden;
+}
+
 .w-loader {
 	color: green;
 }
@@ -37,7 +41,7 @@
 	color: var(--ui-color-base-60);
 	text-align: center;
 }
-
+/*todo: check and fix text color*/
 
 .w-error .w-loader-link {
 	margin-top: 12px;

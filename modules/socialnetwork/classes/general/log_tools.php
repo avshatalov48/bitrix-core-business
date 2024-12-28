@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\Integration\Extranet\User;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\ModuleManager;
@@ -543,6 +544,7 @@ class CSocNetLogTools
 			)
 			{
 				$arCreatedBy["IS_EXTRANET"] = "Y";
+				$arCreatedBy["IS_COLLAB"] = User::isCollaber((int)$arFields["USER_ID"]) ? "Y" : "N";
 				$suffix = (SITE_TEMPLATE_ID !== "bitrix24" ? GetMessage("SONET_LOG_EXTRANET_SUFFIX") : "");
 			}
 			else
@@ -643,10 +645,7 @@ class CSocNetLogTools
 			}
 			else
 			{
-				$url = CComponentEngine::MakePathFromTemplate(
-					$arParams["PATH_TO_GROUP"] ?? null,
-					array("group_id" => $arFields["ENTITY_ID"])
-				);
+				$url = \Bitrix\Socialnetwork\Site\GroupUrl::get((int)$arFields["ENTITY_ID"]);
 
 				$arSocNetAllowedSubscribeEntityTypesDesc = CSocNetAllowed::GetAllowedEntityTypesDesc();
 				$arEntity["FORMATTED"]["TYPE_NAME"] = $arSocNetAllowedSubscribeEntityTypesDesc[$arFields["ENTITY_TYPE"]]["TITLE_ENTITY"];
@@ -4891,11 +4890,7 @@ class CSocNetLogTools
 								$workgroupFields["NAME"]
 								: htmlspecialcharsback($workgroupFields["NAME"])
 							),
-							"URL" => str_replace(
-								"#group_id#",
-								$workgroupFields["ID"],
-								$arParams["PATH_TO_GROUP"] ?? ''
-							),
+							"URL" => \Bitrix\Socialnetwork\Site\GroupUrl::get((int)$workgroupFields["ID"]),
 							"IS_EXTRANET" => (
 								is_array($GLOBALS["arExtranetGroupID"] ?? null)
 								&& in_array($workgroupFields["ID"], $GLOBALS["arExtranetGroupID"])
@@ -5352,13 +5347,16 @@ class CSocNetLogTools
 	{
 		$arSiteData = array();
 
+		$extranetSiteId = \Bitrix\Socialnetwork\Site\Site::getInstance()->getExtranetSiteId();
+
 		$rsSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 		while ($arSite = $rsSite->Fetch())
 		{
+			$userPage = $arSite['ID'] === $extranetSiteId ? 'contacts/personal/' : 'company/personal/';
 			$serverName = htmlspecialcharsEx($arSite["SERVER_NAME"]);
 			$arSiteData[$arSite["ID"]] = array(
 				"GROUPS_PATH" => COption::GetOptionString("socialnetwork", "workgroups_page", $arSite["DIR"]."workgroups/", $arSite["ID"]),
-				"USER_PATH" => COption::GetOptionString("socialnetwork", "user_page", $arSite["DIR"]."company/personal/", $arSite["ID"]),
+				"USER_PATH" => COption::GetOptionString("socialnetwork", "user_page", $arSite["DIR"] . $userPage, $arSite["ID"]),
 				"SERVER_NAME" => (
 					$serverName <> ''
 						? $serverName

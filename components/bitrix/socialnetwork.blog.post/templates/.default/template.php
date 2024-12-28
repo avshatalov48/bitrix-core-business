@@ -497,10 +497,16 @@ else
 			}
 
 			$style = ($avatar ? "background: url('" . Uri::urnEncode($avatar) . "'); background-size: cover;" : "");
-
+			$userTypeAvatarClass = '';
+			if ($arResult['arUser']['isCollaber'] ?? false)
+			{
+				$userTypeAvatarClass = 'feed-user-avatar-collaber';
+			}
 			?><div class="<?=implode(' ', $aditStylesList)?>" id="blg-post-img-<?=$arResult["Post"]["ID"]?>">
-				<div class="ui-icon ui-icon-common-user feed-user-avatar"><i style="<?= $style ?>"></i></div><?php
-				?><div class="feed-post-pinned-block"><?php
+				<div class="ui-icon ui-icon-common-user feed-user-avatar <?= $userTypeAvatarClass ?>">
+					<i style="<?= $style ?>"></i>
+				</div>
+				<div class="feed-post-pinned-block"><?php
 
 					?><div class="feed-post-pinned-title"><?php
 						if (
@@ -578,10 +584,20 @@ else
 						?><noindex><?php
 					}
 
+					$userTypeClass = '';
+					if ($arResult["arUser"]["isCollaber"] ?? false)
+					{
+						$userTypeClass = "feed-post-user-name-collaber";
+					}
+					elseif ($arResult["arUser"]["isExtranet"])
+					{
+						$userTypeClass = "feed-post-user-name-extranet";
+					}
+
 					if ($arResult["bPublicPage"])
 					{
 						?><span
-							class="feed-post-user-name<?=(array_key_exists("isExtranet", $arResult["arUser"]) && $arResult["arUser"]["isExtranet"] ? " feed-post-user-name-extranet" : "")?>"
+							class="feed-post-user-name <?=$userTypeClass?>"
 							id="bp_<?=$anchor_id?>"
 							bx-post-author-id="<?=$arResult["arUser"]["ID"]?>"
 							bx-post-author-gender="<?=$arResult["arUser"]["PERSONAL_GENDER"]?>"
@@ -592,7 +608,7 @@ else
 					else
 					{
 						?><a
-							class="feed-post-user-name<?=(array_key_exists("isExtranet", $arResult["arUser"]) && $arResult["arUser"]["isExtranet"] ? " feed-post-user-name-extranet" : "")?>"
+							class="feed-post-user-name <?=$userTypeClass?>"
 							id="bp_<?=$anchor_id?>" href="<?=$arResult["arUser"]["url"]?>"
 							bx-post-author-id="<?=$arResult["arUser"]["ID"]?>"
 							bx-post-author-gender="<?=$arResult["arUser"]["PERSONAL_GENDER"]?>"
@@ -658,10 +674,11 @@ else
 									$classNameList = [ 'feed-add-post-destination-new' ];
 									$arTooltipParams = array();
 
-									if (
-										array_key_exists("IS_EXTRANET", $val)
-										&& $val['IS_EXTRANET'] === 'Y'
-									)
+									if (($val['IS_COLLAB'] ?? 'N') === 'Y')
+									{
+										$classNameList[] = 'feed-add-post-destination-new-collab';
+									}
+									elseif (($val['IS_EXTRANET'] ?? 'N') === 'Y')
 									{
 										$classNameList[] = 'feed-add-post-destination-new-extranet';
 									}
@@ -747,7 +764,18 @@ else
 								{
 									?><a
 									 href="<?=$val["URL"]?>"
-									 class="feed-add-post-destination-new<?= (array_key_exists('IS_EXTRANET', $val) && $val["IS_EXTRANET"] === 'Y' ? ' feed-add-post-destination-new-extranet' : '') ?>"
+									<?php
+									$entityTypeClass = '';
+									if (($val['IS_COLLAB'] ?? 'N') === 'Y')
+									{
+										$entityTypeClass = 'feed-add-post-destination-new-collab';
+									}
+									elseif (($val['IS_EXTRANET'] ?? 'N') === 'Y')
+									{
+										$entityTypeClass = 'feed-add-post-destination-new-extranet';
+									}
+									?>
+									 class="feed-add-post-destination-new <?= $entityTypeClass ?>"
 									 target="_top"
 									 data-bx-entity-type="<?= htmlspecialcharsbx($val['entityType'] ?? '') ?>"
 									 data-bx-entity-id="<?= htmlspecialcharsbx($val['entityId'] ?? '') ?>"

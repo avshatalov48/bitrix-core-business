@@ -1,6 +1,7 @@
 <?
 
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Message\Counter\CounterType;
 use Bitrix\Main\Application;
 use Bitrix\Im\V2\Sync;
 use Bitrix\Main\Engine\Response\Converter;
@@ -24,7 +25,7 @@ class CIMMessage
 
 	public static function Add($arFields)
 	{
-		if (!isset($arFields['MESSAGE_TYPE']) || !in_array($arFields['MESSAGE_TYPE'], Array(IM_MESSAGE_CHAT, IM_MESSAGE_OPEN, IM_MESSAGE_OPEN_LINE, Chat::IM_TYPE_COPILOT, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL, Chat::IM_TYPE_COMMENT)))
+		if (!isset($arFields['MESSAGE_TYPE']) || !in_array($arFields['MESSAGE_TYPE'], CIMChat::getGroupTypesExtra()))
 			$arFields['MESSAGE_TYPE'] = IM_MESSAGE_PRIVATE;
 
 		if (isset($arFields['MESSAGE_MODULE']))
@@ -813,6 +814,7 @@ class CIMMessage
 					'muted' => false,
 					'unread' => \Bitrix\Im\Recent::isUnread($this->user_id, \IM_MESSAGE_PRIVATE, $fromUserId),
 					'viewedMessages' => $viewedMessages,
+					'counterType' => $chat->getCounterType()->value,
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
@@ -913,6 +915,7 @@ class CIMMessage
 							'muted' => false,
 							'unread' => \Bitrix\Im\Recent::isUnread($this->user_id, \IM_MESSAGE_PRIVATE, $fromUserId),
 							'unreadTo' => $lastId,
+							'counterType' => $chat->getCounterType()->value,
 						),
 						'push' => Array('badge' => 'Y'),
 						'extra' => \Bitrix\Im\Common::getPullExtra()
@@ -1259,6 +1262,7 @@ class CIMMessage
 		}
 
 		$arChat = Array();
+		$chatType = Chat::IM_TYPE_PRIVATE;
 		if (isset($arParams['TO_CHAT_ID']))
 		{
 			$arChat = CIMChat::GetChatData(array(
@@ -1266,6 +1270,7 @@ class CIMMessage
 				'USE_CACHE' => 'N',
 			));
 
+			$chatType = $arChat['chat'][$arParams['TO_CHAT_ID']]['message_type'];
 			$extraParamContext = $arParams['EXTRA_PARAMS']['CONTEXT'] ?? null;
 			if (!empty($arUsers['users']) && $extraParamContext == 'LIVECHAT' && CModule::IncludeModule('imopenlines'))
 			{
@@ -1384,6 +1389,7 @@ class CIMMessage
 				'additionalEntities' => $additionalEntitiesRest,
 				'forward' => $forwardInfo,
 			],
+			'counterType' => CounterType::tryFromType($chatType)->value,
 			'files' => isset($arParams['FILES'])? $arParams['FILES']: [],
 			'notify' => $arParams['NOTIFY'],
 		];

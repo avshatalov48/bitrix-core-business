@@ -2,7 +2,10 @@
 
 namespace Bitrix\Mail\Internals;
 
+use Bitrix\Mail\MailMessageUidTable;
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 
 /**
  * Class MessageUploadQueueTable
@@ -54,6 +57,12 @@ class MessageUploadQueueTable extends Entity\DataManager
 			),
 			'ATTEMPTS' => array(
 				'data_type' => 'integer',
+			),
+			new Reference(
+				'UID_TABLE',
+				MailMessageUidTable::class,
+				Join::on('this.ID', 'ref.ID')
+					->whereColumn('this.MAILBOX_ID', 'ref.MAILBOX_ID')
 			),
 		);
 	}

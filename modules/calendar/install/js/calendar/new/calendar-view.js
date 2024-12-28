@@ -694,6 +694,18 @@
 		{
 			return this.hotkey || null;
 		},
+
+		shouldEntryLookLikeSharing: function(entry)
+		{
+			return entry.isSharingEvent()
+				|| (this.util.config.type === 'group' && entry.isSharingCollabEvent());
+		},
+
+		shouldEntryLookLikeCollab: function(entry)
+		{
+			return entry.isCollabEvent()
+				|| (this.util.config.type !== 'group' && entry.isSharingCollabEvent());
+		},
 	};
 
 	// Year view of the calendar

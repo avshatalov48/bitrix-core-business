@@ -1,5 +1,13 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
 
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use \Bitrix\Main\Localization\Loc;
@@ -10,6 +18,7 @@ global $APPLICATION, $USER_FIELD_MANAGER;
 $id = $arParams['id'];
 $event = $arParams['event'];
 $isSocialNetworkEnabled = $arParams['bSocNet'];
+$isExternalUser = \Bitrix\Main\Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
 $isCrmEnabled = \Bitrix\Main\ModuleManager::isModuleInstalled('crm');
 $hiddenFields = $arParams['hiddenFields'] ?? [];
 
@@ -42,7 +51,7 @@ if ($isOpenEvent)
 
 $UF = CCalendarEvent::GetEventUserFields($event);
 
-if (isset($UF['UF_CRM_CAL_EVENT']))
+if (isset($UF['UF_CRM_CAL_EVENT']) && !$isExternalUser)
 {
 	$fieldsList['crm'] = array('title' => Loc::getMessage('EC_EDIT_SLIDER_CRM_COLUMN'));
 }

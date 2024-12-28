@@ -6,13 +6,14 @@ namespace Bitrix\Socialnetwork\Item\Workgroup;
 
 enum Type: string
 {
-	case GROUP = 'group';
-	case PROJECT = 'project';
-	case SCRUM = 'scrum';
+	case Group = 'group';
+	case Project = 'project';
+	case Scrum = 'scrum';
+	case Collab = 'collab';
 
 	public static function getDefault(): self
 	{
-		return self::GROUP;
+		return self::Group;
 	}
 
 	public static function getValue(self|string $enum): string

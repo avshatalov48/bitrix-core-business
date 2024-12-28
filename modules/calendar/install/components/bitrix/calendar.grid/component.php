@@ -1,7 +1,9 @@
 <?php
+
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Integration\SocialNetwork\Collab;
 use Bitrix\Calendar\Integration\SocialNetwork\Context\Context;
 use Bitrix\Intranet\Settings\Tools\ToolsManager;
-
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -79,6 +81,17 @@ $arResult['CALENDAR'] = $EC;
 
 $arResult['CONTEXT'] = $arParams['CONTEXT'] ?? Context::getDefault();
 
+$arResult['IS_COLLAB'] = false;
+if (
+	$arParams['CALENDAR_TYPE'] === Dictionary::CALENDAR_TYPE['group']
+	&& $collab = Collab\Collabs::getInstance()->getById($arParams['OWNER_ID'])
+)
+{
+	$arResult['IS_COLLAB'] = true;
+	$arResult['COLLAB_NAME'] = $collab->getName();
+	$arResult['COLLAB_IMAGE'] = Collab\Collabs::getInstance()->getCollabImagePath($collab->getImageId());
+}
+
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 if (isset($request['action']) && $request['action'] === 'export')
 {
@@ -92,4 +105,5 @@ else
 	;
 	$this->IncludeComponentTemplate();
 }
+
 ?>

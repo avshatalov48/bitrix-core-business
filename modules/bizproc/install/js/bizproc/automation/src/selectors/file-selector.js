@@ -9,7 +9,7 @@ export class FileSelector extends InlineSelector
 		None: '',
 		Disk: 'disk',
 		File: 'file',
-	}
+	};
 
 	#type: string = FileSelector.TYPE.None;
 	#multiple: boolean = false;
@@ -27,7 +27,8 @@ export class FileSelector extends InlineSelector
 	#fileItemsNode: ?HTMLSpanElement = null;
 	#fileControllerNode: ?HTMLDivElement = null;
 
-	#menuId: ?string;
+	#inputWrapper: HTMLElement;
+	#menu: ?Menu;
 
 	constructor(props: { context: SelectorContext })
 	{
@@ -35,15 +36,15 @@ export class FileSelector extends InlineSelector
 
 		this.context.set(
 			'fileFields',
-			this.context.fields.filter(field => field.Type === 'file'),
+			this.context.fields.filter((field) => field.Type === 'file'),
 		);
 	}
 
 	destroy()
 	{
-		if (this.menu)
+		if (this.#menu)
 		{
-			this.menu.popupWindow.close();
+			this.#menu.close();
 		}
 	}
 
@@ -55,8 +56,6 @@ export class FileSelector extends InlineSelector
 
 		this.targetInput.appendChild(this.#createBaseNode());
 		this.#showTypeControlLayout(selected);
-		// this.setFileFields()
-		// this.createDom
 	}
 
 	parseTargetProperties()
@@ -67,10 +66,13 @@ export class FileSelector extends InlineSelector
 			config = {};
 		}
 
-		this.#type = config.type || FileSelector.TYPE.File;
-		if (config.selected && !config.selected.length)
+		if (config.type)
 		{
-			this.#type = FileSelector.TYPE.None;
+			this.#type = config.type;
+		}
+		else
+		{
+			this.#type = this.context.get('fileFields').length > 0 ? FileSelector.TYPE.File : FileSelector.TYPE.Disk;
 		}
 
 		this.#multiple = config.multiple || false;
@@ -120,9 +122,9 @@ export class FileSelector extends InlineSelector
 			/>
 		`;
 
-		fileTypeOptions.push(Tag.render`
-			<span class="bizproc-automation-popup-settings-title">${this.#label}:</span>
-		`);
+		// fileTypeOptions.push(Tag.render`
+		// 	<span class="bizproc-automation-popup-settings-title">${this.#label}:</span>
+		// `);
 
 		if (fileRadio)
 		{
@@ -149,7 +151,10 @@ export class FileSelector extends InlineSelector
 
 		return Tag.render`
 			<div class="bizproc-automation-popup-settings-block">
-				${fileTypeOptions}
+				<span class="bizproc-automation-popup-settings-title">${this.#label}:</span>
+				<div class="bizproc-automation-popup-settings-tab-head">
+					${fileTypeOptions}
+				</div>							
 			</div>
 		`;
 	}
@@ -175,7 +180,11 @@ export class FileSelector extends InlineSelector
 
 	#showDiskControllerLayout(selected: Array): void
 	{
-		if (!this.#diskControllerNode)
+		if (this.#diskControllerNode)
+		{
+			Dom.show(this.#diskControllerNode);
+		}
+		else
 		{
 			this.#diskControllerNode = Dom.create('div');
 
@@ -190,10 +199,6 @@ export class FileSelector extends InlineSelector
 				this.addItems(selected);
 			}
 		}
-		else
-		{
-			Dom.show(this.#diskControllerNode);
-		}
 	}
 
 	#hideDiskControllerLayout(): void
@@ -206,15 +211,37 @@ export class FileSelector extends InlineSelector
 
 	#showFileControllerLayout(selected: Array): void
 	{
-		if (!this.#fileControllerNode)
+		if (this.#fileControllerNode)
 		{
-			this.#fileItemsNode = Dom.create('span');
-			this.#fileControllerNode = Dom.create('div', {children: [this.#fileItemsNode]});
+			Dom.show(this.#fileControllerNode);
+		}
+		else
+		{
+			this.#fileItemsNode = Dom.create('span', {
+				attrs: {
+					className: 'bizproc-automation-popup-settings-tab-item-box',
+				},
+			});
+			this.#fileControllerNode = Dom.create('div', {
+				attrs: {
+					className: 'bizproc-automation-popup-settings-tab-inner',
+				},
+				children: [this.#fileItemsNode],
+			});
 			this.targetInput.appendChild(this.#fileControllerNode);
 			const addButtonNode = Dom.create('a', {
-				attrs: {className: 'bizproc-automation-popup-settings-link bizproc-automation-popup-settings-link-thin'},
-				text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD')
+				attrs: { className: 'bizproc-automation-popup-settings-link bizproc-automation-popup-settings-link-thin' },
+				text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD_FILE'),
 			});
+
+			const addButtonDesc = Dom.create('div', {
+				attrs: {
+					className: 'bizproc-automation-popup-settings-desc',
+				},
+				text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD_FILE_LEGEND'),
+			});
+
+			Dom.append(addButtonDesc, addButtonNode);
 
 			this.#fileControllerNode.appendChild(addButtonNode);
 
@@ -224,10 +251,6 @@ export class FileSelector extends InlineSelector
 			{
 				this.addItems(selected);
 			}
-		}
-		else
-		{
-			Dom.show(this.#fileControllerNode);
 		}
 	}
 
@@ -247,14 +270,14 @@ export class FileSelector extends InlineSelector
 				'',
 				{
 					msg: {
-						'diskAttachFiles' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACH_FILE'),
-						'diskAttachedFiles' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACHED_FILES'),
-						'diskSelectFile' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE'),
-						'diskSelectFileLegend' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND_MSGVER_1'),
-						'diskUploadFile' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE'),
-						'diskUploadFileLegend' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND')
-					}
-				}
+						diskAttachFiles: Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACH_FILE'),
+						diskAttachedFiles: Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACHED_FILES'),
+						diskSelectFile: Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE'),
+						diskSelectFileLegend: Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND_MSGVER_1'),
+						diskUploadFile: Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE'),
+						diskUploadFileLegend: Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND'),
+					},
+				},
 			);
 
 			this.#diskUploader.setMode(1);
@@ -282,7 +305,7 @@ export class FileSelector extends InlineSelector
 		const node = this.#createFileItemNode(item);
 		if (!this.#multiple)
 		{
-			Dom.clean(this.#fileItemsNode)
+			Dom.clean(this.#fileItemsNode);
 		}
 
 		this.#fileItemsNode.appendChild(node);
@@ -290,16 +313,16 @@ export class FileSelector extends InlineSelector
 
 	#isFileItemSelected(item: object)
 	{
-		return !!this.#fileItemsNode.querySelector(`[data-file-id="${item.id}"]`);
+		return Boolean(this.#fileItemsNode.querySelector(`[data-file-id="${item.id}"]`));
 	}
 
 	addItems(items: Array<object>)
 	{
 		if (this.#type === FileSelector.TYPE.File)
 		{
-			for(const fileItem of items)
+			for (const fileItem of items)
 			{
-				this.#addFileItem(fileItem)
+				this.#addFileItem(fileItem);
 			}
 		}
 		else
@@ -307,7 +330,7 @@ export class FileSelector extends InlineSelector
 			this
 				.#getDiskUploader()
 				.setValues(
-					FileSelector.#convertToDiskItems(items)
+					FileSelector.#convertToDiskItems(items),
 				);
 		}
 	}
@@ -315,9 +338,9 @@ export class FileSelector extends InlineSelector
 	static #convertToDiskItems(items: Array<object>)
 	{
 		return items.map((item) => ({
-			ID: item['id'],
-			NAME: item['name'],
-			SIZE: item['size'],
+			ID: item.id,
+			NAME: item.name,
+			SIZE: item.size,
 			VIEW_URL: '',
 		}));
 	}
@@ -334,35 +357,32 @@ export class FileSelector extends InlineSelector
 	#onFileFieldAddClick(addButtonNode, event)
 	{
 		const self = this;
-
-		if (!this.#menuId)
+		if (!this.#menu)
 		{
-			this.#menuId = Helper.generateUniqueId();
+			this.#menu = MenuManager.create(
+				Helper.generateUniqueId(),
+				addButtonNode,
+				this.context.get('fileFields').map((field) => ({
+					text: Text.encode(field.Name),
+					field,
+					onclick()
+					{
+						this.popupWindow.close();
+						self.onFieldSelect(field);
+					},
+				})),
+				{
+					autoHide: true,
+					offsetLeft: Dom.getPosition(addButtonNode).width / 2,
+					angle: {
+						position: 'top',
+						offset: 0,
+					},
+				},
+			);
 		}
 
-		MenuManager.show(
-			this.#menuId,
-			addButtonNode,
-			this.context.get('fileFields').map((field) => ({
-				text: Text.encode(field.Name),
-				field,
-				onclick(event, item)
-				{
-					this.popupWindow.close();
-					self.onFieldSelect(field);
-				}
-			})),
-			{
-				autoHide: true,
-				offsetLeft: Dom.getPosition(addButtonNode)['width'] / 2,
-				angle: {
-					position: 'top',
-					offset: 0,
-				},
-			}
-		);
-
-		// this.#menu = MenuManager.currentItem;
+		this.#menu.show();
 		event.preventDefault();
 	}
 
@@ -372,13 +392,13 @@ export class FileSelector extends InlineSelector
 			id: field.Id,
 			expression: field.Expression,
 			name: field.Name,
-			type: FileSelector.TYPE.File
+			type: FileSelector.TYPE.File,
 		});
 	}
 
 	#createFileItemNode(item)
 	{
-		const itemField = this.context.get('fileFields').find(field => field.Expression === item.expression);
+		const itemField = this.context.get('fileFields').find((field) => field.Expression === item.expression);
 		const label = itemField?.Name || '';
 
 		return Tag.render`
@@ -406,21 +426,35 @@ export class FileSelector extends InlineSelector
 		else if (this.#type === FileSelector.TYPE.File)
 		{
 			ids = (
-				Array.from(this.#fileItemsNode.childNodes)
-					.map(node => node.getAttribute('data-file-expression'))
-					.filter(id => id !== '')
+				[...this.#fileItemsNode.childNodes]
+					.map((node) => node.getAttribute('data-file-expression'))
+					.filter((id) => id !== '')
 			);
 		}
 
+		const wrapper = Tag.render`<div></div>`;
 		for (const id of ids)
 		{
-			this.targetInput.appendChild(Tag.render`
-				<input
-					type="hidden"
-					name="${this.#valueInputName + (this.#multiple ? '[]' : '')}"
-					value="${id}"
-				/>
-			`);
+			Dom.append(
+				Tag.render`
+					<input
+						type="hidden"
+						name="${this.#valueInputName + (this.#multiple ? '[]' : '')}"
+						value="${id}"
+					/>
+				`,
+				wrapper,
+			);
 		}
+
+		if (this.#inputWrapper)
+		{
+			Dom.replace(this.#inputWrapper, wrapper);
+		}
+		else
+		{
+			Dom.append(wrapper, this.targetInput);
+		}
+		this.#inputWrapper = wrapper;
 	}
 }

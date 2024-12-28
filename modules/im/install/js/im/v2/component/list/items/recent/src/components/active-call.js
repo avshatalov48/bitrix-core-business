@@ -1,10 +1,12 @@
 import { Messenger } from 'im.public';
 import { Text } from 'main.core';
 
-import { ChatType, RecentCallStatus } from 'im.v2.const';
+import { EventEmitter } from 'main.core.events';
+
+import { ChatType, RecentCallStatus, EventType } from 'im.v2.const';
 import { ChatAvatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonSize, ButtonColor, ButtonIcon } from 'im.v2.component.elements';
 import { CallManager } from 'im.v2.lib.call';
-import { Analytics } from 'im.v2.lib.analytics';
+import { Analytics as CallAnalytics } from 'call.lib.analytics';
 
 import '../css/active-call.css';
 
@@ -70,9 +72,11 @@ export const ActiveCall = {
 	{
 		onJoinClick()
 		{
+			EventEmitter.emit(EventType.call.onJoinFromRecentItem);
+
 			if (this.isConference)
 			{
-				Analytics.getInstance().onJoinConferenceClick({
+				CallAnalytics.getInstance().onJoinConferenceClick({
 					callId: this.activeCall.call.id,
 				});
 				Messenger.openConference({ code: this.dialog.public.code });

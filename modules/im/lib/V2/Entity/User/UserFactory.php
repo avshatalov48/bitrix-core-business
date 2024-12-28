@@ -5,6 +5,7 @@ namespace Bitrix\Im\V2\Entity\User;
 use Bitrix\Im\Color;
 use Bitrix\Im\Model\StatusTable;
 use Bitrix\Im\Model\UserTable;
+use Bitrix\Im\V2\Integration\Extranet\CollaberService;
 use Bitrix\Main\Application;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Loader;
@@ -84,6 +85,10 @@ class UserFactory
 		if ($userData['IS_BOT'])
 		{
 			return UserBot::initByArray($userData);
+		}
+		if (CollaberService::getInstance()->isCollaber((int)$userData['ID']))
+		{
+			return UserCollaber::initByArray($userData);
 		}
 		if ($userData['IS_EXTRANET'])
 		{
@@ -269,6 +274,12 @@ class UserFactory
 		$cacheSubSubDir = ($id % 10000) / 100;
 
 		return "/bx/imc/userdata_v7/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
+	}
+
+	public function clearCache(int $id): void
+	{
+		User::clearStaticCache($id);
+		Application::getInstance()->getCache()->cleanDir($this->getCacheDir($id));
 	}
 
 	//endregion

@@ -1,5 +1,5 @@
 import { Core } from 'im.v2.application.core';
-import { ChatType } from 'im.v2.const';
+import { ChatType, UserType } from 'im.v2.const';
 
 import { LocalSearch } from 'im.v2.lib.search';
 import { Utils } from 'im.v2.lib.utils';
@@ -110,7 +110,7 @@ export class MentionSearchService
 		{
 			const user: ImModelUser = this.#store.getters['users/get'](dialogId);
 
-			return user && user.extranet;
+			return user && user.type === UserType.extranet;
 		}
 
 		return dialog.extranet;

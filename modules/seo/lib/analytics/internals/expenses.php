@@ -2,9 +2,11 @@
 
 namespace Bitrix\Seo\Analytics\Internals;
 
+use Bitrix\Main\Type\Date;
+
 class Expenses
 {
-	protected $data;
+	protected array $data = [];
 
 	/**
 	 * Expenses constructor.
@@ -19,11 +21,11 @@ class Expenses
 	 * @param array $data
 	 * @return $this
 	 */
-	public function add(array $data)
+	public function add(array $data): static
 	{
-		foreach($this->getNumericFieldNames() as $name)
+		foreach ($this->getNumericFieldNames() as $name)
 		{
-			if(isset($data[$name]))
+			if (isset($data[$name]))
 			{
 				$value = $data[$name];
 				if (is_array($value))
@@ -42,9 +44,25 @@ class Expenses
 				}
 			}
 		}
-		if(isset($data['currency']) && empty($this->data['currency']))
+
+		if (isset($data['currency']) && empty($this->data['currency']))
 		{
-			$this->data['currency'] = $data['currency'];
+			$this->data['currency'] = (string)$data['currency'];
+		}
+
+		if (isset($data['campaignId']))
+		{
+			$this->data['campaignId'] = (string)$data['campaignId'];
+		}
+
+		if (isset($data['campaignName']))
+		{
+			$this->data['campaignName'] = (string)$data['campaignName'];
+		}
+
+		if (isset($data['date']) && $data['date'] instanceof Date)
+		{
+			$this->data['date'] = $data['date'];
 		}
 
 		return $this;
@@ -53,7 +71,7 @@ class Expenses
 	/**
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		return $this->data;
 	}
@@ -61,33 +79,33 @@ class Expenses
 	/**
 	 * @return int
 	 */
-	public function getImpressions()
+	public function getImpressions(): int
 	{
-		return $this->data['impressions'];
+		return (int)($this->data['impressions'] ?? 0);
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getClicks()
+	public function getClicks(): int
 	{
-		return $this->data['clicks'];
+		return (int)($this->data['clicks'] ?? 0);
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getActions()
+	public function getActions(): int
 	{
-		return $this->data['actions'];
+		return (int)($this->data['actions'] ?? 0);
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getCpc()
+	public function getCpc(): float
 	{
-		return $this->data['cpc'];
+		return (float)($this->data['cpc'] ?? 0);
 	}
 
 	/**
@@ -95,15 +113,15 @@ class Expenses
 	 *
 	 * @return float
 	 */
-	public function getCpm()
+	public function getCpm(): float
 	{
-		return $this->data['cpm'];
+		return (float)($this->data['cpm'] ?? 0);
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getSpend()
+	public function getSpend(): float
 	{
 		return $this->data['spend'];
 	}
@@ -111,9 +129,33 @@ class Expenses
 	/**
 	 * @return string
 	 */
-	public function getCurrency()
+	public function getCurrency(): string
 	{
 		return $this->data['currency'];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCampaignId(): string
+	{
+		return $this->data['campaignId'] ?? '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCampaignName(): string
+	{
+		return $this->data['campaignName'];
+	}
+
+	/**
+	 * @return null|Date
+	 */
+	public function getDate(): ?Date
+	{
+		return $this->data['date'];
 	}
 
 	/**
@@ -129,15 +171,18 @@ class Expenses
 			'cpm' => 0,
 			'spend' => 0,
 			'currency' => '',
+			'campaignId' => '',
+			'campaignName' => '',
+			'date' => null,
 		];
 
-		$this->data = array_merge($this->data, $data);
+		$this->add($data);
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function getNumericFieldNames()
+	protected function getNumericFieldNames(): array
 	{
 		return ['impressions', 'clicks', 'actions', 'cpc', 'cpm', 'spend'];
 	}

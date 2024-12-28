@@ -24,6 +24,13 @@ export const AnalyticsEvent = Object.freeze({
 	clickCallButton: 'click_call_button',
 	clickStartConf: 'click_start_conf',
 	clickJoin: 'click_join',
+	clickAddUser: 'click_add_user',
+	openCalendar: 'open_calendar',
+	openTasks: 'open_tasks',
+	openFiles: 'open_files',
+	clickCreateTask: 'click_create_task',
+	clickCreateEvent: 'click_create_event',
+	clickAttach: 'click_attach',
 });
 
 export const AnalyticsTool = Object.freeze({
@@ -47,6 +54,7 @@ export const AnalyticsCategory = Object.freeze({
 	message: 'message',
 	chatPopup: 'chat_popup',
 	call: 'call',
+	collab: 'collab',
 });
 
 export const AnalyticsType = Object.freeze({
@@ -70,6 +78,10 @@ export const AnalyticsSection = Object.freeze({
 	popup: 'popup',
 	activeChat: 'active_chat',
 	comments: 'comments',
+	chatHeader: 'chat_header',
+	chatSidebar: 'chat_sidebar',
+	chatTextarea: 'chat_textarea',
+	editor: 'editor',
 });
 
 export const AnalyticsSubSection = Object.freeze({
@@ -92,4 +104,8 @@ export const AnalyticsElement = Object.freeze({
 export const AnalyticsStatus = Object.freeze({
 	success: 'success',
 	errorTurnedOff: 'error_turnedoff',
+});
+
+export const CreateChatContext = Object.freeze({
+	collabEmptyState: 'collab_empty_state',
 });

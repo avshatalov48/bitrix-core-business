@@ -191,13 +191,14 @@ abstract class MysqlCommonConnection extends Connection
 		{
 			$result = $this->query($sql);
 		}
-		catch (\Bitrix\Main\DB\SqlQueryException $e)
+		catch (SqlQueryException $e)
 		{
-			//Duplicate key name
-			if (!str_contains($e->getMessage(), '(1061)'))
+			// Duplicate key name
+			if ($this->getErrorCode() != 1061)
 			{
 				throw $e;
 			}
+			return false;
 		}
 
 		return $result;
@@ -400,5 +401,17 @@ abstract class MysqlCommonConnection extends Connection
 		}
 
 		return $mtu;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function createQueryException($code = 0, $databaseMessage = '', $query = '')
+	{
+		if ($code == 1062)
+		{
+			return new DuplicateEntryException('Mysql query error', $databaseMessage, $query);
+		}
+		return new SqlQueryException('Mysql query error', $databaseMessage, $query);
 	}
 }

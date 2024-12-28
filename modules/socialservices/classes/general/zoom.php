@@ -287,7 +287,7 @@ class CSocServZoom extends CSocServAuth
 			$url .= ((strpos($url, "?") === false) ? '?' : '&') . "current_fieldset=SOCSERV";
 		}
 		?>
-		<script type="text/javascript">
+		<script>
 			if (window.opener)
 				window.opener.location.reload();
 			window.close();

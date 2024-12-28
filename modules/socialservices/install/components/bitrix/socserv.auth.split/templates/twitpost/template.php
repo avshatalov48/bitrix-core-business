@@ -6,7 +6,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 if($arResult['ERROR_MESSAGE'])
 	ShowMessage($arResult['ERROR_MESSAGE']);
 ?>
-<script type="text/javascript">
+<script>
 	function ShowTwitDiv(){
 		var obTwitterRecipients = document.getElementById('soc-serv-recipients');
 		if(obTwitterRecipients.style.display == 'block')

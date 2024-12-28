@@ -12,6 +12,7 @@
 		};
 
 	window.FCList = function (params, add) {
+		this.author = params.author;
 		this.exemplarId = params["EXEMPLAR_ID"]/* || BX.util.getRandomString(20)*/; // To identify myself
 		this.ENTITY_XML_ID = params["ENTITY_XML_ID"]; // like groupId for lists
 		this.template = params["template"]; //html message
@@ -848,7 +849,7 @@
 			e["UCDone"] = true;
 			setTimeout(this.quoteShow, 50, e, params);
 		},
-		reply : function(node) {
+		reply : function(node, context = 'add_comment_field') {
 			var author = {
 				id: undefined,
 				name: undefined,
@@ -874,7 +875,7 @@
 				{
 					return;
 				}
-				BX.onCustomEvent(this.form, "onReply", [this, author]);
+				BX.onCustomEvent(this.form, "onReply", [this, author, context]);
 			}
 			else
 			{
@@ -1208,6 +1209,24 @@
 				}, 1000);
 			}
 
+			const messageFields = data.messageFields;
+			const fieldAuthor = messageFields?.AUTHOR;
+
+			const authorTitle = container.querySelector('.post-comment-author');
+			if (authorTitle && this.author.AUTHOR_TYPE)
+			{
+				BX.Dom.addClass(authorTitle, `feed-com-name-${this.author.AUTHOR_TYPE}`);
+			}
+
+			BX?.MPL?.UIAvatar?.({
+				node: container,
+				user: {
+					name: fieldAuthor.FULL_NAME,
+					image: fieldAuthor.AVATAR,
+					type: fieldAuthor.TYPE,
+				},
+			});
+
 			if (
 				animation !== "simple"
 				&& BX.Type.isUndefined(window.BXMobileApp) // non-mobile
@@ -1268,31 +1287,32 @@
 			var cnt = 0,
 			func = function()
 			{
-				if (100 < ++cnt)
-				{
-					return;
-				}
-				if (this.getCommentNode(messageId[1]).childNodes.length > 0)
-				{
-					BX.ajax.processScripts(ob.SCRIPT);
-					if (this.params["BIND_VIEWER"] === "Y" && BX["viewElementBind"])
+					if (100 < ++cnt)
 					{
-						BX.viewElementBind(
-							this.getCommentNode(messageId[1]), {},
-							function(node ){
-								return BX.type.isElementNode(node) && (node.getAttribute("data-bx-viewer") || node.getAttribute("data-bx-image"));
-							}
-						);
+						return;
 					}
-				}
-				else
-				{
-					setTimeout(func, 500)
-				}
-				BX.onCustomEvent(window, "OnUCRecordHasDrawn", [this.ENTITY_XML_ID, messageId, (data["messageFields"] || data)]);
-				BX.onCustomEvent(window, "OnUCCommentWasAdded", [this.ENTITY_XML_ID, messageId, (data["messageFields"] || data)]);
-				BX.onCustomEvent(window, "OnUCFeedChanged", [messageId]);
-			}.bind(this);
+					if (this.getCommentNode(messageId[1]).childNodes.length > 0)
+					{
+						BX.ajax.processScripts(ob.SCRIPT);
+						if (this.params["BIND_VIEWER"] === "Y" && BX["viewElementBind"])
+						{
+							BX.viewElementBind(
+								this.getCommentNode(messageId[1]), {},
+								function(node ){
+									return BX.type.isElementNode(node) && (node.getAttribute("data-bx-viewer") || node.getAttribute("data-bx-image"));
+								}
+							);
+						}
+					}
+					else
+					{
+						setTimeout(func, 500)
+					}
+
+					BX.onCustomEvent(window, "OnUCRecordHasDrawn", [this.ENTITY_XML_ID, messageId, (messageFields || data)]);
+					BX.onCustomEvent(window, "OnUCCommentWasAdded", [this.ENTITY_XML_ID, messageId, (messageFields || data)]);
+					BX.onCustomEvent(window, "OnUCFeedChanged", [messageId]);
+				}.bind(this);
 			setTimeout(func, 500);
 			return true;
 		},
@@ -2404,6 +2424,10 @@
 				{
 					authorStyle = " feed-com-name-extranet";
 				}
+				else if (res["AUTHOR"]["TYPE"] === "COLLABER")
+				{
+					authorStyle = " feed-com-name-collaber";
+				}
 			}
 			else if (res["AUTHOR"]["IS_EXTRANET"] == "Y")
 			{
@@ -2509,6 +2533,7 @@
 							? (params["AUTHOR_URL"].indexOf("?") >= 0 ? '&' : '?') + 'entityType=' + params["AUTHOR_URL_PARAMS"]["entityType"] + '&entityId=' + params["AUTHOR_URL_PARAMS"]["entityId"]
 							: ''
 					),
+				"AUTHOR_TYPE": res["AUTHOR"]["TYPE"],
 				"AUTHOR_NAME" : BX.formatName(res["AUTHOR"], params["NAME_TEMPLATE"], params["SHOW_LOGIN"]),
 				"AUTHOR_EXTRANET_STYLE" : authorStyle,
 				"VOTE_ID" : (res["RATING"] && res["RATING"]["VOTE_ID"] ? res["RATING"]["VOTE_ID"] : ""),

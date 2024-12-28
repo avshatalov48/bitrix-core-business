@@ -4,6 +4,7 @@ namespace Bitrix\Calendar\Core\Mappers;
 
 use Bitrix\Calendar\Core\Builders\SectionBuilderFromDataManager;
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Internals\EO_Section;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Util;
@@ -70,11 +71,14 @@ class Section extends Mapper implements BaseMapperInterface
 	 */
 	protected function getOneEntityByFilter(array $filter): ?object
 	{
-		if ($sectionData = SectionTable::query()
+		$sectionData = SectionTable::query()
 			->setFilter($filter)
 			->setSelect(['*'])
 			->fetchObject()
-		) {
+		;
+
+		if ($sectionData)
+		{
 			return $this->convertToObject($sectionData);
 		}
 
@@ -230,7 +234,7 @@ class Section extends Mapper implements BaseMapperInterface
 	private function sendPushEdit(int $userId, bool $isNewSection): void
 	{
 		Util::addPullEvent(
-			'edit_section',
+			PushCommand::EditSection,
 			$userId,
 			[
 				'newSection' => $isNewSection,

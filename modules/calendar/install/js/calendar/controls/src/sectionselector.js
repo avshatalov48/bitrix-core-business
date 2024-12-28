@@ -121,10 +121,17 @@ export class SectionSelector
 							|| SectionSelector.getSectionType(section) === sectionGroup.type;
 					});
 				}
+				else if (sectionGroup.type === 'collab')
+				{
+					filteredList = sectionList.filter((section) => {
+						return Type.isFunction(section.isCollab) && section.isCollab() || section['IS_COLLAB'];
+					});
+				}
 				else
 				{
 					filteredList = sectionList.filter((section) => {
-						return SectionSelector.getSectionType(section) === sectionGroup.type;
+						return SectionSelector.getSectionType(section) === sectionGroup.type
+							&& !(Type.isFunction(section.isCollab) && section.isCollab() || section['IS_COLLAB'])
 					});
 				}
 

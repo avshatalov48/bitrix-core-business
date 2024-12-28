@@ -39,12 +39,14 @@ CUtil::InitJSCore([ 'fx', 'ui.cnt']);
 $controlId = htmlspecialcharsbx($arParams["divId"]);
 
 ?><div class="feed-add-post" id="div<?=$controlId?>" <?=($arParams["LHE"]["lazyLoad"] ? ' style="display:none;"' : '')?>>
+	<?php if ($arParams['isDnDEnabled']): ?>
 	<div class="feed-add-post-dnd-notice">
 		<div class="feed-add-post-dnd-inner">
 			<span class="feed-add-post-dnd-icon"></span>
 			<span class="feed-add-post-dnd-text"><?=GetMessage("MPF_DRAG_ATTACHMENTS")?></span>
 		</div>
 	</div>
+	<?php endif; ?>
 	<div class="feed-add-post-form feed-add-post-edit-form">
 		<?= $arParams["~HTML_BEFORE_TEXTAREA"] ?? ''?>
 		<div class="feed-add-post-text">
@@ -77,6 +79,7 @@ BX.ready(function()
 			'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
 			'urlPreviewId' => $arParams['urlPreviewId'] ?? '',
 			'parsers' => $arParams["PARSER"],
+			'isDnDEnabled' => $arParams['isDnDEnabled'],
 			'tasksLimitExceeded' => !!$arResult['tasksLimitExceeded'],
 		]); ?>,
 		<?= Json::encode(

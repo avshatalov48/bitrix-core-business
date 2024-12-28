@@ -95,7 +95,16 @@ $userOptions = [
 					'bgColor' => '#e6f4b9',
 				],
 			],
-		]
+		],
+		'collaber' => [
+			'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/collaber-user.svg',
+			'textColor' => '#19CC45',
+			'avatarOptions' => [
+				'outline' => '1px solid #19CC45',
+				'border' => '2px solid #fff',
+				'outlineOffset' => '-1px',
+			],
+		],
 	],
 	'tagOptions' => [
 		'default' => [
@@ -116,6 +125,11 @@ $userOptions = [
 		'inactive' => [
 			'textColor' => '#5f6670',
 			'bgColor' => '#ecedef',
+		],
+		'collaber' => [
+			'textColor' => '#1E8D36',
+			'bgColor' => '#D4FDB0',
+			'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/collaber-user.svg'
 		],
 	]
 ];
@@ -161,7 +175,13 @@ return [
 									'bgColor' => '#fff599',
 								]
 							],
-						]
+						],
+						'collab' => [
+							'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/collab-project.svg',
+							'textColor' => '#00a94e',
+							'supertitle' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_COLLAB_SUPER_TITLE'),
+							'link' => '',
+						],
 					],
 					'tagOptions' => [
 						'default' => [

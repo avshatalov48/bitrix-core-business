@@ -1,4 +1,5 @@
 import SharingButton from './controls/sharingbutton';
+import GroupSharingButton from './controls/groupsharingbutton';
 
 export default class Interface
 {
@@ -10,6 +11,7 @@ export default class Interface
 		this.sharingFeatureLimit = options.sharingFeatureLimit ?? false;
 		this.sharingSettingsCollapsed = options.sharingSettingsCollapsed ?? false;
 		this.sortJointLinksByFrequentUse = options.sortJointLinksByFrequentUse ?? false;
+		this.calendarContext = options.calendarContext ?? null;
 	}
 
 	showSharingButton()
@@ -21,6 +23,20 @@ export default class Interface
 			sharingFeatureLimit: this.sharingFeatureLimit,
 			sharingSettingsCollapsed: this.sharingSettingsCollapsed,
 			sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
+		});
+		this.sharingButton.show();
+	}
+
+	showGroupSharingButton(): void
+	{
+		this.sharingButton = new GroupSharingButton({
+			wrap: this.buttonWrap,
+			userInfo: this.userInfo,
+			payAttentionToNewFeature: this.payAttentionToNewFeature,
+			sharingFeatureLimit: this.sharingFeatureLimit,
+			sharingSettingsCollapsed: this.sharingSettingsCollapsed,
+			sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
+			calendarContext: this.calendarContext,
 		});
 		this.sharingButton.show();
 	}

@@ -15,10 +15,9 @@
 	height: 100vh;
 	width: 100%;
 	color: white;
-	background-color: #000;
 	min-width: 940px;
 	background: #0E1622;
-	background-image: url('images/pattern-white-op.png'), url('images/highlights.png');
+	background-image: url('images/pattern-white-op-v2.png'), url('images/highlights-v2.png');
 	background-position: top right, center;
 	background-repeat: repeat, no-repeat;
 	background-size: auto, cover;

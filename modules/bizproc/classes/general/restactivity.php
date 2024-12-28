@@ -273,8 +273,7 @@ class CBPRestActivity extends CBPActivity implements
 
 	public function unsubscribe(IBPActivityExternalEventListener $eventHandler)
 	{
-		$timeoutDuration = $this->CalculateTimeoutDuration();
-		if ($timeoutDuration > 0)
+		if ($this->subscriptionId > 0)
 		{
 			$schedulerService = $this->workflow->GetService("SchedulerService");
 			$schedulerService->UnSubscribeOnTime($this->subscriptionId);

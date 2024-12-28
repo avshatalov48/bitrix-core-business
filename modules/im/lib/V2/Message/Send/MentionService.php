@@ -100,7 +100,7 @@ class MentionService
 	{
 		$chat = $this->getChat($message);
 		$avatarUser = $message->getAuthor()?->getAvatar();
-		$avatarChat = $chat->getAvatar(200, false, true);
+		$avatarChat = $chat->getAvatar(false, true);
 		$pushText = $this->preparePushMessage($message);
 		$chatTitle = htmlspecialcharsbx(\Bitrix\Im\Text::decodeEmoji($chat->getTitle() ?? ''));
 

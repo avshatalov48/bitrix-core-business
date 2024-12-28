@@ -18,7 +18,7 @@ export default class AvatarSquare extends AvatarBase
 		if (!this.node.avatar)
 		{
 			this.node.avatar = Tag.render`
-				<div class="ui-avatar --square">
+				<div class="ui-avatar --square --base">
 					<svg viewBox="0 0 102 102">
 						<path class="ui-avatar-base" d="M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z"/>
 					</svg>

@@ -6,11 +6,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Disk\Uf\Integration\DiskUploaderController;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
-use Bitrix\Main\Loader;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Web\Uri;
 
 Loc::loadMessages(__FILE__);
@@ -297,6 +297,20 @@ HTML;
 		}
 	}
 
+	public static function isCollabUser(int $userId): bool
+	{
+		if (!Loader::includeModule('extranet') || $userId <= 0)
+		{
+			return false;
+		}
+
+		$container = class_exists(\Bitrix\Extranet\Service\ServiceContainer::class)
+			? \Bitrix\Extranet\Service\ServiceContainer::getInstance()
+			: null;
+
+		return $container?->getCollaberService()?->isCollaberById($userId) ?? false;
+	}
+
 	protected function buildUser($id)
 	{
 		static $extranetUserIdList = false;
@@ -346,6 +360,8 @@ HTML;
 		$res["LAST_NAME"] = htmlspecialcharsbx($res["LAST_NAME"]);
 		$res["SECOND_NAME"] = htmlspecialcharsbx($res["SECOND_NAME"]);
 		$res["IS_EXTRANET"] = is_array($extranetUserIdList) && in_array($res["ID"], $extranetUserIdList) ? "Y" : "N";
+		$res["FULL_NAME"] = \CUser::FormatName(\CSite::GetNameFormat(false), $res, false, false);
+
 		if (!isset($res["TYPE"]))
 		{
 			if (!empty($res["UF_USER_CRM_ENTITY"]))
@@ -359,7 +375,11 @@ HTML;
 			{
 				$res["TYPE"] = "EMAIL";
 			}
-			elseif ($res["IS_EXTRANET"] == 'Y')
+			elseif ($res["ID"] > 0 && self::isCollabUser($res["ID"]))
+			{
+				$res["TYPE"] = "COLLABER";
+			}
+			elseif ($res["IS_EXTRANET"] === 'Y')
 			{
 				$res["TYPE"] = "EXTRANET";
 			}
@@ -758,25 +778,30 @@ HTML;
 				: "javascript:void();"
 		);
 
+		$authorType = $res["AUTHOR"]["TYPE"];
 		$authorStyle = '';
 		$authorTooltipParams = array();
 
-		if (!empty($res["AUTHOR"]["TYPE"]))
+		if (!empty($authorType))
 		{
-			if ($res["AUTHOR"]["TYPE"] == 'EMAILCRM')
+			if ($authorType === 'EMAILCRM')
 			{
 				$authorStyle = ' feed-com-name-emailcrm';
 			}
-			if ($res["AUTHOR"]["TYPE"] == 'EMAIL')
+			if ($authorType === 'EMAIL')
 			{
 				$authorStyle = ' feed-com-name-email';
 			}
-			else if ($res["AUTHOR"]["TYPE"] == 'EXTRANET')
+			else if ($authorType === 'COLLABER')
+			{
+				$authorStyle = ' feed-com-name-collaber';
+			}
+			else if ($authorType === 'EXTRANET')
 			{
 				$authorStyle = ' feed-com-name-extranet';
 			}
 		}
-		else if ($res["AUTHOR"]["IS_EXTRANET"] == "Y")
+		else if ($res["AUTHOR"]["IS_EXTRANET"] === "Y")
 		{
 			$authorStyle = ' feed-com-name-extranet';
 		}
@@ -786,7 +811,7 @@ HTML;
 			&& (
 				(isset($arParams["bPublicPage"]) && $arParams["bPublicPage"])
 				|| SITE_ID == $extranetSiteId
-				|| (!empty($res["AUTHOR"]["TYPE"]) && in_array($res["AUTHOR"]["TYPE"], array('EMAIL', 'EMAILCRM', 'EXTRANET')))
+				|| (!empty($authorType) && in_array($authorType, array('EMAIL', 'EMAILCRM', 'EXTRANET')))
 			)
 		)
 		{
@@ -818,6 +843,8 @@ HTML;
 						: ""
 				)
 		);
+
+		$authorAvatarClass = $authorType === 'COLLABER' ? 'feed-com-avatar-collaber' : '';
 
 		$replacement = array(
 			"#ID#" =>
@@ -885,6 +912,10 @@ HTML;
 			"#CREATETASK_SHOW#" => (
 				empty($res["AUX"])
 				&& $arParams["RIGHTS"]["CREATETASK"] == "Y"
+				&& (
+				isset($res["WEB"])
+				|| (isset($res["MOBILE"]) && ModuleManager::isModuleInstalled('tasksmobile'))
+				)
 					? "Y"
 					: "N"
 			),
@@ -919,6 +950,7 @@ HTML;
 							: ""
 					)
 			),
+			"#AUTHOR_AVATAR_STYLE#" => $authorAvatarClass,
 			"#AUTHOR_AVATAR_BG#" => (
 				!empty($res["AUTHOR"]["AVATAR"])
 					? "background-image:url('" . Uri::urnEncode($res["AUTHOR"]["AVATAR"]) . "')"
@@ -929,6 +961,7 @@ HTML;
 					)
 				),
 			"#AUTHOR_URL#" => $authorUrl,
+			"#AUTHOR_TYPE#" => $authorType,
 			"#AUTHOR_NAME#" =>
 				CUser::FormatName(
 				$arParams["NAME_TEMPLATE"],
@@ -936,7 +969,7 @@ HTML;
 					"NAME" => $res["AUTHOR"]["NAME"],
 					"LAST_NAME" => $res["AUTHOR"]["LAST_NAME"],
 					"SECOND_NAME" => $res["AUTHOR"]["SECOND_NAME"],
-					"LOGIN" => $res["AUTHOR"]["LOGIN"],
+					"LOGIN" => $res["AUTHOR"]["LOGIN"] ?? null,
 					"NAME_LIST_FORMATTED" => ""
 				),
 				($arParams["SHOW_LOGIN"] != "N"),
@@ -1008,7 +1041,7 @@ HTML;
 		$arParams["NAME_TEMPLATE"] = (isset($_REQUEST["NAME_TEMPLATE"]) && $_REQUEST["NAME_TEMPLATE"] ? $_REQUEST["NAME_TEMPLATE"] : (isset ($arParams["NAME_TEMPLATE"]) && $arParams["NAME_TEMPLATE"] ? $arParams["NAME_TEMPLATE"] : \CSite::GetNameFormat()));
 		$arParams["SHOW_LOGIN"] = (isset($_REQUEST["SHOW_LOGIN"]) && $_REQUEST["SHOW_LOGIN"] == "Y" ? "Y" : (isset($arParams["SHOW_LOGIN"]) && $arParams["SHOW_LOGIN"] == "Y" ? "Y" : "N"));
 		$arParams["DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"]);
-		$arParams["FORM_ID"] = trim($arParams["FORM_ID"]);
+		$arParams["FORM_ID"] = trim($arParams["FORM_ID"] ?? '');
 		$arParams["SHOW_POST_FORM"] = ($arParams["SHOW_POST_FORM"] == "Y" || $arParams["FORM_ID"] <> '' ? "Y" : "N");
 		$arParams["BIND_VIEWER"] = (isset($arParams["BIND_VIEWER"]) && $arParams["BIND_VIEWER"] == "N" ? "N" : "Y");
 		$arParams["SIGN"] = $this->sign->sign($arParams["ENTITY_XML_ID"], "main.post.list");
@@ -1098,7 +1131,8 @@ HTML;
 						"height" => $arParams["AVATAR_SIZE"]
 					),
 					BX_RESIZE_IMAGE_EXACT
-				)
+				),
+				"IS_COLLABER" => self::isCollabUser($this->getUserId()),
 			);
 		}
 		else

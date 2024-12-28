@@ -120,12 +120,10 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 	// Use captcha
 	if (($arParams["SEND_".mb_strtoupper($arParams["TYPE"])] < "Y") && !$USER->IsAuthorized())
 	{
-		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 		$cpt = new CCaptcha();
 		if ($_REQUEST["captcha_code"] <> '')
 		{
-			$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-			if (!$cpt->CheckCodeCrypt($_REQUEST["captcha_word"], $_REQUEST["captcha_code"], $captchaPass))
+			if (!$cpt->CheckCodeCrypt($_REQUEST["captcha_word"], $_REQUEST["captcha_code"]))
 				$arError[] = array("id" => "BAD_CAPTCHA", "text" => GetMessage("F_BAD_CAPTCHA"));
 		}
 		else
@@ -203,15 +201,8 @@ if ($USER->IsAuthorized())
 }
 elseif ($arParams["SEND_".mb_strtoupper($arParams["TYPE"])] < "Y" && !$USER->IsAuthorized())
 {
-	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 	$cpt = new CCaptcha();
-	$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-	if ($captchaPass == '')
-	{
-		$captchaPass = randString(10);
-		COption::SetOptionString("main", "captcha_password", $captchaPass);
-	}
-	$cpt->SetCodeCrypt($captchaPass);
+	$cpt->SetCodeCrypt();
 	$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 }
 if ($bVarsFromForm)

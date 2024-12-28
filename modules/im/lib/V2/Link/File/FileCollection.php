@@ -65,6 +65,17 @@ class FileCollection extends BaseLinkCollection
 		return $collection;
 	}
 
+	public static function getByDiskFileId(int $diskFileId): self
+	{
+		$entity = LinkFileTable::query()
+			->setSelect(['ID', 'MESSAGE_ID', 'CHAT_ID', 'SUBTYPE', 'DISK_FILE_ID', 'DATE_CREATE', 'AUTHOR_ID'])
+			->where('DISK_FILE_ID', $diskFileId)
+			->fetchCollection()
+		;
+
+		return (new static($entity))->fillFiles();
+	}
+
 	public function fillFiles(): FileCollection
 	{
 		$diskFilesIds = $this->getEntityIds();

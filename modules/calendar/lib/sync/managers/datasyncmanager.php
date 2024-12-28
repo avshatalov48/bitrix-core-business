@@ -6,6 +6,7 @@ use Bitrix\Calendar\Core\Builders\EventBuilderFromArray;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Managers\EventOriginalRecursion;
 use Bitrix\Calendar\Core\Mappers\Factory;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Internals\Counter\CounterService;
 use Bitrix\Calendar\Internals\Counter\Event\EventDictionary;
 use Bitrix\Calendar\Internals\EventConnectionTable;
@@ -107,18 +108,22 @@ class DataSyncManager
 			if ($result->isSuccess())
 			{
 				\CDavConnection::SetLastResult($connection->getId(), $result->getData()['lastResult']);
-				Util::addPullEvent('refresh_sync_status', $connection->getOwner()->getId(), [
-					'syncInfo' => [
-						$connection->getAccountType() => [
-							'status' => $result->getData()['syncStatus'],
-							'type' => $connection->getAccountType(),
-							'connected' => true,
-							'id' => $connection->getId(),
-							'syncOffset' => 0
+				Util::addPullEvent(
+					PushCommand::RefreshSyncStatus,
+					$connection->getOwner()->getId(),
+					[
+						'syncInfo' => [
+							$connection->getAccountType() => [
+								'status' => $result->getData()['syncStatus'],
+								'type' => $connection->getAccountType(),
+								'connected' => true,
+								'id' => $connection->getId(),
+								'syncOffset' => 0
+							],
 						],
-					],
-					'requestUid' => Util::getRequestUid(),
-				]);
+						'requestUid' => Util::getRequestUid(),
+					]
+				);
 			}
 		}
 

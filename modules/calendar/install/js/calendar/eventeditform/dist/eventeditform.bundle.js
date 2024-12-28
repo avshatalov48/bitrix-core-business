@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core,calendar_controls,calendar_util,calendar_entry,calendar_sectionmanager,main_core_events,calendar_planner,ui_entitySelector,calendar_roomsmanager) {
+(function (exports,calendar_entry,calendar_planner,calendar_roomsmanager,calendar_sectionmanager,main_core_events,ui_entitySelector,main_core,calendar_controls,calendar_util) {
 	'use strict';
 
 	let _ = t => t,
@@ -119,10 +119,12 @@ this.BX = this.BX || {};
 	  _t11,
 	  _t12,
 	  _t13,
-	  _t14;
+	  _t14,
+	  _t15,
+	  _t16;
 	class EventEditForm {
 	  constructor(options = {}) {
-	    var _this$entry, _this$entry$data, _Util$getCalendarCont, _this$entry2;
+	    var _this$entry, _this$entry$data, _options$calendarCont, _this$entry2;
 	    this.DOM = {};
 	    this.uid = null;
 	    this.sliderId = 'calendar:edit-entry-slider';
@@ -157,9 +159,17 @@ this.BX = this.BX || {};
 	    this.emitter = new main_core_events.EventEmitter();
 	    this.emitter.setEventNamespace('BX.Calendar.EventEditForm');
 	    this.BX = calendar_util.Util.getBX();
-	    this.context = (_Util$getCalendarCont = calendar_util.Util.getCalendarContext()) != null ? _Util$getCalendarCont : options.calendarContext;
-	    if (!calendar_util.Util.getCalendarContext()) {
-	      calendar_util.Util.setCalendarContext(this.context);
+	    this.isCollabUser = ((_options$calendarCont = options.calendarContext) == null ? void 0 : _options$calendarCont.isCollabUser) || false;
+	    this.analyticsChatId = options.createChatId || null;
+	    this.analyticsSubSection = options.analyticsSubSection || this.getFormAnalyticsContext();
+	    if (this.isCollabUser) {
+	      calendar_util.Util.setCalendarContext(options.calendarContext);
+	    } else {
+	      var _Util$getCalendarCont;
+	      this.context = (_Util$getCalendarCont = calendar_util.Util.getCalendarContext()) != null ? _Util$getCalendarCont : options.calendarContext;
+	      if (!calendar_util.Util.getCalendarContext()) {
+	        calendar_util.Util.setCalendarContext(this.context);
+	      }
 	    }
 	    this.isOpenEvent = (((_this$entry2 = this.entry) == null ? void 0 : _this$entry2.data['CAL_TYPE']) || this.type) === 'open_event';
 	    // TODO: remove this check, planner enabled always
@@ -198,6 +208,15 @@ this.BX = this.BX || {};
 	    this.lastUsedSaveOptions = {};
 	    this.timezoneHint = '';
 	    this.isAvailable = true;
+	  }
+	  getFormAnalyticsContext() {
+	    if (this.analyticsChatId) {
+	      return 'chat_textarea';
+	    }
+	    if (this.type === 'group') {
+	      return 'calendar_collab';
+	    }
+	    return 'calendar_personal';
 	  }
 	  initInSlider(slider, promiseResolve) {
 	    this.sliderId = slider.getUrl();
@@ -314,7 +333,6 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  save(options = {}) {
-	    var _this$DOM$form, _this$repeatSelector;
 	    if (this.state === this.STATE.REQUEST || this.DOM.locationRepeatBusyErrorPopup) {
 	      return false;
 	    }
@@ -439,20 +457,16 @@ this.BX = this.BX || {};
 	      const selectedCategory = selectedCategories[0].id;
 	      this.DOM.form.appendChild(main_core.Tag.render(_t9 || (_t9 = _$1`<input type="hidden" name="category" value="${0}">`), selectedCategory));
 	    }
+	    if (this.analyticsSubSection) {
+	      this.DOM.form.appendChild(main_core.Tag.render(_t10 || (_t10 = _$1`<input type="hidden" name="analyticsSubSection" value="${0}">`), this.analyticsSubSection));
+	    }
+	    if (this.analyticsChatId) {
+	      this.DOM.form.appendChild(main_core.Tag.render(_t11 || (_t11 = _$1`<input type="hidden" name="analyticsChatId" value="${0}">`), this.analyticsChatId));
+	    }
 	    this.DOM.form.doCheckOccupancy.value = options.doCheckOccupancy || 'Y';
 	    const data = new FormData(this.DOM.form);
 	    this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
-	      data,
-	      analyticsLabel: {
-	        calendarAction: this.isCreateForm() ? 'create_event' : 'edit_event',
-	        formType: 'full',
-	        emailGuests: this.hasExternalEmailUsers() ? 'Y' : 'N',
-	        markView: calendar_util.Util.getCurrentView() || 'outside',
-	        markCrm: (_this$DOM$form = this.DOM.form) != null && _this$DOM$form['UF_CRM_CAL_EVENT[]'] && this.DOM.form['UF_CRM_CAL_EVENT[]'].value ? 'Y' : 'N',
-	        markRrule: (_this$repeatSelector = this.repeatSelector) == null ? void 0 : _this$repeatSelector.getType(),
-	        markMeeting: this.entry.isMeeting() ? 'Y' : 'N',
-	        markType: this.type
-	      }
+	      data
 	    }).then(async response => {
 	      if (this.canEditOnlyThis() && formDataChanges.includes('color')) {
 	        var _response$data, _response$data$eventL, _newChildEvent$ID;
@@ -620,6 +634,7 @@ this.BX = this.BX || {};
 	        this.uid = params.uniqueId;
 	        this.editorId = params.editorId;
 	        this.formSettings = this.getSettings(params.formSettings || []);
+	        this.isCollabUser = params.isCollabUser;
 	        let attendeesEntityList = this.formDataValue.attendeesEntityList || params.attendeesEntityList || [];
 	        if (!entry.id && this.participantsEntityList.length > 0) {
 	          attendeesEntityList = this.participantsEntityList;
@@ -744,12 +759,16 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  handleSections(sections, trackingUsersList) {
-	    this.sections = sections;
+	    this.sections = calendar_util.Util.filterSectionsByContext(sections, {
+	      isCollabUser: this.isCollabUser,
+	      calendarType: this.type,
+	      calendarOwnerId: this.ownerId
+	    });
 	    this.sectionIndex = {};
 	    this.trackingUsersList = trackingUsersList || [];
-	    if (main_core.Type.isArray(sections)) {
-	      sections.forEach((value, ind) => {
-	        this.sectionIndex[parseInt(value.ID)] = ind;
+	    if (main_core.Type.isArray(this.sections)) {
+	      this.sections.forEach((value, ind) => {
+	        this.sectionIndex[parseInt(value.ID, 10)] = ind;
 	      });
 	    }
 	    const section = this.getCurrentSection();
@@ -771,7 +790,7 @@ this.BX = this.BX || {};
 	    calendar_util.Util.setUserSettings(userSettings);
 	  }
 	  setFormValues() {
-	    var _this$repeatSelector2;
+	    var _this$repeatSelector;
 	    const entry = this.entry;
 
 	    // Date time
@@ -826,15 +845,15 @@ this.BX = this.BX || {};
 	    this.remindersControl.setValue(this.formDataValue.reminder || entry.getReminders(), true, false);
 
 	    // Recursion
-	    (_this$repeatSelector2 = this.repeatSelector) == null ? void 0 : _this$repeatSelector2.setValue(this.formDataValue.rrule || entry.getRrule());
+	    (_this$repeatSelector = this.repeatSelector) == null ? void 0 : _this$repeatSelector.setValue(this.formDataValue.rrule || entry.getRrule());
 	    this.initialRrule = this.getFormRrule();
 	    if (entry.id && entry.isSharingEvent() || !this.canEdit()) {
-	      var _this$repeatSelector3;
-	      (_this$repeatSelector3 = this.repeatSelector) == null ? void 0 : _this$repeatSelector3.setViewMode(entry.getRRuleDescription());
+	      var _this$repeatSelector2;
+	      (_this$repeatSelector2 = this.repeatSelector) == null ? void 0 : _this$repeatSelector2.setViewMode(entry.getRRuleDescription());
 	    }
 	    if (entry.hasRecurrenceId()) {
-	      var _this$repeatSelector4;
-	      (_this$repeatSelector4 = this.repeatSelector) == null ? void 0 : _this$repeatSelector4.setViewMode(entry.getRRuleDescription());
+	      var _this$repeatSelector3;
+	      (_this$repeatSelector3 = this.repeatSelector) == null ? void 0 : _this$repeatSelector3.setViewMode(entry.getRRuleDescription());
 	    }
 
 	    // accessibility
@@ -919,7 +938,7 @@ this.BX = this.BX || {};
 	      main_core.Dom.style(this.DOM.importantEventCheckboxContainer, 'display', 'none');
 	      main_core.Dom.style(this.DOM.moreSettings, 'display', 'none');
 	      main_core.Dom.style(this.DOM.accessibilityInput, 'display', 'none');
-	      const accessibilityText = main_core.Tag.render(_t10 || (_t10 = _$1`
+	      const accessibilityText = main_core.Tag.render(_t12 || (_t12 = _$1`
 				<span class="calendar-field calendar-repeat-selector-readonly">
 					${0}
 				</span>
@@ -938,7 +957,7 @@ this.BX = this.BX || {};
 	  }
 	  initCategoryControl() {
 	    this.DOM.categorySelectorWrap = this.DOM.content.querySelector('.calendar-category-selector-wrap');
-	    this.DOM.categorySelectorValueWarp = this.DOM.categorySelectorWrap.appendChild(main_core.Tag.render(_t11 || (_t11 = _$1`<div></div>`)));
+	    this.DOM.categorySelectorValueWarp = this.DOM.categorySelectorWrap.appendChild(main_core.Tag.render(_t13 || (_t13 = _$1`<div></div>`)));
 	    this.categoryTagSelector = new ui_entitySelector.TagSelector({
 	      multiple: false,
 	      dialogOptions: {
@@ -1100,7 +1119,7 @@ this.BX = this.BX || {};
 	    }
 	    this.reminderValues = [];
 	    this.DOM.reminderWrap = reminderWrap;
-	    this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(main_core.Tag.render(_t12 || (_t12 = _$1`<span></span>`)));
+	    this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(main_core.Tag.render(_t14 || (_t14 = _$1`<span></span>`)));
 	    this.remindersControl = new calendar_controls.Reminder({
 	      wrap: this.DOM.reminderWrap,
 	      zIndex: this.zIndex
@@ -1110,7 +1129,7 @@ this.BX = this.BX || {};
 	        this.reminderValues = event.getData().values;
 	        main_core.Dom.clean(this.DOM.reminderInputsWrap);
 	        this.reminderValues.forEach(value => {
-	          this.DOM.reminderInputsWrap.appendChild(main_core.Tag.render(_t13 || (_t13 = _$1`
+	          this.DOM.reminderInputsWrap.appendChild(main_core.Tag.render(_t15 || (_t15 = _$1`
 						<input value="${0}" name="reminder[]" type="hidden">
 					`), value));
 	        });
@@ -1128,7 +1147,9 @@ this.BX = this.BX || {};
 	        type: this.type || 'user',
 	        ownerId: this.ownerId || this.userId,
 	        userId: this.userId,
-	        trackingUsersList: this.trackingUsersList
+	        trackingUsersList: this.trackingUsersList,
+	        isCollabUser: this.isCollabUser,
+	        isCollabContext: this.isCollabContext()
 	      }),
 	      mode: 'full',
 	      zIndex: this.zIndex,
@@ -1202,6 +1223,7 @@ this.BX = this.BX || {};
 	      // don't use 'location' word here mantis:107863
 	      wrap: this.DOM.locationWrap,
 	      richLocationEnabled: this.locationFeatureEnabled,
+	      hideLocationLock: this.isCollabUser,
 	      locationList: this.locationList || [],
 	      roomsManager: this.roomsManager || null,
 	      locationAccess: this.locationAccess || false,
@@ -1238,7 +1260,7 @@ this.BX = this.BX || {};
 	  initAttendeesControl() {
 	    if (this.attendeesControlEnabled) {
 	      this.DOM.userSelectorWrap = this.DOM.content.querySelector('.calendar-attendees-selector-wrap');
-	      this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(main_core.Tag.render(_t14 || (_t14 = _$1`<div></div>`)));
+	      this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(main_core.Tag.render(_t16 || (_t16 = _$1`<div></div>`)));
 	      this.userTagSelector = new ui_entitySelector.TagSelector({
 	        dialogOptions: {
 	          context: 'CALENDAR',
@@ -1461,10 +1483,14 @@ this.BX = this.BX || {};
 	    return this.doShowConfirmPopup && this.formDataChanged();
 	  }
 	  setCurrentEntry(entry = null, userIndex = null) {
+	    const currentSectionId = this.getCurrentSectionId();
 	    this.entry = calendar_entry.EntryManager.getEntryInstance(entry, userIndex, {
 	      type: this.type,
 	      ownerId: this.ownerId
 	    });
+	    if (!calendar_util.Util.getCalendarContext() && this.type === 'group') {
+	      this.entry.setSectionId(currentSectionId);
+	    }
 	    calendar_entry.EntryManager.registerEntrySlider(this.entry, this);
 	  }
 	  getCurrentEntry() {
@@ -1488,7 +1514,11 @@ this.BX = this.BX || {};
 	      if (this.type === 'location') {
 	        section = calendar_roomsmanager.RoomsManager.getNewEntrySectionId();
 	      } else {
-	        section = calendar_sectionmanager.SectionManager.getNewEntrySectionId(this.type, this.ownerId);
+	        if (!calendar_util.Util.getCalendarContext() && this.type === 'group' && this.sections.length) {
+	          section = this.getSectionIdByCurrentContext();
+	        } else {
+	          section = calendar_sectionmanager.SectionManager.getNewEntrySectionId(this.type, this.ownerId);
+	        }
 	      }
 	      if (!this.sectionIndex[section]) {
 	        section = null;
@@ -1807,7 +1837,7 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  checkLocationForm(event) {
-	    if (event && event instanceof main_core_events.BaseEvent) {
+	    if (!this.isCollabUser && event && event instanceof main_core_events.BaseEvent) {
 	      const data = event.getData();
 	      const usersCount = data.usersCount;
 	      if (this.locationCapacity !== 0) {
@@ -1892,7 +1922,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  getFormDataChanges(excludes = []) {
-	    var _this$DOM$form2, _this$DOM$form2$max_a, _entry$data$OPTIONS$O2, _entry$data2, _entry$data2$OPTIONS, _JSON$parse$max_atten, _JSON$parse2;
+	    var _this$DOM$form, _this$DOM$form$max_at, _entry$data$OPTIONS$O2, _entry$data2, _entry$data2$OPTIONS, _JSON$parse$max_atten, _JSON$parse2;
 	    if (!this.DOM.form) {
 	      return [];
 	    }
@@ -1971,7 +2001,7 @@ this.BX = this.BX || {};
 	    if (this.DOM.accessibilityInput && this.DOM.accessibilityInput.value !== entry.accessibility) {
 	      fields.push('accessibility');
 	    }
-	    const formMaxAttendees = parseInt((_this$DOM$form2 = this.DOM.form) == null ? void 0 : (_this$DOM$form2$max_a = _this$DOM$form2.max_attendees) == null ? void 0 : _this$DOM$form2$max_a.value, 10) || 0;
+	    const formMaxAttendees = parseInt((_this$DOM$form = this.DOM.form) == null ? void 0 : (_this$DOM$form$max_at = _this$DOM$form.max_attendees) == null ? void 0 : _this$DOM$form$max_at.value, 10) || 0;
 	    const optionsJson = (_entry$data$OPTIONS$O2 = entry == null ? void 0 : (_entry$data2 = entry.data) == null ? void 0 : (_entry$data2$OPTIONS = _entry$data2.OPTIONS) == null ? void 0 : _entry$data2$OPTIONS.OPTIONS) != null ? _entry$data$OPTIONS$O2 : null;
 	    const eventMaxAttendees = (_JSON$parse$max_atten = (_JSON$parse2 = JSON.parse(optionsJson)) == null ? void 0 : _JSON$parse2.max_attendees) != null ? _JSON$parse$max_atten : 0;
 	    if (formMaxAttendees !== eventMaxAttendees) {
@@ -2157,9 +2187,17 @@ this.BX = this.BX || {};
 	  isEditForm() {
 	    return parseInt(this.entry.id) > 0;
 	  }
+	  isCollabContext() {
+	    const currentSection = this.getCurrentSection();
+	    return currentSection && main_core.Type.isFunction(currentSection.isCollab) ? currentSection.isCollab() : currentSection.IS_COLLAB;
+	  }
+	  getSectionIdByCurrentContext() {
+	    const sectionObj = this.sections.find(section => parseInt(section.OWNER_ID, 10) === this.ownerId && section.CAL_TYPE === this.type);
+	    return sectionObj && parseInt(sectionObj.ID, 10);
+	  }
 	}
 
 	exports.EventEditForm = EventEditForm;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Calendar.Controls,BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar,BX.UI.EntitySelector,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar.Controls,BX.Calendar));
 //# sourceMappingURL=eventeditform.bundle.js.map

@@ -21,7 +21,7 @@ class GroupSetScrumMasterRule extends AbstractRule
 	{
 		if (!$item instanceof GroupModel)
 		{
-			$this->controller->addError('Wrong instance');
+			$this->controller->addError(static::class, 'Wrong instance');
 
 			return false;
 		}
@@ -29,7 +29,7 @@ class GroupSetScrumMasterRule extends AbstractRule
 		$target = (int)($params['userId'] ?? null);
 		if ($target <= 0)
 		{
-			$this->controller->addError('Wrong target');
+			$this->controller->addError(static::class, 'Wrong target');
 
 			return false;
 		}
@@ -43,7 +43,7 @@ class GroupSetScrumMasterRule extends AbstractRule
 
 		if (!$this->getAccessManager($item, $target, $this->user->getUserId())->canSetScrumMaster())
 		{
-			$this->controller->addError('Access denied by permissions');
+			$this->controller->addError(static::class, 'Access denied by permissions');
 
 			return false;
 		}

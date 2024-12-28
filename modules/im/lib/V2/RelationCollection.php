@@ -280,4 +280,10 @@ class RelationCollection extends Collection
 
 		$this->activeOnly = null;
 	}
+
+	public function onAfterRelationDelete(int $chatId, int $userId): void
+	{
+		unset($this->relationsByUserId[$chatId][$userId]);
+		unset(self::$startIdStaticCache[$chatId][$userId]);
+	}
 }

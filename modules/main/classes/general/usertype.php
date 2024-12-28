@@ -536,7 +536,7 @@ class CAllUserTypeEntity extends CDBResult
 			}
 		}
 
-		if($ID = $DB->Add("b_user_field", $arFields, array("SETTINGS")))
+		if ($ID = $DB->Add("b_user_field", $arFields, array("SETTINGS"), '', true))
 		{
 			if(CACHED_b_user_field !== false)
 				$CACHE_MANAGER->CleanDir("b_user_field");
@@ -564,6 +564,10 @@ class CAllUserTypeEntity extends CDBResult
 
 			UserFieldTable::cleanCache();
 			UserFieldLangTable::cleanCache();
+		}
+		else
+		{
+			return false;
 		}
 
 		// post event
@@ -680,11 +684,6 @@ class CAllUserTypeEntity extends CDBResult
 
 		if($strUpdate <> "" || !empty($arLangs))
 		{
-			if(CACHED_b_user_field !== false)
-			{
-				$CACHE_MANAGER->CleanDir("b_user_field");
-			}
-
 			if($strUpdate <> "")
 			{
 				$strSql = "UPDATE b_user_field SET " . $strUpdate . " WHERE ID = " . $ID;
@@ -697,6 +696,8 @@ class CAllUserTypeEntity extends CDBResult
 
 			if(!empty($arLangs))
 			{
+				$DB->StartTransaction();
+
 				$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $ID);
 
 				foreach($arLangs as $lang => $arLangFields)
@@ -705,9 +706,15 @@ class CAllUserTypeEntity extends CDBResult
 					$arLangFields["LANGUAGE_ID"] = $lang;
 					$arInsert = $DB->PrepareInsert("b_user_field_lang", $arLangFields);
 					$DB->Query("INSERT INTO b_user_field_lang (".$arInsert[0].") VALUES (".$arInsert[1].")");
-					}
+				}
+
+				$DB->Commit();
 			}
 
+			if(CACHED_b_user_field !== false)
+			{
+				$CACHE_MANAGER->CleanDir("b_user_field");
+			}
 			UserFieldTable::cleanCache();
 			UserFieldLangTable::cleanCache();
 
@@ -775,9 +782,6 @@ class CAllUserTypeEntity extends CDBResult
 				}
 			}
 
-			if(is_object($USER_FIELD_MANAGER))
-				$USER_FIELD_MANAGER->CleanCache();
-
 			$arType = $USER_FIELD_MANAGER->GetUserType($arField["USER_TYPE_ID"]);
 			//We need special handling of file type properties
 			if($arType)
@@ -786,9 +790,9 @@ class CAllUserTypeEntity extends CDBResult
 				{
 					// only if we store values
 					if($arField["MULTIPLE"] == "Y")
-						$strSql = "SELECT VALUE_INT AS VALUE FROM b_utm_".mb_strtolower($arField["ENTITY_ID"]) . " WHERE FIELD_ID=" . $arField["ID"];
+						$strSql = "SELECT VALUE_INT AS VALUE FROM b_utm_" . strtolower($arField["ENTITY_ID"]) . " WHERE FIELD_ID=" . $arField["ID"];
 					else
-						$strSql = "SELECT ".$arField["FIELD_NAME"]." AS VALUE FROM b_uts_".mb_strtolower($arField["ENTITY_ID"]);
+						$strSql = "SELECT ".$arField["FIELD_NAME"]." AS VALUE FROM b_uts_" . strtolower($arField["ENTITY_ID"]);
 					$rsFile = $DB->Query($strSql);
 					while($arFile = $rsFile->Fetch())
 					{
@@ -802,10 +806,17 @@ class CAllUserTypeEntity extends CDBResult
 				}
 			}
 
-			if(CACHED_b_user_field !== false) $CACHE_MANAGER->CleanDir("b_user_field");
 			$rs = $DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $ID);
 			if($rs)
 				$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = " . $ID);
+
+			if (CACHED_b_user_field !== false)
+			{
+				$CACHE_MANAGER->CleanDir("b_user_field");
+			}
+			UserFieldTable::cleanCache();
+			UserFieldLangTable::cleanCache();
+			$USER_FIELD_MANAGER->CleanCache();
 
 			if($rs && $commonEventResult['PROVIDE_STORAGE'])
 			{
@@ -823,9 +834,6 @@ class CAllUserTypeEntity extends CDBResult
 					$rs = $DB->Query("DROP TABLE IF EXISTS b_utm_".mb_strtolower($arField["ENTITY_ID"]));
 				}
 			}
-
-			UserFieldTable::cleanCache();
-			UserFieldLangTable::cleanCache();
 
 			foreach(GetModuleEvents("main", "OnAfterUserTypeDelete", true) as $arEvent)
 			{

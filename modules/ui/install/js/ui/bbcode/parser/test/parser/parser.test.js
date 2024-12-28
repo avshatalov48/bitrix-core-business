@@ -1,4 +1,3 @@
-import { parser } from '@bitrix24/eslint-config-bitrix24';
 import { BBCodeParser } from '../../src/parser';
 import { BBCodeNode } from 'ui.bbcode.model';
 
@@ -6,7 +5,7 @@ const stripIndent = (source) => {
 	const lines = source.split('\n').slice(1, -1);
 	const minIndent = Math.min(
 		...lines.map((line) => {
-			return line.split('\t').length -1;
+			return line.split('\t').length - 1;
 		}),
 	);
 
@@ -67,7 +66,7 @@ describe('ui.bbcode.parser/Parser', () => {
 
 		assert.ok(ast.getChildren().at(9).getType() === BBCodeNode.ELEMENT_NODE);
 		assert.ok(ast.getChildren().at(9).getName() === 'img');
-		assert.deepEqual(ast.getChildren().at(9).getAttributes(), {width: '20', height: '20'});
+		assert.deepEqual(ast.getChildren().at(9).getAttributes(), { width: '20', height: '20' });
 		assert.ok(ast.getChildren().at(9).getChildren().at(0).getContent() === '/path/to/image.png');
 
 		assert.ok(ast.getChildren().at(10).getType() === BBCodeNode.TEXT_NODE);
@@ -173,7 +172,6 @@ describe('ui.bbcode.parser/Parser', () => {
 		assert.ok(ast.getChildren().at(2).getType() === BBCodeNode.TEXT_NODE);
 	});
 
-
 	it('should parse text up to the end', () => {
 		const bbcode = 'A\n'
 			+ 'B\n'
@@ -192,10 +190,10 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('should have node types', () => {
-		let bbcode = 'Test text [b]bold[/b]\n';
+		const bbcode = 'Test text [b]bold[/b]\n';
 
-		let parser = new BBCodeParser();
-		let root = parser.parse(bbcode);
+		const parser = new BBCodeParser();
+		const root = parser.parse(bbcode);
 
 		assert.ok(root.getType() === BBCodeNode.ROOT_NODE);
 		assert.ok(root.getChildren().at(0).getType() === BBCodeNode.TEXT_NODE);
@@ -218,7 +216,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
-		assert.deepEqual(ast.toString(), `${bbcode}`);
+		assert.deepEqual(ast.toString({ encode: false }), bbcode);
 	});
 
 	xit('should parses multi-level lists', () => {
@@ -312,19 +310,19 @@ describe('ui.bbcode.parser/Parser', () => {
 
 	it('should works with table', () => {
 		const bbcode = stripIndent(`
-				[table]
-					[tr]
-						[td][b]Head cell 1[/b][/td]
-						[td][i]Head cell 2[/i][/td]
-						[td][s]Head cell 3[/s][/td]
-					[/tr]
-					[tr]
-						[td]Body cell 1/1[/td]
-						[td]Body cell 1/2[/td]
-						[td]Body cell 1/3[/td]
-					[/tr]
-				[/table]
-			`);
+			[table]
+				[tr]
+					[td][b]Head cell 1[/b][/td]
+					[td][i]Head cell 2[/i][/td]
+					[td][s]Head cell 3[/s][/td]
+				[/tr]
+				[tr]
+					[td]Body cell 1/1[/td]
+					[td]Body cell 1/2[/td]
+					[td]Body cell 1/3[/td]
+				[/tr]
+			[/table]
+		`);
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
@@ -432,7 +430,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		assert.ok(ast.getChildren().at(0).getType() === BBCodeNode.ELEMENT_NODE);
 		assert.ok(ast.getChildren().at(0).getName() === 'disk');
 		assert.ok(ast.getChildren().at(0).isVoid() === true);
-		assert.deepEqual(ast.getChildren().at(0).getAttributes(), {file: '', id: '11'});
+		assert.deepEqual(ast.getChildren().at(0).getAttributes(), { file: '', id: '11' });
 		assert.ok(ast.getChildren().at(1).getType() === BBCodeNode.TEXT_NODE);
 		assert.ok(ast.getChildren().at(1).getContent() === ' First line text');
 		assert.ok(ast.getChildren().at(2).getType() === BBCodeNode.TEXT_NODE);
@@ -445,7 +443,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		assert.ok(ast.getChildren().at(4).getType() === BBCodeNode.ELEMENT_NODE);
 		assert.ok(ast.getChildren().at(4).getName() === 'disk');
 		assert.ok(ast.getChildren().at(4).isVoid() === true);
-		assert.deepEqual(ast.getChildren().at(4).getAttributes(), {file: '', id: '22'});
+		assert.deepEqual(ast.getChildren().at(4).getAttributes(), { file: '', id: '22' });
 		assert.ok(ast.getChildren().at(5).getType() === BBCodeNode.TEXT_NODE);
 		assert.ok(ast.getChildren().at(5).getContent() === '\n');
 		assert.ok(ast.getChildren().at(6).getType() === BBCodeNode.ELEMENT_NODE);
@@ -461,7 +459,7 @@ describe('ui.bbcode.parser/Parser', () => {
 
 		const result = '[code]\nUse code tag for [b]code[/b]\n[/code]';
 
-		assert.deepEqual(ast.toString(), result);
+		assert.deepEqual(ast.toString({ encode: false }), result);
 	});
 
 	it('Should format list block', () => {
@@ -474,27 +472,27 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('One line break must be added between two block elements', () => {
-		const bbcode = `[p]\ntext\n[/p][list]\n[*]one\n[/list]`;
+		const bbcode = '[p]\ntext\n[/p][list]\n[*]one\n[/list]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
-		const result = `[p]\ntext\n[/p]\n[list]\n[*]one\n[/list]`;
+		const result = '[p]text\n[/p]\n[list]\n[*]one\n[/list]';
 		assert.equal(ast.toString(), result);
 	});
 
 	it('One line break must be added between text and block element', () => {
-		const bbcode = `Any text[p]\ntext\n[/p]`;
+		const bbcode = 'Any text[p]\ntext\n[/p]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
-		const result = `Any text\n[p]\ntext\n[/p]`;
+		const result = 'Any text\n[p]text\n[/p]';
 
 		assert.equal(ast.toString(), result);
 	});
 
 	it('One line break should be added after the block element if there is text behind it', () => {
-		const bbcode = `[p]\ntext\n[/p]Any text`;
+		const bbcode = '[p]\ntext\n[/p]Any text';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
-		const result = `[p]\ntext\n[/p]\nAny text`;
+		const result = '[p]text\n[/p]Any text';
 
 		assert.equal(ast.toString(), result);
 	});
@@ -550,7 +548,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse value with spaces', () => {
-	    const bbcode = '[b=test any text]content[/b]';
+		const bbcode = '[b=test any text]content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -559,7 +557,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse value with single quotes', () => {
-		const bbcode = `[b='test any text']content[/b]`;
+		const bbcode = '[b=\'test any text\']content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -568,7 +566,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse value with double quotes', () => {
-		const bbcode = `[b="test any text"]content[/b]`;
+		const bbcode = '[b="test any text"]content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -577,7 +575,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse value if passed one leading quote', () => {
-		const bbcode = `[b="test any text]content[/b]`;
+		const bbcode = '[b="test any text]content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -586,7 +584,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse value if passed one final quote', () => {
-		const bbcode = `[b=test any text"]content[/b]`;
+		const bbcode = '[b=test any text"]content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -595,7 +593,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse value if passed text with quotes', () => {
-		const bbcode = `[b=test 'any" text]content[/b]`;
+		const bbcode = '[b=test \'any" text]content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -604,7 +602,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse attributes as value if passed value and attributes', () => {
-		const bbcode = `[b=test text attr=111]content[/b]`;
+		const bbcode = '[b=test text attr=111]content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -613,7 +611,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse attributes with single quotes', () => {
-		const bbcode = `[b attr1='val1' attr2='val2']content[/b]`;
+		const bbcode = '[b attr1=\'val1\' attr2=\'val2\']content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -623,7 +621,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('Should parse attributes with double quotes', () => {
-		const bbcode = `[b attr1="val1" attr2="val2"]content[/b]`;
+		const bbcode = '[b attr1="val1" attr2="val2"]content[/b]';
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
@@ -661,39 +659,39 @@ describe('ui.bbcode.parser/Parser', () => {
 
 		assert.deepEqual(
 			ast.toString(),
-			'[list=1]\n' +
-			'[*][s]One[/s][*]T[b]wo[/b][*]Three\n' +
-			'[/list]\n' +
-			'[list]\n' +
-			'[*]One\n' +
-			'[u]One-One[/u][*]Two[*]Three\n' +
-			'[/list]\n' +
-			'[p]\n' +
-			'1\n' +
-			'2\n' +
-			'\n' +
-			'\n' +
-			'\n' +
-			'\n' +
-			'\n' +
-			'3\n' +
-			'4\n' +
-			'[/p]',
+			'[list=1]\n'
+			+ '[*][s]One[/s][*]T[b]wo[/b][*]Three\n'
+			+ '[/list]\n'
+			+ '[list]\n'
+			+ '[*]One\n'
+			+ '[u]One-One[/u][*]Two[*]Three\n'
+			+ '[/list]\n'
+			+ '[p]'
+			+ '1\n'
+			+ '2\n'
+			+ '\n'
+			+ '\n'
+			+ '\n'
+			+ '\n'
+			+ '\n'
+			+ '3\n'
+			+ '4\n'
+			+ '[/p]',
 		);
 	});
 
 	it('should convert deprecated tags #1', () => {
-	    const bbcode = stripIndent(`
+		const bbcode = stripIndent(`
 			[left]left[/left]
 			[center]center[/center]
 			[right]right[/right]
 			[justify]justify[/justify]
-	    `);
+		`);
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
-		assert.deepEqual(ast.toString(), '[p]\nleft\n[/p]\n[p]\ncenter\n[/p]\n[p]\nright\n[/p]\n[p]\njustify\n[/p]');
+		assert.deepEqual(ast.toString(), '[p]left\n[/p]\n[p]center\n[/p]\n[p]right\n[/p]\n[p]justify\n[/p]');
 	});
 
 	it('should convert deprecated tags #2', () => {
@@ -701,7 +699,7 @@ describe('ui.bbcode.parser/Parser', () => {
 			[background]bg[/background]
 			[color]color[/color]
 			[size]size[/size]
-	    `);
+		`);
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
@@ -712,7 +710,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	it('tag value with special chars', () => {
 		const bbcode = stripIndent(`
 			[url=https://ya.ru?prop[]=222]test[/url]
-	    `);
+		`);
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
@@ -725,7 +723,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	xit('should work with invalid bbcode #1', () => {
 		const bbcode = stripIndent(`
 			[p][b]test[b][/p]
-	    `);
+		`);
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
@@ -738,7 +736,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	xit('should work with invalid bbcode #2', () => {
 		const bbcode = stripIndent(`
 			[p]test[/p][/p][/b]
-	    `);
+		`);
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
@@ -752,7 +750,7 @@ describe('ui.bbcode.parser/Parser', () => {
 	xit('should work with invalid bbcode #3', () => {
 		const bbcode = stripIndent(`
 			[code]test[/quote]
-	    `);
+		`);
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
@@ -770,40 +768,40 @@ describe('ui.bbcode.parser/Parser', () => {
 			code
 			[/code]
 			[/code]
-	    `);
+		`);
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
-		assert.equal(ast.toString(), bbcode);
+		assert.equal(ast.toString({ encode: false }), bbcode);
 	});
 
 	describe('Encoding/decoding', () => {
 		xit('should decode source bbcode', () => {
-		    const bbcode = stripIndent(`
+			const bbcode = stripIndent(`
 				[p]&#91;&#93;[/p]
 				&#91;&#93;
 				&amp;#91;&amp;#93;
 				&#39;&quot;
 				&lt;&gt;
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
 
 			assert.equal(
 				ast.getChildren().at(0).getChildren().at(0).getContent(),
-				'[]'
+				'[]',
 			);
 
 			assert.equal(
 				ast.getChildren().at(2).getContent(),
-				'[]'
+				'[]',
 			);
 
 			assert.equal(
 				ast.getChildren().at(4).getContent(),
-				'&#91;&#93;'
+				'&#91;&#93;',
 			);
 
 			assert.equal(
@@ -819,7 +817,7 @@ describe('ui.bbcode.parser/Parser', () => {
 
 		describe('List', () => {
 			it('should works with spaces before items', () => {
-			    const bbcode = '[list]\n   [*]Item1\n   \t[*]Item2\n[/list]';
+				const bbcode = '[list]\n   [*]Item1\n   \t[*]Item2\n[/list]';
 
 				const parser = new BBCodeParser();
 				const ast = parser.parse(bbcode);
@@ -840,12 +838,12 @@ describe('ui.bbcode.parser/Parser', () => {
 
 	describe('BUGS', () => {
 		it('0190706 ', () => {
-		    const bbcode = stripIndent(`
+			const bbcode = stripIndent(`
 				[quote]
 				[list]
 				[*][b]bold1[/b] text1[*][b]bold2[/b] text2[*][b]bold3[/b] text3
 				[/list][/quote]
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -854,7 +852,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		});
 
 		it('0190838', () => {
-		    const bbcode = stripIndent(`
+			const bbcode = stripIndent(`
 				[b]
 					[U]
 						[LIST]
@@ -866,7 +864,7 @@ describe('ui.bbcode.parser/Parser', () => {
 				[LIST]
 					[*]АААААААААААААААААА
 				[/LIST]
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -877,6 +875,7 @@ describe('ui.bbcode.parser/Parser', () => {
 				[/list]
 				[b]
 				[u]
+				
 				[/u]
 				[/b]
 				[list]
@@ -888,7 +887,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		});
 
 		it('0190838 #2', () => {
-		    const bbcode = stripIndent(`
+			const bbcode = stripIndent(`
 				[size=999]
 					[table]
 						[tr]
@@ -897,7 +896,7 @@ describe('ui.bbcode.parser/Parser', () => {
 						[/tr]
 					[/table]
 				[/size]
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -905,13 +904,47 @@ describe('ui.bbcode.parser/Parser', () => {
 			assert.ok(ast.getFirstChild().getName() === 'table');
 			assert.ok(ast.getLastChild().getName() === 'b');
 		});
+
+		it('202706', () => {
+			const bbcode = ''
+				+ '[list]\n'
+					+ '[*]Item1 [b]bold[/b] [u=1]underline[/u][s]strike[/s] text'
+					+ '[*]Item2 [i]i[/i] text [b]b[/b]'
+				+ '\n[/list]'
+			+ '';
+
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			assert.deepEqual(
+				ast.toString(),
+				bbcode,
+			);
+		});
+
+		it('203089', () => {
+			const bbcode = ''
+				+ '[list]\n'
+				+ '[*]Item0 [b]b0[/b] [b]b02[/b] [url=https://ya.ru]url[/url] text0'
+				+ '[*]Item1 [i]i1[/i] [i]i12[/i] text1'
+				+ '\n[/list]'
+				+ '';
+
+			const parser = new BBCodeParser();
+			const ast = parser.parse(bbcode);
+
+			assert.deepEqual(
+				ast.toString(),
+				bbcode,
+			);
+		});
 	});
 
 	describe('Parse links', () => {
 		it('should parse links from plain text', () => {
 			const bbcode = stripIndent(`
 				text1 https://bitrix.com text2 https://bitrix24.com
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -925,7 +958,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		it('should parse links from formatted text', () => {
 			const bbcode = stripIndent(`
 				[b]text1 https://bitrix.com[/b] text2 [i]https://bitrix24.com[/i]
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -939,7 +972,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		it('should not parse links in url tag', () => {
 			const bbcode = stripIndent(`
 				[url]https://bitrix.com[/url]
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -953,7 +986,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		it('should not parse links in img tag', () => {
 			const bbcode = stripIndent(`
 				[img]https://bitrix.com[/img]
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -967,7 +1000,7 @@ describe('ui.bbcode.parser/Parser', () => {
 		it('should parse link starts with www', () => {
 			const bbcode = stripIndent(`
 				text1 www.bitrix.com text2
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -1058,10 +1091,10 @@ describe('ui.bbcode.parser/Parser', () => {
 		});
 
 		it('should parse emails', () => {
-		    const bbcode = stripIndent(`
+			const bbcode = stripIndent(`
 				mymail@bitrix.com
 				i@vovkabelov.ru
-		    `);
+			`);
 
 			const parser = new BBCodeParser();
 			const ast = parser.parse(bbcode);
@@ -1079,9 +1112,18 @@ describe('ui.bbcode.parser/Parser', () => {
 	});
 
 	it('should works with img in url', () => {
-	    const bbcode = stripIndent(`
+		const bbcode = stripIndent(`
 			[url=https://www.bitrix.com][img]https://bitrix.com/img.png[/img][/url]
-	    `);
+		`);
+
+		const parser = new BBCodeParser();
+		const ast = parser.parse(bbcode);
+
+		assert.deepEqual(ast.toString(), bbcode);
+	});
+
+	it('should not decode square brackets in url', () => {
+	    const bbcode = '[url]https://bitrix24.com?test&#91;aa&#93;=11&&#91;&#93;=bb[/url]';
 
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);

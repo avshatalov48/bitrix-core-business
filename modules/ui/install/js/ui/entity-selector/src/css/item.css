@@ -41,14 +41,15 @@
 
 .ui-selector-item-avatar {
 	width: 28px;
-	height: 28px;
 	min-width: 28px;
+	height: 28px;
 	border-radius: 50%;
 	background-image: url(images/default-avatar.svg);
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
 	overflow: hidden;
+	box-sizing: border-box;
 }
 
 .ui-selector-dialog--compact-view .ui-selector-item-avatar {

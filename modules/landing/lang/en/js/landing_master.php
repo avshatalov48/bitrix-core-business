@@ -95,7 +95,8 @@ $MESS["LANDING_BLOCK_HIDDEN_ON_DESKTOP"] = "Hidden on&nbsp;devices with&nbsp;scr
 $MESS["LANDING_BLOCK_HIDDEN_ON_MOBILE"] = "Hidden on&nbsp;devices with&nbsp;screen width under 575 px";
 $MESS["LANDING_BLOCK_HIDDEN_ON_TABLET"] = "Hidden on&nbsp;devices with&nbsp;screen width under 1120 px but&nbsp;over 575 px";
 $MESS["LANDING_BLOCK_REQUIRES_UPDATE_MESSAGE"] = "The latest version of the \"Sites24\" module is required to add a block. Please make sure that you have the latest version here: <a href='/bitrix/admin/update_system.php' target='_blank'>Marketplace > Platform Updates</a>.";
-$MESS["LANDING_BLOCK_RESTRICTED_TEXT"] = "The block will be fully functional only after the page has been published.";
+$MESS["LANDING_BLOCK_RESTRICTED_TEXT2"] = "You can now see how the block will look on the page. You have to publish the page to evaluate the block's functionality.";
+$MESS["LANDING_BLOCK_RESTRICTED_TEXT_MAINPAGE"] = "You can now see how the widget will look on the page. You have to publish the page to evaluate the widget's functionality.";
 $MESS["LANDING_BLOCK__BLOCK_SOURCE_PLACEHOLDER"] = "Select block";
 $MESS["LANDING_BLOCK__DETAIL_PAGE_LIST_DESCRIPTION"] = "Create a details page using one of the standard templates. The new page will show up in the page list. You can edit the page anytime you want.";
 $MESS["LANDING_BLOCK__DETAIL_PAGE_PANEL_ADD_PAGE_BUTTON"] = "Create Page";

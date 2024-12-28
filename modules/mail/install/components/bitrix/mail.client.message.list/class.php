@@ -497,7 +497,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 		$this->arResult['gridActionsData'] = $this->getGridActionsData();
 
-		$mailboxIsSyncAvailability = LicenseManager::checkTheMailboxForSyncAvailability($this->mailbox['ID']);
+		$mailboxIsSyncAvailability = LicenseManager::checkTheMailboxForSyncAvailability((int)$this->mailbox['ID'], (int)$this->mailbox['USER_ID']);
 		$this->arResult['MAILBOX_IS_SYNC_AVAILABILITY'] = $mailboxIsSyncAvailability;
 
 		if ($mailboxIsSyncAvailability)
@@ -937,8 +937,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'hideInActionPanel' => true,
 				],
 			];
-
-			$crmOnClickAction = "";
 
 			if(!ModuleManager::isModuleInstalled('crm'))
 			{

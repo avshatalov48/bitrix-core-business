@@ -33,13 +33,18 @@ class PlainTemplate extends Template
 
 	protected function buildDescriptionText(): string
 	{
-		$text = mb_substr(\CBPHelper::convertBBtoText($this->messageText), 0, 200);
+		$text = mb_substr(\CTextParser::clearAllTags($this->getTextContents()), 0, 200);
 		if (mb_strlen($text) === 200)
 		{
 			$text .= '...';
 		}
 
 		return $text;
+	}
+
+	protected function getTextContents(): string
+	{
+		return $this->messageText;
 	}
 
 	/**

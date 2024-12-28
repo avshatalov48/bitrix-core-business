@@ -6,6 +6,7 @@ type ViewerAttributes = {
 	viewer: boolean,
 	viewerGroupBy: string,
 	viewerType: string,
+	viewerPreview?: string,
 	viewerTypeClass?: string,
 	viewerSeparateItem?: boolean,
 	viewerExtension?: string,

@@ -19,9 +19,6 @@ export class BaseCard extends EventEmitter
 		this.options = this.data;
 		this.id = Type.isStringFilled(this.options.id) ? this.options.id : Text.getRandom();
 		this.hidden = Text.toBoolean(this.options.hidden);
-		this.onClickHandler = Type.isFunction(this.options.onClick) ? this.options.onClick : () => {};
-
-		this.onClick = this.onClick.bind(this);
 
 		this.layout = this.getLayout();
 		this.header = this.getHeader();
@@ -40,6 +37,8 @@ export class BaseCard extends EventEmitter
 			Dom.adjust(this.layout, {attrs: this.options.attrs});
 		}
 
+		this.onClickHandler = Type.isFunction(this.options.onClick) ? this.options.onClick : () => {};
+		this.onClick = this.onClick.bind(this);
 		Event.bind(this.layout, 'click', this.onClick);
 	}
 
@@ -111,6 +110,12 @@ export class BaseCard extends EventEmitter
 		this.onClickHandler(this);
 		this.emit('onClick');
 	}
+
+	/**
+	 * Can be overwriting in child classes. Called at the added card to panel
+	 */
+	onAppend()
+	{}
 
 	show()
 	{

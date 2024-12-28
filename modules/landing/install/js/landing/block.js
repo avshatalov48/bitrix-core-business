@@ -709,10 +709,10 @@
 				);
 
 				createPanel.addButton(
-					new PlusButton("insert_after", {
-						text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CREATE"),
-						onClick: throttle(this.addBlockAfterThis, 600, this)
-					})
+					new PlusButton('insert_after', {
+						text: BX.Landing.Loc.getMessage('ACTION_BUTTON_CREATE'),
+						onClick: throttle(this.addBlockAfterThis, 600, this),
+					}),
 				);
 
 				createPanel.show();
@@ -721,15 +721,15 @@
 				if (this.isCrmFormPage())
 				{
 					var createBeforePanel = new BaseButtonPanel(
-						"create_before_action",
-						"landing-ui-panel-create-before-action"
+						'create_before_action',
+						'landing-ui-panel-create-before-action'
 					);
 
 					createBeforePanel.addButton(
-						new PlusButton("insert_before", {
-							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CREATE"),
-							onClick: throttle(this.addBlockBeforeThis, 600, this)
-						})
+						new PlusButton('insert_before', {
+							text: BX.Landing.Loc.getMessage('ACTION_BUTTON_CREATE'),
+							onClick: throttle(this.addBlockBeforeThis, 600, this),
+						}),
 					);
 
 					createBeforePanel.show();
@@ -1604,10 +1604,14 @@
 		onRestrictedButtonMouseenter: function(event)
 		{
 			clearTimeout(this.displayBlockTimer);
-			this.displayBlockTimer = setTimeout(function(target) {
-				BX.Landing.UI.Tool.Suggest.getInstance().show(target, {
-					description: BX.Landing.Loc.getMessage("LANDING_BLOCK_RESTRICTED_TEXT")
-				});
+			this.displayBlockTimer = setTimeout(function (target)
+			{
+				BX.Landing.UI.Tool.Suggest.getInstance().show(
+					target,
+					{
+						description: this.getRestrictedMessageText(),
+					}
+				);
 			}.bind(this), 200, event.currentTarget);
 		},
 
@@ -3091,11 +3095,20 @@
 		{
 			return create("div", {
 				props: {className: "ui-alert ui-alert-warning"},
-				html: BX.Landing.Loc.getMessage("LANDING_BLOCK_RESTRICTED_TEXT"),
+				html: this.getRestrictedMessageText(),
 				attrs: {style: "margin-bottom: 20px"}
-			})
+			});
 		},
 
+		getRestrictedMessageText: function()
+		{
+			if (this.isMainpage())
+			{
+				return BX.Landing.Loc.getMessage("LANDING_BLOCK_RESTRICTED_TEXT_MAINPAGE");
+			}
+
+			return BX.Landing.Loc.getMessage("LANDING_BLOCK_RESTRICTED_TEXT2");
+		},
 
 		/**
 		 * Handles event on style panel show

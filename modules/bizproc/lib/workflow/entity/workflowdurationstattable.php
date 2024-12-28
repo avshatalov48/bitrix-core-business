@@ -31,6 +31,7 @@ class WorkflowDurationStatTable extends DataManager
 	private const DURATION_ROWS_LIMIT = 20;
 	private const AVERAGE_DURATION_DEVIATION_PERCENT = 16;
 	private const AVERAGE_DURATIONS_CACHE_TTL = 86400; // 60 * 60 * 24
+	private const THREE_DAYS_IN_SECONDS = 259200; // 3600 * 24 *3
 
 	private static array $cutDurationStatQueue = [];
 
@@ -94,6 +95,26 @@ class WorkflowDurationStatTable extends DataManager
 		}
 
 		return $averageDuration;
+	}
+
+	public static function getWorkflowEfficiency(int $currentDuration, ?int $averageDuration): string
+	{
+		if (null === $averageDuration)
+		{
+			return 'first';
+		}
+
+		if ($currentDuration < $averageDuration)
+		{
+			return 'fast';
+		}
+
+		if ($currentDuration < ($averageDuration + self::THREE_DAYS_IN_SECONDS))
+		{
+			return 'slow';
+		}
+
+		return 'stopped';
 	}
 
 	public static function getOutdatedIds(int $templateId): array

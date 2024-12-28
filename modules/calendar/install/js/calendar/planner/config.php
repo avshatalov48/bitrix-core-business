@@ -24,6 +24,7 @@ return [
 		'calendar.ui.tools.draganddrop',
 		'main.popup',
 		'main.date',
+		'ui.avatar',
 	],
 	'settings' => [
 		'maxPlannerUsers' => $maxPlannerUsers,

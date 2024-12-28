@@ -124,6 +124,7 @@ class CCalendarPlanner
 					'emailUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === 'email'),
 					'sharingUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === SharingUser::EXTERNAL_AUTH_ID),
 					'timezoneName' => CCalendar::GetUserTimezoneName((int)$user['USER_ID']),
+					'isCollabUser' => Util::isCollabUser((int)$user['USER_ID']),
 				];
 			}
 		}
@@ -159,7 +160,6 @@ class CCalendarPlanner
 		if ($isPlannerFeatureEnabled && !$dontLoadAccessibility)
 		{
 			$accessibility = (new Accessibility())
-				->setCheckPermissions(false)
 				->setSkipEventId($skipEntryId)
 				->getAccessibility($userIds, CCalendar::TimestampUTC($from), CCalendar::TimestampUTC($to))
 			;

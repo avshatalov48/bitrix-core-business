@@ -221,6 +221,10 @@
 	--color-condition: var(--ui-color-text-alert, #ff5752);
 }
 
+.popup-window-ui-tour.--condition-copilot {
+	--color-condition: var(--ui-color-copilot-primary, #8e52ec);
+}
+
 .ui-tour-popup-condition-top,
 .ui-tour-popup-condition-bottom {
 	position: absolute;

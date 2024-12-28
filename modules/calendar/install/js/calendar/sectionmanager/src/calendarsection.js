@@ -157,8 +157,8 @@ export class CalendarSection
 
 	canDo(action)
 	{
-		//action: access|add|edit|edit_section|view_full|view_time|view_title
-		if (this.isVirtual() && ['access','add','edit'].includes(action))
+		// action: access|add|edit|edit_section|view_full|view_time|view_title
+		if (this.isVirtual() && ['access', 'add', 'edit'].includes(action))
 		{
 			return false;
 		}
@@ -168,6 +168,14 @@ export class CalendarSection
 
 	hasPermission(action)
 	{
+		if (
+			action === 'edit_section'
+			&& Util.getCalendarContext()?.isCollabUser
+		)
+		{
+			return false;
+		}
+
 		if (action === 'view_event')
 		{
 			action = 'view_time';
@@ -243,7 +251,7 @@ export class CalendarSection
 
 	isGroupCalendar()
 	{
-		return !this.isPseudo() && this.type === 'group'
+		return !this.isPseudo() && this.type === 'group';
 	}
 
 	hasConnection()
@@ -365,4 +373,8 @@ export class CalendarSection
 		calendar.reload();
 	}
 
+	isCollab()
+	{
+		return this.data['IS_COLLAB'];
+	}
 }

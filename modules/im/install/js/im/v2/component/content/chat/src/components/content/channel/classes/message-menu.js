@@ -22,6 +22,8 @@ export class ChannelMessageMenu extends MessageMenu
 			this.getDelimiter(),
 			this.getEditItem(),
 			this.getDeleteItem(),
+			this.getDelimiter(),
+			this.getSelectItem(),
 		];
 	}
 }

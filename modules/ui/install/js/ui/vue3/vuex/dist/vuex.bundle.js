@@ -338,9 +338,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      return defaultValue;
 	    }
 	    const nameParts = name.toString().split('.');
-	    if (nameParts.length === 1) {
-	      return this.variables[nameParts[0]];
-	    }
 	    let result;
 	    let variables = Object.assign({}, this.variables);
 	    for (let i = 0; i < nameParts.length; i++) {

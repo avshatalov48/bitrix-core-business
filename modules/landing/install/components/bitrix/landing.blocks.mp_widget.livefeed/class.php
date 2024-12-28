@@ -1,9 +1,9 @@
 <?php
 
-\Bitrix\Main\Loader::requireModule('disk');
-
+use Bitrix\Disk\Driver;
 use Bitrix\Disk\UrlManager;
 use Bitrix\Landing\Manager;
+use Bitrix\Landing\Mainpage;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -45,7 +45,7 @@ class LandingBlocksMainpageWidgetLivefeed extends LandingBlocksMainpageWidgetBas
 	protected function getData(): void
 	{
 		$useDemoData = false;
-		if (Option::get('landing', 'use_demo_data_in_block_widgets') === 'Y')
+		if (Mainpage\Manager::isUseDemoData())
 		{
 			$data = $this->getDemoData();
 		}
@@ -209,16 +209,18 @@ class LandingBlocksMainpageWidgetLivefeed extends LandingBlocksMainpageWidgetBas
 	{
 		$data = [];
 
-		if (!Loader::includeModule('blog'))
+		if (
+			!Loader::includeModule('blog')
+			|| !Loader::includeModule('disk')
+		)
 		{
 			return $data;
 		}
 
-
 		$res = $this->getPostsQuery();
 		while ($post = $res->Fetch())
 		{
-			$userFieldManager = \Bitrix\Disk\Driver::getInstance()->getUserFieldManager();
+			$userFieldManager = Driver::getInstance()->getUserFieldManager();
 			$attachedObjectsByEntity = $userFieldManager->getAttachedObjectByEntity(
 				'BLOG_POST',
 				$post['ID'],

@@ -19,18 +19,14 @@ class Factory
 
 	public function getLinkObjectRuleByLink(Link\Joint\JointLink $sharingLink): ?LinkObjectRule
 	{
-		if ($sharingLink instanceof Link\CrmDealLink)
+		$rule = match (true)
 		{
-			return (new Link\Rule\UserCrmDealRule($sharingLink->getOwnerId()))
-				->setLinkId($sharingLink->getId());
-		}
+			$sharingLink instanceof Link\CrmDealLink => new Link\Rule\UserCrmDealRule($sharingLink->getOwnerId()),
+			$sharingLink instanceof Link\UserLink => new Link\Rule\UserRule($sharingLink->getUserId()),
+			$sharingLink instanceof Link\GroupLink => new Link\Rule\GroupRule($sharingLink->getGroupId()),
+			default => null,
+		};
 
-		if ($sharingLink instanceof Link\UserLink)
-		{
-			return (new Link\Rule\UserRule($sharingLink->getUserId()))
-				->setLinkId($sharingLink->getId());
-		}
-
-		return null;
+		return $rule?->setLinkId($sharingLink->getId());
 	}
 }

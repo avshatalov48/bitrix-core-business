@@ -102,7 +102,6 @@ else
 $extensions = [
 	'sidepanel',
 	'applayout',
-	'action_dialog',
 	'landing.mainpage.public',
 ];
 if (!$isPublished)

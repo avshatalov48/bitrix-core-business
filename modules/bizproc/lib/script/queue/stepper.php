@@ -54,6 +54,14 @@ final class Stepper extends Main\Update\Stepper
 
 		$document->fillQueue();
 		$queue = $document->getQueue();
+
+		if (!$queue)
+		{
+			// queue is deleted
+
+			return self::FINISH_EXECUTION;
+		}
+
 		$documentType = $documentId = [$script->getModuleId(), $script->getEntity(), $script->getDocumentType()];
 		$documentId[2] = $document->getDocumentId();
 

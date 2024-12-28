@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Seo\Analytics;
 
@@ -10,6 +10,8 @@ use Bitrix\Seo\Retargeting;
 
 abstract class Account extends Retargeting\Account
 {
+	protected const LOAD_DAILY_EXPENSES_TIMEOUT = 60;
+
 	/**
 	 * Get expenses.
 	 *
@@ -44,6 +46,26 @@ abstract class Account extends Retargeting\Account
 	public function hasExpensesReport()
 	{
 		return false;
+	}
+
+	/**
+	 * Return true if it has daily expenses report
+	 *
+	 * @return bool
+	 */
+	public function hasDailyExpensesReport(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * Get expenses report by day
+	 *
+	 * @return Result
+	 */
+	public function getDailyExpensesReport(?string $accountId, ?Date $dateFrom, ?Date $dateTo): Result
+	{
+		throw new NotImplementedException();
 	}
 
 	/**

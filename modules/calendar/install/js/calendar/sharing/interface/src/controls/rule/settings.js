@@ -82,7 +82,7 @@ export default class Settings
 	{
 		const readOnlyClass = this.readOnly ? '--read-only' : '';
 		const expandedClass = this.#model.isCollapsed() ? '--hide' : '';
-		const contextClass = `--${this.#model.getContext()}`
+		const contextClass = `--${this.#model.getContext()}`;
 
 		this.#layout.wrap = Tag.render`
 			<div class="calendar-sharing__settings ${readOnlyClass} ${expandedClass} ${contextClass}">
@@ -298,10 +298,14 @@ export default class Settings
 
 	#getReadOnlyPopup(pivotNode): Popup
 	{
+		const readonlyHint = this.#model.getCalendarContext()?.sharingObjectType === 'group'
+			? 'CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT_GROUP'
+			: 'CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT'
+		;
 		this.readOnlyPopup = new Popup({
 			bindElement: pivotNode,
 			className: 'calendar-sharing__settings-read-only-hint',
-			content: Loc.getMessage('CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT'),
+			content: Loc.getMessage(readonlyHint),
 			angle: {
 				offset: 0,
 			},

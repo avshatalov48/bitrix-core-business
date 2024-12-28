@@ -2,16 +2,11 @@
 
 namespace Bitrix\Mail;
 
-use Bitrix\Mail\Repository\MailboxDirRepository;
 use Bitrix\Main;
-use Bitrix\Main\ORM;
-use Bitrix\Mail\Internals;
-use Bitrix\Main\Text\Emoji;
 use Bitrix\Mail\Helper\Message\MessageInternalDateHandler;
 
 class Helper
 {
-	const SYNC_TIMEOUT = 300;
 
 	public static function syncAllDirsInMailboxForTheFirstSyncDayAgent()
 	{
@@ -454,7 +449,7 @@ class Helper
 			]);
 		}
 
-		$startInternalDate = static::getStartInternalDateForDir($mailbox['ID'],$dirPath);
+		$startInternalDate = static::getStartInternalDateForDir($mailbox['ID'], $dirPath);
 
 		if($startInternalDate)
 		{
@@ -470,7 +465,7 @@ class Helper
 		return false;
 	}
 
-	public static function setMailboxUnseenCounter($mailboxId,$count): void
+	public static function setMailboxUnseenCounter($mailboxId, $count): void
 	{
 		$keyRow = [
 			'MAILBOX_ID' => $mailboxId,
@@ -491,26 +486,43 @@ class Helper
 
 		$rowValue = ['VALUE' => $count];
 
-		if(Internals\MailCounterTable::getCount($filter))
+		$row = Internals\MailCounterTable::getRow(
+			[
+				'filter' => $filter,
+				'select' => ['VALUE'],
+			]
+		);
+
+		$counterHasChanged = false;
+
+		if (!is_null($row))
 		{
-			Internals\MailCounterTable::update($keyRow, $rowValue);
+			if ((int)$row['VALUE'] !== $count)
+			{
+				Internals\MailCounterTable::update($keyRow, $rowValue);
+				$counterHasChanged = true;
+			}
 		}
 		else
 		{
 			Internals\MailCounterTable::add(array_merge($rowValue,$keyRow));
-		};
+			$counterHasChanged = true;
+		}
 
-		\CPullWatch::addToStack(
-			'mail_mailbox_' .$mailboxId,
-			[
-				'module_id' => 'mail',
-				'params' => [
-					'mailboxId' => $mailboxId,
-				],
-				'command' => 'counters_updated',
-			]
-		);
-		\Bitrix\Pull\Event::send();
+		if ($counterHasChanged)
+		{
+			\CPullWatch::addToStack(
+				'mail_mailbox_' .$mailboxId,
+				[
+					'module_id' => 'mail',
+					'params' => [
+						'mailboxId' => $mailboxId,
+					],
+					'command' => 'counters_updated',
+				]
+			);
+			\Bitrix\Pull\Event::send();
+		}
 	}
 
 	public static function updateMailboxUnseenCounter($mailboxId)
@@ -537,11 +549,13 @@ class Helper
 	public static function updateMailCounters($mailbox)
 	{
 		$mailboxId = $mailbox['ID'];
-
 		$directoryHelper = new Helper\MailboxDirectoryHelper($mailboxId);
 		$syncDirs = $directoryHelper->getSyncDirs();
-
 		$totalCount = 0;
+		$folderCountersForAdding = [];
+
+		//Since we work with internalDate inside the method
+		\CTimeZone::Disable();
 
 		foreach ($syncDirs as $dir)
 		{
@@ -550,40 +564,76 @@ class Helper
 				continue;
 			}
 
-			$dirPath = $dir->getPath();
+			$count = static::getImapUnseenSyncForDir($mailbox, $dir->getPath());
 
-			//since we work with internalDate inside the method
-			\CTimeZone::Disable();
-			$dirCount = static::getImapUnseenSyncForDir($mailbox,$dirPath);
-			\CTimeZone::Enable();
-
-			if($dirCount !== false)
+			if (is_int($count))
 			{
-				$totalCount += $dirCount;
+				$folderCountersForAdding[$dir->getId()] = $count;
+				$totalCount += $count;
+			}
+		}
 
-				$keyRow = [
+		\CTimeZone::Enable();
+
+		$currentFolderCounters = Internals\MailCounterTable::getList([
+			'filter' => [
+				'=MAILBOX_ID' => $mailboxId,
+				'=ENTITY_TYPE' => 'DIR',
+				'ENTITY_ID' =>  array_keys($folderCountersForAdding)
+			],
+			'select' => [
+				'ENTITY_ID',
+				'VALUE'
+			]
+		]);
+
+		$folderCountersForUpdating = [];
+
+		while ($folderCounter = $currentFolderCounters->fetch())
+		{
+			$folderId = (int)$folderCounter['ENTITY_ID'];
+			$folderCount = (int)$folderCounter['VALUE'];
+
+			if (isset($folderCountersForAdding[$folderId]))
+			{
+				if ($folderCountersForAdding[$folderId] !== $folderCount)
+				{
+					$folderCountersForUpdating[$folderId] = $folderCountersForAdding[$folderId];
+				}
+
+				unset($folderCountersForAdding[$folderId]);
+			}
+		}
+
+		foreach ($folderCountersForAdding as $id => $count)
+		{
+			if ($count <= 0)
+			{
+				continue;
+			}
+
+			Internals\MailCounterTable::add(
+				[
 					'MAILBOX_ID' => $mailboxId,
 					'ENTITY_TYPE' => 'DIR',
-					'ENTITY_ID' => $dir->getId()
-				];
+					'ENTITY_ID' => $id,
+					'VALUE' => $count,
+				]
+			);
+		}
 
-				$filter = [
-					'=MAILBOX_ID' => $keyRow['MAILBOX_ID'],
-					'=ENTITY_TYPE' => $keyRow['ENTITY_TYPE'],
-					'=ENTITY_ID' => $keyRow['ENTITY_ID']
-				];
-
-				$rowValue = ['VALUE' => $dirCount];
-
-				if(Internals\MailCounterTable::getCount($filter))
-				{
-					Internals\MailCounterTable::update($keyRow, $rowValue);
-				}
-				else
-				{
-					Internals\MailCounterTable::add(array_merge($rowValue,$keyRow));
-				};
-			}
+		foreach ($folderCountersForUpdating as $id => $count)
+		{
+			Internals\MailCounterTable::update(
+				[
+					'MAILBOX_ID' => $mailboxId,
+					'ENTITY_TYPE' => 'DIR',
+					'ENTITY_ID' => $id,
+				],
+				[
+					'VALUE' => $count,
+				]
+			);
 		}
 
 		return $totalCount;

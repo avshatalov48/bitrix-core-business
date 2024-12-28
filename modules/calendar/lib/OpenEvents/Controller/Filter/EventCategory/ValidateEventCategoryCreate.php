@@ -66,8 +66,10 @@ final class ValidateEventCategoryCreate extends ActionFilter\Base
 	/**
 	 * @param Error[] $errors
 	 */
-	private function addErrors(array $errors): void
+	protected function addErrors(array $errors): static
 	{
 		array_map(fn (Error $error) => $this->addError($error), $errors);
+
+		return $this;
 	}
 }

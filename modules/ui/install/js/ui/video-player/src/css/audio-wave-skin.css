@@ -1,0 +1,86 @@
+.video-js.vjs-audio-wave-skin {
+	overflow: hidden;
+	box-sizing: border-box;
+	max-width: 100%;
+	height: 32px;
+	border: 1px solid #dbe1e6;
+	border-radius: 15px;
+	background-color: #fff;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-control-bar {
+	display: block;
+	background-color: #fff;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-play-control.vjs-button {
+	position: absolute;
+	top: 4px;
+	left: 5px;
+	box-sizing: border-box;
+	width: 22px;
+	height: 22px;
+	border: 1px solid #abcbf3;
+	border-radius: 50%;
+	color: #468ee5;
+	transition: 220ms border ease;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-play-control.vjs-button > .vjs-icon-placeholder:before {
+	font-size: 16px;
+	line-height: 20px;
+}
+
+
+.video-js.vjs-audio-wave-skin .vjs-play-control.vjs-button:hover {
+	border-color: #468ee5;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-progress-control {
+	position: absolute;
+	top: 0;
+	right: 50px;
+	left: 35px;
+	display: block;
+	width: auto;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-remaining-time {
+	position: absolute;
+	top: 1px;
+	right: 7px;
+	padding: 0;
+	vertical-align: middle;
+	font-size: 11px;
+	line-height: 30px;
+	color: #979da4;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-play-progress {
+	height: 100%;
+	background: #468ee5 url(./images/progress-mask.svg) left center repeat-x;
+	background-size: auto 30px;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-progress-control .vjs-progress-holder {
+	margin: 0;
+	padding: 0;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-progress-control .vjs-progress-holder,
+.video-js.vjs-audio-wave-skin .vjs-progress-control:hover .vjs-progress-holder {
+	font-size: 1.666666666666666666em;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-progress-control .vjs-progress-holder,
+.video-js.vjs-audio-wave-skin .vjs-progress-control:hover .vjs-progress-holder {
+	height: 100%;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-slider {
+	background: #d2d5d9 url(./images/progress-mask.svg) left center repeat-x;
+}
+
+.video-js.vjs-audio-wave-skin .vjs-progress-holder .vjs-load-progress {
+	display: none;
+}

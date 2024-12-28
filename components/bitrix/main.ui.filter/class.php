@@ -641,7 +641,6 @@ class CMainUiFilter extends CBitrixComponent
 									$field["STRICT"]
 								);
 							}
-
 							break;
 						}
 
@@ -673,6 +672,7 @@ class CMainUiFilter extends CBitrixComponent
 								"months" => $months,
 								"years" => $years
 							);
+							break;
 						}
 
 						case Type::NUMBER :
@@ -861,7 +861,7 @@ class CMainUiFilter extends CBitrixComponent
 		if (!empty($filter) && array_key_exists($filter["PRESET_ID"], $arOptions["filters"]))
 		{
 			$preset = $arOptions["filters"][$filter["PRESET_ID"]];
-			$fields = $preset["fields"];
+			$fields = $preset["fields"] ?? [];
 			$rows = explode(",", $preset["filter_rows"] ?? '');
 
 			foreach ($rows as $row)

@@ -25,7 +25,6 @@ if (intval($userId) <= 0)
 
 if (check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	if($_REQUEST['action'] == "getuserdata" || $_REQUEST['action'] == 'getsettings')
 	{
 		$serializedSocservUser = CUserOptions::GetOption("socialservices", "user_socserv_array", '', $userId);
@@ -111,7 +110,7 @@ BX.loadScript('/bitrix/js/socialservices/ss_timeman.js?<?=$t?>', function(){
 	}
 	elseif($_REQUEST['action'] == "registernetwork")
 	{
-		$domain = ToLower(rtrim(trim($_REQUEST['url']), '/'));
+		$domain = mb_strtolower(rtrim(trim($_REQUEST['url']), '/'));
 
 		if(preg_match("/^http[s]{0,1}:\/\/[^\/]+/", $domain))
 		{

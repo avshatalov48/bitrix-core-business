@@ -22,8 +22,13 @@ if($arParams["POPUP"]):
 <div id="bx_auth_float" class="bx-auth-float">
 <?endif?>
 
+<?php
+$arParams["SUFFIX"] = $arParams["SUFFIX"] ?? '';
+$arParams["~SUFFIX"] = $arParams["~SUFFIX"] ?? '';
+?>
+
 <?if(($arParams["~CURRENT_SERVICE"] <> '') && $arParams["~FOR_SPLIT"] != 'Y'):?>
-<script type="text/javascript">
+<script>
 BX.ready(function(){BxShowAuthService('<?=CUtil::JSEscape($arParams["~CURRENT_SERVICE"])?>', '<?=$arParams["~SUFFIX"]?>')});
 </script>
 <?endif?>

@@ -3,8 +3,11 @@
 namespace Bitrix\Im\V2\Call;
 
 use Bitrix\Im\Call\Call;
-use Bitrix\Im\Call\Integration\EntityType;
 use Bitrix\Im\Model\CallTable;
+use Bitrix\Call\Call\PlainCall;
+use Bitrix\Call\Call\BitrixCall;
+use Bitrix\Call\Call\ConferenceCall;
+use Bitrix\Main\Type\DateTime;
 
 class CallFactory
 {
@@ -13,9 +16,9 @@ class CallFactory
 	 */
 	protected static function getProviderClass(string $provider, int $type)
 	{
+		\Bitrix\Main\Loader::includeModule('call');
 		if (false && $type == Call::TYPE_LANGE)
 		{
-			\Bitrix\Main\Loader::includeModule('call');
 			return \Bitrix\Call\Call\LargeCall::class;
 		}
 
@@ -95,17 +98,15 @@ class CallFactory
 	 */
 	protected static function search(int $type, string $provider, string $entityType, string $entityId, int $currentUserId = 0): ?array
 	{
-		if (!$currentUserId)
-		{
-			$currentUserId = \Bitrix\Im\User::getInstance()->getId();
-		}
 		$query = CallTable::query()
 			->addSelect('*')
 			->where('TYPE', $type)
 			->where('PROVIDER', $provider)
 			->where('ENTITY_TYPE', $entityType)
 			->where('ENTITY_ID', $entityId)
+			->whereNot('STATE', Call::STATE_FINISHED)
 			->whereNull('END_DATE')
+			->addFilter('>START_DATE', (new DateTime)->add('-12 hours'))
 			->setOrder(['ID' => 'DESC'])
 			->setLimit(1)
 		;
@@ -113,6 +114,10 @@ class CallFactory
 		/*
 		if ($entityType === EntityType::CHAT && strpos($entityId, "chat") !== 0)
 		{
+			if (!$currentUserId)
+			{
+				$currentUserId = \Bitrix\Im\User::getInstance()->getId();
+			}
 			$query->where('INITIATOR_ID', $currentUserId);
 			$query->where('ENTITY_ID', $entityId);
 		}

@@ -4,15 +4,20 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+$messageLimit = null;
+
+if (\Bitrix\Main\Loader::includeModule('im'))
+{
+	$messageLimit = \Bitrix\Im\V2\Message\MessageService::getMultipleActionMessageLimit();
+}
+
 return [
 	'css' => 'dist/message-list.bundle.css',
 	'js' => 'dist/message-list.bundle.js',
 	'rel' => [
 		'im.v2.lib.quote',
 		'im.v2.component.animation',
-		'im.v2.lib.copilot',
 		'im.v2.lib.message-component-manager',
-		'im.public',
 		'im.v2.lib.channel',
 		'im.v2.lib.menu',
 		'im.v2.lib.parser',
@@ -20,11 +25,12 @@ return [
 		'im.v2.provider.service',
 		'im.v2.lib.market',
 		'im.v2.lib.utils',
-		'im.v2.lib.permission',
 		'im.v2.lib.confirm',
 		'ui.notification',
 		'main.polyfill.intersectionobserver',
 		'im.v2.component.elements',
+		'im.v2.lib.copilot',
+		'im.v2.lib.permission',
 		'main.core',
 		'main.core.events',
 		'im.v2.lib.analytics',
@@ -56,7 +62,13 @@ return [
 		'im.v2.component.message.general-chat-creation',
 		'im.v2.component.message.general-channel-creation',
 		'im.v2.component.message.channel-creation',
+		'imopenlines.v2.component.message.start-dialog',
+		'imopenlines.v2.component.message.hidden',
+		'imopenlines.v2.component.message.feedback-form',
 		'im.v2.component.message.call',
 	],
 	'skip_core' => false,
+	'settings' => [
+		'multipleActionMessageLimit' => $messageLimit,
+	],
 ];

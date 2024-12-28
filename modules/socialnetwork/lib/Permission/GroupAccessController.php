@@ -5,17 +5,24 @@ declare(strict_types=1);
 namespace Bitrix\Socialnetwork\Permission;
 
 use Bitrix\Main\Access\AccessibleItem;
-use Bitrix\Main\Access\BaseAccessController;
+use Bitrix\Main\Type\Contract\Arrayable;
 use Bitrix\Socialnetwork\Permission\Model\GroupModel;
 use Bitrix\Socialnetwork\Permission\Trait\AccessErrorTrait;
 use Bitrix\Socialnetwork\Permission\Trait\AccessUserTrait;
 
-class GroupAccessController extends BaseAccessController implements AccessErrorable
+class GroupAccessController extends AbstractAccessController
 {
-	use AccessUserTrait;
-	use AccessErrorTrait;
-
 	protected static array $cache = [];
+
+	public function getModel(array|Arrayable $data): AccessModelInterface
+	{
+		return GroupModel::createFromArray($data);
+	}
+
+	public function getDictionary(): AccessDictionaryInterface
+	{
+		return GroupDictionary::getInstance();
+	}
 
 	protected function loadItem(int $itemId = null): ?AccessibleItem
 	{

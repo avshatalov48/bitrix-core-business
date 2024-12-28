@@ -59,7 +59,7 @@ abstract class Base
 			throw new SectionNotFound();
 		}
 
-		if ($section['CAL_TYPE'] !== 'group' && $this->intranetUserService->isNotIntranetUser($this->getCurrentUserId()))
+		if (!in_array($section['CAL_TYPE'], ['user', 'group'], true) && $this->intranetUserService->isNotIntranetUser($this->getCurrentUserId()))
 		{
 			throw new ExtranetPermissionDenied();
 		}
@@ -186,7 +186,6 @@ abstract class Base
 		}
 
 		return (new Accessibility())
-			->setCheckPermissions(false)
 			->setSkipEventId($curEventId)
 			->getBusyUsersIds($usersToCheck, $fromTs, $toTs);
 	}

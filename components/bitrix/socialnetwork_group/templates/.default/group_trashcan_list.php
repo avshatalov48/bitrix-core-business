@@ -1,6 +1,7 @@
 <?php
 use Bitrix\Disk\Desktop;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Collab\Registry\CollabRegistry;
 
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arParams */
@@ -17,7 +18,14 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
 ?>
 <?
 $pageId = "group_files";
-include("util_group_menu.php");
+$groupId = (int)$arResult['VARIABLES']['group_id'];
+$isCollab = CollabRegistry::getInstance()->get($groupId) !== null;
+
+if (!$isCollab)
+{
+	include("util_group_menu.php");
+}
+
 include("util_group_profile.php");
 include("util_group_limit.php");
 ?>

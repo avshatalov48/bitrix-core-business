@@ -9,13 +9,16 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	  _t,
 	  _t2,
 	  _t3;
+	var _name = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("name");
 	var _isFinal = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isFinal");
 	var _workflowId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("workflowId");
+	var _durationTexts = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("durationTexts");
 	var _calculateDurationTexts = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calculateDurationTexts");
 	var _renderContent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderContent");
 	var _openTimeline = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openTimeline");
 	class Summary {
 	  constructor(props = {}) {
+	    var _props$data, _props$data2, _props$data3;
 	    Object.defineProperty(this, _openTimeline, {
 	      value: _openTimeline2
 	    });
@@ -25,6 +28,10 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	    Object.defineProperty(this, _calculateDurationTexts, {
 	      value: _calculateDurationTexts2
 	    });
+	    Object.defineProperty(this, _name, {
+	      writable: true,
+	      value: void 0
+	    });
 	    Object.defineProperty(this, _isFinal, {
 	      writable: true,
 	      value: false
@@ -33,17 +40,24 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _durationTexts, {
+	      writable: true,
+	      value: {
+	        nameBefore: '',
+	        value: '',
+	        nameAfter: ''
+	      }
+	    });
 	    if (!main_core.Type.isStringFilled(props.workflowId)) {
 	      throw new TypeError('workflowId must be filled string');
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _workflowId)[_workflowId] = props.workflowId;
-	    if (main_core.Type.isBoolean(props.workflowIsCompleted)) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _isFinal)[_isFinal] = props.workflowIsCompleted;
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _calculateDurationTexts)[_calculateDurationTexts](props.time);
+	    babelHelpers.classPrivateFieldLooseBase(this, _isFinal)[_isFinal] = ((_props$data = props.data) == null ? void 0 : _props$data.status) === 'success';
+	    babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] = main_core.Type.isStringFilled((_props$data2 = props.data) == null ? void 0 : _props$data2.name) ? props.data.name : '';
+	    babelHelpers.classPrivateFieldLooseBase(this, _calculateDurationTexts)[_calculateDurationTexts]((_props$data3 = props.data) == null ? void 0 : _props$data3.duration);
 	  }
 	  render() {
-	    const title = main_core.Text.encode(main_core.Loc.getMessage(babelHelpers.classPrivateFieldLooseBase(this, _isFinal)[_isFinal] ? 'BIZPROC_JS_WORKFLOW_FACES_SUMMARY_TITLE_FINAL' : 'BIZPROC_JS_WORKFLOW_FACES_SUMMARY_TITLE'));
+	    const title = main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _name)[_name]);
 	    const footerTitle = main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_SUMMARY_TIMELINE_MSGVER_1'));
 	    return main_core.Tag.render(_t || (_t = _`
 			<div class="bp-workflow-faces-summary-item">
@@ -59,24 +73,22 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	  }
 	}
 	function _calculateDurationTexts2(time) {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isFinal)[_isFinal]) {
+	    return;
+	  }
 	  const duration = main_core.Type.isNumber(time) ? main_date.DateTimeFormat.format([['s', 'sdiff'], ['i', 'idiff'], ['H', 'Hdiff'], ['d', 'ddiff'], ['m', 'mdiff'], ['Y', 'Ydiff']], 0, time) : null;
-	  this.durationTexts = {
-	    nameBefore: '',
-	    value: '',
-	    nameAfter: ''
-	  };
 	  if (duration) {
 	    const pattern = /\d+/;
 	    const match = duration.match(pattern);
 	    if (match) {
-	      this.durationTexts.value = String(match[0]);
-	      const index = duration.indexOf(this.durationTexts.value);
+	      babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].value = String(match[0]);
+	      const index = duration.indexOf(babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].value);
 	      if (index !== -1) {
-	        this.durationTexts.nameBefore = duration.slice(0, index).trim();
-	        this.durationTexts.nameAfter = duration.slice(index + this.durationTexts.value.length).trim();
+	        babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].nameBefore = duration.slice(0, index).trim();
+	        babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].nameAfter = duration.slice(index + babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].value.length).trim();
 	      }
 	    } else {
-	      this.durationTexts.nameAfter = duration;
+	      babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].nameAfter = duration;
 	    }
 	  }
 	}
@@ -88,7 +100,7 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 					<div class="bp-workflow-faces-summary__summary-value">${0}</div>
 					<div class="bp-workflow-faces-summary__summary-name">${0}</div>
 				</div>
-			`), main_core.Text.encode(this.durationTexts.nameBefore), main_core.Text.encode(this.durationTexts.value), main_core.Text.encode(this.durationTexts.nameAfter));
+			`), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].nameBefore), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].value), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _durationTexts)[_durationTexts].nameAfter));
 	  }
 	  return main_core.Tag.render(_t3 || (_t3 = _`
 			<div class="bp-workflow-faces-summary__icon-wrapper">

@@ -1,15 +1,15 @@
 'use strict';
 
-import { Type, Event, Loc, Dom, Tag, Runtime } from 'main.core';
-import { SliderDateTimeControl } from './sliderdatetimecontrol.js';
-import { SectionSelector, Reminder, ColorSelector, Location, RepeatSelector, BusyUsersDialog } from 'calendar.controls';
-import { Util } from 'calendar.util';
+import { BusyUsersDialog, ColorSelector, Location, Reminder, RepeatSelector, SectionSelector } from 'calendar.controls';
 import { Entry, EntryManager } from 'calendar.entry';
-import { SectionManager, CalendarSection } from 'calendar.sectionmanager';
-import { EventEmitter, BaseEvent } from 'main.core.events';
 import { Planner } from 'calendar.planner';
-import { TagSelector as EntityTagSelector } from 'ui.entity-selector';
 import { RoomsManager } from 'calendar.roomsmanager';
+import { CalendarSection, SectionManager } from 'calendar.sectionmanager';
+import { Util } from 'calendar.util';
+import { Dom, Event, Loc, Runtime, Tag, Type } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { TagSelector as EntityTagSelector } from 'ui.entity-selector';
+import { SliderDateTimeControl } from './sliderdatetimecontrol.js';
 
 export class EventEditForm
 {
@@ -46,10 +46,22 @@ export class EventEditForm
 		this.emitter = new EventEmitter();
 		this.emitter.setEventNamespace('BX.Calendar.EventEditForm');
 		this.BX = Util.getBX();
-		this.context = Util.getCalendarContext() ?? options.calendarContext;
-		if (!Util.getCalendarContext())
+		this.isCollabUser = options.calendarContext?.isCollabUser || false;
+		this.analyticsChatId = options.createChatId || null;
+		this.analyticsSubSection = options.analyticsSubSection || this.getFormAnalyticsContext();
+
+		if (this.isCollabUser)
 		{
-			Util.setCalendarContext(this.context);
+			Util.setCalendarContext(options.calendarContext);
+		}
+		else
+		{
+			this.context = Util.getCalendarContext() ?? options.calendarContext;
+
+			if (!Util.getCalendarContext())
+			{
+				Util.setCalendarContext(this.context);
+			}
 		}
 
 		this.isOpenEvent = (this.entry?.data['CAL_TYPE'] || this.type) === 'open_event';
@@ -108,6 +120,21 @@ export class EventEditForm
 		this.lastUsedSaveOptions = {};
 		this.timezoneHint = '';
 		this.isAvailable = true;
+	}
+
+	getFormAnalyticsContext()
+	{
+		if (this.analyticsChatId)
+		{
+			return 'chat_textarea';
+		}
+
+		if (this.type === 'group')
+		{
+			return 'calendar_collab';
+		}
+
+		return 'calendar_personal';
 	}
 
 	initInSlider(slider, promiseResolve)
@@ -466,24 +493,29 @@ export class EventEditForm
 			const selectedCategory = selectedCategories[0].id;
 			this.DOM.form.appendChild(
 				Tag.render`<input type="hidden" name="category" value="${selectedCategory}">`
-			)
+			);
+		}
+
+		if (this.analyticsSubSection)
+		{
+			this.DOM.form.appendChild(
+				Tag.render`<input type="hidden" name="analyticsSubSection" value="${this.analyticsSubSection}">`,
+			);
+		}
+
+		if (this.analyticsChatId)
+		{
+			this.DOM.form.appendChild(
+				Tag.render`<input type="hidden" name="analyticsChatId" value="${this.analyticsChatId}">`,
+			);
 		}
 
 		this.DOM.form.doCheckOccupancy.value = options.doCheckOccupancy || 'Y';
+
 		const data = new FormData(this.DOM.form);
 
 		this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 			data,
-			analyticsLabel: {
-				calendarAction: this.isCreateForm() ? 'create_event' : 'edit_event',
-				formType: 'full',
-				emailGuests: this.hasExternalEmailUsers() ? 'Y' : 'N',
-				markView: Util.getCurrentView() || 'outside',
-				markCrm: this.DOM.form?.['UF_CRM_CAL_EVENT[]'] && this.DOM.form['UF_CRM_CAL_EVENT[]'].value ? 'Y' : 'N',
-				markRrule: this.repeatSelector?.getType(),
-				markMeeting: this.entry.isMeeting() ? 'Y' : 'N',
-				markType: this.type
-			}
 		}).then(async (response) => {
 				if (this.canEditOnlyThis() && formDataChanges.includes('color'))
 				{
@@ -725,6 +757,7 @@ export class EventEditForm
 						this.uid = params.uniqueId;
 						this.editorId = params.editorId;
 						this.formSettings = this.getSettings(params.formSettings || []);
+						this.isCollabUser = params.isCollabUser;
 
 						let attendeesEntityList = this.formDataValue.attendeesEntityList
 							|| params.attendeesEntityList
@@ -906,14 +939,18 @@ export class EventEditForm
 
 	handleSections(sections, trackingUsersList)
 	{
-		this.sections = sections;
+		this.sections = Util.filterSectionsByContext(sections, {
+			isCollabUser: this.isCollabUser,
+			calendarType: this.type,
+			calendarOwnerId: this.ownerId,
+		});
 		this.sectionIndex = {};
 		this.trackingUsersList = trackingUsersList || [];
 
-		if (Type.isArray(sections))
+		if (Type.isArray(this.sections))
 		{
-			sections.forEach((value, ind) => {
-				this.sectionIndex[parseInt(value.ID)] = ind;
+			this.sections.forEach((value, ind) => {
+				this.sectionIndex[parseInt(value.ID, 10)] = ind;
 			});
 		}
 
@@ -1462,6 +1499,8 @@ export class EventEditForm
 				ownerId: this.ownerId || this.userId,
 				userId: this.userId,
 				trackingUsersList: this.trackingUsersList,
+				isCollabUser: this.isCollabUser,
+				isCollabContext: this.isCollabContext(),
 			}),
 			mode: 'full',
 			zIndex: this.zIndex,
@@ -1569,6 +1608,7 @@ export class EventEditForm
 				inputName: 'lo_cation', // don't use 'location' word here mantis:107863
 				wrap: this.DOM.locationWrap,
 				richLocationEnabled: this.locationFeatureEnabled,
+				hideLocationLock: this.isCollabUser,
 				locationList: this.locationList || [],
 				roomsManager: this.roomsManager || null,
 				locationAccess: this.locationAccess || false,
@@ -1911,7 +1951,15 @@ export class EventEditForm
 
 	setCurrentEntry(entry = null, userIndex = null)
 	{
+		const currentSectionId = this.getCurrentSectionId();
 		this.entry = EntryManager.getEntryInstance(entry, userIndex, { type: this.type, ownerId: this.ownerId });
+		if (
+			!Util.getCalendarContext()
+			&& this.type === 'group'
+		)
+		{
+			this.entry.setSectionId(currentSectionId);
+		}
 
 		EntryManager.registerEntrySlider(this.entry, this);
 	}
@@ -1940,8 +1988,7 @@ export class EventEditForm
 
 	getCurrentSectionId()
 	{
-		let
-			section = 0;
+		let section = 0;
 		const entry = this.getCurrentEntry();
 
 		if (entry instanceof Entry && this.sections[this.sectionIndex[entry.sectionId]])
@@ -1957,7 +2004,18 @@ export class EventEditForm
 			}
 			else
 			{
-				section = SectionManager.getNewEntrySectionId(this.type, this.ownerId);
+				if (
+					!Util.getCalendarContext()
+					&& this.type === 'group'
+					&& this.sections.length
+				)
+				{
+					section = this.getSectionIdByCurrentContext();
+				}
+				else
+				{
+					section = SectionManager.getNewEntrySectionId(this.type, this.ownerId);
+				}
 			}
 
 			if (!this.sectionIndex[section])
@@ -2404,7 +2462,7 @@ export class EventEditForm
 
 	checkLocationForm(event)
 	{
-		if (event && event instanceof BaseEvent)
+		if (!this.isCollabUser && event && event instanceof BaseEvent)
 		{
 			const data = event.getData();
 			const usersCount = data.usersCount;
@@ -2922,5 +2980,25 @@ export class EventEditForm
 	isEditForm()
 	{
 		return parseInt(this.entry.id) > 0;
+	}
+
+	isCollabContext()
+	{
+		const currentSection = this.getCurrentSection();
+
+		return currentSection && Type.isFunction(currentSection.isCollab)
+			? currentSection.isCollab()
+			: currentSection.IS_COLLAB
+		;
+	}
+
+	getSectionIdByCurrentContext()
+	{
+		const sectionObj = this.sections.find(
+			(section) => parseInt(section.OWNER_ID, 10) === this.ownerId
+				&& section.CAL_TYPE === this.type
+		);
+
+		return sectionObj && parseInt(sectionObj.ID, 10);
 	}
 }

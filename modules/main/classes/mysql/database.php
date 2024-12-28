@@ -24,10 +24,7 @@ class CDatabaseMysql extends CAllDatabase
 	 */
 	public function Disconnect()
 	{
-		if ($this->connection)
-		{
-			$this->connection->disconnect();
-		}
+		$this->connection?->disconnect();
 	}
 
 	public static function CurrentTimeFunction()
@@ -418,7 +415,7 @@ class CDatabaseMysql extends CAllDatabase
 		}
 		else
 		{
-			$arInsert = $this->PrepareInsert($tablename, $arFields, $strFileDir);
+			$arInsert = $this->PrepareInsert($tablename, $arFields);
 			$strSql =
 				"INSERT INTO " . $tablename . "(" . $arInsert[0] . ") " .
 				"VALUES(" . $arInsert[1] . ")";
@@ -473,23 +470,17 @@ class CDatabaseMysql extends CAllDatabase
 
 	protected function QueryInternal($strSql)
 	{
-		// back to default before PHP 8.1
-		mysqli_report(MYSQLI_REPORT_OFF);
-
-		return mysqli_query($this->db_Conn, $strSql, MYSQLI_STORE_RESULT);
+		return mysqli_query($this->db_Conn, $strSql);
 	}
 
 	protected function GetError()
 	{
-		return "[" . mysqli_errno($this->db_Conn) . "] " . mysqli_error($this->db_Conn);
+		return "(" . $this->GetErrorCode() . ") " . mysqli_error($this->db_Conn);
 	}
 
-	/**
-	 * @deprecated Not used.
-	 */
-	protected function DisconnectInternal($resource)
+	protected function GetErrorCode()
 	{
-		mysqli_close($resource);
+		return mysqli_errno($this->db_Conn);
 	}
 
 	public function ForSqlLike($strValue, $iMaxLength = 0)

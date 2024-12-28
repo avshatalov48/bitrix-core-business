@@ -204,7 +204,7 @@ HTML
 			$this->elementSetts['id'] = $params['id'];
 		$replace = array(
 			"/\\#MESS_LOADING\\#/" => Loc::getMessage("BXU_LoadingProcess"),
-			"/\\#description\\#/" => ($this->elementSetts["edit"] == true && $this->elementSetts["description"] == true ? self::$templatePatterns["description"] : ""),
+			"/\\#description\\#/" => ($this->elementSetts["edit"] && $this->elementSetts["description"] ? self::$templatePatterns["description"] : ""),
 			"/\\#properties\\#/" => "",
 			"/[\n\t]+/" => ""
 		);
@@ -239,7 +239,7 @@ HTML
 			"cloud" =>
 				isset($inputs['cloud'])
 				&& $inputs['cloud'] === true
-				&& $USER->CanDoOperation("clouds_browse")
+				&& $USER?->CanDoOperation("clouds_browse")
 				&& \CModule::IncludeModule("clouds")
 				&& \CCloudStorage::HasActiveBuckets()
 			,
@@ -261,8 +261,8 @@ HTML
 			$this->uploadSetts["allowUpload"] = self::UPLOAD_ANY_FILES;
 		}
 		if ($this->uploadSetts["medialib"] === true)
-			$this->uploadSetts["medialib"] = (\Bitrix\Main\Loader::includeModule("fileman") && \CMedialib::CanDoOperation('medialib_view_collection', 0));
-		if($this->uploadSetts["fileDialog"] === true && !$USER->CanDoOperation('fileman_view_file_structure'))
+			$this->uploadSetts["medialib"] = (Loader::includeModule("fileman") && \CMedialib::CanDoOperation('medialib_view_collection'));
+		if($this->uploadSetts["fileDialog"] === true && !$USER?->CanDoOperation('fileman_view_file_structure'))
 			$this->uploadSetts["fileDialog"] = false;
 
 		if (empty($this->uploadSetts["allowUploadExt"]) && $this->uploadSetts["allowUpload"] === self::UPLOAD_EXTENTION_LIST)
@@ -600,12 +600,10 @@ HTML;
 	 */
 	public static function prepareFile($file)
 	{
-		$return = null;
-		if (is_array($file) && isset($file["tmp_name"]) && !empty($file["tmp_name"]))
+		if (!empty($file["tmp_name"]))
 		{
 
 		}
 		return $file;
 	}
 }
-?>

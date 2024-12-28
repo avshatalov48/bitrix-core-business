@@ -13,11 +13,7 @@ import type { ImModelLayout } from 'im.v2.model';
 // @vue/component
 export const ChatContent = {
 	name: 'ChatContent',
-	components:
-	{
-		ChatOpener,
-		CommentsOpener,
-	},
+	components: { ChatOpener, CommentsOpener },
 	props:
 	{
 		entityId: {

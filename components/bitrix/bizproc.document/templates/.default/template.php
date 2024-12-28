@@ -128,7 +128,7 @@ $iCountRow = 0;
 		<tr class="<?=($iCountRow == 1 ? "bizproc-item-row-first" : "")?> <?
 			?><?=(empty($arTasks) && empty($arEvents) && empty($arDocumentState["TEMPLATE_PARAMETERS"]) && $arDocumentState["STATE_NAME"] == '' ?
 				"bizproc-item-row-last" : "")?>">
-			<td class="bizproc-field-name"><?=GetMessage("IBEL_BIZPROC_DATE")?>:</td>
+			<td class="bizproc-field-name"><?=GetMessage("IBEL_BIZPROC_DATE_MSGVER_1")?></td>
 			<td class="bizproc-field-value"><?= FormatDateFromDB($arDocumentState["STATE_MODIFIED"]) ?></td>
 		</tr>
 		<?endif;?>
@@ -137,7 +137,7 @@ $iCountRow = 0;
 		?>
 		<tr class="<?=($iCountRow == 1 ? "bizproc-item-row-first" : "")?> <?
 			?><?=(empty($arTasks) && empty($arEvents) && empty($arDocumentState["TEMPLATE_PARAMETERS"])? "bizproc-item-row-last" : "")?>">
-			<td class="bizproc-field-name"><?=GetMessage("IBEL_BIZPROC_STATE")?>:</td>
+			<td class="bizproc-field-name"><?=GetMessage("IBEL_BIZPROC_STATE_MSGVER_1")?></td>
 			<td class="bizproc-field-value">
 				<?=($arDocumentState["STATE_TITLE"] <> '' ? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"])?>
 			</td>
@@ -189,7 +189,7 @@ $iCountRow = 0;
 				$iCountRow++;
 		?>
 		<tr class="<?=($iCountRow == 1 ? "bizproc-item-row-first" : "")?> bizproc-item-row-last">
-			<td class="bizproc-field-name"><?=GetMessage("IBEL_BIZPROC_TASKS")?>:</td>
+			<td class="bizproc-field-name"><?=GetMessage("IBEL_BIZPROC_TASKS_MSGVER_1")?></td>
 			<td class="bizproc-field-value">
 				<?
 				foreach ($arTasks as $arTask)

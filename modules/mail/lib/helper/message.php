@@ -443,7 +443,7 @@ class Message
 
 		if (!isset($countersForUsers[$userId]))
 		{
-			$mailboxes = MailboxTable::getUserMailboxes($userId);
+			$mailboxes = MailboxTable::getUserMailboxes($userId, true);
 
 			if (empty($mailboxes))
 			{

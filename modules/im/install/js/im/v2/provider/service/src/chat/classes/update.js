@@ -9,7 +9,12 @@ import { Core } from 'im.v2.application.core';
 import { getChatRoleForUser } from 'im.v2.lib.role-manager';
 
 import type { Store } from 'ui.vue3.vuex';
-import type { RestUpdateChatConfig, UpdateChatConfig, GetMemberEntitiesConfig } from '../types/chat';
+import type {
+	RestUpdateChatConfig,
+	UpdateChatConfig,
+	UpdateCollabConfig,
+	GetMemberEntitiesConfig,
+} from '../types/chat';
 
 export class UpdateService
 {
@@ -76,6 +81,45 @@ export class UpdateService
 
 		const dialogId = `chat${chatId}`;
 		await this.#updateChatInModel(dialogId, chatConfig);
+
+		return updateResult;
+	}
+
+	async updateCollab(dialogId: string, collabConfig: UpdateCollabConfig): Promise<boolean>
+	{
+		Logger.warn(`ChatService: updateCollab, dialogId: ${dialogId}`, collabConfig);
+
+		const preparedFields = await this.#prepareFields(collabConfig);
+
+		let payload = {
+			dialogId,
+			name: preparedFields.title,
+			description: preparedFields.description,
+			avatarId: preparedFields.avatar,
+		};
+
+		if (collabConfig.groupSettings)
+		{
+			const groupSettings = collabConfig.groupSettings;
+			payload = {
+				...payload,
+				ownerId: groupSettings.ownerId,
+				addModeratorMembers: Utils.user.prepareSelectorIds(groupSettings.addModeratorMembers),
+				deleteModeratorMembers: Utils.user.prepareSelectorIds(groupSettings.deleteModeratorMembers),
+				permissions: groupSettings.permissions,
+				options: groupSettings.options,
+			};
+		}
+
+		const updateResult: RestResult = await runAction(RestMethod.socialnetworkCollabUpdate, {
+			data: payload,
+		}).catch(([error]) => {
+			// eslint-disable-next-line no-console
+			console.error('ChatService: updateCollab error:', error);
+			throw error;
+		});
+
+		Logger.warn('ChatService: updateCollab result', updateResult);
 
 		return updateResult;
 	}

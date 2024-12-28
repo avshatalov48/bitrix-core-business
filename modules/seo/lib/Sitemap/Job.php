@@ -329,8 +329,7 @@ class Job
 
 		$generator =
 			(new Generator($this->sitemapId))
-				->setStep($this->step)
-				->setState($this->state)
+				->init($this->step, $this->state)
 		;
 		if ($generator->run())
 		{

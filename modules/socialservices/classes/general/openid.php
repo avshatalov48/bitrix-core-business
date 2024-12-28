@@ -24,7 +24,7 @@ class CSocServOpenID
 					$identity = $_REQUEST[$var];
 				}
 
-				$return_to = CSocServUtil::GetCurUrl("auth_service_id=".urlencode($_REQUEST["auth_service_id"])."&check_key=".\CSocServAuthManager::getUniqueKey(), array("SEF_APPLICATION_CUR_PAGE_URL", "auth_service_error", "auth_service_id", "login"));
+				$return_to = CSocServUtil::GetCurUrl("auth_service_id=".urlencode($_REQUEST["auth_service_id"])."&check_key=".\CSocServAuthManager::getUniqueKey(), array("auth_service_error", "auth_service_id", "login"));
 
 				if($url = $obOpenID->GetRedirectUrl($identity, $return_to))
 					LocalRedirect($url, true);
@@ -41,7 +41,7 @@ class CSocServOpenID
 		return '
 <span class="bx-ss-icon openid"></span>
 <span>'.'OpenID:'.'</span>
-<input type="text" name="OPENID_IDENTITY_OPENID" value="'.$arParams["LAST_LOGIN"].'" size="30" />
+<input type="text" name="OPENID_IDENTITY_OPENID" value="'.($arParams["LAST_LOGIN"] ?? '').'" size="30" />
 '.bitrix_sessid_post().'
 <input type="hidden" name="auth_service_error" value="" />
 <input type="submit" class="button" name="" value="'.GetMessage("socserv_openid_login").'" />
@@ -90,7 +90,7 @@ class CSocServMailRu extends CSocServOpenID
 	{
 		$login = '';
 		$matches = array();
-		if(preg_match('#openid.mail.ru/mail/([^/$]+)#i', $arParams["~LAST_LOGIN"], $matches))
+		if(preg_match('#openid.mail.ru/mail/([^/$]+)#i', $arParams["~LAST_LOGIN"] ?? '', $matches))
 			$login = $matches[1];
 
 		return '
@@ -118,7 +118,7 @@ class CSocServLivejournal extends CSocServOpenID
 	{
 		$login = '';
 		$matches = array();
-		if(preg_match('#([^\.]+).livejournal.com#i', $arParams["~LAST_LOGIN"], $matches))
+		if(preg_match('#([^\.]+).livejournal.com#i', $arParams["~LAST_LOGIN"] ?? '', $matches))
 			$login = $matches[1];
 		return '
 <span class="bx-ss-icon livejournal"></span>
@@ -145,7 +145,7 @@ class CSocServLiveinternet extends CSocServOpenID
 	{
 		$login = '';
 		$matches = array();
-		if(preg_match('#www.liveinternet.ru/users/([^/$]+)#i', $arParams["~LAST_LOGIN"], $matches))
+		if(preg_match('#www.liveinternet.ru/users/([^/$]+)#i', $arParams["~LAST_LOGIN"] ?? '', $matches))
 			$login = $matches[1];
 		return '
 <span class="bx-ss-icon liveinternet"></span>
@@ -172,7 +172,7 @@ class CSocServBlogger extends CSocServOpenID
 	{
 		$login = '';
 		$matches = array();
-		if(preg_match('#([^\.]+).blogspot.com#i', $arParams["~LAST_LOGIN"], $matches))
+		if(preg_match('#([^\.]+).blogspot.com#i', $arParams["~LAST_LOGIN"] ?? '', $matches))
 			$login = $matches[1];
 		return '
 <span class="bx-ss-icon blogger"></span>

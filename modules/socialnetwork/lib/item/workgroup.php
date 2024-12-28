@@ -11,20 +11,20 @@ namespace Bitrix\Socialnetwork\Item;
 use Bitrix\Main;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Loader;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
+use Bitrix\Socialnetwork\Integration\Intranet\Structure\WorkgroupDepartmentsSynchronizer;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Helper;
 
 Loc::loadMessages(__FILE__);
 
-class Workgroup implements Main\Type\Contract\Arrayable
+class Workgroup implements Main\Type\Contract\Arrayable, Main\Type\Contract\Jsonable
 {
 	protected array $fields;
 	protected static $groupsIdToCheckList = [];
@@ -94,9 +94,24 @@ class Workgroup implements Main\Type\Contract\Arrayable
 		return (string)($this->fields['NAME'] ?? '');
 	}
 
+	public function getDescription(): string
+	{
+		return (string)($this->fields['DESCRIPTION'] ?? '');
+	}
+
 	public function getChatId(): int
 	{
 		return (int)($this->fields['CHAT_ID'] ?? 0);
+	}
+
+	public function getDialogId(): string
+	{
+		return (string)($this->fields['DIALOG_ID'] ?? '');
+	}
+
+	public function getImageId(): int
+	{
+		return (int)($this->fields['IMAGE_ID'] ?? 0);
 	}
 
 	public function getOwnerId(): int
@@ -104,9 +119,14 @@ class Workgroup implements Main\Type\Contract\Arrayable
 		return (int)($this->fields['OWNER_ID'] ?? 0);
 	}
 
-	public function getSiteId(): int
+	public function getSiteId(): string
 	{
 		return (string)($this->fields['SITE_ID'] ?? '');
+	}
+
+	public function getSiteIds(): array
+	{
+		return (array)($this->fields['SITE_IDS'] ?? []);
 	}
 
 	public function getType(): ?Type
@@ -129,7 +149,7 @@ class Workgroup implements Main\Type\Contract\Arrayable
 		}
 
 		$departmentIds = $departments['VALUE'] ?? [];
-		if ($departmentIds === [])
+		if (empty($departmentIds))
 		{
 			return [];
 		}
@@ -141,7 +161,7 @@ class Workgroup implements Main\Type\Contract\Arrayable
 
 	public function getUserMemberIds(): array
 	{
-		$memberIds = $this->fields['USER_MEMBERS'] ?? [];
+		$memberIds = $this->fields['MEMBERS'] ?? [];
 		if ($memberIds === [])
 		{
 			return [];
@@ -150,6 +170,55 @@ class Workgroup implements Main\Type\Contract\Arrayable
 		Main\Type\Collection::normalizeArrayValuesByInt($memberIds, false);
 
 		return $memberIds;
+	}
+
+	public function getInvitedMemberIds(): array
+	{
+		$requestedIds = $this->fields['INVITED_MEMBERS'] ?? [];
+		if ($requestedIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($requestedIds, false);
+
+		return $requestedIds;
+	}
+
+	public function getModeratorMemberIds(): array
+	{
+		$moderatorIds = $this->fields['MODERATOR_MEMBERS'] ?? [];
+		if ($moderatorIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($moderatorIds, false);
+
+		return $moderatorIds;
+	}
+
+	public function getOrdinaryMembers(): array
+	{
+		$ordinaryMemberIds = $this->fields['ORDINARY_MEMBERS'] ?? [];
+		if ($ordinaryMemberIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($ordinaryMemberIds, false);
+
+		return $ordinaryMemberIds;
+	}
+
+	public function getMemberIdsWithRole(): array
+	{
+		$invited = array_fill_keys($this->getInvitedMemberIds(), UserToGroupTable::ROLE_REQUEST);
+		$ordinary = array_fill_keys($this->getOrdinaryMembers(), UserToGroupTable::ROLE_USER);
+		$moderators = array_fill_keys($this->getModeratorMemberIds(), UserToGroupTable::ROLE_MODERATOR);
+		$owner = [$this->getOwnerId() => UserToGroupTable::ROLE_OWNER];
+
+		return $invited + $ordinary + $moderators + $owner;
 	}
 
 	public function isProject(): bool
@@ -163,6 +232,11 @@ class Workgroup implements Main\Type\Contract\Arrayable
 	public function isScrumProject(): bool
 	{
 		return (!empty($this->fields['SCRUM_MASTER_ID']));
+	}
+
+	public function isCollab(): bool
+	{
+		return $this->getType() === Type::Collab;
 	}
 
 	public function getDefaultSprintDuration(): int
@@ -182,52 +256,22 @@ class Workgroup implements Main\Type\Contract\Arrayable
 			$scrumTaskResponsible = $this->fields['SCRUM_TASK_RESPONSIBLE'];
 			$availableResponsibleTypes = ['A', 'M'];
 			return (
-			in_array($scrumTaskResponsible, $availableResponsibleTypes, true) ? $scrumTaskResponsible : 'A'
+				in_array($scrumTaskResponsible, $availableResponsibleTypes, true) ? $scrumTaskResponsible : 'A'
 			);
 		}
 
 		return 'A';
 	}
 
+	/**
+	 * @deprecated
+	 * @use WorkgroupDeptSynchronizer::syncDeptConnection
+	 */
 	public function syncDeptConnection($exclude = false): void
 	{
-		global $USER;
+		$currentUserId = (int)CurrentUser::get()->getId();
 
-		if (!ModuleManager::isModuleInstalled('intranet'))
-		{
-			return;
-		}
-
-		$groupFields = $this->getFields();
-
-		if (
-			empty($groupFields)
-			|| empty($groupFields["ID"])
-		)
-		{
-			return;
-		}
-
-		if (
-			isset($groupFields['UF_SG_DEPT']['VALUE'])
-			&& Loader::includeModule('intranet')
-		)
-		{
-			$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync', "");
-			$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
-			if (!is_array($workgroupsToSync))
-			{
-				$workgroupsToSync = [];
-			}
-			$workgroupsToSync[] = array(
-				'groupId' => $groupFields["ID"],
-				'initiatorId' => (is_object($USER) ? $USER->getId() : $groupFields['OWNER_ID']),
-				'exclude' => $exclude,
-			);
-			$workgroupsToSync = $this->reduceSyncList($workgroupsToSync);
-			Option::set('socialnetwork', 'workgroupsToSync', serialize($workgroupsToSync));
-			\Bitrix\Socialnetwork\Update\WorkgroupDeptSync::bind(1);
-		}
+		WorkgroupDepartmentsSynchronizer::getInstance()->synchronize($this, $currentUserId, $exclude);
 	}
 
 	public function getGroupUrlData($params = array())
@@ -286,6 +330,11 @@ class Workgroup implements Main\Type\Contract\Arrayable
 	public function toArray(): array
 	{
 		return $this->getFields();
+	}
+
+	public function toJson($options = 0): array
+	{
+		return $this->toArray();
 	}
 
 	public static function onBeforeIBlockSectionUpdate($section)
@@ -462,11 +511,11 @@ class Workgroup implements Main\Type\Contract\Arrayable
 	{
 		$groupList = array();
 		$res = WorkgroupTable::getList(array(
-			                               'filter' => array(
-				                               '=UF_SG_DEPT' => $sectionId,
-			                               ),
-			                               'select' => array('ID', 'UF_SG_DEPT'),
-		                               ));
+			'filter' => array(
+				'=UF_SG_DEPT' => $sectionId,
+			),
+			'select' => array('ID', 'UF_SG_DEPT'),
+		));
 		while($group = $res->fetch())
 		{
 			$groupList[] = $group;
@@ -526,11 +575,11 @@ class Workgroup implements Main\Type\Contract\Arrayable
 		else
 		{
 			$res = WorkgroupTable::getList(array(
-				                               'filter' => array(
-					                               'ID' => $groupId,
-				                               ),
-				                               'select' => $fieldsList,
-			                               ));
+				'filter' => array(
+					'ID' => $groupId,
+				),
+				'select' => $fieldsList,
+			));
 			$groupFieldsList = $res->fetch();
 		}
 
@@ -563,11 +612,11 @@ class Workgroup implements Main\Type\Contract\Arrayable
 			)
 			{
 				$res = Main\UserTable::getList(array(
-					                               'filter' => array(
-						                               'ID' => (int)$groupFieldsList['OWNER_ID'],
-					                               ),
-					                               'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'),
-				                               ));
+					'filter' => array(
+						'ID' => (int)$groupFieldsList['OWNER_ID'],
+					),
+					'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'),
+				));
 				if ($userFields = $res->fetch())
 				{
 					$content .= ' '.\CUser::formatName(\CSite::getNameFormat(null, $groupFieldsList['SITE_ID']), $userFields, true);
@@ -607,9 +656,9 @@ class Workgroup implements Main\Type\Contract\Arrayable
 		}
 
 		$content = self::getGroupContent(array(
-			                                 'id' => $groupId,
-			                                 'fields' => $fields,
-		                                 ));
+			'id' => $groupId,
+			'fields' => $fields,
+		));
 
 		$content = self::prepareToken($content);
 
@@ -639,10 +688,10 @@ class Workgroup implements Main\Type\Contract\Arrayable
 						$eventContent = \CSearch::killTags($eventContent);
 					}
 					$eventContent = trim(str_replace(
-						                     array("\r", "\n", "\t"),
-						                     " ",
-						                     $eventContent
-					                     ));
+						array("\r", "\n", "\t"),
+						" ",
+						$eventContent
+					));
 
 					$eventContent = self::prepareToken($eventContent);
 					if (!empty($eventContent))
@@ -763,18 +812,5 @@ class Workgroup implements Main\Type\Contract\Arrayable
 		}
 
 		return ($optionValue === 'Y');
-	}
-
-	private function reduceSyncList(array $workgroupsToSync = []): array
-	{
-		$result = [];
-
-		foreach ($workgroupsToSync as $workgroupData)
-		{
-			$workgroupId = (int) $workgroupData['groupId'];
-			$result[$workgroupId] = $workgroupData;
-		}
-
-		return array_values($result);
 	}
 }

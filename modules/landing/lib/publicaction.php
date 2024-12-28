@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing;
 
+use Bitrix\Main\Application;
 use Bitrix\Rest\AppTable;
 use Bitrix\Landing\Site\Type;
 use Bitrix\Main\Localization\Loc;
@@ -346,7 +347,7 @@ class PublicAction
 	 */
 	public static function ajaxProcessing()
 	{
-		$context = \Bitrix\Main\Application::getInstance()->getContext();
+		$context = Application::getInstance()->getContext();
 		$request = $context->getRequest();
 		$files = $request->getFileList();
 		$postlist = $context->getRequest()->getPostList();
@@ -355,8 +356,8 @@ class PublicAction
 
 		// multiple commands
 		if (
-			$request->offsetExists('batch') &&
-			is_array($request->get('batch'))
+			$request->offsetExists('batch')
+			&& is_array($request->get('batch'))
 		)
 		{
 			$result = array();
@@ -398,11 +399,12 @@ class PublicAction
 
 			return $result;
 		}
+
 		// or single command
 		else if (
-			$request->offsetExists('action') &&
-			$request->offsetExists('data') &&
-			is_array($request->get('data'))
+			$request->offsetExists('action')
+			&& $request->offsetExists('data')
+			&& is_array($request->get('data'))
 		)
 		{
 			$data = $request->get('data');

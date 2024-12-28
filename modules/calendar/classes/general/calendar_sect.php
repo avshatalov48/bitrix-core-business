@@ -3,12 +3,15 @@
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\SectionAccessController;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
+use Bitrix\Calendar\Integration\SocialNetwork\Collab;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Internals\SectionConnectionTable;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Factories\FactoriesCollection;
 use Bitrix\Calendar\Sync\Factories\FactoryInterface;
-use Bitrix\Calendar\Sync\Google\Dictionary;
+use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\Managers\Synchronization;
 use Bitrix\Calendar\Sync\Util\Context;
 use Bitrix\Calendar\Sync\Util\Result;
@@ -48,8 +51,7 @@ class CCalendarSect
 		$arOp = [],
 		$bClearOperationCache = false,
 		$authHashiCal = null, // for login by hash
-		$Fields = [],
-		$useOrmFilter = true
+		$Fields = []
 	;
 
 	private static function GetFields()
@@ -160,20 +162,24 @@ class CCalendarSect
 
 		if (!$cacheEnabled || !isset($sectionIdList))
 		{
-			if (self::$useOrmFilter)
-			{
-				$sectionList = self::getListOrm($params);
-			}
-			else
-			{
-				$sectionList = self::getListOld($params);
-			}
+			$sectionList = self::getListOrm($params);
 
 			$result = [];
 			$sectionIdList = [];
 			$checkedConnections = [];
 			$isExchangeEnabled = CCalendar::IsExchangeEnabled();
 			$isCalDAVEnabled = CCalendar::IsCalDAVEnabled();
+			$isIntranetEnabled = CCalendar::IsIntranetEnabled();
+			$groupCalType = Dictionary::CALENDAR_TYPE['group'];
+			$groupSectionIds = array_filter(
+				array_map(
+					static fn (array $section) => (
+						$section['CAL_TYPE'] === $groupCalType ? (int)$section['OWNER_ID'] : null
+					),
+					$sectionList
+				)
+			);
+			$collabIds = $groupSectionIds ? Collab\Collabs::getInstance()->getCollabIdsByGroupIds($groupSectionIds) : [];
 
 			foreach ($sectionList as $section)
 			{
@@ -193,8 +199,11 @@ class CCalendarSect
 
 				// Outlook js
 				if (
-					$sectionType !== Rooms\Manager::TYPE
-					&& CCalendar::IsIntranetEnabled()
+					$isIntranetEnabled
+					&& !in_array($sectionType, [
+						Dictionary::CALENDAR_TYPE['location'],
+						Dictionary::CALENDAR_TYPE['open_event']
+					], true)
 				)
 				{
 					$section['OUTLOOK_JS'] = 'needAction';
@@ -246,6 +255,16 @@ class CCalendarSect
 					$section['CAL_DAV_CON'] = false;
 				}
 
+				$isCollab = false;
+				if (
+					$sectionType === Dictionary::CALENDAR_TYPE['group']
+					&& in_array((int)$section['OWNER_ID'], $collabIds, true)
+				)
+				{
+					$isCollab = true;
+				}
+				$section['IS_COLLAB'] = $isCollab;
+
 				$result[] = $section;
 			}
 
@@ -268,6 +287,13 @@ class CCalendarSect
 		return $result;
 	}
 
+	/**
+	 * @param $params
+	 * @return array|mixed
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
 	private static function getListOrm($params)
 	{
 		$sectionFields = self::getSectionFields();
@@ -1125,7 +1151,7 @@ class CCalendarSect
 		)
 		{
 			Util::addPullEvent(
-				'edit_section',
+				PushCommand::EditSection,
 				$pullUserId,
 				[
 					'fields' => $sectionFields,
@@ -1186,7 +1212,7 @@ class CCalendarSect
 			)
 			{
 				Bitrix\Calendar\Util::addPullEvent(
-					'delete_event',
+					PushCommand::DeleteEvent,
 					$pullUserId,
 					[
 						'fields' => $ev,
@@ -1230,7 +1256,7 @@ class CCalendarSect
 		)
 		{
 			Util::addPullEvent(
-				'delete_section',
+				PushCommand::DeleteSection,
 				$pullUserId,
 				[
 					'fields' => $sectionFields,
@@ -1244,7 +1270,10 @@ class CCalendarSect
 
 	public static function CreateDefault($params = [])
 	{
-		if ($params['type'] === 'user' || $params['type'] === 'group')
+		if (
+			$params['type'] === Dictionary::CALENDAR_TYPE['user']
+			|| $params['type'] === Dictionary::CALENDAR_TYPE['group']
+		)
 		{
 			$name = CCalendar::GetOwnerName($params['type'], $params['ownerId']);
 		}
@@ -1255,16 +1284,26 @@ class CCalendarSect
 
 		$userId = $params['type'] === 'user' ? $params['ownerId'] : CCalendar::GetCurUserId();
 
+		$isCollabSection = $params['type'] === Dictionary::CALENDAR_TYPE['group']
+			&& Collab\Collabs::getInstance()->getCollabIfExists((int)$params['ownerId'])
+		;
+
+		$color = '#9DCF00';
+		if ($isCollabSection)
+		{
+			$color = '#19CC45';
+		}
+
 		if ($userId > 0)
 		{
 			$arFields = [
 				'CAL_TYPE' => $params['type'],
 				'NAME' => $name,
 				'DESCRIPTION' => Loc::getMessage('EC_DEF_SECT_DESC'),
-				'COLOR' => CCalendar::Color(),
+				'COLOR' => $color,
 				'OWNER_ID' => $params['ownerId'],
 				'IS_EXCHANGE' => 0,
-				'ACCESS' => CCalendarSect::GetDefaultAccess($params['type'], $params['ownerId']),
+				'ACCESS' => self::GetDefaultAccess($params['type'], $params['ownerId']),
 				'PERM' => [
 					'view_time' => true,
 					'view_title' => true,
@@ -1275,6 +1314,7 @@ class CCalendarSect
 					'access' => true,
 				],
 				'EXTERNAL_TYPE' => self::EXTERNAL_TYPE_LOCAL,
+				'IS_COLLAB' => $isCollabSection,
 			];
 
 			if($params['type'] === 'location')
@@ -1290,7 +1330,7 @@ class CCalendarSect
 					->saveAccess()
 					->clearCache()
 					->eventHandler('OnAfterCalendarRoomCreate')
-					->addPullEvent('create_room')
+					->addPullEvent(PushCommand::CreateRoom)
 				;
 
 				$arFields['ID'] = $room->getId();
@@ -2149,8 +2189,8 @@ class CCalendarSect
 	{
 		return $davXmlId !== '' && (preg_match('/@virtual\/events\//i', (string)$davXmlId)
 			|| preg_match('/@group\.v\.calendar\.google/i', (string)$davXmlId)
-			|| $externalType === Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE['reader']
-			|| $externalType === Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE['freeBusyOrder']
+			|| $externalType === Google\Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE['reader']
+			|| $externalType === Google\Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE['freeBusyOrder']
 		);
 	}
 
@@ -2287,11 +2327,11 @@ class CCalendarSect
 		}
 
 		if (
-			in_array($type, ['user', \Bitrix\Calendar\Core\Event\Tools\Dictionary::CALENDAR_TYPE['open_event']], true)
+			in_array($type, ['user', Dictionary::CALENDAR_TYPE['open_event']], true)
 			&& OpenEvents\Feature::getInstance()->isAvailable()
 		)
 		{
-			$type = ['user', \Bitrix\Calendar\Core\Event\Tools\Dictionary::CALENDAR_TYPE['open_event']];
+			$type = ['user', Dictionary::CALENDAR_TYPE['open_event']];
 			$ownerId = [$ownerId, 0];
 		}
 

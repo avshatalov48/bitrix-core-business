@@ -43,8 +43,10 @@ class CBPTaskService extends CBPRuntimeService
 		self::onTaskChange(
 			$taskId,
 			[
+				'USERS' => [$userId],
 				'USERS_STATUSES' => [$userId => $status],
 				'COUNTERS_DECREMENTED' => [$userId],
+				'STATUS_NAME' => 'COMPLETED'
 			],
 			CBPTaskChangedStatus::Update
 		);

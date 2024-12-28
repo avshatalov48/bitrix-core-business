@@ -143,6 +143,16 @@ export class PhoneManager
 		this.#controller.debug = debug;
 	}
 
+	getPhoneCallView()
+	{
+		if (!this.#controller)
+		{
+			return null;
+		}
+
+		return this.#controller?.callView;
+	}
+
 	#init(phoneSettings: PhoneSettings)
 	{
 		this.#settings = phoneSettings;

@@ -8,24 +8,33 @@ import { Logger } from 'im.v2.lib.logger';
 import { Utils } from 'im.v2.lib.utils';
 import { ChannelManager } from 'im.v2.lib.channel';
 import { ChatService } from 'im.v2.provider.service';
-import { AccessErrorCode } from '../../../../../../../lib/access/src/classes/access-service';
+import { AccessErrorCode } from 'im.v2.lib.access';
 import { BaseChatContent } from 'im.v2.component.content.elements';
 
 import { ChannelContent } from '../../content/channel/channel';
 import { CollabContent } from '../../content/collab/collab';
 import { MultidialogContent } from '../../content/multidialog/multidialog';
-import { EmptyState } from './components/empty-state';
+import { BaseEmptyState as EmptyState } from './components/empty-state/base';
+import { ChannelEmptyState } from './components/empty-state/channel';
 import { UserService } from './classes/user-service';
+import { CollabEmptyState } from './components/empty-state/collab/collab';
 
 import './css/default-chat-content.css';
 
 import type { JsonObject } from 'main.core';
+import type { BitrixVueComponentProps } from 'ui.vue3';
 import type { ImModelChat, ImModelLayout } from 'im.v2.model';
+
+const EmptyStateComponentByLayout = {
+	[Layout.channel.name]: ChannelEmptyState,
+	[Layout.collab.name]: CollabEmptyState,
+	default: EmptyState,
+};
 
 // @vue/component
 export const ChatOpener = {
 	name: 'ChatOpener',
-	components: { BaseChatContent, ChannelContent, CollabContent, MultidialogContent, EmptyState },
+	components: { BaseChatContent, ChannelContent, CollabContent, MultidialogContent, EmptyState, ChannelEmptyState },
 	props:
 	{
 		dialogId: {
@@ -67,6 +76,10 @@ export const ChatOpener = {
 		isGuest(): boolean
 		{
 			return this.dialog.role === UserRole.guest;
+		},
+		emptyStateComponent(): BitrixVueComponentProps
+		{
+			return EmptyStateComponentByLayout[this.layout.name] ?? EmptyStateComponentByLayout.default;
 		},
 	},
 	watch:
@@ -222,7 +235,7 @@ export const ChatOpener = {
 	},
 	template: `
 		<div class="bx-im-content-default-chat__container">
-			<EmptyState v-if="!dialogId" />
+			<component :is="emptyStateComponent" v-if="!dialogId" />
 			<ChannelContent v-else-if="isChannel" :dialogId="dialogId" />
 			<CollabContent v-else-if="isCollab" :dialogId="dialogId" />
 			<MultidialogContent v-else-if="isMultidialog" :dialogId="dialogId" />

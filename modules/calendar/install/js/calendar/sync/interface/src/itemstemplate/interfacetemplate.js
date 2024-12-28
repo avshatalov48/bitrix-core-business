@@ -124,39 +124,54 @@ export class InterfaceTemplate extends EventEmitter
 	{
 		if (this.connection.status === false && this.provider.getStatus() === 'failed' && this.provider.doSupportReconnectionScenario())
 		{
-			this.actionButton = Tag.render`
-				<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
-					<div class="ui-icon-set --refresh-4"></div>
-					${Loc.getMessage('CAL_BUTTON_STATUS_FAILED_RECONNECT')}
-					<div class="calendar-sync__account-counter">${this.COUNTER_FAILED}</div>
-				</button>
-			`;
-
-			Event.bind(this.actionButton, 'click', () => this.reconnect());
+			this.getReconnectActionButton();
 		}
 		else if (this.provider.getStatus() === 'pending')
 		{
-			this.actionButton = Tag.render`
-				<button class="ui-btn ui-btn-primary ui-btn-clock ui-btn-round calendar-sync__account-btn">
-					<div class="calendar-sync__account-counter">${this.COUNTER_FAILED}</div>
-				</button>
-			`;
+			this.getPendingActionButton();
 		}
 		else
 		{
-			const { root, icon } = Tag.render`
-				<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
-					<div ref="icon" class="ui-icon-set --refresh-4"></div>
-					${Loc.getMessage('CAL_REFRESH')}
-				</button>
-			`;
-			this.actionButton = root;
-			this.actionButtonIcon = icon;
-
-			Event.bind(this.actionButton, 'click', () => this.updateConnection());
+			this.getRefreshActionButton();
 		}
 
 		return this.actionButton;
+	}
+
+	getReconnectActionButton(): void
+	{
+		this.actionButton = Tag.render`
+			<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
+				<div class="ui-icon-set --refresh-4"></div>
+				${Loc.getMessage('CAL_BUTTON_STATUS_FAILED_RECONNECT')}
+				<div class="calendar-sync__account-counter">${this.COUNTER_FAILED}</div>
+			</button>
+		`;
+
+		Event.bind(this.actionButton, 'click', () => this.reconnect());
+	}
+
+	getPendingActionButton(): void
+	{
+		this.actionButton = Tag.render`
+			<button class="ui-btn ui-btn-primary ui-btn-clock ui-btn-round calendar-sync__account-btn">
+				<div class="calendar-sync__account-counter">${this.COUNTER_FAILED}</div>
+			</button>
+		`;
+	}
+
+	getRefreshActionButton(): void
+	{
+		const { root, icon } = Tag.render`
+			<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
+				<div ref="icon" class="ui-icon-set --refresh-4"></div>
+				${Loc.getMessage('CAL_REFRESH')}
+			</button>
+		`;
+		this.actionButton = root;
+		this.actionButtonIcon = icon;
+
+		Event.bind(this.actionButton, 'click', () => this.updateConnection());
 	}
 
 	updateConnection()

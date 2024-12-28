@@ -376,17 +376,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  async copyToClipboard(textToCopy) {
 	    var _BX$clipboard;
-	    if (navigator.clipboard) {
-	      return navigator.clipboard.writeText(textToCopy);
+	    if (!main_core.Type.isString(textToCopy)) {
+	      return Promise.reject();
+	    }
+
+	    // navigator.clipboard defined only if window.isSecureContext === true
+	    // so or https should be activated, or localhost address
+	    if (window.isSecureContext && navigator.clipboard) {
+	      // safari not allowed clipboard manipulation as result of ajax request
+	      // so timeout is hack for this, to prevent "not have permission"
+	      return new Promise((resolve, reject) => {
+	        setTimeout(() => navigator.clipboard.writeText(textToCopy).then(() => resolve()).catch(e => reject(e)), 0);
+	      });
 	    }
 	    return (_BX$clipboard = BX.clipboard) != null && _BX$clipboard.copy(textToCopy) ? Promise.resolve() : Promise.reject();
 	  }
 	};
 
 	const settings = main_core.Extension.getSettings('im.v2.lib.utils');
+	const USER_ENTITY_ID = 'user';
 	const UserUtil = {
 	  getLastDateText(params = {}) {
-	    if (params.bot || params.network || !params.lastActivityDate) {
+	    const isBot = params.type === im_v2_const.UserType.bot;
+	    if (isBot || params.network || !params.lastActivityDate) {
 	      return '';
 	    }
 	    const isOnline = this.isOnline(params.lastActivityDate);
@@ -480,6 +492,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return false;
 	    }
 	    return userId.startsWith(im_v2_const.UserIdNetworkPrefix);
+	  },
+	  prepareSelectorIds(userId) {
+	    let idList = userId;
+	    if (main_core.Type.isNumber(userId)) {
+	      idList = [idList];
+	    }
+	    return idList.map(id => {
+	      return [USER_ENTITY_ID, Number(id)];
+	    });
 	  }
 	};
 
@@ -588,12 +609,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      case '3gp':
 	      case 'flv':
 	      case 'm4v':
-	      case 'ogg':
+	      case 'ogv':
 	      case 'wmv':
 	      case 'mov':
 	        type = im_v2_const.FileType.video;
 	        break;
 	      case 'mp3':
+	      case 'ogg':
 	        type = im_v2_const.FileType.audio;
 	        break;
 	      default:

@@ -62,7 +62,7 @@ export class MessagePullHandler
 		if (messageWithRealId)
 		{
 			Logger.warn('New message pull handler: we already have this message', params.message);
-			this.#store.dispatch('messages/update', {
+			void this.#store.dispatch('messages/update', {
 				id: params.message.id,
 				fields: { ...params.message, error: false },
 			});
@@ -71,7 +71,7 @@ export class MessagePullHandler
 		else if (!messageWithRealId && messageWithTemplateId)
 		{
 			Logger.warn('New message pull handler: we already have the TEMPORARY message', params.message);
-			this.#store.dispatch('messages/updateWithId', {
+			void this.#store.dispatch('messages/updateWithId', {
 				id: params.message.templateId,
 				fields: { ...params.message, error: false },
 			});
@@ -79,6 +79,16 @@ export class MessagePullHandler
 		// it's an opponent message or our own message from somewhere else
 		else if (!messageWithRealId && !messageWithTemplateId)
 		{
+			const hasLoadingMessage: boolean = this.#store.getters['messages/hasLoadingMessageByMessageId'](
+				params.message.templateId,
+			);
+			if (hasLoadingMessage)
+			{
+				void this.#store.dispatch('messages/deleteLoadingMessageByMessageId', {
+					messageId: params.message.templateId,
+				});
+			}
+
 			Logger.warn('New message pull handler: we dont have this message', params.message);
 			this.#handleAddingMessageToModel(params);
 		}
@@ -115,6 +125,9 @@ export class MessagePullHandler
 			dialogId: params.dialogId,
 			userId: params.senderId,
 		});
+
+		this.#deleteSelectedMessage(params.id);
+
 		this.#store.dispatch('messages/update', {
 			id: params.id,
 			fields: {
@@ -134,6 +147,8 @@ export class MessagePullHandler
 			dialogId: params.dialogId,
 			userId: params.senderId,
 		});
+
+		this.#deleteSelectedMessage(params.id);
 
 		const areChannelCommentsOpened = this.#store.getters['messages/comments/areOpenedForChannelPost'](params.id);
 		if (areChannelCommentsOpened)
@@ -505,5 +520,10 @@ export class MessagePullHandler
 	#showNotification(text: string): void
 	{
 		BX.UI.Notification.Center.notify({ content: text });
+	}
+
+	#deleteSelectedMessage(messageId: number)
+	{
+		void this.#store.dispatch('messages/select/deleteByMessageId', messageId);
 	}
 }

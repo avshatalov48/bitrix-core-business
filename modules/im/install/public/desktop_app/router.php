@@ -3,7 +3,6 @@ define("BX_SKIP_USER_LIMIT_CHECK", true);
 if (isset($_GET['alias']))
 {
 	define("BX_IM_FULLSCREEN", true);
-	define("EXTRANET_NO_REDIRECT", true);
 
 	$widgetUserLangPath = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/im/lang/';
 	if (

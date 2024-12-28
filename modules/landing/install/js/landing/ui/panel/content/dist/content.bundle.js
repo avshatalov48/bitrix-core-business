@@ -78,7 +78,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
-
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
@@ -376,6 +375,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.scrollObserver.observe(card.layout);
 	      }
 	      main_core.Dom.append(card.layout, this.content);
+	      card.onAppend();
 	    }
 	  }, {
 	    key: "clear",

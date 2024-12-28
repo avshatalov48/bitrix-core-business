@@ -14,10 +14,12 @@ use Bitrix\Main\ORM\Query\Result;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\SystemException;
 use CCalendar;
-use CCalendarEvent;
 
 class Event extends Mapper
 {
+	private const JS_DATE_FORMAT = 'D M d Y';
+	private const JS_DATE_TIME_FORMAT = 'D M d Y H:i:s';
+
 	/**
 	 * @param array $ids
 	 * @param int $ownerId
@@ -237,6 +239,8 @@ class Event extends Mapper
 	 */
 	public function convertToArray(Core\Event\Event $event): array
 	{
+		$jsFormat = $event->isFullDayEvent() ? self::JS_DATE_FORMAT : self::JS_DATE_TIME_FORMAT;
+
 		return [
 			'ID'                 => $event->getId(),
 			'ACTIVE'             => $event->isActive() ? 'Y' : 'N',
@@ -280,6 +284,9 @@ class Event extends Mapper
 			'TIMESTAMP_X' => $event->getDateModified()?->toString(),
 			'VERSION' => $event->getVersion(),
 			'COLOR' => $event->getColor(),
+			'DT_LENGTH' => $event->getDtLength(),
+			'DATE_FROM_FORMATTED' => $event->getStart()->format($jsFormat),
+			'DATE_TO_FORMATTED' => $event->getEnd()->format($jsFormat),
 		];
 	}
 
@@ -300,9 +307,17 @@ class Event extends Mapper
 		   ->fetchObject()
 		;
 
-		if ($eventData)
+		try
 		{
-			return $this->convertToObject($eventData);
+			if ($eventData)
+			{
+				return $this->convertToObject($eventData);
+			}
+
+		}
+		catch (\Exception)
+		{
+			return null;
 		}
 
 		return null;

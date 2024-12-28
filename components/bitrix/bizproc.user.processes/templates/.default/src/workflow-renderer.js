@@ -1,6 +1,8 @@
+import { WorkflowResultStatus } from 'bizproc.types';
 import { Text, Tag, Type, Dom, Uri, Loc } from 'main.core';
 import { Task, InlineTaskView } from 'bizproc.task';
 import type { UserProcesses } from './user-processes';
+import 'ui.hint';
 import { WorkflowData } from './workflow-loader';
 import { WorkflowFaces } from 'bizproc.workflow.faces';
 import { Summary } from 'bizproc.workflow.faces.summary';
@@ -94,20 +96,50 @@ export class WorkflowRenderer
 		return this.#inlineTaskView?.render();
 	}
 
+	// eslint-disable-next-line sonarjs/cognitive-complexity
 	renderTask(): ?HTMLElement
 	{
 		if (!this.#data.task || this.#data.userId !== this.#currentUserId)
 		{
 			const completedClassName = this.#data.isCompleted ? '--success' : '';
+			let result = '';
+			let noRightsClass = '';
+			if (this.#data.isCompleted && (this.#data.workflowResult !== null))
+			{
+				if (this.#data.workflowResult.status === WorkflowResultStatus.BB_CODE_RESULT)
+				{
+					result = `${Loc.getMessage('BIZPROC_RENDERED_RESULT_VALUE')}<br>${this.#data.workflowResult.text ?? ''}`;
+				}
 
-			return Tag.render`
+				if (this.#data.workflowResult.status === WorkflowResultStatus.USER_RESULT)
+				{
+					result = Loc.getMessage('BIZPROC_RENDERED_RESULT_POSITIVE_RESULT_FOR', { '#USER#': this.#data.workflowResult.text ?? '' });
+				}
+
+				if (this.#data.workflowResult.status === WorkflowResultStatus.NO_RIGHTS_RESULT)
+				{
+					noRightsClass = 'no-rights';
+					result = `${Loc.getMessage('BIZPROC_RENDERED_RESULT_NO_RIGHTS_VIEW')} <span data-hint="${Loc.getMessage('BIZPROC_RENDERED_RESULT_NO_RIGHTS_TOOLTIP')}"></span>`;
+				}
+			}
+
+			const panel = Tag.render`
 				<div class="bp-status-panel ${completedClassName}">
 						<div class="bp-status-item">
 							<div class="bp-status-name">${Text.encode(this.#data.statusText.toUpperCase())}</div>
-							${''/* completedClassName ? '' : '<div class="ui-icon-set --help bp-status-icon"></div>' */}
+							<div class="bp-workflow-result ${noRightsClass}">${result}</div>
 						</div>
 				</div>
 			`;
+			if (
+				(this.#data.workflowResult !== null)
+				&& (this.#data.workflowResult.status === WorkflowResultStatus.NO_RIGHTS_RESULT)
+			)
+			{
+				BX.UI.Hint.init(panel);
+			}
+
+			return panel;
 		}
 
 		return this.renderTaskName();
@@ -135,34 +167,43 @@ export class WorkflowRenderer
 	{
 		const target = Tag.render`<div></div>`;
 
-		try
+		if (this.#data.workflowId && this.#data.taskProgress)
 		{
-			this.#faces = (new WorkflowFaces({
-				workflowId: this.#data.workflowId,
-				targetUserId: this.#targetUserId,
-				target,
-				data: this.#data.taskProgress,
-				showArrow: true,
-			}));
-			this.#faces.render();
-		}
-		catch (e)
-		{
-			console.error(e);
+			try
+			{
+				this.#faces = (new WorkflowFaces({
+					workflowId: this.#data.workflowId,
+					targetUserId: this.#targetUserId,
+					target,
+					data: {
+						steps: this.#data.taskProgress.steps,
+						progressBox: this.#data.taskProgress.progressBox,
+					},
+					showArrow: true,
+				}));
+				this.#faces.render();
+			}
+			catch (e)
+			{
+				console.error(e);
+			}
 		}
 
 		return target;
 	}
 
-	renderSummary(): HTMLElement
+	renderSummary(): ?HTMLElement
 	{
+		if (!this.#data.workflowId || !this.#data.taskProgress?.timeStep)
+		{
+			return null;
+		}
+
 		return (
 			(new Summary({
-				workflowId: this.#data.workflowId,
-				time: this.#data.taskProgress.time.total,
-				workflowIsCompleted: this.#data.taskProgress.workflowIsCompleted,
-				showArrow: false,
-			})
+					workflowId: this.#data.workflowId,
+					data: this.#data.taskProgress.timeStep,
+				})
 			).render()
 		);
 	}

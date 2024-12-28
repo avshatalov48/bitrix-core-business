@@ -43,3 +43,7 @@
 	color: var(--im-entity-selector-forward__color_popup-title);
 	padding-left: 16px;
 }
+
+.bx-im-entity-selector-forward__scope .popup-window-content {
+	overflow: hidden;
+}

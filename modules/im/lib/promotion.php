@@ -1,8 +1,8 @@
 <?php
 namespace Bitrix\Im;
 
-use Bitrix\Im\V2\Chat\ChannelChat;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Type\DateTime;
 
 class Promotion
 {
@@ -15,6 +15,9 @@ class Promotion
 	const USER_TYPE_OLD = "OLD";
 	const USER_TYPE_NEW = "NEW";
 	const USER_TYPE_ALL = "ALL";
+
+	private const ONE_MONTH = 3600 * 24 * 30;
+	private const ENDLESS_LIFETIME = 0;
 
 	private static function getConfig()
 	{
@@ -30,70 +33,58 @@ class Promotion
 			return $result;
 		}
 
-/*
-		$result[] = [
-			"ID" => 'im:video:01042020:web',
-			"USER_TYPE" => self::USER_TYPE_OLD,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
-		];
-
-		$result[] = [
-			"ID" => 'ol:crmform:17092021:web',
-			"USER_TYPE" => self::USER_TYPE_OLD,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
-		];
-
-		$result[] = [
-			"ID" => 'im:call-document:16102021:web',
-			"USER_TYPE" => self::USER_TYPE_ALL,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
-		];
-
-		$result[] = [
-			"ID" => 'imbot:support24:25112021:web',
-			"USER_TYPE" => self::USER_TYPE_OLD,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
-		];
-		$result[] = [
-			"ID" => 'im:mask:06122022:desktop',
-			"USER_TYPE" => self::USER_TYPE_OLD,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_DESKTOP
-		];
-*/
-		$result[] = [
-			"ID" => 'im:ai:15062023:all',
-			"USER_TYPE" => self::USER_TYPE_ALL,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
-		];
-
 		$result[] = [
 			"ID" => 'im:group-chat-create:20062023:all',
 			"USER_TYPE" => self::USER_TYPE_ALL,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL,
+			"LIFETIME" => self::ENDLESS_LIFETIME,
+			"END_DATE" => (new DateTime('01.11.2025', 'd.m.Y'))->getTimestamp()
 		];
 
 		$result[] = [
 			"ID" => 'im:conference-create:24082023:all',
 			"USER_TYPE" => self::USER_TYPE_ALL,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL,
+			"LIFETIME" => self::ENDLESS_LIFETIME,
+			"END_DATE" => (new DateTime('01.11.2025', 'd.m.Y'))->getTimestamp()
 		];
 
 		$result[] = [
 			"ID" => 'im:channel-create:04032024:all',
 			"USER_TYPE" => self::USER_TYPE_ALL,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL,
+			"LIFETIME" => self::ENDLESS_LIFETIME,
+			"END_DATE" => (new DateTime('01.11.2025', 'd.m.Y'))->getTimestamp()
+		];
+
+		$result[] = [
+			"ID" => 'im:collab-create:12092024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL,
+			"LIFETIME" => self::ONE_MONTH * 2, // 2 months
 		];
 
 		$result[] = [
 			"ID" => 'im:add-users-to-copilot-chat:09042024:all',
 			"USER_TYPE" => self::USER_TYPE_ALL,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL,
+			"LIFETIME" => self::ENDLESS_LIFETIME,
+			"END_DATE" => (new DateTime('01.11.2025', 'd.m.Y'))->getTimestamp()
 		];
 
 		$result[] = [
 			"ID" => 'im:change-role-copilot-chat:09042024:all',
 			"USER_TYPE" => self::USER_TYPE_ALL,
-			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL,
+			"LIFETIME" => self::ENDLESS_LIFETIME,
+			"END_DATE" => (new DateTime('01.11.2025', 'd.m.Y'))->getTimestamp()
+		];
+
+		$result[] = [
+			"ID" => 'im:collab-helpdesk-sidebar:30102024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL,
+			"LIFETIME" => self::ENDLESS_LIFETIME,
 		];
 
 		if (!\Bitrix\Im\Settings::isLegacyChatActivated())
@@ -109,6 +100,30 @@ class Promotion
 			"ID" => 'immobile:chat-v2:26042024:mobile',
 			"USER_TYPE" => self::USER_TYPE_ALL,
 			"DEVICE_TYPE" => self::DEVICE_TYPE_MOBILE,
+		];
+
+		$result[] = [
+			"ID" => 'call:copilot-call-button:29102024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
+
+		$result[] = [
+			"ID" => 'call:copilot-notify-warning:21112024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
+
+		$result[] = [
+			"ID" => 'call:copilot-notify-promo:21112024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
+
+		$result[] = [
+			"ID" => 'call:copilot-notify-result:24112024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
 		];
 
 		$settings = \Bitrix\Main\Config\Configuration::getValue('im');

@@ -234,8 +234,19 @@ export class DialogEditContact
 							BX.SidePanel.Instance.postMessageAll(sliderId, 'dialogEditContact::reloadList', {});
 							BX.SidePanel.Instance.close();
 						}).catch((response) => {
-							const message = response.errors.pop().message.pop();
-							if(message['ID'])
+
+							let message = null;
+
+							for (const error of response.errors)
+							{
+								if (error.code === 'ALL_CONTACTS_ALREADY_ADDED')
+								{
+									message = error.customData.lastFound[0];
+									break;
+								}
+							}
+
+							if(message !== null)
 							{
 								eventObject.setClocking(false);
 								openEditSliderBtn.onclick = () => {

@@ -3,6 +3,7 @@ import './css/menu-item.css';
 export const MenuItemIcon = {
 	chat: 'chat',
 	channel: 'channel',
+	collab: 'collab',
 	conference: 'conference',
 	disk: 'disk',
 	upload: 'upload',
@@ -14,6 +15,8 @@ export const MenuItemIcon = {
 	aiText: 'ai-text',
 	aiImage: 'ai-image',
 	copilot: 'copilot',
+	calendarSlot: 'calendar-slot',
+	documentSign: 'document-sign',
 };
 
 // @vue/component
@@ -55,7 +58,7 @@ export const MenuItem = {
 				return '';
 			}
 
-			return this.counter > 99 ? '99+' : `${this.counter}`;
+			return this.counter > 99 ? '99+' : String(this.counter);
 		},
 	},
 	template: `
@@ -65,9 +68,11 @@ export const MenuItem = {
 				<div class="bx-im-menu-item__text-content" :class="{'--with-subtitle': !!subtitle}">
 					<div class="bx-im-menu-item__title">
 						<div class="bx-im-menu-item__title_text">{{ title }}</div>
+						<slot name="after-title"></slot>
 						<div v-if="counter" class="bx-im-menu-item__title_counter">{{ formattedCounter }}</div>
 					</div>
 					<div v-if="subtitle" :title="subtitle" class="bx-im-menu-item__subtitle">{{ subtitle }}</div>
+					<slot name="below-content"></slot>
 				</div>
 			</div>
 		</div>

@@ -230,29 +230,36 @@ class MailboxDirectory
 		return $result ?? new Result();
 	}
 
-	public static function fetchAll($mailboxId)
+	public static function fetchAll(int $mailboxId)
 	{
-		$query = MailboxDirectoryTable::getList([
-			'filter' => [
-				'=MAILBOX_ID' => $mailboxId
-			],
-			'select' => ['*'],
-			/*
-				When assembling directories, we look for their parents.
-				Sorting ensures that for a directories that parents are processed first,
-				and for children, matching parents are always found from those processed.
-			 */
-			'order'  => ['LEVEL' => 'ASC']
-		]);
+		static $mailboxDirs = [];
 
-		$result = [];
-
-		while ($row = $query->fetchObject())
+		if (!isset($mailboxDirs[$mailboxId]))
 		{
-			$result[$row->getPath()] = $row;
+			$query = MailboxDirectoryTable::getList([
+				'filter' => [
+					'=MAILBOX_ID' => $mailboxId
+				],
+				'select' => ['*'],
+				/*
+					When assembling directories, we look for their parents.
+					Sorting ensures that for a directories that parents are processed first,
+					and for children, matching parents are always found from those processed.
+				 */
+				'order'  => ['LEVEL' => 'ASC']
+			]);
+
+			$result = [];
+
+			while ($row = $query->fetchObject())
+			{
+				$result[$row->getPath()] = $row;
+			}
+
+			$mailboxDirs[$mailboxId] = $result;
 		}
 
-		return $result;
+		return $mailboxDirs[$mailboxId];
 	}
 
 	public static function fetchAllSyncDirs($mailboxId)

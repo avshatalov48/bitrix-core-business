@@ -1,0 +1,172 @@
+.bizproc__ws_single-start__content-wrapper {
+	position: relative;
+	overflow: hidden;
+	transition: .2s;
+}
+
+.bizproc__ws_single-start__content-wrapper:last-of-type {
+	transition: unset;
+	margin-bottom: 18px;
+}
+
+.bizproc__ws_single-start__content-wrapper:after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 50px;
+	pointer-events: none;
+	background: rgb(255,255,255);
+	background: linear-gradient(0deg, rgba(255,255,255,1) 25%, rgba(0,0,0,0) 100%);
+	opacity: 0;
+	transition: .3s;
+}
+
+.bizproc__ws_single-start__content-wrapper.--hide:after {
+	opacity: 1;
+}
+
+.bizproc__ws_single-start__empty-recommendation {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.bizproc__ws_single-start__text-empty {
+	color: var(--ui-color-base-40);
+}
+
+.bizproc__ws_single-start__content-open {
+	cursor: pointer;
+	margin: 18px 0;
+	color: #2067b0;
+}
+
+.bizproc__ws_single-start__informer {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding: 17px 24px;
+	background: url(image/bizproc__ws_single-start-informer-bg.svg) right 28px bottom 2px no-repeat;
+	border: 1px solid  var(--ui-color-palette-blue-40);
+	border-radius: var(--ui-border-radius-md);
+	min-height: 87px;
+}
+
+.bizproc__ws_single-start__informer-header {
+	display: flex;
+	margin-bottom: 5px;
+	color: var(--ui-color-text-secondary);
+	font-size: var(--ui-typography-heading-h4-font-size);
+	font-weight: var(--ui-typography-heading-h3-font-weight);
+}
+
+.bizproc__ws_single-start__informer-title {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	overflow: hidden;
+}
+
+.bizproc__ws_single-start__informer-time {
+	display: inline-flex;
+	align-items: center;
+	margin: 0 2px;
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.bizproc__ws_single-start__informer-time .ui-icon-set {
+	margin-left: 2px;
+	--ui-icon-set__icon-size: 24px;
+	--ui-icon-set__icon-color: var(--ui-color-base-35);
+}
+
+.bizproc__ws_single-start__informer-message {
+	margin-bottom: 13px;
+	max-width: 400px;
+	color: var(--ui-color-palette-gray-80);
+	font-size: var(--ui-typography-text-sm-font-size);
+}
+
+.bizproc__ws_single-start__informer-message:last-of-type {
+	margin-bottom: unset;
+}
+
+.bizproc__ws_single-start__informer-bottom {
+	font-size: var(--ui-typography-text-sm-font-size);
+}
+
+.bizproc__ws_single-start__link {}
+
+.bizproc__ws_single-start__background {
+	position: fixed;
+	bottom: 0;
+	width: 889px;
+	height: calc(100vh - 370px);
+	background: url(image/bizproc__ws_single-start-slider-bg.png) left top no-repeat;
+	background-size: 100%;
+	z-index: -9;
+}
+
+
+.bizproc-workflow-start__slider {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: calc(100vh - 299px);
+	opacity: 0;
+	animation: bizproc-workflow-start__slider 1s forwards;
+}
+
+@keyframes bizproc-workflow-start__slider {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.bizproc-workflow-start__slider-logo {
+	position: relative;
+	display: block;
+	margin-bottom: 66px;
+	width: 220px;
+	height: 180px;
+	background: url(image/bizproc__ws_single-start-slider-final-step-bg.svg) no-repeat;
+}
+
+.bizproc-workflow-start__slider-logo-animated {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	display: block;
+	width: 172px;
+	height: 170px;
+	background: url(image/bizproc__ws_single-start-slider-icon-success.svg) no-repeat;
+	transform: scale(0) translate(-50%,-50%);
+	animation: bizproc-workflow-start__slider-logo-animated .5s forwards;
+	transform-origin: top left;
+}
+
+@keyframes bizproc-workflow-start__slider-logo-animated {
+	0% {
+		transform: scale(0) translate(-50%,-50%);
+	}
+	100% {
+		transform: scale(1) translate(-50%,-50%);
+	}
+}
+
+.bizproc-workflow-start__slider-content {
+	text-align: center;
+}
+
+.bizproc-workflow-start__slider-text {
+	display: block;
+	font-size: var(--ui-font-size-4xl);
+	color: #151515;
+	line-height: 36px;
+}

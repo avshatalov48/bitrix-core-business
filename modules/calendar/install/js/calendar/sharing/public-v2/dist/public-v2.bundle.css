@@ -212,6 +212,10 @@
 	margin-bottom: 15px;
 }
 
+.calendar-pub__welcome-userpic .calendar-pub__group-avatar {
+	font-family: var(--ui-font-family-system);
+}
+
 .calendar-pub__welcome-info {
 	display: flex;
 	flex-direction: column;

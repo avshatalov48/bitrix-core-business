@@ -39,6 +39,7 @@ export const imageTypeEnum = Object.freeze({
 	USER: 'user',
 	USER_STUB: 'user-stub',
 	ICON: 'icon',
+	COUNTER: 'counter',
 });
 
 export type ImageTypeImage = {
@@ -58,8 +59,9 @@ export type ImageType = {
 		| imageTypeEnum.USER_STUB
 		| imageTypeEnum.IMAGE_STUB
 		| imageTypeEnum.ICON
+		| imageTypeEnum.COUNTER
 	),
-	data: ImageTypeImage | ImageTypeImage & { userId: number } | {} | IconType,
+	data: ImageTypeImage | ImageTypeImage & { userId: number } | {} | IconType | { text: string },
 };
 
 export const stackStatusEnum = Object.freeze({

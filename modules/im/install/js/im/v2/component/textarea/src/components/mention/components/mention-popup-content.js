@@ -2,7 +2,7 @@ import { Extension, Runtime, Type, type JsonObject, Event, Dom } from 'main.core
 import { EventEmitter } from 'main.core.events';
 
 import { Utils } from 'im.v2.lib.utils';
-import { EventType } from 'im.v2.const';
+import { EventType, UserType } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
 import { ScrollWithGradient } from 'im.v2.component.elements';
 
@@ -88,7 +88,8 @@ export const MentionPopupContent = {
 					return;
 				}
 				const user: ImModelUser = this.$store.getters['users/get'](recentItem.dialogId, true);
-				if (user.bot || user.id === Core.getUserId())
+				const isBot = user.type === UserType.bot;
+				if (isBot || user.id === Core.getUserId())
 				{
 					return;
 				}

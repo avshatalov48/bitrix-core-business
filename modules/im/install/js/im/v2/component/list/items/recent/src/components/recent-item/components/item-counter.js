@@ -1,7 +1,6 @@
 import { Core } from 'im.v2.application.core';
 import { ChatType } from 'im.v2.const';
 
-import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelRecentItem, ImModelUser } from 'im.v2.model';
 
 // @vue/component
@@ -17,10 +16,6 @@ export const ItemCounter = {
 			type: Boolean,
 			required: true,
 		},
-	},
-	data(): JsonObject
-	{
-		return {};
 	},
 	computed:
 	{
@@ -62,7 +57,7 @@ export const ItemCounter = {
 		},
 		showCounterContainer(): boolean
 		{
-			return !this.needsBirthdayPlaceholder && !this.invitation.isActive;
+			return !this.invitation.isActive;
 		},
 		showPinnedIcon(): boolean
 		{
@@ -81,10 +76,6 @@ export const ItemCounter = {
 		showCounter(): boolean
 		{
 			return !this.recentItem.unread && this.totalCounter > 0 && !this.isSelfChat;
-		},
-		needsBirthdayPlaceholder(): boolean
-		{
-			return this.$store.getters['recent/needsBirthdayPlaceholder'](this.recentItem.dialogId);
 		},
 		containerClasses(): { [className: string]: boolean }
 		{

@@ -280,11 +280,12 @@
 	background-size: contain;
 }
 
-.bx-im-list-copilot-item__message_author-icon.--user {
+.bx-im-list-copilot-item__message_author-avatar {
 	display: inline-block;
 	margin-right: 4px;
 	vertical-align: text-bottom;
 	margin-bottom: 1px;
+	max-height: 14px;
 }
 
 .bx-im-list-copilot-item__message_text {

@@ -132,7 +132,7 @@ export class Actions
 				{
 					const settings = Extension.getSettings('ui.info-helper');
 
-					if (settings.licenseNeverPayed)
+					if (settings.region === 'ru' && settings.licenseNeverPayed)
 					{
 						Actions.openInformer({ code: 'limit_market_trial_active' });
 					}

@@ -2082,7 +2082,7 @@ function ImgShw(ID, width, height, alt)
 
 		$path = preg_replace("#(?<!:)[\\\\/]+#", "/", $path);
 
-		if ($path == '' || $path == "/")
+		if (!is_scalar($path) || $path == '' || $path == "/")
 		{
 			return null;
 		}

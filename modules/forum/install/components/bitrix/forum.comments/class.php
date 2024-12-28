@@ -328,14 +328,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 			$this->arParams["USE_CAPTCHA"] = $this->forum["USE_CAPTCHA"];
 		if ($this->arParams["USE_CAPTCHA"] == "Y" && $this->getUser()?->IsAuthorized() !== true)
 		{
-			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 			$this->captcha = new CCaptcha();
-			$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-			if ($captchaPass == '')
-			{
-				$captchaPass = randString(10);
-				COption::SetOptionString("main", "captcha_password", $captchaPass);
-			}
 		}
 
 		if (in_array($this->arParams["ALLOW_UPLOAD"], array("A", "Y", "F", "N", "I")))
@@ -425,7 +418,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 			$code = $this->request->getPost("captcha_code");
 			$word = $this->request->getPost("captcha_word");
 
-			if ($code <> '' && !$this->captcha->CheckCodeCrypt($word, $code, COption::GetOptionString("main", "captcha_password", "")) ||
+			if ($code <> '' && !$this->captcha->CheckCodeCrypt($word, $code) ||
 				$code == '' && !$this->captcha->CheckCode($word, 0))
 			{
 				return false;

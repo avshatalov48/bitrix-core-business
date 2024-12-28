@@ -89,5 +89,11 @@
 }
 
 .ui__promo-video-popup-content_footer {
+	display: flex;
+	flex-direction: row;
 	margin-top: 20px;
+}
+
+.ui__promo-video-popup-content_footer.--align-right {
+	justify-content: flex-end;
 }

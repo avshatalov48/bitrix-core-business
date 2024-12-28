@@ -30,8 +30,8 @@ CJSCore::RegisterExt('bp_selector', array(
 CJSCore::RegisterExt('bp_starter', array(
 	'js' => '/bitrix/js/bizproc/starter.js',
 	//'css' => '/bitrix/js/bizproc/css/starter.css',
-	'lang' => '/bitrix/modules/bizproc/lang/'.LANGUAGE_ID.'/install/js/starter.php',
-	'rel' => array('core', 'popup', 'socnetlogdest'),
+	//'lang' => '/bitrix/modules/bizproc/lang/'.LANGUAGE_ID.'/install/js/starter.php',
+	'rel' => ['bizproc.workflow.starter'],
 ));
 
 CJSCore::RegisterExt('bp_user_selector', array(
@@ -45,7 +45,15 @@ CJSCore::RegisterExt('bp_field_type', array(
 	'js' => '/bitrix/js/bizproc/fieldtype.js',
 	'css' => '/bitrix/js/bizproc/css/fieldtype.css',
 	'lang' => '/bitrix/modules/bizproc/lang/'.LANGUAGE_ID.'/install/js/fieldtype.php',
-	'rel' => array('core', 'ui.design-tokens', 'popup', 'socnetlogdest', 'bp_user_selector', 'ui.dialogs.messagebox'),
+	'rel' => [
+		'core',
+		'ui.design-tokens',
+		'popup',
+		'socnetlogdest',
+		'bp_user_selector',
+		'ui.dialogs.messagebox',
+		'date',
+	],
 	'oninit' => function()
 	{
 		\Bitrix\Main\Loader::includeModule('socialnetwork');

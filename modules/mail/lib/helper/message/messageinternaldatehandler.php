@@ -13,13 +13,22 @@ final class MessageInternalDateHandler
 {
 	public static function getStartInternalDateForDir(
 		$mailboxId,
-		$dirPath,
+		?string $dirPath = null,
+		?string $dirMd5 = null,
 	): ?DateTime
 	{
 		$filter = [
 			'=MAILBOX_ID' => $mailboxId,
-			'=PATH' => $dirPath,
 		];
+
+		if (!is_null($dirPath))
+		{
+			$filter['=PATH'] = Emoji::encode($dirPath);
+		}
+		else if (!is_null($dirMd5))
+		{
+			$filter['=DIR_MD5'] = $dirMd5;
+		}
 
 		$startInternalData =
 			MailboxDirectoryTable::query()
@@ -36,7 +45,7 @@ final class MessageInternalDateHandler
 
 		if (!$startInternalData['IS_DATE_CACHED'])
 		{
-			$firstSyncMessage = self::getFirstSyncMessageFromMailMessageTable((int)$mailboxId, $dirPath) ?? [];
+			$firstSyncMessage = self::getFirstSyncMessageFromMailMessageTable((int)$mailboxId, $dirPath, $dirMd5) ?? [];
 			$startInternalData = array_merge($startInternalData, $firstSyncMessage);
 			self::setStartInternalDateForDir($startInternalData);
 		}
@@ -56,12 +65,19 @@ final class MessageInternalDateHandler
 
 	private static function getFirstSyncMessageFromMailMessageTable(
 		int $mailboxId,
-		string $dirPath,
+		?string $dirPath,
+		?string $dirMd5 = null,
 	): ?array
 	{
+
+		if (is_null($dirMd5) && !is_null($dirPath))
+		{
+			$dirMd5 = md5(Emoji::encode($dirPath));
+		}
+
 		$filter = [
 			'=MESSAGE_UID.DELETE_TIME' => 0,
-			'!@MESSAGE_UID.IS_OLD' => ['M', 'R', 'Y'],
+			'!@MESSAGE_UID.IS_OLD' => MailMessageUidTable::EXCLUDED_COUNTER_STATUSES,
 		];
 
 		$firstSyncMessage = MailMessageTable::getList(
@@ -82,7 +98,7 @@ final class MessageInternalDateHandler
 				'filter' => array_merge(
 					[
 						'=MAILBOX_ID' => $mailboxId,
-						'=MESSAGE_UID.DIR_MD5' => md5(Emoji::encode($dirPath)),
+						'=MESSAGE_UID.DIR_MD5' => $dirMd5,
 					],
 					$filter
 				),

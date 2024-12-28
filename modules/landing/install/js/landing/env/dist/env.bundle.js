@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -52,6 +53,11 @@ this.BX = this.BX || {};
 	    key: "getType",
 	    value: function getType() {
 	      return this.getOptions().params.type;
+	    }
+	  }, {
+	    key: "setType",
+	    value: function setType(type) {
+	      this.getOptions().params.type = type;
 	    }
 	  }, {
 	    key: "getSpecialType",

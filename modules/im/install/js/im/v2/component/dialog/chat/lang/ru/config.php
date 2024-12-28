@@ -21,12 +21,10 @@ $MESS["IM_DIALOG_CHAT_MENU_DELETE"] = "Удалить";
 $MESS["IM_DIALOG_CHAT_MENU_DOWNLOAD_FILE"] = "Скачать";
 $MESS["IM_DIALOG_CHAT_MENU_SAVE_ON_DISK"] = "Сохранить на Диск";
 $MESS['IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS'] = "Файл успешно сохранён на ваш Диск";
+$MESS['IM_DIALOG_CHAT_MENU_SELECT'] = "Выбрать";
 
 
 $MESS["IM_DIALOG_AVATAR_MENU_MENTION_2"] = "Упомянуть";
-$MESS["IM_DIALOG_AVATAR_MENU_SEND_MESSAGE"] = "Написать сообщение";
-$MESS["IM_DIALOG_AVATAR_MENU_OPEN_PROFILE"] = "Профиль";
-$MESS["IM_DIALOG_AVATAR_MENU_KICK"] = "Исключить из чата";
 
 $MESS["IM_DIALOG_CHAT_PINNED_TITLE"] = "Закреплённое сообщение";
 $MESS["IM_DIALOG_CHAT_PINNED_TITLE_NUMBER"] = "Закреплённое сообщение №#NUMBER#";

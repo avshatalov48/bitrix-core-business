@@ -64,7 +64,7 @@
 					<div class="col-md-7 order-1 landing-block-node-card-inner d-flex order-md-2 px-0 g-mb-15 g-mb-0--md d-block d-md-flex">
 						<div class="align-self-center g-width-100x">
 							<h6 class="landing-block-node-card-subtitle text-uppercase g-font-weight-700 g-color-primary g-mb-5">
-								Design Trands of <?= date("Y") ?></h6>
+								Design Trends of #YEAR#</h6>
 							<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-mb-10">
 								Kate Watson,
 								Designer</h3>

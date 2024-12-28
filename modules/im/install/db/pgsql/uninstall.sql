@@ -50,3 +50,4 @@ DROP TABLE IF EXISTS b_im_last_message;
 DROP TABLE IF EXISTS b_im_chat_param;
 DROP TABLE IF EXISTS b_im_hr_sync_queue;
 DROP TABLE IF EXISTS b_im_counter_overflow;
+DROP TABLE IF EXISTS b_im_recent_init_queue;

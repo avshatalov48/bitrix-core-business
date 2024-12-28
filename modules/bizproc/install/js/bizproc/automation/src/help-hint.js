@@ -65,7 +65,7 @@ export class HelpHint
 
 	static showNoPermissionsHint(node)
 	{
-		this.showAngleHint(node, Loc.getMessage('BIZPROC_AUTOMATION_RIGHTS_ERROR'));
+		this.showAngleHint(node, Loc.getMessage('BIZPROC_AUTOMATION_RIGHTS_ERROR_1'));
 	}
 
 	static showAngleHint(node, text)

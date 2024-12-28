@@ -29,7 +29,7 @@ class GroupDeleteIncomingRequestRule extends AbstractRule
 		$target = (int)($params['userId'] ?? null);
 		if ($target <= 0)
 		{
-			$this->controller->addError('Wrong target');
+			$this->controller->addError(static::class, 'Wrong target');
 			
 			return false;
 		}
@@ -43,7 +43,7 @@ class GroupDeleteIncomingRequestRule extends AbstractRule
 
 		if (!$this->getAccessManager($item, $target, $this->user->getUserId())->canDeleteIncomingRequest())
 		{
-			$this->controller->addError('Access denied by permissions');
+			$this->controller->addError(static::class, 'Access denied by permissions');
 
 			return false;
 		}

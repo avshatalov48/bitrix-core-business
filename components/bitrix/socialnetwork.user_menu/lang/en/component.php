@@ -10,6 +10,7 @@ $MESS["SONET_UM_MICROBLOG"] = "Microblog";
 $MESS["SONET_UM_PHOTO"] = "Photo";
 $MESS["SONET_UM_SEARCH"] = "Search";
 $MESS["SONET_UM_SIGN"] = "Signed documents";
+$MESS["SONET_UM_SIGN_MY_DOCUMENTS"] = "My documents";
 $MESS["SONET_UM_STREAM_NEWS"] = "Feed";
 $MESS["SONET_UM_STREAM_NEWS_2"] = "Feed";
 $MESS["SONET_UM_TASKS"] = "Tasks";

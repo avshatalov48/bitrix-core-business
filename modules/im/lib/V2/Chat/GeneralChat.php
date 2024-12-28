@@ -29,6 +29,7 @@ class GeneralChat extends GroupChat
 	protected static ?self $instance = null;
 	protected static bool $wasSearched = false;
 	protected static Result $resultFind;
+	protected static int $idStaticCache;
 
 	protected function getDefaultType(): string
 	{
@@ -95,6 +96,13 @@ class GeneralChat extends GroupChat
 		return $this->getRelationFacade()->getManagerOnly()->getUserIds();
 	}
 
+	protected function changeManagers(array $userIds, bool $isManager, bool $sendPush = true): self
+	{
+		self::cleanGeneralChatCache(self::MANAGERS_CACHE_ID);
+
+		return parent::changeManagers($userIds, $isManager, $sendPush);
+	}
+
 	public static function get(): ?GeneralChat
 	{
 		if (self::$wasSearched)
@@ -117,13 +125,20 @@ class GeneralChat extends GroupChat
 			return 0;
 		}
 
+		if (isset(self::$idStaticCache))
+		{
+			return self::$idStaticCache;
+		}
+
 		$cache = static::getCache(self::ID_CACHE_ID);
 
 		$cachedId = $cache->getVars();
 
 		if ($cachedId !== false)
 		{
-			return $cachedId ?? 0;
+			self::$idStaticCache = $cachedId ?? 0;
+
+			return self::$idStaticCache;
 		}
 
 		$result = ChatTable::query()
@@ -133,11 +148,11 @@ class GeneralChat extends GroupChat
 			->fetch() ?: []
 		;
 
-		$chatId = $result['ID'] ?? 0;
+		self::$idStaticCache = $result['ID'] ?? 0;
 		$cache->startDataCache();
-		$cache->endDataCache($chatId);
+		$cache->endDataCache(self::$idStaticCache);
 
-		return $chatId;
+		return self::$idStaticCache;
 	}
 
 	public function setManagers(array $managerIds): Chat
@@ -488,11 +503,11 @@ class GeneralChat extends GroupChat
 		return $generalChat->deleteChat();
 	}
 
-	protected function sendMessageUsersAdd(array $usersToAdd, bool $skipRecent = false): void
+	protected function sendMessageUsersAdd(array $usersToAdd, Relation\AddUsersConfig $config): void
 	{
 		if ($this->getContext()->getUserId() > 0)
 		{
-			parent::sendMessageUsersAdd($usersToAdd, $skipRecent);
+			parent::sendMessageUsersAdd($usersToAdd, $config);
 
 			return;
 		}
@@ -525,7 +540,7 @@ class GeneralChat extends GroupChat
 			"MESSAGE" => $messageText,
 			"FROM_USER_ID" => $this->getContext(),
 			"SYSTEM" => 'Y',
-			"RECENT_ADD" => $skipRecent ? 'N' : 'Y',
+			"RECENT_ADD" => $config->skipRecent() ? 'N' : 'Y',
 			"PARAMS" => [
 				"CODE" => 'CHAT_JOIN',
 				"NOTIFY" => $this->getEntityType() === self::ENTITY_TYPE_LINE? 'Y': 'N',

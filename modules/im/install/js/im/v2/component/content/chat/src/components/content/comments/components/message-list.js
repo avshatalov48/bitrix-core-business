@@ -79,7 +79,7 @@ export const CommentsMessageList = {
 			</template>
 			<template v-if="showPostMessage" #before-messages>
 				<div class="bx-im-comments-message-list__channel-post">
-					<AuthorGroup :item="postAuthorGroup" :contextDialogId="dialogId">
+					<AuthorGroup :item="postAuthorGroup" :contextDialogId="dialogId" :withAvatarMenu="false">
 						<template #message>
 							<component
 								:is="getMessageComponentName(postMessage)"

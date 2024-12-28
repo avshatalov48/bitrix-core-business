@@ -1,4 +1,13 @@
+import { Type } from 'main.core';
+import { GroupSharingController } from 'calendar.sharing.interface';
+
+import { Core } from 'im.v2.application.core';
 import { MessengerMenu, MenuItem, MenuItemIcon } from 'im.v2.component.elements';
+import { ActionByRole } from 'im.v2.const';
+import { EntityCreator } from 'im.v2.lib.entity-creator';
+import { Analytics } from 'im.v2.lib.analytics';
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
+import { PermissionManager } from 'im.v2.lib.permission';
 
 import { DiskPopup } from './disk-popup';
 
@@ -6,10 +15,27 @@ import '../../css/upload-menu.css';
 
 import type { PopupOptions } from 'main.popup';
 import type { JsonObject } from 'main.core';
+import type { ImModelChat, ImModelCollabInfo } from 'im.v2.model';
+
+type UploadMenuItem = {
+	icon: $Values<typeof MenuItemIcon>,
+	title: string,
+	clickHandler: Function,
+	showCondition?: boolean,
+}
+
+const DOCUMENT_SIGN_SLIDER_URL = '/sign/doc/0/?chat_id=';
 
 // @vue/component
 export const UploadMenu = {
 	components: { MessengerMenu, MenuItem, DiskPopup },
+	props:
+	{
+		dialogId: {
+			type: String,
+			required: true,
+		},
+	},
 	emits: ['fileSelect', 'diskFileSelect'],
 	data(): JsonObject
 	{
@@ -21,7 +47,59 @@ export const UploadMenu = {
 	},
 	computed:
 	{
-		MenuItemIcon: () => MenuItemIcon,
+		menuItems(): UploadMenuItem[]
+		{
+			return [
+				{
+					icon: MenuItemIcon.upload,
+					title: this.loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO'),
+					clickHandler: this.onSelectFromPhotoOrVideo,
+				},
+				{
+					icon: MenuItemIcon.file,
+					title: this.loc('IM_TEXTAREA_SELECT_FILE'),
+					clickHandler: this.onSelectFromComputerClick,
+				},
+				{
+					icon: MenuItemIcon.disk,
+					title: this.loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK_1'),
+					clickHandler: this.onSelectFromDiskClick,
+				},
+				{
+					icon: MenuItemIcon.task,
+					title: this.loc('IM_TEXTAREA_SELECT_TASK'),
+					clickHandler: this.onCreateTaskClick,
+				},
+				{
+					icon: MenuItemIcon.meeting,
+					title: this.loc('IM_TEXTAREA_SELECT_MEETING'),
+					clickHandler: this.onCreateMeetingClick,
+				},
+				{
+					icon: MenuItemIcon.calendarSlot,
+					title: this.loc('IM_TEXTAREA_SELECT_CALENDAR_SLOT'),
+					clickHandler: this.onCreateCalendarSlotClick,
+					showCondition: () => this.isCalendarSlotAvailable,
+				},
+				{
+					icon: MenuItemIcon.documentSign,
+					title: this.loc('IM_TEXTAREA_SELECT_DOCUMENT_SIGN'),
+					clickHandler: this.onCreateDocumentSignClick,
+					showCondition: () => this.isDocumentSignAvailable,
+				},
+			];
+		},
+		availableMenuItems(): UploadMenuItem[]
+		{
+			return this.menuItems.filter((item) => {
+				if (!Type.isFunction(item.showCondition))
+				{
+					return true;
+				}
+
+				return item.showCondition();
+			});
+		},
 		menuConfig(): PopupOptions
 		{
 			return {
@@ -34,6 +112,28 @@ export const UploadMenu = {
 				offsetLeft: -10,
 				padding: 0,
 			};
+		},
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		chatId(): number
+		{
+			return this.dialog.chatId;
+		},
+		isDocumentSignAvailable(): boolean
+		{
+			const isActiveFeature = FeatureManager.isFeatureAvailable(Feature.documentSignAvailable);
+			if (!isActiveFeature)
+			{
+				return false;
+			}
+
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.createDocumentSign, this.dialogId);
+		},
+		isCalendarSlotAvailable(): boolean
+		{
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.createCalendarSlots, this.dialogId);
 		},
 	},
 	methods:
@@ -75,31 +175,88 @@ export const UploadMenu = {
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
+		getEntityCreator(): EntityCreator
+		{
+			if (!this.entityCreator)
+			{
+				this.entityCreator = new EntityCreator(this.chatId);
+			}
+
+			return this.entityCreator;
+		},
+		onCreateTaskClick()
+		{
+			void this.getEntityCreator().createTaskForChat();
+			Analytics.getInstance().chatEntities.onCreateTaskFromTextareaClick(this.dialogId);
+
+			this.showMenu = false;
+		},
+		onCreateMeetingClick()
+		{
+			void this.getEntityCreator().createMeetingForChat();
+			Analytics.getInstance().chatEntities.onCreateEventFromTextareaClick(this.dialogId);
+
+			this.showMenu = false;
+		},
+		onUploadButtonClick()
+		{
+			if (this.showMenu !== true)
+			{
+				Analytics.getInstance().attachMenu.onOpenUploadMenu(this.dialogId);
+			}
+
+			this.showMenu = true;
+		},
+		async onCreateCalendarSlotClick(event: PointerEvent)
+		{
+			if (!GroupSharingController)
+			{
+				return;
+			}
+
+			const collabInfo: ImModelCollabInfo = Core.getStore().getters['chats/collabs/getByChatId'](this.chatId);
+			if (!collabInfo || !collabInfo.collabId)
+			{
+				return;
+			}
+
+			try
+			{
+				const groupSharing = await GroupSharingController.getGroupSharing(collabInfo.collabId, event.target);
+				groupSharing.openDialog();
+				this.showMenu = false;
+			}
+			catch (errors)
+			{
+				this.showNotification(this.loc('IM_TEXTAREA_UNKNOWN_ERROR'));
+				console.error('ChatTextarea: UploadMenu: select slots error', errors);
+			}
+		},
+		onCreateDocumentSignClick()
+		{
+			const preparedUrl = DOCUMENT_SIGN_SLIDER_URL + this.chatId;
+			BX.SidePanel.Instance.open(preparedUrl, { cacheable: false });
+		},
+		showNotification(content: string)
+		{
+			BX.UI.Notification.Center.notify({ content });
+		},
 	},
 	template: `
 		<div
 			class="bx-im-textarea__icon --upload"
 			:class="{'--active': showMenu}"
-			:title="loc('IM_TEXTAREA_ICON_UPLOAD')"
-			@click="showMenu = true"
+			:title="loc('IM_TEXTAREA_ICON_UPLOAD_TITLE')"
+			@click="onUploadButtonClick"
 			ref="upload"
 		>
 		</div>
 		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false" className="bx-im-file-menu__scope">
 			<MenuItem
-				:icon="MenuItemIcon.upload"
-				:title="loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO')"
-				@click="onSelectFromPhotoOrVideo"
-			/>
-			<MenuItem
-				:icon="MenuItemIcon.file"
-				:title="loc('IM_TEXTAREA_SELECT_FILE')"
-				@click="onSelectFromComputerClick"
-			/>
-			<MenuItem
-				:icon="MenuItemIcon.disk"
-				:title="loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK_1')"
-				@click="onSelectFromDiskClick"
+				v-for="item in availableMenuItems"
+				:icon="item.icon"
+				:title="item.title"
+				@click="item.clickHandler"
 			/>
 			<input type="file" @change="onFileSelect" multiple class="bx-im-file-menu__file-input" ref="fileInput">
 		</MessengerMenu>

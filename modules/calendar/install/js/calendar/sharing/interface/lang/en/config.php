@@ -16,6 +16,7 @@ $MESS["CALENDAR_SHARING_LINK_LIST_SORT_RECENT"] = "Frequently used";
 $MESS["CALENDAR_SHARING_LINK_LIST_TITLE"] = "Shared slots";
 $MESS["CALENDAR_SHARING_LIST_EMPTY_TITLE"] = "This screen will show links to shared slots";
 $MESS["CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT"] = "Only the responsible person can edit slots in this deal.";
+$MESS["CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT_GROUP"] = "Slot times are read-only in collab meetings.";
 $MESS["CALENDAR_SHARING_SETTINGS_SLOT_SIZE"] = "Slot length:";
 $MESS["CALENDAR_SHARING_SETTINGS_SLOT_SIZE_V2"] = "Slot duration:";
 $MESS["CALENDAR_SHARING_SETTINGS_SUBTITLE_DEFAULT"] = "All workdays are selected by default";
@@ -64,6 +65,7 @@ $MESS["SHARING_WARNING_POPUP_CONTENT"] = "A new guest link will be created if yo
 $MESS["SHARING_WARNING_POPUP_CONTENT_1"] = "Closing the access will deactivate your current link. <br>
 You will have to open access to the slots again to receive a new valid link.";
 $MESS["SHARING_WARNING_POPUP_CONTENT_2"] = "A new link will be created when you open access to the slots again. The old link will become invalid.<br />You will also have to create the shared slots again.";
+$MESS["SHARING_WARNING_POPUP_DELETE"] = "Yes";
 $MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON"] = "Close access";
 $MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW"] = "Yes, close the access";
 $MESS["SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW_MSGVER_1"] = "Yes, close the access";

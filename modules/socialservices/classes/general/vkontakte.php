@@ -216,7 +216,7 @@ class CSocServVKontakte extends CSocServAuth
 		}
 
 		echo '
-<script type="text/javascript">
+<script>
 if(window.opener)
 {
 	window.opener.location = \'' . CUtil::JSEscape($url) . '\';
@@ -496,8 +496,6 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 		}
 
 		$url = self::MESSAGE_URL;
-
-		$message = \Bitrix\Main\Text\Encoding::convertEncoding($message, LANG_CHARSET, "utf-8");
 
 		$arPost = array(
 			"user_id" => $uid,

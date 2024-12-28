@@ -571,3 +571,37 @@ create table if not exists b_sonet_event_queue (
 	index ix_sonet_event_queue_datetime (DATETIME),
 	index ix_sonet_event_queue_priority (PRIORITY)
 );
+
+create table if not exists b_sonet_collab_option
+(
+	ID        int unsigned not null auto_increment,
+	COLLAB_ID int          not null,
+	NAME      varchar(255) not null,
+	VALUE     varchar(255) not null,
+	primary key (ID),
+	unique index ix_sonet_collab_option_collab_name (COLLAB_ID, NAME)
+);
+
+create table if not exists b_sonet_collab_last_activity
+(
+	USER_ID int          not null,
+	COLLAB_ID int          not null,
+	ACTIVITY_DATE datetime default null,
+	primary key (USER_ID)
+);
+
+create table if not exists b_sonet_collab_log
+(
+	ID int unsigned not null auto_increment,
+	COLLAB_ID int not null,
+	DATETIME datetime not null,
+	TYPE varchar(255) null,
+	USER_ID int not null,
+	ENTITY_TYPE varchar(255) null,
+	ENTITY_ID int null,
+	DATA text null,
+	primary key (ID),
+	index ix_sonet_collab_log_collab_id_user_id (COLLAB_ID, USER_ID),
+	index ix_sonet_collab_log_collab_id_datetime (COLLAB_ID, DATETIME),
+	index ix_sonet_collab_log_entity (ENTITY_TYPE, ENTITY_ID)
+);

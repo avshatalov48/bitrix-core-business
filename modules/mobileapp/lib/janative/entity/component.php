@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\MobileApp\Janative\Entity;
 
@@ -12,6 +12,7 @@ use Bitrix\Main\IO\FileNotFoundException;
 use Bitrix\Main\IO\Path;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\SystemException;
 use Bitrix\MobileApp\Janative\Manager;
 use Bitrix\MobileApp\Janative\Utils;
@@ -211,6 +212,14 @@ class Component extends Base
 			}
 		}
 
+		$installedModules = array_reduce(
+			ModuleManager::getInstalledModules(),
+			static function ($modulesCollection, $module) {
+				$modulesCollection[$module['ID']] = true;
+				return $modulesCollection;
+			},
+			[]
+		);
 		$userId = $USER->GetId();
 		$isAdmin = $USER->isAdmin();
 		if (!$isAdmin && Loader::includeModule("bitrix24"))
@@ -223,7 +232,9 @@ class Component extends Base
 			'languageId' => LANGUAGE_ID,
 			'siteDir' => $siteDir,
 			'userId' => $userId,
-			'extranet' => $isExtranetUser
+			'extranet' => $isExtranetUser,
+			'isCollaber' => $this->isUserCollaber(),
+			'installedModules' => $installedModules,
 		]);
 		$file = new File(Application::getDocumentRoot()."/bitrix/js/mobileapp/platform.js");
 		$export = $file->getContents();
@@ -240,6 +251,23 @@ $export
 JS;
 
 		return $inlineContent;
+	}
+
+	private function isUserCollaber(): bool
+	{
+		global $USER;
+		$userId = (int)$USER->GetID();
+
+		if (!Loader::includeModule('extranet'))
+		{
+			return false;
+		}
+
+		$container = class_exists(\Bitrix\Extranet\Service\ServiceContainer::class)
+			? \Bitrix\Extranet\Service\ServiceContainer::getInstance()
+			: null;
+
+		return $container?->getCollaberService()?->isCollaberById($userId) ?? false;
 	}
 
 	public function getComponentListInfo(): array {

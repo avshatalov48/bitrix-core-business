@@ -5,7 +5,7 @@ import { BaseMessage } from 'im.v2.component.message.base';
 
 import './css/chat-creation-message.css';
 
-import { Analytics } from 'im.v2.lib.analytics';
+import { Analytics as CallAnalytics} from 'call.lib.analytics';
 import type { CustomColorScheme } from 'im.v2.component.elements';
 import { CallManager } from 'im.v2.lib.call';
 import type { ImModelMessage } from 'im.v2.model';
@@ -131,13 +131,7 @@ export const ChatCreationMessage = {
 		},
 		onCallButtonClick()
 		{
-			Analytics.getInstance().onStartCallClick({
-				type: Analytics.AnalyticsType.groupCall,
-				section: Analytics.AnalyticsSection.chatWindow,
-				subSection: Analytics.AnalyticsSubSection.window,
-				element: Analytics.AnalyticsElement.initialBanner,
-				chatId: this.chatId,
-			});
+			CallAnalytics.getInstance().onChatCreationMessageStartCallClick({ chatId: this.chatId });
 			Messenger.startVideoCall(this.dialogId);
 		},
 		onInviteButtonClick()
@@ -190,10 +184,9 @@ export const ChatCreationMessage = {
 					</div>
 				</div>
 				<AddToChat
+					v-if="showAddToChatPopup"
 					:bindElement="$refs['add-members-button'] || {}"
-					:chatId="chatId"
 					:dialogId="dialogId"
-					:showPopup="showAddToChatPopup"
 					:popupConfig="{offsetTop: 0, offsetLeft: 0}"
 					@close="showAddToChatPopup = false"
 				/>

@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_messageComponentManager,ui_analytics,im_v2_application_core,im_v2_const) {
+(function (exports,im_v2_lib_messageComponentManager,ui_analytics,im_v2_const,im_v2_application_core) {
 	'use strict';
 
 	const CopilotChatType = Object.freeze({
@@ -29,7 +29,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  submitEdit: 'submit_edit',
 	  clickCallButton: 'click_call_button',
 	  clickStartConf: 'click_start_conf',
-	  clickJoin: 'click_join'
+	  clickJoin: 'click_join',
+	  clickAddUser: 'click_add_user',
+	  openCalendar: 'open_calendar',
+	  openTasks: 'open_tasks',
+	  openFiles: 'open_files',
+	  clickCreateTask: 'click_create_task',
+	  clickCreateEvent: 'click_create_event',
+	  clickAttach: 'click_attach'
 	});
 	const AnalyticsTool = Object.freeze({
 	  ai: 'ai',
@@ -50,7 +57,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  toolOff: 'tool_off',
 	  message: 'message',
 	  chatPopup: 'chat_popup',
-	  call: 'call'
+	  call: 'call',
+	  collab: 'collab'
 	});
 	const AnalyticsType = Object.freeze({
 	  ai: 'ai',
@@ -71,7 +79,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  sidebar: 'sidebar',
 	  popup: 'popup',
 	  activeChat: 'active_chat',
-	  comments: 'comments'
+	  comments: 'comments',
+	  chatHeader: 'chat_header',
+	  chatSidebar: 'chat_sidebar',
+	  chatTextarea: 'chat_textarea',
+	  editor: 'editor'
 	});
 	const AnalyticsSubSection = Object.freeze({
 	  contextMenu: 'context_menu',
@@ -92,6 +104,36 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  success: 'success',
 	  errorTurnedOff: 'error_turnedoff'
 	});
+	const CreateChatContext = Object.freeze({
+	  collabEmptyState: 'collab_empty_state'
+	});
+
+	function getCollabId(chatId) {
+	  const collabInfo = im_v2_application_core.Core.getStore().getters['chats/collabs/getByChatId'](chatId);
+	  if (!collabInfo) {
+	    return null;
+	  }
+	  return `collabId_${collabInfo.collabId}`;
+	}
+
+	const AnalyticUserType = Object.freeze({
+	  userIntranet: 'user_intranet',
+	  userExtranet: 'user_extranet',
+	  userCollaber: 'user_collaber'
+	});
+	function getUserType() {
+	  const user = im_v2_application_core.Core.getStore().getters['users/get'](im_v2_application_core.Core.getUserId(), true);
+	  switch (user.type) {
+	    case im_v2_const.UserType.user:
+	      return AnalyticUserType.userIntranet;
+	    case im_v2_const.UserType.extranet:
+	      return AnalyticUserType.userExtranet;
+	    case im_v2_const.UserType.collaber:
+	      return AnalyticUserType.userCollaber;
+	    default:
+	      return AnalyticUserType.userIntranet;
+	  }
+	}
 
 	function getCategoryByChatType(type) {
 	  switch (type) {
@@ -104,6 +146,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return AnalyticsCategory.copilot;
 	    case im_v2_const.ChatType.videoconf:
 	      return AnalyticsCategory.videoconf;
+	    case im_v2_const.ChatType.collab:
+	      return AnalyticsCategory.collab;
 	    default:
 	      return AnalyticsCategory.chat;
 	  }
@@ -113,6 +157,90 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function getChatType(chat) {
 	  var _ChatType$chat$type;
 	  return (_ChatType$chat$type = im_v2_const.ChatType[chat.type]) != null ? _ChatType$chat$type : CUSTOM_CHAT_TYPE;
+	}
+
+	const EntityToEventMap = {
+	  [im_v2_const.CollabEntityType.tasks]: AnalyticsEvent.openTasks,
+	  [im_v2_const.CollabEntityType.calendar]: AnalyticsEvent.openCalendar,
+	  [im_v2_const.CollabEntityType.files]: AnalyticsEvent.openFiles
+	};
+	class CollabEntities {
+	  onClick(dialogId, type) {
+	    const event = EntityToEventMap[type];
+	    if (!event) {
+	      return;
+	    }
+	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
+	    const params = {
+	      tool: AnalyticsTool.im,
+	      category: AnalyticsCategory.collab,
+	      event,
+	      c_section: AnalyticsSection.chatHeader,
+	      p2: getUserType(),
+	      p5: `chatId_${chat.chatId}`
+	    };
+	    if (chat.type === im_v2_const.ChatType.collab) {
+	      params.p4 = getCollabId(chat.chatId);
+	    }
+	    ui_analytics.sendData(params);
+	  }
+	}
+
+	var _onClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onClick");
+	class ChatEntities {
+	  constructor() {
+	    Object.defineProperty(this, _onClick, {
+	      value: _onClick2
+	    });
+	  }
+	  onCreateTaskFromSidebarClick(dialogId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _onClick)[_onClick]({
+	      dialogId,
+	      event: AnalyticsEvent.clickCreateTask,
+	      section: AnalyticsSection.chatSidebar
+	    });
+	  }
+	  onCreateTaskFromTextareaClick(dialogId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _onClick)[_onClick]({
+	      dialogId,
+	      event: AnalyticsEvent.clickCreateTask,
+	      section: AnalyticsSection.chatTextarea
+	    });
+	  }
+	  onCreateEventFromSidebarClick(dialogId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _onClick)[_onClick]({
+	      dialogId,
+	      event: AnalyticsEvent.clickCreateEvent,
+	      section: AnalyticsSection.chatSidebar
+	    });
+	  }
+	  onCreateEventFromTextareaClick(dialogId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _onClick)[_onClick]({
+	      dialogId,
+	      event: AnalyticsEvent.clickCreateEvent,
+	      section: AnalyticsSection.chatTextarea
+	    });
+	  }
+	}
+	function _onClick2({
+	  dialogId,
+	  event,
+	  section
+	}) {
+	  const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
+	  const params = {
+	    tool: AnalyticsTool.im,
+	    category: getCategoryByChatType(chat.type),
+	    event,
+	    c_section: section,
+	    p1: `chatType_${getChatType(chat)}`,
+	    p2: getUserType(),
+	    p5: `chatId_${chat.chatId}`
+	  };
+	  if (chat.type === im_v2_const.ChatType.collab) {
+	    params.p4 = getCollabId(chat.chatId);
+	  }
+	  ui_analytics.sendData(params);
 	}
 
 	class ChatDelete {
@@ -359,108 +487,96 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 
-	var _excludedChats = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("excludedChats");
-	var _currentTab = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("currentTab");
-	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
-	class Analytics {
+	var _onAddUserClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onAddUserClick");
+	class UserAdd {
 	  constructor() {
-	    Object.defineProperty(this, _excludedChats, {
-	      writable: true,
-	      value: new Set()
+	    Object.defineProperty(this, _onAddUserClick, {
+	      value: _onAddUserClick2
 	    });
-	    Object.defineProperty(this, _currentTab, {
-	      writable: true,
-	      value: im_v2_const.Layout.chat.name
-	    });
-	    this.chatDelete = new ChatDelete();
-	    this.messageDelete = new MessageDelete();
-	    this.historyLimit = new HistoryLimit();
 	  }
-	  static getInstance() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance] = new this();
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance];
+	  onChatSidebarClick(dialogId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _onAddUserClick)[_onAddUserClick](dialogId, AnalyticsSection.chatSidebar);
 	  }
-	  onOpenMessenger() {
-	    ui_analytics.sendData({
-	      event: AnalyticsEvent.openMessenger,
+	  onChatHeaderClick(dialogId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _onAddUserClick)[_onAddUserClick](dialogId, AnalyticsSection.chatHeader);
+	  }
+	}
+	function _onAddUserClick2(dialogId, element) {
+	  const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
+	  const params = {
+	    tool: AnalyticsTool.im,
+	    category: getCategoryByChatType(chat.type),
+	    event: AnalyticsEvent.clickAddUser,
+	    c_section: element,
+	    p2: getUserType(),
+	    p5: `chatId_${chat.chatId}`
+	  };
+	  if (chat.type === im_v2_const.ChatType.collab) {
+	    params.p4 = getCollabId(chat.chatId);
+	  }
+	  ui_analytics.sendData(params);
+	}
+
+	class ChatEdit {
+	  onOpenForm(dialogId) {
+	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    const params = {
 	      tool: AnalyticsTool.im,
-	      category: AnalyticsCategory.messenger
-	    });
-	  }
-	  onCreateCopilotChat({
-	    chatId,
-	    dialogId
-	  }) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _excludedChats)[_excludedChats].add(dialogId);
-	    ui_analytics.sendData({
-	      event: AnalyticsEvent.createNewChat,
-	      tool: AnalyticsTool.ai,
-	      category: AnalyticsCategory.chatOperations,
-	      c_section: AnalyticsSection.copilotTab,
-	      type: AnalyticsType.ai,
-	      p3: CopilotChatType.private,
-	      p5: `chatId_${chatId}`
-	    });
-	  }
-	  onOpenCopilotChat(dialogId) {
-	    const dialog = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
-	    const copilotChatType = dialog.userCounter <= 2 ? CopilotChatType.private : CopilotChatType.multiuser;
-	    ui_analytics.sendData({
-	      event: AnalyticsEvent.openChat,
-	      tool: AnalyticsTool.ai,
-	      category: AnalyticsCategory.chatOperations,
-	      c_section: AnalyticsSection.copilotTab,
-	      type: AnalyticsType.ai,
-	      p3: copilotChatType,
-	      p5: `chatId_${dialog.chatId}`
-	    });
-	  }
-	  onOpenCopilotTab({
-	    isAvailable = true
-	  } = {}) {
-	    const payload = {
-	      event: AnalyticsEvent.openTab,
-	      tool: AnalyticsTool.ai,
-	      category: AnalyticsCategory.chatOperations,
-	      c_section: AnalyticsSection.copilotTab,
-	      status: isAvailable ? AnalyticsStatus.success : AnalyticsStatus.errorTurnedOff
+	      category: getCategoryByChatType(chat.type),
+	      event: AnalyticsEvent.clickEdit,
+	      c_section: AnalyticsSection.sidebar,
+	      c_sub_section: AnalyticsSubSection.contextMenu,
+	      p1: `chatType_${chat.type}`,
+	      p5: `chatId_${chat.chatId}`
 	    };
-	    ui_analytics.sendData(payload);
+	    if (chat.type === im_v2_const.ChatType.collab) {
+	      params.p4 = getCollabId(chat.chatId);
+	    }
+	    ui_analytics.sendData(params);
 	  }
-	  onOpenTab(tabName) {
-	    const existingTabs = [im_v2_const.Layout.chat.name, im_v2_const.Layout.copilot.name, im_v2_const.Layout.channel.name, im_v2_const.Layout.notification.name, im_v2_const.Layout.settings.name, im_v2_const.Layout.openlines.name];
-	    if (!existingTabs.includes(tabName)) {
-	      return;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _currentTab)[_currentTab] === tabName) {
-	      return;
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _currentTab)[_currentTab] = tabName;
-	    ui_analytics.sendData({
-	      event: AnalyticsEvent.openTab,
+	  onSubmitForm(dialogId) {
+	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    const params = {
 	      tool: AnalyticsTool.im,
-	      category: AnalyticsCategory.messenger,
-	      type: tabName
-	    });
+	      category: getCategoryByChatType(chat.type),
+	      c_section: AnalyticsSection.editor,
+	      event: AnalyticsEvent.submitEdit,
+	      p1: `chatType_${chat.type}`,
+	      p2: getUserType(),
+	      p5: `chatId_${chat.chatId}`
+	    };
+	    if (chat.type === im_v2_const.ChatType.collab) {
+	      params.p4 = getCollabId(chat.chatId);
+	    }
+	    ui_analytics.sendData(params);
 	  }
-	  onUseCopilotAudioInput() {
+	}
+
+	class ChatCreate {
+	  onStartClick(type) {
+	    const currentLayout = im_v2_application_core.Core.getStore().getters['application/getLayout'].name;
 	    ui_analytics.sendData({
-	      event: AnalyticsEvent.audioUse,
-	      tool: AnalyticsTool.ai,
-	      category: AnalyticsCategory.chatOperations,
-	      c_section: AnalyticsSection.copilotTab
+	      tool: AnalyticsTool.im,
+	      category: getCategoryByChatType(type),
+	      event: AnalyticsEvent.clickCreateNew,
+	      type,
+	      c_section: `${currentLayout}_tab`,
+	      p2: getUserType()
 	    });
 	  }
-	  onOpenCheckInPopup() {
+	  onCollabEmptyStateCreateClick() {
 	    ui_analytics.sendData({
-	      event: AnalyticsEvent.popupOpen,
-	      tool: AnalyticsTool.checkin,
-	      category: AnalyticsCategory.shift,
-	      c_section: AnalyticsSection.chat
+	      tool: AnalyticsTool.im,
+	      category: getCategoryByChatType(im_v2_const.ChatType.collab),
+	      event: AnalyticsEvent.clickCreateNew,
+	      type: im_v2_const.ChatType.collab,
+	      c_section: CreateChatContext.collabEmptyState,
+	      p2: getUserType()
 	    });
 	  }
+	}
+
+	class Supervisor {
 	  onOpenPriceTable(featureId) {
 	    ui_analytics.sendData({
 	      tool: AnalyticsTool.infoHelper,
@@ -479,18 +595,144 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      c_section: AnalyticsSection.chat
 	    });
 	  }
-	  onStartCreateNewChat(type) {
-	    const currentLayout = im_v2_application_core.Core.getStore().getters['application/getLayout'].name;
+	}
+
+	class CheckIn {
+	  onOpenCheckInPopup() {
 	    ui_analytics.sendData({
-	      tool: AnalyticsTool.im,
-	      category: getCategoryByChatType(type),
-	      event: AnalyticsEvent.clickCreateNew,
-	      type,
-	      c_section: `${currentLayout}_tab`
+	      event: AnalyticsEvent.popupOpen,
+	      tool: AnalyticsTool.checkin,
+	      category: AnalyticsCategory.shift,
+	      c_section: AnalyticsSection.chat
 	    });
 	  }
-	  onCreateChat(dialogId) {
+	}
+
+	class Copilot {
+	  onCreateChat(chatId) {
+	    ui_analytics.sendData({
+	      event: AnalyticsEvent.createNewChat,
+	      tool: AnalyticsTool.ai,
+	      category: AnalyticsCategory.chatOperations,
+	      c_section: AnalyticsSection.copilotTab,
+	      type: AnalyticsType.ai,
+	      p3: CopilotChatType.private,
+	      p5: `chatId_${chatId}`
+	    });
+	  }
+	  onOpenChat(dialogId) {
+	    const dialog = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    const copilotChatType = dialog.userCounter <= 2 ? CopilotChatType.private : CopilotChatType.multiuser;
+	    ui_analytics.sendData({
+	      event: AnalyticsEvent.openChat,
+	      tool: AnalyticsTool.ai,
+	      category: AnalyticsCategory.chatOperations,
+	      c_section: AnalyticsSection.copilotTab,
+	      type: AnalyticsType.ai,
+	      p3: copilotChatType,
+	      p5: `chatId_${dialog.chatId}`
+	    });
+	  }
+	  onOpenTab({
+	    isAvailable = true
+	  } = {}) {
+	    const payload = {
+	      event: AnalyticsEvent.openTab,
+	      tool: AnalyticsTool.ai,
+	      category: AnalyticsCategory.chatOperations,
+	      c_section: AnalyticsSection.copilotTab,
+	      status: isAvailable ? AnalyticsStatus.success : AnalyticsStatus.errorTurnedOff
+	    };
+	    ui_analytics.sendData(payload);
+	  }
+	  onUseAudioInput() {
+	    ui_analytics.sendData({
+	      event: AnalyticsEvent.audioUse,
+	      tool: AnalyticsTool.ai,
+	      category: AnalyticsCategory.chatOperations,
+	      c_section: AnalyticsSection.copilotTab
+	    });
+	  }
+	}
+
+	class AttachMenu {
+	  onOpenUploadMenu(dialogId) {
+	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    const chatType = getChatType(chat);
+	    const params = {
+	      tool: AnalyticsTool.im,
+	      category: getCategoryByChatType(chat.type),
+	      event: AnalyticsEvent.clickAttach,
+	      c_section: AnalyticsSection.chatTextarea,
+	      p1: `chatType_${chatType}`,
+	      p2: getUserType(),
+	      p5: `chatId_${chat.chatId}`
+	    };
+	    if (chat.type === im_v2_const.ChatType.collab) {
+	      params.p4 = getCollabId(chat.chatId);
+	    }
+	    ui_analytics.sendData(params);
+	  }
+	}
+
+	var _excludedChats = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("excludedChats");
+	var _currentTab = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("currentTab");
+	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
+	class Analytics {
+	  constructor() {
+	    Object.defineProperty(this, _excludedChats, {
+	      writable: true,
+	      value: new Set()
+	    });
+	    Object.defineProperty(this, _currentTab, {
+	      writable: true,
+	      value: im_v2_const.Layout.chat.name
+	    });
+	    this.chatCreate = new ChatCreate();
+	    this.chatEdit = new ChatEdit();
+	    this.chatDelete = new ChatDelete();
+	    this.messageDelete = new MessageDelete();
+	    this.historyLimit = new HistoryLimit();
+	    this.userAdd = new UserAdd();
+	    this.collabEntities = new CollabEntities();
+	    this.chatEntities = new ChatEntities();
+	    this.supervisor = new Supervisor();
+	    this.checkIn = new CheckIn();
+	    this.copilot = new Copilot();
+	    this.attachMenu = new AttachMenu();
+	  }
+	  static getInstance() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance] = new this();
+	    }
+	    return babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance];
+	  }
+	  ignoreNextChatOpen(dialogId) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _excludedChats)[_excludedChats].add(dialogId);
+	  }
+	  onOpenMessenger() {
+	    ui_analytics.sendData({
+	      event: AnalyticsEvent.openMessenger,
+	      tool: AnalyticsTool.im,
+	      category: AnalyticsCategory.messenger
+	    });
+	  }
+	  onOpenTab(tabName) {
+	    const existingTabs = [im_v2_const.Layout.chat.name, im_v2_const.Layout.copilot.name, im_v2_const.Layout.collab.name, im_v2_const.Layout.channel.name, im_v2_const.Layout.notification.name, im_v2_const.Layout.settings.name, im_v2_const.Layout.openlines.name];
+	    if (!existingTabs.includes(tabName)) {
+	      return;
+	    }
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _currentTab)[_currentTab] === tabName) {
+	      return;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _currentTab)[_currentTab] = tabName;
+	    ui_analytics.sendData({
+	      event: AnalyticsEvent.openTab,
+	      tool: AnalyticsTool.im,
+	      category: AnalyticsCategory.messenger,
+	      type: tabName,
+	      p2: getUserType()
+	    });
 	  }
 	  onOpenChat(dialog) {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _excludedChats)[_excludedChats].has(dialog.dialogId)) {
@@ -499,7 +741,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    const chatType = getChatType(dialog);
 	    if (chatType === im_v2_const.ChatType.copilot) {
-	      this.onOpenCopilotChat(dialog.dialogId);
+	      this.copilot.onOpenChat(dialog.dialogId);
 	    }
 	    const currentLayout = im_v2_application_core.Core.getStore().getters['application/getLayout'].name;
 	    const isMember = dialog.role === im_v2_const.UserRole.guest ? 'N' : 'Y';
@@ -509,6 +751,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      event: AnalyticsEvent.openExisting,
 	      type: chatType,
 	      c_section: `${currentLayout}_tab`,
+	      p2: getUserType(),
 	      p3: `isMember_${isMember}`,
 	      p5: `chatId_${dialog.chatId}`
 	    };
@@ -517,78 +760,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      params.p1 = `chatType_${parentChat.type}`;
 	      params.p4 = `parentChatId_${dialog.parentChatId}`;
 	    }
+	    if (chatType === im_v2_const.ChatType.collab) {
+	      params.p4 = getCollabId(dialog.chatId);
+	    }
 	    ui_analytics.sendData(params);
-	  }
-	  onOpenChatEditForm(dialogId) {
-	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
-	    ui_analytics.sendData({
-	      tool: AnalyticsTool.im,
-	      category: getCategoryByChatType(chat.type),
-	      event: AnalyticsEvent.clickEdit,
-	      c_section: AnalyticsSection.sidebar,
-	      c_sub_section: AnalyticsSubSection.contextMenu,
-	      p1: `chatType_${chat.type}`,
-	      p5: `chatId_${chat.chatId}`
-	    });
-	  }
-	  onSubmitChatEditForm(dialogId) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _excludedChats)[_excludedChats].add(dialogId);
-	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
-	    ui_analytics.sendData({
-	      tool: AnalyticsTool.im,
-	      category: getCategoryByChatType(chat.type),
-	      event: AnalyticsEvent.submitEdit,
-	      p1: `chatType_${chat.type}`,
-	      p5: `chatId_${chat.chatId}`
-	    });
-	  }
-	  onCancelChatEditForm(dialogId) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _excludedChats)[_excludedChats].add(dialogId);
-	  }
-	  onStartCallClick(params) {
-	    ui_analytics.sendData({
-	      tool: AnalyticsTool.im,
-	      category: AnalyticsCategory.messenger,
-	      event: AnalyticsEvent.clickCallButton,
-	      type: params.type,
-	      c_section: params.section,
-	      c_sub_section: params.subSection,
-	      c_element: params.element,
-	      p5: `chatId_${params.chatId}`
-	    });
-	  }
-	  onStartConferenceClick(params) {
-	    ui_analytics.sendData({
-	      tool: AnalyticsTool.im,
-	      category: AnalyticsCategory.call,
-	      event: AnalyticsEvent.clickStartConf,
-	      type: AnalyticsType.videoconf,
-	      c_section: AnalyticsSection.chatWindow,
-	      c_element: params.element,
-	      p5: `chatId_${params.chatId}`
-	    });
-	  }
-	  onJoinConferenceClick(params) {
-	    ui_analytics.sendData({
-	      tool: AnalyticsTool.im,
-	      category: AnalyticsCategory.call,
-	      event: AnalyticsEvent.clickJoin,
-	      type: AnalyticsType.videoconf,
-	      c_section: AnalyticsSection.chatList,
-	      p5: `callId_${params.callId}`
-	    });
 	  }
 	}
 	Object.defineProperty(Analytics, _instance, {
 	  writable: true,
 	  value: void 0
 	});
-	Analytics.AnalyticsType = AnalyticsType;
-	Analytics.AnalyticsSection = AnalyticsSection;
-	Analytics.AnalyticsSubSection = AnalyticsSubSection;
-	Analytics.AnalyticsElement = AnalyticsElement;
 
 	exports.Analytics = Analytics;
+	exports.CreateChatContext = CreateChatContext;
+	exports.getCollabId = getCollabId;
+	exports.getUserType = getUserType;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.UI.Analytics,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.UI.Analytics,BX.Messenger.v2.Const,BX.Messenger.v2.Application));
 //# sourceMappingURL=analytics.bundle.js.map

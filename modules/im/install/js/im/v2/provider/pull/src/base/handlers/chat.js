@@ -8,6 +8,7 @@ import { Core } from 'im.v2.application.core';
 import { UserManager } from 'im.v2.lib.user';
 import { CopilotManager } from 'im.v2.lib.copilot';
 import { CallManager } from 'im.v2.lib.call';
+import { ChannelManager } from 'im.v2.lib.channel';
 import { WritingManager } from 'im.v2.lib.writing';
 import { Logger } from 'im.v2.lib.logger';
 import { getChatRoleForUser } from 'im.v2.lib.role-manager';
@@ -113,6 +114,14 @@ export class ChatPullHandler
 				fields: { inited: false },
 			});
 			this.#store.dispatch('messages/clearChatCollection', { chatId: params.chatId });
+		}
+
+		const isChannel = ChannelManager.isChannel(params.dialogId);
+		if (isChannel)
+		{
+			void this.#store.dispatch('counters/deleteForChannel', {
+				channelChatId: params.chatId,
+			});
 		}
 
 		const chatIsOpened = this.#store.getters['application/isChatOpen'](params.dialogId);
@@ -270,9 +279,17 @@ export class ChatPullHandler
 		const isCommentChat = params.type === ChatType.comment;
 		if (isCommentChat)
 		{
-			void this.#store.dispatch('counters/delete', {
+			void this.#store.dispatch('counters/deleteForChannel', {
 				channelChatId: params.parentChatId,
 				commentChatId: params.chatId,
+			});
+		}
+
+		const isChannel = ChannelManager.isChannel(params.dialogId);
+		if (isChannel)
+		{
+			void this.#store.dispatch('counters/deleteForChannel', {
+				channelChatId: params.chatId,
 			});
 		}
 
@@ -283,7 +300,8 @@ export class ChatPullHandler
 		{
 			Analytics.getInstance().chatDelete.onChatDeletedNotification(params.dialogId);
 			this.#showNotification(Loc.getMessage('IM_CONTENT_CHAT_ACCESS_ERROR_MSGVER_1'));
-			void LayoutManager.getInstance().clearLayoutEntityId();
+			void LayoutManager.getInstance().clearCurrentLayoutEntityId();
+			void LayoutManager.getInstance().deleteLastOpenedElementById(params.dialogId);
 		}
 
 		const chatHasCall = CallManager.getInstance().getCurrentCallDialogId() === params.dialogId;

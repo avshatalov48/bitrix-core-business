@@ -1,3 +1,7 @@
+import { UserType } from 'im.v2.const';
+
+import type { StatusGroupName } from 'imopenlines.v2.const';
+
 export type PullExtraParams = {
 	im_revision: number,
 	is_shared_event: boolean,
@@ -85,6 +89,7 @@ export type RawUser = {
 	externalAuthId: string,
 	external_auth_id: string,
 	extranet: boolean,
+	type: $Values<typeof UserType>,
 	firstName: string,
 	first_name: string,
 	gender: 'M' | 'F',
@@ -143,3 +148,14 @@ export type RawMultidialog = {
 	isSupport?: true,
 	dateMessage?: string,
 };
+
+export type RawLines = {
+	id: number,
+	status: number,
+	data_create: string,
+	operatorId: number,
+	statusGroup: StatusGroupName,
+	queueId: number,
+	pinned: boolean,
+	isClosed: boolean,
+}

@@ -74,16 +74,9 @@ CJSCore::RegisterExt('userfield_address', array(
 ));
 
 CJSCore::RegisterExt('player', [
-	'js' => [
-		'/bitrix/js/fileman/player/fileman_player.js',
-		'/bitrix/js/fileman/player/videojs/video.js',
-	],
-	'css' => [
-		'/bitrix/js/fileman/player/videojs/video-js.css',
-	],
 	'rel' => [
-		'ui.design-tokens',
-	]
+		'ui.video-player',
+	],
 ]);
 
 //on update method still not exist

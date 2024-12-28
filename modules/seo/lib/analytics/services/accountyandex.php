@@ -1,24 +1,25 @@
-<?
+<?php
 
 namespace Bitrix\Seo\Analytics\Services;
 
-use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Data\Cache;
-use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
+use Bitrix\Main\Result;
 use Bitrix\Seo\Analytics\Internals\Expenses;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Type\Date;
+use Bitrix\Seo\Analytics\Internals\ExpensesCollection;
 use Bitrix\Seo\Retargeting\Response;
 use Bitrix\Seo\Retargeting\Services\ResponseYandex;
 use Bitrix\Seo\Retargeting\IRequestDirectly;
+use Bitrix\Seo\Analytics\Account;
 
-class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDirectly
+class AccountYandex extends Account implements IRequestDirectly
 {
 	const TYPE_CODE = 'yandex';
 	const ERROR_CODE_REPORT_OFFLINE = 100201;
 
-	protected $currency;
+	protected ?string $currency = null;
 
 	/**
 	 * Get list.
@@ -125,7 +126,7 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 		];
 
 		$profile = $this->getProfile();
-		if(empty($profile['NAME']))
+		if (empty($profile['NAME']))
 		{
 			return $result->addError(new Error("Can not find user name."));
 		}
@@ -140,11 +141,11 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 			Json::encode($options)
 		);
 
-		if($client->getStatus() != 200)
+		if ($client->getStatus() != 200)
 		{
 			return $result->addError($this->getReportErrorByHttpStatus($client->getStatus()));
 		}
-		if($response)
+		if ($response)
 		{
 			$expenses->add($this->parseReportData($response));
 		}
@@ -154,6 +155,117 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Return true if it has daily expenses report
+	 *
+	 * @return bool
+	 */
+	public function hasDailyExpensesReport(): bool
+	{
+		return true;
+	}
+
+	/**
+	 * @param string|null $accountId
+	 * @param Date|null $dateFrom
+	 * @param Date|null $dateTo
+	 *
+	 * @return Result
+	 */
+	public function getDailyExpensesReport(?string $accountId, ?Date $dateFrom, ?Date $dateTo): Result
+	{
+		$result = new Result();
+		$this->getCurrency();
+
+		$dateTo = $dateTo ?: new Date();
+		if (empty($dateFrom))
+		{
+			$dateFrom = clone($dateTo);
+			$dateFrom->add('-1 week');
+		}
+
+		$options = [
+			'params' => [
+				'SelectionCriteria' => [
+					'DateFrom' => $dateFrom->format('Y-m-d'),
+					'DateTo' => $dateTo->format('Y-m-d'),
+				],
+				'FieldNames' => [
+					'Date',
+					'CampaignId',
+					'CampaignName',
+					'Impressions',
+					'Clicks',
+					'Cost',
+					'Conversions',
+					'AvgCpc',
+				],
+				'ReportName' => 'CampaignsReport',
+				'ReportType' => 'CAMPAIGN_PERFORMANCE_REPORT',
+				'DateRangeType' => 'CUSTOM_DATE',
+				'Format' => 'TSV',
+				'IncludeVAT' => 'YES',
+				'IncludeDiscount' => 'NO'
+			]
+		];
+
+		$profile = $this->getProfile();
+		if (empty($profile['NAME']))
+		{
+			return $result->addError(new Error("Can not find user name."));
+		}
+
+		$client = $this->getClient();
+		$client->setHeader('Client-Login', $profile['NAME']);
+		$client->setHeader('returnMoneyInMicros', 'false');
+		$client->setHeader('skipReportHeader', 'true');
+		$response = $client->post(
+			$this->getYandexServerAdress() . 'reports',
+			Json::encode($options)
+		);
+
+		if ($client->getStatus() !== 200)
+		{
+			return $result->addError($this->getReportErrorByHttpStatus($client->getStatus()));
+		}
+
+		if (!$response)
+		{
+			return $result->addError(new Error('Empty report data'));
+		}
+
+		$result->setData(['expenses' => $this->parseMultipleReportData($response)]);
+
+		return $result;
+	}
+
+	private function parseMultipleReportData($data): ExpensesCollection
+	{
+		$resultCollection = new ExpensesCollection();
+		if (!is_string($data) || empty($data))
+		{
+			return $resultCollection;
+		}
+
+		$titles = [];
+		$strings = explode("\n", $data);
+		foreach ($strings as $number => $string)
+		{
+			if ($number === 0)
+			{
+				$titles = explode("\t", $string);
+			}
+			elseif (!empty($string) && !str_starts_with($string, 'Total'))
+			{
+				$row = array_combine($titles, explode("\t", $string));
+				$expenses = new Expenses($this->formatReportData($row));
+				$resultCollection->addItem($expenses);
+			}
+		}
+
+		return $resultCollection;
 	}
 
 	/**
@@ -167,60 +279,83 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 		return Response::create('yandex');
 	}
 
-	protected function getCurrency()
+	/**
+	 * @return string|null
+	 *
+	 * @throws \Bitrix\Main\ArgumentException
+	 */
+	protected function getCurrency(): ?string
 	{
-		if($this->currency)
+		if ($this->currency)
 		{
 			return $this->currency;
 		}
+
 		// currency is global for an account, so we get it from the first campaign.
 		$cacheString = 'analytics_yandex_currency';
 		$cachePath = '/seo/analytics/yandex/';
 		$cacheTime = 3600;
 		$cache = Cache::createInstance();
 		$currency = null;
-		if($cache->initCache($cacheTime, $cacheString, $cachePath))
+		if ($cache->initCache($cacheTime, $cacheString, $cachePath))
 		{
 			$currency = $cache->getVars()['currency'];
 		}
-		if(!$currency)
+
+		if (!empty($currency))
 		{
-			$cache->clean($cacheString, $cachePath);
-			$cache->startDataCache($cacheTime);
+			$this->currency = $currency;
 
-			$response = $this->getClient()->post(
-				$this->getYandexServerAdress() . 'campaigns',
-				Json::encode([
-					'method' => 'get',
-					'params' => [
-						'SelectionCriteria' => new \stdClass(),
-						'FieldNames' => ['Currency'],
-						'Page' => [
-							'Limit' => 1,
-						],
-					],
-				])
-			);
-			if($response)
-			{
-				$response = Json::decode($response);
-				if(!isset($response['error']) && isset($response['result']) && isset($response['result']['Campaigns']))
-				{
-					foreach($response['result']['Campaigns'] as $campaign)
-					{
-						$currency = $campaign['Currency'];
-						break;
-					}
-				}
-			}
-
-			if($currency)
-			{
-				$cache->endDataCache(['currency' => $currency]);
-			}
+			return $currency;
 		}
 
-		$this->currency = $currency;
+		$cache->clean($cacheString, $cachePath);
+		$campaignsRequestParams =  Json::encode([
+			'method' => 'get',
+			'params' => [
+				'SelectionCriteria' => new \stdClass(),
+				'FieldNames' => ['Currency'],
+				'Page' => [
+					'Limit' => 1,
+				],
+			],
+		]);
+
+		$response =
+			$this
+				->getClient()
+				->post(
+					$this->getYandexServerAdress() . 'campaigns',
+					$campaignsRequestParams
+				)
+		;
+
+		if (empty($response))
+		{
+			return null;
+		}
+
+		$response = Json::decode($response);
+		if (
+			!isset($response['error'])
+			&& isset($response['result']['Campaigns'])
+			&& is_array($response['result']['Campaigns'])
+		)
+		{
+			$firstCampaign = current($response['result']['Campaigns']);
+			$currency = $firstCampaign['Currency'] ?? null;
+		}
+
+		if (!$currency)
+		{
+			return null;
+		}
+
+		if ($cache->startDataCache($cacheTime))
+		{
+			$cache->endDataCache(['currency' => $currency]);
+		}
+		$this->currency = (string)$currency;
 
 		return $currency;
 	}
@@ -235,20 +370,20 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 		$message = 'Unknown error';
 		$code = 0;
 
-		if($status == 400)
+		if ($status == 400)
 		{
 			$message = 'Wrong parameters or too many reports';
 		}
-		elseif($status == 201 || $status == 202)
+		elseif ($status == 201 || $status == 202)
 		{
 			$message = 'Please try later';
 			$code = static::ERROR_CODE_REPORT_OFFLINE;
 		}
-		elseif($status == 500)
+		elseif ($status == 500)
 		{
 			$message = 'Some server error. Please try later';
 		}
-		elseif($status == 502)
+		elseif ($status == 502)
 		{
 			$message = 'Server could not process your request in limited time. Please change your request';
 		}
@@ -262,46 +397,73 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 	 */
 	protected function parseReportData($data)
 	{
-		$result = [];
-		if(!is_string($data) || empty($data))
+		if (!is_string($data) || empty($data))
 		{
-			return $result;
+			return [];
 		}
 
 		$titles = [];
 		$strings = explode("\n", $data);
-		foreach($strings as $number => $string)
+		foreach ($strings as $number => $string)
 		{
-			if($number === 0)
+			if ($number === 0)
 			{
 				$titles = explode("\t", $string);
 			}
-			elseif(!empty($string) && mb_strpos($string, 'Total') !== 0)
+			elseif (!empty($string) && mb_strpos($string, 'Total') !== 0)
 			{
 				$row = array_combine($titles, explode("\t", $string));
-
-				$result = $row;
 			}
 		}
 
-		$conversions = (is_numeric($result['Conversions']) && $result['Conversions'])
-			? $result['Conversions']
-			: 0;
-		$clicks = (is_numeric($result['Clicks']) && $result['Clicks'])
-			? $result['Clicks']
-			: 0;
+		if (empty($row))
+		{
+			return [];
+		}
 
-		$result = [
-			'impressions' => $result['Impressions'],
-			'clicks' => $result['Clicks'],
+		return $this->formatReportData($row);
+	}
+
+	private function formatReportData(array $row): array
+	{
+		$conversions =
+			(is_numeric($row['Conversions']) && $row['Conversions'])
+				? $row['Conversions']
+				: 0
+		;
+
+		$clicks =
+			(is_numeric($row['Clicks']) && $row['Clicks'])
+				? $row['Clicks']
+				: 0
+		;
+
+		$impressions =
+			(is_numeric($row['Impressions']) && $row['Impressions'])
+				? $row['Impressions']
+				: 0
+		;
+
+		$cpm = 0;
+		if ($impressions > 0)
+		{
+			$cpm = round(($row['Cost'] / $impressions) * 1000, 2);
+		}
+
+		$date = !empty($row['Date']) ? new Date($row['Date'], 'Y-m-d') : null;
+
+		return [
+			'impressions' => $impressions,
+			'campaignName' => $row['CampaignName'],
+			'campaignId' => $row['CampaignId'],
+			'clicks' => $clicks,
 			'actions' => $conversions + $clicks,
-			'spend' => $result['Cost'],
-			'cpc' => $result['AvgCpc'],
-			'cpm' => $result['AvgCpm'],
+			'spend' => $row['Cost'],
+			'cpc' => $row['AvgCpc'],
+			'date' => $date,
+			'cpm' => $cpm,
 			'currency' => $this->getCurrency(),
 		];
-
-		return $result;
 	}
 
 	/**
@@ -310,7 +472,6 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 	protected function getYandexServerAdress()
 	{
 		$isSandbox = false;
-		//$isSandbox = true;
 
 		return 'https://api' . ($isSandbox ? '-sandbox' : '') . '.direct.yandex.com/json/v5/';
 	}

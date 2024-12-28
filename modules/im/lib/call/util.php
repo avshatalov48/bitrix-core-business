@@ -7,7 +7,7 @@ class Util
 	/**
 	 * @param array $idList
 	 */
-	public static function getUsers(array $idList)
+	public static function getUsers(array $idList): array
 	{
 		$result = [];
 		foreach ($idList as $userId)
@@ -16,9 +16,12 @@ class Util
 			$result[$userId] = [
 				'id' => $user['id'],
 				'name' => $user['name'],
+				'work_position' => $user['work_position'],
 				'avatar' => $user['avatar'],
 				'avatar_hr' => $user['avatar_hr'],
 				'gender' => $user['gender'],
+				'color' => $user['color'],
+				'type' => $user['type'],
 			];
 		}
 

@@ -15,6 +15,7 @@ use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Engine\Router;
 use Bitrix\Main\Engine\JsonPayload;
+use Bitrix\Main\Security\Sign\BadSignatureException;
 use Bitrix\Main\UI\PageNavigation;
 
 /**
@@ -178,6 +179,11 @@ class HttpApplication extends Application
 			return false;
 		}
 
+		if ($e instanceof BadSignatureException)
+		{
+			return false;
+		}
+
 		$unnecessaryCodes = [
 			self::EXCEPTION_UNKNOWN_CONTROLLER,
 			Router::EXCEPTION_INVALID_COMPONENT_INTERFACE,
@@ -190,7 +196,7 @@ class HttpApplication extends Application
 			Router::EXCEPTION_NO_COMPONENT_AJAX_CLASS,
 		];
 
-		if ($e instanceof SystemException && in_array($e->getCode(), $unnecessaryCodes, true))
+		if ($e instanceof SystemException && \in_array($e->getCode(), $unnecessaryCodes, true))
 		{
 			return false;
 		}

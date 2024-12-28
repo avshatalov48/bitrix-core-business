@@ -235,10 +235,13 @@ $aMenu[] = [
 			'workflowTemplateAutostart=' + encodeURIComponent(workflowTemplateAutostart) + '&' +
 			'workflowTemplateIsSystem=' + encodeURIComponent(workflowTemplateIsSystem) + '&' +
 			'workflowTemplateSort=' + encodeURIComponent(workflowTemplateSort) + '&' +
+			'workflowTemplateType=' + encodeURIComponent(workflowTemplateType) + '&' +
 
 			JSToPHP(arWorkflowParameters, 'arWorkflowParameters') + '&' +
 			JSToPHP(arWorkflowVariables, 'arWorkflowVariables') + '&' +
 			JSToPHP(arWorkflowConstants, 'arWorkflowConstants') + '&' +
+			JSToPHP(workflowTemplateSettings, 'workflowTemplateSettings') + '&' +
+			JSToPHP(documentCategories, 'documentCategories') + '&' +
 			JSToPHP(arWorkflowTemplate, 'arWorkflowTemplate');
 
 		if (window.workflowTemplateTrackOn)
@@ -266,11 +269,14 @@ $aMenu[] = [
 				'workflowTemplateIsSystem=' + encodeURIComponent(workflowTemplateIsSystem) + '&' +
 				'workflowTemplateSort=' + encodeURIComponent(workflowTemplateSort) + '&' +
 				'workflowTemplateId=' + encodeURIComponent(BPTemplateId || 0) + '&' +
+				'workflowTemplateType=' + encodeURIComponent(workflowTemplateType) + '&' +
 				'document_type=' + encodeURIComponent(document_type) + '&' +
 				'<?= bitrix_sessid_get() ?>' + '&' +
 				JSToPHP(arWorkflowParameters, 'arWorkflowParameters') + '&' +
 				JSToPHP(arWorkflowVariables, 'arWorkflowVariables') + '&' +
 				JSToPHP(arWorkflowConstants, 'arWorkflowConstants') + '&' +
+				JSToPHP(workflowTemplateSettings, 'workflowTemplateSettings') + '&' +
+				JSToPHP(documentCategories, 'documentCategories') + '&' +
 				JSToPHP(Array(rootActivity.Serialize()), 'arWorkflowTemplate'),
 			'height': 500,
 			'width': 800,
@@ -354,11 +360,14 @@ $aMenu[] = [
 		var wfGConstVisibilityNames = <?= CUtil::PhpToJSObject($arResult['GLOBAL_CONSTANTS_VISIBILITY_NAMES']) ?>;
 		var arWorkflowTemplate = <?=CUtil::PhpToJSObject($arResult['TEMPLATE'][0])?>;
 		var arDocumentFields = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_FIELDS'])?>;
+		var documentCategories = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_CATEGORIES'] ?? [])?>;
+		var workflowTemplateSettings = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_SETTINGS'] ?? [])?>;
 
 		var workflowTemplateName = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_NAME'])?>;
 		var workflowTemplateDescription = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_DESC'])?>;
 		var workflowTemplateAutostart = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_AUTOSTART'])?>;
 		var workflowTemplateIsSystem = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_IS_SYSTEM'])?>;
+		var workflowTemplateType = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_TYPE'])?>;
 		var workflowTemplateSort = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_SORT'])?>;
 
 		var document_type = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_TYPE'])?>;

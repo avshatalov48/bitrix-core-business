@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\Sitemap\Internals;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 
 class RuntimeTable extends Entity\DataManager
@@ -77,13 +78,14 @@ class RuntimeTable extends Entity\DataManager
 		return $fieldsMap;
 	}
 
-	public static function clearByPid($PID)
+	public static function clearByPid(int $pid): void
 	{
-		$connection = \Bitrix\Main\Application::getConnection();
-		$query = $connection->query("
-DELETE
-FROM " . self::getTableName() . "
-WHERE PID='" . intval($PID) . "'
-");
+		$connection = Application::getConnection();
+		$table = self::getTableName();
+		$connection->query("
+			DELETE
+			FROM {$table}
+			WHERE PID='{$pid}'
+		");
 	}
 }

@@ -13,6 +13,7 @@ use Bitrix\Im\Model\EO_MessageParam;
 use Bitrix\Im\V2\Error;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\RegistryEntry;
+use Bitrix\Main\ORM\Objectify\Values;
 use Bitrix\Main\Type\DateTime;
 
 /**
@@ -65,6 +66,19 @@ trait ActiveRecordImplementation
 	protected function setDataEntity(EntityObject $dataObject): self
 	{
 		$this->dataObject = $dataObject;
+		return $this;
+	}
+
+	protected function resetDataEntity(array $preselectedFields = []): self
+	{
+		$fields = $preselectedFields;
+		if ($this->dataObject)
+		{
+			$fields += $this->dataObject->collectValues(Values::ACTUAL);
+		}
+
+		$this->dataObject = static::getDataClass()::getObjectClass()::wakeUp($fields);
+
 		return $this;
 	}
 
@@ -154,7 +168,7 @@ trait ActiveRecordImplementation
 	 * @param EntityObject $dataObject
 	 * @return Result
 	 */
-	protected function initByDataEntity(EntityObject $dataObject): Result
+	protected function initByDataEntity(EntityObject $dataObject, ?array $fieldsMask = null): Result
 	{
 		$result = new Result;
 
@@ -167,6 +181,12 @@ trait ActiveRecordImplementation
 			{
 				continue;
 			}
+
+			if (!empty($fieldsMask) && !in_array($offset, $fieldsMask, true))
+			{
+				continue;
+			}
+
 			if (isset($entityFields[$offset]))
 			{
 				if (
@@ -385,9 +405,9 @@ trait ActiveRecordImplementation
 		return $result;
 	}
 
-	protected function updateState(): Result
+	protected function updateState(?array $fieldsToFill = null): Result
 	{
-		return $this->initByDataEntity($this->getDataEntity());
+		return $this->initByDataEntity($this->getDataEntity(), $fieldsToFill);
 	}
 
 	/**
@@ -478,7 +498,7 @@ trait ActiveRecordImplementation
 		}
 		$this->getDataEntity()->fill($fieldsToFill);
 
-		$this->updateState();
+		$this->updateState($fieldsToFill);
 
 		return $this;
 	}
@@ -519,6 +539,14 @@ trait ActiveRecordImplementation
 				}
 			}
 		}
+
+		return $this;
+	}
+
+	public function onAfterOrmUpdate(array $fields): self
+	{
+		$this->resetDataEntity($fields);
+		$this->updateState(array_keys($fields));
 
 		return $this;
 	}

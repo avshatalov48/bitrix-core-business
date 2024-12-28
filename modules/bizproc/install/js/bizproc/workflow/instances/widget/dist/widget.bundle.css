@@ -1,0 +1,91 @@
+.ui-image-stack-steps-image,
+.ui-image-stack-steps-counter {
+	margin-right: -6px;
+}
+
+.bp-workflow-instances-widget .ui-image-stack-steps-text {
+	border-bottom-width: 1px;
+	border-bottom-style: dashed;
+	cursor: pointer;
+}
+
+.bp-workflow-instances-widget.--empty .ui-image-stack-steps-text {
+	color: var(--ui-color-palette-gray-35);
+	cursor: not-allowed;
+}
+
+.bp-workflow-instances-widget .ui-image-stack-steps-step {
+	height: auto;
+}
+
+.bizproc-workflow-instances-popup-content .bizproc-workflow-instances-popup-title {
+	color: var(--ui-color-palette-gray-80, #6a737f);
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
+	line-height: var(--ui-font-line-height-sm);
+	margin-left: 20px;
+	margin-top: 10px;
+}
+
+.bizproc-workflow-instances-popup-content .bizproc-workflow-instances-popup-text {
+	color: var(--ui-color-palette-gray-60);
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-normal);
+	margin-left: 20px;
+	margin-right: 20px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--ui-color-palette-gray-15);
+}
+
+.bizproc-workflow-instances-popup-heads {
+	padding: 8px 20px 6px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+	align-self: stretch;
+}
+
+.bizproc-workflow-instances-popup-heads-item {
+	flex: 3;
+	color: var(--ui-color-palette-gray-60);
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-normal);
+	line-height: var(--ui-font-line-height-xl);
+}
+.bizproc-workflow-instances-popup-heads-item:first-child {
+	flex: 2;
+}
+.bizproc-workflow-instances-popup-heads-item:nth-child(2) {
+	flex: 4;
+}
+
+.bizproc-workflow-instances-popup-list {
+	padding: 2px 20px 0;
+	height: 215px;
+	overflow: hidden;
+	overflow-y: scroll;
+}
+
+.bizproc-workflow-instances-popup-list-item + .bizproc-workflow-instances-popup-list-item {
+	margin-top: 2px;
+}
+
+.bizproc-workflow-instances-popup-list-item {
+	padding: 8px 0;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	align-self: stretch;
+}
+
+.bizproc-workflow-instances-popup-list-item-faces {
+	flex: 6;
+}
+.bizproc-workflow-instances-popup-list-item-time {
+	flex: 3;
+}
+.bizproc-workflow-instances-popup-list-item-time-skeleton {
+	width: 85px;
+}

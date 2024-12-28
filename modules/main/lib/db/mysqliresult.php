@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\DB;
 
 class MysqliResult extends Result
@@ -11,8 +12,8 @@ class MysqliResult extends Result
 
 	/**
 	 * @param resource $result Database-specific query result.
-	 * @param Connection $dbConnection Connection object.
-	 * @param \Bitrix\Main\Diag\SqlTrackerQuery $trackerQuery Helps to collect debug information.
+	 * @param Connection|null $dbConnection Connection object.
+	 * @param \Bitrix\Main\Diag\SqlTrackerQuery|null $trackerQuery Helps to collect debug information.
 	 */
 	public function __construct($result, Connection $dbConnection = null, \Bitrix\Main\Diag\SqlTrackerQuery $trackerQuery = null)
 	{
@@ -47,7 +48,7 @@ class MysqliResult extends Result
 					$helper = $this->connection->getSqlHelper();
 					foreach ($fields as $field)
 					{
-						$this->resultFields[$field->name] = $helper->getFieldByColumnType($field->name, $field->type);
+						$this->resultFields[$field->name] = $helper->getFieldByColumnType($field->name ?: '(empty)', $field->type);
 					}
 				}
 			}

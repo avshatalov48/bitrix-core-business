@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\ModuleManager;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if (!CModule::IncludeModule("socialnetwork"))
@@ -7,17 +10,9 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$currentUserId = \Bitrix\Main\Engine\CurrentUser::get()?->getId();
-$isSignAvailable = \Bitrix\Main\Loader::includeModule('sign')
-	&& method_exists(\Bitrix\Sign\Config\Storage::class, 'isB2eAvailable')
-	&& \Bitrix\Sign\Config\Storage::instance()->isB2eAvailable()
-	&& $arParams['PAGE_ID'] === 'user'
-	&& (int)$arParams['ID'] === (int)$currentUserId;
-;
-
 if (!array_key_exists("MAX_ITEMS", $arParams) || intval($arParams["MAX_ITEMS"]) <= 0)
 	$arParams["MAX_ITEMS"] = 6;
-	
+
 $arParams["ID"] = intval($arParams["ID"]);
 if ($arParams["ID"] <= 0)
 	$arParams["ID"] = intval($USER->GetID());
@@ -171,6 +166,19 @@ else
 				? "Y"
 				: "N"
 		);
+
+		$currentUserId = \Bitrix\Main\Engine\CurrentUser::get()?->getId();
+		$showSignedDocuments = $arResult["User"]["IS_EXTRANET"] !== 'Y'
+			&& \Bitrix\Main\Loader::includeModule('sign')
+			&& method_exists(\Bitrix\Sign\Config\Storage::class, 'isB2eAvailable')
+			&& \Bitrix\Sign\Config\Storage::instance()->isB2eAvailable()
+			&& $arParams['PAGE_ID'] === 'user'
+			&& (int)$arParams['ID'] === (int)$currentUserId
+		;
+
+		$userService = new Bitrix\Socialnetwork\Collab\User\User($arResult['User']['ID']);
+		$arResult['User']['IS_COLLABER'] = $userService->isCollaber() ? 'Y' : 'N';
+
 		if (
 			$arResult["User"]["EXTERNAL_AUTH_ID"] == 'email'
 			&& IsModuleInstalled('mail')
@@ -221,7 +229,7 @@ else
 		$arResult["Urls"]["Calendar"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_CALENDAR"], array("user_id" => $arResult["User"]["ID"]));
 		$arResult["Urls"]["Tasks"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_TASKS"], array("user_id" => $arResult["User"]["ID"]));
 		$arResult["Urls"]["Files"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_FILES"], array("user_id" => $arResult["User"]["ID"], "path" => ""));
-		if ($isSignAvailable)
+		if ($showSignedDocuments)
 		{
 			$arResult["Urls"]["Sign"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_SIGN"], ["user_id" => $arResult["User"]["ID"]]);
 		}
@@ -251,23 +259,29 @@ else
 
 		$arResult["CanView"]["tasks"] = (array_key_exists("tasks", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "tasks", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 
-		$arResult["CanView"]["calendar"] = (
-			array_key_exists("calendar", $arResult["ActiveFeatures"])
-			&& (
-				!IsModuleInstalled("extranet")
-				|| (
-					isset($arResult["User"]["UF_DEPARTMENT"])
-					&& is_array($arResult["User"]["UF_DEPARTMENT"])
-					&& !empty($arResult["User"]["UF_DEPARTMENT"])
-				)
-			)
-		);
+		if (\Bitrix\Socialnetwork\Integration\Intranet\User::isIntranet((int)$currentUserId))
+		{
+			$arResult["CanView"]["calendar"] = (array_key_exists("calendar", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "calendar", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
+		}
+
 		$arResult["CanView"]["microblog"] = (array_key_exists("microblog", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "blog", "view_post", CSocNetUser::IsCurrentUserModuleAdmin()));
-		$arResult["CanView"]["blog"] = (array_key_exists("blog", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "blog", "view_post", CSocNetUser::IsCurrentUserModuleAdmin()));
+
+		if (
+			$arResult['User']['IS_COLLABER'] !== 'Y'
+			&& !\Bitrix\Socialnetwork\Integration\Extranet\User::isCollaber((int)$currentUserId)
+		)
+		{
+			$arResult["CanView"]["blog"] = (array_key_exists("blog", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "blog", "view_post", CSocNetUser::IsCurrentUserModuleAdmin()));
+		}
+		else
+		{
+			$arResult["CurrentUserPerms"]["Operations"]["viewgroups"] = false;
+		}
+
 		$arResult["CanView"]["photo"] = (array_key_exists("photo", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "photo", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 		$arResult["CanView"]["forum"] = (array_key_exists("forum", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "forum", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 		$arResult["CanView"]["content_search"] = (array_key_exists("search", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
-		if ($isSignAvailable)
+		if ($showSignedDocuments)
 		{
 			$arResult["CanView"]["sign"] = (array_key_exists("sign", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "sign", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 		}
@@ -281,11 +295,16 @@ else
 		$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["files"] <> '') ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_DISK"));
 		$arResult["Title"]["content_search"] = ((array_key_exists("search", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["search"] <> '') ? $arResult["ActiveFeatures"]["search"] : GetMessage("SONET_UM_SEARCH"));
 
-		if ($isSignAvailable)
+		if ($showSignedDocuments)
 		{
+			$signVersion = (string)ModuleManager::getVersion('sign');
+			$signTitle = (version_compare($signVersion, '24.1200.0') === -1)
+				? GetMessage("SONET_UM_SIGN")
+				: GetMessage("SONET_UM_SIGN_MY_DOCUMENTS");
+
 			$arResult["Title"]["sign"] = ((array_key_exists("sign", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["sign"] <> '')
 				? $arResult["ActiveFeatures"]["sign"]
-				: GetMessage("SONET_UM_SIGN"));
+				: $signTitle);
 		}
 
 		$a = array_keys($arResult["Urls"]);
@@ -303,19 +322,19 @@ else
 		$externalAuthIdPerms = \Bitrix\Socialnetwork\Util::getPermissionsByExternalAuthId($arResult["User"]["EXTERNAL_AUTH_ID"]);
 
 		$arResult["CAN_MESSAGE"] = (
-			($GLOBALS["USER"]->GetID() != $arResult["User"]["ID"]) 
+			($GLOBALS["USER"]->GetID() != $arResult["User"]["ID"])
 			&& ($arResult["User"]["ACTIVE"] != "N")
 			&& (
-				IsModuleInstalled("im") 
+				IsModuleInstalled("im")
 				|| $arResult["CurrentUserPerms"]["Operations"]["message"]
 			)
 			&& $externalAuthIdPerms['message']
 		);
 
 		$arResult["CAN_MESSAGE_HISTORY"] = (
-			($GLOBALS["USER"]->GetID() != $arResult["User"]["ID"]) 
+			($GLOBALS["USER"]->GetID() != $arResult["User"]["ID"])
 			&& (
-				IsModuleInstalled("im") 
+				IsModuleInstalled("im")
 				|| (
 					$arResult["CurrentUserPerms"]["Operations"]["message"]
 					&& ($arResult["User"]["ACTIVE"] != "N")
@@ -325,7 +344,7 @@ else
 		);
 
 		$arResult["CAN_VIDEO_CALL"] = (
-			($GLOBALS["USER"]->GetID() != $arResult["User"]["ID"]) 
+			($GLOBALS["USER"]->GetID() != $arResult["User"]["ID"])
 			&& ($arResult["User"]["ACTIVE"] != "N")
 			&& ($arResult["CurrentUserPerms"]["Operations"]["videocall"] ?? false)
 		);

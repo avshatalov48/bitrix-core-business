@@ -7,7 +7,7 @@ CJSCore::Init();
 CMobile::Init();
 ?>
 <!DOCTYPE html>
-<html<?=$APPLICATION->ShowProperty("Manifest");?> class="<?=CMobile::$platform;?>">
+<html<? $APPLICATION->ShowProperty("Manifest");?> class="<?=CMobile::$platform;?>">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=<?=SITE_CHARSET?>"/>
 		<meta name="format-detection" content="telephone=no">
@@ -19,7 +19,7 @@ CMobile::Init();
 		?>
 		<title><?$APPLICATION->ShowTitle()?></title>
 	</head>
-	<body class="<?=$APPLICATION->ShowProperty("BodyClass")?>">
+	<body class="<? $APPLICATION->ShowProperty("BodyClass")?>">
 		<?=$mobileAdminPageHtml?>
 	</body>
 </html>

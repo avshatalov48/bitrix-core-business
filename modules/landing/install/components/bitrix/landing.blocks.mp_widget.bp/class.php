@@ -1,12 +1,12 @@
 <?php
 
+use Bitrix\Landing\Mainpage;
 use Bitrix\Iblock\ElementTable;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetAverageIBlockTemplateDurationRequest;
 use Bitrix\Lists\Api\Service\ServiceFactory\ServiceFactory;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\Uri;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -56,7 +56,7 @@ class LandingBlocksMainpageWidgetBP extends LandingBlocksMainpageWidgetBase
 	protected function getData(): void
 	{
 		$this->arResult['SHOW_EMPTY_STATE'] = false;
-		if (Option::get('landing', 'use_demo_data_in_block_widgets') === 'Y')
+		if (Mainpage\Manager::isUseDemoData())
 		{
 			$data = $this->getDemoData();
 		}

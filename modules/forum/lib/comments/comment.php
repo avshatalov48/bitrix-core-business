@@ -409,7 +409,8 @@ class Comment extends BaseObject
 					"TOPIC_ID" => $this->topic["ID"],
 					"MESSAGE_ID" => $this->message["ID"],
 					"MESSAGE" => $this->getComment(),
-					"ACTION" => "DEL"
+					"ACTION" => "DEL",
+					'USER_ID' => $this->getUser()?->getId(),
 				));
 			/***************** Events OnBeforeCommentDelete ******************/
 			$event = new Event("forum", "OnBeforeCommentDelete", $fields);

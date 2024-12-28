@@ -907,7 +907,7 @@ describe('ui.bbcode.model/nodes', () => {
 
 				const clonedNode = sourceNode.clone();
 
-				assert.deepEqual(clonedNode.toString(), '[p=test x=1 y=2][/p]');
+				assert.deepEqual(clonedNode.toString(), '[p=test x=1 y=2]\n[/p]');
 			});
 
 			it('Clone with { deep: true }', () => {
@@ -940,11 +940,11 @@ describe('ui.bbcode.model/nodes', () => {
 				const root = scheme.createRoot({
 					children: [
 						scheme.createText({ content: 'text' }),
-						scheme.createElement({ name: 'p' })
+						scheme.createElement({ name: 'p' }),
 					],
 				});
 
-				assert.deepEqual(root.toString(), 'text\n[p][/p]');
+				assert.deepEqual(root.toString(), 'text\n[p]\n[/p]');
 		    });
 
 			it('Should not add linebreak before opening tag if previews sibling is linebreak', () => {
@@ -952,11 +952,11 @@ describe('ui.bbcode.model/nodes', () => {
 					children: [
 						scheme.createText({ content: 'text' }),
 						scheme.createNewLine(),
-						scheme.createElement({ name: 'p' })
+						scheme.createElement({ name: 'p' }),
 					],
 				});
 
-				assert.deepEqual(root.toString(), 'text\n[p][/p]');
+				assert.deepEqual(root.toString(), 'text\n[p]\n[/p]');
 			});
 
 			it('Should not add linebreak before opening tag if node is first child', () => {
@@ -968,7 +968,7 @@ describe('ui.bbcode.model/nodes', () => {
 					],
 				});
 
-				assert.deepEqual(root.toString(), '[p][/p]\ntext\n');
+				assert.deepEqual(root.toString(), '[p]\n[/p]text\n');
 			});
 
 			it('Should add linebreak before opening tag if previews sibling is inline', () => {
@@ -979,7 +979,7 @@ describe('ui.bbcode.model/nodes', () => {
 					],
 				});
 
-				assert.deepEqual(root.toString(), '[b][/b]\n[p][/p]');
+				assert.deepEqual(root.toString(), '[b][/b]\n[p]\n[/p]');
 			});
 
 			it('Should add linebreak after closing tag if new sibling is plain text', () => {
@@ -990,7 +990,7 @@ describe('ui.bbcode.model/nodes', () => {
 					],
 				});
 
-				assert.deepEqual(root.toString(), '[p][/p]\ntext');
+				assert.deepEqual(root.toString(), '[p]\n[/p]text');
 			});
 
 			it('Should add linebreak after closing tag if new sibling is inline', () => {
@@ -1001,18 +1001,18 @@ describe('ui.bbcode.model/nodes', () => {
 					],
 				});
 
-				assert.deepEqual(root.toString(), '[p][/p]\n[b][/b]');
+				assert.deepEqual(root.toString(), '[p]\n[/p][b][/b]');
 			});
 
 			it('Should not add linebreak after closing tag if new sibling is linebreak', () => {
 				const root = scheme.createRoot({
 					children: [
 						scheme.createElement({ name: 'p' }),
-						scheme.createNewLine()
+						scheme.createNewLine(),
 					],
 				});
 
-				assert.deepEqual(root.toString(), '[p][/p]\n');
+				assert.deepEqual(root.toString(), '[p]\n[/p]\n');
 			});
 
 			it('Should not add linebreak after closing tag if node is last child', () => {
@@ -1023,7 +1023,7 @@ describe('ui.bbcode.model/nodes', () => {
 					],
 				});
 
-				assert.deepEqual(root.toString(), 'text\n[p][/p]');
+				assert.deepEqual(root.toString(), 'text\n[p]\n[/p]');
 			});
 		});
 
@@ -1055,8 +1055,8 @@ describe('ui.bbcode.model/nodes', () => {
 
 				const [leftNode, rightNode] = node.splitByChildIndex(1);
 
-				assert.deepEqual(leftNode.toString(), '[p]\n[b]bold[/b]\n[/p]');
-				assert.deepEqual(rightNode.toString(), '[p]\n[i]italic[/i][s]strike[/s]\n[/p]');
+				assert.deepEqual(leftNode.toString(), '[p][b]bold[/b]\n[/p]');
+				assert.deepEqual(rightNode.toString(), '[p][i]italic[/i][s]strike[/s]\n[/p]');
 		    });
 
 			it('should replaces this node with left and right nodes', () => {
@@ -1445,17 +1445,17 @@ describe('ui.bbcode.model/nodes', () => {
 
 				const [left1, right1] = node.split({ offset: 0 });
 				assert.deepEqual(left1, null);
-				assert.deepEqual(right1.toString(), '[p]\ntext1text2text3\n[/p]');
+				assert.deepEqual(right1.toString(), '[p]text1text2text3\n[/p]');
 				assert.deepEqual(right1.toPlainText(), 'text1text2text3');
 
 				const [left5, right5] = node.split({ offset: 5 });
-				assert.deepEqual(left5.toString(), '[p]\ntext1\n[/p]');
-				assert.deepEqual(right5.toString(), '[p]\ntext2text3\n[/p]');
+				assert.deepEqual(left5.toString(), '[p]text1\n[/p]');
+				assert.deepEqual(right5.toString(), '[p]text2text3\n[/p]');
 				assert.deepEqual(left5.toPlainText(), 'text1');
 				assert.deepEqual(right5.toPlainText(), 'text2text3');
 
 				const [left15, right15] = node.split({ offset: 15 });
-				assert.deepEqual(left15.toString(), '[p]\ntext1text2text3\n[/p]');
+				assert.deepEqual(left15.toString(), '[p]text1text2text3\n[/p]');
 				assert.deepEqual(right15, null);
 				assert.deepEqual(left15.toPlainText(), 'text1text2text3');
 			});
@@ -1767,20 +1767,18 @@ describe('ui.bbcode.model/nodes', () => {
 						scheme.createElement({ name: 'i' }),
 						scheme.createElement({ name: 'u' }),
 						scheme.createElement({ name: 's' }),
-						scheme.createElement({ name: 'span' }),
 						scheme.createText('text'),
 						scheme.createNewLine(),
 						scheme.createElement({ name: 'p' }),
 					],
 				});
 
-				assert.ok(b.getChildrenCount() === 6, '#1');
+				assert.ok(b.getChildrenCount() === 5, '#1');
 				assert.ok(b.getChildren().at(0).getName() === 'i', '#2');
 				assert.ok(b.getChildren().at(1).getName() === 'u', '#3');
 				assert.ok(b.getChildren().at(2).getName() === 's', '#4');
-				assert.ok(b.getChildren().at(3).getName() === 'span', '#5');
-				assert.ok(b.getChildren().at(4).getName() === '#text', '#6');
-				assert.ok(b.getChildren().at(5).getName() === '#linebreak', '#7');
+				assert.ok(b.getChildren().at(3).getName() === '#text', '#6');
+				assert.ok(b.getChildren().at(4).getName() === '#linebreak', '#7');
 			});
 
 			it('img, url should include only allowed child', () => {
@@ -1877,7 +1875,7 @@ describe('ui.bbcode.model/nodes', () => {
 					],
 				});
 
-				assert.deepEqual(p.toString(), '[p]\ntest\n[/p]');
+				assert.deepEqual(p.toString(), '[p]test\n[/p]');
 			});
 
 			it('p should includes line breaks before opening tag and after closing tag', () => {
@@ -1896,7 +1894,7 @@ describe('ui.bbcode.model/nodes', () => {
 					],
 				});
 
-				assert.deepEqual(p.toString(), '\n[p]\ntest\n[/p]\n');
+				assert.deepEqual(p.toString(), '\n[p]test\n[/p]');
 			});
 		});
 

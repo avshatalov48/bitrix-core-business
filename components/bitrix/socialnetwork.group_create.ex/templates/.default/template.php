@@ -28,6 +28,7 @@ UI\Extension::load([
 	'socialnetwork.common',
 	'intranet_theme_picker',
 	'ui.lottie',
+	'im.public.iframe',
 ]);
 
 $messages = Loc::loadLanguageFile(__FILE__);
@@ -157,7 +158,8 @@ else
 						expandableSettingsNodeId: 'sonet_group_create_settings_expandable',
 						stepsCount: <?= ($arResult['USE_PRESETS'] === 'Y' && $arParams['GROUP_ID'] <= 0 ? 4 : 1) ?>,
 						focus: '<?= CUtil::JSEscape(\Bitrix\Main\Context::getCurrent()->getRequest()->get('focus')) ?>',
-						culture: <?= CUtil::phpToJSObject($arResult['culture']) ?>
+						culture: <?= CUtil::phpToJSObject($arResult['culture']) ?>,
+						currentUserType: '<?= CUtil::JSEscape($arResult['currentUserType']) ?>',
 					});
 				}
 			);

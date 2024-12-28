@@ -486,6 +486,28 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	}
 
 	/**
+	 * Returns all values of collection objects as an array.
+	 *
+	 * @param int $valuesType
+	 * @param int $fieldsMask
+	 * @param bool $recursive
+	 *
+	 * @return array
+	 * @throws SystemException
+	 */
+	final public function collectValues(int $valuesType = Values::ALL, int $fieldsMask = FieldTypeMask::ALL, bool $recursive = false): array
+	{
+		$data = [];
+
+		foreach ($this as $item)
+		{
+			$data[$this->sysGetPrimaryKey($item)] = $item->collectValues($valuesType, $fieldsMask, $recursive);
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Magic read-only properties
 	 *
 	 * @param $name

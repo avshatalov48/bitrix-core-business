@@ -192,6 +192,7 @@ abstract class PrototypeItemDataManager extends ORM\Data\DataManager
 			if(is_array($data[$fieldName]) && $field['MULTIPLE'] === 'Y')
 			{
 				$multiValues[$fieldName] = array_filter($data[$fieldName], array('static', 'isNotNull'));
+				$multiValues[$fieldName] = array_filter($multiValues[$fieldName], static fn($item) => !is_array($item));
 			}
 			elseif($field['USER_TYPE']['BASE_TYPE'] === 'file')
 			{

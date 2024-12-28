@@ -18,7 +18,7 @@
 					<a class="g-color-primary" href="#!">#rutrum</a>
 					velit diam, quis pellentesque libero hendrerit a.
 				</blockquote>
-				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, <?= date("Y") ?></div>
+				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, #YEAR#</div>
 			</div>
 		</div>
 
@@ -38,7 +38,7 @@
 					<a class="g-color-primary" href="#!">#rutrum</a>
 					velit diam, quis pellentesque libero hendrerit a.
 				</blockquote>
-				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, <?= date("Y") ?></div>
+				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, #YEAR#</div>
 			</div>
 		</div>
 	</div>

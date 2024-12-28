@@ -45,4 +45,9 @@ class UserExtranet extends User
 
 		return $result->addError(new ChatError(ChatError::ACCESS_DENIED));
 	}
+
+	public function getType(): UserType
+	{
+		return UserType::EXTRANET;
+	}
 }

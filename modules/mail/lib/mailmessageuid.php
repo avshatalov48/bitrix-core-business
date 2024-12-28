@@ -7,9 +7,10 @@ use Bitrix\Mail\Helper\MessageEventManager;
 use Bitrix\Mail\Internals\MessageUploadQueueTable;
 use Bitrix\Main\DB\Connection;
 use Bitrix\Main\Entity;
-use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Localization;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -31,11 +32,17 @@ Localization\Loc::loadMessages(__FILE__);
  */
 class MailMessageUidTable extends Entity\DataManager
 {
-	const OLD = 'Y';
-	const RECENT = 'N';
-	const DOWNLOADED = 'D';
-	const MOVING = 'M';
-	const REMOTE = 'R';
+	public const OLD = 'Y';
+	public const RECENT = 'N';
+	public const DOWNLOADED = 'D';
+	public const MOVING = 'M';
+	public const REMOTE = 'R';
+
+	public const EXCLUDED_COUNTER_STATUSES = [
+		self::MOVING,
+		self::REMOTE,
+		self::OLD,
+	];
 
 	public static function getFilePath()
 	{
@@ -472,6 +479,12 @@ class MailMessageUidTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'default' => 0,
 			),
+			new Reference(
+				'MESSAGE_TABLE',
+				MailMessageTable::class,
+				Join::on('this.MESSAGE_ID', 'ref.ID')
+					->whereColumn('this.MAILBOX_ID', 'ref.MAILBOX_ID')
+			),
 		);
 	}
 	/**
@@ -484,19 +497,32 @@ class MailMessageUidTable extends Entity\DataManager
 		$parameters = $event->getParameters();
 		if ($parameters['primary'] && is_set($parameters['fields']['IS_OLD']))
 		{
-			$message = self::getById($parameters['primary'])->fetch();
+			$message = self::getByPrimary($parameters['primary'], [
+				'select' => [
+					'MAILBOX_ID',
+					'DIR_MD5',
+					'INTERNALDATE'
+				],
+			])->fetch();
+
 			if (!$message)
 			{
 				return $result;
 			}
 
+			$internalDate = $message['INTERNALDATE'];
 			$mailboxId = (int)$message['MAILBOX_ID'];
 			$dirMd5 = $message['DIR_MD5'];
 
-			$updateResult = MessageInternalDateHandler::clearStartInternalDate($mailboxId, $dirMd5);
-			if (!$updateResult->isSuccess())
+			$startInternalDate = MessageInternalDateHandler::getStartInternalDateForDir($mailboxId, dirMd5: $dirMd5);
+
+			if (!is_null($startInternalDate) && $internalDate <= $startInternalDate)
 			{
-				$result->setErrors($updateResult->getErrors());
+				$updateResult = MessageInternalDateHandler::clearStartInternalDate($mailboxId, $dirMd5);
+				if (!$updateResult->isSuccess())
+				{
+					$result->setErrors($updateResult->getErrors());
+				}
 			}
 		}
 

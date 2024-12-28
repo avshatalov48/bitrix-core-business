@@ -5,8 +5,7 @@ namespace Bitrix\Calendar\Sharing;
 use Bitrix\Bitrix24\Form\AbuseZoneMap;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Base\DateTimeZone;
-use Bitrix\Calendar\Core\Event\Tools\Dictionary;
-use Bitrix\Calendar\Internals\EventTable;
+use Bitrix\Calendar\Integration\SocialNetwork\GroupService;
 use Bitrix\Main\Web\Uri;
 use Bitrix\UI\Form\FeedbackForm;
 use Bitrix\Main;
@@ -38,6 +37,8 @@ class Helper
 
 	protected const ABUSE_SENDER_PAGE = 'page';
 	protected const ABUSE_SENDER_EMAIL = 'email';
+
+	private static array $shortUrl = [];
 
 	/**
 	 * @return ?string
@@ -104,7 +105,14 @@ class Helper
 	 */
 	public static function getShortUrl(string $url): string
 	{
-		return \CCalendar::GetServerPath() . \CBXShortUri::getShortUri($url);
+		if (isset(self::$shortUrl[$url]))
+		{
+			return self::$shortUrl[$url];
+		}
+
+		self::$shortUrl[$url] = \CCalendar::GetServerPath() . \CBXShortUri::getShortUri($url);
+
+		return self::$shortUrl[$url];
 	}
 
 	/**
@@ -147,6 +155,28 @@ class Helper
 			'photo' => $arFileTmp['src'] ?? null,
 			'gender' => $user['PERSONAL_GENDER'] ?? null,
 		];
+	}
+
+	public static function getGroupOwnerInfo(int $groupId): array
+	{
+		$group = GroupService::getInstance()->getGroup($groupId);
+		$groupInfo = (new Sharing\Link\Member\Group($group))->toArray();
+
+		return [
+			'id' => $groupInfo['id'],
+			'name' => $groupInfo['name'],
+			'lastName' => null,
+			'photo' => $groupInfo['avatar'],
+			'gender' => null,
+		];
+	}
+
+	public static function getLinkOwnerInfo(array $link): array
+	{
+		return match ($link['type']) {
+			Sharing\Link\Helper::GROUP_SHARING_TYPE => self::getGroupOwnerInfo($link['groupId']),
+			default => self::getOwnerInfo($link['userId']),
+		};
 	}
 
 	/**

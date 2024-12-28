@@ -551,32 +551,32 @@ class CAppleInterface extends CSocServOAuthTransport
 	private static function convertDERSignature(string $der, int $partLength): string
 	{
 		$hex = unpack('H*', $der)[1];
-		if ('30' !== mb_substr($hex, 0, 2, '8bit'))
+		if ('30' !== substr($hex, 0, 2))
 		{ // SEQUENCE
 			throw new \RuntimeException();
 		}
-		if ('81' === mb_substr($hex, 2, 2, '8bit'))
+		if ('81' === substr($hex, 2, 2))
 		{ // LENGTH > 128
-			$hex = mb_substr($hex, 6, null, '8bit');
+			$hex = substr($hex, 6);
 		}
 		else
 		{
-			$hex = mb_substr($hex, 4, null, '8bit');
+			$hex = substr($hex, 4);
 		}
-		if ('02' !== mb_substr($hex, 0, 2, '8bit'))
+		if ('02' !== substr($hex, 0, 2))
 		{ // INTEGER
 			throw new \RuntimeException();
 		}
-		$Rl = hexdec(mb_substr($hex, 2, 2, '8bit'));
-		$R = self::retrievePositiveInteger(mb_substr($hex, 4, $Rl * 2, '8bit'));
+		$Rl = hexdec(substr($hex, 2, 2));
+		$R = self::retrievePositiveInteger(substr($hex, 4, $Rl * 2));
 		$R = str_pad($R, $partLength, '0', STR_PAD_LEFT);
-		$hex = mb_substr($hex, 4 + $Rl * 2, null, '8bit');
-		if ('02' !== mb_substr($hex, 0, 2, '8bit'))
+		$hex = substr($hex, 4 + $Rl * 2);
+		if ('02' !== substr($hex, 0, 2))
 		{ // INTEGER
 			throw new \RuntimeException();
 		}
-		$Sl = hexdec(mb_substr($hex, 2, 2, '8bit'));
-		$S = self::retrievePositiveInteger(mb_substr($hex, 4, $Sl * 2, '8bit'));
+		$Sl = hexdec(substr($hex, 2, 2));
+		$S = self::retrievePositiveInteger(substr($hex, 4, $Sl * 2));
 		$S = str_pad($S, $partLength, '0', STR_PAD_LEFT);
 
 		return pack('H*', $R . $S);
@@ -589,9 +589,9 @@ class CAppleInterface extends CSocServOAuthTransport
 	 */
 	private static function retrievePositiveInteger(string $data): string
 	{
-		while ('00' === mb_substr($data, 0, 2, '8bit') && mb_substr($data, 2, 2, '8bit') > '7f')
+		while ('00' === substr($data, 0, 2) && substr($data, 2, 2) > '7f')
 		{
-			$data = mb_substr($data, 2, null, '8bit');
+			$data = substr($data, 2);
 		}
 		return $data;
 	}

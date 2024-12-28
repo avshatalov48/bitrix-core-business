@@ -18,6 +18,7 @@ import { SupportPreview } from './blocks/support-preview';
 import { FileUnsortedPreview } from './blocks/file-unsorted';
 import { MultidialogPreview } from './blocks/multidialog';
 import { TariffLimitPreview } from './blocks/tariff-limit';
+import { CollabHelpdeskPreview } from './blocks/collab-helpdesk';
 import { SidebarSkeleton } from '../../elements/skeleton/skeleton';
 
 import './css/main-panel.css';
@@ -45,6 +46,7 @@ export const MainPanel = {
 		CopilotPreview,
 		CopilotInfoPreview,
 		TariffLimitPreview,
+		CollabHelpdeskPreview,
 	},
 	props:
 	{

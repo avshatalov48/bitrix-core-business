@@ -5,7 +5,7 @@ import { Timestamp, UserId } from 'bizproc.types';
 import 'ui.icons.b24';
 import 'ui.hint';
 import { TextCrop } from 'ui.textcrop';
-import { Popup } from 'main.popup';
+import { Popup, Menu } from 'main.popup';
 import { TaskStatus, TaskUserData, TaskData } from 'bizproc.task';
 import { DateTimeFormat } from 'main.date';
 import { ErrorsView } from './views/errors-view';
@@ -44,7 +44,14 @@ export type TimelineData = {
 	users: Map<UserId, TimelineUserData>,
 	userStatuses: Map<UserId, TaskStatus>,
 	stats: TimelineStatsData,
+	biMenu?: Array<BiMenuItem>,
 };
+
+type BiMenuItem = {
+	ID: string,
+	TEXT: string,
+	URL: string,
+}
 
 export class DurationFormatter
 {
@@ -60,7 +67,7 @@ export class DurationFormatter
 	{
 		for (const limit of this.#limits)
 		{
-			if (seconds > limit[0])
+			if (seconds >= limit[0])
 			{
 				return limit[1];
 			}
@@ -244,6 +251,7 @@ export class Timeline
 						averageDuration: getInteger(response.data.stats.averageDuration, null),
 						efficiency: getString(response.data.stats.efficiency),
 					},
+					biMenu: getArray(response.data.biMenu, null),
 				};
 
 				for (const user of getArray(response.data.users))
@@ -276,7 +284,10 @@ export class Timeline
 		{
 			Dom.replace(this.#container, this.#renderContainer());
 			this.#createEfficiencyPopup().show();
-			// this.showBiPopup();
+			if (this.#data.biMenu)
+			{
+				this.showBiMenus(this.#data.biMenu);
+			}
 		}
 
 		return this.#container;
@@ -347,7 +358,7 @@ export class Timeline
 		let avatar = '<i></i>';
 		if (Type.isString(user.avatarSize100))
 		{
-			avatar = `<i style="background-image: url('${user.avatarSize100}')"></i>`;
+			avatar = `<i style="background-image: url('${encodeURI(user.avatarSize100)}')"></i>`;
 		}
 		const button = (task?.id && isWaiting) ? this.#renderProceedTaskButton(task) : '';
 
@@ -835,31 +846,53 @@ export class Timeline
 		return popup;
 	}
 
-	showBiPopup(): void
+	showBiMenus(menu: Array<BiMenuItem>): void
 	{
-		this.#getBiPopup().show();
+		this.#createBiButton(menu);
+		this.#createBiPopup(menu).show();
 	}
 
-	#getBiPopup(): Popup
+	#createBiButton(menu: Array<BiMenuItem>): void
 	{
-		if (!this.#biPopup)
+		const toolbarNode = document.querySelector('[data-role="page-toolbar"]');
+		if (!toolbarNode)
 		{
-			return this.#createBiPopup();
+			return;
 		}
 
-		return this.#biPopup;
+		if (menu.length === 1)
+		{
+			const linkBtn = Tag.render`
+				<a class="ui-btn ui-btn-light-border ui-btn-themes" href="${Text.encode(menu[0].URL)}">
+					${Text.encode(Loc.getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_BUTTON'))}
+				</a>
+			`;
+
+			Dom.prepend(linkBtn, toolbarNode);
+
+			return;
+		}
+
+		const clickHandler = this.#showBiMenu.bind(this, menu);
+		const dropBtn = Tag.render`
+			<button class="ui-btn ui-btn-light-border ui-btn-themes ui-btn-dropdown" onclick="${clickHandler}">
+				${Text.encode(Loc.getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_BUTTON'))}
+			</button>
+		`;
+
+		Dom.prepend(dropBtn, toolbarNode);
 	}
 
-	#createBiPopup(): Popup
+	#createBiPopup(menu: Array<BiMenuItem>): Popup
 	{
 		this.#biPopup = new Popup({
 			width: 403,
 			minHeight: 183,
 			closeIcon: true,
-			content: this.#renderBiPopupContent(),
+			content: this.#renderBiPopupContent(menu),
 			bindElement: {
-				left: 207,
-				top: 482,
+				left: 555,
+				top: 502,
 			},
 			padding: 17,
 			borderRadius: '18px',
@@ -869,15 +902,48 @@ export class Timeline
 		return this.#biPopup;
 	}
 
-	#renderBiPopupContent()
+	#showBiMenu(menu: Array<BiMenuItem>, event: Event): void
 	{
+		(new Menu({
+			bindElement: event.target,
+			items: menu.map((item: BiMenuItem) => {
+				return {
+					text: item.TEXT,
+					href: item.URL,
+				};
+			}),
+		})).show();
+	}
+
+	#renderBiPopupContent(menu: Array<BiMenuItem>): Element
+	{
+		let btn = null;
+		if (menu.length === 1)
+		{
+			btn = Tag.render`
+				<a class="ui-btn ui-btn-light-border ui-btn-round ui-btn-xs" href="${Text.encode(menu[0].URL)}">
+					<span class="ui-btn-text">${Loc.getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_LINK')}</span>
+				</a>
+			`;
+		}
+		else
+		{
+			const clickHandler = this.#showBiMenu.bind(this, menu);
+			btn = Tag.render`
+				<a 
+					class="ui-btn ui-btn-light-border ui-btn-round ui-btn-xs ui-btn-dropdown"
+					onclick="${clickHandler}"
+				>
+					<span class="ui-btn-text">${Loc.getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_LINK')}</span>
+				</a>
+			`;
+		}
+
 		return Tag.render`
 			<div class="bizproc-timeline-popup">
 				<div class="bizproc-timeline-popup-title">${Loc.getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_TITLE')}</div>
 				<p class="bizproc-timeline-popup-info">${Loc.getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_TIP')}</p>
-				<button class="ui-btn ui-btn-light-border ui-btn-round ui-btn-xs">
-					<span class="ui-btn-text">${Loc.getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_LINK')}</span>
-				</button>
+				${btn}
 			</div>
 		`;
 	}

@@ -541,6 +541,20 @@ this.BX = this.BX || {};
 	    const bx = calendar_util.Util.getBX();
 	    return new bx.Calendar.Controls.EmailLimitationDialog();
 	  }
+	  static async downloadIcs(eventId) {
+	    const {
+	      status,
+	      data
+	    } = await calendar_util.Util.getBX().ajax.runAction('calendar.api.calendarentryajax.getIcsContent', {
+	      data: {
+	        eventId
+	      }
+	    });
+	    if (status !== 'success') {
+	      return;
+	    }
+	    calendar_util.Util.downloadIcsFile(data, 'event');
+	  }
 	}
 	EntryManager$$1.newEntryName = '';
 	EntryManager$$1.userIndex = {};

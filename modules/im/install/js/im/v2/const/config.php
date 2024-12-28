@@ -10,6 +10,7 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'imopenlines.v2.const',
 		'im.v2.const',
 	],
 	'skip_core' => true,

@@ -12,7 +12,10 @@ use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Integration\Im\ChatFactory;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 use Bitrix\Socialnetwork\Item;
+use Bitrix\Socialnetwork\Provider\GroupProvider;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
 Loc::loadMessages(__FILE__);
@@ -22,9 +25,9 @@ class Workgroup
 	const CHAT_ENTITY_TYPE = "SONET_GROUP";
 	private static $staticCache = array();
 
-	public static function getUseChat()
+	public static function getUseChat(): bool
 	{
-		return (Option::get('socialnetwork', 'use_workgroup_chat', "Y") == "Y");
+		return Option::get('socialnetwork', 'use_workgroup_chat', "Y") === "Y";
 	}
 
 	public static function getChatData($params)
@@ -34,7 +37,6 @@ class Workgroup
 		if (
 			!array($params)
 			|| !isset($params['group_id'])
-			|| !self::getUseChat()
 			|| !Loader::includeModule('im')
 		)
 		{
@@ -59,16 +61,35 @@ class Workgroup
 			$params['group_id']
 		))));
 
+
+		$groupIds = $params['group_id'];
+
+		if (!static::getUseChat())
+		{
+			$provider = GroupProvider::getInstance();
+			$provider->loadGroupTypes(...$groupIds);
+
+			$groupIds = array_filter(
+				$groupIds,
+				static fn (int $groupId): bool => $provider->getGroupType($groupId) === Item\Workgroup\Type::Collab
+			);
+		}
+
+		if (empty($groupIds))
+		{
+			return $result;
+		}
+
 		if (
 			!isset($params['skipAvailabilityCheck'])
 			|| !$params['skipAvailabilityCheck']
 		)
 		{
-			foreach($params['group_id'] as $key => $value)
+			foreach($groupIds as $key => $value)
 			{
 				if (!self::getGroupChatAvailable($value))
 				{
-					unset($params['group_id'][$key]);
+					unset($groupIds[$key]);
 				}
 			}
 		}
@@ -77,7 +98,7 @@ class Workgroup
 			'select' => Array('ID', 'ENTITY_ID'),
 			'filter' => array(
 				'=ENTITY_TYPE' => self::CHAT_ENTITY_TYPE,
-				'@ENTITY_ID' => $params['group_id']
+				'@ENTITY_ID' => $groupIds
 			)
 		));
 		while ($chat = $res->fetch())
@@ -99,6 +120,12 @@ class Workgroup
 			return $result;
 		}
 
+		$groupType = GroupProvider::getInstance()->getGroupType($groupId);
+		if ($groupType === Item\Workgroup\Type::Collab)
+		{
+			return true;
+		}
+
 		$activeFeatures = \CSocNetFeatures::getActiveFeatures(SONET_ENTITY_GROUP, $groupId);
 		if (
 			is_array($activeFeatures)
@@ -113,119 +140,76 @@ class Workgroup
 
 	public static function createChat($params)
 	{
-		$result = false;
-
-		if (
-			!array($params)
-			|| !isset($params['group_id'])
-			|| intval($params['group_id']) <= 0
-			|| !self::getUseChat()
-			|| !Loader::includeModule('im')
-		)
+		$groupId = (int)($params['group_id'] ?? 0);
+		if ($groupId <= 0)
 		{
-			return $result;
+			return false;
 		}
 
-		$groupItem = Item\Workgroup::getById($params['group_id']);
-		if (!$groupItem)
+		if (!Loader::includeModule('im'))
 		{
-			return $result;
+			return false;
 		}
 
-		$groupFields = $groupItem->getFields();
-		$project = $groupItem->isProject();
-
-		$userIdList = array();
-
-		$res = UserToGroupTable::getList(array(
-			'filter' => array(
-				'GROUP_ID' => $params['group_id'],
-				'@ROLE' => UserToGroupTable::getRolesMember()
-			),
-			'select' => array('USER_ID')
-		));
-
-		while($relation = $res->fetch())
+		$group = GroupRegistry::getInstance()->get($groupId);
+		if ($group === null)
 		{
-			$userIdList[] = intval($relation['USER_ID']);
+			return false;
 		}
 
-		if (empty($userIdList))
+		if (!$group->isCollab() && !static::getUseChat())
 		{
-			$userIdList = array($groupFields['OWNER_ID']);
+			return false;
 		}
 
-		$chatFields = array(
-			'TITLE' => self::buildChatName($groupFields['NAME'], array(
-				'project' => $project
-			)),
-			'TYPE' => IM_MESSAGE_CHAT,
-			'ENTITY_TYPE' => self::CHAT_ENTITY_TYPE,
-			'ENTITY_ID' => intval($params['group_id']),
-			'SKIP_ADD_MESSAGE' => 'Y',
-			'AUTHOR_ID' => $groupFields['OWNER_ID'],
-			'USERS' => $userIdList
-		);
+		$result = ChatFactory::createChat($group);
 
-		$groupItem = Item\Workgroup::getById($params['group_id'], false);
-		if ($groupItem)
+		if ($result->isSuccess())
 		{
-			$groupFields = $groupItem->getFields();
-			if (!empty($groupFields['IMAGE_ID']))
-			{
-				$chatFields['AVATAR_ID'] = $groupFields['IMAGE_ID'];
-			}
+			static::$staticCache = [];
 		}
 
-		$chat = new \CIMChat(0);
-		$result = $chat->add($chatFields);
-
-		if ($result)
-		{
-			self::$staticCache = array();
-		}
-
-		return $result;
+		return $result->isSuccess();
 	}
 
-	public static function buildChatName($groupName, $params = array())
+	public static function buildChatName($groupName, $params = []): string
 	{
-		$project = (
-			is_array($params)
-			&& isset($params['project'])
-			&& $params['project']
-		);
-		$currentSite = \CSite::getById(SITE_ID);
-		$siteLanguageId = (
-			($siteFields = $currentSite->fetch())
-				? $siteFields['LANGUAGE_ID']
-				: LANGUAGE_ID
-		);
+		$isProject = (bool)($params['project'] ?? false);
+		if ($isProject) // compatibility
+		{
+			$type = Item\Workgroup\Type::Project;
+		}
+		else
+		{
+			$type = Item\Workgroup\Type::tryFrom((string)($params['type'] ?? ''));
+		}
 
-		return Loc::getMessage(($project ? "SOCIALNETWORK_WORKGROUP_CHAT_TITLE_PROJECT" : "SOCIALNETWORK_WORKGROUP_CHAT_TITLE"), array(
-			"#GROUP_NAME#" => $groupName
-		), $siteLanguageId);
+		return ChatFactory::getChatTitle((string)$groupName, $type);
 	}
 
 	public static function setChatManagers($params)
 	{
-		$result = false;
-
 		if (
 			!array($params)
 			|| !isset($params['group_id'])
 			|| intval($params['group_id']) <= 0
 			|| !isset($params['user_id'])
-			|| !self::getUseChat()
 			|| !Loader::includeModule('im')
 		)
 		{
-			return $result;
+			return false;
 		}
 
 		$userIdList = (is_array($params['user_id']) ? $params['user_id'] : array($params['user_id']));
 		$groupId = intval($params['group_id']);
 		$setFlag = (isset($params['set']) && $params['set']);
+
+		$groupType = GroupProvider::getInstance()->getGroupType($groupId);
+
+		if ($groupType !== Item\Workgroup\Type::Collab && !static::getUseChat())
+		{
+			return false;
+		}
 
 		$chatData = self::getChatData(array(
 			'group_id' => $groupId
@@ -237,7 +221,7 @@ class Workgroup
 			|| intval($chatData[$groupId]) <= 0
 		)
 		{
-			return $result;
+			return false;
 		}
 
 		$chatId = $chatData[$groupId];
@@ -267,6 +251,13 @@ class Workgroup
 		}
 
 		$groupId = (int)$params['group_id'];
+
+		$groupType = GroupProvider::getInstance()->getGroupType($groupId);
+		if ($groupType === Item\Workgroup\Type::Collab)
+		{
+			return false;
+		}
+
 		$groupName = ($params['group_name'] ?? null);
 		$isProject = ($params['group_project'] ?? null);
 

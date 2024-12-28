@@ -41,21 +41,25 @@ class TriggerTable extends Main\Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ID' => array('primary' => true, 'data_type' => 'integer'),
-			'NAME' => array('data_type' => 'string'),
-			'CODE' => array('data_type' => 'string'),
+		return [
+			'ID' => [
+				'primary' => true,
+				'data_type' => 'integer',
+				'autocomplete' => true,
+			],
+			'NAME' => ['data_type' => 'string'],
+			'CODE' => ['data_type' => 'string'],
 
-			'MODULE_ID' => array('data_type' => 'string'),
-			'ENTITY' => array('data_type' => 'string'),
-			'DOCUMENT_TYPE' => array('data_type' => 'string'),
+			'MODULE_ID' => ['data_type' => 'string'],
+			'ENTITY' => ['data_type' => 'string'],
+			'DOCUMENT_TYPE' => ['data_type' => 'string'],
 
-			'DOCUMENT_STATUS' => array('data_type' => 'string'),
+			'DOCUMENT_STATUS' => ['data_type' => 'string'],
 
-			'APPLY_RULES' => array(
+			'APPLY_RULES' => [
 				'data_type' => 'string',
-				'serialized' => true
-			)
-		);
+				'serialized' => true,
+			],
+		];
 	}
 }

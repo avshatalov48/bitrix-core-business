@@ -16,4 +16,6 @@ interface AccessibleEvent
 	public function getParentEventSectionId(): int;
 	public function getParentEventSectionType(): string;
 	public function getParentEventOwnerId(): int;
+	public function hasAttendee(int $userId): bool;
+	public function getCreatorId(): int;
 }

@@ -1001,9 +1001,9 @@ class Imap extends Mail\Helper\Mailbox
 
 				if(empty($item['__replaces']))
 				{
-					$outgoingMessageId = $this->selectOutgoingMessageIdFromHeader($item);
+					$outgoingMessageId = $this->getLocalMessageIdFromHeader($item);
 
-					if($outgoingMessageId)
+					if($outgoingMessageId !== '')
 					{
 						$item['__replaces'] = $outgoingMessageId;
 						$isOutgoing = true;
@@ -1154,9 +1154,9 @@ class Imap extends Mail\Helper\Mailbox
 
 				if(empty($item['__replaces']))
 				{
-					$outgoingMessageId = $this->selectOutgoingMessageIdFromHeader($item);
+					$outgoingMessageId = $this->getLocalMessageIdFromHeader($item);
 
-					if($outgoingMessageId)
+					if($outgoingMessageId !== '')
 					{
 						$item['__replaces'] = $outgoingMessageId;
 						$isOutgoing = true;
@@ -1691,16 +1691,14 @@ class Imap extends Mail\Helper\Mailbox
 		];
 	}
 
-	protected function selectOutgoingMessageIdFromHeader($message)
+	protected function getLocalMessageIdFromHeader($message): string
 	{
 		if (preg_match('/X-Bitrix-Mail-Message-UID:\s*([a-f0-9]+)/i', $message['BODY[HEADER]'], $matches))
 		{
 			return $matches[1];
 		}
-		else
-		{
-			return false;
-		}
+
+		return '';
 	}
 
 	protected function resyncMessages($dirPath, $uidtoken, &$messages)
@@ -1864,7 +1862,7 @@ class Imap extends Mail\Helper\Mailbox
 		return $result->isSuccess();
 	}
 
-	protected function syncMessage($dirPath, $message, &$hashesMap = [], $ignoreSyncFrom = false, $isOutgoing = false)
+	protected function syncMessage($dirPath, array $message, &$hashesMap = [], $ignoreSyncFrom = false, $isOutgoing = false)
 	{
 		$fields = $message['__fields'];
 
@@ -1880,9 +1878,35 @@ class Imap extends Mail\Helper\Mailbox
 			}
 		}
 
-		if (!$this->registerMessage($fields, ($message['__replaces'] ?? null), $isOutgoing))
+		$replaces = $message['__replaces'] ?? null;
+
+		if ($isOutgoing || !is_null($replaces))
 		{
-			return false;
+			if (!$this->registerMessage($fields, $replaces, $isOutgoing))
+			{
+				return false;
+			}
+		}
+		else
+		{
+			/*
+			 * If the message is outgoing but there is no local ID in the header,
+			 * we will prepare additional parameters to search for a local copy.
+			 */
+
+			$isOutgoing = ($this->getDirsHelper()->getOutcomePath() === $dirPath);
+
+			$idFromHeaderMessage = '';
+
+			if ($isOutgoing && ($message['__header'] instanceof \CMailHeader))
+			{
+				$idFromHeaderMessage = trim($message['__header']->GetHeader("MESSAGE-ID"), " <>");
+			}
+
+			if (!$this->registerMessage($fields, isOutgoing: $isOutgoing, idFromHeaderMessage: $idFromHeaderMessage))
+			{
+				return false;
+			}
 		}
 
 		$minimumSyncDate = $this->getMinimumSyncDate();

@@ -244,7 +244,7 @@ class CSocServFacebook extends CSocServAuth
 			$url .= ((mb_strpos($url, "?") === false) ? '?' : '&')."current_fieldset=SOCSERV";
 		}
 ?>
-<script type="text/javascript">
+<script>
 if(window.opener)
 	window.opener.location = '<?=CUtil::JSEscape($url)?>';
 window.close();
@@ -548,13 +548,10 @@ class CFacebookInterface extends CSocServOAuthTransport
 			return false;
 		}
 
-		$message = CharsetConverter::ConvertCharset($message, LANG_CHARSET, "utf-8");
 		$arPost = array("access_token" => $this->access_token, "message"=> $message);
 		$result = @CHTTP::sPostHeader($this::GRAPH_URL."/".$this->userId."/feed", $arPost, array(), $this->httpTimeout);
 		if($result !== false)
 		{
-			if(!defined("BX_UTF"))
-				$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 			return CUtil::JsObjectToPhp($result);
 		}
 		else
@@ -568,7 +565,6 @@ class CFacebookInterface extends CSocServOAuthTransport
 
 		$url = self::GRAPH_URL.'/'.$uid.'/apprequests';
 
-		$message = CharsetConverter::ConvertCharset($message, LANG_CHARSET, "utf-8");
 		$arPost = array("access_token" => $this->access_token, "message"=> $message);
 
 		$ob = new HttpClient();

@@ -1,26 +1,17 @@
-import { Type } from 'main.core';
-import { FeaturePromoter } from 'ui.info-helper';
-
-import { Messenger } from 'im.public';
 import { MessengerMenu, MenuItem, MenuItemIcon, CreateChatPromo } from 'im.v2.component.elements';
-import { Layout, PromoId, ChatType, SliderCode } from 'im.v2.const';
+import { Layout, PromoId, ChatType, ActionByUserType } from 'im.v2.const';
 import { Analytics } from 'im.v2.lib.analytics';
+import { PermissionManager } from 'im.v2.lib.permission';
 import { PromoManager } from 'im.v2.lib.promo';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
 import { Feature, FeatureManager } from 'im.v2.lib.feature';
 
-import { CreateChatHelp } from './create-chat-help';
+import { CreateChatHelp } from './components/create-chat-help';
+import { NewBadge } from './components/collab/new-badge';
+import { DescriptionBanner } from './components/collab/description-banner';
 
 import type { JsonObject } from 'main.core';
 import type { MenuOptions } from 'main.popup';
-
-type MenuItemType = {
-	icon: $Values<typeof MenuItemIcon>,
-	title: string,
-	subtitle: string,
-	clickHandler: () => void,
-	showCondition?: () => boolean,
-};
 
 const PromoByChatType = {
 	[ChatType.chat]: PromoId.createGroupChat,
@@ -30,18 +21,20 @@ const PromoByChatType = {
 
 // @vue/component
 export const CreateChatMenu = {
-	components: { MessengerMenu, MenuItem, CreateChatHelp, CreateChatPromo },
+	components: { MessengerMenu, MenuItem, CreateChatHelp, CreateChatPromo, NewBadge, DescriptionBanner },
 	data(): JsonObject
 	{
 		return {
 			showPopup: false,
 			chatTypeToCreate: '',
 			showPromo: false,
+			showCollabDescription: false,
 		};
 	},
 	computed:
 	{
 		ChatType: () => ChatType,
+		MenuItemIcon: () => MenuItemIcon,
 		menuConfig(): MenuOptions
 		{
 			return {
@@ -52,42 +45,44 @@ export const CreateChatMenu = {
 				padding: 0,
 			};
 		},
-		menuItems(): MenuItemType[]
+		collabAvailable(): boolean
 		{
-			return [
-				{
-					icon: MenuItemIcon.chat,
-					title: this.loc('IM_RECENT_CREATE_GROUP_CHAT_TITLE_V2'),
-					subtitle: this.loc('IM_RECENT_CREATE_GROUP_CHAT_SUBTITLE_V2'),
-					clickHandler: this.onChatCreateClick.bind(this, ChatType.chat),
-				},
-				{
-					icon: MenuItemIcon.channel,
-					title: this.loc('IM_RECENT_CREATE_CHANNEL_TITLE_V2'),
-					subtitle: this.loc('IM_RECENT_CREATE_CHANNEL_SUBTITLE_V3'),
-					clickHandler: this.onChatCreateClick.bind(this, ChatType.channel),
-				},
-				{
-					icon: MenuItemIcon.conference,
-					title: this.loc('IM_RECENT_CREATE_CONFERENCE_TITLE'),
-					subtitle: this.loc('IM_RECENT_CREATE_CONFERENCE_SUBTITLE_V2'),
-					clickHandler: this.onChatCreateClick.bind(this, ChatType.videoconf),
-				},
-				{
-					icon: MenuItemIcon.conference,
-					title: this.loc('IM_RECENT_CREATE_COLLAB_TITLE'),
-					subtitle: this.loc('IM_RECENT_CREATE_COLLAB_SUBTITLE'),
-					clickHandler: this.onChatCreateClick.bind(this, ChatType.collab),
-					showCondition: () => FeatureManager.isFeatureAvailable(Feature.collabAvailable),
-				},
-			];
+			const hasAccess = PermissionManager.getInstance().canPerformActionByUserType(
+				ActionByUserType.createCollab,
+			);
+			const creationAvailable = FeatureManager.isFeatureAvailable(Feature.collabCreationAvailable);
+			const featureAvailable = FeatureManager.isFeatureAvailable(Feature.collabAvailable);
+
+			return hasAccess && featureAvailable && creationAvailable;
 		},
+		canCreateChat(): boolean
+		{
+			return PermissionManager.getInstance().canPerformActionByUserType(
+				ActionByUserType.createChat,
+			);
+		},
+		canCreateChannel(): boolean
+		{
+			return PermissionManager.getInstance().canPerformActionByUserType(
+				ActionByUserType.createChannel,
+			);
+		},
+		canCreateConference(): boolean
+		{
+			return PermissionManager.getInstance().canPerformActionByUserType(
+				ActionByUserType.createConference,
+			);
+		},
+	},
+	created()
+	{
+		this.showCollabDescription = PromoManager.getInstance().needToShow(PromoId.createCollabDescription);
 	},
 	methods:
 	{
 		onChatCreateClick(type: $Values<typeof ChatType>)
 		{
-			Analytics.getInstance().onStartCreateNewChat(type);
+			Analytics.getInstance().chatCreate.onStartClick(type);
 			this.chatTypeToCreate = type;
 
 			const promoBannerIsNeeded = PromoManager.getInstance().needToShow(this.getPromoType());
@@ -102,20 +97,6 @@ export const CreateChatMenu = {
 			this.startChatCreation();
 			this.showPopup = false;
 		},
-		onCopilotClick()
-		{
-			this.showPopup = false;
-
-			if (!FeatureManager.isFeatureAvailable(Feature.copilotActive))
-			{
-				const promoter = new FeaturePromoter({ code: SliderCode.copilotDisabled });
-				promoter.show();
-
-				return;
-			}
-
-			void Messenger.openCopilot();
-		},
 		onPromoContinueClick()
 		{
 			PromoManager.getInstance().markAsWatched(this.getPromoType());
@@ -123,6 +104,11 @@ export const CreateChatMenu = {
 			this.showPromo = false;
 			this.showPopup = false;
 			this.chatTypeToCreate = '';
+		},
+		onCollabDescriptionClose(): void
+		{
+			PromoManager.getInstance().markAsWatched(PromoId.createCollabDescription);
+			this.showCollabDescription = false;
 		},
 		startChatCreation()
 		{
@@ -137,15 +123,6 @@ export const CreateChatMenu = {
 		{
 			return PromoByChatType[this.chatTypeToCreate] ?? '';
 		},
-		needToShowMenuItem(showCondition: () => boolean): boolean
-		{
-			if (!Type.isFunction(showCondition))
-			{
-				return true;
-			}
-
-			return showCondition();
-		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -159,16 +136,37 @@ export const CreateChatMenu = {
 			ref="icon"
 		></div>
 		<MessengerMenu v-if="showPopup" :config="menuConfig" @close="showPopup = false">
-			<template v-for="{ icon, title, subtitle, clickHandler, showCondition } in menuItems">
-				<MenuItem
-					v-if="needToShowMenuItem(showCondition)"
-					:key="title"
-					:icon="icon"
-					:title="title"
-					:subtitle="subtitle"
-					@click="clickHandler"
-				/>
-			</template>
+			<MenuItem
+				v-if="canCreateChat"
+				:icon="MenuItemIcon.chat"
+				:title="loc('IM_RECENT_CREATE_GROUP_CHAT_TITLE_V2')"
+				:subtitle="loc('IM_RECENT_CREATE_GROUP_CHAT_SUBTITLE_V2')"
+				@click="onChatCreateClick(ChatType.chat)"
+			/>
+			<MenuItem
+				v-if="canCreateChannel"
+				:icon="MenuItemIcon.channel"
+				:title="loc('IM_RECENT_CREATE_CHANNEL_TITLE_V2')"
+				:subtitle="loc('IM_RECENT_CREATE_CHANNEL_SUBTITLE_V3')"
+				@click="onChatCreateClick(ChatType.channel)"
+			/>
+			<MenuItem
+				v-if="collabAvailable"
+				:icon="MenuItemIcon.collab"
+				:title="loc('IM_RECENT_CREATE_COLLAB_TITLE')"
+				:subtitle="loc('IM_RECENT_CREATE_COLLAB_SUBTITLE')"
+				@click="onChatCreateClick(ChatType.collab)"
+			>
+				<template #after-title><NewBadge /></template>
+				<template #below-content><DescriptionBanner v-if="showCollabDescription" @close="onCollabDescriptionClose" /></template>
+			</MenuItem>
+			<MenuItem
+				v-if="canCreateConference"
+				:icon="MenuItemIcon.conference"
+				:title="loc('IM_RECENT_CREATE_CONFERENCE_TITLE')"
+				:subtitle="loc('IM_RECENT_CREATE_CONFERENCE_SUBTITLE_V2')"
+				@click="onChatCreateClick(ChatType.videoconf)"
+			/>
 			<template #footer>
 				<CreateChatHelp @articleOpen="showPopup = false" />
 			</template>

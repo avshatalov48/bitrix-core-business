@@ -9,30 +9,36 @@ use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Socialnetwork\Collab\Collab;
+use Bitrix\Socialnetwork\Collab\Integration\IM\Dialog;
+use Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection;
+use Bitrix\Socialnetwork\Internals\Registry\Event\GroupLoadedEvent;
+use Bitrix\Socialnetwork\Internals\site\SiteEntityCollection;
 use Bitrix\Socialnetwork\Item\Workgroup;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
+use Bitrix\Socialnetwork\Space\Member;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\Integration\Im\Chat;
 
-final class GroupRegistry
+class GroupRegistry
 {
-	private const UF_ENTITY_ID = 'SONET_GROUP';
+	protected const UF_ENTITY_ID = 'SONET_GROUP';
+
+	protected static array $storage = [];
 
 	private static ?self $instance = null;
-	private array $storage = [];
 
-	public static function getInstance(): self
+	public static function getInstance(): static
 	{
-		if (self::$instance === null)
+		if (static::$instance === null)
 		{
-			self::$instance = new self();
+			static::$instance = new static();
 		}
 
-		return self::$instance;
+		return static::$instance;
 	}
 
-	private function __construct()
+	protected function __construct()
 	{
 
 	}
@@ -49,19 +55,21 @@ final class GroupRegistry
 			return null;
 		}
 
-		if (isset($this->storage[$groupId]))
+		if (isset(static::$storage[$groupId]))
 		{
-			return $this->storage[$groupId];
+			$this->onObjectAlreadyLoaded(static::$storage[$groupId]);
+
+			return static::$storage[$groupId];
 		}
 
 		$this->load($groupId);
 
-		return $this->storage[$groupId];
+		return static::$storage[$groupId];
 	}
 
-	public function invalidate(int $groupId): self
+	public function invalidate(int $groupId): static
 	{
-		unset($this->storage[$groupId]);
+		unset(static::$storage[$groupId]);
 
 		return $this;
 	}
@@ -71,58 +79,107 @@ final class GroupRegistry
 	 * @throws SystemException
 	 * @throws ArgumentException
 	 */
-	private function load(int $groupId): void
+	protected function load(int $groupId): void
 	{
-		$fields = WorkgroupTable::getById($groupId)->fetch();
-
-		if (!$fields)
+		$fields = $this->loadData($groupId);
+		if (empty($fields))
 		{
-			$this->storage[$groupId] = null;
+			static::$storage[$groupId] = null;
 
 			return;
 		}
 
-		$groupFields = $fields;
-
-		$this->fillDates($groupFields);
-		$this->fillUserFields($groupFields);
-		$this->fillChatId($groupFields);
-		$this->fillUserMembers($groupFields);
-
-		$this->storage[$groupId] = new Workgroup($groupFields);
+		$this->fillStorage($fields);
 	}
 
-	private function fillDates(array &$groupFields): void
+	protected function loadData(int $groupId): array
 	{
-		if ($groupFields['DATE_CREATE'] instanceof DateTime)
+		$select = [
+			'select' => [
+				'*',
+				'SITES',
+				'MEMBERS',
+			],
+		];
+
+		$fields = WorkgroupTable::getByPrimary($groupId, $select)->fetchObject()?->collectValues();
+
+		if (empty($fields))
 		{
-			$groupFields['DATE_CREATE'] = $groupFields['DATE_CREATE']->toString();
+			return [];
 		}
-		if ($groupFields['DATE_UPDATE'] instanceof DateTime)
+		
+		$this->fillDates($fields);
+		$this->fillUserFields($fields);
+		$this->fillChatId($fields);
+		$this->fillUserMembers($fields);
+		$this->fillSites($fields);
+
+		$this->remapBooleanFields($fields);
+
+		return $fields;
+	}
+
+	protected function onObjectAlreadyLoaded(?Workgroup $group): void
+	{
+
+	}
+
+	protected function onObjectLoaded(Workgroup $group): void
+	{
+		$event = new GroupLoadedEvent($group);
+
+		$event->send();
+	}
+
+	protected function fillStorage(array $fields): void
+	{
+		$groupId = (int)$fields['ID'];
+		$groupType = Type::tryFrom((string)$fields['TYPE']);
+
+		if ($groupType === Type::Collab)
 		{
-			$groupFields['DATE_UPDATE'] = $groupFields['DATE_UPDATE']->toString();
+			static::$storage[$groupId] = new Collab($fields);
 		}
-		if ($groupFields['DATE_ACTIVITY'] instanceof DateTime)
+		else
 		{
-			$groupFields['DATE_ACTIVITY'] = $groupFields['DATE_ACTIVITY']->toString();
+			static::$storage[$groupId] = new Workgroup($fields);
+		}
+
+		$this->onObjectLoaded(static::$storage[$groupId]);
+	}
+
+	protected function fillDates(array &$fields): void
+	{
+		if ($fields['DATE_CREATE'] instanceof DateTime)
+		{
+			$fields['DATE_CREATE'] = $fields['DATE_CREATE']->toString();
+		}
+		if ($fields['DATE_UPDATE'] instanceof DateTime)
+		{
+			$fields['DATE_UPDATE'] = $fields['DATE_UPDATE']->toString();
+		}
+		if ($fields['DATE_ACTIVITY'] instanceof DateTime)
+		{
+			$fields['DATE_ACTIVITY'] = $fields['DATE_ACTIVITY']->toString();
 		}
 	}
 
-	private function fillUserFields(array &$groupFields): void
+	protected function fillUserFields(array &$fields): void
 	{
-		$id = (int)$groupFields['ID'];
+		$id = (int)$fields['ID'];
 
 		global $USER_FIELD_MANAGER;
-		$uf = $USER_FIELD_MANAGER->getUserFields(self::UF_ENTITY_ID, $id, false, 0);
+		$uf = $USER_FIELD_MANAGER->getUserFields(static::UF_ENTITY_ID, $id, false, 0);
 		if (is_array($uf))
 		{
-			$groupFields = array_merge($groupFields, $uf);
+			$fields = array_merge($fields, $uf);
 		}
 	}
 
-	private function fillChatId(array &$groupFields): void
+	protected function fillChatId(array &$fields): void
 	{
-		$id = (int)$groupFields['ID'];
+		$id = (int)$fields['ID'];
 
 		$chat = Chat\Workgroup::getChatData([
 			'group_id' => $id,
@@ -131,19 +188,77 @@ final class GroupRegistry
 
 		$chatId = (int)($chat[$id] ?? 0);
 
-		$groupFields['CHAT_ID'] = $chatId;
+		$fields['CHAT_ID'] = $chatId;
+
+		$fields['DIALOG_ID'] = Dialog::getDialogId($chatId);
 	}
 
-	private function fillUserMembers(array &$groupFields): void
+	protected function fillUserMembers(array &$fields): void
 	{
-		$members = UserToGroupTable::query()
-			->setSelect(['USER_ID'])
-			->where('GROUP_ID', $groupFields['ID'])
-			->exec()
-			->fetchAll();
+		$users = $fields['MEMBERS'];
 
+		if (!$users instanceof MemberEntityCollection)
+		{
+			return;
+		}
+
+		if ($users->isEmpty())
+		{
+			return;
+		}
+
+		$users = array_map(static fn (Member $member): array => $member->collectValues(), iterator_to_array($users));
+
+		$members = array_filter($users, static fn (array $member): bool => in_array($member['ROLE'], UserToGroupTable::getRolesMember(), true));
 		$memberIds = array_column($members, 'USER_ID');
 
-		$groupFields['USER_MEMBERS'] = $memberIds;
+		$fields['MEMBERS'] = $memberIds;
+
+		$ordinaryMembers = array_filter($users, static fn (array $member): bool => $member['ROLE'] === UserToGroupTable::ROLE_USER);
+		$ordinaryMembersIds = array_column($ordinaryMembers, 'USER_ID');
+
+		$fields['ORDINARY_MEMBERS'] = $ordinaryMembersIds;
+
+		$requested = array_filter($users, static fn (array $member): bool => $member['ROLE'] === UserToGroupTable::ROLE_REQUEST);
+		$requestedIds = array_column($requested, 'USER_ID');
+
+		$fields['INVITED_MEMBERS'] = $requestedIds;
+
+		$moderators = array_filter($users, static fn (array $member): bool => $member['ROLE'] === UserToGroupTable::ROLE_MODERATOR);
+		$moderatorsIds = array_column($moderators, 'USER_ID');
+
+		$fields['MODERATOR_MEMBERS'] = $moderatorsIds;
+	}
+
+	protected function fillSites(array &$fields): void
+	{
+		if (!$fields['SITES'] instanceof SiteEntityCollection)
+		{
+			return;
+		}
+
+		$fields['SITE_IDS'] = $fields['SITES']->getSiteIdList();
+	}
+
+	protected function remapBooleanFields(array &$fields): void
+	{
+		$entity = WorkgroupTable::getEntity();
+
+		foreach ($fields as $key => $value)
+		{
+			try
+			{
+				$field = $entity->getField($key);
+			}
+			catch (ArgumentException)
+			{
+				continue;
+			}
+
+			if ($field->getDataType() === 'boolean')
+			{
+				$fields[$key] = $value ? 'Y' : 'N';
+			}
+		}
 	}
 }

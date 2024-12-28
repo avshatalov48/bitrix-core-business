@@ -1192,7 +1192,7 @@ class CIMMessageParamAttach
 			return null;
 		}
 
-		$array = self::convertServiceSymbolsForJson($array);
+		$array = IM\Text::convertSymbolsAfterJsonDecode($array);
 
 		$color = \CIMMessageParamAttach::CHAT;
 		$attach = null;
@@ -1307,24 +1307,6 @@ class CIMMessageParamAttach
 		}
 
 		return $attach->IsEmpty()? null: $attach;
-	}
-
-	private static function convertServiceSymbolsForJson(array $array): array
-	{
-		foreach ($array as $key => $value)
-		{
-			if (is_string($value))
-			{
-				$array[$key] = str_replace(["\\n", "\\t", '\\"', "\\\\"], ["\n", "\t", '"', "\\"], $value);
-			}
-
-			if (is_array($value))
-			{
-				$array[$key] = self::convertServiceSymbolsForJson($value);
-			}
-		}
-
-		return $array;
 	}
 
 	public static function PrepareAttach($attach)

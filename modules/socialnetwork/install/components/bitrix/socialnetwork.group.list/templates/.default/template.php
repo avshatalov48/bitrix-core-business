@@ -348,7 +348,7 @@ $removeButton = [
 						</div>
 					</div>
 					<div class="sg-tasks-scrum__transfer--btn-block">
-						<a href="/marketplace/?tag[]=migrator&tag[]=tasks" class="ui-btn ui-btn-primary ui-btn-round">
+						<a href="/market/collection/scrum_migration/" class="ui-btn ui-btn-primary ui-btn-round">
 							{$stub['migrationButton']}
 						</a>
 					</div>

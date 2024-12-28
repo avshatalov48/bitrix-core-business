@@ -17,6 +17,10 @@ $arActivityDescription = [
 		'ID' => 'document',
 	],
 	'RETURN' => [
+		'ItemId' => [
+			'NAME' => GetMessage('BPCDA_CREATED_ITEM_ID'),
+			'TYPE' => 'int',
+		],
 		'ErrorMessage' => [
 			'NAME' => Loc::getMessage('BPCDA_DESCR_ERROR_MESSAGE'),
 			'TYPE' => 'string',

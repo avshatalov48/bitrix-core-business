@@ -214,6 +214,8 @@ export default class Launcher
 		this.#currentItem = this.#queue.getFirst();
 		if (this.#currentItem === null)
 		{
+			this.disable();
+
 			return;
 		}
 

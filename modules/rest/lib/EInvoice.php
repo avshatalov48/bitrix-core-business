@@ -20,6 +20,8 @@ class EInvoice
 		$cacheId = self::APP_TAG . '_marketplace';
 		$cacheTtl = 60 * 60 * 24; // 24 hour
 		$cachePath = '/rest/einvoice/';
+		$region = Main\Application::getInstance()->getLicense()->getRegion();
+		$tags = [self::APP_TAG, $region];
 
 		if ($cache->initCache($cacheTtl, $cacheId, $cachePath))
 		{
@@ -27,7 +29,7 @@ class EInvoice
 		}
 		else
 		{
-			$result = Marketplace\Client::getByTag(self::APP_TAG)['ITEMS'] ?? [];
+			$result = Marketplace\Client::getByTag($tags)['ITEMS'] ?? [];
 			$cache->startDataCache();
 			$cache->endDataCache($result);
 		}

@@ -30,6 +30,9 @@
 	--gray: rgba(51,51,51,1);
 	--green: rgba(157,207,0,1);
 
+	--collab_10: rgba(242, 254, 226, 1);
+	--collab_60: rgba(25, 204, 69, 1);
+
 	--padding-space: 200px;
 }
 
@@ -295,15 +298,6 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	transition: .1s;
 }
 
-.socialnetwork-group-create-ex__group-selector.--active {
-	background: linear-gradient(0deg, rgba(47, 198, 246, 0.06), rgba(47, 198, 246, 0.06)), #fff !important;
-}
-
-.socialnetwork-group-create-ex__group-selector.--active:after {
-	border: 2px solid var(--blue) !important;
-	box-shadow: 0 4px 13px var(--graphite_alpha_04);
-}
-
 .socialnetwork-group-create-ex__group-selector:hover:after {
 	border: 1px solid var(--blue_alpha_50);
 	box-shadow: 0 4px 13px var(--graphite_alpha_04);
@@ -312,6 +306,28 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 .socialnetwork-group-create-ex__group-selector:hover {
 	background: linear-gradient(0deg, rgba(47, 198, 246, 0.04), rgba(47, 198, 246, 0.04)), #FFFFFF;
 
+}
+
+.socialnetwork-group-create-ex__group-selector.--active {
+	background: linear-gradient(0deg, rgba(47, 198, 246, 0.06), rgba(47, 198, 246, 0.06)), #fff;
+}
+
+.socialnetwork-group-create-ex__group-selector.--active:after {
+	border: 2px solid var(--blue);
+	box-shadow: 0 4px 13px var(--graphite_alpha_04);
+}
+
+.socialnetwork-group-create-ex__group-selector.--active[data-bx-project-type="collab"] {
+	background: var(--collab_10);
+}
+
+.socialnetwork-group-create-ex__group-selector.--active[data-bx-project-type="collab"]:after {
+	border: 2px solid var(--collab_60);
+}
+
+#sonet_group_create_popup_form_button_collab {
+	background-color: rgba(25, 204, 69, 1);
+	border: none;
 }
 
 .socialnetwork-group-create-ex__group-selector--logo {
@@ -330,6 +346,16 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 
 .socialnetwork-group-create-ex__group-selector--logo.--group {
 	background-image: url(images/socialnetwork-group-create-ex__icon--group.svg);
+}
+
+
+
+.socialnetwork-group-create-ex__group-selector--logo.--collab {
+	background-image: url(images/socialnetwork-group-create-ex__icon--collab.svg);
+}
+
+.socialnetwork-group-create-ex__group-selector.--active .socialnetwork-group-create-ex__group-selector--logo.--collab {
+	background-image: url(images/socialnetwork-group-create-ex__icon--collab-active.svg);
 }
 
 .socialnetwork-group-create-ex__group-selector--logo.--access-closed {
@@ -692,6 +718,14 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 
 .socialnetwork-group-create-ex__background-gif.--group:before {
 	background-image: url(images/socialnetwork-group-create-ex__project-image--group.png);
+}
+
+.socialnetwork-group-create-ex__background-gif.--collab:after {
+	background-image: url(images/socialnetwork-group-create-ex__project-image--collab.svg);
+}
+
+.socialnetwork-group-create-ex__background-gif.--collab:before {
+	background-image: url(images/socialnetwork-group-create-ex__project-image--collab.svg);
 }
 
 .socialnetwork-group-create-ex__date-between {

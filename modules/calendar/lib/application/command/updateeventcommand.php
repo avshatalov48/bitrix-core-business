@@ -289,4 +289,14 @@ class UpdateEventCommand implements Command, BusyAttendees
 	{
 		return $this->maxAttendees;
 	}
+
+	public function getAnalyticsSubSection(): ?string
+	{
+		return $this->analyticsSubSection;
+	}
+
+	public function getAnalyticsChatId(): ?int
+	{
+		return $this->analyticsChatId;
+	}
 }

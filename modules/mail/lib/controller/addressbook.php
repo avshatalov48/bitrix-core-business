@@ -5,7 +5,6 @@ namespace Bitrix\Mail\Controller;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Loader;
 use Bitrix\Mail\Internals\MailContactTable;
-use Bitrix\Main\Error;
 
 /**
  * Class AddressBook
@@ -141,9 +140,10 @@ class AddressBook extends Controller
 
 			$result = MailContactTable::addContactsBatch($contactsData);
 
-			iF($result !== true)
+			if (!$result->isSuccess())
 			{
-				$this->addError(new Error($result));
+				$this->addErrors($result->getErrors());
+
 				return false;
 			}
 		}

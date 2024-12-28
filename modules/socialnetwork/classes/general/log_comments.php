@@ -816,6 +816,13 @@ class CAllSocNetLogComments
 			if(!empty($arMention))
 			{
 				$arExcludeUsers = array($arCommentFields["USER_ID"]);
+				$collaberIds = array_filter($arMention, static function ($userId) {
+					$userId = (int)$userId;
+
+					return (new \Bitrix\Socialnetwork\Collab\User\User($userId))->isCollaber();
+				});
+
+				$arExcludeUsers = array_merge($arExcludeUsers, $collaberIds);
 
 				if (!empty($arCommentFields["LOG_ID"]))
 				{

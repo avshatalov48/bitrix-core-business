@@ -75,18 +75,21 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	 * @param string $fileName Absolute physical path.
 	 * @return void
 	 */
-	private static function unlink(string $fileName): void
+	protected static function unlink(string $fileName): void
 	{
-		if (isset(self::$lockHandles[$fileName]) && self::$lockHandles[$fileName])
-		{
-			fclose(self::$lockHandles[$fileName]);
-			unset(self::$lockHandles[$fileName]);
-		}
+		static::unlock($fileName);
 
 		if (file_exists($fileName))
 		{
-			@chmod($fileName, BX_FILE_PERMISSIONS);
-			@unlink($fileName);
+			// Handle E_WARNING
+			set_error_handler(function () {
+				// noop
+			});
+
+			chmod($fileName, BX_FILE_PERMISSIONS);
+			unlink($fileName);
+
+			restore_error_handler();
 		}
 	}
 
@@ -94,7 +97,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	 * Adds delayed delete worker agent.
 	 * @return void
 	 */
-	private static function addAgent(): void
+	protected static function addAgent(): void
 	{
 		global $APPLICATION;
 
@@ -130,7 +133,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	 * @param string $fileName File path within document root.
 	 * @return string
 	 */
-	private function randomizeFile(string $fileName): string
+	protected function randomizeFile(string $fileName): string
 	{
 		for ($i = 0; $i < 99; $i++)
 		{
@@ -237,7 +240,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	 * @param string $fileName Absolute cache file path.
 	 * @return boolean
 	 */
-	protected function lock(string $fileName): bool
+	protected static function lock(string $fileName): bool
 	{
 		$wouldBlock = 0;
 		self::$lockHandles[$fileName] = @fopen($fileName, "r+");
@@ -253,7 +256,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	 * @param string $fileName Absolute cache file path.
 	 * @return void
 	 */
-	protected function unlock(string $fileName): void
+	protected static function unlock(string $fileName): void
 	{
 		if (!empty(self::$lockHandles[$fileName]))
 		{
@@ -323,7 +326,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 		{
 			if ($this->useLock)
 			{
-				if ($this->lock($fn))
+				if (static::lock($fn))
 				{
 					$res = false;
 				}
@@ -412,7 +415,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 
 			if ($this->useLock)
 			{
-				$this->unlock($fn);
+				static::unlock($fn);
 			}
 		}
 	}

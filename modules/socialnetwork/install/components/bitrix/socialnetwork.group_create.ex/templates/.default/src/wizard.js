@@ -87,7 +87,7 @@ export class Wizard
 	{
 		if (Type.isDomNode(this.step1BackgroudNode))
 		{
-			[ 'project', 'scrum', 'group' ].forEach(projectType => {
+			[ 'project', 'scrum', 'group', 'collab' ].forEach(projectType => {
 				this.step1BackgroudNode.classList.remove(`--${projectType}`);
 			})
 			this.step1BackgroudNode.classList.remove('--stop');

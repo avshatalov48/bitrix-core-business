@@ -3,6 +3,7 @@ import { Dialog } from 'ui.entity-selector';
 import HintInfo from './hint-info';
 import { SettingsModel } from '../../model/index';
 import 'ui.icon-set.actions';
+import { AvatarRoundGuest } from 'ui.avatar';
 
 export default class UserSelector
 {
@@ -14,11 +15,11 @@ export default class UserSelector
 		userSelector: HTMLElement,
 		hint: HTMLElement,
 	};
+
 	#userSelectorDialog: Dialog;
 	#selectedEntityList: any;
 	#selectedEntityNodeList: any;
 	#defaultUserEntity: any;
-	#isOpened: boolean;
 	#onMembersAdded: function;
 
 	#model: SettingsModel;
@@ -31,7 +32,6 @@ export default class UserSelector
 		this.#selectedEntityNodeList = {};
 		this.#model = props.model;
 		this.#defaultUserEntity = this.#model.getUserInfo();
-		this.#isOpened = false;
 		this.#onMembersAdded = props.onMembersAdded;
 
 		this.openEntitySelector = this.openEntitySelector.bind(this);
@@ -162,6 +162,15 @@ export default class UserSelector
 
 	renderUserEntity(entity): HTMLElement
 	{
+		if (entity.isCollabUser)
+		{
+			return Tag.render`
+				<div class="calendar-sharing__user-selector-entity-container">
+					${this.#renderCollabAvatar(entity)}
+				</div>
+			`;
+		}
+
 		if (this.hasAvatar(entity.avatar))
 		{
 			return Tag.render`
@@ -217,7 +226,7 @@ export default class UserSelector
 					{
 						id: 'user',
 						options: {
-							intranetUsersOnly: true,
+							intranetUsersOnly: !(this.#model.getCalendarContext()?.sharingObjectType === 'group'),
 							emailUsers: false,
 							inviteEmployeeLink: false,
 							inviteGuestLink: false,
@@ -249,10 +258,16 @@ export default class UserSelector
 	onUserSelectorSelect(event): void
 	{
 		const item = event.data.item;
+		const name = item.customData.get('name')
+			? `${item.customData.get('name')} ${item.customData.get('lastName') ?? ''}`.trim()
+			: String(item.customData.get('login'))
+		;
+
 		const entity = {
 			id: item.id,
 			avatar: item.avatar,
-			name: `${item.customData.get('name')} ${item.customData.get('lastName') ?? ''}`.trim(),
+			name,
+			isCollabUser: item.entityType === 'collaber',
 		};
 		const entityNode = this.renderUserEntity(entity);
 
@@ -328,5 +343,15 @@ export default class UserSelector
 	getEntityKey(id)
 	{
 		return `user-${id}`;
+	}
+
+	#renderCollabAvatar(member): HTMLElement
+	{
+		return new AvatarRoundGuest({
+			size: 36,
+			userName: member.name,
+			userpicPath: this.hasAvatar(member.avatar) && member.avatar,
+			baseColor: '#19cc45',
+		}).getContainer();
 	}
 }

@@ -14,6 +14,12 @@ return [
 		],
 		'readonly' => true,
 	],
+	'ui.uploader' => [
+		'value' => [
+			'allowUseControllers' => true,
+		],
+		'readonly' => true,
+	],
 	'services' => [
 		'value' => [
 			'calendar.service.office365.helper' => [

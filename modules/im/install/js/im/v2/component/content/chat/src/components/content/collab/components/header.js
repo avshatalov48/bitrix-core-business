@@ -1,18 +1,21 @@
+import { EventEmitter } from 'main.core.events';
+
 import { ChatHeader } from 'im.v2.component.content.elements';
+import { EventType } from 'im.v2.const';
+import { AddToChat as AddToChatPopup } from 'im.v2.component.entity-selector';
+
+import { CollabTitle } from './collab-title';
+import { EntitiesPanel } from './entities-panel/entities-panel';
+import { AddToChatButton } from './add-to-chat-button';
+import { PulseAnimation } from './pulse-animation/pulse-animation';
 
 import type { JsonObject } from 'main.core';
-
-type EntityLink = {
-	title: string,
-	clickHandler: () => void;
-};
-
-const GROUP_ID_PARAM_NAME = 'COLLAB_GROUP_ID';
+import type { ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const CollabHeader = {
 	name: 'CollabHeader',
-	components: { ChatHeader },
+	components: { ChatHeader, CollabTitle, EntitiesPanel, AddToChatButton, AddToChatPopup, PulseAnimation },
 	props:
 	{
 		dialogId: {
@@ -23,49 +26,79 @@ export const CollabHeader = {
 	data(): JsonObject
 	{
 		return {
-			groupId: 0,
+			compactMode: false,
+			showAddToChatPopupDelayed: false,
 		};
 	},
 	computed:
 	{
-		entityLinks(): EntityLink[]
+		dialog(): ImModelChat
 		{
-			return [
-				{
-					title: 'Tasks',
-					clickHandler: () => {
-						BX.SidePanel.Instance.open(`https://kotlyarchuk.bx/workgroups/group/${this.groupId}/tasks/`);
-					},
-				},
-				{
-					title: 'Files',
-					clickHandler: () => {
-						BX.SidePanel.Instance.open(`https://kotlyarchuk.bx/workgroups/group/${this.groupId}/disk/path/`);
-					},
-				},
-				{
-					title: 'Calendar',
-					clickHandler: () => {
-						BX.SidePanel.Instance.open(`https://kotlyarchuk.bx/workgroups/group/${this.groupId}/calendar/`);
-					},
-				},
-			];
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		isInited(): boolean
+		{
+			return this.dialog.inited;
+		},
+	},
+	watch:
+	{
+		async isInited(isInited: boolean)
+		{
+			if (isInited && this.showAddToChatPopupDelayed)
+			{
+				await this.$nextTick();
+				this.openAddToChatPopup();
+			}
 		},
 	},
 	created()
 	{
-		const urlQuery = new URLSearchParams(window.location.search);
-		this.groupId = urlQuery.get(GROUP_ID_PARAM_NAME) ?? 1;
+		EventEmitter.subscribe(EventType.header.openAddToChatPopup, this.onOpenAddToChatPopup);
 	},
-	// language=Vue
+	beforeUnmount()
+	{
+		EventEmitter.unsubscribe(EventType.header.openAddToChatPopup, this.onOpenAddToChatPopup);
+	},
+	methods:
+	{
+		onOpenAddToChatPopup()
+		{
+			if (!this.isInited)
+			{
+				this.showAddToChatPopupDelayed = true;
+
+				return;
+			}
+
+			this.openAddToChatPopup();
+		},
+		openAddToChatPopup()
+		{
+			this.$refs['add-to-chat-button'].openAddToChatPopup();
+		},
+		onCompactModeChange(compactMode: boolean)
+		{
+			this.compactMode = compactMode;
+		},
+	},
 	template: `
-		<ChatHeader :dialogId="dialogId" class="bx-im-collab-header__container">
+		<ChatHeader :dialogId="dialogId" @compactModeChange="onCompactModeChange" class="bx-im-collab-header__container">
+			<template #title>
+				<CollabTitle :dialogId="dialogId" />
+			</template>
 			<template #before-actions>
-				<div class="bx-im-collab-header__links-container">
-					<div v-for="{ title, clickHandler } in entityLinks" :key="title" @click="clickHandler" class="bx-im-collab-header__links-container_item">
-						{{ title }}
-					</div>
-				</div>
+				<EntitiesPanel :dialogId="dialogId" :compactMode="compactMode" />
+			</template>
+			<template #add-to-chat-button>
+				<PulseAnimation :showPulse="showAddToChatPopupDelayed">
+					<AddToChatButton 
+						:withAnimation="showAddToChatPopupDelayed" 
+						:dialogId="dialogId" 
+						ref="add-to-chat-button" 
+						@close="showAddToChatPopupDelayed = false"
+					/>
+				</PulseAnimation>
 			</template>
 		</ChatHeader>
 	`,

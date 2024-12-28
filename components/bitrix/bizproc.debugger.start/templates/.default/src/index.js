@@ -222,7 +222,7 @@ class DebuggerStartComponent
 		{
 			let message = '';
 			response.errors.forEach((error)=>{
-				message = message + '\n' + error.message;
+				message = message + '\n' + Text.encode(error.message);
 			});
 
 			MessageBox.alert(message, callback);

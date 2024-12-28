@@ -242,53 +242,6 @@
 .bx-im-reaction-selector__icon.--active {
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='10' fill='%2300ACE3'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14.566 8.253H12.06a.182.182 0 01-.169-.107c-.113-.283-.108-.6.015-.88a3.235 3.235 0 00.069-1.876c-.17-.425-.216-1.202-1.002-1.238a.81.81 0 00-.584.4.256.256 0 00-.031.127s.036.754 0 1.278c-.037.525-1.04 1.86-1.677 2.708a.249.249 0 01-.164.1c-.239.035-.695.096-.86.117-.038.005-.06.054-.06.077v4.755c0 .018.02.056.058.062.129.022.451.08.776.185.409.131.749.441 1.43.671a.356.356 0 00.113.019h3.197a.906.906 0 00.742-.85 1.57 1.57 0 00-.138-.685c-.014-.03.004-.063.037-.07.41-.074.923-.852.292-1.48-.017-.015-.014-.037.009-.043a.963.963 0 00.696-.714.767.767 0 00-.02-.4c-.046-.154-.12-.3-.217-.43-.025-.032-.01-.074.028-.087a.864.864 0 00.583-.825c.04-.37-.257-.813-.617-.814zm-7.95.2H4.802a.15.15 0 00-.15.175l1.053 5.913c.016.09.096.157.19.157h.67a.185.185 0 00.188-.183l.014-5.911a.151.151 0 00-.153-.15z' fill='%23fff'/%3E%3C/svg%3E");
 }
-.bx-im-message-default-content__scope {
-	--im-message-default-content__font-color_message: var(--im-color-palette-black-base);
-	--im-message-default-content__color_message-links: #2067b0;
-}
-
-.bx-im-message-default-content__text {
-	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
-	color: var(--im-message-default-content__font-color_message);
-	word-break: break-word;
-	padding-right: 20px;
-
-	/* firefox width hack */
-	min-width: calc(100% + 1px);
-}
-
-.bx-im-message-default-content__text a {
-	text-decoration: none;
-	font-size: inherit;
-	color: var(--im-message-default-content__color_message-links);
-}
-
-.bx-im-message-default-content__attach {
-	margin: 8px 0 5px;
-}
-
-.bx-im-message-base__text_smile {
-	object-fit: contain;
-	vertical-align: middle;
-	max-height: 180px;
-	max-width: 180px;
-}
-
-.bx-im-message-default-content__bottom-panel {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-end;
-}
-
-.bx-im-message-default-content__status-container {
-	display: flex;
-	margin-left: auto;
-}
-
-.bx-im-message-default-content__reaction-list {
-	margin: 10px 8px 0 0;
-}
-
 .bx-im-message-author-title__container {
 	align-self: flex-start;
 	-webkit-user-select: none;
@@ -391,6 +344,53 @@
 .bx-im-message-header__author-name {
 	font-size: var(--im-font-size-lg);
 }
+.bx-im-message-default-content__scope {
+	--im-message-default-content__font-color_message: var(--im-color-palette-black-base);
+	--im-message-default-content__color_message-links: #2067b0;
+}
+
+.bx-im-message-default-content__text {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-message-default-content__font-color_message);
+	word-break: break-word;
+	padding-right: 20px;
+
+	/* firefox width hack */
+	min-width: calc(100% + 1px);
+}
+
+.bx-im-message-default-content__text a {
+	text-decoration: none;
+	font-size: inherit;
+	color: var(--im-message-default-content__color_message-links);
+}
+
+.bx-im-message-default-content__attach {
+	margin: 8px 0 5px;
+}
+
+.bx-im-message-base__text_smile {
+	object-fit: contain;
+	vertical-align: middle;
+	max-height: 180px;
+	max-width: 180px;
+}
+
+.bx-im-message-default-content__bottom-panel {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+}
+
+.bx-im-message-default-content__status-container {
+	display: flex;
+	margin-left: auto;
+}
+
+.bx-im-message-default-content__reaction-list {
+	margin: 10px 8px 0 0;
+}
+
 .bx-im-message-comments-panel__container {
 	--im-message-comments-panel__background-color_container: var(--im-color-palette-green-20);
 	--im-message-comments-panel__background-color_container-shadow: rgba(var(--im-color-palette-black-solid-rgb), 0.03);

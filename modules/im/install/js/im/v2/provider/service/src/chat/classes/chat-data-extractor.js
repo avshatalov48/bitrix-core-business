@@ -1,6 +1,7 @@
 import { ChatType } from 'im.v2.const';
 import { UserManager } from 'im.v2.lib.user';
 
+import type { RawSession } from 'imopenlines.v2.provider.service';
 import type {
 	ChatLoadRestResult,
 	RawChat,
@@ -9,6 +10,7 @@ import type {
 	RawShortUser,
 	RawMessage,
 	RawCommentInfo,
+	RawCollabInfo,
 	RawPin,
 	RawReaction,
 	RawCopilot,
@@ -93,6 +95,11 @@ export class ChatDataExtractor
 		return this.#restResult.commentInfo ?? [];
 	}
 
+	getCollabInfo(): ?RawCollabInfo
+	{
+		return this.#restResult.collabInfo ?? null;
+	}
+
 	getMessagesToStore(): RawMessage[]
 	{
 		return this.#restResult.additionalMessages ?? [];
@@ -117,5 +124,10 @@ export class ChatDataExtractor
 	getCopilot(): RawCopilot
 	{
 		return this.#restResult.copilot;
+	}
+
+	getSession(): RawSession
+	{
+		return this.#restResult.session;
 	}
 }

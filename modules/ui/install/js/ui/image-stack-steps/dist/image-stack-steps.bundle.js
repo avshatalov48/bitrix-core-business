@@ -12,7 +12,8 @@ this.BX = this.BX || {};
 	  IMAGE_STUB: 'image-stub',
 	  USER: 'user',
 	  USER_STUB: 'user-stub',
-	  ICON: 'icon'
+	  ICON: 'icon',
+	  COUNTER: 'counter'
 	});
 	const stackStatusEnum = Object.freeze({
 	  CUSTOM: 'custom',
@@ -46,6 +47,9 @@ this.BX = this.BX || {};
 	  return validateHeader(data.header) && validateStack(data.stack) && validateFooter(data.footer);
 	}
 	function validateHeader(data) {
+	  if (main_core.Type.isNil(data)) {
+	    return true;
+	  }
 	  if (!main_core.Type.isPlainObject(data)) {
 	    // eslint-disable-next-line no-console
 	    console.warn('UI.Image-Stack-Steps: StepData.header must be plain object');
@@ -69,6 +73,9 @@ this.BX = this.BX || {};
 	  return data.type === headerTypeEnum.STUB;
 	}
 	function validateFooter(data) {
+	  if (main_core.Type.isNil(data)) {
+	    return true;
+	  }
 	  if (!main_core.Type.isPlainObject(data)) {
 	    // eslint-disable-next-line no-console
 	    console.warn('UI.Image-Stack-Steps: StepData.footer must be plain object');
@@ -118,7 +125,7 @@ this.BX = this.BX || {};
 	  return true;
 	}
 	function validateImage(data) {
-	  var _data$data3, _data$data4, _data$data5, _data$data6, _data$data7;
+	  var _data$data3, _data$data4, _data$data5, _data$data6, _data$data7, _data$data8;
 	  if (!main_core.Type.isPlainObject(data)) {
 	    return false;
 	  }
@@ -132,6 +139,9 @@ this.BX = this.BX || {};
 	    return true;
 	  }
 	  if (data.type === imageTypeEnum.USER_STUB || data.type === imageTypeEnum.IMAGE_STUB) {
+	    return true;
+	  }
+	  if (data.type === imageTypeEnum.COUNTER && main_core.Type.isStringFilled((_data$data8 = data.data) == null ? void 0 : _data$data8.text)) {
 	    return true;
 	  }
 
@@ -430,6 +440,22 @@ this.BX = this.BX || {};
 	`
 	};
 
+	const Counter = {
+	  name: 'ui-image-stack-steps-counter',
+	  props: {
+	    text: {
+	      type: String,
+	      required: true,
+	      validator: value => {
+	        return main_core.Type.isStringFilled(value);
+	      }
+	    }
+	  },
+	  template: `
+		<div class="ui-image-stack-steps-counter">{{ text }}</div>
+	`
+	};
+
 	const Stack = {
 	  name: 'ui-image-stack-steps-step-stack',
 	  components: {
@@ -461,6 +487,8 @@ this.BX = this.BX || {};
 	          return Icon;
 	        case imageTypeEnum.USER_STUB:
 	          return UserStub;
+	        case imageTypeEnum.COUNTER:
+	          return Counter;
 	        default:
 	          return ImageStub;
 	      }
@@ -481,6 +509,9 @@ this.BX = this.BX || {};
 	          break;
 	        case imageTypeEnum.USER_STUB:
 	          key = 'user-stub';
+	          break;
+	        case imageTypeEnum.COUNTER:
+	          key = 'counter';
 	          break;
 	      }
 	      return `${key}-${index}`;
@@ -658,6 +689,12 @@ this.BX = this.BX || {};
 	    hasProgressBox() {
 	      return main_core.Type.isPlainObject(this.step.progressBox);
 	    },
+	    hasHeader() {
+	      return !main_core.Type.isNil(this.step.header);
+	    },
+	    hasFooter() {
+	      return !main_core.Type.isNil(this.step.footer);
+	    },
 	    getCustomStyles() {
 	      var _this$step$styles;
 	      const styles = {};
@@ -668,11 +705,15 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  template: `
-		<div class="ui-image-stack-steps-step" :style="getCustomStyles">
+		<div 
+			class="ui-image-stack-steps-step"
+			:class="{'--with-header': hasHeader, '--with-footer': hasFooter}"
+			:style="getCustomStyles"
+		>
 			<ProgressBox v-if="hasProgressBox" :title="step.progressBox.title"/>
-			<Header :header="step.header"/>
+			<Header v-if="hasHeader" :header="step.header"/>
 			<Stack :stack="step.stack"/>
-			<Footer :footer="step.footer"/>
+			<Footer v-if="hasFooter" :footer="step.footer"/>
 		</div>
 	`
 	};

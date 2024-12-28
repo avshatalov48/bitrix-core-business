@@ -6,7 +6,7 @@ import { Utils } from 'im.v2.lib.utils';
 import { BaseMenu } from 'im.v2.lib.menu';
 import { CallManager } from 'im.v2.lib.call';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { EventType, SidebarDetailBlock } from 'im.v2.const';
+import { EventType, SidebarDetailBlock, UserType } from 'im.v2.const';
 
 import type { MenuItem } from 'im.v2.lib.menu';
 import type { ImModelUser } from 'im.v2.model';
@@ -103,6 +103,6 @@ export class SearchContextMenu extends BaseMenu
 
 		const user: ImModelUser = this.store.getters['users/get'](this.context.dialogId);
 
-		return user.bot === true;
+		return user.type === UserType.bot;
 	}
 }

@@ -4,14 +4,14 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main\DB\SqlExpression;
 
-class CDatabase extends CAllDatabase
+class CDatabasePgSql extends CAllDatabase
 {
-	/** @var resource */
+	/** @var \PgSql\Connection */
 	var $db_Conn;
 
 	public
@@ -76,12 +76,30 @@ class CDatabase extends CAllDatabase
 
 	protected function QueryInternal($strSql)
 	{
-		return pg_query($this->db_Conn, $strSql);
+		// Handle E_WARNING
+		set_error_handler(function () {
+			// noop
+		});
+
+		$result = pg_query($this->db_Conn, $strSql);
+
+		restore_error_handler();
+
+		return $result;
 	}
 
 	protected function GetError()
 	{
 		return pg_last_error($this->db_Conn);
+	}
+
+	protected function GetErrorCode()
+	{
+		if (preg_match("/ERROR:\\s*([^:]+):/i", $this->getError(), $matches))
+		{
+			return $matches[1];
+		}
+		return '';
 	}
 
 	public function GetTableFields($table)
@@ -432,7 +450,7 @@ class CDatabase extends CAllDatabase
 		}
 		else
 		{
-			$arInsert = $this->PrepareInsert($tablename, $arFields, $strFileDir);
+			$arInsert = $this->PrepareInsert($tablename, $arFields);
 			if (!isset($arFields["ID"]) || intval($arFields["ID"]) <= 0)
 			{
 				$strSql = "INSERT INTO ".$tablename."(".$arInsert[0].") VALUES (".$arInsert[1].") RETURNING ID";
@@ -473,4 +491,8 @@ class CDatabase extends CAllDatabase
 	{
 		return pg_get_pid($this->db_Conn);
 	}
+}
+
+class CDatabase extends CDatabasePgSql
+{
 }

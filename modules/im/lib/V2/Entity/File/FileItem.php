@@ -179,7 +179,7 @@ class FileItem implements RestEntity, PopupDataAggregatable
 		}
 
 		$folder = $chat->getOrCreateDiskFolder();
-		$diskFile = $this->getDiskFile();
+		$diskFile = $this->getDiskFile()?->getRealObject();
 
 		if (!($folder instanceof Folder) || $diskFile === null)
 		{

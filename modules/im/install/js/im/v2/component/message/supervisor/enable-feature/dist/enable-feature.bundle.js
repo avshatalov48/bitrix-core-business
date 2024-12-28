@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_elements,im_v2_component_message_supervisor_base,main_core,im_v2_lib_analytics,stafftrack_userStatisticsLink) {
+(function (exports,im_v2_component_elements,im_v2_component_message_supervisor_base,main_core,im_v2_lib_analytics,im_v2_lib_helpdesk,stafftrack_userStatisticsLink) {
 	'use strict';
 
 	const EnableFeatures = Object.freeze({
@@ -41,7 +41,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	const onOpenToolsSettings = toolId => {
 	  return () => {
-	    im_v2_lib_analytics.Analytics.getInstance().onOpenToolsSettings(toolId);
+	    im_v2_lib_analytics.Analytics.getInstance().supervisor.onOpenToolsSettings(toolId);
 	    BX.SidePanel.Instance.open(`${window.location.origin}/settings/configs/?page=tools`);
 	  };
 	};
@@ -53,7 +53,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    intent: stafftrack_userStatisticsLink.UserStatisticsLink.CHECK_IN_SETTINGS_INTENT
 	  }).show();
 	};
-	const onHelpClick = ARTICLE_CODE => BX.Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
+	const onHelpClick = ARTICLE_CODE => im_v2_lib_helpdesk.openHelpdeskArticle(ARTICLE_CODE);
 	const metaData = {
 	  [EnableFeatures.copilot]: {
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_COPILOT_TITLE'),
@@ -360,5 +360,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SupervisorEnableFeatureMessage = SupervisorEnableFeatureMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX,BX.Messenger.v2.Lib,BX.Stafftrack));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Stafftrack));
 //# sourceMappingURL=enable-feature.bundle.js.map

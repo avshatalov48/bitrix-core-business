@@ -3,461 +3,32 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_notification,im_v2_component_entitySelector,im_v2_lib_localStorage,im_v2_lib_menu,im_v2_lib_rest,im_v2_lib_feature,im_v2_lib_analytics,im_public,im_v2_lib_call,ui_vue3_directives_hint,im_v2_component_animation,im_v2_lib_utils,ui_vue3,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_theme,im_v2_lib_permission,im_v2_lib_textarea,im_v2_component_sidebar,ui_uploader_core,main_core,main_core_events,im_v2_lib_channel,im_v2_application_core,im_v2_const,im_v2_component_elements,im_v2_provider_service) {
+(function (exports,ui_notification,call_component_callButton,im_v2_component_animation,im_v2_lib_utils,im_v2_lib_analytics,ui_vue3,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_theme,im_v2_lib_permission,im_v2_lib_textarea,im_v2_component_sidebar,im_v2_lib_bulkActions,ui_uploader_core,main_core,im_v2_application_core,im_v2_provider_service,im_v2_const,main_core_events,ui_vue3_directives_hint,im_v2_component_elements,im_v2_component_entitySelector) {
 	'use strict';
 
-	const CallTypes = {
-	  video: {
-	    id: 'video',
-	    locCode: 'IM_CONTENT_CHAT_HEADER_VIDEOCALL',
-	    start: dialogId => {
-	      im_public.Messenger.startVideoCall(dialogId);
-	    }
-	  },
-	  audio: {
-	    id: 'audio',
-	    locCode: 'IM_CONTENT_CHAT_HEADER_CALL_MENU_AUDIO',
-	    start: dialogId => {
-	      im_public.Messenger.startVideoCall(dialogId, false);
-	    }
-	  },
-	  beta: {
-	    id: 'beta',
-	    locCode: 'IM_CONTENT_CHAT_HEADER_CALL_MENU_BETA_2',
-	    start: dialogId => {
-	      const dialog = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
-	      im_v2_lib_call.CallManager.getInstance().createBetaCallRoom(dialog.chatId);
-	    }
-	  }
-	};
-
-	let _ = t => t,
-	  _t;
-	var _getDelimiter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDelimiter");
-	var _getVideoCallItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getVideoCallItem");
-	var _getAudioCallItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAudioCallItem");
-	var _analyticsOnStartCallClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("analyticsOnStartCallClick");
-	var _getPersonalPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPersonalPhoneItem");
-	var _getWorkPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getWorkPhoneItem");
-	var _getInnerPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getInnerPhoneItem");
-	var _getZoomItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getZoomItem");
-	var _getUserPhoneHtml = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUserPhoneHtml");
-	var _isCallAvailable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCallAvailable");
-	var _getUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUser");
-	var _isUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUser");
-	var _requestCreateZoomConference = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestCreateZoomConference");
-	class CallMenu extends im_v2_lib_menu.BaseMenu {
-	  constructor() {
-	    super();
-	    Object.defineProperty(this, _requestCreateZoomConference, {
-	      value: _requestCreateZoomConference2
-	    });
-	    Object.defineProperty(this, _isUser, {
-	      value: _isUser2
-	    });
-	    Object.defineProperty(this, _getUser, {
-	      value: _getUser2
-	    });
-	    Object.defineProperty(this, _isCallAvailable, {
-	      value: _isCallAvailable2
-	    });
-	    Object.defineProperty(this, _getUserPhoneHtml, {
-	      value: _getUserPhoneHtml2
-	    });
-	    Object.defineProperty(this, _getZoomItem, {
-	      value: _getZoomItem2
-	    });
-	    Object.defineProperty(this, _getInnerPhoneItem, {
-	      value: _getInnerPhoneItem2
-	    });
-	    Object.defineProperty(this, _getWorkPhoneItem, {
-	      value: _getWorkPhoneItem2
-	    });
-	    Object.defineProperty(this, _getPersonalPhoneItem, {
-	      value: _getPersonalPhoneItem2
-	    });
-	    Object.defineProperty(this, _analyticsOnStartCallClick, {
-	      value: _analyticsOnStartCallClick2
-	    });
-	    Object.defineProperty(this, _getAudioCallItem, {
-	      value: _getAudioCallItem2
-	    });
-	    Object.defineProperty(this, _getVideoCallItem, {
-	      value: _getVideoCallItem2
-	    });
-	    Object.defineProperty(this, _getDelimiter, {
-	      value: _getDelimiter2
-	    });
-	    this.id = 'bx-im-chat-header-call-menu';
-	  }
-	  getMenuOptions() {
-	    return {
-	      ...super.getMenuOptions(),
-	      className: this.getMenuClassName(),
-	      angle: true,
-	      offsetLeft: 4,
-	      offsetTop: 5
-	    };
-	  }
-	  getMenuClassName() {
-	    return 'bx-im-messenger__scope bx-im-chat-header-call-button__scope';
-	  }
-	  getMenuItems() {
-	    return [babelHelpers.classPrivateFieldLooseBase(this, _getVideoCallItem)[_getVideoCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getAudioCallItem)[_getAudioCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getZoomItem)[_getZoomItem](), babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter](), babelHelpers.classPrivateFieldLooseBase(this, _getPersonalPhoneItem)[_getPersonalPhoneItem](), babelHelpers.classPrivateFieldLooseBase(this, _getWorkPhoneItem)[_getWorkPhoneItem](), babelHelpers.classPrivateFieldLooseBase(this, _getInnerPhoneItem)[_getInnerPhoneItem]()];
-	  }
-	}
-	function _getDelimiter2() {
-	  return {
-	    delimiter: true
-	  };
-	}
-	function _getVideoCallItem2() {
-	  const isAvailable = babelHelpers.classPrivateFieldLooseBase(this, _isCallAvailable)[_isCallAvailable](this.context.dialogId);
-	  return {
-	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_VIDEOCALL'),
-	    onclick: () => {
-	      if (!isAvailable) {
-	        return;
-	      }
-	      babelHelpers.classPrivateFieldLooseBase(this, _analyticsOnStartCallClick)[_analyticsOnStartCallClick](CallTypes.video.id);
-	      CallTypes.video.start(this.context.dialogId);
-	      this.emit(CallMenu.events.onMenuItemClick, CallTypes.video);
-	      this.menuInstance.close();
-	    },
-	    disabled: !isAvailable
-	  };
-	}
-	function _getAudioCallItem2() {
-	  const isAvailable = babelHelpers.classPrivateFieldLooseBase(this, _isCallAvailable)[_isCallAvailable](this.context.dialogId);
-	  return {
-	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_AUDIO'),
-	    onclick: () => {
-	      if (!isAvailable) {
-	        return;
-	      }
-	      babelHelpers.classPrivateFieldLooseBase(this, _analyticsOnStartCallClick)[_analyticsOnStartCallClick](CallTypes.audio.id);
-	      CallTypes.audio.start(this.context.dialogId);
-	      this.emit(CallMenu.events.onMenuItemClick, CallTypes.audio);
-	      this.menuInstance.close();
-	    },
-	    disabled: !isAvailable
-	  };
-	}
-	function _analyticsOnStartCallClick2(callType) {
-	  im_v2_lib_analytics.Analytics.getInstance().onStartCallClick({
-	    type: babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]() ? im_v2_lib_analytics.Analytics.AnalyticsType.privateCall : im_v2_lib_analytics.Analytics.AnalyticsType.groupCall,
-	    section: im_v2_lib_analytics.Analytics.AnalyticsSection.chatWindow,
-	    subSection: im_v2_lib_analytics.Analytics.AnalyticsSubSection.contextMenu,
-	    element: callType === CallTypes.video.id ? im_v2_lib_analytics.Analytics.AnalyticsElement.videocall : im_v2_lib_analytics.Analytics.AnalyticsElement.audiocall,
-	    chatId: this.context.chatId
-	  });
-	}
-	function _getPersonalPhoneItem2() {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]()) {
-	    return null;
-	  }
-	  const {
-	    phones
-	  } = babelHelpers.classPrivateFieldLooseBase(this, _getUser)[_getUser]();
-	  if (!phones.personalMobile) {
-	    return null;
-	  }
-	  const title = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_PERSONAL_PHONE');
-	  return {
-	    className: 'menu-popup-no-icon bx-im-chat-header-call-button-menu__item',
-	    html: babelHelpers.classPrivateFieldLooseBase(this, _getUserPhoneHtml)[_getUserPhoneHtml](title, phones.personalMobile),
-	    onclick: () => {
-	      im_public.Messenger.startPhoneCall(phones.personalMobile);
-	      this.menuInstance.close();
-	    }
-	  };
-	}
-	function _getWorkPhoneItem2() {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]()) {
-	    return null;
-	  }
-	  const {
-	    phones
-	  } = babelHelpers.classPrivateFieldLooseBase(this, _getUser)[_getUser]();
-	  if (!phones.workPhone) {
-	    return null;
-	  }
-	  const title = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_WORK_PHONE');
-	  return {
-	    className: 'menu-popup-no-icon bx-im-chat-header-call-button-menu__item',
-	    html: babelHelpers.classPrivateFieldLooseBase(this, _getUserPhoneHtml)[_getUserPhoneHtml](title, phones.workPhone),
-	    onclick: () => {
-	      im_public.Messenger.startPhoneCall(phones.workPhone);
-	      this.menuInstance.close();
-	    }
-	  };
-	}
-	function _getInnerPhoneItem2() {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]()) {
-	    return null;
-	  }
-	  const {
-	    phones
-	  } = babelHelpers.classPrivateFieldLooseBase(this, _getUser)[_getUser]();
-	  if (!phones.innerPhone) {
-	    return null;
-	  }
-	  const title = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_INNER_PHONE_MSGVER_1');
-	  return {
-	    className: 'menu-popup-no-icon bx-im-chat-header-call-button-menu__item',
-	    html: babelHelpers.classPrivateFieldLooseBase(this, _getUserPhoneHtml)[_getUserPhoneHtml](title, phones.innerPhone),
-	    onclick: () => {
-	      im_public.Messenger.startPhoneCall(phones.innerPhone);
-	      this.menuInstance.close();
-	    }
-	  };
-	}
-	function _getZoomItem2() {
-	  const isActive = im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.zoomActive);
-	  if (!isActive) {
-	    return null;
-	  }
-	  const classNames = ['bx-im-chat-header-call-button-menu__zoom', 'menu-popup-no-icon'];
-	  const isFeatureAvailable = im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.zoomAvailable);
-	  if (!isFeatureAvailable) {
-	    classNames.push('--disabled');
-	  }
-	  return {
-	    className: classNames.join(' '),
-	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM'),
-	    onclick: () => {
-	      if (!isFeatureAvailable) {
-	        BX.UI.InfoHelper.show('limit_video_conference_zoom');
-	        return;
-	      }
-	      babelHelpers.classPrivateFieldLooseBase(this, _requestCreateZoomConference)[_requestCreateZoomConference](this.context.dialogId);
-	      this.menuInstance.close();
-	    }
-	  };
-	}
-	function _getUserPhoneHtml2(title, phoneNumber) {
-	  return main_core.Tag.render(_t || (_t = _`
-			<span class="bx-im-chat-header-call-button-menu__phone_container">
-				<span class="bx-im-chat-header-call-button-menu__phone_title">${0}</span>
-				<span class="bx-im-chat-header-call-button-menu__phone_number">${0}</span>
-			</span>
-		`), title, phoneNumber);
-	}
-	function _isCallAvailable2(dialogId) {
-	  if (im_v2_application_core.Core.getStore().getters['recent/calls/hasActiveCall'](dialogId) && im_v2_lib_call.CallManager.getInstance().getCurrentCallDialogId() === dialogId) {
-	    return true;
-	  }
-	  if (im_v2_application_core.Core.getStore().getters['recent/calls/hasActiveCall']()) {
-	    return false;
-	  }
-	  const chatCanBeCalled = im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(dialogId);
-	  const chatIsAllowedToCall = im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.call, dialogId);
-	  return chatCanBeCalled && chatIsAllowedToCall;
-	}
-	function _getUser2() {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]()) {
-	    return null;
-	  }
-	  return im_v2_application_core.Core.getStore().getters['users/get'](this.context.dialogId);
-	}
-	function _isUser2() {
-	  return this.context.type === im_v2_const.ChatType.user;
-	}
-	function _requestCreateZoomConference2(dialogId) {
-	  im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2CallZoomCreate, {
-	    data: {
-	      dialogId
-	    }
-	  }).catch(errors => {
-	    let errorText = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM_CREATE_ERROR');
-	    const notConnected = errors.some(error => error.code === 'ZOOM_CONNECTED_ERROR');
-	    if (notConnected) {
-	      const userProfileUri = `/company/personal/user/${im_v2_application_core.Core.getUserId()}/social_services/`;
-	      errorText = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM_CONNECT_ERROR').replace('#HREF_START#', `<a href=${userProfileUri}>`).replace('#HREF_END#', '</>');
-	    }
-	    BX.UI.Notification.Center.notify({
-	      content: errorText
-	    });
-	  });
-	}
-	CallMenu.events = {
-	  onMenuItemClick: 'onMenuItemClick'
-	};
-
 	// @vue/component
-	const CallButton = {
-	  directives: {
-	    hint: ui_vue3_directives_hint.hint
-	  },
+	const CallHeaderButton = {
+	  name: 'CallHeaderButton',
 	  props: {
 	    dialogId: {
 	      type: String,
 	      required: true
+	    },
+	    compactMode: {
+	      type: Boolean,
+	      default: false
 	    }
-	  },
-	  emits: [],
-	  data() {
-	    return {
-	      lastCallType: ''
-	    };
 	  },
 	  computed: {
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    chatId() {
-	      return this.dialog.chatId;
-	    },
-	    isConference() {
-	      return this.dialog.type === im_v2_const.ChatType.videoconf;
-	    },
-	    callButtonText() {
-	      const locCode = CallTypes[this.lastCallType].locCode;
-	      return this.loc(locCode);
-	    },
-	    hasActiveCurrentCall() {
-	      return im_v2_lib_call.CallManager.getInstance().hasActiveCurrentCall(this.dialogId);
-	    },
-	    hasActiveAnotherCall() {
-	      return im_v2_lib_call.CallManager.getInstance().hasActiveAnotherCall(this.dialogId);
-	    },
-	    isActive() {
-	      if (this.hasActiveCurrentCall) {
-	        return true;
-	      }
-	      if (this.hasActiveAnotherCall) {
-	        return false;
-	      }
-	      return im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(this.dialogId);
-	    },
-	    userLimit() {
-	      return im_v2_lib_call.CallManager.getInstance().getCallUserLimit();
-	    },
-	    isChatUserLimitExceeded() {
-	      return im_v2_lib_call.CallManager.getInstance().isChatUserLimitExceeded(this.dialogId);
-	    },
-	    hintContent() {
-	      if (this.isChatUserLimitExceeded) {
-	        return {
-	          text: this.loc('IM_LIB_CALL_USER_LIMIT_EXCEEDED_TOOLTIP', {
-	            '#USER_LIMIT#': this.userLimit
-	          }),
-	          popupOptions: {
-	            bindOptions: {
-	              position: 'bottom'
-	            },
-	            angle: {
-	              position: 'top'
-	            },
-	            targetContainer: document.body,
-	            offsetLeft: 63,
-	            offsetTop: 0
-	          }
-	        };
-	      }
-	      return null;
-	    }
-	  },
-	  created() {
-	    this.lastCallType = this.getLastCallChoice();
-	    this.subscribeToMenuItemClick();
-	  },
-	  methods: {
-	    startVideoCall() {
-	      if (!this.isActive) {
-	        return;
-	      }
-	      im_public.Messenger.startVideoCall(this.dialogId);
-	    },
-	    subscribeToMenuItemClick() {
-	      this.getCallMenu().subscribe(CallMenu.events.onMenuItemClick, event => {
-	        const {
-	          id: callTypeId
-	        } = event.getData();
-	        this.saveLastCallChoice(callTypeId);
-	      });
-	    },
-	    getCallMenu() {
-	      if (!this.callMenu) {
-	        this.callMenu = new CallMenu();
-	      }
-	      return this.callMenu;
-	    },
-	    onButtonClick() {
-	      if (!this.isActive) {
-	        return;
-	      }
-	      im_v2_lib_analytics.Analytics.getInstance().onStartCallClick({
-	        type: this.dialog.type === im_v2_const.ChatType.user ? im_v2_lib_analytics.Analytics.AnalyticsType.privateCall : im_v2_lib_analytics.Analytics.AnalyticsType.groupCall,
-	        section: im_v2_lib_analytics.Analytics.AnalyticsSection.chatWindow,
-	        subSection: im_v2_lib_analytics.Analytics.AnalyticsSubSection.window,
-	        element: this.lastCallType === CallTypes.video.id ? im_v2_lib_analytics.Analytics.AnalyticsElement.videocall : im_v2_lib_analytics.Analytics.AnalyticsElement.audiocall,
-	        chatId: this.chatId
-	      });
-	      CallTypes[this.lastCallType].start(this.dialogId);
-	    },
-	    onMenuClick() {
-	      if (!this.shouldShowMenu()) {
-	        return;
-	      }
-	      this.getCallMenu().openMenu(this.dialog, this.$refs.menu);
-	    },
-	    onStartConferenceClick() {
-	      if (!this.isActive) {
-	        return;
-	      }
-	      im_v2_lib_analytics.Analytics.getInstance().onStartConferenceClick({
-	        element: im_v2_lib_analytics.Analytics.AnalyticsElement.startButton,
-	        chatId: this.chatId
-	      });
-	      im_public.Messenger.openConference({
-	        code: this.dialog.public.code
-	      });
-	    },
-	    getLastCallChoice() {
-	      const result = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(im_v2_const.LocalStorageKey.lastCallType, CallTypes.video.id);
-	      if (result === CallTypes.beta.id) {
-	        return CallTypes.video.id;
-	      }
-	      return result;
-	    },
-	    saveLastCallChoice(callTypeId) {
-	      this.lastCallType = callTypeId;
-	      im_v2_lib_localStorage.LocalStorageManager.getInstance().set(im_v2_const.LocalStorageKey.lastCallType, callTypeId);
-	    },
-	    shouldShowMenu() {
-	      return this.isActive;
-	    },
-	    loc(phraseCode, replacements = {}) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
+	    componentToRender() {
+	      return call_component_callButton.CallButton;
 	    }
 	  },
 	  template: `
-		<div
-			v-if="isConference"
-			class="bx-im-chat-header-call-button__scope bx-im-chat-header-call-button__container --conference"
-			:class="{'--disabled': !isActive}"
-			@click="onStartConferenceClick"
-		>
-			<div class="bx-im-chat-header-call-button__text">
-				{{ loc('IM_CONTENT_CHAT_HEADER_START_CONFERENCE') }}
-			</div>
-		</div>
-		<div
-			v-else
-			class="bx-im-chat-header-call-button__scope bx-im-chat-header-call-button__container"
-			:class="{'--disabled': !isActive}"
-			v-hint="hintContent"
-			@click="onButtonClick"
-		>
-			<div class="bx-im-chat-header-call-button__text">
-				{{ callButtonText }}
-			</div>
-			<div class="bx-im-chat-header-call-button__separator"></div>
-			<div class="bx-im-chat-header-call-button__chevron_container" @click.stop="onMenuClick">
-				<div class="bx-im-chat-header-call-button__chevron" ref="menu"></div>
-			</div>
-		</div>
+		<component v-if="componentToRender" :is="componentToRender" :dialog="dialog" :compactMode="compactMode" />
 	`
 	};
 
@@ -530,7 +101,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<a :href="entityUrl" class="bx-im-chat-header-entity-link__container" :class="containerClassName" target="_blank">
 			<div class="bx-im-chat-header-entity-link__icon"></div>
-			<div class="bx-im-chat-header-entity-link__text">{{ linkText }}</div>
+			<div class="bx-im-chat-header-entity-link__text --ellipsis">{{ linkText }}</div>
 			<div class="bx-im-chat-header-entity-link__arrow"></div>
 		</a>
 	`
@@ -552,6 +123,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    LineLoader: im_v2_component_elements.LineLoader,
 	    FadeAnimation: im_v2_component_animation.FadeAnimation
 	  },
+	  inject: ['withSidebar'],
 	  props: {
 	    dialogId: {
 	      type: String,
@@ -559,9 +131,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  emits: ['membersClick', 'newTitle'],
-	  data() {
-	    return {};
-	  },
 	  computed: {
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
@@ -578,9 +147,21 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return main_core.Loc.getMessagePlural(this.userCounterPhraseCode, this.dialog.userCounter, {
 	        '#COUNT#': this.dialog.userCounter
 	      });
+	    },
+	    needShowSubtitleCursor() {
+	      return this.withSidebar;
+	    },
+	    sidebarTooltipText() {
+	      return this.withSidebar ? this.loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS') : '';
 	    }
 	  },
 	  methods: {
+	    onMembersClick() {
+	      if (!this.withSidebar) {
+	        return;
+	      }
+	      this.$emit('membersClick');
+	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
@@ -592,9 +173,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<FadeAnimation :duration="100">
 				<div v-if="dialog.inited" class="bx-im-chat-header__subtitle_container">
 					<div
-						:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS')"
-						@click="$emit('membersClick')"
-						class="bx-im-chat-header__subtitle_content --click"
+						:title="sidebarTooltipText"
+						@click="onMembersClick"
+						class="bx-im-chat-header__subtitle_content"
+						:class="{'--click': needShowSubtitleCursor}"
 					>
 						{{ userCounterText }}
 					</div>
@@ -689,7 +271,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    canChangeAvatar() {
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.avatar, this.dialogId);
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.avatar, this.dialogId);
 	    },
 	    userLink() {
 	      return im_v2_lib_utils.Utils.user.getProfileLink(this.dialogId);
@@ -740,19 +322,155 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	// @vue/component
+	const AddToChatButton = {
+	  name: 'AddToChatButton',
+	  components: {
+	    AddToChat: im_v2_component_entitySelector.AddToChat
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  data() {
+	    return {
+	      showInviteButton: false,
+	      showAddToChatPopup: false
+	    };
+	  },
+	  methods: {
+	    openAddToChatPopup() {
+	      im_v2_lib_analytics.Analytics.getInstance().userAdd.onChatHeaderClick(this.dialogId);
+	      this.showAddToChatPopup = true;
+	    },
+	    closeAddToChatPopup() {
+	      this.showAddToChatPopup = false;
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div
+			:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_INVITE_POPUP_TITLE')"
+			:class="{'--active': showAddToChatPopup}"
+			class="bx-im-chat-header__icon --add-people"
+			@click="openAddToChatPopup"
+			ref="add-members"
+		></div>
+		<AddToChat
+			v-if="showAddToChatPopup"
+			:bindElement="$refs['add-members'] ?? {}"
+			:dialogId="dialogId"
+			:popupConfig="{ offsetTop: 15, offsetLeft: -300 }"
+			@close="closeAddToChatPopup"
+		/>
+	`
+	};
+
+	// @vue/component
+	const SearchButton = {
+	  name: 'SearchButton',
+	  inject: ['currentSidebarPanel'],
+	  props: {
+	    dialogId: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  computed: {
+	    isMessageSearchActive() {
+	      return this.currentSidebarPanel === im_v2_const.SidebarDetailBlock.messageSearch;
+	    }
+	  },
+	  methods: {
+	    toggleSearchPanel() {
+	      if (this.isMessageSearchActive) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
+	          panel: im_v2_const.SidebarDetailBlock.messageSearch
+	        });
+	        return;
+	      }
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
+	        panel: im_v2_const.SidebarDetailBlock.messageSearch,
+	        dialogId: this.dialogId
+	      });
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div
+			:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_SEARCH')"
+			:class="{'--active': isMessageSearchActive}"
+			class="bx-im-chat-header__icon --search"
+			@click="toggleSearchPanel"
+		></div>
+	`
+	};
+
+	// @vue/component
+	const SidebarButton = {
+	  name: 'SidebarButton',
+	  inject: ['currentSidebarPanel'],
+	  props: {
+	    dialogId: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  computed: {
+	    isSidebarOpened() {
+	      return main_core.Type.isStringFilled(this.currentSidebarPanel);
+	    }
+	  },
+	  methods: {
+	    toggleRightPanel() {
+	      if (this.isSidebarOpened) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
+	          panel: ''
+	        });
+	        return;
+	      }
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
+	        panel: im_v2_const.SidebarDetailBlock.main,
+	        dialogId: this.dialogId
+	      });
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div
+			class="bx-im-chat-header__icon --panel"
+			:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_SIDEBAR')"
+			:class="{'--active': isSidebarOpened}"
+			@click="toggleRightPanel"
+		></div>
+	`
+	};
+
+	const HEADER_WIDTH_BREAKPOINT = 700;
+
+	// @vue/component
 	const ChatHeader = {
 	  name: 'ChatHeader',
 	  components: {
 	    ChatAvatar: im_v2_component_elements.ChatAvatar,
-	    AddToChat: im_v2_component_entitySelector.AddToChat,
-	    CallButton,
+	    CallHeaderButton,
 	    GroupChatTitle,
 	    UserChatTitle: UserTitle,
 	    LineLoader: im_v2_component_elements.LineLoader,
 	    FadeAnimation: im_v2_component_animation.FadeAnimation,
-	    HeaderAvatar
+	    HeaderAvatar,
+	    AddToChatButton,
+	    SearchButton,
+	    SidebarButton
 	  },
-	  inject: ['currentSidebarPanel'],
+	  inject: ['currentSidebarPanel', 'withSidebar'],
 	  props: {
 	    dialogId: {
 	      type: String,
@@ -765,16 +483,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    withSearchButton: {
 	      type: Boolean,
 	      default: true
-	    },
-	    withSidebarButton: {
-	      type: Boolean,
-	      default: true
 	    }
 	  },
-	  emits: ['toggleRightPanel', 'toggleSearchPanel', 'toggleMembersPanel', 'buttonPanelReady'],
+	  emits: ['buttonPanelReady', 'compactModeChange'],
 	  data() {
 	    return {
-	      showAddToChatPopup: false
+	      compactMode: false
 	    };
 	  },
 	  computed: {
@@ -794,66 +508,64 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (!this.isUser) {
 	        return false;
 	      }
-	      return this.user.bot === true;
+	      return this.user.type === im_v2_const.UserType.bot;
 	    },
 	    showCallButton() {
 	      if (this.isBot || !this.withCallButton) {
 	        return false;
 	      }
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.call, this.dialogId);
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.call, this.dialogId);
 	    },
-	    showInviteButton() {
+	    showAddToChatButton() {
 	      if (this.isBot) {
 	        return false;
 	      }
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.extend, this.dialogId);
+	      const hasCreateChatAccess = im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByUserType(im_v2_const.ActionByUserType.createChat);
+	      if (this.isUser && !hasCreateChatAccess) {
+	        return false;
+	      }
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.extend, this.dialogId);
 	    },
 	    showSearchButton() {
 	      return this.withSearchButton;
 	    },
 	    showSidebarButton() {
-	      if (!this.withSidebarButton) {
+	      if (!this.withSidebar) {
 	        return false;
 	      }
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.openSidebar, this.dialogId);
-	    },
-	    isSidebarOpened() {
-	      return main_core.Type.isStringFilled(this.currentSidebarPanel);
-	    },
-	    isMessageSearchActive() {
-	      return this.currentSidebarPanel === im_v2_const.SidebarDetailBlock.messageSearch;
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.openSidebar, this.dialogId);
 	    },
 	    isMembersPanelActive() {
 	      return this.currentSidebarPanel === im_v2_const.SidebarDetailBlock.members;
 	    },
 	    chatTitleComponent() {
 	      return this.isUser ? UserTitle : GroupChatTitle;
+	    },
+	    containerClasses() {
+	      return {
+	        '--compact': this.compactMode
+	      };
 	    }
 	  },
+	  mounted() {
+	    this.initResizeObserver();
+	  },
+	  beforeUnmount() {
+	    this.getResizeObserver().disconnect();
+	  },
 	  methods: {
-	    toggleRightPanel() {
-	      if (this.isSidebarOpened) {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
-	          panel: ''
-	        });
-	        return;
-	      }
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
-	        panel: im_v2_const.SidebarDetailBlock.main,
-	        dialogId: this.dialogId
+	    initResizeObserver() {
+	      this.resizeObserver = new ResizeObserver(([entry]) => {
+	        this.onContainerResize(entry.contentRect.width);
 	      });
+	      this.resizeObserver.observe(this.$refs.container);
 	    },
-	    toggleSearchPanel() {
-	      if (this.isMessageSearchActive) {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
-	          panel: im_v2_const.SidebarDetailBlock.messageSearch
-	        });
-	        return;
+	    onContainerResize(newContainerWidth) {
+	      const newCompactMode = newContainerWidth <= HEADER_WIDTH_BREAKPOINT;
+	      if (newCompactMode !== this.compactMode) {
+	        this.$emit('compactModeChange', newCompactMode);
+	        this.compactMode = newCompactMode;
 	      }
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
-	        panel: im_v2_const.SidebarDetailBlock.messageSearch,
-	        dialogId: this.dialogId
-	      });
 	    },
 	    onMembersClick() {
 	      if (!this.isInited) {
@@ -883,12 +595,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      return this.chatService;
 	    },
+	    getResizeObserver() {
+	      return this.resizeObserver;
+	    },
 	    loc(phraseCode, replacements = {}) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 	    }
 	  },
 	  template: `
-		<div class="bx-im-chat-header__scope bx-im-chat-header__container">
+		<div class="bx-im-chat-header__scope bx-im-chat-header__container" :class="containerClasses" ref="container">
 			<div class="bx-im-chat-header__left">
 				<slot name="left">
 					<HeaderAvatar :dialogId="dialogId" />
@@ -906,40 +621,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<FadeAnimation @afterEnter="$emit('buttonPanelReady')" :duration="100">
 				<div v-if="isInited" class="bx-im-chat-header__right">
 					<slot name="before-actions"></slot>
-					<CallButton v-if="showCallButton" :dialogId="dialogId" />
-					<div
-						v-if="showInviteButton"
-						:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_INVITE_POPUP_TITLE')"
-						:class="{'--active': showAddToChatPopup}"
-						class="bx-im-chat-header__icon --add-people"
-						@click="showAddToChatPopup = true" 
-						ref="add-members"
-					>
-						<slot name="invite-hint" :inviteButtonRef="$refs['add-members']"></slot>
-					</div>
-					<div
-						v-if="showSearchButton"
-						:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_SEARCH')"
-						:class="{'--active': isMessageSearchActive}"
-						class="bx-im-chat-header__icon --search" 
-						@click="toggleSearchPanel"
-					></div>
-					<div
-						v-if="showSidebarButton"
-						class="bx-im-chat-header__icon --panel"
-						:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_SIDEBAR')"
-						:class="{'--active': isSidebarOpened}"
-						@click="toggleRightPanel" 
-					></div>
+					<CallHeaderButton v-if="showCallButton" :dialogId="dialogId" :compactMode="compactMode" />
+					<slot v-if="showAddToChatButton" name="add-to-chat-button">
+						<AddToChatButton :dialogId="dialogId" />
+					</slot>
+					<SearchButton v-if="showSearchButton" :dialogId="dialogId" />
+					<SidebarButton v-if="showSidebarButton" :dialogId="dialogId" />
 				</div>
 			</FadeAnimation>
-			<AddToChat
-				:bindElement="$refs['add-members'] ?? {}"
-				:dialogId="dialogId"
-				:showPopup="showAddToChatPopup"
-				:popupConfig="{ offsetTop: 15, offsetLeft: -300 }"
-				@close="showAddToChatPopup = false"
-			/>
 		</div>
 	`
 	};
@@ -947,7 +636,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const Height = {
 	  chatHeader: 64,
 	  pinnedMessages: 53,
-	  blockedTextarea: 50,
+	  blockedTextarea: 64,
 	  dropAreaOffset: 16
 	};
 
@@ -1036,14 +725,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    async onDrop(event) {
 	      event.preventDefault();
-	      const isChannelType = im_v2_lib_channel.ChannelManager.isChannel(this.dialogId);
 	      const uploaderId = await this.getUploadingService().uploadFromDragAndDrop({
 	        event,
 	        dialogId: this.dialogId,
-	        sendAsFile: false,
-	        autoUpload: !isChannelType
+	        sendAsFile: false
 	      });
-	      if (main_core.Type.isStringFilled(uploaderId) && isChannelType) {
+	      if (main_core.Type.isStringFilled(uploaderId)) {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.openUploadPreview, {
 	          uploaderId
 	        });
@@ -1066,7 +753,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div class="bx-im-content-chat-drop-area__box">
 					<span class="bx-im-content-chat-drop-area__icon"></span>
 					<label class="bx-im-content-chat-drop-area__label-text">
-						{{ loc('IM_CONTENT_BASE_CHAT_DROP_AREA') }}
+						{{ loc('IM_CONTENT_DROP_AREA') }}
 					</label>
 				</div>
 			</div>
@@ -1191,6 +878,139 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	const BUTTON_COLOR_DELETE = '#f4433e';
+	const BUTTON_COLOR_FORWARD = '#ffffff';
+	const BUTTON_BACKGROUND_COLOR_FORWARD = '#00ace3';
+	const BUTTON_BACKGROUND_COLOR_FORWARD_HOVER = '#3eddff';
+
+	// @vue/component
+	const BulkActionsPanel = {
+	  name: 'BulkActionsPanel',
+	  components: {
+	    ChatButton: im_v2_component_elements.Button,
+	    ForwardPopup: im_v2_component_entitySelector.ForwardPopup
+	  },
+	  directives: {
+	    hint: ui_vue3_directives_hint.hint
+	  },
+	  data() {
+	    return {
+	      isShowForwardPopup: false,
+	      messagesIds: []
+	    };
+	  },
+	  computed: {
+	    ButtonSize: () => im_v2_component_elements.ButtonSize,
+	    ButtonIcon: () => im_v2_component_elements.ButtonIcon,
+	    deleteButtonColorScheme() {
+	      return {
+	        backgroundColor: 'transparent',
+	        borderColor: 'transparent',
+	        iconColor: BUTTON_COLOR_DELETE,
+	        textColor: BUTTON_COLOR_DELETE,
+	        hoverColor: 'transparent'
+	      };
+	    },
+	    forwardButtonColorScheme() {
+	      return {
+	        backgroundColor: BUTTON_BACKGROUND_COLOR_FORWARD,
+	        borderColor: 'transparent',
+	        iconColor: BUTTON_COLOR_FORWARD,
+	        textColor: BUTTON_COLOR_FORWARD,
+	        hoverColor: BUTTON_BACKGROUND_COLOR_FORWARD_HOVER
+	      };
+	    },
+	    selectedMessages() {
+	      return this.$store.getters['messages/select/getCollection'];
+	    },
+	    selectedMessagesSize() {
+	      return this.selectedMessages.size;
+	    },
+	    formattedMessagesCounter() {
+	      if (!this.selectedMessagesSize) {
+	        return '';
+	      }
+	      return `(${this.selectedMessagesSize})`;
+	    },
+	    messageCounterText() {
+	      if (!this.selectedMessagesSize) {
+	        return this.loc('IM_CONTENT_BULK_ACTIONS_SELECT_MESSAGES');
+	      }
+	      return this.loc('IM_CONTENT_BULK_ACTIONS_COUNT_MESSAGES');
+	    },
+	    tooltipSettings() {
+	      return {
+	        text: this.loc('IM_CONTENT_BULK_ACTIONS_PANEL_DELETE_COMING_SOON'),
+	        popupOptions: {
+	          angle: true,
+	          targetContainer: document.body,
+	          offsetTop: -13,
+	          offsetLeft: 65,
+	          bindOptions: {
+	            position: 'top'
+	          }
+	        }
+	      };
+	    }
+	  },
+	  methods: {
+	    onShowForwardPopup() {
+	      this.messagesIds = [...this.selectedMessages];
+	      this.isShowForwardPopup = true;
+	    },
+	    onCloseForwardPopup() {
+	      this.messagesIds = [];
+	      this.isShowForwardPopup = false;
+	    },
+	    closeBulkActionsMode() {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.closeBulkActionsMode);
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-content-bulk-actions-panel">
+			<div class="bx-im-content-bulk-actions-panel__container">
+				<div class="bx-im-content-bulk-actions-panel__left-section">
+					<div @click="closeBulkActionsMode" class="bx-im-content-bulk-actions-panel__cancel"></div>
+					<div class="bx-im-content-bulk-actions-panel__counter-container">
+						<span class="bx-im-content-bulk-actions-panel__counter-name">{{ messageCounterText }}</span>
+						<span class="bx-im-content-bulk-actions-panel__counter-number">{{ formattedMessagesCounter }}</span>
+					</div>
+				</div>
+				<div class="bx-im-content-bulk-actions-panel__right-section">
+					<ChatButton
+						v-hint="tooltipSettings"
+						:size="ButtonSize.L"
+						:icon="ButtonIcon.Delete"
+						:customColorScheme="deleteButtonColorScheme"
+						:isDisabled="true"
+						:isRounded="true"
+						:isUppercase="false"
+						:text="loc('IM_CONTENT_BULK_ACTIONS_PANEL_DELETE')"
+					/>
+					<ChatButton
+						:size="ButtonSize.L"
+						:icon="ButtonIcon.Forward"
+						:customColorScheme="forwardButtonColorScheme"
+						:isRounded="true"
+						:isUppercase="false"
+						:isDisabled="!selectedMessagesSize"
+						:text="loc('IM_CONTENT_BULK_ACTIONS_PANEL_FORWARD')"
+						@click="onShowForwardPopup"
+					/>
+				</div>
+				<ForwardPopup
+					v-if="isShowForwardPopup"
+					:messagesIds="messagesIds"
+					@close="onCloseForwardPopup"
+				/>
+			</div>
+		</div>
+	`
+	};
+
 	// @vue/component
 	const LoadingBar = {
 	  name: 'LoadingBar',
@@ -1222,6 +1042,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    DropArea,
 	    MutePanel,
 	    JoinPanel,
+	    BulkActionsPanel,
 	    LoadingBar
 	  },
 	  directives: {
@@ -1229,7 +1050,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  provide() {
 	    return {
-	      currentSidebarPanel: ui_vue3.computed(() => this.currentSidebarPanel)
+	      currentSidebarPanel: ui_vue3.computed(() => this.currentSidebarPanel),
+	      withSidebar: ui_vue3.computed(() => this.withSidebar)
 	    };
 	  },
 	  props: {
@@ -1238,8 +1060,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      default: ''
 	    },
 	    backgroundId: {
-	      type: [Number, null],
+	      type: [Number, String, null],
 	      default: null
+	    },
+	    withSidebar: {
+	      type: Boolean,
+	      default: true
 	    }
 	  },
 	  data() {
@@ -1254,10 +1080,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    canSend() {
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.send, this.dialog.dialogId);
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.send, this.dialog.dialogId);
 	    },
 	    isGuest() {
 	      return this.dialog.role === im_v2_const.UserRole.guest;
+	    },
+	    isBulkActionsMode() {
+	      return this.$store.getters['messages/select/getBulkActionsMode'];
 	    },
 	    hasCommentsOnTop() {
 	      return this.$store.getters['messages/comments/areOpenedForChannel'](this.dialogId);
@@ -1274,7 +1103,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    dialogContainerStyle() {
 	      let textareaHeight = this.textareaHeight;
-	      if (!this.canSend) {
+	      if (!this.canSend || this.isBulkActionsMode) {
 	        textareaHeight = Height.blockedTextarea;
 	      }
 	      return {
@@ -1296,9 +1125,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  created() {
 	    this.initTextareaResizeManager();
 	    this.bindEvents();
+	    im_v2_lib_bulkActions.BulkActionsManager.getInstance().init();
 	  },
 	  beforeUnmount() {
 	    this.unbindEvents();
+	    im_v2_lib_bulkActions.BulkActionsManager.getInstance().destroy();
 	  },
 	  methods: {
 	    initTextareaResizeManager() {
@@ -1362,30 +1193,33 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					</Transition>
 					<div class="bx-im-content-chat__dialog_content">
 						<slot name="dialog">
-							<ChatDialog :dialogId="dialogId" :key="dialogId" />
+							<ChatDialog :dialogId="dialogId" :key="dialogId"/>
 						</slot>
 					</div>
 				</div>
 				<!-- Textarea -->
-				<div v-if="canSend" v-textarea-observer class="bx-im-content-chat__textarea_container" ref="textarea-container">
-					<slot name="textarea" :onTextareaMount="onTextareaMount">
-						<ChatTextarea 
-							:dialogId="dialogId" 
-							:key="dialogId" 
-							:withAudioInput="false" 
-							@mounted="onTextareaMount" 
-						/>
+				<Transition name="bx-im-panel-transition">
+					<BulkActionsPanel v-if="isBulkActionsMode"/>
+					<div v-else-if="canSend" v-textarea-observer class="bx-im-content-chat__textarea_container" ref="textarea-container">
+						<slot name="textarea" :onTextareaMount="onTextareaMount">
+							<ChatTextarea
+								:dialogId="dialogId"
+								:key="dialogId"
+								:withAudioInput="false"
+								@mounted="onTextareaMount"
+							/>
+						</slot>
+					</div>
+					<slot v-else-if="isGuest" name="join-panel">
+						<JoinPanel :dialogId="dialogId" />
 					</slot>
-				</div>
-				<slot v-else-if="isGuest" name="join-panel">
-					<JoinPanel :dialogId="dialogId" />
-				</slot>
-				<MutePanel v-else :dialogId="dialogId" />
-				<!-- End textarea -->
+					<MutePanel v-else :dialogId="dialogId" />
+				</Transition>
 				<DropArea :dialogId="dialogId" :container="$refs.content || {}" :key="dialogId" />
+				<!-- End textarea -->
 			</div>
 			<ChatSidebar
-				v-if="dialogId.length > 0" 
+				v-if="dialogId && withSidebar" 
 				:originDialogId="dialogId"
 				:isActive="!hasCommentsOnTop"
 				@changePanel="onChangeSidebarPanel"
@@ -1397,5 +1231,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.ChatHeader = ChatHeader;
 	exports.BaseChatContent = BaseChatContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Directives,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Lib,BX.Vue3,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.UI.Uploader,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX,BX.Call.Component,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.UI.Uploader,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Service,BX.Messenger.v2.Const,BX.Event,BX.Vue3.Directives,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.EntitySelector));
 //# sourceMappingURL=registry.bundle.js.map

@@ -1,8 +1,14 @@
 <?php
+$MESS["IM_LIB_CONFIRM_DELETE_COLLAB_TEXT"] = "This will delete the collab including all communication history. This action cannot be undone.";
+$MESS["IM_LIB_CONFIRM_DELETE_COLLAB_TITLE"] = "Delete collab";
 $MESS["IM_LIB_CONFIRM_DELETE_DESKTOP"] = "Are you sure you want to remove Bitrix24 from the list? #BR# It acts as a fast switch between your Bitrix24s helping you to keep on top of your notifications.";
 $MESS["IM_LIB_CONFIRM_DELETE_DESKTOP_CONFIRM"] = "Yes, remove";
-$MESS["IM_LIB_CONFIRM_LEAVE_CHAT"] = "Are you sure you want to leave this chat?";
-$MESS["IM_LIB_CONFIRM_LEAVE_CHAT_YES"] = "Leave";
+$MESS["IM_LIB_CONFIRM_LEAVE_CHANNEL_TEXT"] = "Do you want to unsubscribe from the channel?";
+$MESS["IM_LIB_CONFIRM_LEAVE_CHANNEL_YES"] = "Yes";
+$MESS["IM_LIB_CONFIRM_LEAVE_CHAT_MSGVER_1"] = "Do you want to leave the chat?";
+$MESS["IM_LIB_CONFIRM_LEAVE_CHAT_YES_MSGVER_1"] = "Yes";
+$MESS["IM_LIB_CONFIRM_LEAVE_COLLAB_TEXT"] = "Do you want to leave the collab? You will lose access to the collab chat, tasks, files and meetings.";
+$MESS["IM_LIB_CONFIRM_LEAVE_COLLAB_TITLE"] = "Leave collab";
 $MESS["IM_LIB_CONFIRM_RESTART_DESKTOP"] = "Restart the application for changes to take effect.";
 $MESS["IM_LIB_CONFIRM_RESTART_DESKTOP_LATER"] = "Later";
 $MESS["IM_LIB_CONFIRM_RESTART_DESKTOP_OK"] = "OK";
@@ -10,6 +16,8 @@ $MESS["IM_LIB_CONFIRM_RESTART_DESKTOP_RESTART"] = "Restart";
 $MESS["IM_LIB_CONFIRM_SWITCH_NOTIFICATION_MODE"] = "Do you want to switch to simple mode? All the changes you made while in advanced mode will be lost.";
 $MESS["IM_LIB_CONFIRM_SWITCH_NOTIFICATION_MODE_YES"] = "Yes";
 $MESS["IM_LIB_CONFIRM_USER_KICK"] = "Are you sure you want to remove this user?";
+$MESS["IM_LIB_CONFIRM_USER_KICK_FROM_COLLAB_TEXT"] = "Do you want to remove this member from the collab? They will lose access to the collab chat, tasks, files and meetings.";
+$MESS["IM_LIB_CONFIRM_USER_KICK_FROM_COLLAB_TITLE"] = "Remove member";
 $MESS["IM_LIB_CONFIRM_USER_KICK_YES"] = "Remove";
 $MESS["IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT"] = "This post, its comments and reactions will be deleted. Do you want to delete the post?";
 $MESS["IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT_CONFIRM"] = "Yes";

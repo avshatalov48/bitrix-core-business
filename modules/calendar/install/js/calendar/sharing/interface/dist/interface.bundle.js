@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,main_date,calendar_sharing_analytics,ui_entitySelector,calendar_util,ui_iconSet_api_core,ui_dialogs_messagebox,ui_buttons,main_core_events,ui_iconSet_actions,main_qrcode,ui_designTokens,ui_switcher,spotlight,ui_tour,ui_cnt,ui_infoHelper,main_core,main_popup,main_loader) {
+(function (exports,main_date,calendar_sharing_analytics,ui_entitySelector,ui_avatar,ui_iconSet_api_core,ui_dialogs_messagebox,ui_buttons,ui_iconSet_actions,main_qrcode,ui_designTokens,ui_switcher,spotlight,ui_tour,ui_cnt,ui_infoHelper,calendar_util,main_core,main_popup,main_loader,main_core_events) {
 	'use strict';
 
 	var _calendarSettings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calendarSettings");
@@ -399,6 +399,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  sortJointLinksByFrequentUse() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].sortJointLinksByFrequentUse;
 	  }
+	  getCalendarContext() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].calendarContext;
+	  }
 	  changeSortJointLinksByFrequentUse() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].sortJointLinksByFrequentUse = !babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].sortJointLinksByFrequentUse;
 	    babelHelpers.classPrivateFieldLooseBase(this, _updateSortByFrequentUse)[_updateSortByFrequentUse]();
@@ -410,16 +413,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return babelHelpers.classPrivateFieldLooseBase(this, _memberIds)[_memberIds];
 	  }
 	  async saveJointLink() {
-	    const response = await BX.ajax.runAction('calendar.api.sharingajax.generateUserJointSharingLink', {
+	    var _babelHelpers$classPr, _babelHelpers$classPr2;
+	    const action = ((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].calendarContext) == null ? void 0 : _babelHelpers$classPr.sharingObjectType) === 'group' ? 'calendar.api.sharinggroupajax.generateJointSharingLink' : 'calendar.api.sharingajax.generateUserJointSharingLink';
+	    const response = await BX.ajax.runAction(action, {
 	      data: {
-	        memberIds: this.getMemberIds()
+	        memberIds: this.getMemberIds(),
+	        groupId: (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].calendarContext) == null ? void 0 : _babelHelpers$classPr2.sharingObjectId
 	      }
 	    });
 	    return response.data;
 	  }
 	  save() {
 	    if (!this.isDifferentFrom(babelHelpers.classPrivateFieldLooseBase(this, _createRuleModel)[_createRuleModel](babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].rule, babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].calendarSettings))) {
-	      return;
+	      return null;
 	    }
 	    const changes = this.getChanges();
 	    calendar_sharing_analytics.Analytics.sendRuleUpdated(this.getContext(), changes);
@@ -1243,10 +1249,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _getReadOnlyPopup)[_getReadOnlyPopup](pivotNode).show();
 	}
 	function _getReadOnlyPopup2(pivotNode) {
+	  var _babelHelpers$classPr4;
+	  const readonlyHint = ((_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].getCalendarContext()) == null ? void 0 : _babelHelpers$classPr4.sharingObjectType) === 'group' ? 'CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT_GROUP' : 'CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT';
 	  this.readOnlyPopup = new main_popup.Popup({
 	    bindElement: pivotNode,
 	    className: 'calendar-sharing__settings-read-only-hint',
-	    content: main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT'),
+	    content: main_core.Loc.getMessage(readonlyHint),
 	    angle: {
 	      offset: 0
 	    },
@@ -1334,19 +1342,23 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t3$2,
 	  _t4$2,
 	  _t5$2,
-	  _t6$2;
+	  _t6$2,
+	  _t7$2;
 	var _layout$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _userSelectorDialog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userSelectorDialog");
 	var _selectedEntityList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectedEntityList");
 	var _selectedEntityNodeList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectedEntityNodeList");
 	var _defaultUserEntity = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("defaultUserEntity");
-	var _isOpened = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOpened");
 	var _onMembersAdded = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onMembersAdded");
 	var _model$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("model");
 	var _renderTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTitle");
 	var _getTitleText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getTitleText");
+	var _renderCollabAvatar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderCollabAvatar");
 	class UserSelector {
 	  constructor(props = {}) {
+	    Object.defineProperty(this, _renderCollabAvatar, {
+	      value: _renderCollabAvatar2
+	    });
 	    Object.defineProperty(this, _getTitleText, {
 	      value: _getTitleText2
 	    });
@@ -1373,10 +1385,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _isOpened, {
-	      writable: true,
-	      value: void 0
-	    });
 	    Object.defineProperty(this, _onMembersAdded, {
 	      writable: true,
 	      value: void 0
@@ -1391,7 +1399,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityNodeList)[_selectedEntityNodeList] = {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2] = props.model;
 	    babelHelpers.classPrivateFieldLooseBase(this, _defaultUserEntity)[_defaultUserEntity] = babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2].getUserInfo();
-	    babelHelpers.classPrivateFieldLooseBase(this, _isOpened)[_isOpened] = false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _onMembersAdded)[_onMembersAdded] = props.onMembersAdded;
 	    this.openEntitySelector = this.openEntitySelector.bind(this);
 	  }
@@ -1441,14 +1448,21 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return entityNode;
 	  }
 	  renderUserEntity(entity) {
-	    if (this.hasAvatar(entity.avatar)) {
+	    if (entity.isCollabUser) {
 	      return main_core.Tag.render(_t4$2 || (_t4$2 = _$4`
+				<div class="calendar-sharing__user-selector-entity-container">
+					${0}
+				</div>
+			`), babelHelpers.classPrivateFieldLooseBase(this, _renderCollabAvatar)[_renderCollabAvatar](entity));
+	    }
+	    if (this.hasAvatar(entity.avatar)) {
+	      return main_core.Tag.render(_t5$2 || (_t5$2 = _$4`
 				<div class="calendar-sharing__user-selector-entity-container">
 					<img class="calendar-sharing__user-selector-entity" title="${0}" src="${0}" alt="">
 				</div>
 			`), main_core.Text.encode(entity.name), entity.avatar);
 	    }
-	    return main_core.Tag.render(_t5$2 || (_t5$2 = _$4`
+	    return main_core.Tag.render(_t6$2 || (_t6$2 = _$4`
 			<div class="ui-icon ui-icon-common-user calendar-sharing__user-selector-entity" title="${0}"><i></i></div>
 		`), main_core.Text.encode(entity == null ? void 0 : entity.name));
 	  }
@@ -1461,6 +1475,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	    const preselectedItem = ['user', babelHelpers.classPrivateFieldLooseBase(this, _defaultUserEntity)[_defaultUserEntity].id];
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _userSelectorDialog)[_userSelectorDialog]) {
+	      var _babelHelpers$classPr;
 	      babelHelpers.classPrivateFieldLooseBase(this, _userSelectorDialog)[_userSelectorDialog] = new ui_entitySelector.Dialog({
 	        width: 340,
 	        targetNode: babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector,
@@ -1484,7 +1499,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        entities: [{
 	          id: 'user',
 	          options: {
-	            intranetUsersOnly: true,
+	            intranetUsersOnly: !(((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2].getCalendarContext()) == null ? void 0 : _babelHelpers$classPr.sharingObjectType) === 'group'),
 	            emailUsers: false,
 	            inviteEmployeeLink: false,
 	            inviteGuestLink: false,
@@ -1507,10 +1522,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  onUserSelectorSelect(event) {
 	    var _item$customData$get;
 	    const item = event.data.item;
+	    const name = item.customData.get('name') ? `${item.customData.get('name')} ${(_item$customData$get = item.customData.get('lastName')) != null ? _item$customData$get : ''}`.trim() : String(item.customData.get('login'));
 	    const entity = {
 	      id: item.id,
 	      avatar: item.avatar,
-	      name: `${item.customData.get('name')} ${(_item$customData$get = item.customData.get('lastName')) != null ? _item$customData$get : ''}`.trim()
+	      name,
+	      isCollabUser: item.entityType === 'collaber'
 	    };
 	    const entityNode = this.renderUserEntity(entity);
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector) {
@@ -1564,7 +1581,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	}
 	function _renderTitle2() {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].title) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].title = main_core.Tag.render(_t6$2 || (_t6$2 = _$4`
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].title = main_core.Tag.render(_t7$2 || (_t7$2 = _$4`
 				<div class="calendar-sharing__user-selector-title">
 					<div class="calendar-sharing__user-selector-title-icon"></div>
 					<div class="calendar-sharing__user-selector-title-text">
@@ -1606,6 +1623,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return '';
 	  }
 	}
+	function _renderCollabAvatar2(member) {
+	  return new ui_avatar.AvatarRoundGuest({
+	    size: 36,
+	    userName: member.name,
+	    userpicPath: this.hasAvatar(member.avatar) && member.avatar,
+	    baseColor: '#19cc45'
+	  }).getContainer();
+	}
 
 	let _$5 = t => t,
 	  _t$5,
@@ -1614,7 +1639,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t4$3,
 	  _t5$3,
 	  _t6$3,
-	  _t7$2,
+	  _t7$3,
 	  _t8$2,
 	  _t9$1,
 	  _t10;
@@ -1770,7 +1795,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].date) {
 	      const date = babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].dateCreate ? new Date(babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].dateCreate) : new Date();
 	      const formattedDate = calendar_util.Util.formatDate(date);
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].date = main_core.Tag.render(_t7$2 || (_t7$2 = _$5`
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].date = main_core.Tag.render(_t7$3 || (_t7$3 = _$5`
 				<div class="calendar-sharing__dialog-link-list-item-date" title="${0}">${0}</div>
 			`), main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_DATE_CREATE'), formattedDate);
 	    }
@@ -1891,7 +1916,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t4$4,
 	  _t5$4,
 	  _t6$4,
-	  _t7$3,
+	  _t7$4,
 	  _t8$3;
 	const DEFAULT_LIST_HEIGHT = 300;
 	const LIST_PADDING_SUM = 45;
@@ -2047,7 +2072,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return this.getEmptyStateNode();
 	    }
 	    const linkListItems = this.getListItems();
-	    return main_core.Tag.render(_t7$3 || (_t7$3 = _$6`
+	    return main_core.Tag.render(_t7$4 || (_t7$4 = _$6`
 			<div class="calendar-sharing__dialog-link-list">
 				${0}
 			</div>
@@ -2196,7 +2221,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t4$5,
 	  _t5$5,
 	  _t6$5,
-	  _t7$4,
+	  _t7$5,
 	  _t8$4;
 	var _params$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("params");
 	var _layout$6 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
@@ -2223,8 +2248,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _getLinkList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getLinkList");
 	var _openLinkList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openLinkList");
 	var _closeLinkList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("closeLinkList");
+	var _copyToClipboard = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("copyToClipboard");
 	class Layout {
 	  constructor(_params2) {
+	    var _params2$settingsMode;
+	    Object.defineProperty(this, _copyToClipboard, {
+	      value: _copyToClipboard2
+	    });
 	    Object.defineProperty(this, _closeLinkList, {
 	      value: _closeLinkList2
 	    });
@@ -2315,6 +2345,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _params$3)[_params$3] = _params2;
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6] = {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _bindEvents$2)[_bindEvents$2]();
+	    this.isGroupContext = ((_params2$settingsMode = _params2.settingsModel.getCalendarContext()) == null ? void 0 : _params2$settingsMode.sharingObjectType) === 'group';
 	  }
 	  reset() {
 	    var _babelHelpers$classPr;
@@ -2338,7 +2369,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 				${0}
 				${0}
 			</div>
-		`), babelHelpers.classPrivateFieldLooseBase(this, _renderMain)[_renderMain](), babelHelpers.classPrivateFieldLooseBase(this, _renderLinkList)[_renderLinkList]());
+		`), babelHelpers.classPrivateFieldLooseBase(this, _renderMain)[_renderMain](), this.isGroupContext ? null : babelHelpers.classPrivateFieldLooseBase(this, _renderLinkList)[_renderLinkList]());
 	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].wrap;
 	  }
 	  async saveJointLink() {
@@ -2349,22 +2380,24 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy, 'ui-btn-clock');
 	    const link = await babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].saveJointLink();
 	    main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy, 'ui-btn-clock');
-	    this.copyLink(link.url, link.hash);
+	    await this.copyLink(link.url, link.hash);
 	    (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) == null ? void 0 : _babelHelpers$classPr5.getLinkListInfo();
 	  }
-	  copyLink(url, hash) {
+	  async copyLink(url, hash) {
 	    if (!url) {
-	      return;
+	      return false;
 	    }
-	    const result = BX.clipboard.copy(url);
-	    if (result) {
-	      calendar_util.Util.showNotification(main_core.Loc.getMessage('SHARING_COPY_LINK_NOTIFICATION'));
-	      main_core_events.EventEmitter.emit('CalendarSharing:LinkCopied', {
-	        url,
-	        hash
-	      });
+	    try {
+	      await babelHelpers.classPrivateFieldLooseBase(this, _copyToClipboard)[_copyToClipboard](url);
+	    } catch {
+	      return false;
 	    }
-	    return result;
+	    calendar_util.Util.showNotification(main_core.Loc.getMessage('SHARING_COPY_LINK_NOTIFICATION'));
+	    main_core_events.EventEmitter.emit('CalendarSharing:LinkCopied', {
+	      url,
+	      hash
+	    });
+	    return true;
 	  }
 	}
 	function _get_settingsModel() {
@@ -2372,10 +2405,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	}
 	function _bindEvents2$2() {
 	  main_core.Event.bind(window, 'beforeunload', () => babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].save());
-	  main_core_events.EventEmitter.subscribe('CalendarSharing:onJointLinkCopy', event => {
+	  main_core_events.EventEmitter.subscribe('CalendarSharing:onJointLinkCopy', async event => {
 	    const shortUrl = event.data.shortUrl;
 	    const linkHash = event.data.hash;
-	    this.copyLink(shortUrl, linkHash);
+	    await this.copyLink(shortUrl, linkHash);
 	    calendar_sharing_analytics.Analytics.sendLinkCopiedList(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext(), {
 	      peopleCount: event.data.members.length + 1,
 	      ruleChanges: babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getChanges()
@@ -2398,7 +2431,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].main;
 	}
 	function _renderDialogMessage2() {
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext() === this.CONTEXT.CRM) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext() === this.CONTEXT.CRM || this.isGroupContext) {
 	    return '';
 	  }
 	  return main_core.Tag.render(_t3$5 || (_t3$5 = _$7`
@@ -2526,12 +2559,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 				${0}
 				${0}
 			</div>
-		`), babelHelpers.classPrivateFieldLooseBase(this, _renderCopyLinkButton)[_renderCopyLinkButton](), babelHelpers.classPrivateFieldLooseBase(this, _renderLinkHistoryButton)[_renderLinkHistoryButton]());
+		`), babelHelpers.classPrivateFieldLooseBase(this, _renderCopyLinkButton)[_renderCopyLinkButton](), this.isGroupContext ? null : babelHelpers.classPrivateFieldLooseBase(this, _renderLinkHistoryButton)[_renderLinkHistoryButton]());
 	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].mainBottom;
 	}
 	function _renderCopyLinkButton2() {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy = main_core.Tag.render(_t7$4 || (_t7$4 = _$7`
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy = main_core.Tag.render(_t7$5 || (_t7$5 = _$7`
 				<span class="ui-btn ui-btn-success ui-btn-round ui-btn-no-caps calendar-sharing__dialog-copy">
 					${0}
 				</span>
@@ -2540,7 +2573,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy;
 	}
-	function _onButtonCopyClick2() {
+	async function _onButtonCopyClick2() {
 	  var _babelHelpers$classPr11, _babelHelpers$classPr12;
 	  const params = {
 	    peopleCount: (_babelHelpers$classPr11 = (_babelHelpers$classPr12 = babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl]) == null ? void 0 : _babelHelpers$classPr12.getPeopleCount()) != null ? _babelHelpers$classPr11 : 1,
@@ -2549,9 +2582,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl] && babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].hasChanges()) {
 	    calendar_sharing_analytics.Analytics.sendLinkCopied(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext(), calendar_sharing_analytics.Analytics.linkTypes.multiple, params);
 	    void this.saveJointLink();
-	  } else if (this.copyLink(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getSharingUrl())) {
+	  } else if (await this.copyLink(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getSharingUrl())) {
 	    calendar_sharing_analytics.Analytics.sendLinkCopied(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext(), calendar_sharing_analytics.Analytics.linkTypes.solo, params);
-	    babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].increaseFrequentUse();
+	    if (!this.isGroupContext) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].increaseFrequentUse();
+	    }
 	  }
 	}
 	function _renderLinkHistoryButton2() {
@@ -2570,7 +2605,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	}
 	function _renderLinkList2() {
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext() === this.CONTEXT.CRM) {
-	    return;
+	    return null;
 	  }
 	  return babelHelpers.classPrivateFieldLooseBase(this, _getLinkList)[_getLinkList]().render();
 	}
@@ -2589,13 +2624,38 @@ this.BX.Calendar = this.BX.Calendar || {};
 	function _closeLinkList2() {
 	  main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].main, '--show');
 	}
+	async function _copyToClipboard2(textToCopy) {
+	  var _BX$clipboard;
+	  if (!main_core.Type.isString(textToCopy)) {
+	    return Promise.reject();
+	  }
+
+	  // navigator.clipboard defined only if window.isSecureContext === true
+	  // so or https should be activated, or localhost address
+	  if (navigator.clipboard) {
+	    // safari not allowed clipboard manipulation as result of ajax request
+	    // so timeout is hack for this, to prevent "not have permission"
+	    return new Promise((resolve, reject) => {
+	      setTimeout(() => navigator.clipboard.writeText(textToCopy).then(() => resolve()).catch(e => reject(e)), 0);
+	    });
+	  }
+	  return (_BX$clipboard = BX.clipboard) != null && _BX$clipboard.copy(textToCopy) ? Promise.resolve() : Promise.reject();
+	}
 
 	var _popup$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
 	var _layout$7 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _dialogLayout = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogLayout");
 	var _settingsModel$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settingsModel");
+	var _isExternalSharing = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isExternalSharing");
+	var _getAngleConfig = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAngleConfig");
 	class DialogNew {
 	  constructor(options) {
+	    Object.defineProperty(this, _getAngleConfig, {
+	      value: _getAngleConfig2
+	    });
+	    Object.defineProperty(this, _isExternalSharing, {
+	      value: _isExternalSharing2
+	    });
 	    Object.defineProperty(this, _popup$1, {
 	      writable: true,
 	      value: void 0
@@ -2622,25 +2682,26 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      rule: options.sharingRule,
 	      calendarSettings: options.calendarSettings,
 	      collapsed: options.settingsCollapsed,
-	      sortJointLinksByFrequentUse: options.sortJointLinksByFrequentUse
+	      sortJointLinksByFrequentUse: options.sortJointLinksByFrequentUse,
+	      calendarContext: options.calendarContext
 	    });
 	    this.bindEvents();
 	  }
 	  bindEvents() {
 	    main_core_events.EventEmitter.subscribe('CalendarSharing:LinkCopied', this.onSuccessfulCopyingLink.bind(this));
+	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onClose', event => this.checkAndClosePopupOnSlider(event));
 	  }
 	  getPopup() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _popup$1)[_popup$1]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _popup$1)[_popup$1] = new main_popup.Popup({
 	        bindElement: babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].bindElement,
+	        targetContainer: document.body,
 	        className: 'calendar-sharing__dialog',
 	        closeByEsc: true,
 	        autoHide: true,
 	        padding: 0,
 	        width: 470,
-	        angle: {
-	          offset: babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].bindElement.offsetWidth / 2 + 16
-	        },
+	        angle: babelHelpers.classPrivateFieldLooseBase(this, _getAngleConfig)[_getAngleConfig](),
 	        autoHideHandler: event => this.canBeClosed(event),
 	        content: this.getPopupWrapper(),
 	        animation: 'fading-slide',
@@ -2663,19 +2724,26 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  canBeClosed(event) {
 	    const isClickInside = babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper.contains(event.target);
 	    const layoutHasShownPopups = babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout].hasShownPopups();
-	    const checkTopSlider = babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].getContext() === 'calendar' ? BX.SidePanel.Instance.getTopSlider() : false;
-	    return !isClickInside && !layoutHasShownPopups && !checkTopSlider;
+	    const topSlider = this.getTopSlider();
+	    const calendarOpenInTopSlider = topSlider && this.getCalendarSliderParams(topSlider);
+	    return !isClickInside && !layoutHasShownPopups && (!topSlider || calendarOpenInTopSlider || babelHelpers.classPrivateFieldLooseBase(this, _isExternalSharing)[_isExternalSharing]());
 	  }
 	  getPopupWrapper() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper) {
+	      var _babelHelpers$classPr;
 	      babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout] = new Layout({
+	        readOnly: ((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].getCalendarContext()) == null ? void 0 : _babelHelpers$classPr.sharingObjectType) === 'group',
 	        settingsModel: babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1]
 	      });
 	      babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper = babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout].render();
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper = babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout].render();
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper = babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout].render();
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper;
 	  }
 	  onSuccessfulCopyingLink() {
+	    this.closePopup();
+	  }
+	  closePopup() {
 	    this.getPopup().close();
 	  }
 	  isShown() {
@@ -2683,15 +2751,53 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  show() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].sortRanges();
+	    this.getPopup().adjustPosition({
+	      forceBindPosition: true
+	    });
 	    this.getPopup().show();
 	  }
 	  destroy() {
 	    this.getPopup().destroy();
 	  }
-	  getSettingsControlRule() {
-	    var _babelHelpers$classPr;
-	    return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1]) == null ? void 0 : _babelHelpers$classPr.getRule().toArray();
+	  getTopSlider() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].getContext() === 'calendar' ? BX.SidePanel.Instance.getTopSlider() : false;
 	  }
+	  getCalendarSliderParams(slider) {
+	    var _slider$iframeSrc;
+	    return (_slider$iframeSrc = slider.iframeSrc) == null ? void 0 : _slider$iframeSrc.match(/\/workgroups\/group\/(\d+)\/calendar\//i);
+	  }
+	  checkAndClosePopupOnSlider(event) {
+	    var _event$getData$;
+	    if (!this.isShown()) {
+	      return;
+	    }
+	    const slider = event.getData() && ((_event$getData$ = event.getData()[0]) == null ? void 0 : _event$getData$.slider);
+	    const sliderParams = slider && this.getCalendarSliderParams(slider);
+	    if (!sliderParams) {
+	      return;
+	    }
+	    const groupId = parseInt(sliderParams[1], 10);
+	    if (!groupId) {
+	      return;
+	    }
+	    const currentGroupId = babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].getCalendarContext().sharingObjectId;
+	    if (groupId !== currentGroupId) {
+	      return;
+	    }
+	    this.closePopup();
+	  }
+	}
+	function _isExternalSharing2() {
+	  var _babelHelpers$classPr2;
+	  return Boolean((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].getCalendarContext()) == null ? void 0 : _babelHelpers$classPr2.externalSharing);
+	}
+	function _getAngleConfig2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isExternalSharing)[_isExternalSharing]()) {
+	    return null;
+	  }
+	  return {
+	    offset: babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].bindElement.offsetWidth / 2 + 16
+	  };
 	}
 
 	let _$8 = t => t,
@@ -2994,15 +3100,101 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
+	class GroupSharingButton extends SharingButton {
+	  constructor(options = {}) {
+	    super(options);
+	    this.calendarContext = options.calendarContext;
+	  }
+
+	  /**
+	   * @override
+	   */
+	  openDialog() {
+	    var _this$pulsar;
+	    (_this$pulsar = this.pulsar) == null ? void 0 : _this$pulsar.close();
+	    main_core.Dom.remove(this.counterNode);
+	    if (!this.newDialog) {
+	      this.newDialog = new DialogNew({
+	        bindElement: this.button.getContainer(),
+	        sharingUrl: this.sharingUrl,
+	        linkHash: this.linkHash,
+	        sharingRule: this.sharingRule,
+	        context: 'calendar',
+	        calendarSettings: {
+	          weekHolidays: calendar_util.Util.config.week_holidays,
+	          weekStart: calendar_util.Util.config.week_start,
+	          workTimeStart: calendar_util.Util.config.work_time_start,
+	          workTimeEnd: calendar_util.Util.config.work_time_end
+	        },
+	        userInfo: this.userInfo,
+	        settingsCollapsed: this.sharingSettingsCollapsed,
+	        sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
+	        calendarContext: this.calendarContext
+	      });
+	    }
+	    if (!this.newDialog.isShown()) {
+	      this.newDialog.show();
+	    }
+	  }
+
+	  /**
+	   * @override
+	   */
+	  enableSharing() {
+	    const event = 'Calendar.Sharing.copyLinkButton:onSharingEnabled';
+	    BX.ajax.runAction('calendar.api.sharinggroupajax.enableSharing', {
+	      data: {
+	        groupId: this.calendarContext.sharingObjectId
+	      }
+	    }).then(response => {
+	      this.sharingUrl = response.data.url;
+	      this.linkHash = response.data.hash;
+	      this.sharingRule = response.data.rule;
+	      this.openDialog();
+	      main_core_events.EventEmitter.emit(event, {
+	        isChecked: this.switcher.isChecked(),
+	        url: response.data.url
+	      });
+	    }).catch(() => {
+	      this.switcher.toggle();
+	    });
+	  }
+
+	  /**
+	   * @override
+	   */
+	  disableSharing() {
+	    const event = 'Calendar.Sharing.copyLinkButton:onSharingDisabled';
+	    this.warningPopup.close();
+	    BX.ajax.runAction('calendar.api.sharinggroupajax.disableSharing', {
+	      data: {
+	        groupId: this.calendarContext.sharingObjectId
+	      }
+	    }).then(() => {
+	      this.sharingUrl = null;
+	      if (this.newDialog) {
+	        this.newDialog.destroy();
+	        this.newDialog = null;
+	      }
+	      main_core_events.EventEmitter.emit(event, {
+	        isChecked: this.switcher.isChecked()
+	      });
+	    }).catch(() => {
+	      this.switcher.toggle();
+	    });
+	  }
+	}
+
 	class Interface {
 	  constructor(options) {
-	    var _options$payAttention, _options$sharingFeatu, _options$sharingSetti, _options$sortJointLin;
+	    var _options$payAttention, _options$sharingFeatu, _options$sharingSetti, _options$sortJointLin, _options$calendarCont;
 	    this.buttonWrap = options.buttonWrap;
 	    this.userInfo = options.userInfo || null;
 	    this.payAttentionToNewFeature = (_options$payAttention = options.payAttentionToNewFeature) != null ? _options$payAttention : false;
 	    this.sharingFeatureLimit = (_options$sharingFeatu = options.sharingFeatureLimit) != null ? _options$sharingFeatu : false;
 	    this.sharingSettingsCollapsed = (_options$sharingSetti = options.sharingSettingsCollapsed) != null ? _options$sharingSetti : false;
 	    this.sortJointLinksByFrequentUse = (_options$sortJointLin = options.sortJointLinksByFrequentUse) != null ? _options$sortJointLin : false;
+	    this.calendarContext = (_options$calendarCont = options.calendarContext) != null ? _options$calendarCont : null;
 	  }
 	  showSharingButton() {
 	    this.sharingButton = new SharingButton({
@@ -3012,6 +3204,18 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      sharingFeatureLimit: this.sharingFeatureLimit,
 	      sharingSettingsCollapsed: this.sharingSettingsCollapsed,
 	      sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse
+	    });
+	    this.sharingButton.show();
+	  }
+	  showGroupSharingButton() {
+	    this.sharingButton = new GroupSharingButton({
+	      wrap: this.buttonWrap,
+	      userInfo: this.userInfo,
+	      payAttentionToNewFeature: this.payAttentionToNewFeature,
+	      sharingFeatureLimit: this.sharingFeatureLimit,
+	      sharingSettingsCollapsed: this.sharingSettingsCollapsed,
+	      sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
+	      calendarContext: this.calendarContext
 	    });
 	    this.sharingButton.show();
 	  }
@@ -3157,6 +3361,144 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
+	class GroupSharing extends GroupSharingButton {
+	  constructor(options = {}) {
+	    super(options);
+	    this.bindElement = options.bindElement;
+	    this.calendarSettings = options.calendarSettings;
+	    this.context = options.context;
+	    if (options.sharingConfig) {
+	      var _this$sharingConfig, _this$sharingConfig2, _this$sharingConfig3;
+	      this.sharingConfig = options.sharingConfig;
+	      this.sharingUrl = ((_this$sharingConfig = this.sharingConfig) == null ? void 0 : _this$sharingConfig.url) || null;
+	      this.linkHash = ((_this$sharingConfig2 = this.sharingConfig) == null ? void 0 : _this$sharingConfig2.hash) || null;
+	      this.sharingRule = ((_this$sharingConfig3 = this.sharingConfig) == null ? void 0 : _this$sharingConfig3.rule) || null;
+	    }
+	  }
+
+	  /**
+	   * @override
+	   */
+	  openDialog() {
+	    if (!this.newDialog) {
+	      this.newDialog = new DialogNew({
+	        bindElement: this.bindElement,
+	        sharingUrl: this.sharingUrl,
+	        linkHash: this.linkHash,
+	        sharingRule: this.sharingRule,
+	        context: this.context,
+	        calendarSettings: {
+	          weekHolidays: this.calendarSettings.week_holidays,
+	          weekStart: this.calendarSettings.week_start,
+	          workTimeStart: this.calendarSettings.work_time_start,
+	          workTimeEnd: this.calendarSettings.work_time_end
+	        },
+	        userInfo: this.userInfo,
+	        settingsCollapsed: this.sharingSettingsCollapsed,
+	        sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
+	        calendarContext: this.calendarContext
+	      });
+	    }
+	    if (!this.newDialog.isShown()) {
+	      this.newDialog.show();
+	    }
+	  }
+
+	  /**
+	   * @override
+	   */
+	  enableSharing() {
+	    const event = 'Calendar.Sharing.copyLinkButton:onSharingEnabled';
+	    const action = 'calendar.api.sharinggroupajax.enableSharing';
+	    const data = {
+	      groupId: this.calendarContext.sharingObjectId
+	    };
+	    BX.ajax.runAction(action, {
+	      data
+	    }).then(response => {
+	      main_core_events.EventEmitter.emit(event, {
+	        isChecked: true,
+	        url: response.data.url
+	      });
+	    });
+	  }
+	}
+
+	var _groupSharing = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("groupSharing");
+	var _groupId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("groupId");
+	var _bindElement$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindElement");
+	var _config = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("config");
+	var _getSharingConfig = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSharingConfig");
+	var _requestSharingConfig = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestSharingConfig");
+	class GroupSharingController {
+	  static async getGroupSharing(groupId, bindElement) {
+	    if (babelHelpers.classPrivateFieldLooseBase(GroupSharingController, _groupSharing)[_groupSharing] && babelHelpers.classPrivateFieldLooseBase(GroupSharingController, _groupId)[_groupId] === groupId && babelHelpers.classPrivateFieldLooseBase(GroupSharingController, _bindElement$1)[_bindElement$1] === bindElement) {
+	      return babelHelpers.classPrivateFieldLooseBase(GroupSharingController, _groupSharing)[_groupSharing];
+	    }
+	    const config = await babelHelpers.classPrivateFieldLooseBase(this, _getSharingConfig)[_getSharingConfig](groupId);
+	    babelHelpers.classPrivateFieldLooseBase(GroupSharingController, _groupSharing)[_groupSharing] = new GroupSharing({
+	      bindElement,
+	      context: 'calendar',
+	      calendarContext: {
+	        sharingObjectType: 'group',
+	        sharingObjectId: groupId,
+	        externalSharing: true
+	      },
+	      userInfo: {
+	        id: config.user.id,
+	        name: config.user.name,
+	        avatar: config.user.avatar,
+	        isCollabUser: config.user.isCollabUser
+	      },
+	      sharingConfig: config.link,
+	      calendarSettings: config.userCalendarSettings
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(GroupSharingController, _config)[_config] = config;
+	    babelHelpers.classPrivateFieldLooseBase(GroupSharingController, _groupId)[_groupId] = groupId;
+	    babelHelpers.classPrivateFieldLooseBase(GroupSharingController, _bindElement$1)[_bindElement$1] = bindElement;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _groupSharing)[_groupSharing];
+	  }
+	}
+	async function _getSharingConfig2(groupId) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _groupId)[_groupId] === groupId && babelHelpers.classPrivateFieldLooseBase(this, _config)[_config]) {
+	    return new Promise(resolve => {
+	      void resolve(babelHelpers.classPrivateFieldLooseBase(this, _config)[_config]);
+	    });
+	  }
+	  return babelHelpers.classPrivateFieldLooseBase(this, _requestSharingConfig)[_requestSharingConfig](groupId);
+	}
+	async function _requestSharingConfig2(groupId) {
+	  const action = 'calendar.api.sharinggroupajax.enableAndGetSharingConfig';
+	  const response = await BX.ajax.runAction(action, {
+	    data: {
+	      groupId
+	    }
+	  });
+	  return response.data;
+	}
+	Object.defineProperty(GroupSharingController, _requestSharingConfig, {
+	  value: _requestSharingConfig2
+	});
+	Object.defineProperty(GroupSharingController, _getSharingConfig, {
+	  value: _getSharingConfig2
+	});
+	Object.defineProperty(GroupSharingController, _groupSharing, {
+	  writable: true,
+	  value: null
+	});
+	Object.defineProperty(GroupSharingController, _groupId, {
+	  writable: true,
+	  value: null
+	});
+	Object.defineProperty(GroupSharingController, _bindElement$1, {
+	  writable: true,
+	  value: null
+	});
+	Object.defineProperty(GroupSharingController, _config, {
+	  writable: true,
+	  value: null
+	});
+
 	exports.Interface = Interface;
 	exports.SharingButton = SharingButton;
 	exports.DialogNew = DialogNew;
@@ -3165,6 +3507,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	exports.RuleModel = RuleModel;
 	exports.RangeModel = RangeModel;
 	exports.SettingsModel = SettingsModel;
+	exports.GroupSharing = GroupSharing;
+	exports.GroupSharingController = GroupSharingController;
 
-}((this.BX.Calendar.Sharing = this.BX.Calendar.Sharing || {}),BX.Main,BX.Calendar.Sharing,BX.UI.EntitySelector,BX.Calendar,BX.UI.IconSet,BX.UI.Dialogs,BX.UI,BX.Event,BX,BX,BX,BX.UI,BX,BX.UI.Tour,BX.UI,BX.UI,BX,BX.Main,BX));
+}((this.BX.Calendar.Sharing = this.BX.Calendar.Sharing || {}),BX.Main,BX.Calendar.Sharing,BX.UI.EntitySelector,BX.UI,BX.UI.IconSet,BX.UI.Dialogs,BX.UI,BX,BX,BX,BX.UI,BX,BX.UI.Tour,BX.UI,BX.UI,BX.Calendar,BX,BX.Main,BX,BX.Event));
 //# sourceMappingURL=interface.bundle.js.map

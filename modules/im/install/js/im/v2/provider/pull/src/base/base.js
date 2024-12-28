@@ -5,6 +5,8 @@ import { UserPullHandler } from './handlers/user';
 import { DesktopPullHandler } from './handlers/desktop';
 import { SettingsPullHandler } from './handlers/settings';
 import { CommentsPullHandler } from './handlers/comments';
+import { ApplicationPullHandler } from './handlers/application';
+import { CollabPullHandler } from './handlers/collab';
 
 export class BasePullHandler
 {
@@ -15,6 +17,8 @@ export class BasePullHandler
 	#settingsHandler: SettingsPullHandler;
 	#commentsHandler: CommentsPullHandler;
 	#tariffPullHandler: TariffPullHandler;
+	#applicationPullHandler: ApplicationPullHandler;
+	#collabPullHandler: CollabPullHandler;
 
 	constructor()
 	{
@@ -25,6 +29,8 @@ export class BasePullHandler
 		this.#settingsHandler = new SettingsPullHandler();
 		this.#commentsHandler = new CommentsPullHandler();
 		this.#tariffPullHandler = new TariffPullHandler();
+		this.#applicationPullHandler = new ApplicationPullHandler();
+		this.#collabPullHandler = new CollabPullHandler();
 	}
 
 	getModuleId(): string
@@ -181,6 +187,11 @@ export class BasePullHandler
 	{
 		this.#userHandler.handleUserInvite(params);
 	}
+
+	handleUserShowInRecent(params)
+	{
+		this.#userHandler.handleUserShowInRecent(params);
+	}
 	// endregion 'user'
 
 	// region 'desktop'
@@ -220,4 +231,23 @@ export class BasePullHandler
 		this.#tariffPullHandler.handleChangeTariff(params);
 	}
 	// endregion 'tariff'
+
+	// region 'collab'
+	handleUpdateCollabEntityCounter(params)
+	{
+		this.#collabPullHandler.handleUpdateCollabEntityCounter(params);
+	}
+
+	handleUpdateCollabGuestCount(params)
+	{
+		this.#collabPullHandler.handleUpdateCollabGuestCount(params);
+	}
+	// endregion 'collab'
+
+	// region 'application'
+	handleApplicationOpenChat(params)
+	{
+		this.#applicationPullHandler.handleApplicationOpenChat(params);
+	}
+	// endregion 'application'
 }

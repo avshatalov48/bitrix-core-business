@@ -56,6 +56,7 @@ class Mobile
 			'sort' => 100,
 			'title' => Loc::getMessage('LANDING_CONNECTOR_MB_MENU_TITLE'),
 			'imageUrl' => '/bitrix/images/landing/mobile/knowledge.png?4',
+			'imageName' => 'knowledge_base',
 			'color' => '#e597ba',
 			'params' => [
 				'onclick' => <<<JS

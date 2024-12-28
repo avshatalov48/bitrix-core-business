@@ -20,6 +20,7 @@ use Bitrix\Calendar\Internals\Exception\LocationBusy;
 use Bitrix\Calendar\Internals\Exception\PermissionDenied;
 use Bitrix\Calendar\Internals\Exception\SectionNotFound;
 use Bitrix\Calendar\Rooms\AccessibilityManager;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\DI\ServiceLocator;
 
 class UpdateEventHandler implements CommandHandler
@@ -234,9 +235,14 @@ class UpdateEventHandler implements CommandHandler
 			throw new SectionNotFound();
 		}
 
-		if ($section->getType() !== 'group' && (new UserService())->isNotIntranetUser($command->getUserId()))
+		if (!in_array($section->getType(), ['user', 'group'], true) && (new UserService())->isNotIntranetUser($command->getUserId()))
 		{
 			throw new ExtranetPermissionDenied();
+		}
+
+		if (Util::isCollabUser($command->getUserId()) && !$section->isCollab())
+		{
+			throw new PermissionDenied();
 		}
 
 		return $section;

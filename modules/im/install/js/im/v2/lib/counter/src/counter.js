@@ -1,4 +1,3 @@
-import { Type } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 import { Store } from 'ui.vue3.vuex';
 
@@ -7,10 +6,13 @@ import { DesktopManager } from 'im.v2.lib.desktop';
 import { Logger } from 'im.v2.lib.logger';
 import { EventType } from 'im.v2.const';
 
+type CounterMap = {[chatId: string]: number};
+
 type InitialCounters = {
-	CHAT: {[chatId: string]: number},
-	LINES: {[chatId: string]: number},
-	COPILOT: {[chatId: string]: number},
+	CHAT: CounterMap,
+	LINES: CounterMap,
+	COLLAB: CounterMap,
+	COPILOT: CounterMap,
 	CHANNEL_COMMENT: {
 		[channelChatId: string]: {
 			[commentChatId: string]: number,
@@ -18,11 +20,13 @@ type InitialCounters = {
 	},
 	CHAT_MUTED: number[],
 	CHAT_UNREAD: number[],
+	COLLAB_UNREAD: number[],
 	TYPE: {
 		'ALL': number,
 		'CHAT': number,
 		'NOTIFY': number,
 		'LINES': number,
+		'COLLAB': number,
 	}
 };
 
@@ -70,9 +74,12 @@ export class CounterManager
 
 	#init(counters: InitialCounters)
 	{
-		this.#store.dispatch('counters/setUnloadedChatCounters', this.#prepareChatCounters(counters));
+		const preparedChatCounters = this.#prepareChatCounters(counters.CHAT, counters.CHAT_UNREAD);
+		this.#store.dispatch('counters/setUnloadedChatCounters', preparedChatCounters);
 		this.#store.dispatch('counters/setUnloadedLinesCounters', counters.LINES);
 		this.#store.dispatch('counters/setUnloadedCopilotCounters', counters.COPILOT);
+		const preparedCollabCounters = this.#prepareChatCounters(counters.COLLAB, counters.COLLAB_UNREAD);
+		this.#store.dispatch('counters/setUnloadedCollabCounters', preparedCollabCounters);
 		this.#store.dispatch('counters/setCommentCounters', counters.CHANNEL_COMMENT);
 		this.#store.dispatch('notifications/setCounter', counters.TYPE.NOTIFY);
 
@@ -82,21 +89,20 @@ export class CounterManager
 		this.#sendLinesCounterChangeEvent(counters.TYPE.LINES);
 	}
 
-	#prepareChatCounters(counters: InitialCounters): {[chatId: string]: number}
+	#prepareChatCounters(counters: CounterMap, unreadCounters: number[]): CounterMap
 	{
-		const chatCounters = Type.isArray(counters.CHAT) ? {} : counters.CHAT;
-		const markedChats = counters.CHAT_UNREAD;
-		markedChats.forEach((markedChatId) => {
-			const unreadChatHasCounter = Boolean(chatCounters[markedChatId]);
+		const resultCounters = { ...counters };
+		unreadCounters.forEach((markedChatId) => {
+			const unreadChatHasCounter = Boolean(counters[markedChatId]);
 			if (unreadChatHasCounter)
 			{
 				return;
 			}
 
-			chatCounters[markedChatId] = 1;
+			resultCounters[markedChatId] = 1;
 		});
 
-		return chatCounters;
+		return resultCounters;
 	}
 
 	#subscribeToCountersChange()

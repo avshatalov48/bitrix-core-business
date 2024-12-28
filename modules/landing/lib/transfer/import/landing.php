@@ -1076,7 +1076,7 @@ class Landing
 		{
 			$wrapperClasses = [];
 			$http = new \Bitrix\Main\Web\HttpClient;
-			$resPreview = $http->get('https://preview.bitrix24.site/tools/blocks.php?tplCode=' . $newTplCode);
+			$resPreview = $http->get(Manager::getPreviewHost() . '/tools/blocks.php?tplCode=' . $newTplCode);
 			if ($resPreview)
 			{
 				try

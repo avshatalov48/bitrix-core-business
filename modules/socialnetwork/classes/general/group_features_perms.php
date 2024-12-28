@@ -1,6 +1,8 @@
 <?php
 
 use Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\Socialnetwork\Integration\Intranet\User;
+use Bitrix\Socialnetwork\WorkgroupTable;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -539,6 +541,15 @@ class CAllSocNetFeaturesPerms
 						}
 					}
 
+					if ($featureOperationPerms[$arGroupTmp['ID']] === SONET_ROLES_EMPLOYEE)
+					{
+						$arReturn[$arGroupTmp['ID']] =
+							in_array($userRoleInGroup[$arGroupTmp["ID"]], UserToGroupTable::getRolesMember(), true)
+							&& User::isIntranet($userID);
+
+						continue;
+					}
+
 					if ($featureOperationPerms[$arGroupTmp["ID"]] === SONET_ROLES_AUTHORIZED)
 					{
 						if ($userID > 0)
@@ -646,6 +657,13 @@ class CAllSocNetFeaturesPerms
 			if ($featureOperationPerms === SONET_ROLES_AUTHORIZED)
 			{
 				return ($userID > 0);
+			}
+
+			if ($featureOperationPerms === SONET_ROLES_EMPLOYEE)
+			{
+				return
+					in_array($userRoleInGroup, UserToGroupTable::getRolesMember(), true)
+					&& User::isIntranet($userID);
 			}
 
 			if ($userRoleInGroup == false)
@@ -839,7 +857,7 @@ class CAllSocNetFeaturesPerms
 		}
 
 		if (
-			!array_key_exists($feature, $arSocNetFeaturesSettings) 
+			!array_key_exists($feature, $arSocNetFeaturesSettings)
 			|| !array_key_exists("allowed", $arSocNetFeaturesSettings[$feature])
 			|| !in_array($type, $arSocNetFeaturesSettings[$feature]["allowed"])
 		)
@@ -1137,15 +1155,17 @@ class CAllSocNetFeaturesPerms
 				|| !array_key_exists($operation, $arFeaturesPerms[$feature])
 			)
 			{
-				if (
-					!isset($arSonetGroupCache[$id])
-					&& ($arSonetGroup = CSocNetGroup::GetByID($id))
-				)
+				if (!isset($arSonetGroupCache[$id]))
 				{
-					$arSonetGroupCache[$id] = array(
-						'OPENED' => $arSonetGroup['OPENED'],
-						'VISIBLE' => $arSonetGroup['VISIBLE']
-					);
+					$sonetGroup = WorkgroupTable::getList([
+						'select' => ['OPENED', 'VISIBLE'],
+						'filter' => ['ID' => $id],
+					])->fetch();
+
+					$arSonetGroupCache[$id] = [
+						'OPENED' => $sonetGroup['OPENED'],
+						'VISIBLE' => $sonetGroup['VISIBLE']
+					];
 				}
 
 				$perm = $arSocNetFeaturesSettings[$feature]["operations"][$operation][SONET_ENTITY_GROUP];

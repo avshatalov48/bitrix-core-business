@@ -16,9 +16,12 @@ use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Service\Context;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 use CTimeZone;
 
@@ -32,7 +35,7 @@ class CounterService
 	protected const CACHE_TTL = 86400; // 1 month
 	protected const CACHE_NAME = 'counter_v5';
 	protected const CACHE_CHATS_COUNTERS_NAME = 'chats_counter_v6';
-	protected const CACHE_PATH = '/bx/im/v2/counter/';
+	protected const CACHE_PATH = '/bx/im/v3/counter/';
 
 	protected const DEFAULT_COUNTERS = [
 		'TYPE' => [
@@ -41,10 +44,13 @@ class CounterService
 			'CHAT' => 0,
 			'LINES' => 0,
 			'COPILOT' => 0,
+			'COLLAB' => 0,
 		],
 		'CHAT' => [],
+		'COLLAB' => [],
 		'CHAT_MUTED' => [],
 		'CHAT_UNREAD' => [],
+		'COLLAB_UNREAD' => [],
 		'LINES' => [],
 		'COPILOT' => [],
 		'CHANNEL_COMMENT' => [],
@@ -302,23 +308,17 @@ class CounterService
 		static::clearCache();
 	}*/
 
+	/**
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws ArgumentException
+	 */
 	public function deleteAll(bool $withNotify = false): void
 	{
-		if ($this->getContext()->getUserId() <= 0)
-		{
-			return;
-		}
-
-		$filter = ['=USER_ID' => $this->getContext()->getUserId()];
-
-		if (!$withNotify)
-		{
-			$filter['!=CHAT_TYPE'] = \IM_MESSAGE_SYSTEM; // todo: add index
-		}
-
-		MessageUnreadTable::deleteByFilter($filter);
-		static::clearCache($this->getContext()->getUserId());
-		CounterOverflowService::deleteAllByUserId($this->getContext()->getUserId());
+		Message\CounterService\CounterServiceAgent::deleteAllViaAgent(
+			$this->getContext()->getUserId(),
+			$withNotify,
+		);
 	}
 
 	public static function getChildrenWithCounters(Chat $parentChat, ?int $userId = null): array
@@ -616,7 +616,14 @@ class CounterService
 
 		foreach ($unreadChats as $unreadChat)
 		{
-			$this->setUnreadChat((int)$unreadChat['CHAT_ID'], $unreadChat['IS_MUTED'] === 'Y');
+			if ($unreadChat['CHAT_TYPE'] === Chat::IM_TYPE_COLLAB)
+			{
+				$this->setUnreadCollab((int)$unreadChat['CHAT_ID'], $unreadChat['IS_MUTED'] === 'Y');
+			}
+			else
+			{
+				$this->setUnreadChat((int)$unreadChat['CHAT_ID'], $unreadChat['IS_MUTED'] === 'Y');
+			}
 		}
 	}
 
@@ -632,6 +639,10 @@ class CounterService
 			if ($counter['IS_MUTED'] === 'Y')
 			{
 				$this->setFromMutedChat($chatId, $count);
+			}
+			elseif ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COLLAB)
+			{
+				$this->setFromCollab($chatId, $count);
 			}
 			else if ($counter['CHAT_TYPE'] === \IM_MESSAGE_SYSTEM)
 			{
@@ -668,6 +679,18 @@ class CounterService
 		$this->counters['CHAT_UNREAD'][] = $id;
 	}
 
+	protected function setUnreadCollab(int $id, bool $isMuted): void
+	{
+		if (!$isMuted && !isset($this->counters['COLLAB'][$id]))
+		{
+			$this->counters['TYPE']['ALL']++;
+			$this->counters['TYPE']['CHAT']++;
+			$this->counters['TYPE']['COLLAB']++;
+		}
+
+		$this->counters['COLLAB_UNREAD'][] = $id;
+	}
+
 	protected function setFromMutedChat(int $id, int $count): void
 	{
 		$this->counters['CHAT_MUTED'][$id] = $count;
@@ -690,6 +713,12 @@ class CounterService
 	{
 		$this->counters['TYPE']['COPILOT'] += $count;
 		$this->counters['COPILOT'][$id] = $count;
+	}
+
+	protected function setFromCollab(int $id, int $count): void
+	{
+		$this->counters['TYPE']['COLLAB'] += $count;
+		$this->counters['COLLAB'][$id] = $count;
 	}
 
 	protected function setFromComment(int $id, ?int $parentId, int $count): void
@@ -754,7 +783,11 @@ class CounterService
 	protected function getUnreadChats(?bool $isMuted = null): array
 	{
 		$query = RecentTable::query()
-			->setSelect(['CHAT_ID' => 'ITEM_CID', 'IS_MUTED' => 'RELATION.NOTIFY_BLOCK'])
+			->setSelect([
+				'CHAT_ID' => 'ITEM_CID',
+				'CHAT_TYPE' => 'ITEM_TYPE',
+				'IS_MUTED' => 'RELATION.NOTIFY_BLOCK',
+			])
 			->where('USER_ID', $this->getContext()->getUserId())
 			->where('UNREAD', true)
 		;

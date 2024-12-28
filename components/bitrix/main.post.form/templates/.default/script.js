@@ -1,3 +1,4 @@
+/* eslint-disable */
 ;(function() {
 
 	if (window['LHEPostForm'])
@@ -1761,128 +1762,131 @@ this.BX = this.BX || {};
 	        }));
 	      });
 	      // DnD
-	      (function () {
-	        var placeHolder = BX('micro' + (_this3.name || _this3.id));
-	        var active = false;
-	        var timeoutId = 0;
-	        var activate = function activate(e) {
-	          e.preventDefault();
-	          e.stopPropagation();
-	          if (timeoutId > 0) {
-	            clearTimeout(timeoutId);
-	            timeoutId = 0;
-	          }
-	          if (active === true) {
-	            return;
-	          }
-	          var isFileTransfer = e && e['dataTransfer'] && e['dataTransfer']['types'] && e['dataTransfer']['types'].indexOf('Files') >= 0;
-	          if (isFileTransfer) {
-	            active = true;
-	            _this3.getContainer().classList.add('feed-add-post-dnd-over');
-	            if (placeHolder) {
-	              placeHolder.classList.add('feed-add-post-micro-dnd-ready');
-	            }
-	          }
-	          return true;
-	        };
-	        var disActivate = function disActivate(e) {
-	          e.preventDefault();
-	          e.stopPropagation();
-	          if (timeoutId > 0) {
-	            clearTimeout(timeoutId);
-	          }
-	          timeoutId = setTimeout(function () {
-	            active = false;
-	            _this3.getContainer().classList.remove('feed-add-post-dnd-over');
-	            if (placeHolder) {
-	              placeHolder.classList.remove('feed-add-post-micro-dnd-ready');
-	            }
-	          }, 100);
-	          return false;
-	        };
-	        var catchFiles = function catchFiles(e) {
-	          disActivate(e);
-	          if (e && e['dataTransfer'] && e['dataTransfer']['types'] && e['dataTransfer']['types'].indexOf('Files') >= 0 && e['dataTransfer']['files'] && e['dataTransfer']['files'].length > 0) {
-	            main_core_events.EventEmitter.emit(_this3.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
-	              compatData: ['justShow', {
-	                onShowControllers: 'show'
-	              }]
-	            }));
-	            main_core_events.EventEmitter.emit(_this3.getEventObject(), 'onFilesHaveCaught', new main_core_events.BaseEvent({
-	              data: e['dataTransfer']['files']
-	            }));
-	            main_core_events.EventEmitter.emit(_this3.getEventObject(), 'onFilesHaveDropped', {
-	              event: e
-	            });
-	          }
-	          return false;
-	        };
-	        _this3.getContainer().addEventListener('dragover', activate);
-	        _this3.getContainer().addEventListener('dragenter', activate);
-	        _this3.getContainer().addEventListener('dragleave', disActivate);
-	        _this3.getContainer().addEventListener('dragexit', disActivate);
-	        _this3.getContainer().addEventListener('drop', catchFiles);
-	        _this3.getContainer().setAttribute('dropzone', 'copy f:*\/*');
-	        if (!document.body.hasAttribute('dropzone')) {
-	          document.body.setAttribute('dropzone', 'copy f:*/*');
-	          document.body.addEventListener('dragover', function (e) {
+
+	      if (this.editorParams.isDnDEnabled) {
+	        (function () {
+	          var placeHolder = BX('micro' + (_this3.name || _this3.id));
+	          var active = false;
+	          var timeoutId = 0;
+	          var activate = function activate(e) {
 	            e.preventDefault();
 	            e.stopPropagation();
+	            if (timeoutId > 0) {
+	              clearTimeout(timeoutId);
+	              timeoutId = 0;
+	            }
+	            if (active === true) {
+	              return;
+	            }
+	            var isFileTransfer = e && e['dataTransfer'] && e['dataTransfer']['types'] && e['dataTransfer']['types'].indexOf('Files') >= 0;
+	            if (isFileTransfer) {
+	              active = true;
+	              _this3.getContainer().classList.add('feed-add-post-dnd-over');
+	              if (placeHolder) {
+	                placeHolder.classList.add('feed-add-post-micro-dnd-ready');
+	              }
+	            }
 	            return true;
-	          });
-	          document.body.addEventListener('drop', function (e) {
+	          };
+	          var disActivate = function disActivate(e) {
 	            e.preventDefault();
 	            e.stopPropagation();
+	            if (timeoutId > 0) {
+	              clearTimeout(timeoutId);
+	            }
+	            timeoutId = setTimeout(function () {
+	              active = false;
+	              _this3.getContainer().classList.remove('feed-add-post-dnd-over');
+	              if (placeHolder) {
+	                placeHolder.classList.remove('feed-add-post-micro-dnd-ready');
+	              }
+	            }, 100);
+	            return false;
+	          };
+	          var catchFiles = function catchFiles(e) {
+	            disActivate(e);
 	            if (e && e['dataTransfer'] && e['dataTransfer']['types'] && e['dataTransfer']['types'].indexOf('Files') >= 0 && e['dataTransfer']['files'] && e['dataTransfer']['files'].length > 0) {
-	              var lhe;
-	              var iteratorBuffer;
-	              var iterator = _classStaticPrivateFieldSpecGet(this.constructor, Editor, _shownForms).keys();
-	              while ((iteratorBuffer = iterator.next()) && iteratorBuffer.done !== true && iteratorBuffer.value) {
-	                lhe = iteratorBuffer.value;
-	              }
-	              if (lhe) {
-	                main_core_events.EventEmitter.emit(lhe.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
-	                  compatData: ['justShow', {
-	                    onShowControllers: 'show'
-	                  }]
-	                }));
-	                main_core_events.EventEmitter.emit(lhe.getEventObject(), 'onFilesHaveCaught', new main_core_events.BaseEvent({
-	                  data: e['dataTransfer']['files']
-	                }));
-	                main_core_events.EventEmitter.emit(lhe.getEventObject(), 'onFilesHaveDropped', {
-	                  event: e
-	                });
-	              }
+	              main_core_events.EventEmitter.emit(_this3.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
+	                compatData: ['justShow', {
+	                  onShowControllers: 'show'
+	                }]
+	              }));
+	              main_core_events.EventEmitter.emit(_this3.getEventObject(), 'onFilesHaveCaught', new main_core_events.BaseEvent({
+	                data: e['dataTransfer']['files']
+	              }));
+	              main_core_events.EventEmitter.emit(_this3.getEventObject(), 'onFilesHaveDropped', {
+	                event: e
+	              });
 	            }
 	            return false;
-	          }.bind(_this3));
-	        }
-	        if (placeHolder) {
-	          placeHolder.addEventListener('dragenter', function (e) {
-	            activate(e);
-	            main_core_events.EventEmitter.emit(_this3.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
-	              compatData: ['justShow', {
-	                onShowControllers: 'show'
-	              }]
-	            }));
+	          };
+	          _this3.getContainer().addEventListener('dragover', activate);
+	          _this3.getContainer().addEventListener('dragenter', activate);
+	          _this3.getContainer().addEventListener('dragleave', disActivate);
+	          _this3.getContainer().addEventListener('dragexit', disActivate);
+	          _this3.getContainer().addEventListener('drop', catchFiles);
+	          _this3.getContainer().setAttribute('dropzone', 'copy f:*\/*');
+	          if (!document.body.hasAttribute('dropzone')) {
+	            document.body.setAttribute('dropzone', 'copy f:*/*');
+	            document.body.addEventListener('dragover', function (e) {
+	              e.preventDefault();
+	              e.stopPropagation();
+	              return true;
+	            });
+	            document.body.addEventListener('drop', function (e) {
+	              e.preventDefault();
+	              e.stopPropagation();
+	              if (e && e['dataTransfer'] && e['dataTransfer']['types'] && e['dataTransfer']['types'].indexOf('Files') >= 0 && e['dataTransfer']['files'] && e['dataTransfer']['files'].length > 0) {
+	                var lhe;
+	                var iteratorBuffer;
+	                var iterator = _classStaticPrivateFieldSpecGet(this.constructor, Editor, _shownForms).keys();
+	                while ((iteratorBuffer = iterator.next()) && iteratorBuffer.done !== true && iteratorBuffer.value) {
+	                  lhe = iteratorBuffer.value;
+	                }
+	                if (lhe) {
+	                  main_core_events.EventEmitter.emit(lhe.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
+	                    compatData: ['justShow', {
+	                      onShowControllers: 'show'
+	                    }]
+	                  }));
+	                  main_core_events.EventEmitter.emit(lhe.getEventObject(), 'onFilesHaveCaught', new main_core_events.BaseEvent({
+	                    data: e['dataTransfer']['files']
+	                  }));
+	                  main_core_events.EventEmitter.emit(lhe.getEventObject(), 'onFilesHaveDropped', {
+	                    event: e
+	                  });
+	                }
+	              }
+	              return false;
+	            }.bind(_this3));
+	          }
+	          if (placeHolder) {
+	            placeHolder.addEventListener('dragenter', function (e) {
+	              activate(e);
+	              main_core_events.EventEmitter.emit(_this3.getEventObject(), 'OnShowLHE', new main_core_events.BaseEvent({
+	                compatData: ['justShow', {
+	                  onShowControllers: 'show'
+	                }]
+	              }));
+	            });
+	          }
+	          main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDrop', function (_ref13) {
+	            var _ref13$data = babelHelpers.slicedToArray(_ref13.data, 1),
+	              e = _ref13$data[0];
+	            return catchFiles(e);
 	          });
-	        }
-	        main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDrop', function (_ref13) {
-	          var _ref13$data = babelHelpers.slicedToArray(_ref13.data, 1),
-	            e = _ref13$data[0];
-	          return catchFiles(e);
-	        });
-	        main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDragOver', function (_ref14) {
-	          var _ref14$data = babelHelpers.slicedToArray(_ref14.data, 1),
-	            e = _ref14$data[0];
-	          return activate(e);
-	        });
-	        main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDragLeave', function (_ref15) {
-	          var _ref15$data = babelHelpers.slicedToArray(_ref15.data, 1),
-	            e = _ref15$data[0];
-	          return disActivate(e);
-	        });
-	      })();
+	          main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDragOver', function (_ref14) {
+	            var _ref14$data = babelHelpers.slicedToArray(_ref14.data, 1),
+	              e = _ref14$data[0];
+	            return activate(e);
+	          });
+	          main_core_events.EventEmitter.subscribe(_this3.getEditor(), 'OnIframeDragLeave', function (_ref15) {
+	            var _ref15$data = babelHelpers.slicedToArray(_ref15.data, 1),
+	              e = _ref15$data[0];
+	            return disActivate(e);
+	          });
+	        })();
+	      }
 	      //endregion
 
 	      main_core_events.EventEmitter.subscribe(htmlEditor, 'OnInsertContent', function (_ref16) {
@@ -3680,7 +3684,8 @@ window.BXfpdOnDialogClose = function (params)
 						options: {
 							emailUsers: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
 							inviteGuestLink: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
-							myEmailUsers: true
+							myEmailUsers: true,
+							footerInviteIntranetOnly: true,
 						}
 					},
 					{
@@ -3688,7 +3693,8 @@ window.BXfpdOnDialogClose = function (params)
 						options: {
 							features: {
 								blog:  [ 'premoderate_post', 'moderate_post', 'write_post', 'full_post' ]
-							}
+							},
+							'!type': ['collab'],
 						}
 					},
 					{

@@ -9,6 +9,9 @@ import type { MessageWithFile } from '../types/uploading';
 type UploaderWrapperOptions = {
 	diskFolderId: number,
 	uploaderId: string,
+	chatId: number,
+	dialogId: string,
+	autoUpload: boolean,
 }
 
 const MAX_FILES_IN_ONE_MESSAGE = 10;
@@ -43,7 +46,7 @@ export class UploaderWrapper extends EventEmitter
 
 	createUploader(options: UploaderWrapperOptions)
 	{
-		const { diskFolderId, uploaderId, autoUpload } = options;
+		const { diskFolderId, uploaderId, autoUpload = false, chatId, dialogId } = options;
 
 		this.#uploaderRegistry[uploaderId] = new Uploader({
 			autoUpload,
@@ -51,6 +54,10 @@ export class UploaderWrapper extends EventEmitter
 			multiple: true,
 			controllerOptions: {
 				folderId: diskFolderId,
+				chat: {
+					chatId,
+					dialogId,
+				},
 			},
 			imageResizeWidth: 1280,
 			imageResizeHeight: 1280,

@@ -91,7 +91,13 @@ if ($isCreateStore)
 else
 {
 	$uriSelect = new Uri($arResult['CUR_URI']);
-	preg_match('/preview.bitrix24.site\/pub\/site\/(\d+)/i', $template['PREVIEW_URL'] ?? '', $matches);
+	$host = Manager::getPreviewHost();
+	$host = str_replace(['http://', 'https://'], '', $host);
+	preg_match(
+		"/{$host}\\/pub\\/site\\/(\\d+)/i",
+		$template['PREVIEW_URL'] ?? '',
+		$matches
+	);
 	$previewId = $matches[1] ?? 0;
 	$uriSelect->addParams([
 		'action' => 'select',

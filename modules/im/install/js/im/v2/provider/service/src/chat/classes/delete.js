@@ -35,6 +35,23 @@ export class DeleteService
 		return deleteResult;
 	}
 
+	async deleteCollab(dialogId: string): Promise<RestResult>
+	{
+		Logger.warn(`ChatService: deleteCollab, dialogId: ${dialogId}`);
+
+		const deleteResult = await runAction(RestMethod.socialnetworkCollabDelete, {
+			data: { dialogId },
+		}).catch((error) => {
+			// eslint-disable-next-line no-console
+			console.error('ChatService: deleteCollab error:', error);
+			throw error;
+		});
+
+		await this.#updateModels(dialogId);
+
+		return deleteResult;
+	}
+
 	#updateModels(dialogId: string): Promise
 	{
 		void this.#store.dispatch('chats/update', {

@@ -2,7 +2,6 @@
 namespace Bitrix\Calendar\Sharing\Link;
 
 use Bitrix\Calendar\Sharing\Link\Joint\JointLinkMapper;
-use Bitrix\Calendar\Sharing\Link\Member;
 use Bitrix\Main\Web\Json;
 
 class UserLinkMapper extends JointLinkMapper

@@ -901,11 +901,12 @@ class CRestUtil
 
 	public static function getLanguage()
 	{
+		/** @todo Use SiteTable::getDefaultLanguageId() */
 		$languageId = '';
-
 		$siteIterator = \Bitrix\Main\SiteTable::getList(array(
-			'select' => array('LANGUAGE_ID'),
-			'filter' => array('=DEF' => 'Y', '=ACTIVE' => 'Y')
+			'select' => array('LID', 'LANGUAGE_ID'),
+			'filter' => array('=DEF' => 'Y', '=ACTIVE' => 'Y'),
+			'cache' => ['ttl' => 86400],
 		));
 		if($site = $siteIterator->fetch())
 		{

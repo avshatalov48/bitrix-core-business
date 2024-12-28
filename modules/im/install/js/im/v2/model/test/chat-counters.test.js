@@ -1,4 +1,5 @@
 import 'im.v2.test';
+import { Loc } from 'main.core';
 import { Core } from 'im.v2.application.core';
 import { RecentModel } from 'im.v2.model';
 
@@ -28,6 +29,7 @@ describe.only('chat counters', () => {
 
 	beforeEach(() => {
 		sinon.stub(Core, 'getUserId').returns(1);
+		sinon.stub(Loc, 'getMessage').returns('');
 	});
 
 	afterEach(() => {

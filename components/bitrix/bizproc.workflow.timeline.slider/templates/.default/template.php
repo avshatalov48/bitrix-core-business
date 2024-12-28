@@ -40,7 +40,7 @@ $config = [
 $component = $this->getComponent();
 ?>
 <?php $this->SetViewTarget('pagetitle') ?>
-<div class="ui-btn-container">
+<div class="ui-btn-container" data-role="page-toolbar">
 	<button class="ui-btn ui-btn-light-border ui-btn-themes" onclick="top.BX.Helper.show('redirect=detail&code=21290220');">
 		<?= Loc::getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_HELP_BUTTON') ?>
 	</button>

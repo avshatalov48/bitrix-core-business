@@ -270,7 +270,7 @@ class CIMRestService extends IRestService
 		$users = Array();
 		if (is_string($arParams['ID']))
 		{
-			$arParams['ID'] = \CUtil::JsObjectToPhp($arParams['ID']);
+			$arParams['ID'] = \CUtil::JsObjectToPhp($arParams['ID'], true);
 		}
 		if (is_array($arParams['ID']))
 		{
@@ -1144,7 +1144,7 @@ class CIMRestService extends IRestService
 		$ids = Array();
 		if (is_string($arParams['ID']))
 		{
-			$arParams['ID'] = \CUtil::JsObjectToPhp($arParams['ID']);
+			$arParams['ID'] = \CUtil::JsObjectToPhp($arParams['ID'], true);
 		}
 		if (is_array($arParams['ID']))
 		{
@@ -1682,7 +1682,7 @@ class CIMRestService extends IRestService
 		$chat = \Bitrix\Im\Model\ChatTable::getById($arParams['CHAT_ID'])->fetch();
 		$chatRelation = \CIMChat::GetRelationById($arParams['CHAT_ID'], false, true, false);
 
-		if (!CIMChat::canDo($chat, $chatRelation, \Bitrix\Im\V2\Chat\Permission::ACTION_CHANGE_AVATAR))
+		if (!CIMChat::canDo($chat, $chatRelation, \Bitrix\Im\V2\Permission\Action::ChangeAvatar))
 		{
 			throw new Bitrix\Rest\RestException("Access denied", "ACCESS_DENIED", CRestServer::STATUS_WRONG_REQUEST);
 		}
@@ -2366,7 +2366,7 @@ class CIMRestService extends IRestService
 		$chatId = $task->getChatId();
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Chat\Permission::ACTION_CREATE_TASK))
+		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Permission\Action::CreateTask))
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2531,7 +2531,7 @@ class CIMRestService extends IRestService
 			throw new \Bitrix\Rest\RestException('CALENDAR_ID can`t be empty', 'CALENDAR_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Chat\Permission::ACTION_CREATE_MEETING))
+		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Permission\Action::CreateMeeting))
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2592,7 +2592,7 @@ class CIMRestService extends IRestService
 		$chatId = $calendar->getChatId();
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Chat\Permission::ACTION_CREATE_MEETING))
+		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Permission\Action::CreateMeeting))
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -3197,6 +3197,7 @@ class CIMRestService extends IRestService
 			isset($arParams['SYSTEM']) && $arParams['SYSTEM'] == 'Y'
 			&& $server->getAuthType() !== \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE
 			&& \Bitrix\Im\Dialog::hasAccess($arMessageFields['DIALOG_ID'])
+			&& !\Bitrix\Im\User::getInstance()->isExtranet()
 		)
 		{
 			$arMessageFields['SYSTEM'] = 'Y';
@@ -4984,7 +4985,10 @@ class CIMRestService extends IRestService
 			}
 		}
 
-		$arMessageFields['MESSAGE'] = trim($arParams['MESSAGE']);
+		$arMessageFields['MESSAGE'] = isset($arParams['MESSAGE']) && is_string($arParams['MESSAGE'])
+			? trim($arParams['MESSAGE'])
+			: ''
+		;
 		if ($arMessageFields['MESSAGE'] == '')
 		{
 			throw new Bitrix\Rest\RestException("Message can't be empty", "MESSAGE_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
@@ -6790,29 +6794,32 @@ class CIMRestService extends IRestService
 	private static function bindEvent($appId, $appCode, $bitrixEventModule, $bitrixEventName, $restEventName, $restEventHandler)
 	{
 		$res = \Bitrix\Rest\EventTable::getList(array(
-													'filter' => array(
-														'=EVENT_NAME' => mb_strtoupper($restEventName),
-														"=APPLICATION_TOKEN" => $appCode,
-														'=APP_ID' => $appId,
-													),
-													'select' => array('ID')
-												));
+			'filter' => array(
+				'=EVENT_NAME' => mb_strtoupper($restEventName),
+				'=APPLICATION_TOKEN' => $appCode,
+				'=APP_ID' => $appId,
+			),
+			'select' => array('ID')
+		));
+
 		if ($handler = $res->fetch())
 		{
 			return true;
 		}
 
-		$result = \Bitrix\Rest\EventTable::add(array(
-												   "APP_ID" => $appId,
-												   "EVENT_NAME" => mb_strtoupper($restEventName),
-												   "EVENT_HANDLER" => $restEventHandler,
-												   "APPLICATION_TOKEN" => $appCode,
-												   "USER_ID" => 0,
-											   ));
-		if($result->isSuccess())
-		{
-			\Bitrix\Rest\Event\Sender::bind($bitrixEventModule, $bitrixEventName);
-		}
+		$updateFields = [
+			'APP_ID' => $appId,
+			'EVENT_NAME' => mb_strtoupper($restEventName),
+			'EVENT_HANDLER' => $restEventHandler,
+			'APPLICATION_TOKEN' => $appCode,
+		];
+		$insertFields = [
+			...$updateFields,
+			'USER_ID' => 0,
+		];
+
+		\Bitrix\Rest\EventTable::merge($insertFields, $updateFields);
+		\Bitrix\Rest\Event\Sender::bind($bitrixEventModule, $bitrixEventName);
 
 		return true;
 	}

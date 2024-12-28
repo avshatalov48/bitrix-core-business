@@ -43,6 +43,7 @@ class Event extends BasicComponent implements BuilderComponent, EventFactoryInte
 	private $exdates = [];
 	private $dtStamp;
 	private $url;
+	private $priority;
 
 	/**
 	 * @param array $event
@@ -64,7 +65,7 @@ class Event extends BasicComponent implements BuilderComponent, EventFactoryInte
 	 * @param $uid
 	 * @return Event
 	 */
-	public static function createInstance($uid): EVent
+	public static function createInstance($uid): Event
 	{
 		return new self($uid);
 	}
@@ -351,6 +352,23 @@ class Event extends BasicComponent implements BuilderComponent, EventFactoryInte
 	}
 
 	/**
+	 * @param Alarm[] $alerts
+	 */
+	public function setAlerts(array $alerts): Event
+	{
+		$this->alerts = $alerts;
+
+		return $this;
+	}
+
+	public function setPriority(int $priority): Event
+	{
+		$this->priority = $priority;
+
+		return $this;
+	}
+
+	/**
 	 * @return Content
 	 */
 	public function setContent(): Content
@@ -406,6 +424,11 @@ class Event extends BasicComponent implements BuilderComponent, EventFactoryInte
 		if (!empty($this->url))
 		{
 			$content->textProperty('URL', $this->url);
+		}
+
+		if (!empty($this->priority))
+		{
+			$content->textProperty('PRIORITY', $this->priority);
 		}
 
 		return $content;

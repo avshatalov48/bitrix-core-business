@@ -63,8 +63,8 @@ class InfoHelper extends Engine\Controller
 		}
 		else
 		{
-			$lkeySign = Application::getInstance()->getLicense()->getHashLicenseKey();
-			$url = 'https://www.1c-bitrix.ru/buy_tmp/key_update.php?license_key=' . $lkeySign . '&tobasket=y&action=b24subscr';
+			$license = Application::getInstance()->getLicense();
+			$url = $license->getDomainStoreLicense() . '/key_update.php?license_key=' . $license->getHashLicenseKey() . '&tobasket=y&action=b24subscr';
 		}
 
 		return [

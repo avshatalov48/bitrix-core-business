@@ -1,6 +1,6 @@
 <?php
 
-use Bitrix\Main\Config\Option;
+use Bitrix\Landing\Mainpage;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
@@ -64,7 +64,7 @@ class LandingBlocksMainpageWidgetAbout extends LandingBlocksMainpageWidgetBase
 
 	protected function getData(): void
 	{
-		if (Option::get('landing', 'use_demo_data_in_block_widgets') === 'Y')
+		if (Mainpage\Manager::isUseDemoData())
 		{
 			$data = $this->getDemoData();
 			Extension::load(['ui.icon-set.main']);

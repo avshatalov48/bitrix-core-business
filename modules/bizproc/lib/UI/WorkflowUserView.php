@@ -2,6 +2,8 @@
 
 namespace Bitrix\Bizproc\UI;
 
+use Bitrix\Bizproc\Result\Entity\ResultTable;
+use Bitrix\Bizproc\Result\RenderedResult;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable;
 use Bitrix\Bizproc\Workflow\WorkflowState;
 use Bitrix\Bizproc\WorkflowInstanceTable;
@@ -109,6 +111,11 @@ class WorkflowUserView implements \JsonSerializable
 	public function getIsCompleted(): bool
 	{
 		return !WorkflowInstanceTable::exists($this->getId());
+	}
+
+	public function getWorkflowResult(): ?array
+	{
+		return \CBPViewHelper::getWorkflowResult($this->getId(), $this->userId);
 	}
 
 	public function getCommentCounter(): int
@@ -233,7 +240,7 @@ class WorkflowUserView implements \JsonSerializable
 			return null;
 		}
 
-		return new DateTime($task['overdueDate']);
+		return DateTime::createFromUserTime($task['overdueDate']);
 	}
 
 	public function getStartedBy(): ?EO_User

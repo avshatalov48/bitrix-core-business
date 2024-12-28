@@ -2,6 +2,7 @@ import { Loc, type JsonObject } from 'main.core';
 import { BaseEvent } from 'main.core.events';
 
 import { CreateChatManager } from 'im.v2.lib.create-chat';
+import { EmptyAvatar, EmptyAvatarType, AvatarSize } from 'im.v2.component.elements';
 import { Layout, ChatType } from 'im.v2.const';
 
 import '../css/create-chat.css';
@@ -22,6 +23,8 @@ const SubtitleByChatType = {
 
 // @vue/component
 export const CreateChat = {
+	name: 'CreateChat',
+	components: { EmptyAvatar },
 	data(): JsonObject
 	{
 		return {
@@ -32,6 +35,7 @@ export const CreateChat = {
 	},
 	computed:
 	{
+		AvatarSize: () => AvatarSize,
 		chatCreationIsOpened(): boolean
 		{
 			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
@@ -60,9 +64,19 @@ export const CreateChat = {
 
 			return URL.createObjectURL(this.chatAvatarFile);
 		},
-		isSpecialType(): boolean
+		avatarType(): $Values<typeof EmptyAvatarType>
 		{
-			return this.chatType !== ChatType.chat;
+			if (this.chatType === ChatType.collab)
+			{
+				return EmptyAvatarType.collab;
+			}
+
+			if (this.chatType === ChatType.chat)
+			{
+				return EmptyAvatarType.default;
+			}
+
+			return EmptyAvatarType.squared;
 		},
 	},
 	created()
@@ -120,13 +134,17 @@ export const CreateChat = {
 		<div class="bx-im-list-recent-create-chat__container">
 			<div class="bx-im-list-recent-item__wrap" :class="{'--selected': chatCreationIsOpened}" @click="onClick">
 				<div class="bx-im-list-recent-item__container">
-					<div class="bx-im-list-recent-item__avatar_container" :class="{'--squared': isSpecialType}">
-						<div v-if="!preparedAvatar" class="bx-im-list-recent-create-chat__avatar --default"></div>
-						<img v-else class="bx-im-list-recent-create-chat__avatar --image" :src="preparedAvatar" :alt="chatTitle" />
+					<div class="bx-im-list-recent-create-chat__avatar-container">
+						<EmptyAvatar 
+							:url="preparedAvatar" 
+							:size="AvatarSize.XL"
+							:title="chatTitle"
+							:type="avatarType"
+						/>
 					</div>
 					<div class="bx-im-list-recent-item__content_container">
 						<div class="bx-im-list-recent-item__content_header">
-							<div class="bx-im-list-recent-create-chat__header">
+							<div class="bx-im-list-recent-create-chat__header --ellipsis">
 								{{ preparedTitle }}
 							</div>
 						</div>

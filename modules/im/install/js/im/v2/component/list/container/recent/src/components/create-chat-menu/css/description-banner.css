@@ -1,0 +1,32 @@
+.bx-im-create-chat-menu-description-banner__container {
+	--im-create-chat-menu-description-banner__background-color_content: var(--im-color-collab-10);
+	--im-create-chat-menu-description-banner__font-color_highlight: var(--im-color-collab-70);
+
+	position: relative;
+	margin-left: -10px;
+	margin-right: -10px;
+	margin-top: 8px;
+	padding: 6px 22px 8px 10px;
+	border-radius: var(--im-border-radius-xs);
+	background-color: var(--im-create-chat-menu-description-banner__background-color_content);
+	font: var(--im-font-size-3xs) var(--im-font-family-system);
+}
+
+.bx-im-create-chat-menu-description-banner__highlight {
+	color: var(--im-create-chat-menu-description-banner__font-color_highlight);
+}
+
+.bx-im-create-chat-menu-description-banner__close-icon {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 17px;
+	height: 17px;
+	background-image: url('./images/close-icon.svg');
+	opacity: 0.35;
+	cursor: pointer;
+}
+
+.bx-im-create-chat-menu-description-banner__close-icon:hover {
+	opacity: 0.7;
+}

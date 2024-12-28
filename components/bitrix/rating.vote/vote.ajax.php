@@ -8,6 +8,7 @@ const DisableEventsCheck = true;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Rating\Internal\Action;
+use Bitrix\Main\Security\Sign\BadSignatureException;
 use Bitrix\Main\Web\Json;
 
 /** @global CMain $APPLICATION */
@@ -25,7 +26,14 @@ if ($entityId && $entityTypeId !== '')
 
 	$signer = new \Bitrix\Main\Security\Sign\TimeSigner();
 
-	$isAccess = ($signedKey !== '' && $signer->unsign($signedKey, 'main.rating.vote') === $payloadValue);
+	try
+	{
+		$isAccess = ($signedKey !== '' && $signer->unsign($signedKey, 'main.rating.vote') === $payloadValue);
+	}
+	catch(BadSignatureException $e)
+	{
+		$isAccess = false;
+	}
 }
 else
 {

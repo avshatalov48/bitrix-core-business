@@ -15,6 +15,10 @@ this.BX = this.BX || {};
 	  ACCEPT: 'accept',
 	  HIDE: 'hide'
 	});
+	const PromoVideoPopupButtonPosition = Object.freeze({
+	  LEFT: 'left',
+	  RIGHT: 'right'
+	});
 	var _videoSrc = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("videoSrc");
 	var _title = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("title");
 	var _text = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("text");
@@ -23,6 +27,9 @@ this.BX = this.BX || {};
 	var _targetOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("targetOptions");
 	var _angleOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("angleOptions");
 	var _offset = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("offset");
+	var _videoContainerMinHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("videoContainerMinHeight");
+	var _buttonOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("buttonOptions");
+	var _useOverlay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("useOverlay");
 	var _popup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
 	var _iniPopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("iniPopup");
 	var _getPopupClassname = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupClassname");
@@ -36,9 +43,26 @@ this.BX = this.BX || {};
 	var _getOptionsButtonColor = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getOptionsButtonColor");
 	var _validateOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("validateOptions");
 	var _isIconExist = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isIconExist");
+	var _getButtonOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getButtonOptions");
+	var _getDefaultButtonOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDefaultButtonOptions");
+	var _getPopupOverlay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupOverlay");
+	var _getPopupFooterElementClassname = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupFooterElementClassname");
 	class PromoVideoPopup extends main_core_events.EventEmitter {
 	  constructor(_options) {
+	    var _options$button;
 	    super(_options);
+	    Object.defineProperty(this, _getPopupFooterElementClassname, {
+	      value: _getPopupFooterElementClassname2
+	    });
+	    Object.defineProperty(this, _getPopupOverlay, {
+	      value: _getPopupOverlay2
+	    });
+	    Object.defineProperty(this, _getDefaultButtonOptions, {
+	      value: _getDefaultButtonOptions2
+	    });
+	    Object.defineProperty(this, _getButtonOptions, {
+	      value: _getButtonOptions2
+	    });
 	    Object.defineProperty(this, _isIconExist, {
 	      value: _isIconExist2
 	    });
@@ -107,6 +131,18 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _videoContainerMinHeight, {
+	      writable: true,
+	      value: 255
+	    });
+	    Object.defineProperty(this, _buttonOptions, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _useOverlay, {
+	      writable: true,
+	      value: void 0
+	    });
 	    Object.defineProperty(this, _popup, {
 	      writable: true,
 	      value: void 0
@@ -121,6 +157,9 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _targetOptions)[_targetOptions] = _options.targetOptions;
 	    babelHelpers.classPrivateFieldLooseBase(this, _angleOptions)[_angleOptions] = _options.angleOptions || false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _offset)[_offset] = _options.offset;
+	    babelHelpers.classPrivateFieldLooseBase(this, _videoContainerMinHeight)[_videoContainerMinHeight] = _options.videoContainerMinHeight;
+	    babelHelpers.classPrivateFieldLooseBase(this, _buttonOptions)[_buttonOptions] = (_options$button = _options.button) != null ? _options$button : null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _useOverlay)[_useOverlay] = _options.useOverlay === true;
 	  }
 	  static getWidth() {
 	    return 498;
@@ -168,6 +207,7 @@ this.BX = this.BX || {};
 	    contentBackground: backgroundPrimary,
 	    contentPadding: 12,
 	    contentBorderRadius: '8px',
+	    overlay: babelHelpers.classPrivateFieldLooseBase(this, _getPopupOverlay)[_getPopupOverlay](),
 	    className: babelHelpers.classPrivateFieldLooseBase(this, _getPopupClassname)[_getPopupClassname](),
 	    events: {
 	      onPopupClose: () => {
@@ -234,7 +274,10 @@ this.BX = this.BX || {};
 				<div class="ui__promo-video-popup-content_promo-text">
 					${0}
 				</div>
-				<div class="ui__promo-video-popup-content_promo-video-wrapper">
+				<div
+					class="ui__promo-video-popup-content_promo-video-wrapper"
+					style="min-height: ${0}"
+				>
 					<video
 						src="${0}"
 						autoplay
@@ -243,18 +286,18 @@ this.BX = this.BX || {};
 						class="ui__promo-video-popup-content_promo-video"
 					></video>
 				</div>
-				<div class="ui__promo-video-popup-content_footer">
+				<div class="${0}">
 					${0}
 				</div>
 			</div>
-		`), babelHelpers.classPrivateFieldLooseBase(this, _getPopupContentVariablesStyles)[_getPopupContentVariablesStyles](), babelHelpers.classPrivateFieldLooseBase(this, _renderIcon)[_renderIcon](), babelHelpers.classPrivateFieldLooseBase(this, _title)[_title], babelHelpers.classPrivateFieldLooseBase(this, _text)[_text], babelHelpers.classPrivateFieldLooseBase(this, _videoSrc)[_videoSrc], babelHelpers.classPrivateFieldLooseBase(this, _renderAcceptButton)[_renderAcceptButton]());
+		`), babelHelpers.classPrivateFieldLooseBase(this, _getPopupContentVariablesStyles)[_getPopupContentVariablesStyles](), babelHelpers.classPrivateFieldLooseBase(this, _renderIcon)[_renderIcon](), babelHelpers.classPrivateFieldLooseBase(this, _title)[_title], babelHelpers.classPrivateFieldLooseBase(this, _text)[_text], `${babelHelpers.classPrivateFieldLooseBase(this, _videoContainerMinHeight)[_videoContainerMinHeight]}px`, babelHelpers.classPrivateFieldLooseBase(this, _videoSrc)[_videoSrc], babelHelpers.classPrivateFieldLooseBase(this, _getPopupFooterElementClassname)[_getPopupFooterElementClassname](), babelHelpers.classPrivateFieldLooseBase(this, _renderAcceptButton)[_renderAcceptButton]());
 	}
 	function _renderAcceptButton2() {
-	  const color = babelHelpers.classPrivateFieldLooseBase(this, _getOptionsButtonColor)[_getOptionsButtonColor]() || ui_buttons.ButtonColor.PRIMARY;
+	  const buttonOptions = babelHelpers.classPrivateFieldLooseBase(this, _getButtonOptions)[_getButtonOptions]();
 	  const btn = new ui_buttons.Button({
-	    color,
-	    text: main_core.Loc.getMessage('PROMO_VIDEO_POPUP_ACCEPT'),
-	    size: ui_buttons.Button.Size.SMALL,
+	    color: buttonOptions.color,
+	    text: buttonOptions.text,
+	    size: buttonOptions.size,
 	    round: true,
 	    onclick: () => {
 	      this.emit(PromoVideoPopupEvents.ACCEPT);
@@ -305,6 +348,7 @@ this.BX = this.BX || {};
 	  const buttonColor = options == null ? void 0 : (_options$colors3 = options.colors) == null ? void 0 : _options$colors3.button;
 	  const targetOptions = options == null ? void 0 : options.targetOptions;
 	  const offset = options == null ? void 0 : options.offset;
+	  const videoContainerMinHeight = options == null ? void 0 : options.videoContainerMinHeight;
 	  if (!options) {
 	    throw new TypeError('UI.PromoVideoPopup: options are required for constructor');
 	  }
@@ -341,13 +385,44 @@ this.BX = this.BX || {};
 	  if (offset != null && offset.left && main_core.Type.isNumber(offset == null ? void 0 : offset.left) === false) {
 	    throw new TypeError('UI.PromoVideoPopup: offset.left option must be number');
 	  }
+	  if (videoContainerMinHeight && main_core.Type.isNumber(videoContainerMinHeight) === false) {
+	    throw new TypeError('UI.PromoVideoPopup: videoContainerMinHeight option must be number');
+	  }
 	}
 	function _isIconExist2(icon) {
 	  return Object.values(ui_iconSet_api_core.Set).includes(icon);
 	}
+	function _getButtonOptions2() {
+	  var _babelHelpers$classPr12, _babelHelpers$classPr13, _babelHelpers$classPr14, _babelHelpers$classPr15, _babelHelpers$classPr16, _babelHelpers$classPr17, _babelHelpers$classPr18, _babelHelpers$classPr19;
+	  const defaultOptions = babelHelpers.classPrivateFieldLooseBase(this, _getDefaultButtonOptions)[_getDefaultButtonOptions]();
+	  return {
+	    text: (_babelHelpers$classPr12 = (_babelHelpers$classPr13 = babelHelpers.classPrivateFieldLooseBase(this, _buttonOptions)[_buttonOptions]) == null ? void 0 : _babelHelpers$classPr13.text) != null ? _babelHelpers$classPr12 : defaultOptions.text,
+	    color: (_babelHelpers$classPr14 = (_babelHelpers$classPr15 = babelHelpers.classPrivateFieldLooseBase(this, _buttonOptions)[_buttonOptions]) == null ? void 0 : _babelHelpers$classPr15.color) != null ? _babelHelpers$classPr14 : defaultOptions.color,
+	    size: (_babelHelpers$classPr16 = (_babelHelpers$classPr17 = babelHelpers.classPrivateFieldLooseBase(this, _buttonOptions)[_buttonOptions]) == null ? void 0 : _babelHelpers$classPr17.size) != null ? _babelHelpers$classPr16 : defaultOptions.size,
+	    position: (_babelHelpers$classPr18 = (_babelHelpers$classPr19 = babelHelpers.classPrivateFieldLooseBase(this, _buttonOptions)[_buttonOptions]) == null ? void 0 : _babelHelpers$classPr19.position) != null ? _babelHelpers$classPr18 : defaultOptions.position
+	  };
+	}
+	function _getDefaultButtonOptions2() {
+	  return {
+	    text: main_core.Loc.getMessage('PROMO_VIDEO_POPUP_ACCEPT'),
+	    size: ui_buttons.ButtonSize.SMALL,
+	    color: babelHelpers.classPrivateFieldLooseBase(this, _getOptionsButtonColor)[_getOptionsButtonColor]() || ui_buttons.ButtonColor.PRIMARY,
+	    position: PromoVideoPopupButtonPosition.LEFT
+	  };
+	}
+	function _getPopupOverlay2() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _useOverlay)[_useOverlay] ? {
+	    backgroundColor: 'rgba(0, 0, 0, 0.4)'
+	  } : false;
+	}
+	function _getPopupFooterElementClassname2() {
+	  const buttonAlignModifier = babelHelpers.classPrivateFieldLooseBase(this, _getButtonOptions)[_getButtonOptions]().position === PromoVideoPopupButtonPosition.RIGHT ? '--align-right' : '';
+	  return `ui__promo-video-popup-content_footer ${buttonAlignModifier}`;
+	}
 
 	exports.AnglePosition = AnglePosition;
 	exports.PromoVideoPopupEvents = PromoVideoPopupEvents;
+	exports.PromoVideoPopupButtonPosition = PromoVideoPopupButtonPosition;
 	exports.PromoVideoPopup = PromoVideoPopup;
 
 }((this.BX.UI = this.BX.UI || {}),BX,BX.Event,BX.Main,BX.UI.IconSet,BX.UI));

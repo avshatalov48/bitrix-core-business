@@ -165,15 +165,18 @@ export class SectionManager
 
 	getSuperposedSectionList()
 	{
-		var i, result = [];
-		for (i = 0; i < this.sections.length; i++)
+		const result = [];
+		for (let i = 0; i < this.sections.length; i++)
 		{
-			if (this.sections[i].isSuperposed()
-				&& this.sections[i].isActive())
+			if (
+				this.sections[i].isSuperposed()
+				&& this.sections[i].isActive()
+			)
 			{
 				result.push(this.sections[i]);
 			}
 		}
+
 		return result;
 	}
 
@@ -385,6 +388,12 @@ export class SectionManager
 				);
 				return parseInt(section?.id, 10);
 			}
+			else if (calendarContext.isCollabUser && calendarContext.util.type === 'user')
+			{
+				const section = calendarContext.sectionManager.getSections().find(section => section.isCollab());
+
+				return parseInt(section?.id, 10);
+			}
 			else
 			{
 				const section = calendarContext.sectionManager.getDefaultSection(calendarType, ownerId);
@@ -411,6 +420,8 @@ export class SectionManager
 			type = options.type,
 			ownerId = options.ownerId,
 			userId = options.userId,
+			isCollabUser = options.isCollabUser || false,
+			isCollabContext = options.isCollabContext || false,
 			followedUserList = options.trackingUsersList || Util.getFollowedUserList(userId),
 			sectionGroups = [],
 			title;
@@ -429,7 +440,10 @@ export class SectionManager
 		}
 		else if (type === 'group')
 		{
-			title = Loc.getMessage('EC_SEC_SLIDER_GROUP_CALENDARS_LIST');
+			const groupTitleMessage = isCollabUser || isCollabContext
+				? 'EC_SEC_SLIDER_COLLAB_CALENDARS_LIST'
+				: 'EC_SEC_SLIDER_GROUP_CALENDARS_LIST';
+			title = Loc.getMessage(groupTitleMessage);
 		}
 		else if (type === 'location')
 		{
@@ -487,6 +501,11 @@ export class SectionManager
 		sectionGroups.push({
 			title: Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'),
 			type: 'group'
+		});
+		// 4.1 Collabs calendars
+		sectionGroups.push({
+			title: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_COLLAB'),
+			type: 'collab'
 		});
 
 		// 5. Resources calendars

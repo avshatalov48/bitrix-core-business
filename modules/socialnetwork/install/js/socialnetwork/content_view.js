@@ -680,6 +680,11 @@ BX.UserContentView.Counter.prototype.list = function(params)
 				});
 			}
 
+			const userTypeClass =	data.items[i].TYPE
+				? `bx-contentview-popup-name-${data.items[i].TYPE}`
+				: ''
+			;
+
 			this.popupContent.appendChild(
 				BX.create('A', {
 					attrs: {
@@ -710,7 +715,7 @@ BX.UserContentView.Counter.prototype.list = function(params)
 						}),
 						BX.create('SPAN', {
 							props: {
-								className: 'bx-contentview-popup-name-new',
+								className: `bx-contentview-popup-name-new ${userTypeClass}`,
 							},
 							html: data.items[i]['FULL_NAME'],
 						})

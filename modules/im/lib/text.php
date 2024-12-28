@@ -486,4 +486,49 @@ class Text
 		$code = mb_strpos(mb_strtoupper($params[0]), '[SEND') === 0? 'SEND': 'PUT';
 		return preg_replace("/\[$code(?:=(.+))?\](.+?)?\[\/$code\]/i", "$2", $params[0]);
 	}
+
+	public static function getSaveModificator()
+	{
+		return [
+			[__CLASS__, 'extendedEncodeEmoji']
+		];
+	}
+
+	public static function getFetchModificator()
+	{
+		return [
+			[__CLASS__, 'extendedDecodeEmoji']
+		];
+	}
+
+	public static function extendedEncodeEmoji($text)
+	{
+		return isset($text) ? self::encodeEmoji($text) : null;
+	}
+
+	public static function extendedDecodeEmoji($text)
+	{
+		return isset($text) ? self::decodeEmoji($text) : null;
+	}
+
+	public static function convertSymbolsAfterJsonDecode($data)
+	{
+		$search = ["\\n", "\\t", '\\"', "\\\\"];
+		$replace = ["\n", "\t", '"', "\\"];
+
+		if (is_string($data))
+		{
+			return str_replace($search, $replace, $data);
+		}
+
+		if (is_array($data))
+		{
+			foreach ($data as $key => $value)
+			{
+				$data[$key] = self::convertSymbolsAfterJsonDecode($value);
+			}
+		}
+
+		return $data;
+	}
 }

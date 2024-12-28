@@ -1,4 +1,4 @@
-import { Dom, Event, Loc, Tag } from 'main.core';
+import { Dom, Event, Loc, Tag, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { Popup } from 'main.popup';
 import { Analytics } from 'calendar.sharing.analytics';
@@ -46,6 +46,7 @@ export class Layout
 		this.#params = params;
 		this.#layout = {};
 		this.#bindEvents();
+		this.isGroupContext = params.settingsModel.getCalendarContext()?.sharingObjectType === 'group';
 	}
 
 	get #settingsModel(): SettingsModel
@@ -56,11 +57,11 @@ export class Layout
 	#bindEvents(): void
 	{
 		Event.bind(window, 'beforeunload', () => this.#settingsModel.save());
-		EventEmitter.subscribe('CalendarSharing:onJointLinkCopy', (event) => {
+		EventEmitter.subscribe('CalendarSharing:onJointLinkCopy', async (event) => {
 			const shortUrl = event.data.shortUrl;
 			const linkHash = event.data.hash;
 
-			this.copyLink(shortUrl, linkHash);
+			await this.copyLink(shortUrl, linkHash);
 
 			Analytics.sendLinkCopiedList(this.#settingsModel.getContext(), {
 				peopleCount: event.data.members.length + 1,
@@ -90,7 +91,7 @@ export class Layout
 		this.#layout.wrap = Tag.render`
 			<div class="calendar-sharing__dialog-wrapper">
 				${this.#renderMain()}
-				${this.#renderLinkList()}
+				${this.isGroupContext ? null : this.#renderLinkList()}
 			</div>
 		`;
 
@@ -114,9 +115,12 @@ export class Layout
 		return this.#layout.main;
 	}
 
-	#renderDialogMessage(): HTMLElement|string
+	#renderDialogMessage(): HTMLElement | string
 	{
-		if (this.#settingsModel.getContext() === this.CONTEXT.CRM)
+		if (
+			this.#settingsModel.getContext() === this.CONTEXT.CRM
+			|| this.isGroupContext
+		)
 		{
 			return '';
 		}
@@ -197,7 +201,7 @@ export class Layout
 		return this.#layout.mainTop;
 	}
 
-	#renderHowDoesItWorkIcon(): HTMLElement|string
+	#renderHowDoesItWorkIcon(): HTMLElement | string
 	{
 		if (this.#settingsModel.getContext() === this.CONTEXT.CRM)
 		{
@@ -263,7 +267,10 @@ export class Layout
 	{
 		this.#userSelectorControl = new UserSelector({
 			model: this.#settingsModel,
-			onMembersAdded: () => Analytics.sendMembersAdded(this.#settingsModel.getContext(), this.#userSelectorControl.getPeopleCount()),
+			onMembersAdded: () => Analytics.sendMembersAdded(
+				this.#settingsModel.getContext(),
+				this.#userSelectorControl.getPeopleCount(),
+			),
 		});
 
 		return this.#userSelectorControl.render();
@@ -279,7 +286,7 @@ export class Layout
 		this.#layout.mainBottom ??= Tag.render`
 			<div class="calendar-sharing__dialog-bottom">
 				${this.#renderCopyLinkButton()}
-				${this.#renderLinkHistoryButton()}
+				${this.isGroupContext ? null : this.#renderLinkHistoryButton()}
 			</div>
 		`;
 
@@ -302,7 +309,7 @@ export class Layout
 		return this.#layout.buttonCopy;
 	}
 
-	#onButtonCopyClick(): void
+	async #onButtonCopyClick(): void
 	{
 		const params = {
 			peopleCount: this.#userSelectorControl?.getPeopleCount() ?? 1,
@@ -315,11 +322,14 @@ export class Layout
 
 			void this.saveJointLink();
 		}
-		else if (this.copyLink(this.#settingsModel.getSharingUrl()))
+		else if (await this.copyLink(this.#settingsModel.getSharingUrl()))
 		{
 			Analytics.sendLinkCopied(this.#settingsModel.getContext(), Analytics.linkTypes.solo, params);
 
-			this.#settingsModel.increaseFrequentUse();
+			if (!this.isGroupContext)
+			{
+				this.#settingsModel.increaseFrequentUse();
+			}
 		}
 	}
 
@@ -336,7 +346,7 @@ export class Layout
 
 		Dom.removeClass(this.#layout.buttonCopy, 'ui-btn-clock');
 
-		this.copyLink(link.url, link.hash);
+		await this.copyLink(link.url, link.hash);
 
 		this.#linkList?.getLinkListInfo();
 	}
@@ -360,11 +370,11 @@ export class Layout
 		return this.#layout.buttonHistory;
 	}
 
-	#renderLinkList(): HTMLElement
+	#renderLinkList(): HTMLElement | null
 	{
 		if (this.#settingsModel.getContext() === this.CONTEXT.CRM)
 		{
-			return;
+			return null;
 		}
 
 		return this.#getLinkList().render();
@@ -391,21 +401,51 @@ export class Layout
 		Dom.addClass(this.#layout.main, '--show');
 	}
 
-	copyLink(url: string, hash: string): boolean
+	async copyLink(url: string, hash: string): Promise<boolean>
 	{
 		if (!url)
 		{
-			return;
+			return false;
 		}
 
-		const result = BX.clipboard.copy(url);
-
-		if (result)
+		try
 		{
-			Util.showNotification(Loc.getMessage('SHARING_COPY_LINK_NOTIFICATION'));
-			EventEmitter.emit('CalendarSharing:LinkCopied', { url, hash });
+			await this.#copyToClipboard(url);
+		}
+		catch
+		{
+			return false;
 		}
 
-		return result;
+		Util.showNotification(Loc.getMessage('SHARING_COPY_LINK_NOTIFICATION'));
+		EventEmitter.emit('CalendarSharing:LinkCopied', { url, hash });
+
+		return true;
+	}
+
+	async #copyToClipboard(textToCopy: string): Promise<void>
+	{
+		if (!Type.isString(textToCopy))
+		{
+			return Promise.reject();
+		}
+
+		// navigator.clipboard defined only if window.isSecureContext === true
+		// so or https should be activated, or localhost address
+		if (navigator.clipboard)
+		{
+			// safari not allowed clipboard manipulation as result of ajax request
+			// so timeout is hack for this, to prevent "not have permission"
+			return new Promise((resolve, reject) => {
+				setTimeout(() => (
+					navigator.clipboard
+						.writeText(textToCopy)
+						.then(() => resolve())
+						.catch((e) => reject(e))
+				), 0);
+			});
+		}
+
+		return BX.clipboard?.copy(textToCopy) ? Promise.resolve() : Promise.reject();
 	}
 }

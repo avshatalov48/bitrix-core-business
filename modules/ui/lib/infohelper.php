@@ -65,6 +65,11 @@ class InfoHelper
 		if (Loader::includeModule('intranet'))
 		{
 			$parameters['user_date_register'] = \Bitrix\Intranet\CurrentUser::get()->getDateRegister()?->getTimestamp();
+
+			if (method_exists(\Bitrix\Intranet\User::class, 'getUserRole'))
+			{
+				$parameters['user_type'] = (new \Bitrix\Intranet\User())->getUserRole()->value;
+			}
 		}
 
 		if (Loader::includeModule('imbot'))

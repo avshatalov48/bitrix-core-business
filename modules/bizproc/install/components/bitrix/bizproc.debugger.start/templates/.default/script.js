@@ -187,7 +187,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  if (main_core.Type.isArrayFilled(response.errors)) {
 	    var message = '';
 	    response.errors.forEach(function (error) {
-	      message = message + '\n' + error.message;
+	      message = message + '\n' + main_core.Text.encode(error.message);
 	    });
 	    ui_dialogs_messagebox.MessageBox.alert(message, callback);
 	  } else if (main_core.Type.isFunction(callback)) {

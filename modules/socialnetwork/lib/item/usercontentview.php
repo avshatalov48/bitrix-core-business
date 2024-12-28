@@ -12,6 +12,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Integration\Extranet\User;
 use Bitrix\Socialnetwork\UserContentViewTable;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Socialnetwork\Livefeed;
@@ -217,16 +218,18 @@ class UserContentView
 			{
 				$userType = "mail";
 			}
-			elseif (
-				$extranetInstalled
-				&& (
-					empty($fields["USER_UF_DEPARTMENT"])
-					|| (int)$fields["USER_UF_DEPARTMENT"][0] <= 0
-				)
-			)
+			elseif ($extranetInstalled)
 			{
-				$userType = "extranet";
-				$extranetIdList[] = $fields["USER_ID"];
+				if ((empty($fields["USER_UF_DEPARTMENT"]) || (int)$fields["USER_UF_DEPARTMENT"][0] <= 0))
+				{
+					$userType = "extranet";
+					$extranetIdList[] = $fields["USER_ID"];
+				}
+
+				if (User::isCollaber((int)$fields["USER_ID"]))
+				{
+					$userType = 'collaber';
+				}
 			}
 
 			$dateView = (

@@ -6,6 +6,7 @@ use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 use Bitrix\Socialnetwork\Item\UserToGroup;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
@@ -44,7 +45,12 @@ final class WorkgroupDeptSync extends Stepper
 		$oldUserList = [];
 		$oldRelationList = [];
 
-		$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($workgroupId);
+		$groupItem = GroupRegistry::getInstance()->get($workgroupId);
+		if ($groupItem === null)
+		{
+			return $result;
+		}
+
 		$groupFields = $groupItem->getFields();
 
 		if (

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Ui;
 
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Application;
@@ -12,7 +13,7 @@ use Bitrix\Main\Text\Emoji;
 
 class CalendarFilter
 {
-	private const PRESET_INVITED = 'filter_calendar_meeting_status_q';
+	public const PRESET_INVITED = 'filter_calendar_meeting_status_q';
 	private const PRESET_HOST = 'filter_calendar_host';
 	private const PRESET_ATTENDEE = 'filter_calendar_attendee';
 	private const PRESET_DECLINED = 'filter_calendar_declined';
@@ -88,7 +89,7 @@ class CalendarFilter
 	public static function getPresets($type): array
 	{
 		$presets = [];
-		if ($type === 'user')
+		if ($type === Dictionary::CALENDAR_TYPE['user'] || $type === Dictionary::CALENDAR_TYPE['group'])
 		{
 			$presets[self::PRESET_INVITED] = [
 				'id' => self::PRESET_INVITED,
@@ -148,6 +149,10 @@ class CalendarFilter
 		if ($meetingStatus === 'Q')
 		{
 			$preset = self::PRESET_INVITED;
+		}
+		if ($meetingStatus === 'Y')
+		{
+			$preset = self::PRESET_ATTENDEE;
 		}
 		if ($meetingStatus === 'N')
 		{
@@ -272,16 +277,29 @@ class CalendarFilter
 		return static::$filters;
 	}
 
-	private static function getSectionsForFilter(string $type, ?string $preset, ?int $ownerId, ?int $userId): array
+	public static function getSectionsForFilter(string $type, ?string $preset, ?int $ownerId, ?int $userId): array
 	{
 		$result = [];
 
-		$sectionList = \CCalendar::getSectionList([
-			'CAL_TYPE' => $type === 'user' ? ['user', 'open_event'] : $type,
-			'OWNER_ID' => array_unique([(int)$ownerId, 0]),
-			'checkPermissions' => true,
-			'getPermissions' => true,
-		]);
+		if ($type === 'group' && $preset === self::PRESET_INVITED)
+		{
+			$sectionList = \CCalendar::getSectionList([
+				'CAL_TYPE' => Dictionary::CALENDAR_TYPE['user'],
+				'OWNER_ID' => array_unique([(int)$userId, 0]),
+				'checkPermissions' => true,
+				'getPermissions' => true,
+			]);
+		}
+		else
+		{
+			$sectionList = \CCalendar::getSectionList([
+				'CAL_TYPE' => $type === 'user' ? ['user', 'open_event'] : $type,
+				'OWNER_ID' => array_unique([(int)$ownerId, 0]),
+				'checkPermissions' => true,
+				'getPermissions' => true,
+			]);
+		}
+
 		$isPersonalCalendarContext = ($type === 'user' && $userId === $ownerId);
 
 		$hiddenSections = [];
@@ -395,7 +413,12 @@ class CalendarFilter
 			{
 				$filter['FROM_LIMIT'] = \CCalendar::Date(time(), false);
 				$filter['TO_LIMIT'] = \CCalendar::Date(time() + \CCalendar::DAY_LENGTH * 90, false);
-				\CCalendar::UpdateCounter([$ownerId]);
+
+				\CCalendar::UpdateCounter(
+					users: [$userId],
+					groupIds: $type === Dictionary::CALENDAR_TYPE['group'] ? [$ownerId] : [],
+				);
+
 				$counters = CountersManager::getValues((int)$filter['OWNER_ID']);
 			}
 		}
@@ -405,7 +428,7 @@ class CalendarFilter
 			unset($filter['OWNER_ID'], $filter['CAL_TYPE']);
 			$filter['MEETING_HOST'] = $fields['fields']['CREATED_BY'];
 			// mantis: 93743
-			$filter['CREATED_BY'] = $userId;
+			$filter['OWNER_ID'] = $userId;
 		}
 
 		if (!empty($fields['fields']['SECTION_ID']))
@@ -437,8 +460,8 @@ class CalendarFilter
 				->where('DELETED', 'N')
 				->where('EVENT_SECOND.DELETED', 'N')
 				->where('CAL_TYPE', $type)
-				->where('CREATED_BY', $userId)
-				->whereIn('EVENT_SECOND.CREATED_BY', $fields['fields']['ATTENDEES'])
+				->where('OWNER_ID', $userId)
+				->whereIn('EVENT_SECOND.OWNER_ID', $fields['fields']['ATTENDEES'])
 				->exec()
 			;
 
@@ -447,7 +470,7 @@ class CalendarFilter
 				$filter['ID'][] = (int)$event['ID'];
 			}
 
-			if ($filter['ID'] ?? false)
+			if (!empty($filter['ID']))
 			{
 				$filter['ID'] = array_unique($filter['ID']);
 			}
@@ -457,6 +480,47 @@ class CalendarFilter
 			}
 
 			$filter['IS_MEETING'] = true;
+		}
+
+		if ($type === Dictionary::CALENDAR_TYPE['group'] && $fields['presetId'] === self::PRESET_INVITED)
+		{
+			$filter['OWNER_ID'] = $userId;
+			$filter['CAL_TYPE'] = ['user', 'open_event'];
+
+			$query = EventTable::query()
+				->setSelect(['ID'])
+				->registerRuntimeField(
+					'EVENT_SECOND',
+					new ReferenceField(
+						'EVENT_SECOND',
+						EventTable::getEntity(),
+						Join::on('ref.ID', 'this.PARENT_ID'),
+						['join_type' => Join::TYPE_LEFT]
+					)
+				)
+				->where('DELETED', 'N')
+				->where('EVENT_SECOND.DELETED', 'N')
+				->where('CAL_TYPE', Dictionary::CALENDAR_TYPE['user'])
+				->where('EVENT_SECOND.CAL_TYPE', $type)
+				->where('OWNER_ID', $userId)
+				->where('EVENT_SECOND.OWNER_ID', $ownerId)
+				->where('MEETING_STATUS', Dictionary::MEETING_STATUS['Question'])
+				->exec()
+			;
+
+			while ($event = $query->fetch())
+			{
+				$filter['ID'][] = (int)$event['ID'];
+			}
+
+			if (!empty($filter['ID']))
+			{
+				$filter['ID'] = array_unique($filter['ID']);
+			}
+			else
+			{
+				$filter['ID'] = [0];
+			}
 		}
 
 		[$filter, $parseRecursion] = self::filterByDate($fields, $filter);
@@ -502,13 +566,19 @@ class CalendarFilter
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	private static function getFilterCompanyData(string $type, int $userId, int $ownerId, $fields): array
+	public static function getFilterCompanyData(string $type, int $userId, int $ownerId, $fields): array
 	{
+		$entries = [];
+
+		if ($type === Dictionary::CALENDAR_TYPE['group'] && $fields['presetId'] === self::PRESET_INVITED)
+		{
+			return self::getFilterUserData($type, $userId, $ownerId, $fields);
+		}
+
 		$filter = [
 			'CAL_TYPE' => $type,
 			'ACTIVE_SECTION' => 'Y',
 		];
-		$entries = [];
 
 		$query = EventTable::query()
 			->setSelect(['PARENT_ID'])
@@ -533,7 +603,7 @@ class CalendarFilter
 
 		if (isset($fields['fields']['MEETING_STATUS']) && $fields['fields']['MEETING_STATUS'])
 		{
-			$query->where('EVENT_SECOND.CREATED_BY', $userId);
+			$query->where('EVENT_SECOND.OWNER_ID', $userId);
 			if (
 				$fields['fields']['MEETING_STATUS'] === 'H'
 				&& !isset($fields['fields']['CREATED_BY'])
@@ -573,12 +643,12 @@ class CalendarFilter
 						['join_type' => Join::TYPE_LEFT]
 					)
 				)
-					->whereIn('EVENT_THIRD.CREATED_BY', $fields['fields']['ATTENDEES'])
+					->whereIn('EVENT_THIRD.OWNER_ID', $fields['fields']['ATTENDEES'])
 				;
 			}
 			else
 			{
-				$query->whereIn('EVENT_SECOND.CREATED_BY', $fields['fields']['ATTENDEES']);
+				$query->whereIn('EVENT_SECOND.OWNER_ID', $fields['fields']['ATTENDEES']);
 			}
 			$filter['IS_MEETING'] = true;
 		}
@@ -692,7 +762,7 @@ class CalendarFilter
 		$optionShowDeclined = $settings['showDeclined'];
 
 		return array_values(array_filter($entries, static function($entry) use ($optionShowDeclined) {
-			$hideDeclinedEntry = (!$optionShowDeclined || (int)$entry['CREATED_BY'] !== \CCalendar::GetUserId());
+			$hideDeclinedEntry = (!$optionShowDeclined || (int)$entry['OWNER_ID'] !== \CCalendar::GetUserId());
 			return !($hideDeclinedEntry && $entry['MEETING_STATUS'] === 'N');
 		}));
 	}

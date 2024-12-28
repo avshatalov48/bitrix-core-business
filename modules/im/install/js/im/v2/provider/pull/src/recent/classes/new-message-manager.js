@@ -10,6 +10,7 @@ const ActionNameByChatType = {
 	[ChatType.channel]: 'recent/setChannel',
 	[ChatType.openChannel]: 'recent/setChannel',
 	[ChatType.generalChannel]: 'recent/setChannel',
+	[ChatType.collab]: 'recent/setCollab',
 	default: 'recent/setRecent',
 };
 
@@ -58,6 +59,11 @@ export class NewMessageManager
 		return this.getChatType() === ChatType.comment;
 	}
 
+	isCollabChat(): boolean
+	{
+		return this.getChatType() === ChatType.collab;
+	}
+
 	isChannelChat(): boolean
 	{
 		return ChannelManager.channelTypes.has(this.getChatType());
@@ -84,16 +90,24 @@ export class NewMessageManager
 		return this.isLinesChat() || this.isCommentChat() || !this.isUserInChat();
 	}
 
-	getActionName(): string
+	getAddActions(): string[]
 	{
-		// need to handle that case as a common chat
+		// for open channels there are two similar P&P events
+		// one adds data to default recent, another adds data to channel recent
+		// close channels are added only to default recent
 		if (this.isChannelChat() && !this.isChannelListEvent())
 		{
-			return ActionNameByChatType.default;
+			return [ActionNameByChatType.default];
+		}
+
+		if (this.isCollabChat())
+		{
+			return [ActionNameByChatType.default, ActionNameByChatType[ChatType.collab]];
 		}
 
 		const newMessageChatType = this.getChatType();
+		const actionName = ActionNameByChatType[newMessageChatType] ?? ActionNameByChatType.default;
 
-		return ActionNameByChatType[newMessageChatType] ?? ActionNameByChatType.default;
+		return [actionName];
 	}
 }

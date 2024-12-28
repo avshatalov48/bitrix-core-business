@@ -39,7 +39,7 @@ $MESS["BPT1_BT_RIA11_NAME"] = "Does {=Template:TargetUser_printable}'s leave fro
 $MESS["BPT1_BT_RIA11_P1"] = "Requires Further Approval";
 $MESS["BPT1_BT_RIA11_P2"] = "To be approved by";
 $MESS["BPT1_BT_RIA11_TITLE"] = "Additional Approval";
-$MESS["BPT1_BT_SA1_TITLE_1"] = "Sequence of Activities";
+$MESS["BPT1_BT_SA1_TITLE_1"] = "Sequence of actions";
 $MESS["BPT1_BT_SFA1_TITLE"] = "Save Leave Parameters";
 $MESS["BPT1_BT_SFA12_TITLE_MSGVER_1"] = "Edit workflow element";
 $MESS["BPT1_BT_SFTA12_ST"] = "A leave has been approved by senior management.";

@@ -1525,6 +1525,13 @@ class CSocNetAllowed
 
 	public static function addStandardFeatureList()
 	{
+		$userId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
+		$isCollabUser = false;
+		if ($userId > 0)
+		{
+			$isCollabUser = (new \Bitrix\Socialnetwork\Collab\User\User($userId))->isCollaber();
+		}
+
 		if (ModuleManager::isModuleInstalled('forum'))
 		{
 			$arFeatureTmp = array(
@@ -1695,7 +1702,7 @@ class CSocNetAllowed
 				"minoperation" => array("view"),
 			);
 
-			if (COption::GetOptionString("socialnetwork", "allow_calendar_user", "Y") == "Y")
+			if ($isCollabUser || COption::GetOptionString("socialnetwork", "allow_calendar_user", "Y") == "Y")
 			{
 				$arFeatureTmp["allowed"][] = SONET_ENTITY_USER;
 				$arFeatureTmp["operations"]["write"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_calendar_operation_write_user", SONET_RELATIONS_TYPE_NONE);

@@ -2,6 +2,9 @@
 $MESS["MAIN_ADMIN_ADD_SITE_SELECTOR"] = "For other site";
 $MESS["MAIN_ADMIN_ADD_SITE_SELECTOR_1"] = "Add site / agreement pair";
 $MESS["MAIN_ADMIN_SET_CONTROLLER_ALT"] = "Overriden by Controller";
+$MESS["MAIN_ADMIN_SET_PASS_DEL"] = "Delete";
+$MESS["MAIN_ADMIN_SET_PASS_DEL_TITLE"] = "Delete saved password";
+$MESS["MAIN_ADMIN_SET_PASS_SET"] = "(password set)";
 $MESS["MAIN_ADMIN_SITE_ALL_SELECT"] = "For all sites";
 $MESS["MAIN_ADMIN_SITE_DEFAULT_VALUE_SELECT"] = "(Select site)";
 $MESS["MAIN_BY_DEFAULT"] = "Default access permission:";

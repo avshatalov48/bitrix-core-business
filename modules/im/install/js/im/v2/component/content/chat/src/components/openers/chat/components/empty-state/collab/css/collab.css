@@ -1,0 +1,90 @@
+.bx-im-content-collab-start__container {
+	--im-content-collab_start__font-color_title: var(--im-color-palette-black-base);
+	--im-content-collab_start__font-color_title-highlight: var(--im-color-collab-60);
+	--im-content-collab_start__font-color_block-title: var(--im-color-palette-black-base);
+	--im-content-collab_start__font-color_block-subtitle: var(--im-color-palette-gray-60);
+
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.bx-im-content-collab-start__title {
+	max-width: 710px;
+	margin-bottom: 30px;
+	text-align: center;
+	font: 30px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-content-collab_start__font-color_title);
+}
+
+.bx-im-content-collab-start__title_highlight {
+	color: var(--im-content-collab_start__font-color_title-highlight);
+}
+
+.bx-im-content-collab-start__content {
+	display: flex;
+	align-items: center;
+	margin-bottom: 37px;
+}
+
+.bx-im-content-collab-start__block {
+	display: flex;
+	width: 381px;
+	margin-bottom: 24px;
+}
+
+.bx-im-content-collab-start__block:last-child {
+	margin-bottom: 0;
+}
+
+.bx-im-content-collab-start__block_icon {
+	width: 28px;
+	height: 28px;
+	margin-right: 16px;
+	background-size: cover;
+}
+
+.bx-im-content-collab-start__block_icon.--collaboration {
+	background-image: url('./images/collaboration.svg?v2');
+}
+
+.bx-im-content-collab-start__block_icon.--business {
+	background-image: url('./images/business.svg?v2');
+}
+
+.bx-im-content-collab-start__block_icon.--result {
+	background-image: url('./images/result.svg?v2');
+}
+
+.bx-im-content-collab-start__block_content {
+	max-width: calc(100% - 32px - 16px);
+}
+
+.bx-im-content-collab-start__block_title {
+	margin-bottom: 6px;
+	font: var(--im-font-size-2xl)/21px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-content-collab_start__font-color_block-title);
+}
+
+.bx-im-content-collab-start__block_subtitle {
+	font: var(--im-font-size-md)/19px var(--im-font-family-system);
+	color: var(--im-content-collab_start__font-color_block-subtitle);
+}
+
+.bx-im-content-collab-start__image {
+	width: 400px;
+	height: 400px;
+	background-image: url('./images/illustration.jpg');
+	background-size: cover;
+}
+
+@media (max-width: 1250px) {
+	.bx-im-content-collab-start__image {
+		display: none;
+	}
+}

@@ -10,6 +10,11 @@ use Bitrix\Calendar\Application\Command\UpdateEventCommand;
 use Bitrix\Calendar\Application\Command\UpdateEventHandler;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\Managers\Accessibility;
+use Bitrix\Calendar\Core\Mappers;
+use Bitrix\Calendar\FileUploader\EventController;
+use Bitrix\Calendar\ICal\IcalIcsBuilder;
+use Bitrix\Calendar\Integration\Disk\File;
+use Bitrix\Calendar\Integration\Disk\FileUploader;
 use Bitrix\Calendar\OpenEvents\Exception\MaxAttendeesReachedException;
 use Bitrix\Calendar\Relation\Item\Relation;
 use Bitrix\Calendar\Relation\RelationProvider;
@@ -20,12 +25,18 @@ use Bitrix\Calendar\Internals;
 use Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
+use Bitrix\Main\Engine\ActionFilter;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
+use Bitrix\Main\HttpApplication;
 use Bitrix\Main\HttpRequest;
+use Bitrix\Main\HttpResponse;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Intranet;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Web\MimeType;
+use Bitrix\UI\FileUploader\Uploader;
 
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/controller/calendarajax.php');
 
@@ -40,7 +51,25 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 	public function configureActions(): array
 	{
-		return [];
+		return [
+			'getIcsFile' => [
+				'-prefilters' => [
+					ActionFilter\Csrf::class,
+				],
+				'+postfilters' => [
+					new ActionFilter\Cors(),
+				],
+			],
+			'getIcsFileMobile' => [
+				'-prefilters' => [
+					ActionFilter\Authentication::class,
+					ActionFilter\Csrf::class,
+				],
+				'+postfilters' => [
+					new ActionFilter\Cors(),
+				],
+			],
+		];
 	}
 
 	public function getNearestEventsAction()
@@ -60,7 +89,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				'fromLimit' => \CCalendar::Date(time(), false),
 				'toLimit' => \CCalendar::Date(time() + \CCalendar::DAY_LENGTH * $futureDaysAmount, false),
 				'type' => $calendarType,
-				'maxAmount' => $maxEntryAmount
+				'maxAmount' => $maxEntryAmount,
 			]
 		);
 
@@ -120,9 +149,9 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$sect = \CCalendarSect::GetList([
 				'arFilter' => [
 					'ID' => $sectionIdList,
-					'ACTIVE' => 'Y'
+					'ACTIVE' => 'Y',
 				],
-				'checkPermissions' => true
+				'checkPermissions' => true,
 			]);
 			foreach($sect as $section)
 			{
@@ -440,14 +469,14 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$sectionList = Internals\SectionTable::getList([
 			   'filter' => [
 				   '=ACTIVE' => 'Y',
-				   '=ID' => $sectionId
+				   '=ID' => $sectionId,
 			   ],
 			   'select' => [
 				   'ID',
 				   'CAL_TYPE',
 				   'OWNER_ID',
-				   'NAME'
-			   ]
+				   'NAME',
+			   ],
 		   ]
 		);
 
@@ -472,9 +501,9 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 					"filter" => [
 						"=ID" => $id,
 						"=DELETED" => 'N',
-						"=SECTION_ID" => $sectionId
+						"=SECTION_ID" => $sectionId,
 					],
-					"select" => ["ID", "CAL_TYPE"]
+					"select" => ["ID", "CAL_TYPE"],
 				]
 			)->fetch();
 
@@ -506,7 +535,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$arFields = [
 				"ID" => $id,
 				"DATE_FROM" => \CCalendar::Date(\CCalendar::Timestamp($dateFrom), !$skipTime),
-				"SKIP_TIME" => $skipTime
+				"SKIP_TIME" => $skipTime,
 			];
 
 			if (!empty($dateTo))
@@ -561,7 +590,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 								false
 							),
 							'sendInvitesToDeclined' => $sendInvitesToDeclined,
-							'requestUid' => $requestUid
+							'requestUid' => $requestUid,
 						]
 					);
 				}
@@ -572,7 +601,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 							'arFields' => $arFields,
 							'silentErrorMode' => false,
 							'sendInvitesToDeclined' => $sendInvitesToDeclined,
-							'requestUid' => $requestUid
+							'requestUid' => $requestUid,
 						]
 					);
 				}
@@ -583,7 +612,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			'id' => $id,
 			'reload' => $reload,
 			'busy_warning' => $busyWarning,
-			'location_busy_warning' => $locationBusyWarning
+			'location_busy_warning' => $locationBusyWarning,
 		];
 	}
 
@@ -596,7 +625,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$dates = $this->getDates($request);
 		$reminderList = \CCalendarReminder::prepareReminder($request['reminder']);
 		$newId = null;
-		$errors = [];
 
 		try
 		{
@@ -658,7 +686,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$this->addError(new Error('MAX ATTENDEES_REACHED', 'edit_entry_max_attendees_reached'));
 		}
 
-
 		// Exit if any error
 		if (!empty($this->getErrors()))
 		{
@@ -668,7 +695,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$eventList = [];
 		$eventIdList = [$newId];
 
-		if ($newId && empty($errors))
+		if ($newId)
 		{
 			$response['entryId'] = $newId;
 
@@ -681,7 +708,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				'TO_LIMIT' => \CCalendar::Date(
 					\CCalendar::Timestamp($dates['date_to']) +
 					\CCalendar::DAY_LENGTH * 90, false
-				)
+				),
 			];
 
 			$eventList = \CCalendarEvent::GetList(
@@ -703,7 +730,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 						'arFilter' => $filter,
 						'parseRecursion' => true,
 						'fetchAttendees' => true,
-						'userId' => \CCalendar::GetUserId()
+						'userId' => \CCalendar::GetUserId(),
 					]
 				);
 
@@ -751,16 +778,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 						$eventIdList[] = $ev['ID'];
 					}
 					$eventList = array_merge($eventList, $resRelatedEvents);
-				}
-			}
-		}
-		else if (is_iterable($errors))
-		{
-			foreach ($errors as $error)
-			{
-				if (is_string($error))
-				{
-					$this->addError(new Error($error, 'send_invite_failed'));
 				}
 			}
 		}
@@ -842,16 +859,18 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$request['newAttendeesList'] ?? null,
 			!empty($request['rec_edit_mode']) ? $request['rec_edit_mode'] : null,
 			$this->getCurrentDateFrom($request),
-			$this->getUFfields($request),
+			$this->getUFfields($id, $request),
 			($request['sendInvitesAgain'] ?? 'N') === 'Y',
 			$requestUid,
 			($request['doCheckOccupancy'] ?? 'N') === 'Y',
 			(int)($request['max_attendees'] ?? 0),
 			$request['category'] !== null ? (int)$request['category'] : null,
+			$request['analyticsSubSection'] ?? null,
+			(int)($request['analyticsChatId'] ?? 0),
 		];
 	}
 
-	private function getUFfields(HttpRequest $request): array
+	private function getUFfields(int $eventId, HttpRequest $request): array
 	{
 		$arUFFields = [];
 		foreach($request as $field => $value)
@@ -862,7 +881,48 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			}
 		}
 
+		$uploadedFiles = $this->handleUploadingFiles($eventId, $request);
+		if (!empty($uploadedFiles))
+		{
+			if (isset($arUFFields['UF_WEBDAV_CAL_EVENT']) && is_array($arUFFields['UF_WEBDAV_CAL_EVENT']))
+			{
+				$arUFFields['UF_WEBDAV_CAL_EVENT'] = [...$arUFFields['UF_WEBDAV_CAL_EVENT'], ...$uploadedFiles];
+			}
+			else
+			{
+				$arUFFields['UF_WEBDAV_CAL_EVENT'] = ['', ...$uploadedFiles];
+			}
+		}
+
 		return $arUFFields;
+	}
+
+	private function handleUploadingFiles(int $eventId, HttpRequest $request): array
+	{
+		$result = [];
+
+		if (empty($request['uploaded_files']) || !is_array($request['uploaded_files']))
+		{
+			return $result;
+		}
+
+		$controller = new EventController(['eventId' => $eventId]);
+		$uploader = new Uploader($controller);
+		$fileUploader = new FileUploader(\CCalendar::getCurUserId());
+
+		$pendingFiles = $uploader->getPendingFiles($request['uploaded_files']);
+
+		foreach ($pendingFiles->getFileIds() as $fileId)
+		{
+			$addingResult = $fileUploader->addFile($fileId);
+			if ($addingResult->isSuccess())
+			{
+				$result[] = $addingResult->getData()['ATTACHMENT_ID'];
+			}
+		}
+		$pendingFiles->makePersistent();
+
+		return $result;
 	}
 
 	private function getCurrentDateFrom(HttpRequest $request): ?string
@@ -881,7 +941,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		}
 
 		return (new Accessibility())
-			->setCheckPermissions(false)
 			->setSkipEventId($curEventId)
 			->getBusyUsersIds($usersToCheck, $fromTs, $toTs);
 	}
@@ -1025,5 +1084,84 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		}
 
 		return $getRelationResult->getRelation();
+	}
+
+	public function getIcsContentAction(CurrentUser $currentUser, int $eventId): ?string
+	{
+		$canAccess = EventAccessController::can(
+			$currentUser->getId(),
+			ActionDictionary::ACTION_EVENT_VIEW_FULL,
+			$eventId
+		);
+
+		if (!$canAccess)
+		{
+			$this->addError(new Error('Event access denied'));
+
+			return null;
+		}
+
+		$event = (new Mappers\Event())->getById($eventId);
+
+		return IcalIcsBuilder::buildFromEvent($event)->getContent();
+	}
+
+	public function getIcsFileAction(CurrentUser $currentUser, int $eventId): string|HttpResponse
+	{
+		return $this->prepareIcsResponse($currentUser, $eventId);
+	}
+
+	public function getIcsFileMobileAction(CurrentUser $currentUser, string $hitHash, int $eventId): ?HttpResponse
+	{
+		$httpResponse = new HttpResponse();
+		$httpResponse->addHeader('Location', 'bitrix24://');
+
+		if (empty($eventId) || empty($hitHash))
+		{
+			return $httpResponse;
+		}
+
+		if (!$GLOBALS['USER']->LoginHitByHash($hitHash, false, true))
+		{
+			return $httpResponse;
+		}
+
+		HttpApplication::getInstance()->getSession()->set('MOBILE_OAUTH', true);
+
+		return $this->prepareIcsResponse($currentUser, $eventId);
+	}
+
+	private function prepareIcsResponse(
+		CurrentUser $currentUser,
+		int $eventId,
+	): ?HttpResponse
+	{
+		$canAccess = EventAccessController::can(
+			$currentUser->getId(),
+			ActionDictionary::ACTION_EVENT_VIEW_FULL,
+			$eventId
+		);
+
+		// TODO: response with error should be here
+		if (!$canAccess)
+		{
+			$this->addError(new Error('Event access denied'));
+
+			return null;
+		}
+
+		$event = (new Mappers\Event())->getById($eventId);
+
+		$fileContent = IcalIcsBuilder::buildFromEvent($event)->getContent();
+
+		$fileType = 'ics';
+		$mimeType = MimeType::getByFileExtension($fileType);
+
+		$httpResponse = new HttpResponse();
+		$httpResponse->addHeader('Content-Type', "{$mimeType}; charset=utf-8");
+		$httpResponse->addHeader('Content-Disposition', "attachment;filename=event.{$fileType}");
+		$httpResponse->setContent($fileContent);
+
+		return $httpResponse;
 	}
 }

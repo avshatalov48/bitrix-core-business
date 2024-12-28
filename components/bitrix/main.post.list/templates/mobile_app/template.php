@@ -14,6 +14,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @var MainPostList $this->__component
  */
 
+use Bitrix\Main\Loader;
+use \Bitrix\Main\UI\Extension;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
@@ -24,12 +26,13 @@ global $USER;
 \Bitrix\Main\Page\Asset::getInstance()->addString('<link href="'.CUtil::GetAdditionalFileURL('/bitrix/js/ui/icons/base/ui.icons.base.css').'" type="text/css" rel="stylesheet" />');
 \Bitrix\Main\Page\Asset::getInstance()->addString('<link href="'.CUtil::GetAdditionalFileURL('/bitrix/js/ui/icons/b24/ui.icons.b24.css').'" type="text/css" rel="stylesheet" />');
 
-$extensionsList = [ 'uploader', 'date', 'fx', 'ls' ];
+$extensionsList = [ 'uploader', 'date', 'fx', 'ls', 'main.core', 'ui.avatar'];
 if (CModule::IncludeModule('socialnetwork'))
 {
 	$extensionsList[] = 'comment_aux';
 }
-CUtil::InitJSCore($extensionsList); // does not work
+
+Extension::load($extensionsList); // does not work
 
 $prefixNode = $arParams["ENTITY_XML_ID"].'-'.$arParams["EXEMPLAR_ID"];
 $eventNodeId = $prefixNode."_main";
@@ -39,7 +42,7 @@ ob_start();
 ?>
 <!--RCRD_#FULL_ID#-->
 <a id="com#ID#" name="com#ID#" bx-mpl-full-id="#FULL_ID#"></a>
-<div id="record-#FULL_ID#" class="post-comment-block post-comment-block-#NEW# post-comment-block-#APPROVED# #RATING_NONEMPTY_CLASS# mobile-longtap-menu#CLASSNAME#" <?=($arResult["ajax_comment"] == $comment["ID"] ? ' data-send="Y"' : '')?> <?
+<div id="record-#FULL_ID#" class="post-comment-block post-comment-block-#NEW# post-comment-block-#APPROVED# #RATING_NONEMPTY_CLASS# mobile-longtap-menu#CLASSNAME#" <?=(isset($arResult["ajax_comment"]) && isset($comment["ID"]) && $arResult["ajax_comment"] == $comment["ID"] ? ' data-send="Y"' : '')?> <?
 	?>bx-mpl-id="#FULL_ID#" <?
 	?>bx-mpl-menu-show="#SHOW_MENU#" <?
 	?>bx-mpl-reply-show="#SHOW_POST_FORM#" <?
@@ -57,12 +60,32 @@ ob_start();
 ?>>
 	#BEFORE_RECORD#
 	<script>
-	BX.ready(function()
-	{
-		BX.MSL.viewImageBind('record-#FULL_ID#', { tag: 'IMG', attr: 'data-bx-image' });
-	});
+		BX.ready(function() {
+			BX.MSL.viewImageBind('record-#FULL_ID#', { tag: 'IMG', attr: 'data-bx-image' });
+			const avatarParams = {
+				messageId: '#ID#',
+				user: {
+					name: '#AUTHOR_NAME#',
+					image: '#AUTHOR_AVATAR#',
+					type: '#AUTHOR_TYPE#',
+				},
+			};
+
+			if (BX?.MPL?.UIAvatar)
+			{
+				BX.MPL.UIAvatar(avatarParams);
+			}
+			else if (!window?.UIAvatars)
+			{
+				window.UIAvatars = [avatarParams];
+			}
+			else
+			{
+				window?.UIAvatars?.push(avatarParams);
+			}
+		});
 	</script>
-	<div class="ui-icon ui-icon-common-user post-comment-block-avatar"><i style="#AUTHOR_AVATAR_BG#"></i></div>
+	<div class="ui-icon ui-icon-common-user post-comment-block-avatar"><div class="ui-post-avatar"></div><i style="#AUTHOR_AVATAR_BG#"></i></div>
 	<div class="post-comment-detail">
 		<div class="post-comment-balloon" onclick="mobileShowActions('#ENTITY_XML_ID#', '#ID#', arguments[0])">
 			#BEFORE_HEADER#
@@ -121,11 +144,11 @@ $template = preg_replace("/[\t\n]/", "", ob_get_clean());
 ob_start();
 
 ?><div class="post-comment-block">
-	<div class="ui-icon ui-icon-common-user post-comment-block-avatar"><i style="#AUTHOR_AVATAR_BG#"></i></div>
+	<div class="ui-icon ui-icon-common-user post-comment-block-avatar"><div class="ui-post-avatar"></div><i style="#AUTHOR_AVATAR_BG#"></i></div>
 	<div class="post-comment-detail">
 		<div class="post-comment-balloon">
 			<div class="post-comment-cont">
-				<div class="post-comment-author">#AUTHOR_NAME#</div>
+				<div class="post-comment-author #AUTHOR_EXTRANET_STYLE#">#AUTHOR_NAME#</div>
 				<div class="post-comment-time">#DATE#</div>
 			</div>
 			<!--/noindex-->
@@ -172,24 +195,61 @@ $name = CUser::FormatName(
 	false
 );
 
-$thumb = preg_replace(array(
+$userId = $USER->getId();
+$avatarType = null;
+
+if (Loader::includeModule('intranet') && Loader::includeModule('extranet'))
+{
+	$serviceContainer = class_exists(\Bitrix\Extranet\Service\ServiceContainer::class)
+			? \Bitrix\Extranet\Service\ServiceContainer::getInstance()
+			: null;
+
+	if ($serviceContainer?->getCollaberService()?->isCollaberById($userId))
+	{
+		$avatarType = "COLLABER";
+	}
+	else if (!(new \Bitrix\Intranet\User($userId))->isIntranet())
+	{
+		$avatarType = "EXTRANET";
+	}
+}
+
+$author = [
+	'AUTHOR_ID' => $userId,
+	'AUTHOR_AVATAR_IS' => ($avatar ? "Y" : "N"),
+	'AUTHOR_AVATAR' => ($avatar ? $avatar["src"] : ''),
+	'AUTHOR_AVATAR_BG' => ($avatar ? "background-image:url('" . $avatar["src"] . "')" : ''),
+	'AUTHOR_NAME' => htmlspecialcharsbx($name),
+	'AUTHOR_TYPE' => $avatarType,
+	'AUTHOR_EXTRANET_STYLE' => $avatarType ? " feed-com-name-".strtolower($avatarType) : "",
+];
+
+$thumb = preg_replace(
+	[
 		"/[\t\n]/",
 		"/\\#AUTHOR_ID\\#/",
 		"/\\#AUTHOR_AVATAR_IS\\#/",
 		"/\\#AUTHOR_AVATAR\\#/",
 		"/\\#AUTHOR_AVATAR_BG\\#/",
-		"/\\#AUTHOR_NAME\\#/"
+		"/\\#AUTHOR_NAME\\#/",
+		"/\\#AUTHOR_TYPE\\#/",
+		"/\\#AUTHOR_EXTRANET_STYLE\\#/",
 
-	), array(
+	],
+	[
 		"",
-		$USER->getId(),
-		($avatar ? "Y" : "N"),
-		($avatar ? $avatar["src"] : ''),
-		($avatar ? "background-image:url('".$avatar["src"]."')" : ''),
-		htmlspecialcharsbx($name)
-	), ob_get_clean());
-
-?><div id="<?=$eventNodeId?>"><?
+		$author['AUTHOR_ID'],
+		$author['AUTHOR_AVATAR_IS'],
+		$author['AUTHOR_AVATAR'],
+		$author['AUTHOR_AVATAR_BG'],
+		$author['AUTHOR_NAME'],
+		$author['AUTHOR_TYPE'],
+		$author['AUTHOR_EXTRANET_STYLE'],
+	],
+	ob_get_clean()
+);
+?>
+<div id="<?=$eventNodeId?>"><?
 if (empty($arParams["RECORDS"]))
 {
 	// For the future developing
@@ -413,6 +473,7 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 					},
 					sign : '<?=$arParams["SIGN"]?>',
 					ajax : <?= Json::encode($ajaxParams)?>,
+					author: <?= Json::encode($author)?>,
 			},
 			{
 				VIEW_URL: '<?=CUtil::JSEscape($arParams["~VIEW_URL"])?>',
@@ -436,7 +497,7 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 			{
 				id : '<?=CUtil::JSEscape($arParams["FORM"]["ID"])?>',
 				url : '<?=CUtil::JSEscape($arParams["FORM"]["URL"])?>',
-				fields : <?= Json::encode($arParams["FORM"]["FIELDS"]) ?>
+				fields : <?= Json::encode($arParams["FORM"]["FIELDS"] ?? null) ?>
 			}
 			);
 			BX.removeCustomEvent("main.post.list/mobile", f);

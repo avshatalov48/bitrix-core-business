@@ -4,6 +4,8 @@ namespace Bitrix\Im\V2\Application;
 
 use Bitrix\Im\Promotion;
 use Bitrix\Im\V2\Common\ContextCustomer;
+use Bitrix\ImOpenLines\V2\Queue\Queue;
+use Bitrix\ImOpenLines\V2\Status\Status;
 use Bitrix\Im\V2\TariffLimit\Limit;
 
 class Config implements \JsonSerializable
@@ -37,6 +39,7 @@ class Config implements \JsonSerializable
 			'phoneSettings' => $this->getPhoneSettings(),
 			'sessionTime' => $this->getSessionTime(),
 			'featureOptions' => $this->getFeatureOptions(),
+			'sessionStatusMap' => $this->getSessionStatusMap(),
 			'tariffRestrictions' => $this->getTariffRestrictions(),
 		];
 	}
@@ -54,10 +57,11 @@ class Config implements \JsonSerializable
 
 	protected function getPermissions(): array
 	{
-		$permissionManager = new \Bitrix\Im\V2\Chat\Permission(true);
+		$permissionManager = new \Bitrix\Im\V2\Permission(true);
 
 		return [
 			'byChatType' => $permissionManager->getByChatTypes(),
+			'byUserType' => $permissionManager->getByUserTypes(),
 			'actionGroups' => $permissionManager->getActionGroupDefinitions(),
 			'actionGroupsDefaults' => $permissionManager->getDefaultPermissionForGroupActions()
 		];
@@ -120,6 +124,16 @@ class Config implements \JsonSerializable
 	protected function getFeatureOptions(): Features
 	{
 		return Features::get();
+	}
+
+	protected function getSessionStatusMap(): array
+	{
+		if (!\Bitrix\Main\Loader::includeModule('imopenlines'))
+		{
+			return [];
+		}
+
+		return Status::getMap();
 	}
 
 	protected function getTariffRestrictions(): array

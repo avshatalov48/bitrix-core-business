@@ -9048,7 +9048,7 @@ this.BX.UI = this.BX.UI || {};
 		LinkPlugin: LinkPlugin
 	});
 
-	const URL_REGEX = /((https?:\/\/(www\.)?)|(www\.))[\w#%+.:=@~-]{1,256}\.[\d()A-Za-z]{1,6}\b([\w#%&()+./:=?@~-]*)(?<![-.+():%])/;
+	const URL_REGEX = /((https?:\/\/(www\.)?)|(www\.))[\w#%+.:=@~-]{1,256}\.[\d()A-Za-z]{1,6}\b([\w#%&()+./:=?@[\]~-]*)(?<![%()+.:\]-])/;
 	const EMAIL_REGEX = /(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))/;
 	const MATCHERS = [createLinkMatcherWithRegExp(URL_REGEX, text => {
 	  return text.startsWith('http') ? text : `https://${text}`;
@@ -9069,6 +9069,18 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  static getNodes(editor) {
 	    return [ui_lexical_link.AutoLinkNode];
+	  }
+	  exportBBCode() {
+	    return {
+	      autolink: () => {
+	        const scheme = this.getEditor().getBBCodeScheme();
+	        return {
+	          node: scheme.createElement({
+	            name: 'url'
+	          })
+	        };
+	      }
+	    };
 	  }
 	  validateScheme() {
 	    return {
@@ -9130,7 +9142,7 @@ this.BX.UI = this.BX.UI || {};
 	  return isSeparator(textContent[0]);
 	}
 	function startsWithFullStop(textContent) {
-	  return /^\.[a-zA-Z0-9]{1,}/.test(textContent);
+	  return /^\.[\dA-Za-z]+/.test(textContent);
 	}
 	function isPreviousNodeValid(node) {
 	  let previousNode = node.getPreviousSibling();

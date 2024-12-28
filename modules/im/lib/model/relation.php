@@ -173,7 +173,7 @@ class RelationTable extends Entity\DataManager
 				'reference' => array('=this.LAST_ID' => 'ref.ID'),
 			),
 			'USER' => array(
-				'data_type' => 'Bitrix\Main\User',
+				'data_type' => 'Bitrix\Im\Model\UserTable',
 				'reference' => array('=this.USER_ID' => 'ref.ID'),
 			),
 		);

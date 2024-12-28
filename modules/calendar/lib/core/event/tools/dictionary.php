@@ -29,7 +29,9 @@ class Dictionary
 	public const EVENT_TYPE = [
 		'shared' => '#shared#',
 		'shared_crm' => '#shared_crm#',
-		'resource_booking' => '#resourcebooking#'
+		'resource_booking' => '#resourcebooking#',
+		'collab' => '#collab#',
+		'shared_collab' => '#shared_collab#',
 	];
 
 	public const MEETING_STATUS = [

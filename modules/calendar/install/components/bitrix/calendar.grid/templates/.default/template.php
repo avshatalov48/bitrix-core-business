@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Integration\SocialNetwork\Context\Context;
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
@@ -12,11 +13,13 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @global CMain $APPLICATION */
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\HtmlFilter;
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'ui.icons.b24',
+	'ui.avatar',
 ]);
 
 if (($arResult['IS_TOOL_AVAILABLE'] ?? null) === false)
@@ -40,82 +43,9 @@ if (($arResult['IS_TOOL_AVAILABLE'] ?? null) === false)
 	return;
 }
 
-$APPLICATION->SetPageProperty('BodyClass', $APPLICATION->GetPageProperty('BodyClass').' pagetitle-toolbar-field-view calendar-pagetitle-view no-background');
+$arResult['CALENDAR']->checkViewPermissions();
 
-$isBitrix24Template = (SITE_TEMPLATE_ID === "bitrix24");
-
-if ($arResult['CONTEXT'] !== Context::getSpaces()):
-
-	if($isBitrix24Template)
-	{
-		$this->SetViewTarget("inside_pagetitle");
-	}
-	?>
-
-	<div id="<?= $arResult['ID']?>-add-button-container" class="pagetitle-container" style="margin-right: 12px"></div>
-
-	<?php if ($arParams["SHOW_FILTER"]):?>
-	<div id="<?= $arResult['ID']?>-search-container" class="pagetitle-container pagetitle-flexible-space<?= $isBitrix24Template ? '' : ' calendar-default-search-wrap' ?>">
-		<?php
-		// Reset filter to default state
-		$filterOption = new \Bitrix\Main\UI\Filter\Options($arParams["FILTER_ID"]);
-		$filterOption->reset();
-
-		$APPLICATION->IncludeComponent(
-			"bitrix:main.ui.filter",
-			"",
-			[
-				"FILTER_ID" => $arParams['FILTER_ID'],
-				"FILTER" => $arParams["FILTER"],
-				"FILTER_PRESETS" => $arParams["FILTER_PRESETS"],
-				'ENABLE_LIVE_SEARCH' => true,
-				"ENABLE_LABEL" => true,
-				'THEME' => Bitrix\Main\UI\Filter\Theme::MUTED,
-			],
-			$component,
-			[
-					"HIDE_ICONS" => true
-			]
-		);
-		?>
-	</div>
-	<?php endif;?>
-	<div id="<?= $arResult['ID']?>-buttons-container" class="pagetitle-container pagetitle-align-right-container<?= $isBitrix24Template ? '' : ' calendar-default-buttons-container' ?>"></div>
-	<?php
-	if($isBitrix24Template)
-	{
-		$this->EndViewTarget();
-		$this->SetViewTarget("below_pagetitle");
-	}
-	?>
-	<div class="calendar-interface-toolbar">
-		<div class="calendar-view-switcher">
-			<div id="<?= $arResult['ID']?>-view-switcher-container"></div>
-		</div>
-
-		<?php if (
-			$arParams["SHOW_FILTER"]
-			&& $arParams['CALENDAR_TYPE'] === 'user'
-			&& (int)$arParams['OWNER_ID'] === (int)$arParams['USER_ID']
-		):
-			?>
-			<div id="<?= $arResult['ID']?>-counter-container" class="pagetitle-container calendar-counter"></div>
-		<?php endif;?>
-
-		<div id="<?= $arResult['ID']?>-sync-container" style="margin: auto 0 auto auto"></div>
-		<div id="<?= $arResult['ID']?>-sharing-container" style="margin: auto 0 auto 5px"></div>
-	</div>
-
-	<?php if($isBitrix24Template)
-	{
-		$this->EndViewTarget();
-	}
-
-endif;
-
-$arResult['CALENDAR']->Show();
-
-if($ex = $APPLICATION->GetException())
+if ($ex = $APPLICATION->GetException())
 {
 	if ($ex->GetID() === 'calendar_wrong_type')
 	{
@@ -128,7 +58,115 @@ if($ex = $APPLICATION->GetException())
 	return CCalendarSceleton::showCalendarGridError($ex->GetString());
 }
 
+$isCollab = $arResult['IS_COLLAB'];
+if ($isCollab)
+{
+	$collabPostfix = 'calendar-collab-calendar__wrapper';
+}
+
+$shouldShowCounterContainer = false;
+if (!$arParams['SHOW_FILTER'])
+{
+}
+else if (
+	$arParams['CALENDAR_TYPE'] === Dictionary::CALENDAR_TYPE['user']
+	&& (int)$arParams['OWNER_ID'] === (int)$arParams['USER_ID']
+)
+{
+	$shouldShowCounterContainer = true;
+}
+elseif ($arParams['CALENDAR_TYPE'] === Dictionary::CALENDAR_TYPE['group'])
+{
+	$shouldShowCounterContainer = true;
+}
+
+$bodyClass = $APPLICATION->GetPageProperty('BodyClass') . ' pagetitle-toolbar-field-view calendar-pagetitle-view no-background';
+if ($isCollab)
+{
+	$bodyClass .= ' ' . $collabPostfix;
+}
+
+$APPLICATION->SetPageProperty('BodyClass', $bodyClass);
+
+$isBitrix24Template = (SITE_TEMPLATE_ID === "bitrix24");
+
+if($isBitrix24Template)
+{
+	$this->SetViewTarget("inside_pagetitle");
+}
+?>
+
+<div id="<?= $arResult['ID']?>-add-button-container" class="pagetitle-container" style="margin-right: 12px"></div>
+
+<?php if ($arParams["SHOW_FILTER"]):?>
+<div id="<?= $arResult['ID']?>-search-container" class="pagetitle-container pagetitle-flexible-space<?= $isBitrix24Template ? '' : ' calendar-default-search-wrap' ?>">
+	<?php
+	// Reset filter to default state
+	$filterOption = new \Bitrix\Main\UI\Filter\Options($arParams["FILTER_ID"]);
+	$filterOption->reset();
+
+	$APPLICATION->IncludeComponent(
+		"bitrix:main.ui.filter",
+		"",
+		[
+			"FILTER_ID" => $arParams['FILTER_ID'],
+			"FILTER" => $arParams["FILTER"],
+			"FILTER_PRESETS" => $arParams["FILTER_PRESETS"],
+			'ENABLE_LIVE_SEARCH' => true,
+			"ENABLE_LABEL" => true,
+			'THEME' => Bitrix\Main\UI\Filter\Theme::MUTED,
+		],
+		$component,
+		[
+				"HIDE_ICONS" => true
+		]
+	);
+	?>
+</div>
+<?php endif;?>
+<div id="<?= $arResult['ID']?>-buttons-container" class="pagetitle-container pagetitle-align-right-container<?= $isBitrix24Template ? '' : ' calendar-default-buttons-container' ?>"></div>
+<?php
+if($isBitrix24Template)
+{
+	$this->EndViewTarget();
+	$this->SetViewTarget("below_pagetitle");
+}
+?>
+<div class="calendar-interface-toolbar">
+	<div class="calendar-view-switcher">
+		<div id="<?= $arResult['ID']?>-view-switcher-container"></div>
+	</div>
+
+	<?php if ($shouldShowCounterContainer):?>
+		<div id="<?= $arResult['ID']?>-counter-container" class="pagetitle-container calendar-counter"></div>
+	<?php endif;?>
+
+	<div id="<?= $arResult['ID']?>-sync-container" style="margin: auto 0 auto auto"></div>
+	<div id="<?= $arResult['ID']?>-sharing-container" style="margin: auto 0 auto 5px"></div>
+</div>
+
+<?php if($isBitrix24Template)
+{
+	$this->EndViewTarget();
+}
+
+$arResult['CALENDAR']->Show();
+
 // Set title and navigation
+if ($isCollab)
+{
+	$collabName = HtmlFilter::encode($arResult['COLLAB_NAME']);
+	\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+
+	$this->SetViewTarget('in_pagetitle') ?>
+
+	<div class="calendar-collab-icon__wrapper">
+		<div id="calendar-collab-icon-<?=HtmlFilter::encode($arParams['OWNER_ID'])?>" class="calendar-collab-icon__hexagon-bg"></div>
+	</div>
+	<div class="calendar-collab__subtitle" title="<?=$collabName?>"><?=$collabName?></div>
+	<?php $this->EndViewTarget();
+}
+
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] ?? null) === "Y" ? "Y" : "N";
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] ?? null) === "Y" ? "Y" : "N"; //Turn OFF by default
 
@@ -269,5 +307,24 @@ else
 		</script>
 		<?
 	}
+}
+
+if ($arResult['IS_COLLAB'])
+{?>
+	<script>
+		BX.ready(() => {
+			const collabImagePath = "<?=$arResult['COLLAB_IMAGE']?>" || null;
+			const collabName = "<?=HtmlFilter::encode($arResult['COLLAB_NAME'])?>";
+			const ownerId = "<?=HtmlFilter::encode($arParams['OWNER_ID'])?>";
+			const avatar = new BX.UI.AvatarHexagonGuest({
+				size: 42,
+				userName: collabName.toUpperCase(),
+				baseColor: '#19CC45',
+				userpicPath: collabImagePath,
+			});
+			avatar.renderTo(BX('calendar-collab-icon-' + ownerId));
+		});
+	</script>
+<?php
 }
 ?>

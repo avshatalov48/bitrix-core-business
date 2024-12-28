@@ -5,7 +5,7 @@ use Bitrix\Calendar\Internals\SharingLinkTable;
 use Bitrix\Calendar\Sharing\Link\UserLink;
 use Bitrix\Calendar\Sharing\Link\Factory;
 use Bitrix\Calendar\Sharing\Link\UserLinkMapper;
-use Bitrix\Calendar\Sharing\Link;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 
@@ -16,6 +16,7 @@ class Sharing
 	public const ERROR_CODE_100020 = 100020;
 
 	protected int $userId;
+	protected UserLink|null|bool $userLink = false;
 
 	protected const OPTION_SORT_JOINT_LINKS_BY_FREQUENT_USE = 'sortJointLinksByFrequentUse';
 	protected const OPTION_SHARING_SETTINGS_COLLAPSED = 'sharingSettingsCollapsed';
@@ -48,6 +49,8 @@ class Sharing
 			$result->addError(new Error('Sharing is already enabled', 100010));
 		}
 
+		$this->userLink = false;
+
 		return $result;
 	}
 
@@ -78,6 +81,8 @@ class Sharing
 		{
 			$result->addError(new Error('Sharing is already disabled', 100020));
 		}
+
+		$this->userLink = false;
 
 		return $result;
 	}
@@ -169,16 +174,6 @@ class Sharing
 				'url' => $linkArray['shortUrl'],
 				'link' => $linkArray,
 			]);
-
-//			\CCalendarNotify::Send([
-//				'mode' => \CCalendarNotify::NOTIFY_USERS_ADDED_TO_MULTI_LINK,
-//				'userId' => $this->userId, //from
-//				'guestIds' => $memberIds, //to
-//				'params' => [
-//					'url' => $url,
-//					'linkId' => $userJointLink->getId(),
-//				],
-//			]);
 		}
 
 		return $result;
@@ -227,6 +222,7 @@ class Sharing
 			'id' => $this->userId,
 			'name' => \CCalendar::GetUserName($this->userId),
 			'avatar' => \CCalendar::GetUserAvatarSrc($this->userId),
+			'isCollabUser' => Util::isCollabUser($this->userId),
 		];
 	}
 
@@ -286,7 +282,12 @@ class Sharing
 	 */
 	public function getUserLink(): ?UserLink
 	{
-		return $this->getUserLinkByUserId($this->userId);
+		if (!$this->userLink)
+		{
+			$this->userLink = $this->getUserLinkByUserId($this->userId);
+		}
+
+		return $this->userLink;
 	}
 
 	/**

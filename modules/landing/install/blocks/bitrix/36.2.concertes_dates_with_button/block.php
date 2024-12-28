@@ -5,7 +5,7 @@
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
 				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">27</div>
-				<div class="landing-block-node-card-date-text">Jun, <?= date("Y") ?></div>
+				<div class="landing-block-node-card-date-text">Jun, #YEAR#</div>
 			</div>
 			<!-- End Date -->
 
@@ -47,7 +47,7 @@
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
 				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">01</div>
-				<div class="landing-block-node-card-date-text">Aug, <?= date("Y") ?></div>
+				<div class="landing-block-node-card-date-text">Aug, #YEAR#</div>
 			</div>
 			<!-- End Date -->
 
@@ -89,7 +89,7 @@
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
 				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">05</div>
-				<div class="landing-block-node-card-date-text">Oct, <?= date("Y") ?></div>
+				<div class="landing-block-node-card-date-text">Oct, #YEAR#</div>
 			</div>
 			<!-- End Date -->
 
@@ -131,7 +131,7 @@
 			<!-- Date -->
 			<div class="text-center g-valign-middle g-width-125--md g-py-10 g-px-20 flex-shrink-0">
 				<div class="landing-block-node-card-date-value g-font-weight-700 g-font-size-40 g-line-height-1 g-color-black">22</div>
-				<div class="landing-block-node-card-date-text">Nov, <?= date("Y") ?></div>
+				<div class="landing-block-node-card-date-text">Nov, #YEAR#</div>
 			</div>
 			<!-- End Date -->
 

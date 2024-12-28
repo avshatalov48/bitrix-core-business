@@ -16,7 +16,7 @@
 
 .bx-im-dialog-loader__container.--full-height {
 	flex-grow: 1;
-	height: 100%;
+	height: calc(100% - var(--im-messenger__textarea_height));
 	justify-content: center;
 }
 

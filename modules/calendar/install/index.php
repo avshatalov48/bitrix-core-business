@@ -159,6 +159,7 @@ class calendar extends CModule
 		$this->InstallEventHandlers();
 		$this->InstallAgents();
 		$this->InstallTemplateRules();
+		$this->InstallUrlPreviewHandlers();
 
 		return true;
 	}
@@ -345,6 +346,13 @@ class calendar extends CModule
 			toClass: '\Bitrix\Calendar\Integration\Im\EventCategoryAttendees',
 			toMethod: 'onChannelUserDelete',
 		);
+		$eventManager->registerEventHandler(
+			fromModuleId: 'socialnetwork',
+			eventType: 'OnCollabAdd',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\SocialNetwork\Collab\CollabEvent',
+			toMethod: 'onCollabAdd',
+		);
 	}
 
 	function InstallAgents()
@@ -484,6 +492,13 @@ class calendar extends CModule
 			toModuleId: 'calendar',
 			toClass: '\Bitrix\Calendar\Integration\Im\EventCategoryAttendees',
 			toMethod: 'onChannelUserDelete',
+		);
+		$eventManager->unregisterEventHandler(
+			fromModuleId: 'socialnetwork',
+			eventType: 'OnCollabAdd',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\SocialNetwork\Collab\CollabEvent',
+			toMethod: 'onCollabAdd',
 		);
 	}
 
@@ -671,6 +686,26 @@ class calendar extends CModule
 
 				$APPLICATION->IncludeAdminFile(GetMessage("CAL_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/unstep2.php");
 			}
+		}
+	}
+
+	function InstallUrlPreviewHandlers()
+	{
+		$eventRoutes = [
+			'/workgroups/group/#group_id#/calendar/',
+			'/extranet/workgroups/group/#group_id#/calendar/',
+		];
+
+		foreach ($eventRoutes as $eventRoute)
+		{
+			Bitrix\Main\UrlPreview\Router::setRouteHandler(
+				$eventRoute,
+				'calendar',
+				'\Bitrix\Calendar\Ui\Preview\Event',
+				[
+					'eventId' => '$EVENT_ID',
+				],
+			);
 		}
 	}
 }

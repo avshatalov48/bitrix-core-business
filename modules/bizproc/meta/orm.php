@@ -246,7 +246,7 @@ namespace Bitrix\Bizproc\Workflow\Template\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Template\Tpl wakeUp($data)
@@ -323,7 +323,7 @@ namespace Bitrix\Bizproc\Workflow\Template\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Template\Tpl[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Template\Tpl $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Template\Entity\EO_WorkflowTemplate_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -336,7 +336,7 @@ namespace Bitrix\Bizproc\Workflow\Template\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_WorkflowTemplate_Collection merge(?EO_WorkflowTemplate_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Template\Entity\EO_WorkflowTemplate_Collection merge(?\Bitrix\Bizproc\Workflow\Template\Entity\EO_WorkflowTemplate_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_WorkflowTemplate_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -567,7 +567,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance wakeUp($data)
@@ -636,7 +636,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -649,7 +649,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_WorkflowInstance_Collection merge(?EO_WorkflowInstance_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance_Collection merge(?\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_WorkflowInstance_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -881,7 +881,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\WorkflowState wakeUp($data)
@@ -952,7 +952,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\WorkflowState[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\WorkflowState $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -965,7 +965,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_WorkflowState_Collection merge(?EO_WorkflowState_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection merge(?\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_WorkflowState_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -999,6 +999,184 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection wakeUpCollection($rows)
 	 */
 	class EO_WorkflowState_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Bizproc\Result\Entity\ResultTable:bizproc/lib/result/entity/resulttable.php */
+namespace Bitrix\Bizproc\Result\Entity {
+	/**
+	 * EO_Result
+	 * @see \Bitrix\Bizproc\Result\Entity\ResultTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getWorkflowId()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result setWorkflowId(\string|\Bitrix\Main\DB\SqlExpression $workflowId)
+	 * @method bool hasWorkflowId()
+	 * @method bool isWorkflowIdFilled()
+	 * @method bool isWorkflowIdChanged()
+	 * @method \string remindActualWorkflowId()
+	 * @method \string requireWorkflowId()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result resetWorkflowId()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result unsetWorkflowId()
+	 * @method \string fillWorkflowId()
+	 * @method \string getActivity()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result setActivity(\string|\Bitrix\Main\DB\SqlExpression $activity)
+	 * @method bool hasActivity()
+	 * @method bool isActivityFilled()
+	 * @method bool isActivityChanged()
+	 * @method \string remindActualActivity()
+	 * @method \string requireActivity()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result resetActivity()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result unsetActivity()
+	 * @method \string fillActivity()
+	 * @method array getResult()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result setResult(array|\Bitrix\Main\DB\SqlExpression $result)
+	 * @method bool hasResult()
+	 * @method bool isResultFilled()
+	 * @method bool isResultChanged()
+	 * @method array remindActualResult()
+	 * @method array requireResult()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result resetResult()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result unsetResult()
+	 * @method array fillResult()
+	 * @method \Bitrix\Main\Type\DateTime getCreatedDate()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result setCreatedDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $createdDate)
+	 * @method bool hasCreatedDate()
+	 * @method bool isCreatedDateFilled()
+	 * @method bool isCreatedDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime requireCreatedDate()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result resetCreatedDate()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result unsetCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime fillCreatedDate()
+	 * @method \int getPriority()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result setPriority(\int|\Bitrix\Main\DB\SqlExpression $priority)
+	 * @method bool hasPriority()
+	 * @method bool isPriorityFilled()
+	 * @method bool isPriorityChanged()
+	 * @method \int remindActualPriority()
+	 * @method \int requirePriority()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result resetPriority()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result unsetPriority()
+	 * @method \int fillPriority()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result set($fieldName, $value)
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result reset($fieldName)
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Bizproc\Result\Entity\EO_Result wakeUp($data)
+	 */
+	class EO_Result {
+		/* @var \Bitrix\Bizproc\Result\Entity\ResultTable */
+		static public $dataClass = '\Bitrix\Bizproc\Result\Entity\ResultTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Bizproc\Result\Entity {
+	/**
+	 * EO_Result_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getWorkflowIdList()
+	 * @method \string[] fillWorkflowId()
+	 * @method \string[] getActivityList()
+	 * @method \string[] fillActivity()
+	 * @method array[] getResultList()
+	 * @method array[] fillResult()
+	 * @method \Bitrix\Main\Type\DateTime[] getCreatedDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCreatedDate()
+	 * @method \int[] getPriorityList()
+	 * @method \int[] fillPriority()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Bizproc\Result\Entity\EO_Result $object)
+	 * @method bool has(\Bitrix\Bizproc\Result\Entity\EO_Result $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result getByPrimary($primary)
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result[] getAll()
+	 * @method bool remove(\Bitrix\Bizproc\Result\Entity\EO_Result $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Bizproc\Result\Entity\EO_Result_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result_Collection merge(?\Bitrix\Bizproc\Result\Entity\EO_Result_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_Result_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Bizproc\Result\Entity\ResultTable */
+		static public $dataClass = '\Bitrix\Bizproc\Result\Entity\ResultTable';
+	}
+}
+namespace Bitrix\Bizproc\Result\Entity {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Result_Result exec()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result fetchObject()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Result_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result fetchObject()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result_Collection fetchCollection()
+	 */
+	class EO_Result_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result createObject($setDefaultValues = true)
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result_Collection createCollection()
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result wakeUpObject($row)
+	 * @method \Bitrix\Bizproc\Result\Entity\EO_Result_Collection wakeUpCollection($rows)
+	 */
+	class EO_Result_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Bizproc\Script\Entity\ScriptTable:bizproc/lib/script/entity/script.php */
 namespace Bitrix\Bizproc\Script\Entity {
@@ -1186,7 +1364,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Script\Entity\EO_Script wakeUp($data)
@@ -1251,7 +1429,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method \Bitrix\Bizproc\Script\Entity\EO_Script[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Script\Entity\EO_Script $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Script\Entity\EO_Script_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -1264,7 +1442,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Script_Collection merge(?EO_Script_Collection $collection)
+	 * @method \Bitrix\Bizproc\Script\Entity\EO_Script_Collection merge(?\Bitrix\Bizproc\Script\Entity\EO_Script_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Script_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -1395,7 +1573,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument wakeUp($data)
@@ -1442,7 +1620,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method \Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -1455,7 +1633,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_ScriptQueueDocument_Collection merge(?EO_ScriptQueueDocument_Collection $collection)
+	 * @method \Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument_Collection merge(?\Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_ScriptQueueDocument_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -1606,7 +1784,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Script\Entity\EO_ScriptQueue wakeUp($data)
@@ -1657,7 +1835,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method \Bitrix\Bizproc\Script\Entity\EO_ScriptQueue[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Script\Entity\EO_ScriptQueue $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Script\Entity\EO_ScriptQueue_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -1670,7 +1848,7 @@ namespace Bitrix\Bizproc\Script\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_ScriptQueue_Collection merge(?EO_ScriptQueue_Collection $collection)
+	 * @method \Bitrix\Bizproc\Script\Entity\EO_ScriptQueue_Collection merge(?\Bitrix\Bizproc\Script\Entity\EO_ScriptQueue_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_ScriptQueue_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -1781,7 +1959,7 @@ namespace Bitrix\Bizproc\Storage\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Storage\Entity\EO_ActivityStorage wakeUp($data)
@@ -1823,7 +2001,7 @@ namespace Bitrix\Bizproc\Storage\Entity {
 	 * @method \Bitrix\Bizproc\Storage\Entity\EO_ActivityStorage[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Storage\Entity\EO_ActivityStorage $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Storage\Entity\EO_ActivityStorage_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -1836,7 +2014,7 @@ namespace Bitrix\Bizproc\Storage\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_ActivityStorage_Collection merge(?EO_ActivityStorage_Collection $collection)
+	 * @method \Bitrix\Bizproc\Storage\Entity\EO_ActivityStorage_Collection merge(?\Bitrix\Bizproc\Storage\Entity\EO_ActivityStorage_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_ActivityStorage_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -1967,7 +2145,7 @@ namespace Bitrix\Bizproc {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\EO_SchedulerEvent wakeUp($data)
@@ -2013,7 +2191,7 @@ namespace Bitrix\Bizproc {
 	 * @method \Bitrix\Bizproc\EO_SchedulerEvent[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\EO_SchedulerEvent $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\EO_SchedulerEvent_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2026,7 +2204,7 @@ namespace Bitrix\Bizproc {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_SchedulerEvent_Collection merge(?EO_SchedulerEvent_Collection $collection)
+	 * @method \Bitrix\Bizproc\EO_SchedulerEvent_Collection merge(?\Bitrix\Bizproc\EO_SchedulerEvent_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_SchedulerEvent_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2167,7 +2345,7 @@ namespace Bitrix\Bizproc {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\EO_RestProvider wakeUp($data)
@@ -2215,7 +2393,7 @@ namespace Bitrix\Bizproc {
 	 * @method \Bitrix\Bizproc\EO_RestProvider[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\EO_RestProvider $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\EO_RestProvider_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2228,7 +2406,7 @@ namespace Bitrix\Bizproc {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_RestProvider_Collection merge(?EO_RestProvider_Collection $collection)
+	 * @method \Bitrix\Bizproc\EO_RestProvider_Collection merge(?\Bitrix\Bizproc\EO_RestProvider_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_RestProvider_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2332,6 +2510,16 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method bool isFilterFilled()
 	 * @method bool isFilterChanged()
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter fillFilter()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment getComments()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment remindActualComments()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment requireComments()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser setComments(\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment $object)
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser resetComments()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser unsetComments()
+	 * @method bool hasComments()
+	 * @method bool isCommentsFilled()
+	 * @method bool isCommentsChanged()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment fillComments()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2354,7 +2542,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser wakeUp($data)
@@ -2388,6 +2576,9 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter[] getFilterList()
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser_Collection getFilterCollection()
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter_Collection fillFilter()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment[] getCommentsList()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser_Collection getCommentsCollection()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment_Collection fillComments()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2400,7 +2591,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2413,7 +2604,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_WorkflowUser_Collection merge(?EO_WorkflowUser_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser_Collection merge(?\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUser_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_WorkflowUser_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2477,6 +2668,16 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment resetUnreadCnt()
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment unsetUnreadCnt()
 	 * @method \int fillUnreadCnt()
+	 * @method \int getLastType()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment setLastType(\int|\Bitrix\Main\DB\SqlExpression $lastType)
+	 * @method bool hasLastType()
+	 * @method bool isLastTypeFilled()
+	 * @method bool isLastTypeChanged()
+	 * @method \int remindActualLastType()
+	 * @method \int requireLastType()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment resetLastType()
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment unsetLastType()
+	 * @method \int fillLastType()
 	 * @method \Bitrix\Main\Type\DateTime getModified()
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment setModified(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $modified)
 	 * @method bool hasModified()
@@ -2509,7 +2710,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment wakeUp($data)
@@ -2534,6 +2735,8 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \string[] getWorkflowIdList()
 	 * @method \int[] getUnreadCntList()
 	 * @method \int[] fillUnreadCnt()
+	 * @method \int[] getLastTypeList()
+	 * @method \int[] fillLastType()
 	 * @method \Bitrix\Main\Type\DateTime[] getModifiedList()
 	 * @method \Bitrix\Main\Type\DateTime[] fillModified()
 	 *
@@ -2548,7 +2751,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2561,7 +2764,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_WorkflowUserComment_Collection merge(?EO_WorkflowUserComment_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment_Collection merge(?\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowUserComment_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_WorkflowUserComment_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2682,7 +2885,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter wakeUp($data)
@@ -2726,7 +2929,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2739,7 +2942,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_WorkflowFilter_Collection merge(?EO_WorkflowFilter_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter_Collection merge(?\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowFilter_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_WorkflowFilter_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2830,7 +3033,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowMetadata wakeUp($data)
@@ -2868,7 +3071,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowMetadata[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowMetadata $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowMetadata_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2881,7 +3084,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_WorkflowMetadata_Collection merge(?EO_WorkflowMetadata_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowMetadata_Collection merge(?\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowMetadata_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_WorkflowMetadata_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2982,7 +3185,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowDurationStat wakeUp($data)
@@ -3022,7 +3225,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowDurationStat[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowDurationStat $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowDurationStat_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3035,7 +3238,7 @@ namespace Bitrix\Bizproc\Workflow\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_WorkflowDurationStat_Collection merge(?EO_WorkflowDurationStat_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowDurationStat_Collection merge(?\Bitrix\Bizproc\Workflow\Entity\EO_WorkflowDurationStat_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_WorkflowDurationStat_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3257,7 +3460,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Task wakeUp($data)
@@ -3323,7 +3526,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method \Bitrix\Bizproc\Workflow\Task[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Task $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Task\EO_Task_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3336,7 +3539,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Task_Collection merge(?EO_Task_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Task\EO_Task_Collection merge(?\Bitrix\Bizproc\Workflow\Task\EO_Task_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Task_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3537,7 +3740,7 @@ namespace Bitrix\Bizproc\Workflow\Type\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst wakeUp($data)
@@ -3597,7 +3800,7 @@ namespace Bitrix\Bizproc\Workflow\Type\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3610,7 +3813,7 @@ namespace Bitrix\Bizproc\Workflow\Type\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_GlobalConst_Collection merge(?EO_GlobalConst_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst_Collection merge(?\Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_GlobalConst_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3811,7 +4014,7 @@ namespace Bitrix\Bizproc\Workflow\Type\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar wakeUp($data)
@@ -3871,7 +4074,7 @@ namespace Bitrix\Bizproc\Workflow\Type\Entity {
 	 * @method \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3884,7 +4087,7 @@ namespace Bitrix\Bizproc\Workflow\Type\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_GlobalVar_Collection merge(?EO_GlobalVar_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar_Collection merge(?\Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_GlobalVar_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4025,7 +4228,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Task\EO_TaskUser wakeUp($data)
@@ -4075,7 +4278,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method \Bitrix\Bizproc\Workflow\Task\EO_TaskUser[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Task\EO_TaskUser $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Task\EO_TaskUser_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4088,7 +4291,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_TaskUser_Collection merge(?EO_TaskUser_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Task\EO_TaskUser_Collection merge(?\Bitrix\Bizproc\Workflow\Task\EO_TaskUser_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_TaskUser_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4200,7 +4403,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent wakeUp($data)
@@ -4244,7 +4447,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method \Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4257,7 +4460,7 @@ namespace Bitrix\Bizproc\Workflow\Task {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_TaskSearchContent_Collection merge(?EO_TaskSearchContent_Collection $collection)
+	 * @method \Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent_Collection merge(?\Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_TaskSearchContent_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4368,7 +4571,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Debugger\Session\Document wakeUp($data)
@@ -4411,7 +4614,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method \Bitrix\Bizproc\Debugger\Session\Document[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Debugger\Session\Document $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionDocument_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4424,7 +4627,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_DebuggerSessionDocument_Collection merge(?EO_DebuggerSessionDocument_Collection $collection)
+	 * @method \Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionDocument_Collection merge(?\Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionDocument_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_DebuggerSessionDocument_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4545,7 +4748,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Debugger\Session\WorkflowContext wakeUp($data)
@@ -4591,7 +4794,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method \Bitrix\Bizproc\Debugger\Session\WorkflowContext[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Debugger\Session\WorkflowContext $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionWorkflowContext_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4604,7 +4807,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_DebuggerSessionWorkflowContext_Collection merge(?EO_DebuggerSessionWorkflowContext_Collection $collection)
+	 * @method \Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionWorkflowContext_Collection merge(?\Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionWorkflowContext_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_DebuggerSessionWorkflowContext_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4725,7 +4928,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Debugger\Session\TemplateShards wakeUp($data)
@@ -4770,7 +4973,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method \Bitrix\Bizproc\Debugger\Session\TemplateShards[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Debugger\Session\TemplateShards $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionTemplateShards_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4783,7 +4986,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_DebuggerSessionTemplateShards_Collection merge(?EO_DebuggerSessionTemplateShards_Collection $collection)
+	 * @method \Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionTemplateShards_Collection merge(?\Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSessionTemplateShards_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_DebuggerSessionTemplateShards_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4996,7 +5199,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Debugger\Session\Session wakeUp($data)
@@ -5060,7 +5263,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method \Bitrix\Bizproc\Debugger\Session\Session[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Debugger\Session\Session $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSession_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -5073,7 +5276,7 @@ namespace Bitrix\Bizproc\Debugger\Session\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_DebuggerSession_Collection merge(?EO_DebuggerSession_Collection $collection)
+	 * @method \Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSession_Collection merge(?\Bitrix\Bizproc\Debugger\Session\Entity\EO_DebuggerSession_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_DebuggerSession_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -5214,7 +5417,7 @@ namespace Bitrix\Bizproc\Automation\Trigger\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Automation\Trigger\Entity\TriggerObject wakeUp($data)
@@ -5262,7 +5465,7 @@ namespace Bitrix\Bizproc\Automation\Trigger\Entity {
 	 * @method \Bitrix\Bizproc\Automation\Trigger\Entity\TriggerObject[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Automation\Trigger\Entity\TriggerObject $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -5275,7 +5478,7 @@ namespace Bitrix\Bizproc\Automation\Trigger\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Trigger_Collection merge(?EO_Trigger_Collection $collection)
+	 * @method \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger_Collection merge(?\Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Trigger_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -5446,7 +5649,7 @@ namespace Bitrix\Bizproc\Service\Entity {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\Service\Entity\EO_Tracking wakeUp($data)
@@ -5500,7 +5703,7 @@ namespace Bitrix\Bizproc\Service\Entity {
 	 * @method \Bitrix\Bizproc\Service\Entity\EO_Tracking[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\Service\Entity\EO_Tracking $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\Service\Entity\EO_Tracking_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -5513,7 +5716,7 @@ namespace Bitrix\Bizproc\Service\Entity {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Tracking_Collection merge(?EO_Tracking_Collection $collection)
+	 * @method \Bitrix\Bizproc\Service\Entity\EO_Tracking_Collection merge(?\Bitrix\Bizproc\Service\Entity\EO_Tracking_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Tracking_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -5734,7 +5937,7 @@ namespace Bitrix\Bizproc {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Bizproc\EO_RestActivity wakeUp($data)
@@ -5798,7 +6001,7 @@ namespace Bitrix\Bizproc {
 	 * @method \Bitrix\Bizproc\EO_RestActivity[] getAll()
 	 * @method bool remove(\Bitrix\Bizproc\EO_RestActivity $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Bizproc\EO_RestActivity_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -5811,7 +6014,7 @@ namespace Bitrix\Bizproc {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_RestActivity_Collection merge(?EO_RestActivity_Collection $collection)
+	 * @method \Bitrix\Bizproc\EO_RestActivity_Collection merge(?\Bitrix\Bizproc\EO_RestActivity_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_RestActivity_Collection implements \ArrayAccess, \Iterator, \Countable {

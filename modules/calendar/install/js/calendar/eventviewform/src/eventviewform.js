@@ -10,9 +10,11 @@ import { BitrixVue } from 'ui.vue3';
 import { ViewEventSlider } from './view-event-slider';
 import { CalendarSection } from 'calendar.sectionmanager';
 import 'viewer';
-import {RelationInterface} from "calendar.entityrelation";
+import { RelationInterface } from 'calendar.entityrelation';
+import { AvatarRoundGuest } from 'ui.avatar';
 
-export class EventViewForm {
+export class EventViewForm
+{
 	permissions = {};
 	name = 'eventviewform';
 	uid = null;
@@ -50,18 +52,18 @@ export class EventViewForm {
 	initInSlider(slider, promiseResolve)
 	{
 		this.slider = slider;
-		EventEmitter.subscribe(slider, "SidePanel.Slider:onLoad", this.sliderOnLoad);
-		EventEmitter.subscribe(slider, "SidePanel.Slider:onCloseComplete", this.destroyBind);
+		EventEmitter.subscribe(slider, 'SidePanel.Slider:onLoad', this.sliderOnLoad);
+		EventEmitter.subscribe(slider, 'SidePanel.Slider:onCloseComplete', this.destroyBind);
 		Event.bind(document, 'keydown', this.keyHandlerBind);
 
-		this.createContent(slider).then(function(html)
-			{
+		this
+			.createContent(slider)
+			.then((html) => {
 				if (Type.isFunction(promiseResolve))
 				{
 					promiseResolve(html);
 				}
-			}.bind(this)
-		);
+			});
 
 		this.opened = true;
 	}
@@ -73,8 +75,8 @@ export class EventViewForm {
 
 	destroy()
 	{
-		EventEmitter.unsubscribe(this.slider, "SidePanel.Slider:onLoad", this.sliderOnLoad);
-		EventEmitter.unsubscribe(this.slider, "SidePanel.Slider:onCloseComplete", this.destroyBind);
+		EventEmitter.unsubscribe(this.slider, 'SidePanel.Slider:onLoad', this.sliderOnLoad);
+		EventEmitter.unsubscribe(this.slider, 'SidePanel.Slider:onCloseComplete', this.destroyBind);
 		Event.unbind(document, 'keydown', this.keyHandlerBind);
 
 		if (this.app)
@@ -103,7 +105,7 @@ export class EventViewForm {
 		this.DOM.content = slider.layout.content;
 
 		// Used to execute javasctipt and attach CSS from ajax responce
-		this.BX.html(slider.layout.content, slider.getData().get("sliderContent"));
+		this.BX.html(slider.layout.content, slider.getData().get('sliderContent'));
 		if (!Type.isNull(this.uid))
 		{
 			this.initControls(this.uid);
@@ -197,6 +199,9 @@ export class EventViewForm {
 						this.planner.lock();
 					}
 					this.handleEntryData(params.entry, params.userIndex, params.section);
+
+					this.isCollabUser = params.isCollabUser;
+					this.downloadIcsEnabled = params.downloadIcsEnabled;
 				}
 
 				resolve(viewEventSliderRoot);
@@ -248,6 +253,10 @@ export class EventViewForm {
 		this.DOM.title = this.DOM.content.querySelector(`#${uid}_title`);
 		this.DOM.buttonSet = this.DOM.content.querySelector(`#${uid}_buttonset`);
 		this.DOM.editButton = this.DOM.content.querySelector(`#${uid}_but_edit`);
+		if (this.downloadIcsEnabled)
+		{
+			this.DOM.downloadButton = this.DOM.content.querySelector(`#${uid}_but_download`);
+		}
 		this.DOM.delButton = this.DOM.content.querySelector(`#${uid}_but_del`);
 		this.DOM.sidebarInner = this.DOM.content.querySelector(`#${uid}_sidebar_inner`);
 
@@ -323,6 +332,12 @@ export class EventViewForm {
 				this.BX.removeClass(items[items.length - 1], 'calendar-slider-sidebar-border-bottom');
 			}
 		}
+
+		if (this.downloadIcsEnabled)
+		{
+			Event.bind(this.DOM.downloadButton, 'click', () => EntryManager.downloadIcs(this.entryId));
+		}
+
 		if (this.canDo(this.entry, 'delete'))
 		{
 			Event.bind(this.DOM.delButton, 'click', ()=>{
@@ -416,8 +431,15 @@ export class EventViewForm {
 		)
 		{
 			this.DOM.videoCall.style.display = '';
+
+			const items = this.isCollabUser
+				? ['chat', 'videocall', 'task']
+				: ['chat', 'videocall', 'blog_post', 'task']
+			;
+
 			this.intranetControllButton = new IntranetButton({
 				intranetControlButtonParams: {
+					items,
 					container: this.DOM.videoCall,
 					entityType: 'calendar_event',
 					entityId: this.entry.parentId,
@@ -518,7 +540,7 @@ export class EventViewForm {
 			userList.forEach(function (user)
 			{
 				let userAvatar = `
-					<div class="ui-icon ui-icon-common-user"  style="width: 34px; height: 34px;">
+					<div class="ui-icon ui-icon-common-user" style="width: 34px; height: 34px;">
 						<i></i>
 					</div>
 				`;
@@ -542,6 +564,21 @@ export class EventViewForm {
 						</div>
 					`;
 				}
+				if (user.COLLAB_USER)
+				{
+					const userpicPath = user.AVATAR && user.AVATAR !== '/bitrix/images/1.gif'
+						? user.AVATAR
+						: null
+					;
+					userAvatar = new AvatarRoundGuest(
+						{
+							size: 34,
+							userName: user.DISPLAY_NAME,
+							userpicPath,
+							baseColor: '#19cc45',
+						},
+					).getContainer();
+				}
 
 				const userWrap = Tag.render`
 					<div class="calendar-slider-sidebar-user-container calendar-slider-sidebar-user-card">
@@ -551,7 +588,11 @@ export class EventViewForm {
 							</div>
 						</div>
 						<div class="calendar-slider-sidebar-user-info">
-							<a href="${user.URL ? user.URL : '#'}" class="calendar-slider-sidebar-user-info-name">${Text.encode(user.DISPLAY_NAME)}</a>
+							<a href="${user.URL ? user.URL : '#'}" 
+								class="calendar-slider-sidebar-user-info-name ${user.COLLAB_USER ? 'calendar-collab-user' : ''}"
+							>
+								${Text.encode(user.DISPLAY_NAME)}
+							</a>
 						</div>
 					</div>
 				`;

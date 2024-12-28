@@ -43,6 +43,12 @@ class Generator
 	protected int $step;
 
 	/**
+	 * To control step duration
+	 * @var int
+	 */
+	protected int $stepStartTime;
+
+	/**
 	 * State params for current step. Can be init by not start state
 	 * @var array
 	 */
@@ -53,6 +59,24 @@ class Generator
 	 * @var string
 	 */
 	protected string $statusMessage = '';
+
+	/**
+	 * File object
+	 * @var File\Base|null
+	 */
+	protected ?File\Base $sitemapFile = null;
+
+	/**
+	 * If iblock step - save current runtime iblock data
+	 * @var array|null
+	 */
+	protected ?array $currentRuntimeIBlock = null;
+
+	/**
+	 * If iblock step - save current iblock data
+	 * @var array|null
+	 */
+	protected ?array $currentIBlock = null;
 
 	public function __construct(int $sitemapId)
 	{
@@ -77,31 +101,15 @@ class Generator
 	 * Init current parameter for generator run
 	 * @param int $step
 	 * @param array $state
-	 * @return void
+	 * @return Generator
 	 */
-	public function init(int $step, array $state): void
+	public function init(int $step, array $state): self
 	{
 		// todo: check state by whitelist
 		$this->step = $step;
 		$this->state = $state;
 
 		$this->statusMessage = Loc::getMessage('SEO_SITEMAP_RUN_INIT');
-	}
-
-	/**
-	 * Set current step (by value, not name)
-	 * @param int $step
-	 * @return Generator
-	 */
-	public function setStep(int $step): static
-	{
-		if (
-			$step >= Step::getFirstStep()
-			&& $step <= Step::getLastStep()
-		)
-		{
-			$this->step = $step;
-		}
 
 		return $this;
 	}
@@ -113,18 +121,6 @@ class Generator
 	public function getStep(): int
 	{
 		return $this->step;
-	}
-
-	/**
-	 * Initialize current state
-	 * @param array $state
-	 * @return Generator
-	 */
-	public function setState(array $state): static
-	{
-		$this->state = $state;
-
-		return $this;
 	}
 
 	/**
@@ -151,6 +147,7 @@ class Generator
 	public function run(): bool
 	{
 		$result = false;
+		$this->startStep();
 
 		if ($this->step === Step::STEPS[Step::STEP_INIT])
 		{
@@ -233,19 +230,18 @@ class Generator
 
 	protected function runFiles(): bool
 	{
-		$sitemapFile =
+		$this->sitemapFile =
 			new File\Runtime(
 				$this->sitemapId,
 				$this->sitemapData['SETTINGS']['FILENAME_FILES'],
 				$this->getSitemapSettings()
 			);
 
-		$timeFinish = self::getTimeFinish();
 		$isFinished = false;
 		$isCheckFinished = false;
 		$dbRes = null;
 
-		while (!$isFinished && microtime(true) <= $timeFinish)
+		while (!$isFinished && !self::isStepTimeOver())
 		{
 			if (!$dbRes)
 			{
@@ -262,7 +258,7 @@ class Generator
 
 			if ($dirData = $dbRes->Fetch())
 			{
-				$this->processDirectory($dirData, $sitemapFile);
+				$this->processDirectory($dirData);
 				$this->statusMessage = Loc::getMessage('SITEMAP_RUN_FILES', ['#PATH#' => $dirData['ITEM_PATH']]);
 				$isCheckFinished = false;
 			}
@@ -292,29 +288,7 @@ class Generator
 				$this->state['XML_FILES'] = [];
 			}
 
-			if ($sitemapFile->isNotEmpty())
-			{
-				if ($sitemapFile->isCurrentPartNotEmpty())
-				{
-					$sitemapFile->finish();
-				}
-				else
-				{
-					$sitemapFile->delete();
-				}
-
-				$xmlFiles = $sitemapFile->getNameList();
-				$directory = $sitemapFile->getPathDirectory();
-				foreach ($xmlFiles as &$xmlFile)
-				{
-					$xmlFile = $directory . $xmlFile;
-				}
-				$this->state['XML_FILES'] = array_unique(array_merge($this->state['XML_FILES'], $xmlFiles));
-			}
-			else
-			{
-				$sitemapFile->delete();
-			}
+			$this->finishSitemapFile();
 
 			$this->step = Step::STEPS[Step::STEP_FILES];
 			$this->statusMessage = Loc::getMessage(
@@ -329,10 +303,9 @@ class Generator
 	/**
 	 * Add files from directory to sitemap
 	 * @param $dirData
-	 * @param File\Base $sitemapFile
 	 * @return void
 	 */
-	protected function processDirectory($dirData, File\Base $sitemapFile): void
+	protected function processDirectory($dirData): void
 	{
 		$processedDirs = [];
 
@@ -358,7 +331,7 @@ class Generator
 						if (preg_match($this->sitemapData['SETTINGS']['FILE_MASK_REGEXP'], $dir['FILE']))
 						{
 							$f = new IO\File($dir['DATA']['PATH'], $this->sitemapData['SITE_ID']);
-							$sitemapFile->addFileEntry($f);
+							$this->sitemapFile->addFileEntry($f);
 						}
 					}
 				}
@@ -411,7 +384,7 @@ class Generator
 									&& preg_match($this->sitemapData['SETTINGS']['FILE_MASK_REGEXP'], $f->getName())
 								)
 								{
-									$sitemapFile->addFileEntry($f);
+									$this->sitemapFile->addFileEntry($f);
 								}
 							}
 						}
@@ -499,17 +472,11 @@ class Generator
 	protected function runIblock(): bool
 	{
 		$result = true;
-
-		$timeFinish = self::getTimeFinish();
 		$isFinished = false;
-		$bCheckFinished = false;
-		$runtimeIblock = false;
-		$currentIBlock = false;
-		$sitemapFile = null;
-		$iblockId = 0;
 
-		$dbOldIblockResult = null;
-		$dbIblockResult = null;
+		$this->currentRuntimeIBlock = null;
+		$this->currentIBlock = null;
+		$this->sitemapFile = null;
 
 		if (!Loader::includeModule('iblock'))
 		{
@@ -522,9 +489,16 @@ class Generator
 			unset($_SESSION["SEO_SITEMAP_" . $this->sitemapId]);
 		}
 
-		while (!$isFinished && microtime(true) <= $timeFinish)
+		while (!$isFinished)
 		{
-			if (!$runtimeIblock)
+			if (self::isStepTimeOver())
+			{
+				$isFinished = false;
+
+				break;
+			}
+
+			if (!$this->currentRuntimeIBlock)
 			{
 				$dbRes = RuntimeTable::getList([
 					'order' => ['ID' => 'ASC'],
@@ -536,322 +510,102 @@ class Generator
 					'limit' => 1,
 				]);
 				$runtimeIblock = $dbRes->fetch();
+				$this->currentRuntimeIBlock = $runtimeIblock !== false ? $runtimeIblock : null;
 
-				if ($runtimeIblock)
+				if ($this->currentRuntimeIBlock)
 				{
-					$iblockId = intval($runtimeIblock['ITEM_ID']);
+					$iblockId = (int)$this->currentRuntimeIBlock['ITEM_ID'];
 
 					$dbIBlock = \CIBlock::GetByID($iblockId);
-					$currentIBlock = $dbIBlock->Fetch();
+					$this->currentIBlock = $dbIBlock->Fetch();
 
-					if (!$currentIBlock)
+					if (!$this->currentIBlock)
 					{
 						$this->state['LEFT_MARGIN'] = 0;
 						$this->state['IBLOCK_LASTMOD'] = 0;
 						$this->state['LAST_ELEMENT_ID'] = 0;
 						unset($this->state['CURRENT_SECTION']);
+						unset($this->currentRuntimeIBlock);
 					}
 					else
 					{
 						$this->statusMessage = Loc::getMessage(
 							'SITEMAP_RUN_IBLOCK_NAME',
-							['#IBLOCK_NAME#' => $currentIBlock['NAME']]
+							['#IBLOCK_NAME#' => $this->currentIBlock['NAME']]
 						);
 
-						if ($currentIBlock['LIST_PAGE_URL'] == '')
+						if ($this->currentIBlock['LIST_PAGE_URL'] == '')
 						{
 							$this->sitemapData['SETTINGS']['IBLOCK_LIST'][$iblockId] = 'N';
 						}
-						if ($currentIBlock['SECTION_PAGE_URL'] == '')
+						if ($this->currentIBlock['SECTION_PAGE_URL'] == '')
 						{
 							$this->sitemapData['SETTINGS']['IBLOCK_SECTION'][$iblockId] = 'N';
 						}
-						if ($currentIBlock['DETAIL_PAGE_URL'] == '')
+						if ($this->currentIBlock['DETAIL_PAGE_URL'] == '')
 						{
 							$this->sitemapData['SETTINGS']['IBLOCK_ELEMENT'][$iblockId] = 'N';
 						}
 
 						$this->state['IBLOCK_LASTMOD'] =
-							max($this->state['IBLOCK_LASTMOD'], MakeTimeStamp($currentIBlock['TIMESTAMP_X']));
+							max($this->state['IBLOCK_LASTMOD'], MakeTimeStamp($this->currentIBlock['TIMESTAMP_X']));
 
-						if ($this->state['LEFT_MARGIN'] <= 0 && $this->sitemapData['SETTINGS']['IBLOCK_ELEMENT'][$iblockId] != 'N')
+						if (
+							$this->state['LEFT_MARGIN'] <= 0
+							&& $this->sitemapData['SETTINGS']['IBLOCK_ELEMENT'][$iblockId] !== 'N'
+						)
 						{
 							$this->state['CURRENT_SECTION'] = 0;
 						}
 
 						$fileName = str_replace(
 							['#IBLOCK_ID#', '#IBLOCK_CODE#', '#IBLOCK_XML_ID#'],
-							[$iblockId, $currentIBlock['CODE'], $currentIBlock['XML_ID']],
+							[$iblockId, $this->currentIBlock['CODE'], $this->currentIBlock['XML_ID']],
 							$this->sitemapData['SETTINGS']['FILENAME_IBLOCK']
 						);
 
-						$sitemapFile =
+						$this->sitemapFile =
 							new File\Runtime(
 							$this->sitemapId,
 							$fileName,
 							$this->getSitemapSettings()
 						);
 					}
-
-					RuntimeTable::update($runtimeIblock['ID'], [
-						'PROCESSED' => RuntimeTable::PROCESSED,
-					]);
 				}
 			}
 
-			if (!$runtimeIblock || !$sitemapFile)
+			if (!$this->currentRuntimeIBlock || !$this->sitemapFile)
 			{
 				$isFinished = true;
 			}
-			elseif (is_array($currentIBlock))
+			elseif (is_array($this->currentIBlock))
 			{
-				if ($dbIblockResult == null)
+				$isFinishedSections = false;
+				if (!isset($this->state['CURRENT_SECTION']))
 				{
-					if (isset($this->state['CURRENT_SECTION']))
-					{
-						$dbIblockResult = \CIBlockElement::GetList(
-							['ID' => 'ASC'],
-							[
-								'IBLOCK_ID' => $iblockId,
-								'ACTIVE' => 'Y',
-								'SECTION_ID' => intval($this->state['CURRENT_SECTION']),
-								'>ID' => intval($this->state['LAST_ELEMENT_ID']),
-								'SITE_ID' => $this->sitemapData['SITE_ID'],
-								"ACTIVE_DATE" => "Y",
-							],
-							false,
-							['nTopCount' => 1000],
-							['ID', 'TIMESTAMP_X', 'DETAIL_PAGE_URL']
-						);
-					}
-					else
-					{
-						$this->state['LAST_ELEMENT_ID'] = 0;
-						$dbIblockResult = \CIBlockSection::GetList(
-							['LEFT_MARGIN' => 'ASC'],
-							[
-								'IBLOCK_ID' => $iblockId,
-								'GLOBAL_ACTIVE' => 'Y',
-								'>LEFT_BORDER' => intval($this->state['LEFT_MARGIN']),
-							],
-							false,
-							['ID', 'TIMESTAMP_X', 'SECTION_PAGE_URL', 'LEFT_MARGIN', 'IBLOCK_SECTION_ID'],
-							['nTopCount' => 100]
-						);
-					}
+					$isFinishedSections = self::processIblockSections();
 				}
 
-				if (isset($this->state['CURRENT_SECTION']))
+				if ($isFinishedSections && !isset($this->state['CURRENT_SECTION']))
 				{
-					$arElement = $dbIblockResult->fetch();
-
-					if ($arElement)
-					{
-						if (!is_array($this->state['IBLOCK_MAP'][$iblockId]))
-						{
-							$this->state['IBLOCK_MAP'][$iblockId] = [];
-						}
-
-						if (!array_key_exists($arElement['ID'], $this->state['IBLOCK_MAP'][$iblockId]))
-						{
-							$arElement['LANG_DIR'] = $this->sitemapData['SITE']['DIR'];
-
-							$bCheckFinished = false;
-							$elementLastmod = MakeTimeStamp($arElement['TIMESTAMP_X']);
-							$this->state['IBLOCK_LASTMOD'] = max($this->state['IBLOCK_LASTMOD'], $elementLastmod);
-							$this->state['LAST_ELEMENT_ID'] = $arElement['ID'];
-
-							$this->state['IBLOCK'][$iblockId]['E']++;
-							$this->state['IBLOCK_MAP'][$iblockId][$arElement["ID"]] = 1;
-
-							// remove or replace SERVER_NAME
-							$url =
-								Source\Iblock::prepareUrlToReplace(
-									$arElement['DETAIL_PAGE_URL'],
-									$this->sitemapData['SITE_ID']
-								);
-							$url = \CIBlock::ReplaceDetailUrl($url, $arElement, false, "E");
-
-							$sitemapFile->addIBlockEntry($url, $elementLastmod);
-						}
-					}
-					elseif (!$bCheckFinished)
-					{
-						$bCheckFinished = true;
-						$dbIblockResult = null;
-					}
-					else
-					{
-						$bCheckFinished = false;
-						unset($this->state['CURRENT_SECTION']);
-						$this->state['LAST_ELEMENT_ID'] = 0;
-
-						$dbIblockResult = null;
-						if ($dbOldIblockResult)
-						{
-							$dbIblockResult = $dbOldIblockResult;
-							$dbOldIblockResult = null;
-						}
-					}
+					$isFinishedElements = true;
 				}
 				else
 				{
-					$arSection = $dbIblockResult->fetch();
+					$isFinishedElements = self::processIblockElements();
+				}
 
-					if ($arSection)
-					{
-						$bCheckFinished = false;
-						$sectionLastmod = MakeTimeStamp($arSection['TIMESTAMP_X']);
-						$this->state['LEFT_MARGIN'] = $arSection['LEFT_MARGIN'];
-						$this->state['IBLOCK_LASTMOD'] = max($this->state['IBLOCK_LASTMOD'], $sectionLastmod);
-
-						$bActive = false;
-						$bActiveElement = false;
-
-						if (isset($this->sitemapData['SETTINGS']['IBLOCK_SECTION_SECTION'][$iblockId][$arSection['ID']]))
-						{
-							$bActive =
-								$this->sitemapData['SETTINGS']['IBLOCK_SECTION_SECTION'][$iblockId][$arSection['ID']] == 'Y';
-							$bActiveElement =
-								$this->sitemapData['SETTINGS']['IBLOCK_SECTION_ELEMENT'][$iblockId][$arSection['ID']] == 'Y';
-						}
-						elseif ($arSection['IBLOCK_SECTION_ID'] > 0)
-						{
-							$dbRes = RuntimeTable::getList([
-								'filter' => [
-									'PID' => $this->sitemapId,
-									'ITEM_TYPE' => RuntimeTable::ITEM_TYPE_SECTION,
-									'ITEM_ID' => $arSection['IBLOCK_SECTION_ID'],
-									'PROCESSED' => RuntimeTable::PROCESSED,
-								],
-								'select' => ['ACTIVE', 'ACTIVE_ELEMENT'],
-								'limit' => 1,
-							]);
-
-							$parentSection = $dbRes->fetch();
-							if ($parentSection)
-							{
-								$bActive = $parentSection['ACTIVE'] == RuntimeTable::ACTIVE;
-								$bActiveElement = $parentSection['ACTIVE_ELEMENT'] == RuntimeTable::ACTIVE;
-							}
-						}
-						else
-						{
-							$bActive = $this->sitemapData['SETTINGS']['IBLOCK_SECTION'][$iblockId] == 'Y';
-							$bActiveElement = $this->sitemapData['SETTINGS']['IBLOCK_ELEMENT'][$iblockId] == 'Y';
-						}
-
-						$arRuntimeData = [
-							'PID' => $this->sitemapId,
-							'ITEM_ID' => $arSection['ID'],
-							'ITEM_TYPE' => RuntimeTable::ITEM_TYPE_SECTION,
-							'ACTIVE' => $bActive ? RuntimeTable::ACTIVE : RuntimeTable::INACTIVE,
-							'ACTIVE_ELEMENT' => $bActiveElement ? RuntimeTable::ACTIVE : RuntimeTable::INACTIVE,
-							'PROCESSED' => RuntimeTable::PROCESSED,
-						];
-
-						if ($bActive)
-						{
-							$this->state['IBLOCK'][$iblockId]['S']++;
-
-							$arSection['LANG_DIR'] = $this->sitemapData['SITE']['DIR'];
-
-							//							remove or replace SERVER_NAME
-							$url =
-								Source\Iblock::prepareUrlToReplace(
-									$arSection['SECTION_PAGE_URL'],
-									$this->sitemapData['SITE_ID']
-								);
-							$url = \CIBlock::ReplaceDetailUrl($url, $arSection, false, "S");
-
-							$sitemapFile->addIBlockEntry($url, $sectionLastmod);
-						}
-
-						RuntimeTable::add($arRuntimeData);
-
-						if ($bActiveElement)
-						{
-							$this->state['CURRENT_SECTION'] = $arSection['ID'];
-							$this->state['LAST_ELEMENT_ID'] = 0;
-
-							$dbOldIblockResult = $dbIblockResult;
-							$dbIblockResult = null;
-						}
-					}
-					elseif (!$bCheckFinished)
-					{
-						unset($this->state['CURRENT_SECTION']);
-						$bCheckFinished = true;
-						$dbIblockResult = null;
-					}
-					else
-					{
-						$bCheckFinished = false;
-						// we have finished current iblock
-
-						RuntimeTable::update($runtimeIblock['ID'], [
-							'PROCESSED' => RuntimeTable::PROCESSED,
-						]);
-
-						if ($this->sitemapData['SETTINGS']['IBLOCK_LIST'][$iblockId] == 'Y'
-							&& $currentIBlock['LIST_PAGE_URL']
-							<> '')
-						{
-							$this->state['IBLOCK'][$iblockId]['I']++;
-
-							$currentIBlock['IBLOCK_ID'] = $currentIBlock['ID'];
-							$currentIBlock['LANG_DIR'] = $this->sitemapData['SITE']['DIR'];
-
-							//							remove or replace SERVER_NAME
-							$url =
-								Source\Iblock::prepareUrlToReplace(
-									$currentIBlock['LIST_PAGE_URL'],
-									$this->sitemapData['SITE_ID']
-								);
-							$url = \CIBlock::ReplaceDetailUrl($url, $currentIBlock, false, "");
-
-							$sitemapFile->addIBlockEntry($url, $this->state['IBLOCK_LASTMOD']);
-						}
-
-						if ($sitemapFile->isNotEmpty())
-						{
-							if ($sitemapFile->isCurrentPartNotEmpty())
-							{
-								$sitemapFile->finish();
-							}
-							else
-							{
-								$sitemapFile->delete();
-							}
-
-							if (!is_array($this->state['XML_FILES']))
-							{
-								$this->state['XML_FILES'] = [];
-							}
-
-							$xmlFiles = $sitemapFile->getNameList();
-							$directory = $sitemapFile->getPathDirectory();
-							foreach ($xmlFiles as &$xmlFile)
-								$xmlFile = $directory . $xmlFile;
-							$this->state['XML_FILES'] = array_unique(array_merge($this->state['XML_FILES'], $xmlFiles));
-						}
-						else
-						{
-							$sitemapFile->delete();
-						}
-
-						$runtimeIblock = false;
-						$this->state['LEFT_MARGIN'] = 0;
-						$this->state['IBLOCK_LASTMOD'] = 0;
-						unset($this->state['CURRENT_SECTION']);
-						$this->state['LAST_ELEMENT_ID'] = 0;
-					}
+				if ($isFinishedSections && $isFinishedElements)
+				{
+					$this->finishIblockProcess();
 				}
 			}
 		}
+
 		if ($this->step < Step::STEPS[Step::STEP_IBLOCK] - 1)
 		{
 			$this->step++;
+			$this->step = min($this->step, Step::STEPS[Step::STEP_IBLOCK] -  1);
 		}
 
 		if ($isFinished)
@@ -861,6 +615,255 @@ class Generator
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Process sections
+	 *
+	 * @return bool - true if finished all sections, false if process stopped by timeout
+	 */
+	protected function processIblockSections(): bool
+	{
+		$iblockId = (int)$this->currentRuntimeIBlock['ITEM_ID'];
+
+		$this->state['LAST_ELEMENT_ID'] = 0;
+		$dbIblockResult = \CIBlockSection::GetList(
+			['LEFT_MARGIN' => 'ASC'],
+			[
+				'IBLOCK_ID' => $iblockId,
+				'GLOBAL_ACTIVE' => 'Y',
+				'>LEFT_BORDER' => intval($this->state['LEFT_MARGIN']),
+			],
+			false,
+			['ID', 'TIMESTAMP_X', 'SECTION_PAGE_URL', 'LEFT_MARGIN', 'IBLOCK_SECTION_ID'],
+			['nTopCount' => 100]
+		);
+		$processedSections = 0;
+
+		while ($arSection = $dbIblockResult->fetch())
+		{
+			if ($this->isStepTimeOver())
+			{
+				break;
+			}
+
+			$sectionLastmod = MakeTimeStamp($arSection['TIMESTAMP_X']);
+			$this->state['LEFT_MARGIN'] = $arSection['LEFT_MARGIN'];
+			$this->state['IBLOCK_LASTMOD'] = max($this->state['IBLOCK_LASTMOD'], $sectionLastmod);
+
+			$isProcessSections = false;
+			$isProcessElements = false;
+
+			if (isset($this->sitemapData['SETTINGS']['IBLOCK_SECTION_SECTION'][$iblockId][$arSection['ID']]))
+			{
+				$isProcessSections =
+					$this->sitemapData['SETTINGS']['IBLOCK_SECTION_SECTION'][$iblockId][$arSection['ID']] == 'Y';
+				$isProcessElements =
+					$this->sitemapData['SETTINGS']['IBLOCK_SECTION_ELEMENT'][$iblockId][$arSection['ID']] == 'Y';
+			}
+			elseif ($arSection['IBLOCK_SECTION_ID'] > 0)
+			{
+				$dbRes = RuntimeTable::getList([
+					'filter' => [
+						'PID' => $this->sitemapId,
+						'ITEM_TYPE' => RuntimeTable::ITEM_TYPE_SECTION,
+						'ITEM_ID' => $arSection['IBLOCK_SECTION_ID'],
+						'PROCESSED' => RuntimeTable::PROCESSED,
+					],
+					'select' => ['ACTIVE', 'ACTIVE_ELEMENT'],
+					'limit' => 1,
+				]);
+
+				$parentSection = $dbRes->fetch();
+				if ($parentSection)
+				{
+					$isProcessSections = $parentSection['ACTIVE'] === RuntimeTable::ACTIVE;
+					$isProcessElements = $parentSection['ACTIVE_ELEMENT'] === RuntimeTable::ACTIVE;
+				}
+			}
+			else
+			{
+				$isProcessSections = $this->sitemapData['SETTINGS']['IBLOCK_SECTION'][$iblockId] == 'Y';
+				$isProcessElements = $this->sitemapData['SETTINGS']['IBLOCK_ELEMENT'][$iblockId] == 'Y';
+			}
+
+			$arRuntimeData = [
+				'PID' => $this->sitemapId,
+				'ITEM_ID' => $arSection['ID'],
+				'ITEM_TYPE' => RuntimeTable::ITEM_TYPE_SECTION,
+				'ACTIVE' => $isProcessSections ? RuntimeTable::ACTIVE : RuntimeTable::INACTIVE,
+				'ACTIVE_ELEMENT' => $isProcessElements ? RuntimeTable::ACTIVE : RuntimeTable::INACTIVE,
+				'PROCESSED' => RuntimeTable::PROCESSED,
+			];
+
+			if ($isProcessSections)
+			{
+				$this->state['IBLOCK'][$iblockId]['S']++;
+				$arSection['LANG_DIR'] = $this->sitemapData['SITE']['DIR'];
+
+				// remove or replace SERVER_NAME
+				$url =
+					Source\Iblock::prepareUrlToReplace(
+						$arSection['SECTION_PAGE_URL'],
+						$this->sitemapData['SITE_ID']
+					);
+				$url = \CIBlock::ReplaceDetailUrl($url, $arSection, false, "S");
+
+				$this->sitemapFile->addIBlockEntry($url, $sectionLastmod);
+			}
+
+			RuntimeTable::add($arRuntimeData);
+
+			if ($isProcessElements)
+			{
+				$this->state['CURRENT_SECTION'] = (int)$arSection['ID'];
+				$this->state['LAST_ELEMENT_ID'] = 0;
+
+				return false;
+			}
+
+			$processedSections++;
+		}
+
+		if ($processedSections === 0)
+		{
+			self::finishIblockSectionsProcess();
+
+			return true;
+		}
+
+		// not finished yet
+		return false;
+	}
+
+	protected function finishIblockSectionsProcess(): void
+	{
+		unset($this->state['CURRENT_SECTION']);
+		$this->state['LEFT_MARGIN'] = 0;
+		$this->state['LAST_ELEMENT_ID'] = 0;
+	}
+
+	/**
+	 * Process elements
+	 * @return bool - true if finished all sections, false if process stopped by timeout
+	 */
+	protected function processIblockElements(): bool
+	{
+		if (!isset($this->state['CURRENT_SECTION']))
+		{
+			self::finishIblockElementsProcess();
+
+			return true;
+		}
+
+		$iblockId = (int)$this->currentRuntimeIBlock['ITEM_ID'];
+		$dbIblockResult = \CIBlockElement::GetList(
+			['ID' => 'ASC'],
+			[
+				'IBLOCK_ID' => $iblockId,
+				'ACTIVE' => 'Y',
+				'SECTION_ID' => $this->state['CURRENT_SECTION'],
+				'>ID' => $this->state['LAST_ELEMENT_ID'],
+				'SITE_ID' => $this->sitemapData['SITE_ID'],
+				"ACTIVE_DATE" => "Y",
+			],
+			false,
+			['nTopCount' => 100],
+			['ID', 'TIMESTAMP_X', 'DETAIL_PAGE_URL']
+		);
+		$processedElements = 0;
+
+		while ($arElement = $dbIblockResult->fetch())
+		{
+			if ($this->isStepTimeOver())
+			{
+				break;
+			}
+
+			if (!is_array($this->state['IBLOCK_MAP'][$iblockId]))
+			{
+				$this->state['IBLOCK_MAP'][$iblockId] = [];
+			}
+			if (!array_key_exists($arElement['ID'], $this->state['IBLOCK_MAP'][$iblockId]))
+			{
+				$arElement['LANG_DIR'] = $this->sitemapData['SITE']['DIR'];
+
+				$elementLastmod = MakeTimeStamp($arElement['TIMESTAMP_X']);
+				$this->state['IBLOCK_LASTMOD'] = max($this->state['IBLOCK_LASTMOD'], $elementLastmod);
+				$this->state['LAST_ELEMENT_ID'] = $arElement['ID'];
+
+				$this->state['IBLOCK'][$iblockId]['E']++;
+				$this->state['IBLOCK_MAP'][$iblockId][$arElement["ID"]] = 1;
+
+				// remove or replace SERVER_NAME
+				$url =
+					Source\Iblock::prepareUrlToReplace(
+						$arElement['DETAIL_PAGE_URL'],
+						$this->sitemapData['SITE_ID']
+					);
+				$url = \CIBlock::ReplaceDetailUrl($url, $arElement, false, "E");
+
+				$this->sitemapFile->addIBlockEntry($url, $elementLastmod);
+
+				$processedElements++;
+			}
+		}
+
+		if ($processedElements === 0)
+		{
+			self::finishIblockElementsProcess();
+
+			return true;
+		}
+
+		// not finished yet
+		return false;
+	}
+
+	protected function finishIblockElementsProcess(): void
+	{
+		unset($this->state['CURRENT_SECTION']);
+		$this->state['LAST_ELEMENT_ID'] = 0;
+	}
+
+	protected function finishIblockProcess(): void
+	{
+		$iblockId = (int)$this->currentRuntimeIBlock['ID'];
+		if (!$iblockId)
+		{
+			return;
+		}
+
+		RuntimeTable::update($iblockId, [
+			'PROCESSED' => RuntimeTable::PROCESSED,
+		]);
+
+		if (
+			$this->sitemapData['SETTINGS']['IBLOCK_LIST'][$iblockId] == 'Y'
+			&& $this->currentIBlock['LIST_PAGE_URL'] <> ''
+		)
+		{
+			$this->state['IBLOCK'][$iblockId]['I']++;
+
+			$this->currentIBlock['IBLOCK_ID'] = $this->currentIBlock['ID'];
+			$this->currentIBlock['LANG_DIR'] = $this->sitemapData['SITE']['DIR'];
+
+			// remove or replace SERVER_NAME
+			$url =
+				Source\Iblock::prepareUrlToReplace(
+					$this->currentIBlock['LIST_PAGE_URL'],
+					$this->sitemapData['SITE_ID']
+				);
+			$url = \CIBlock::ReplaceDetailUrl($url, $this->currentIBlock, false, "");
+
+			$this->sitemapFile->addIBlockEntry($url, $this->state['IBLOCK_LASTMOD']);
+		}
+
+		self::finishSitemapFile();
+
+		$this->currentRuntimeIBlock = null;
+		$this->state['IBLOCK_LASTMOD'] = 0;
+		unset($this->state['CURRENT_SECTION']);
 	}
 
 	protected function runForumIndex(): bool
@@ -908,9 +911,6 @@ class Generator
 							'ITEM_TYPE' => RuntimeTable::ITEM_TYPE_FORUM,
 						]
 					);
-
-					// $fileName = str_replace('#FORUM_ID#', $forumId, $this->sitemapData['SETTINGS']['FILENAME_FORUM']);
-					// $sitemapFile = new File\Runtime($this->sitemapId, $fileName, $this->sitemapDataSettings);
 				}
 			}
 		}
@@ -935,12 +935,11 @@ class Generator
 	{
 		$result = true;
 
-		$timeFinish = self::getTimeFinish();
 		$isFinished = false;
 		$runtimeForum = false;
 		$currentForum = null;
 		$forumId = 0;
-		$sitemapFile = null;
+		$this->sitemapFile = null;
 		$dbTopicResult = null;
 		$arTopic = null;
 
@@ -949,7 +948,7 @@ class Generator
 			$isFinished = true;
 		}
 
-		while (!$isFinished && microtime(true) <= $timeFinish)
+		while (!$isFinished && !self::isStepTimeOver())
 		{
 			if (!$runtimeForum)
 			{
@@ -986,7 +985,7 @@ class Generator
 						);
 
 						$fileName = str_replace('#FORUM_ID#', $forumId, $this->sitemapData['SETTINGS']['FILENAME_FORUM']);
-						$sitemapFile = new File\Runtime($this->sitemapId, $fileName, $this->getSitemapSettings());
+						$this->sitemapFile = new File\Runtime($this->sitemapId, $fileName, $this->getSitemapSettings());
 					}
 
 					RuntimeTable::update($runtimeForum['ID'], [
@@ -995,7 +994,7 @@ class Generator
 				}
 			}
 
-			if (!$runtimeForum || !$sitemapFile)
+			if (!$runtimeForum || !$this->sitemapFile)
 			{
 				$isFinished = true;
 			}
@@ -1043,7 +1042,7 @@ class Generator
 								"PARAM2" => $arTopic["PARAM2"],
 							]
 						);
-						$sitemapFile->addIBlockEntry($url, MakeTimeStamp($arTopic['LAST_POST_DATE']));
+						$this->sitemapFile->addIBlockEntry($url, MakeTimeStamp($arTopic['LAST_POST_DATE']));
 					}
 				}
 				else
@@ -1061,7 +1060,7 @@ class Generator
 							"PARAM2" => $currentForum["PARAM2"],
 						]
 					);
-					$sitemapFile->addIBlockEntry($url, MakeTimeStamp($currentForum['LAST_POST_DATE']));
+					$this->sitemapFile->addIBlockEntry($url, MakeTimeStamp($currentForum['LAST_POST_DATE']));
 				}
 				if (empty($arTopic))
 				{
@@ -1069,34 +1068,7 @@ class Generator
 						'PROCESSED' => RuntimeTable::PROCESSED,
 					]);
 
-					if ($sitemapFile->isNotEmpty())
-					{
-						if ($sitemapFile->isCurrentPartNotEmpty())
-						{
-							$sitemapFile->finish();
-						}
-						else
-						{
-							$sitemapFile->delete();
-						}
-
-						if (!is_array($this->state['XML_FILES']))
-						{
-							$this->state['XML_FILES'] = [];
-						}
-
-						$xmlFiles = $sitemapFile->getNameList();
-						$directory = $sitemapFile->getPathDirectory();
-						foreach ($xmlFiles as &$xmlFile)
-						{
-							$xmlFile = $directory . $xmlFile;
-						}
-						$this->state['XML_FILES'] = array_unique(array_merge($this->state['XML_FILES'], $xmlFiles));
-					}
-					else
-					{
-						$sitemapFile->delete();
-					}
+					self::finishSitemapFile();
 
 					$runtimeForum = false;
 					$dbTopicResult = null;
@@ -1118,13 +1090,50 @@ class Generator
 		return $result;
 	}
 
+	protected function finishSitemapFile(): void
+	{
+		if (!$this->sitemapFile)
+		{
+			return;
+		}
+
+		if ($this->sitemapFile->isNotEmpty())
+		{
+			if ($this->sitemapFile->isCurrentPartNotEmpty())
+			{
+				$this->sitemapFile->finish();
+			}
+			else
+			{
+				$this->sitemapFile->delete();
+			}
+
+			if (!is_array($this->state['XML_FILES']))
+			{
+				$this->state['XML_FILES'] = [];
+			}
+
+			$xmlFiles = $this->sitemapFile->getNameList();
+			$directory = $this->sitemapFile->getPathDirectory();
+			foreach ($xmlFiles as &$xmlFile)
+			{
+				$xmlFile = $directory . $xmlFile;
+			}
+			$this->state['XML_FILES'] = array_unique(array_merge($this->state['XML_FILES'], $xmlFiles));
+		}
+		else
+		{
+			$this->sitemapFile->delete();
+		}
+	}
+
 	protected function runIndex(): bool
 	{
 		$result = true;
 
 		RuntimeTable::clearByPid($this->sitemapId);
 
-		$sitemapFile = new File\Index($this->sitemapData['SETTINGS']['FILENAME_INDEX'], $this->getSitemapSettings());
+		$this->sitemapFile = new File\Index($this->sitemapData['SETTINGS']['FILENAME_INDEX'], $this->getSitemapSettings());
 		$xmlFiles = [];
 		if (is_array($this->state['XML_FILES']) && !empty($this->state['XML_FILES']))
 		{
@@ -1132,22 +1141,22 @@ class Generator
 			{
 				$xmlFiles[] = new IO\File(
 					IO\Path::combine(
-						$sitemapFile->getSiteRoot(),
+						$this->sitemapFile->getSiteRoot(),
 						$xmlFile
 					), $this->sitemapData['SITE_ID']
 				);
 			}
 		}
-		$sitemapFile->createIndex($xmlFiles);
+		$this->sitemapFile->createIndex($xmlFiles);
 
 		$existedSitemaps = [];
 		if ($this->sitemapData['SETTINGS']['ROBOTS'] == 'Y')
 		{
-			$sitemapUrl = $sitemapFile->getUrl();
+			$sitemapUrl = $this->sitemapFile->getUrl();
 
 			$robotsFile = new RobotsFile($this->sitemapData['SITE_ID']);
 			$robotsFile->addRule([
-				RobotsFile::SITEMAP_RULE, $sitemapUrl
+				RobotsFile::SITEMAP_RULE, $sitemapUrl,
 			]);
 
 			$sitemapLinks = $robotsFile->getRules(RobotsFile::SITEMAP_RULE);
@@ -1200,14 +1209,17 @@ class Generator
 		];
 	}
 
-	/**
-	 * Return microtime, when current step must be stopped
-	 * @return float
-	 */
-	protected static function getTimeFinish(): float
+	protected function startStep(): void
 	{
-		return microtime(true) + self::STEP_DURATION * 0.95;
+		$this->stepStartTime = microtime(true);
 	}
 
-
+	/**
+	 * Return true if time is over
+	 * @return bool
+	 */
+	protected function isStepTimeOver(): bool
+	{
+		return microtime(true) > ($this->stepStartTime + self::STEP_DURATION * 0.95);
+	}
 }

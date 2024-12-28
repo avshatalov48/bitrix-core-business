@@ -39,6 +39,7 @@
 }
 
 .bx-im-content-chat__textarea_container {
+	position: relative;
 	display: flex;
 	justify-content: center;
 	flex: 0 0 var(--im-messenger__textarea_height);
@@ -52,7 +53,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: 50px;
+	height: 64px;
 	background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.3) 100%);
 }
 

@@ -50,6 +50,8 @@ final class SocialnetworkGroupCreate extends \Bitrix\Socialnetwork\Component\Wor
 			$params['NAME_TEMPLATE'] = \CSite::getNameFormat();
 		}
 
+		$params['isFromFlowCreationForm'] = $params['PROJECT_OPTIONS']['isFromFlowCreationForm'] ?? false;
+
 		$params['USE_KEYWORDS'] = (($params['USE_KEYWORDS'] ?? null) !== 'N' ? 'Y' : 'N');
 
 		$params['PROJECT_OPTIONS'] = (isset($params['PROJECT_OPTIONS']) && is_array($params['PROJECT_OPTIONS']) ? $params['PROJECT_OPTIONS'] : []);

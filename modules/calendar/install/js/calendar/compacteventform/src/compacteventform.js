@@ -1,5 +1,5 @@
 // @flow
-import { Type, Tag, Loc, Dom, Event, Runtime, Text } from 'main.core';
+import { Type, Tag, Loc, Dom, Event, Runtime } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { Util } from 'calendar.util';
 import { MenuManager, Popup, PopupManager } from 'main.popup';
@@ -42,12 +42,14 @@ export class CompactEventForm extends EventEmitter
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.CompactEventForm');
-		this.userId = options.userId || Util.getCurrentUserId();
+		this.BX = Util.getBX();
+
+		this.userId = parseInt(options.userId, 10) || Util.getCurrentUserId();
 		this.type = options.type || 'user';
 		this.isLocationCalendar = options.isLocationCalendar || false;
 		this.calendarContext = options.calendarContext || null;
 		this.ownerId = options.ownerId || this.userId;
-		this.BX = Util.getBX();
+		this.isCollabUser = Util.getCalendarContext().isCollabUser || false;
 
 		this.checkForChangesDebounce = Runtime.debounce(this.checkForChanges, this.CHECK_CHANGES_DELAY, this);
 		this.reloadEntryDataDebounce = Runtime.debounce(this.reloadEntryData, this.RELOAD_DATA_DELAY, this);
@@ -381,14 +383,17 @@ export class CompactEventForm extends EventEmitter
 	getViewModeButtons()
 	{
 		const buttons = [this.getOpenButton()];
-		if (this.entry.isMeeting() && this.entry.getCurrentStatus() === 'N')
-		{
-			buttons.push(this.getAcceptButtonWithoutBorder());
-		}
 
-		if (this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Y')
+		if (this.entry.isMeeting() && this.entry.getMeetingHost() !== this.userId)
 		{
-			buttons.push(this.getDeclineButton());
+			if (this.entry.getCurrentStatus() === 'N')
+			{
+				buttons.push(this.getAcceptButtonWithoutBorder());
+			}
+			else if (this.entry.getCurrentStatus() === 'Y')
+			{
+				buttons.push(this.getDeclineButton());
+			}
 		}
 
 		buttons.push(...this.getEditEventButtons());
@@ -402,6 +407,14 @@ export class CompactEventForm extends EventEmitter
 		if (!this.isNewEntry() && (this.entry.permissions?.edit || this.canDo('edit') || this.canDo('editLocation') || this.canDo('editAttendees')))
 		{
 			buttons.push(this.getEditButton());
+		}
+
+		if (
+			this.isCollabUser
+			&& !this.isNewEntry()
+			&& (this.entry.permissions?.view_full || this.canDo('viewFull')))
+		{
+			buttons.push(this.getDownloadIcsButton());
 		}
 
 		if (!this.isNewEntry() && (this.entry.permissions?.edit || this.canDo('edit')))
@@ -536,6 +549,17 @@ export class CompactEventForm extends EventEmitter
 		fullFormButton.button.setAttribute('data-role', 'fullForm');
 
 		return fullFormButton;
+	}
+
+	getDownloadIcsButton(): BX.UI.Button
+	{
+		return new BX.UI.Button({
+			text: Loc.getMessage('CALENDAR_EVENT_DO_DOWNLOAD_ICS'),
+			className: 'ui-btn ui-btn-link',
+			events: {
+				click: () => EntryManager.downloadIcs(this.getCurrentEntry().id),
+			},
+		});
 	}
 
 	getAcceptButtonWithoutBorder()
@@ -830,7 +854,7 @@ export class CompactEventForm extends EventEmitter
 
 	checkLocationForm(event)
 	{
-		if (event && event instanceof BaseEvent)
+		if (!this.isCollabUser && event && event instanceof BaseEvent)
 		{
 			const data = event.getData();
 			const usersCount = data.usersCount;
@@ -923,7 +947,7 @@ export class CompactEventForm extends EventEmitter
 
 	setParams(params = {})
 	{
-		this.userId = params.userId || Util.getCurrentUserId();
+		this.userId = parseInt(params.userId, 10) || Util.getCurrentUserId();
 		this.type = params.type || 'user';
 		this.isLocationCalendar = params.isLocationCalendar || false;
 		this.locationAccess = params.locationAccess || false;
@@ -938,6 +962,7 @@ export class CompactEventForm extends EventEmitter
 			ownerId: this.ownerId,
 		});
 		this.sectionValue = null;
+		this.analyticsSubSection = this.getFormAnalyticsContext();
 
 		if (
 			!this.entry.id
@@ -972,23 +997,12 @@ export class CompactEventForm extends EventEmitter
 	setSections(sections, trackingUsersList = [])
 	{
 		this.sections = sections;
-		this.sectionIndex = {};
 		this.trackingUsersList = trackingUsersList || [];
+		this.updateSectionIndex();
 
-		if (Type.isArray(this.sections))
-		{
-			this.sections.forEach((value, ind) => {
-				const id = parseInt(value.ID || value.id, 10);
-				if (id > 0)
-				{
-					this.sectionIndex[id] = ind;
-				}
-			});
-		}
-
-		const section = this.getCurrentSection();
 		if (this.entry.id)
 		{
+			const section = this.getCurrentSection();
 			this.getSectionsForEditEvent(this.sections, section);
 		}
 	}
@@ -1231,12 +1245,18 @@ export class CompactEventForm extends EventEmitter
 			outerWrap: this.DOM.sectionSelectWrap,
 			defaultCalendarType: this.type,
 			defaultOwnerId: this.ownerId,
-			sectionList: this.sections,
+			sectionList: Util.filterSectionsByContext(this.sections, {
+				isCollabUser: this.isCollabUser,
+				calendarType: this.type,
+				calendarOwnerId: this.ownerId,
+			}),
 			sectionGroupList: SectionManager.getSectionGroupList({
 				type: this.type,
 				ownerId: this.ownerId,
 				userId: this.userId,
 				trackingUsersList: this.trackingUsersList,
+				isCollabUser: this.isCollabUser,
+				isCollabContext: this.getCurrentSection().isCollab(),
 			}),
 			mode,
 			zIndex: this.zIndex,
@@ -1418,6 +1438,7 @@ export class CompactEventForm extends EventEmitter
 			{
 				wrap: this.DOM.locationWrap,
 				richLocationEnabled: this.locationFeatureEnabled,
+				hideLocationLock: this.isCollabUser,
 				locationList: this.locationList || [],
 				roomsManager: this.roomsManager || null,
 				locationAccess: this.locationAccess || false,
@@ -1558,6 +1579,11 @@ export class CompactEventForm extends EventEmitter
 			}
 
 			if (this.entry.isResourcebooking())
+			{
+				return false;
+			}
+
+			if (!this.isNewEntry() && this.isCollabUser && !this.entry?.permissions.edit)
 			{
 				return false;
 			}
@@ -2006,22 +2032,15 @@ export class CompactEventForm extends EventEmitter
 			data.color = this.colorSelector.getValue();
 		}
 
+		if (this.analyticsSubSection)
+		{
+			data.analyticsSubSection = this.analyticsSubSection;
+		}
+
 		this.state = this.STATE.REQUEST;
 
 		this.freezePopup();
-		this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
-			data,
-			analyticsLabel: {
-				calendarAction: this.isNewEntry() ? 'create_event' : 'edit_event',
-				formType: 'compact',
-				emailGuests: this.userPlannerSelector.hasExternalEmailUsers() ? 'Y' : 'N',
-				markView: Util.getCurrentView() || 'outside',
-				markCrm: 'N',
-				markRrule: 'NONE',
-				markMeeting: this.entry.isMeeting() ? 'Y' : 'N',
-				markType: this.type,
-			},
-		})
+		this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', { data })
 			.then(
 				(response) => {
 					if (this.isLocationCalendar && this.roomsManager)
@@ -2253,13 +2272,13 @@ export class CompactEventForm extends EventEmitter
 			const entry = this.getCurrentEntry();
 			if (entry instanceof Entry)
 			{
-				sectionId = parseInt(entry.sectionId);
+				sectionId = parseInt(entry.sectionId, 10);
 			}
 
 			// TODO: refactor - don't take first section
 			if (!sectionId && this.sections[0])
 			{
-				sectionId = parseInt(this.sections[0].id);
+				sectionId = parseInt(this.sections[0].id, 10);
 			}
 		}
 
@@ -2488,17 +2507,7 @@ export class CompactEventForm extends EventEmitter
 		});
 
 		this.sections = result;
-		this.sectionIndex = [];
-		if (Type.isArray(this.sections))
-		{
-			this.sections.forEach((value, ind) => {
-				const id = parseInt(value.ID || value.id);
-				if (id > 0)
-				{
-					this.sectionIndex[id] = ind;
-				}
-			});
-		}
+		this.updateSectionIndex();
 	}
 
 	releaseLocation(options = {})
@@ -2618,5 +2627,30 @@ export class CompactEventForm extends EventEmitter
 			c_section: 'card_compact',
 			p5: `eventId_${this.entry.data.PARENT_ID}`,
 		});
+	}
+
+	updateSectionIndex()
+	{
+		this.sectionIndex = {};
+		if (Type.isArray(this.sections))
+		{
+			this.sections.forEach((value, ind) => {
+				const id = parseInt(value.ID || value.id, 10);
+				if (id > 0)
+				{
+					this.sectionIndex[id] = ind;
+				}
+			});
+		}
+	}
+
+	getFormAnalyticsContext()
+	{
+		if (this.type === 'group')
+		{
+			return 'calendar_collab';
+		}
+
+		return 'calendar_personal';
 	}
 }

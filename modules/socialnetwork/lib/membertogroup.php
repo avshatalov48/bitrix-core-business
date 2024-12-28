@@ -16,9 +16,9 @@ use Bitrix\Socialnetwork\Space\Member;
  * @method static EO_MemberToGroup_Result getList(array $parameters = [])
  * @method static EO_MemberToGroup_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\Space\Member createObject($setDefaultValues = true)
- * @method static \Bitrix\Socialnetwork\EO_MemberToGroup_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection createCollection()
  * @method static \Bitrix\Socialnetwork\Space\Member wakeUpObject($row)
- * @method static \Bitrix\Socialnetwork\EO_MemberToGroup_Collection wakeUpCollection($rows)
+ * @method static \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection wakeUpCollection($rows)
  */
 class MemberToGroupTable extends UserToGroupTable
 {

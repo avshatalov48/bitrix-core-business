@@ -9,3 +9,12 @@ export type RecentUpdateParams = {
 	files: RawFile[],
 	users: RawUser[],
 };
+
+export type UserShowInRecentParams = {
+	items: UserShowInRecentItem[],
+};
+
+type UserShowInRecentItem = {
+	user: RawUser,
+	date: string,
+};

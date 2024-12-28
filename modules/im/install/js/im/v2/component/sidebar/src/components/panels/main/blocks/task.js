@@ -1,7 +1,8 @@
 import { EventEmitter } from 'main.core.events';
 
+import { Analytics } from 'im.v2.lib.analytics';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
-import { EventType, Layout, SidebarDetailBlock, ChatActionType } from 'im.v2.const';
+import { EventType, Layout, SidebarDetailBlock, ActionByRole } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
 
@@ -35,7 +36,7 @@ export const TaskPreview = {
 		},
 		showAddButton(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.createTask, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.createTask, this.dialogId);
 		},
 		dialog(): ImModelChat
 		{
@@ -77,6 +78,7 @@ export const TaskPreview = {
 		},
 		onAddClick()
 		{
+			Analytics.getInstance().chatEntities.onCreateTaskFromSidebarClick(this.dialogId);
 			void this.getEntityCreator().createTaskForChat();
 		},
 		onOpenDetail()

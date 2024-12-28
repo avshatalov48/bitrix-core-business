@@ -1,8 +1,12 @@
 <?
+
+use Bitrix\Main\EventManager;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\Integration;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Internals\Registry\Event\GroupLoadedEvent;
+use Bitrix\Socialnetwork\Provider\GroupProvider;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -17,6 +21,7 @@ define("SONET_ROLES_MODERATOR", "E");
 define("SONET_ROLES_USER", "K");
 define("SONET_ROLES_BAN", "T");
 define("SONET_ROLES_REQUEST", "Z");
+define("SONET_ROLES_EMPLOYEE", "J");
 define("SONET_ROLES_ALL", "N");
 define("SONET_ROLES_AUTHORIZED", "L");
 
@@ -82,7 +87,7 @@ global $arSocNetAllowedRolesForUserInGroup;
 $arSocNetAllowedRolesForUserInGroup = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_BAN, SONET_ROLES_REQUEST, SONET_ROLES_OWNER);
 
 global $arSocNetAllowedRolesForFeaturesPerms;
-$arSocNetAllowedRolesForFeaturesPerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_ALL, SONET_ROLES_OWNER, SONET_ROLES_AUTHORIZED);
+$arSocNetAllowedRolesForFeaturesPerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_ALL, SONET_ROLES_OWNER, SONET_ROLES_AUTHORIZED, SONET_ROLES_EMPLOYEE);
 
 global $arSocNetAllowedInitiatePerms;
 $arSocNetAllowedInitiatePerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_OWNER);
@@ -132,7 +137,7 @@ $arEntityTypesDescTmp = array(
 		"URL_PARAM_KEY" => "PATH_TO_GROUP",
 		"URL_PATTERN" => "group_id",
 		"HAS_SITE_ID" => "Y",
-		"XDIMPORT_ALLOWED" => "Y"
+		"XDIMPORT_ALLOWED" => "Y",
 	),
 	SONET_SUBSCRIBE_ENTITY_USER	=> array(
 		"TITLE_LIST" => GetMessage("SOCNET_LOG_LIST_U_ALL"),
@@ -157,8 +162,8 @@ $arEntityTypesDescTmp = array(
 		"METHOD_DESC_SHOW" => "ShowUser",
 		"URL_PARAM_KEY" => "PATH_TO_USER",
 		"URL_PATTERN" => "user_id",
-		"XDIMPORT_ALLOWED" => "Y"
-	)
+		"XDIMPORT_ALLOWED" => "Y",
+	),
 );
 
 if (
@@ -171,7 +176,7 @@ if (
 
 $arEntityTypeTmp = array(
 	SONET_SUBSCRIBE_ENTITY_USER,
-	SONET_SUBSCRIBE_ENTITY_GROUP
+	SONET_SUBSCRIBE_ENTITY_GROUP,
 );
 
 CSocNetAllowed::AddAllowedEntityType($arEntityTypeTmp);
@@ -193,7 +198,7 @@ if (
 		'js' => '/bitrix/js/socialnetwork/log-destination.js',
 		'css' => [
 			'/bitrix/js/intranet/intranet-common.css',
-			'/bitrix/js/main/core/css/core_finder.css'
+			'/bitrix/js/main/core/css/core_finder.css',
 		],
 		'lang_additional' => array(
 			'LM_POPUP_TITLE' => GetMessage("LM_POPUP_TITLE"),
@@ -232,7 +237,7 @@ if (
 			'LM_POPUP_WAITER_TEXT' => GetMessage("LM_POPUP_WAITER_TEXT"),
 			'LM_POPUP_SEARCH_NETWORK_MSGVER_1' => GetMessage("LM_POPUP_SEARCH_NETWORK_MSGVER_1"),
 		),
-		'rel' => array('core', 'popup', 'json', 'finder')
+		'rel' => array('core', 'popup', 'json', 'finder'),
 	));
 }
 
@@ -250,7 +255,7 @@ CJSCore::RegisterExt('videorecorder', array(
 	'js' => '/bitrix/js/socialnetwork/video_recorder.js',
 	'css' => [
 		'/bitrix/js/intranet/intranet-common.css',
-		'/bitrix/js/socialnetwork/css/video_recorder.css'
+		'/bitrix/js/socialnetwork/css/video_recorder.css',
 	],
 	'lang_additional' => array(
 		'BLOG_VIDEO_RECORD_BUTTON' => GetMessage('BLOG_VIDEO_RECORD_BUTTON'),
@@ -294,7 +299,7 @@ CJSCore::RegisterExt('content_view', array(
 	'lang_additional' => array(
 		'SONET_CONTENTVIEW_JS_HIDDEN_COUNT' => GetMessage("SONET_CONTENTVIEW_JS_HIDDEN_COUNT"),
 	),
-	'rel' => ['ui.design-tokens', 'ajax', 'popup', 'main.polyfill.intersectionobserver' ]
+	'rel' => ['ui.design-tokens', 'ajax', 'popup', 'main.polyfill.intersectionobserver' ],
 ));
 
 $arLogEvents = array(
@@ -312,35 +317,35 @@ $arLogEvents = array(
 				"TITLE_SETTINGS" => GetMessage("SOCNET_LOG_SYSTEM_USER_SETTINGS"),
 				"TITLE_SETTINGS_1" => GetMessage("SOCNET_LOG_SYSTEM_USER_SETTINGS_1"),
 				"TITLE_SETTINGS_2" => GetMessage("SOCNET_LOG_SYSTEM_USER_SETTINGS_2"),
-				"OPERATION" => "viewprofile"
-			)
+				"OPERATION" => "viewprofile",
+			),
 		),
 		"FULL_SET" => array("system", "system_friends", "system_groups"),
 		"CLASS_FORMAT"	=> "CSocNetLogTools",
-		"METHOD_FORMAT" => "FormatEvent_System"
+		"METHOD_FORMAT" => "FormatEvent_System",
 	),
 	"system_groups" => array(
 		"ENTITIES" => array(
 			SONET_SUBSCRIBE_ENTITY_USER => array(
 				"TITLE" => GetMessage("SOCNET_LOG_SYSTEM_GROUPS_USER"),
-				"OPERATION" => "viewgroups"
-			)
+				"OPERATION" => "viewgroups",
+			),
 		),
 		"HIDDEN" => true,
 		"CLASS_FORMAT" => "CSocNetLogTools",
-		"METHOD_FORMAT" => "FormatEvent_SystemGroups"
+		"METHOD_FORMAT" => "FormatEvent_SystemGroups",
 	),
 	"system_friends" =>  array(
 		"ENTITIES" => array(
 			SONET_SUBSCRIBE_ENTITY_USER => array(
 				"TITLE" => GetMessage("SOCNET_LOG_SYSTEM_FRIENDS_USER"),
-				"OPERATION" => "viewfriends"
-			)
+				"OPERATION" => "viewfriends",
+			),
 		),
 		"HIDDEN" => true,
 		"CLASS_FORMAT" => "CSocNetLogTools",
-		"METHOD_FORMAT" => "FormatEvent_SystemFriends"
-	)
+		"METHOD_FORMAT" => "FormatEvent_SystemFriends",
+	),
 );
 
 foreach ($arLogEvents as $eventCode => $arLogEventTmp)
@@ -365,7 +370,7 @@ $arSocNetUserEvents = array(
 	"SONET_INVITE_FRIEND",
 	"SONET_INVITE_GROUP",
 	"SONET_AGREE_FRIEND",
-	"SONET_BAN_FRIEND"
+	"SONET_BAN_FRIEND",
 );
 
 if (!CBXFeatures::IsFeatureEnabled("WebMessenger"))
@@ -393,5 +398,15 @@ class CSocNetUpdater
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/updtr".$version.".php");
 	}
 }
+
+$eventManager = EventManager::getInstance();
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnGroupLoaded',
+	static function(GroupLoadedEvent $event): void {
+		GroupProvider::getInstance()->onObjectLoaded($event);
+	}
+)
 
 ?>

@@ -2,6 +2,7 @@
 
 use Bitrix\Bizproc;
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Main\Loader;
 
 class CBPDocumentService extends CBPRuntimeService
 {
@@ -1327,6 +1328,23 @@ EOS;
 		return null;
 	}
 
+	public function getDocumentCategoryId(array $parameterDocumentId): ?int
+	{
+		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
+
+		if ($moduleId)
+		{
+			CModule::IncludeModule($moduleId);
+		}
+
+		if (class_exists($entity) && method_exists($entity, 'getDocumentCategoryId'))
+		{
+			return call_user_func_array([$entity, 'getDocumentCategoryId'], [$documentId]);
+		}
+
+		return null;
+	}
+
 	public function getDocumentTypeName($parameterDocumentType)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
@@ -1593,6 +1611,54 @@ EOS;
 			return call_user_func_array(array($entity, "onWorkflowStatusChange"), array($documentId, $workflowId, $status, $rootActivity));
 
 		return false;
+	}
+
+	public function onWorkflowCommentAdded($parameterDocumentId, string $workflowId, int $authorId): void
+	{
+		$documentId = CBPHelper::parseDocumentId($parameterDocumentId);
+		[$moduleId, $entity] = $documentId;
+
+		if ($moduleId)
+		{
+			Loader::includeModule($moduleId);
+		}
+
+		if (class_exists($entity) && method_exists($entity, "onWorkflowCommentAdded"))
+		{
+			call_user_func_array([$entity, "onWorkflowCommentAdded"], [$documentId, $workflowId, $authorId]);
+		}
+	}
+
+	public function onWorkflowCommentDeleted($parameterDocumentId, string $workflowId, int $authorId): void
+	{
+		$documentId = CBPHelper::parseDocumentId($parameterDocumentId);
+		[$moduleId, $entity] = $documentId;
+
+		if ($moduleId)
+		{
+			Loader::includeModule($moduleId);
+		}
+
+		if (class_exists($entity) && method_exists($entity, "onWorkflowCommentDeleted"))
+		{
+			call_user_func_array([$entity, "onWorkflowCommentDeleted"], [$documentId, $workflowId, $authorId]);
+		}
+	}
+
+	public function onWorkflowAllCommentViewed($parameterDocumentId, string $workflowId, int $authorId): void
+	{
+		$documentId = CBPHelper::parseDocumentId($parameterDocumentId);
+		[$moduleId, $entity] = $documentId;
+
+		if ($moduleId)
+		{
+			Loader::includeModule($moduleId);
+		}
+
+		if (class_exists($entity) && method_exists($entity, "onWorkflowAllCommentViewed"))
+		{
+			call_user_func_array([$entity, "onWorkflowAllCommentViewed"], [$documentId, $workflowId, $authorId]);
+		}
 	}
 
 	public function onDebugSessionDocumentStatusChanged(array $parameterDocumentId, int $userId, string $status)

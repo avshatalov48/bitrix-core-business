@@ -94,8 +94,9 @@
 		 *     controlId: string,
 		 * }>} controlsData
 		 * @param {'public' | 'designer' | ''} renderMode
+		 * @param {Object} context
 		 */
-		renderControlCollection: function(documentType, controlsData, renderMode)
+		renderControlCollection: function(documentType, controlsData, renderMode, context = {})
 		{
 			let renderedControls = {};
 			if (BX.Type.isArrayFilled(controlsData))
@@ -119,11 +120,12 @@
 					const controls = this.renderControlCollectionInner(documentType, controlsChunk, renderMode);
 					renderedControls = { ...renderedControls, ...controls.rendered };
 
-					promises.push(
+					const promise = new Promise((resolve, reject) => {
 						BX.ajax.runAction(
 							'bizproc.fieldtype.renderControlCollection',
 							{
 								json: {
+									context,
 									documentType,
 									controlsData: controls.toLoad.map((toLoad) => ({
 										property: toLoad.data.property,
@@ -136,51 +138,79 @@
 									})),
 								},
 							},
-						).then((response) => {
-							const rendered = response.data?.html;
+						)
+							.then(this.renderControlForCollection.bind(this, controls, isPublicMode))
+							.then(resolve)
+							.catch((response) => {
+								if (BX.Type.isArrayFilled(response.errors))
+								{
+									const error = response.errors[0];
+									if (BX.Type.isStringFilled(error.message))
+									{
+										BX.UI.Dialogs.MessageBox.alert(error.message);
+									}
 
-							if (BX.Type.isArray(rendered))
-							{
-								rendered.forEach((renderedControl, controlId) => {
-									const controlNode = controls.toLoad[controlId].node;
+									if (BX.Type.isPlainObject(error.customData) && BX.Type.isStringFilled(error.customData.reason))
+									{
+										console.error(error.customData.reason);
+									}
+								}
 
-									BX.Dom.clean(controlNode);
-									BX.Runtime.html(controlNode, renderedControl).then(() => {
-										if (isPublicMode)
-										{
-											this.initControl(controlNode, controls.toLoad[controlId].data.property);
-										}
-										else if (!BX.Type.isNil(BX.Bizproc.Selector))
-										{
-											BX.Bizproc.Selector.initSelectors(controlNode);
-										}
-									});
-								});
-							}
-						}).catch((response) => {
-							if (!BX.Type.isArrayFilled(response.errors))
-							{
-								return;
-							}
+								reject();
+							});
+					});
 
-							const error = response.errors[0];
-							if (BX.Type.isStringFilled(error.message))
-							{
-								BX.UI.Dialogs.MessageBox.alert(error.message);
-							}
-
-							if (BX.Type.isPlainObject(error.customData) && BX.Type.isStringFilled(error.customData.reason))
-							{
-								console.error(error.customData.reason);
-							}
-						}),
-					);
+					promises.push(promise);
 				}
 
-				Promise.all(promises).catch(() => {});
+				Promise.all(promises)
+					.catch(() => {})
+					.finally(() => {
+						BX.Event.EventEmitter.emit('BX.Bizproc.FieldType.onCollectionRenderControlFinished');
+					})
+				;
 			}
 
 			return renderedControls;
+		},
+
+		/** @private */
+		renderControlForCollection(controls, isPublicMode, response)
+		{
+			const rendered = response.data?.html;
+
+			if (!BX.Type.isArrayFilled(rendered))
+			{
+				return Promise.resolve();
+			}
+
+			const promises = [];
+
+			rendered.forEach((renderedControl, controlId) => {
+				const controlNode = controls.toLoad[controlId].node;
+
+				BX.Dom.clean(controlNode);
+				const runtimePromise = BX.Runtime.html(controlNode, renderedControl);
+				if (!BX.Type.isString(runtimePromise))
+				{
+					promises.push(runtimePromise);
+					runtimePromise
+						.then(() => {
+							if (isPublicMode)
+							{
+								this.initControl(controlNode, controls.toLoad[controlId].data.property);
+							}
+							else if (!BX.Type.isNil(BX.Bizproc.Selector))
+							{
+								BX.Bizproc.Selector.initSelectors(controlNode);
+							}
+						})
+						.catch(() => {})
+					;
+				}
+			});
+
+			return Promise.all(promises);
 		},
 
 		/**
@@ -315,10 +345,12 @@
 					(response) => {
 						BX.Runtime.html(node, response.data.html).then(() => {
 							this.initControl(node, property);
+							BX.Event.EventEmitter.emit('BX.Bizproc.FieldType.onCustomRenderControlFinished', { fieldName });
 						});
 					},
 					(response) => {
 						BX.UI.Dialogs.MessageBox.alert(response.errors[0].message);
+						BX.Event.EventEmitter.emit('BX.Bizproc.FieldType.onCustomRenderControlFinished', { fieldName });
 					});
 			}
 
@@ -500,8 +532,9 @@
 		 */
 		getRenderFunctionName: function(property)
 		{
-			var renderer;
-			switch (property['Type'])
+			let renderer = null;
+
+			switch (property.Type)
 			{
 				case 'B':
 				case 'bool':
@@ -519,7 +552,6 @@
 
 				case 'L':
 				case 'select':
-				case 'internalselect':
 					renderer = 'createSelectNode';
 					break;
 
@@ -548,6 +580,7 @@
 					renderer = 'createTimeNode';
 					break;
 			}
+
 			return renderer;
 		},
 		wrapMultipleControls: function(property, fieldName, controls)

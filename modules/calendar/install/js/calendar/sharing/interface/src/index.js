@@ -2,6 +2,8 @@ import Interface from './interface';
 import SharingButton from './controls/sharingbutton';
 import DialogNew from './controls/dialog-new';
 import DialogQr from './controls/dialog-qr.js';
+import GroupSharing from './controls/group-sharing/groupsharing';
+import GroupSharingController from './controls/group-sharing/groupsharingcontroller';
 import { Layout } from './controls/layout';
 import { RuleModel, RangeModel, SettingsModel } from './model/index';
 
@@ -20,6 +22,8 @@ export {
 	RuleModel,
 	RangeModel,
 	SettingsModel,
+	GroupSharing,
+	GroupSharingController,
 };
 
 import type { User, Context, CalendarSettings } from './model/index';

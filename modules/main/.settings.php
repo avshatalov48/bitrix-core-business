@@ -26,4 +26,11 @@ return [
 		],
 		'readonly' => true,
 	],
+	'services' => [
+		'value' => [
+			'main.validation.service' => [
+				'className' => \Bitrix\Main\Validation\ValidationService::class,
+			],
+		],
+	],
 ];

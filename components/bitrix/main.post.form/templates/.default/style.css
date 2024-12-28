@@ -138,6 +138,10 @@
 	margin: 7px auto 0 9px;
 }
 
+.bxhtmled-more-cnt .bxhtmled-top-bar-color .bxhtmled-top-bar-btn-text {
+	margin: 7px auto 0 9px !important;
+}
+
 .bxhtmled-popup .bxhtmled-top-bar-select,
 .feed-add-post-text .bx-html-editor .bxhtmled-top-bar-select {
 	font-size: 14px;

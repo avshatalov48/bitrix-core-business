@@ -20,8 +20,8 @@ export const ForwardContent = {
 	components: { ChatSearch, ChatSearchInput },
 	props:
 	{
-		messageId: {
-			type: [Number, String],
+		messagesIds: {
+			type: Array,
 			required: true,
 		},
 	},
@@ -51,11 +51,15 @@ export const ForwardContent = {
 		{
 			const { dialogId } = event;
 
+			EventEmitter.emit(EventType.dialog.closeBulkActionsMode);
+
 			await Messenger.openChat(dialogId);
+
 			EventEmitter.emit(EventType.textarea.insertForward, {
-				messageId: this.messageId,
-				dialogId
+				messagesIds: this.messagesIds,
+				dialogId,
 			});
+
 			this.$emit('close');
 		},
 	},

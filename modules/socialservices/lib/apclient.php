@@ -6,14 +6,12 @@ use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
 
 class ApClient
 {
-	const SERVER_ENCODING = 'utf-8';
 	const ERROR_WRONG_ANSWER = 'WRONG_ANWSER';
 
 	const METHOD_BATCH = 'batch';
@@ -155,10 +153,6 @@ class ApClient
 		if(!is_array($additionalParams))
 		{
 			$additionalParams = array();
-		}
-		else
-		{
-			$additionalParams = Encoding::convertEncoding($additionalParams, LANG_CHARSET, static::SERVER_ENCODING);
 		}
 
 		return $additionalParams;

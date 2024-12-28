@@ -20,6 +20,14 @@ if (!empty($siteId))
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
+global $USER;
+
+if (!$USER->IsAuthorized())
+{
+	echo Json::encode(Array('ERROR' => 'ACCESS_ERROR'));
+	CMain::FinalActions();
+}
+
 if (
 	!CModule::IncludeModule("socialnetwork")
 	|| IsModuleInstalled("b24network")
@@ -31,6 +39,12 @@ if (
 
 if (check_bitrix_sessid())
 {
+	if (CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser())
+	{
+		echo Json::encode(Array('ERROR' => 'EXTRANET_USER'));
+		CMain::FinalActions();
+	}
+
 	if (
 		isset($_POST["nt"])
 		&& !empty($_POST["nt"])

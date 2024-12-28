@@ -112,17 +112,22 @@ class ICalMailEventManager
 		$events = EventTable::getList([
 			'select' => ['ID', 'OWNER_ID'],
 			'filter' => [
-				'PARENT_ID' => $calendarEventId,
-				'!ID' => $calendarEventId,
+				'=PARENT_ID' => $calendarEventId,
+				'!=ID' => $calendarEventId,
 			],
 		])->fetchAll();
+
+		if (empty($events))
+		{
+			return;
+		}
 
 		$entityValues = array_map(static fn($event) => (int)$event['ID'], $events);
 
 		$messageAccessCollection = MessageAccessTable::getList([
 			'select' => ['MESSAGE_ID', 'ENTITY_ID'],
 			'filter' => [
-				'ENTITY_TYPE' => MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT,
+				'=ENTITY_TYPE' => MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT,
 				'ENTITY_ID' => $entityValues,
 			],
 		])->fetchAll();
@@ -138,7 +143,7 @@ class ICalMailEventManager
 		}
 
 		MessageAccessTable::deleteByFilter([
-			'ENTITY_TYPE' => MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT,
+			'=ENTITY_TYPE' => MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT,
 			'ENTITY_ID' => $entityValues,
 		]);
 

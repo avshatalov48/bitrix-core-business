@@ -1,4 +1,4 @@
-import { Text, Type } from 'main.core';
+import { Type } from 'main.core';
 import type { FacesData, WorkflowFacesData } from '../types/workflow-faces';
 
 export function workflowFacesDataValidator(data: WorkflowFacesData): boolean
@@ -18,7 +18,7 @@ export function workflowFacesDataValidator(data: WorkflowFacesData): boolean
 		return false;
 	}
 
-	if (!Type.isInteger(data.targetUserId) || data.targetUserId <= 0)
+	if (!Type.isNil(data.targetUserId) && (!Type.isInteger(data.targetUserId) || data.targetUserId <= 0))
 	{
 		return false;
 	}
@@ -33,43 +33,27 @@ export function validateFacesData(data: FacesData): boolean
 		return false;
 	}
 
-	// avatars
-	const avatars = data.avatars;
-	if (
-		!Type.isPlainObject(avatars)
-		|| !Type.isArrayFilled(avatars.author)
-		|| !Type.isArray(avatars.running)
-		|| !Type.isArray(avatars.completed)
-		|| !Type.isArray(avatars.done)
-	)
+	if (!Type.isArrayFilled(data.steps))
 	{
 		return false;
 	}
 
-	// statuses
-	const statuses = data.statuses;
-	if (!Type.isPlainObject(statuses))
+	for (const step of data.steps)
 	{
-		return false;
-	}
+		if (!Type.isStringFilled(step.id) || !Type.isString(step.name) || !Type.isArray(step.avatars))
+		{
+			return false;
+		}
 
-	// time
-	const time = data.time;
-	if (
-		!Type.isPlainObject(time)
-		|| !timeValidator(time.author)
-		|| !timeValidator(time.running)
-		|| !timeValidator(time.completed)
-		|| !timeValidator(time.done)
-		|| !timeValidator(time.total)
-	)
-	{
-		return false;
+		const duration = step.duration;
+		if (
+			!Type.isString(duration)
+			&& (!Type.isNumber(duration) || duration < 0)
+		)
+		{
+			return false;
+		}
 	}
 
 	return true;
 }
-
-const timeValidator = (time) => {
-	return (Type.isNull(time) || time === 0 || Text.toInteger(time) > 0);
-};

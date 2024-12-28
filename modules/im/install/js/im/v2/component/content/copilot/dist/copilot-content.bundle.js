@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_logger,im_v2_lib_analytics,ui_notification,main_core_events,im_v2_lib_promo,im_v2_component_content_elements,main_popup,im_v2_component_textarea,im_v2_lib_draft,im_v2_component_dialog_chat,main_core,im_v2_component_messageList,im_v2_lib_copilot,im_public,im_v2_component_elements,im_v2_const,im_v2_lib_theme,im_v2_provider_service) {
+(function (exports,im_v2_lib_logger,ui_notification,main_core_events,im_v2_component_content_elements,im_v2_component_entitySelector,im_v2_lib_promo,im_v2_lib_analytics,main_popup,im_v2_component_textarea,im_v2_lib_draft,im_v2_component_dialog_chat,main_core,im_v2_component_messageList,im_v2_lib_copilot,im_public,im_v2_component_elements,im_v2_const,im_v2_lib_theme,im_v2_provider_service) {
 	'use strict';
 
 	const POPUP_ID = 'im-add-to-chat-hint-popup';
@@ -64,13 +64,84 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	// @vue/component
+	const AddToChatButton = {
+	  name: 'AddToChatButton',
+	  components: {
+	    AddToChat: im_v2_component_entitySelector.AddToChat,
+	    AddToChatHint
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  data() {
+	    return {
+	      showInviteButton: false,
+	      showAddToChatPopup: false,
+	      showAddToChatHint: false
+	    };
+	  },
+	  mounted() {
+	    this.showAddToChatHint = im_v2_lib_promo.PromoManager.getInstance().needToShow(im_v2_const.PromoId.addUsersToCopilotChat);
+	  },
+	  methods: {
+	    openAddToChatPopup() {
+	      im_v2_lib_analytics.Analytics.getInstance().userAdd.onChatHeaderClick(this.dialogId);
+	      this.showAddToChatPopup = true;
+	    },
+	    closeAddToChatPopup() {
+	      this.showAddToChatPopup = false;
+	    },
+	    showHint() {
+	      this.showAddToChatHint = true;
+	    },
+	    closeHint() {
+	      this.showAddToChatHint = false;
+	    },
+	    onHintHide() {
+	      void im_v2_lib_promo.PromoManager.getInstance().markAsWatched(im_v2_const.PromoId.addUsersToCopilotChat);
+	      this.closeHint();
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div
+			:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_INVITE_POPUP_TITLE')"
+			:class="{'--active': showAddToChatPopup}"
+			class="bx-im-chat-header__icon --add-people"
+			@click="openAddToChatPopup"
+			ref="add-members"
+		>
+			<slot name="invite-hint" :inviteButtonRef="$refs['add-members']"></slot>
+		</div>
+		<AddToChat
+			v-if="showAddToChatPopup"
+			:bindElement="$refs['add-members'] ?? {}"
+			:dialogId="dialogId"
+			:popupConfig="{ offsetTop: 15, offsetLeft: -300 }"
+			@close="closeAddToChatPopup"
+		/>
+		<AddToChatHint
+			v-if="showAddToChatHint"
+			:bindElement="$refs['add-members'] ?? {}"
+			@close="closeHint"
+			@hide="onHintHide"
+		/>
+	`
+	};
+
+	// @vue/component
 	const CopilotChatHeader = {
 	  name: 'CopilotChatHeader',
 	  components: {
 	    ChatHeader: im_v2_component_content_elements.ChatHeader,
 	    EditableChatTitle: im_v2_component_elements.EditableChatTitle,
 	    ChatAvatar: im_v2_component_elements.ChatAvatar,
-	    AddToChatHint
+	    AddToChatButton
 	  },
 	  inject: ['currentSidebarPanel'],
 	  props: {
@@ -81,8 +152,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  data() {
 	    return {
-	      showAddToChatPopup: false,
-	      showAddToChatHint: false
+	      buttonPanelReady: false
 	    };
 	  },
 	  computed: {
@@ -115,10 +185,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        });
 	      });
 	    },
-	    onHintHide() {
-	      void im_v2_lib_promo.PromoManager.getInstance().markAsWatched(im_v2_const.PromoId.addUsersToCopilotChat);
-	      this.showAddToChatHint = false;
-	    },
 	    onMembersClick() {
 	      if (!this.isInited) {
 	        return;
@@ -134,8 +200,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        dialogId: this.dialogId
 	      });
 	    },
-	    handleAddToChatHint() {
-	      this.showAddToChatHint = im_v2_lib_promo.PromoManager.getInstance().needToShow(im_v2_const.PromoId.addUsersToCopilotChat);
+	    onButtonPanelReady() {
+	      this.buttonPanelReady = true;
 	    },
 	    getChatService() {
 	      if (!this.chatService) {
@@ -152,7 +218,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			:dialogId="dialogId"
 			:withSearchButton="false"
 			class="bx-im-copilot-header__container"
-			@buttonPanelReady="handleAddToChatHint"
+			@buttonPanelReady="onButtonPanelReady"
 		>
 			<template #left>
 				<div class="bx-im-copilot-header__avatar">
@@ -178,13 +244,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					</div>
 				</div>
 			</template>
-			<template #invite-hint="{ inviteButtonRef }">
-				<AddToChatHint
-					v-if="showAddToChatHint"
-					:bindElement="inviteButtonRef"
-					@close="showAddToChatHint = false"
-					@hide="onHintHide"
-				/>
+			<template v-if="buttonPanelReady" #add-to-chat-button>
+				<AddToChatButton :dialogId="dialogId" />
 			</template>
 		</ChatHeader>
 	`
@@ -230,7 +291,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	});
 	class CopilotMessageMenu extends im_v2_component_messageList.MessageMenu {
 	  getMenuItems() {
-	    return [this.getCopyItem(), this.getFavoriteItem(), this.getForwardItem(), this.getSendFeedbackItem(), this.getDeleteItem()];
+	    return [this.getCopyItem(), this.getFavoriteItem(), this.getForwardItem(), this.getSendFeedbackItem(), this.getDeleteItem(), this.getSelectItem()];
 	  }
 	  getSendFeedbackItem() {
 	    const copilotManager = new im_v2_lib_copilot.CopilotManager();
@@ -572,5 +633,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.CopilotContent = CopilotContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Content,BX.Main,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Dialog,BX,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Dialog,BX,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Service));
 //# sourceMappingURL=copilot-content.bundle.js.map

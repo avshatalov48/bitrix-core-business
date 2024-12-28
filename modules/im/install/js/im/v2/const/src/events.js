@@ -5,6 +5,9 @@ export const EventType = Object.freeze({
 		onOpenChat: 'IM.Layout:onOpenChat',
 		onOpenNotifications: 'IM.Layout:onOpenNotifications',
 	},
+	header: {
+		openAddToChatPopup: 'IM.Header:openAddToChatPopup',
+	},
 	dialog:
 	{
 		onDialogInited: 'IM.Dialog:onDialogInited',
@@ -21,6 +24,8 @@ export const EventType = Object.freeze({
 		showLoadingBar: 'IM.Dialog:showLoadingBar',
 		hideLoadingBar: 'IM.Dialog:hideLoadingBar',
 		showQuoteButton: 'IM.Dialog:showQuoteButton',
+		openBulkActionsMode: 'IM.Dialog:openBulkActionsMode',
+		closeBulkActionsMode: 'IM.Dialog:closeBulkActionsMode',
 
 		errors: {
 			accessDenied: 'IM.Dialog.errors:accessDenied',
@@ -30,6 +35,7 @@ export const EventType = Object.freeze({
 	{
 		editMessage: 'IM.Textarea:editMessage',
 		replyMessage: 'IM.Textarea:replyMessage',
+		forwardEntity: 'IM.Textarea:forwardEntity',
 		insertText: 'IM.Textarea:insertText',
 		insertMention: 'IM.Textarea:insertMention',
 		insertForward: 'IM.Textarea:insertForward',
@@ -45,6 +51,7 @@ export const EventType = Object.freeze({
 	{
 		onFold: 'CallController::onFold',
 		onViewStateChanged: 'IM.Call:onViewStateChanged',
+		onJoinFromRecentItem: 'IM.Call:onJoinFromRecentItem',
 	},
 	search:
 	{

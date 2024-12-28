@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_provider_service,im_v2_lib_menu,im_v2_lib_draft,main_date,im_v2_lib_parser,im_v2_lib_dateFormatter,im_v2_lib_channel,im_public,im_v2_lib_call,im_v2_lib_analytics,im_v2_lib_createChat,im_v2_component_elements,main_core,im_v2_lib_utils,main_core_events,im_v2_application_core,im_v2_const) {
+(function (exports,im_v2_provider_service,im_v2_lib_menu,im_v2_lib_draft,main_date,im_v2_lib_parser,im_v2_lib_dateFormatter,im_v2_lib_channel,im_public,im_v2_lib_call,call_lib_analytics,im_v2_lib_createChat,im_v2_component_elements,main_core,im_v2_lib_utils,main_core_events,im_v2_application_core,im_v2_const) {
 	'use strict';
 
 	const HiddenTitleByChatType = {
@@ -15,16 +15,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	// @vue/component
 	const MessageText = {
+	  name: 'MessageText',
+	  components: {
+	    MessageAvatar: im_v2_component_elements.MessageAvatar
+	  },
 	  props: {
 	    item: {
 	      type: Object,
 	      required: true
 	    }
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
+	    AvatarSize: () => im_v2_component_elements.AvatarSize,
 	    recentItem() {
 	      return this.item;
 	    },
@@ -55,18 +57,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isLastMessageAuthor() {
 	      return this.message.authorId === im_v2_application_core.Core.getUserId();
-	    },
-	    lastMessageAuthorAvatar() {
-	      const authorDialog = this.$store.getters['chats/get'](this.message.authorId);
-	      if (!authorDialog) {
-	        return '';
-	      }
-	      return authorDialog.avatar;
-	    },
-	    lastMessageAuthorAvatarStyle() {
-	      return {
-	        backgroundImage: `url('${this.lastMessageAuthorAvatar}')`
-	      };
 	    },
 	    messageText() {
 	      if (this.message.isDeleted) {
@@ -120,7 +110,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div v-else-if="recentItem.invitation.isActive" class="bx-im-list-recent-item__balloon_container --invitation">
 					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_INVITATION_NOT_ACCEPTED_MSGVER_1') }}</div>
 				</div>
-				<div v-else-if="needsBirthdayPlaceholder" class="bx-im-list-recent-item__balloon_container --birthday">
+				<div v-else-if="needsBirthdayPlaceholder" class="bx-im-list-recent-item__balloon_container --birthday" :title="loc('IM_LIST_RECENT_BIRTHDAY')">
 					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_BIRTHDAY') }}</div>
 				</div>
 				<div v-else-if="needsVacationPlaceholder" class="bx-im-list-recent-item__balloon_container --vacation">
@@ -132,11 +122,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					{{ hiddenMessageText }}
 				</template>
 				<template v-else>
-					<span v-if="isLastMessageAuthor" class="bx-im-list-recent-item__message_author-icon --self"></span>
-					<template v-else-if="isChat && message.authorId">
-						<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-list-recent-item__message_author-icon --user"></span>
-						<span v-else class="bx-im-list-recent-item__message_author-icon --user --default"></span>
-					</template>
+					<span v-if="isLastMessageAuthor" class="bx-im-list-recent-item__self_author-icon"></span>
+					<MessageAvatar
+						v-else-if="isChat && message.authorId"
+						:messageId="message.id"
+						:authorId="message.authorId"
+						:size="AvatarSize.XXS"
+						class="bx-im-list-recent-item__author-avatar"
+					/>
 					<span class="bx-im-list-recent-item__message_text_content">{{ formattedMessageText }}</span>
 				</template>
 			</span>
@@ -156,9 +149,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Boolean,
 	      required: true
 	    }
-	  },
-	  data() {
-	    return {};
 	  },
 	  computed: {
 	    recentItem() {
@@ -189,7 +179,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.formatCounter(this.totalCounter);
 	    },
 	    showCounterContainer() {
-	      return !this.needsBirthdayPlaceholder && !this.invitation.isActive;
+	      return !this.invitation.isActive;
 	    },
 	    showPinnedIcon() {
 	      const noCounters = this.totalCounter === 0;
@@ -203,9 +193,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    showCounter() {
 	      return !this.recentItem.unread && this.totalCounter > 0 && !this.isSelfChat;
-	    },
-	    needsBirthdayPlaceholder() {
-	      return this.$store.getters['recent/needsBirthdayPlaceholder'](this.recentItem.dialogId);
 	    },
 	    containerClasses() {
 	      const commentsOnly = this.dialog.counter === 0 && this.channelCommentsCounter > 0;
@@ -304,7 +291,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isBot() {
 	      if (this.isUser) {
-	        return this.user.bot;
+	        return this.user.type === im_v2_const.UserType.bot;
 	      }
 	      return false;
 	    },
@@ -375,7 +362,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return im_v2_lib_channel.ChannelManager.isChannel(this.recentItem.dialogId);
 	    },
 	    isChatSelected() {
-	      const canBeSelected = [im_v2_const.Layout.chat.name, im_v2_const.Layout.updateChat.name];
+	      const canBeSelected = [im_v2_const.Layout.chat.name, im_v2_const.Layout.updateChat.name, im_v2_const.Layout.collab.name];
 	      if (!canBeSelected.includes(this.layout.name)) {
 	        return false;
 	      }
@@ -505,8 +492,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    onJoinClick() {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.call.onJoinFromRecentItem);
 	      if (this.isConference) {
-	        im_v2_lib_analytics.Analytics.getInstance().onJoinConferenceClick({
+	        call_lib_analytics.Analytics.getInstance().onJoinConferenceClick({
 	          callId: this.activeCall.call.id
 	        });
 	        im_public.Messenger.openConference({
@@ -593,6 +581,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	// @vue/component
 	const CreateChat = {
+	  name: 'CreateChat',
+	  components: {
+	    EmptyAvatar: im_v2_component_elements.EmptyAvatar
+	  },
 	  data() {
 	    return {
 	      chatTitle: '',
@@ -601,6 +593,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  },
 	  computed: {
+	    AvatarSize: () => im_v2_component_elements.AvatarSize,
 	    chatCreationIsOpened() {
 	      const {
 	        name: currentLayoutName
@@ -622,8 +615,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      return URL.createObjectURL(this.chatAvatarFile);
 	    },
-	    isSpecialType() {
-	      return this.chatType !== im_v2_const.ChatType.chat;
+	    avatarType() {
+	      if (this.chatType === im_v2_const.ChatType.collab) {
+	        return im_v2_component_elements.EmptyAvatarType.collab;
+	      }
+	      if (this.chatType === im_v2_const.ChatType.chat) {
+	        return im_v2_component_elements.EmptyAvatarType.default;
+	      }
+	      return im_v2_component_elements.EmptyAvatarType.squared;
 	    }
 	  },
 	  created() {
@@ -668,13 +667,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div class="bx-im-list-recent-create-chat__container">
 			<div class="bx-im-list-recent-item__wrap" :class="{'--selected': chatCreationIsOpened}" @click="onClick">
 				<div class="bx-im-list-recent-item__container">
-					<div class="bx-im-list-recent-item__avatar_container" :class="{'--squared': isSpecialType}">
-						<div v-if="!preparedAvatar" class="bx-im-list-recent-create-chat__avatar --default"></div>
-						<img v-else class="bx-im-list-recent-create-chat__avatar --image" :src="preparedAvatar" :alt="chatTitle" />
+					<div class="bx-im-list-recent-create-chat__avatar-container">
+						<EmptyAvatar 
+							:url="preparedAvatar" 
+							:size="AvatarSize.XL"
+							:title="chatTitle"
+							:type="avatarType"
+						/>
 					</div>
 					<div class="bx-im-list-recent-item__content_container">
 						<div class="bx-im-list-recent-item__content_header">
-							<div class="bx-im-list-recent-create-chat__header">
+							<div class="bx-im-list-recent-create-chat__header --ellipsis">
 								{{ preparedTitle }}
 							</div>
 						</div>
@@ -983,7 +986,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					@click="onCallClick"
 				/>
 			</div>
-			<CreateChat v-if="isCreatingChat"></CreateChat>
+			<CreateChat v-if="isCreatingChat" />
 			<LoadingState v-if="isLoading && !firstPageLoaded" />
 			<div v-else @scroll="onScroll" class="bx-im-list-recent__scroll-container">
 				<EmptyState v-if="isEmptyCollection" />
@@ -1012,6 +1015,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	exports.RecentList = RecentList;
+	exports.RecentItem = RecentItem;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Call.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
 //# sourceMappingURL=recent-list.bundle.js.map

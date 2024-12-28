@@ -1,3 +1,4 @@
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
 import { EventEmitter } from 'main.core.events';
 
 import { EventType, GetParameter, Layout } from 'im.v2.const';
@@ -9,6 +10,9 @@ import { PhoneManager } from 'im.v2.lib.phone';
 import { Utils } from 'im.v2.lib.utils';
 import { MessengerSlider } from 'im.v2.lib.slider';
 import { LinesService } from 'im.v2.provider.service';
+
+import type { ForwardedEntityConfig } from 'im.v2.provider.service';
+import type { CreatableChatType } from 'im.v2.component.content.chat-forms.forms';
 
 export const Opener = {
 	async openChat(dialogId: string | number = '', messageId: number = 0): Promise
@@ -34,6 +38,21 @@ export const Opener = {
 		return Promise.resolve();
 	},
 
+	async forwardEntityToChat(dialogId: string, entityConfig: ForwardedEntityConfig): Promise
+	{
+		const preparedDialogId = dialogId.toString();
+		await MessengerSlider.getInstance().openSlider();
+		const layoutParams = {
+			name: Layout.chat.name,
+			entityId: preparedDialogId,
+		};
+		await LayoutManager.getInstance().setLayout(layoutParams);
+		EventEmitter.emit(EventType.layout.onOpenChat, { dialogId: preparedDialogId });
+		EventEmitter.emit(EventType.textarea.forwardEntity, { dialogId, entityConfig });
+
+		return Promise.resolve();
+	},
+
 	async openLines(dialogId: string = ''): Promise
 	{
 		let preparedDialogId = dialogId.toString();
@@ -45,8 +64,10 @@ export const Opener = {
 
 		await MessengerSlider.getInstance().openSlider();
 
+		const optionOpenLinesV2Activated = FeatureManager.isFeatureAvailable(Feature.openLinesV2);
+
 		return LayoutManager.getInstance().setLayout({
-			name: Layout.openlines.name,
+			name: optionOpenLinesV2Activated ? Layout.openlinesV2.name : Layout.openlines.name,
 			entityId: preparedDialogId,
 		});
 	},
@@ -61,6 +82,18 @@ export const Opener = {
 			name: Layout.copilot.name,
 			entityId: preparedDialogId,
 			contextId,
+		});
+	},
+
+	async openCollab(dialogId: string = ''): Promise
+	{
+		const preparedDialogId = dialogId.toString();
+
+		await MessengerSlider.getInstance().openSlider();
+
+		return LayoutManager.getInstance().setLayout({
+			name: Layout.collab.name,
+			entityId: preparedDialogId,
 		});
 	},
 
@@ -137,6 +170,19 @@ export const Opener = {
 		Utils.browser.openLink(url, Utils.conference.getWindowNameByCode(code));
 
 		return Promise.resolve();
+	},
+
+	async openChatCreation(chatType: CreatableChatType): Promise
+	{
+		Logger.warn('Slider: openChatCreation', chatType);
+
+		await MessengerSlider.getInstance().openSlider();
+		const layoutParams = {
+			name: Layout.createChat.name,
+			entityId: chatType,
+		};
+
+		return LayoutManager.getInstance().setLayout(layoutParams);
 	},
 
 	startVideoCall(dialogId: string = '', withVideo: boolean = true): Promise

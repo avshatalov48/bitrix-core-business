@@ -1,5 +1,5 @@
 import { BitrixVue, VueCreateAppResult } from 'ui.vue3';
-import { Type, Runtime, Loc, Event } from 'main.core';
+import { Type, Runtime, Event as CoreEvent, Dom } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 import { Loader } from 'main.loader';
 
@@ -19,7 +19,6 @@ export class Engine
 	#data: ?{};
 	#error: ?string;
 
-	#fetchable: boolean = false;
 	#clickable: boolean = false;
 
 	#application: VueCreateAppResult;
@@ -34,7 +33,6 @@ export class Engine
 		this.#data = Type.isObject(options.data) ? options.data : null;
 		this.#error = Type.isString(options.error) ? options.error : null;
 
-		this.#fetchable = Type.isBoolean(options.fetchable) ? options.fetchable : false;
 		this.#clickable = Type.isBoolean(options.clickable) ? options.clickable : false;
 
 		this.#contentComponent = Runtime.clone(Content);
@@ -67,6 +65,11 @@ export class Engine
 
 	fetch(params: {} = {})
 	{
+		if (params instanceof Event)
+		{
+			params = {};
+		}
+
 		this.#message(
 			'fetchData',
 			params,
@@ -85,7 +88,7 @@ export class Engine
 	{
 		this.#message(
 			'openPath',
-			path,
+			{ path },
 		);
 	}
 
@@ -95,19 +98,31 @@ export class Engine
 			{
 				name,
 				params,
+				origin: this.#id,
 			},
 			this.#parentOrigin,
 		);
 	}
 
 	#bindEvents() {
-		Event.bind(window, 'message', this.#onMessage.bind(this));
+		CoreEvent.bind(window, 'message', this.#onMessage.bind(this));
 	}
 
 	#onMessage(event)
 	{
-		if (event.data && event.data.name && event.data.params)
+		if (
+			event.data
+			&& event.data.origin
+			&& event.data.name
+			&& event.data.params
+			&& Type.isObject(event.data.params)
+		)
 		{
+			if (event.data.origin !== this.#id)
+			{
+				return;
+			}
+
 			if (
 				event.data.name === 'setData'
 				&& Type.isObject(event.data.params.data)
@@ -129,18 +144,25 @@ export class Engine
 				});
 			}
 
+			if (event.data.name === 'getSize')
+			{
+				// do nothing, just for refreshFrameSize
+			}
+
 			this.#refreshFrameSize();
 		}
 	}
 
 	#refreshFrameSize()
 	{
-		this.#message(
-			'setSize',
-			{
-				size: document.body.offsetHeight,
-			},
-		);
+		requestAnimationFrame(() => {
+			this.#message(
+				'setSize',
+				{
+					size: this.#rootNode.offsetHeight,
+				},
+			);
+		});
 	}
 
 	#createApp(): void
@@ -175,8 +197,25 @@ export class Engine
 				this.$bitrix.eventEmitter.subscribe('landing:widgetvue:engine:endContentLoad', this.onHideLoader);
 				this.$bitrix.eventEmitter.subscribe('landing:widgetvue:engine:onMessage', this.onShowMessage);
 				this.$bitrix.eventEmitter.subscribe('landing:widgetvue:engine:onHideMessage', this.onHideMessage);
-				this.$bitrix.eventEmitter.subscribe('landing:widgetvue:engine:onError', this.onShowError);
 				EventEmitter.subscribe('landing:widgetvue:engine:onError', this.onShowError);
+			},
+
+			mounted()
+			{
+				this.$bitrix.Application.get().#refreshFrameSize();
+
+				this.$nextTick(() => {
+					const links = this.$el.getElementsByTagName('a');
+					if (links.length > 0)
+					{
+						[].slice.call(links).map(link => {
+							CoreEvent.bind(link, 'click', event => {
+								event.preventDefault();
+								event.stopPropagation();
+							});
+						});
+					}
+				});
 			},
 
 			beforeUnmount()
@@ -185,7 +224,6 @@ export class Engine
 				this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:endContentLoad', this.onHideLoader);
 				this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:onMessage', this.onShowMessage);
 				this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:onHideMessage', this.onHideMessage);
-				this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:onError', this.onShowError);
 				EventEmitter.unsubscribe('landing:widgetvue:engine:onError', this.onShowError);
 			},
 
@@ -215,8 +253,11 @@ export class Engine
 
 				onShowError(event: BaseEvent)
 				{
+					// todo: set error link?
 					const message = event.getData()?.message || null;
 					this.error = message ? { message } : null;
+
+					this.onHideLoader();
 				},
 			},
 
@@ -226,7 +267,7 @@ export class Engine
 			},
 
 			template: `
-				<div>
+				<div class="widget">
 					<Error
 						v-show="error !== null"
 						v-bind="error && error.message !== null ? error : {}"
@@ -239,7 +280,6 @@ export class Engine
 						v-show="message === null && error === null"
 						
 						:defaultData="defaultData"
-						:fetchable=${this.#fetchable}
 						:clickable=${this.#clickable}
 					/>
 				</div>

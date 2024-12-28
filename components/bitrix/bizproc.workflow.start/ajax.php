@@ -5,6 +5,9 @@ define('NO_AGENT_CHECK', true);
 define('PUBLIC_AJAX_MODE', true);
 define('DisableEventsCheck', true);
 
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
+
 $siteID = isset($_REQUEST['site'])? mb_substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site']), 0, 2) : '';
 if($siteID !== '')
 {
@@ -211,19 +214,34 @@ switch ($action)
 		$arWorkflowParameters[CBPDocument::PARAM_TAGRET_USER] = "user_".$user->getId();
 		$arWorkflowParameters[CBPDocument::PARAM_DOCUMENT_EVENT_TYPE] = CBPDocumentEventType::Manual;
 
-		$wfId = CBPDocument::StartWorkflow(
-			$templateId,
-			$documentId,
-			$arWorkflowParameters,
-			$arErrorsTmp
-		);
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$wfId = null;
+		try
+		{
+			$wfId = CBPDocument::StartWorkflow(
+				$templateId,
+				$documentId,
+				$arWorkflowParameters,
+				$arErrorsTmp
+			);
+		}
+		catch (SqlQueryException)
+		{
+			$arErrorsTmp[0] = [
+				'code' => 'InternalError',
+				'message' => 'Internal error. Try to start again.',
+			];
+		}
 
 		if (count($arErrorsTmp) > 0)
 		{
+			$conn->rollbackTransaction();
 			$sendError($arErrorsTmp[0]['message']);
 		}
 		else
 		{
+			$conn->commitTransaction();
 			$sendData(array('workflow_id' => $wfId));
 		}
 	break;

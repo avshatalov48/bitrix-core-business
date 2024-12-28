@@ -119,11 +119,6 @@ class CGooglePlusOAuthInterface extends CGoogleOAuthInterface
 		$http->setHeader("authorization", "Bearer ".$this->access_token);
 		$result = $http->get($url);
 
-		if(!defined("BX_UTF"))
-		{
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
-		}
-
 		$result = CUtil::JsObjectToPhp($result);
 
 		return $result;

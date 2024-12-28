@@ -92,6 +92,11 @@ export class ChatService
 		return this.#updateService.updateChat(chatId, chatConfig);
 	}
 
+	updateCollab(dialogId: string, collabConfig): Promise<boolean>
+	{
+		return this.#updateService.updateCollab(dialogId, collabConfig);
+	}
+
 	getMemberEntities(chatId: number): Promise<GetMemberEntitiesConfig>
 	{
 		return this.#updateService.getMemberEntities(chatId);
@@ -102,6 +107,11 @@ export class ChatService
 	deleteChat(dialogId: string): Promise
 	{
 		return this.#deleteService.deleteChat(dialogId);
+	}
+
+	deleteCollab(dialogId: string): Promise
+	{
+		return this.#deleteService.deleteCollab(dialogId);
 	}
 	// endregion 'delete'
 
@@ -169,9 +179,19 @@ export class ChatService
 		this.#userService.leaveChat(dialogId);
 	}
 
+	leaveCollab(dialogId: string)
+	{
+		void this.#userService.leaveCollab(dialogId);
+	}
+
 	kickUserFromChat(dialogId: string, userId: number)
 	{
 		this.#userService.kickUserFromChat(dialogId, userId);
+	}
+
+	kickUserFromCollab(dialogId: string, userId: number)
+	{
+		this.#userService.kickUserFromCollab(dialogId, userId);
 	}
 
 	addToChat(addConfig: {chatId: number, members: string[], showHistory: boolean}): Promise

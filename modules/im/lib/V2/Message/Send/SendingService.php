@@ -3,6 +3,7 @@
 namespace Bitrix\Im\V2\Message\Send;
 
 use Bitrix\Im\V2\Bot\BotService;
+use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Message\Param\ParamError;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Main\Localization\Loc;
@@ -681,11 +682,10 @@ class SendingService
 
 		if (
 			isset($fieldsToSend['SYSTEM']) && $fieldsToSend['SYSTEM'] === 'Y'
-			&& $checkAuth
-			&& \Bitrix\Im\Dialog::hasAccess($fieldsToSend['DIALOG_ID'])
+			&& (!$checkAuth || User::getCurrent()->isExtranet())
 		)
 		{
-			$fieldsToSend['SYSTEM'] = 'Y';
+			$fieldsToSend['SYSTEM'] = 'N';
 		}
 
 		if (isset($fieldsToSend['URL_PREVIEW']) && $fieldsToSend['URL_PREVIEW'] === 'N')

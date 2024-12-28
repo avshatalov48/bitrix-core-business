@@ -544,7 +544,7 @@ class Field
 			"TYPE" => Type::CUSTOM_DATE,
 			"NAME" => $options["id"],
 			"VALUE" => $defaultValues,
-			"LABEL" => $options["name"],
+			"LABEL" => $options["name"] ?? '',
 			"DAYS" => $days,
 			"MONTHS" => $months,
 			"YEARS" => $years,

@@ -6,6 +6,7 @@ use Bitrix\Im\Model\LinkUrlTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Link\Push;
 use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Query\Query;

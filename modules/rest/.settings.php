@@ -9,6 +9,7 @@ return [
 				'scopes' => [
 					'appform',
 					'configuration.import',
+					'user',
 				],
 			],
 		],

@@ -1,68 +1,75 @@
 <?php
 namespace Bitrix\Calendar;
+
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
-use Bitrix\Main;
-use \Bitrix\Main\Web\Json;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Json;
 
 class UserSettings
 {
-	private static
-		$settings = [
-			'view' => 'month',
-			'CalendarSelCont' => false,
-			'SPCalendarSelCont' => false,
-			'meetSection' => false,
-			'crmSection' => false,
-			'showDeclined' => false,
-			'denyBusyInvitation' => false,
-			'collapseOffHours' => 'Y',
-			'showWeekNumbers' => 'N',
-			'showTasks' => 'Y',
-			'syncTasks' => 'N',
-			'showCompletedTasks' => 'N',
-			'lastUsedSection' => false,
-			'sendFromEmail' => false,
-			'defaultSections' => [],
-			'syncPeriodPast' => 3,
-			'syncPeriodFuture' => 12,
-			'defaultReminders' => [
-				'fullDay' => [
-					'type' => 'daybefore',
-					'before' => 0,
-					'time' => 480,
-				],
-				'withTime' => [
-					'type' => 'min',
-					'count' => 15
-				]
+	private static array $settings = [
+		'view' => 'month',
+		'CalendarSelCont' => false,
+		'SPCalendarSelCont' => false,
+		'meetSection' => false,
+		'crmSection' => false,
+		'showDeclined' => false,
+		'denyBusyInvitation' => false,
+		'collapseOffHours' => 'Y',
+		'showWeekNumbers' => 'N',
+		'showTasks' => 'Y',
+		'syncTasks' => 'N',
+		'showCompletedTasks' => 'N',
+		'lastUsedSection' => false,
+		'sendFromEmail' => false,
+		'defaultSections' => [],
+		'syncPeriodPast' => 3,
+		'syncPeriodFuture' => 12,
+		'defaultReminders' => [
+			'fullDay' => [
+				'type' => 'daybefore',
+				'before' => 0,
+				'time' => 480,
 			],
-			// 'enableLunchTime' => 'N',
-			// 'lunchStart' => '13:00',
-			// 'lunchEnd' => '14:00',
-		];
+			'withTime' => [
+				'type' => 'min',
+				'count' => 15
+			]
+		],
+		// 'enableLunchTime' => 'N',
+		// 'lunchStart' => '13:00',
+		// 'lunchEnd' => '14:00',
+	];
 
-	public static function set($settings = [], $userId = false)
+	private static array $serializedSettings = [
+		'defaultSections',
+		'defaultReminders',
+	];
+
+	public static function set($settings = [], $userId = false): void
 	{
 		if (!$userId)
+		{
 			$userId = \CCalendar::getUserId();
+		}
 		if (!$userId)
+		{
 			return;
+		}
 
 		if ($settings === false)
 		{
 			\CUserOptions::setOption("calendar", "user_settings", false, false, $userId);
 		}
-		elseif(is_array($settings))
+		elseif (is_array($settings))
 		{
 			$curSet = self::get($userId);
 			foreach($settings as $optionName => $value)
 			{
 				if (isset(self::$settings[$optionName]))
 				{
-					if (
-						($optionName === 'defaultSections' || $optionName === 'defaultReminders')
-						&& is_array($value)
-					)
+					if (is_array($value) && in_array($optionName, self::$serializedSettings, true))
 					{
 						$curSet[$optionName] = Json::encode($value);
 					}
@@ -76,7 +83,7 @@ class UserSettings
 		}
 	}
 
-	public static function get($userId = null)
+	public static function get($userId = null): array
 	{
 		if (!$userId)
 		{
@@ -92,10 +99,7 @@ class UserSettings
 			{
 				foreach($settings as $optionName => $value)
 				{
-					if (
-						($optionName === 'defaultSections' || $optionName === 'defaultReminders')
-						&& !is_array($value)
-					)
+					if (!is_array($value) && in_array($optionName, self::$serializedSettings, true))
 					{
 						$resSettings[$optionName] = Json::decode($value);
 					}
@@ -112,12 +116,12 @@ class UserSettings
 
 			if (isset($settings['denyBusyInvitation']))
 			{
-				$resSettings['denyBusyInvitation'] = !!$settings['denyBusyInvitation'];
+				$resSettings['denyBusyInvitation'] = (bool)$settings['denyBusyInvitation'];
 			}
 
 			if (isset($settings['showDeclined']))
 			{
-				$resSettings['showDeclined'] = !!$settings['showDeclined'];
+				$resSettings['showDeclined'] = (bool)$settings['showDeclined'];
 			}
 
 			// We don't have default timezone for this offset for this user
@@ -251,7 +255,7 @@ class UserSettings
 	{
 		$res = [];
 
-		if (!Main\Loader::includeModule('socialnetwork'))
+		if (!Loader::includeModule('socialnetwork'))
 		{
 			return $res;
 		}
@@ -295,6 +299,7 @@ class UserSettings
 
 		return $res;
 	}
+
 	public static function setTrackingGroups($userId = false, $value = [])
 	{
 		if (!$userId)
@@ -308,6 +313,72 @@ class UserSettings
 		}
 
 		\CUserOptions::setOption("calendar", "superpose_tracking_groups", serialize($value), false, $userId);
+	}
+
+	public static function getTrackingCollabs($userId = false, $params = []): array
+	{
+		$res = [];
+
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			return $res;
+		}
+
+		$str = \CUserOptions::getOption(
+			'calendar',
+			'superpose_tracking_collabs',
+			false,
+			$userId
+		);
+
+		if ($str !== false && CheckSerializedData($str))
+		{
+			$ids = unserialize($str, ['allowed_classes' => false]);
+			if (is_array($ids))
+			{
+				foreach($ids as $id)
+				{
+					if ((int)$id > 0)
+					{
+						$res[] = (int)$id;
+					}
+				}
+			}
+		}
+
+		if ($params && isset($params['collabList']))
+		{
+			$params['collabList'] = array_unique($params['collabList']);
+			$diff = array_diff($params['collabList'], $res);
+			if (count($diff) > 0)
+			{
+				$res = array_merge($res, $diff);
+				self::setTrackingCollabs($userId, $res);
+			}
+		}
+
+		return $res;
+	}
+
+	public static function setTrackingCollabs($userId = false, $value = []): void
+	{
+		if (!$userId)
+		{
+			$userId = \CCalendar::getUserId();
+		}
+
+		if (!is_array($value))
+		{
+			$value = [];
+		}
+
+		\CUserOptions::setOption(
+			'calendar',
+			'superpose_tracking_collabs',
+			serialize($value),
+			false,
+			$userId
+		);
 	}
 
 	public static function getHiddenSections($userId = false, $options = []): array
@@ -380,8 +451,8 @@ class UserSettings
 		\CUserOptions::setOption("calendar", "section_customization", serialize($sectionCustomization), false, $userId);
 
 		\Bitrix\Calendar\Util::addPullEvent(
-			'change_section_customization',
-			$userId, []
+			PushCommand::ChangeSectionCustomization,
+			$userId,
 		);
 	}
 

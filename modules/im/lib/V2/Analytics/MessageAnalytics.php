@@ -4,160 +4,107 @@ declare(strict_types=1);
 
 namespace Bitrix\Im\V2\Analytics;
 
-use Bitrix\Disk\TypeFile;
-use Bitrix\Im\V2\Chat;
-use Bitrix\Im\V2\Entity\User\User;
+use Bitrix\Im\V2\Analytics\Event\MessageEvent;
 use Bitrix\Im\V2\Message;
-use Bitrix\Im\V2\MessageCollection;
-use Bitrix\Main\ArgumentException;
 
 class MessageAnalytics extends ChatAnalytics
 {
-	protected const FILE_TYPES = [
-		TypeFile::IMAGE        => 'image',
-		TypeFile::VIDEO        => 'video',
-		TypeFile::DOCUMENT     => 'document',
-		TypeFile::ARCHIVE      => 'archive',
-		TypeFile::SCRIPT       => 'script',
-		TypeFile::UNKNOWN      => 'unknown',
-		TypeFile::PDF          => 'pdf',
-		TypeFile::AUDIO        => 'audio',
-		TypeFile::KNOWN        => 'known',
-		TypeFile::VECTOR_IMAGE => 'vector-image',
-	];
+	protected const SEND_MESSAGE = 'send_message';
+	protected const ADD_REACTION = 'add_reaction';
+	protected const SHARE_MESSAGE = 'share_message';
+	protected const DELETE_MESSAGE = 'delete_message';
+	protected const ATTACH_FILE = 'attach_file';
 
-	private function getMessageType(Chat $chat): string
+	protected Message $message;
+
+	public function __construct(Message $message)
 	{
-		if ($chat instanceof Chat\ChannelChat)
+		parent::__construct($message->getChat());
+		$this->message = $message;
+	}
+
+	public function addSendMessage(): void
+	{
+		$this->async(function () {
+			if ($this->message->getMessageId() === null)
+			{
+				return;
+			}
+
+			if ($this->message->isForward() || $this->message->isSystem())
+			{
+				return;
+			}
+
+			$this
+				->createMessageEvent(self::SEND_MESSAGE)
+				?->setType((new MessageContent($this->message))->getComponentName())
+				?->send()
+			;
+
+			$this->addAttachFilesEvent();
+		});
+	}
+
+	public function addAddReaction(string $reaction): void
+	{
+		$this->async(function () use ($reaction) {
+			$this
+				->createMessageEvent(self::ADD_REACTION)
+				?->setType($reaction)
+				?->send()
+			;
+		});
+	}
+
+	public function addShareMessage(): void
+	{
+		$this->async(function () {
+			$this
+				->createMessageEvent(self::SHARE_MESSAGE)
+				?->setType((new MessageContent($this->message))->getComponentName())
+				?->send()
+			;
+		});
+	}
+
+	public function addDeleteMessage(string $messageType): void
+	{
+		$this->async(function () use ($messageType) {
+			$this
+				->createMessageEvent(self::DELETE_MESSAGE)
+				?->setType($messageType)
+				?->send()
+			;
+		});
+	}
+
+	protected function addAttachFilesEvent(): void
+	{
+		$files = $this->message->getFiles();
+		$fileCount = $files->count();
+		if ($fileCount < 1)
 		{
-			return 'post';
+			return;
 		}
-		elseif ($chat instanceof Chat\CommentChat)
+
+		$this
+			->createMessageEvent(self::ATTACH_FILE)
+			?->setFilesType($files)
+			?->setFileP3($fileCount)
+			?->send()
+		;
+	}
+
+	protected function createMessageEvent(
+		string $eventName,
+	): ?MessageEvent
+	{
+		if (!$this->isChatTypeAllowed($this->chat))
 		{
-			return 'comment';
+			return null;
 		}
 
-		return 'none';
-	}
-
-	public function addSendMessage(int|Message $message): void
-	{
-		$this->async(function () use ($message)
-		{
-			try {
-
-				if (!$message instanceof Message)
-				{
-					$message = $this->getMessage($message);
-				}
-
-				if ($message->isForward())
-				{
-					return; // only share_message
-				}
-
-				if ($message->isSystem())
-				{
-					return; // not needed
-				}
-
-				$chat = $this->getChat($message->getChatId());
-				$messageType = $this->getMessageType($chat);
-				$this
-					->createChatEvent('send_message', $chat)
-					->setType($messageType)
-					->send()
-				;
-
-				$files = $message->getFiles();
-
-				foreach ($files as $file) {
-					$this
-						->createChatEvent('attach_file', $chat)
-						->setType(self::FILE_TYPES[$file->getDiskFile()->getTypeFile()] ?? '')
-						->send()
-					;
-				}
-			}
-			catch (ArgumentException $e)
-			{
-				$this->logException($e);
-			}
-		});
-	}
-
-	/**
-	 * @param int $chatId
-	 * @param string $reaction
-	 * @return void
-	 */
-	public function addAddReaction(int $chatId, string $reaction): void
-	{
-		$this->async(function () use ($chatId, $reaction)
-		{
-			try
-			{
-				$chat = $this->getChat($chatId);
-				$this
-					->createChatEvent('add_reaction', $chat)
-					->setType($reaction)
-					->send()
-				;
-			}
-			catch (ArgumentException $e)
-			{
-				$this->logException($e);
-			}
-		});
-	}
-
-	/**
-	 * @param Chat $chat
-	 * @param Message $message
-	 * @return void
-	 */
-	public function addShareMessage(Chat $chat, Message $message): void
-	{
-		$this->async(function () use ($chat, $message)
-		{
-			try
-			{
-				$this
-					->createChatEvent('share_message', $chat)
-					->setType((new MessageContent($message))->getComponentName())
-					->send()
-				;
-
-			}
-			catch (ArgumentException $e)
-			{
-				$this->logException($e);
-			}
-		});
-	}
-
-	/**
-	 * @param Chat $chat
-	 * @param string $messageType
-	 * @return void
-	 */
-	public function addDeleteMessage(Chat $chat, string $messageType): void
-	{
-		$this->async(function () use ($chat, $messageType)
-		{
-			try
-			{
-				$this
-					->createChatEvent('delete_message', $chat, false)
-					->setType($messageType)
-					->send()
-				;
-
-			}
-			catch (ArgumentException $e)
-			{
-				$this->logException($e);
-			}
-		});
+		return (new MessageEvent($eventName, $this->chat));
 	}
 }

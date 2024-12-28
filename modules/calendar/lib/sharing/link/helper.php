@@ -9,10 +9,12 @@ class Helper
 	public const CRM_DEAL_SHARING_TYPE = 'crm_deal';
 	public const MULTI_LINK_TYPE = 'multi';
 	public const USER_CRM_DEAL_SHARING_TYPE = 'user_crm_deal';
+	public const GROUP_SHARING_TYPE = 'group';
 
 	public const LIFETIME = [
 		self::CRM_DEAL_SHARING_TYPE => '+7 days',
 		self::EVENT_SHARING_TYPE => '+30 days', //after the end of an event
 		self::MULTI_LINK_TYPE => '+21 days',
+		self::GROUP_SHARING_TYPE => '+7 days',
 	];
 }

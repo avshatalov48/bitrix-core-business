@@ -306,7 +306,7 @@ class CSocServMailRu2 extends CSocServAuth
 
 		$url = $this->getAuthorizeRedirectUrl($authError);
 		?>
-		<script type="text/javascript">
+		<script>
 			if (window.opener)
 				window.opener.location = '<?=CUtil::JSEscape($url)?>';
 			window.close();

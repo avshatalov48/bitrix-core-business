@@ -1385,6 +1385,17 @@
 	margin: 7px 10px;
 }
 
+.bizproc-automation-robot-btn-set.btn-pointer
+{
+	cursor: pointer;
+}
+
+.bizproc-automation-robot-btn-set.--disabled
+{
+	pointer-events: none;
+	cursor: not-allowed;
+}
+
 .bitrix24-light-theme :not(.side-panel) .bizproc-automation-robot-btn-set {
 	color: rgba(255,255,255,.7) !important;
 }
@@ -1576,12 +1587,39 @@
 	-webkit-transition: .1s;
 	-o-transition: .1s;
 	transition: .1s;
+}
 
+.bizproc-automation-popup-settings-tab-head .bizproc-automation-popup-settings-link {
+	position: relative;
+	top: 1px;
+	margin: 0;
+	padding: 6px 8px;
+	border: 1px solid var(--ui-color-base-40);
+	border-radius: var(--ui-border-radius-2xs) var(--ui-border-radius-2xs) 0 0;
+	border-bottom: 1px dashed transparent;
+	font-size: var(--ui-font-size-sm);
+	color: var(--ui-color-link-primary-base);
+	background: var(--ui-color-base-05);
+	height: 28px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.bizproc-automation-popup-settings-tab-head .bizproc-automation-popup-settings-link:last-child {
+	margin-left: -1px;
+}
+
+.bizproc-automation-popup-settings-tab-head .bizproc-automation-popup-settings-link:only-of-type {
+	margin-left: 0;
 }
 
 .bizproc-automation-popup-settings-link:hover,
 .bizproc-automation-popup-settings-button:hover {
 	border-bottom-color: rgba(var(--ui-color-link-primary-base-rgb), 1);
+}
+
+.bizproc-automation-popup-settings-tab-head .bizproc-automation-popup-settings-link:hover {
+	border-bottom-color: var(--ui-color-background-transparent);
 }
 
 .bizproc-automation-popup-settings-link-light {
@@ -1610,21 +1648,22 @@
 	margin: 0 0 0 auto;
 }
 
-.bizproc-automation-popup-settings-delete
-{
+.bizproc-automation-popup-settings-delete {
 	position: absolute;
 	top: 0;
 	right: 0;
 }
 
 .bizproc-automation-popup-select-input:checked + .bizproc-automation-popup-settings-link {
-	border-bottom: 1px dashed transparent;
-	color: #525c68;
-	font-weight: var(--ui-font-weight-bold);
+	color: var(--ui-color-base-90);
+	background: var(--ui-color-background-primary);
+	height: 29px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	pointer-events: none;
 }
 
-.bizproc-automation-popup-settings .multiple
-{
+.bizproc-automation-popup-settings .multiple {
 	display: block;
 	margin: 2px 0;
 }
@@ -2905,6 +2944,67 @@
 	--ui-icon-set__icon-size: 18px;
 }
 
+.bizproc-automation-popup-settings-tab-inner,
+.bizproc-automation-popup-settings .bx-crm-dialog-activity-diskuf-container {
+	padding: 10px;
+	border: 1px solid var(--ui-color-base-40);
+	border-radius: 0 0 var(--ui-border-radius-2xs) var(--ui-border-radius-2xs);
+	background: var(--ui-color-background-primary);
+}
+
+.bizproc-automation-popup-settings-tab-inner .bizproc-automation-popup-settings-link {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	margin: 0;
+	padding: 10px 0;
+	height: 76px;
+	width: 100%;
+	border: none;
+	background: #f8fafa;
+	border-radius: var(--ui-border-radius-md);
+	font-weight: var(--ui-font-weight-bold);
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.bizproc-automation-popup-settings-tab-item-box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	    flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.bizproc-automation-popup-settings-tab-item-box .bizproc-automation-popup-autocomplete-item {
+	margin: 0;
+}
+
+.bizproc-automation-popup-settings-desc {
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-regular);
+	color: var(--ui-color-base-80);
+	line-height: 20px;
+	text-transform: none;
+}
+
+.bizproc-automation-popup-settings .files-text {
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	overflow: hidden;
+}
 .bizproc-automation-tour-guide-list {
 	padding: 0 0 0 25px;
 	margin: 0;

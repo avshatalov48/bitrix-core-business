@@ -74,11 +74,43 @@ class MessageEventManager
 			}
 
 			$oldDirMd5 = $params['MAIL_FIELDS_DATA'][0]['OLD_DIR_MD5'] ?? null;
+
 			if ($oldDirMd5)
 			{
-				MessageInternalDateHandler::clearStartInternalDate((int)$filter['=MAILBOX_ID'], $oldDirMd5);
+				$mailboxId = (int)$filter['=MAILBOX_ID'];
+
+				if ($this->checkForNeedClearCache($mailboxId, $oldDirMd5, $fieldsData))
+				{
+					MessageInternalDateHandler::clearStartInternalDate($mailboxId, $oldDirMd5);
+				}
 			}
 		}
+	}
+
+	private function checkForNeedClearCache(int $mailboxId, string $dirMd5, array $messages): bool
+	{
+		$startInternalDate = MessageInternalDateHandler::getStartInternalDateForDir($mailboxId, dirMd5: $dirMd5);
+
+		if (!is_null($startInternalDate))
+		{
+			/**
+			 * @var array<array<string, mixed>> $messages
+			 */
+			foreach ($messages as $message)
+			{
+				if (
+					isset($message['IS_OLD']) &&
+					!in_array($message['IS_OLD'], MailMessageUidTable::EXCLUDED_COUNTER_STATUSES) &&
+					isset($message['INTERNALDATE']) &&
+					$message['INTERNALDATE'] <= $startInternalDate
+				)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	protected function sendMessageModifiedEvent($fieldsData)

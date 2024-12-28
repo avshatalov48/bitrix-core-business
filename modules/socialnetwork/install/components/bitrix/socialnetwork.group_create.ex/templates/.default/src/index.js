@@ -52,7 +52,8 @@ class WorkgroupForm extends EventEmitter
 			confidentialityTypes: Object,
 			stepsCount: number,
 			focus: string,
-			culture: Object
+			culture: Object,
+			currentUserType: string,
 		}
 	)
 	{
@@ -84,6 +85,7 @@ class WorkgroupForm extends EventEmitter
 		this.selectedConfidentialityType = params.selectedConfidentialityType;
 		this.initialFocus = (Type.isStringFilled(params.focus) ? params.focus : '');
 		this.culture = params.culture ? params.culture : {};
+		this.currentUserType = params.currentUserType;
 
 		this.demoInfoAlreadyBeenShown = false;
 
@@ -101,9 +103,9 @@ class WorkgroupForm extends EventEmitter
 		});
 
 		WorkgroupForm.instance = this;
+		this.buttonsInstance = new Buttons();
 
 		this.init(params);
-		this.buttonsInstance = new Buttons();
 	}
 
 	init(params)
@@ -145,7 +147,7 @@ class WorkgroupForm extends EventEmitter
 			});
 		}
 
-		new TypePresetSelector();
+		new TypePresetSelector(this.buttonsInstance);
 		new ConfidentialitySelector();
 		new FeaturesManager();
 
@@ -859,16 +861,16 @@ class WorkgroupForm extends EventEmitter
 			<div class="socialnetwork__demo-info_wrapper">
 				<div class="socialnetwork__demo-info_content">
 					<div class="socialnetwork__demo-info_title">
-						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_SCRUM')}
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_SCRUM_1')}
 					</div>
 					<div class="socialnetwork__demo-info_text">
-						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_SCRUM')}
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_SCRUM_1')}
 					</div>
 					<div class="socialnetwork__demo-info_text-trial">
-						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL')}
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1')}
 					</div>
 					<div class="ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps">
-						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN')}
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1')}
 					</div>
 				</div>
 				${this.#getLottieScrum()}
@@ -882,16 +884,16 @@ class WorkgroupForm extends EventEmitter
 			<div class="socialnetwork__demo-info_wrapper">
 				<div class="socialnetwork__demo-info_content">
 					<div class="socialnetwork__demo-info_title">
-						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_PROJECT')}
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_PROJECT_1')}
 					</div>
 					<div class="socialnetwork__demo-info_text">
-						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_PROJECT')}
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_PROJECT_1')}
 					</div>
 					<div class="socialnetwork__demo-info_text-trial">
-						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL')}
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1')}
 					</div>
 					<div class="ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps">
-						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN')}
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1')}
 					</div>
 				</div>
 				${this.#getLottieProject()}

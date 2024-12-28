@@ -224,10 +224,18 @@ if(
 
 		$filter['=APP_ID'] = $arApp['ID'];
 		$filter['=PLACEMENT'] = $arParams['PLACEMENT'];
-		$filter['=USER_ID'] = [
-			PlacementTable::DEFAULT_USER_ID_VALUE,
-			$USER->GetID(),
-		];
+
+		if ($USER instanceof \CUser)
+		{
+			$filter['=USER_ID'] = [
+				PlacementTable::DEFAULT_USER_ID_VALUE,
+				$USER->GetID(),
+			];
+		}
+		else
+		{
+			$filter['=USER_ID'] = PlacementTable::DEFAULT_USER_ID_VALUE;
+		}
 
 		$res = PlacementTable::getList(
 			[

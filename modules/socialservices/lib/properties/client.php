@@ -226,10 +226,6 @@ class Client
 		{
 			$additionalParams = array();
 		}
-		else
-		{
-			$additionalParams = Encoding::convertEncodingArray($additionalParams, LANG_CHARSET, "utf-8");
-		}
 
 		$additionalParams['client_id'] = $this->accessSettings['client_id'];
 		$additionalParams['client_secret'] = $this->accessSettings['client_secret'];

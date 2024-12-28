@@ -4,7 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Main\Config\Option;
+use Bitrix\Landing\Mainpage;
 use \Bitrix\Main\Localization\Loc;
 
 $return = [
@@ -14,7 +14,7 @@ $return = [
 		'section' => ['widgets_new_employees', 'widgets_hr'],
 		'attrsFormDescription' => Loc::getMessage('LANDING_BLOCK_WIDGET_KB_HINT'),
 		'attrsFormDescriptionHintStyle' => 'blueHint',
-		'disableEditButton' => Option::get('landing', 'use_demo_data_in_block_widgets') === 'Y',
+		'disableEditButton' => Mainpage\Manager::isUseDemoData(),
 	],
 	'nodes' => [
 		"bitrix:landing.blocks.mp_widget.kb" => [

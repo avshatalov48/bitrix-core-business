@@ -50,7 +50,7 @@ class AvatarManager
 			},
 			$mailsNames
 		));
-		$mailContacts = array_combine(array_column($mailContacts, 'EMAIL'), array_values($mailContacts));
+
 		$mailContacts = $this->fillFileIdColumn($mailContacts);
 
 		foreach ($mailsNames as $email => $data)
@@ -163,32 +163,46 @@ class AvatarManager
 		return $mailContacts;
 	}
 
-	protected function fetchMailContacts($emails)
+	protected function fetchMailContacts(array $emails): array
 	{
 		if (empty($emails))
 		{
 			return [];
 		}
 
-		return MailContactTable::getList(array(
-			'runtime' => array(
-				new Main\ORM\Fields\Relations\Reference(
-					'USER',
-					Main\UserTable::class,
-					array(
-						'=this.EMAIL' => 'ref.EMAIL',
-						'=ref.ACTIVE' => new Main\DB\SqlExpression('?', 'Y'),
+		static $cachedContacts = [];
+
+		$newEmails = array_diff($emails, array_keys($cachedContacts));
+
+		if (!empty($newEmails))
+		{
+			$fetchedContacts = MailContactTable::getList(array(
+				'runtime' => array(
+					new Main\ORM\Fields\Relations\Reference(
+						'USER',
+						Main\UserTable::class,
+						array(
+							'=this.EMAIL' => 'ref.EMAIL',
+							'=ref.ACTIVE' => new Main\DB\SqlExpression('?', 'Y'),
+						)
 					)
-				)
-			),
-			'select' => array(
-				'NAME', 'EMAIL', 'ICON', 'FILE_ID',
-				'AVATAR_ID' => 'USER.PERSONAL_PHOTO',
-			),
-			'filter' => array(
-				'=USER_ID' => $this->currentUserId,
-				'@EMAIL' => $emails,
-			),
-		))->fetchAll();
+				),
+				'select' => array(
+					'NAME', 'EMAIL', 'ICON', 'FILE_ID',
+					'AVATAR_ID' => 'USER.PERSONAL_PHOTO',
+				),
+				'filter' => array(
+					'=USER_ID' => $this->currentUserId,
+					'@EMAIL' => $emails,
+				),
+			))->fetchAll();
+
+			foreach ($fetchedContacts as $contact)
+			{
+				$cachedContacts[$contact['EMAIL']] = $contact;
+			}
+		}
+
+		return array_intersect_key($cachedContacts, array_flip($emails));
 	}
 }

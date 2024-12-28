@@ -1,6 +1,7 @@
 import { Reflection, Type } from 'main.core';
 import { Messenger } from './public';
 
+/* eslint-disable no-console */
 const legacyMessenger = {};
 legacyMessenger.openMessenger = function(...args): Promise {
 	console.warn("Developer: method BXIM.openMessenger is deprecated. Use method 'Messenger.openChat' from 'im.public' or 'im.public.iframe' extension.");
@@ -18,6 +19,7 @@ legacyMessenger.openHistory = function(...args): Promise {
 	console.warn("Developer: method BXIM.openHistory is deprecated. Use method 'Messenger.openChat' from 'im.public' or 'im.public.iframe' extension.");
 
 	const Opener = Reflection.getClass('BX.Messenger.v2.Lib.Opener');
+
 	return Opener?.openHistory(...args);
 };
 
@@ -69,6 +71,20 @@ legacyMessenger.startCallList = function(...args): Promise {
 	console.warn("Developer: method BXIM.startCallList is deprecated. Use method 'Messenger.startCallList' from 'im.public' or 'im.public.iframe' extension.");
 
 	return Messenger.startCallList(...args);
+};
+
+legacyMessenger.disk = {
+	saveToDiskAction(...args): Promise {
+		console.warn("Developer: method BXIM.disk.saveToDiskAction is deprecated. Use method 'Messenger.saveFileToDisk' from 'im.public' or 'im.public.iframe' extension.");
+
+		const [, params] = args;
+		if (!params || !params.fileId)
+		{
+			return Promise.reject();
+		}
+
+		return Messenger.saveFileToDisk(params.fileId);
+	},
 };
 
 legacyMessenger.messenger = {};

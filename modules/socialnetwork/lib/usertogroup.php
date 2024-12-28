@@ -11,7 +11,10 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\Entity;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
+use Bitrix\Main\ORM\Data\Internal\MergeTrait;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection;
 use Bitrix\Socialnetwork\Space\Member;
 
 /**
@@ -26,12 +29,15 @@ use Bitrix\Socialnetwork\Space\Member;
  * @method static EO_UserToGroup_Result getList(array $parameters = [])
  * @method static EO_UserToGroup_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\Space\Member createObject($setDefaultValues = true)
- * @method static \Bitrix\Socialnetwork\EO_UserToGroup_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection createCollection()
  * @method static \Bitrix\Socialnetwork\Space\Member wakeUpObject($row)
- * @method static \Bitrix\Socialnetwork\EO_UserToGroup_Collection wakeUpCollection($rows)
+ * @method static \Bitrix\Socialnetwork\Internals\Member\MemberEntityCollection wakeUpCollection($rows)
  */
 class UserToGroupTable extends Entity\DataManager
 {
+	use MergeTrait;
+	use DeleteByFilterTrait;
+
 	/** @see SONET_ROLES_OWNER */
 	public const ROLE_OWNER = 'A';
 
@@ -56,6 +62,11 @@ class UserToGroupTable extends Entity\DataManager
 	public static function getObjectClass(): string
 	{
 		return Member::class;
+	}
+
+	public static function getCollectionClass(): string
+	{
+		return MemberEntityCollection::class;
 	}
 
 	/**

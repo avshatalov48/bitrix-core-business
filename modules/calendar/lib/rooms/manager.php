@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Rooms;
 
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
 use Bitrix\Calendar\Internals\AccessTable;
@@ -533,6 +534,11 @@ class Manager
 		$userId = \CCalendar::GetUserId();
 		$result = [];
 
+		// here we collects permissions cache for rooms @see \CCalendarSect::HandlePermission,
+		// if it not collected here and further @see \CCalendar::GetSectionList called with getPermissions => false,
+		// then permissions will not be correct (would be just empty)
+		$result['rooms'] = self::getRoomsList();
+
 		$followedSectionList = UserSettings::getFollowedSectionIdList($userId);
 		$sectionList = \CCalendar::GetSectionList([
 			'CAL_TYPE' => self::TYPE,
@@ -555,7 +561,6 @@ class Manager
 			$userId
 		);
 
-		$result['rooms'] = self::getRoomsList();
 		$result['sections'] = $sectionList;
 		$result['config'] = [
 			'locationAccess' => Util::getLocationAccess($userId),
@@ -594,7 +599,7 @@ class Manager
 		return $this;
 	}
 
-	public function addPullEvent($event): Manager
+	public function addPullEvent(PushCommand $event): Manager
 	{
 		if ($this->getError())
 		{
@@ -730,7 +735,7 @@ class Manager
 			if ($this->room->getCreatedBy())
 			{
 				\Bitrix\Calendar\Util::addPullEvent(
-					'delete_event',
+					PushCommand::DeleteEvent,
 					$this->room->getCreatedBy(),
 					['fields' => $event]
 				);

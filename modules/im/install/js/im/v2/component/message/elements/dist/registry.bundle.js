@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_dateFormatter,ui_vue3,ui_lottie,im_v2_lib_user,im_v2_lib_logger,ui_reactionsSelect,ui_vue3_components_reactions,im_v2_lib_utils,im_v2_application_core,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_copilot,im_v2_lib_channel,main_core,main_core_events,im_v2_const,im_v2_component_elements,im_v2_lib_permission,im_v2_component_animation,im_v2_provider_service) {
+(function (exports,im_v2_lib_dateFormatter,ui_vue3,ui_lottie,im_v2_lib_user,im_v2_lib_logger,ui_reactionsSelect,im_v2_lib_utils,im_v2_application_core,im_v2_lib_menu,im_v2_lib_copilot,im_v2_lib_channel,main_core_events,im_v2_const,im_v2_component_elements,im_v2_lib_permission,im_v2_component_animation,im_v2_provider_service,main_core,ui_vue3_components_reactions,im_v2_lib_parser) {
 	'use strict';
 
 	// @vue/component
@@ -555,7 +555,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onReactionSelect(reaction, event) {
 	      var _this$ownReactions;
 	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.setReaction, this.dialog.dialogId)) {
+	      if (!permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.setReaction, this.dialog.dialogId)) {
 	        return;
 	      }
 	      const {
@@ -631,7 +631,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isBot() {
 	      const user = this.$store.getters['users/get'](this.dialog.dialogId);
-	      return (user == null ? void 0 : user.bot) === true;
+	      return (user == null ? void 0 : user.type) === im_v2_const.UserType.bot;
 	    },
 	    hasError() {
 	      return this.message.error;
@@ -641,7 +641,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    canSetReactionsByRole() {
 	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	      return permissionManager.canPerformAction(im_v2_const.ChatActionType.setReaction, this.dialog.dialogId);
+	      return permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.setReaction, this.dialog.dialogId);
 	    }
 	  },
 	  methods: {
@@ -725,64 +725,76 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	const NO_CONTEXT_TAG = 'none';
+
 	// @vue/component
-	const DefaultMessageContent$$1 = {
-	  name: 'DefaultMessageContent',
-	  components: {
-	    Reactions: ui_vue3_components_reactions.Reactions,
-	    MessageStatus,
-	    MessageAttach,
-	    ReactionList
-	  },
+	const Reply = {
+	  name: 'ReplyComponent',
 	  props: {
-	    item: {
-	      type: Object,
-	      required: true
-	    },
 	    dialogId: {
 	      type: String,
 	      required: true
 	    },
-	    withMessageStatus: {
-	      type: Boolean,
-	      default: true
+	    replyId: {
+	      type: Number,
+	      required: true
 	    },
-	    withText: {
+	    isForward: {
 	      type: Boolean,
-	      default: true
-	    },
-	    withAttach: {
-	      type: Boolean,
-	      default: true
+	      default: false
 	    }
 	  },
 	  computed: {
-	    message() {
-	      return this.item;
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    formattedText() {
-	      return im_v2_lib_parser.Parser.decodeMessage(this.item);
+	    replyMessage() {
+	      return this.$store.getters['messages/getById'](this.replyId);
 	    },
-	    canSetReactions() {
-	      return main_core.Type.isNumber(this.message.id);
+	    replyMessageChat() {
+	      var _this$replyMessage;
+	      return this.$store.getters['chats/getByChatId']((_this$replyMessage = this.replyMessage) == null ? void 0 : _this$replyMessage.chatId);
+	    },
+	    replyAuthor() {
+	      return this.$store.getters['users/get'](this.replyMessage.authorId);
+	    },
+	    replyTitle() {
+	      return this.replyAuthor ? this.replyAuthor.name : this.loc('IM_DIALOG_CHAT_QUOTE_DEFAULT_TITLE');
+	    },
+	    replyText() {
+	      let text = im_v2_lib_parser.Parser.prepareQuote(this.replyMessage);
+	      text = im_v2_lib_parser.Parser.decodeText(text);
+	      return text;
+	    },
+	    isQuoteFromTheSameChat() {
+	      var _this$replyMessage2;
+	      return ((_this$replyMessage2 = this.replyMessage) == null ? void 0 : _this$replyMessage2.chatId) === this.dialog.chatId;
+	    },
+	    replyContext() {
+	      if (!this.isQuoteFromTheSameChat) {
+	        return NO_CONTEXT_TAG;
+	      }
+	      if (!this.isForward) {
+	        return `${this.dialogId}/${this.replyId}`;
+	      }
+	      return `${this.replyMessageChat.dialogId}/${this.replyId}`;
+	    },
+	    canShowReply() {
+	      return !main_core.Type.isNil(this.replyMessage);
+	    }
+	  },
+	  methods: {
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
 	  },
 	  template: `
-		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope" :class="{'--no-text': !withText}">
-			<div v-if="withText" class="bx-im-message-default-content__text" v-html="formattedText"></div>
-			<div v-if="withAttach && message.attach.length > 0" class="bx-im-message-default-content__attach">
-				<MessageAttach :item="message" :dialogId="dialogId" />
-			</div>
-			<div class="bx-im-message-default-content__bottom-panel">
-				<ReactionList 
-					v-if="canSetReactions" 
-					:messageId="message.id" 
-					:contextDialogId="dialogId"
-					class="bx-im-message-default-content__reaction-list" 
-				/>
-				<div v-if="withMessageStatus" class="bx-im-message-default-content__status-container">
-					<MessageStatus :item="message" />
+		<div v-if="canShowReply" class="bx-im-message-quote" :data-context="replyContext">
+			<div class="bx-im-message-quote__wrap">
+				<div class="bx-im-message-quote__name">
+					<div class="bx-im-message-quote__name-text">{{ replyTitle }}</div>
 				</div>
+				<div class="bx-im-message-quote__text" v-html="replyText"></div>
 			</div>
 		</div>
 	`
@@ -888,6 +900,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    menuIsActiveForId: {
 	      type: [String, Number],
 	      default: 0
+	    },
+	    showContextMenu: {
+	      type: Boolean,
+	      default: true
 	    }
 	  },
 	  computed: {
@@ -901,6 +917,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    messageHasError() {
 	      return this.messageItem.error;
+	    },
+	    canShowContextMenu() {
+	      return this.showContextMenu && !this.messageHasError;
+	    },
+	    isBulkActionsMode() {
+	      return this.$store.getters['messages/select/getBulkActionsMode'];
 	    }
 	  },
 	  methods: {
@@ -913,15 +935,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div v-if="!messageHasError" class="bx-im-message-context-menu__container bx-im-message-context-menu__scope">
-			<button
-				:title="menuTitle"
-				@click="onMenuClick"
-				@contextmenu.prevent
-				:class="{'--active': menuIsActiveForId === message.id}"
-				class="bx-im-message-context-menu__button"
-			></button>
-		</div>
+		<template v-if="!isBulkActionsMode">
+			<div v-if="canShowContextMenu" class="bx-im-message-context-menu__container bx-im-message-context-menu__scope">
+				<button
+					:title="menuTitle"
+					@click="onMenuClick"
+					@contextmenu.prevent
+					:class="{'--active': menuIsActiveForId === message.id}"
+					class="bx-im-message-context-menu__button"
+				></button>
+			</div>
+			<div v-else class="bx-im-message-base__context-menu-placeholder"></div>
+		</template>
 	`
 	};
 
@@ -1205,7 +1230,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    showSubscribeIcon() {
 	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	      return permissionManager.canPerformAction(im_v2_const.ChatActionType.subscribeToComments, this.dialogId);
+	      return permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.subscribeToComments, this.dialogId);
 	    },
 	    subscribeIconTitle() {
 	      if (this.isSubscribed) {
@@ -1217,7 +1242,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    onCommentsClick() {
 	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.openComments, this.dialogId)) {
+	      if (!permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.openComments, this.dialogId)) {
 	        return;
 	      }
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.openComments, {
@@ -1313,17 +1338,89 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	// @vue/component
+	const DefaultMessageContent$$1 = {
+	  name: 'DefaultMessageContent',
+	  components: {
+	    Reactions: ui_vue3_components_reactions.Reactions,
+	    MessageStatus,
+	    MessageAttach,
+	    ReactionList,
+	    Reply
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    withMessageStatus: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withText: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withAttach: {
+	      type: Boolean,
+	      default: true
+	    }
+	  },
+	  computed: {
+	    message() {
+	      return this.item;
+	    },
+	    isReply() {
+	      return this.message.replyId !== 0;
+	    },
+	    formattedText() {
+	      return im_v2_lib_parser.Parser.decodeMessage(this.item);
+	    },
+	    canSetReactions() {
+	      return main_core.Type.isNumber(this.message.id);
+	    },
+	    isForward() {
+	      return this.$store.getters['messages/isForward'](this.message.id);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope" :class="{'--no-text': !withText}">
+			<Reply v-if="isReply" :dialogId="dialogId" :replyId="message.replyId" :isForward="isForward" />
+			<div v-if="withText" class="bx-im-message-default-content__text" v-html="formattedText"></div>
+			<div v-if="withAttach && message.attach.length > 0" class="bx-im-message-default-content__attach">
+				<MessageAttach :item="message" :dialogId="dialogId" />
+			</div>
+			<div class="bx-im-message-default-content__bottom-panel">
+				<ReactionList 
+					v-if="canSetReactions" 
+					:messageId="message.id" 
+					:contextDialogId="dialogId"
+					class="bx-im-message-default-content__reaction-list" 
+				/>
+				<div v-if="withMessageStatus" class="bx-im-message-default-content__status-container">
+					<MessageStatus :item="message" />
+				</div>
+			</div>
+		</div>
+	`
+	};
+
 	exports.MessageStatus = MessageStatus;
 	exports.MessageAttach = MessageAttach;
 	exports.MessageKeyboard = MessageKeyboard;
 	exports.ReactionList = ReactionList;
 	exports.ReactionSelector = ReactionSelector;
-	exports.DefaultMessageContent = DefaultMessageContent$$1;
+	exports.Reply = Reply;
 	exports.AuthorTitle = AuthorTitle;
 	exports.ContextMenu = ContextMenu;
 	exports.RetryButton = RetryButton;
 	exports.MessageHeader = MessageHeader;
 	exports.MessageFooter = MessageFooter;
+	exports.DefaultMessageContent = DefaultMessageContent$$1;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Vue3,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Ui,BX.Vue3.Components,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Service));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Vue3,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Ui,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Service,BX,BX.Vue3.Components,BX.Messenger.v2.Lib));
 //# sourceMappingURL=registry.bundle.js.map

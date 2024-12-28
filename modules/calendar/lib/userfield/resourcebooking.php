@@ -1018,7 +1018,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			$result[$type['XML_ID']] = $type;
 		}
 
-		if (!$result[self::RESOURCE_CALENDAR_TYPE])
+		if (empty($result[self::RESOURCE_CALENDAR_TYPE] ?? null))
 		{
 			Internals\TypeTable::add([
 				'XML_ID' => self::RESOURCE_CALENDAR_TYPE,

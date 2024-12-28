@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Relation;
 
+use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\RelationCollection;
 
@@ -125,5 +126,34 @@ class ChatRelations
 		unset($this->fullRelations);
 		$this->relationByUserId = [];
 		$this->relationsByUserIds = [];
+	}
+
+	public function onAfterRelationAdd(array $usersToAdd): void
+	{
+		//TODO: change to update cache for optimization
+		$this->cleanCache();
+	}
+
+	public function onAfterRelationDelete(int $deletedUserId): void
+	{
+		$this->fullRelations->onAfterRelationDelete($this->chatId, $deletedUserId);
+		unset($this->relationsByUserIds[$deletedUserId]);
+		$this->relationsByUserIds = [];
+	}
+
+	public function getUserCount(): int
+	{
+		$fullRelations = $this->get();
+
+		$count = 0;
+		foreach ($fullRelations as $relation)
+		{
+			if (User::getInstance($relation->getUserId())->isActive())
+			{
+				$count++;
+			}
+		}
+
+		return $count;
 	}
 }

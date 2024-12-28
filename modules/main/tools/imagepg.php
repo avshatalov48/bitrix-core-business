@@ -14,7 +14,7 @@ if (!isset($_GET["img"]) || !is_string($_GET["img"]))
 
 $img = $_GET["img"];
 
-if (!str_starts_with($img, '/') || str_starts_with($img, '//'))
+if (!str_starts_with($img, '/') || str_starts_with($img, '//') || str_starts_with($img, '/\\'))
 {
 	// external url
 	die();

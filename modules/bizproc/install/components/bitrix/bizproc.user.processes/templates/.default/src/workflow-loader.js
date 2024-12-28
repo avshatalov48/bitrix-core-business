@@ -13,7 +13,12 @@ export type WorkflowData = {
 	userId: number,
 	startedById: number,
 	startedBy?: string,
-	taskProgress: {},
+	taskProgress: {
+		steps: [],
+		timeStep: {},
+		isWorkflowFinished: boolean,
+		progressBox?: {},
+	},
 	name: string,
 	description: string,
 	typeName: string,
@@ -43,6 +48,7 @@ export type WorkflowData = {
 	commentCnt: number,
 	isCompleted: boolean,
 	workflowUrl: ?string,
+	workflowResult: ?string,
 };
 
 export class WorkflowLoader

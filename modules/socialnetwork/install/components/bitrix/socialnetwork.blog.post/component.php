@@ -21,11 +21,13 @@ global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Blog\Item\Permissions;
 use Bitrix\Main\Page\Asset;
+use Bitrix\Socialnetwork\Collab\Provider\CollabProvider;
 use Bitrix\Socialnetwork\Item\Helper;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Main\Engine\ActionFilter\Service\Token;
+use Bitrix\Socialnetwork\Integration\Extranet\User;
 
 if (!CModule::IncludeModule("blog"))
 {
@@ -1325,6 +1327,12 @@ if(
 					&& in_array($arPost["AUTHOR_ID"], $GLOBALS["arExtranetUserID"])
 				);
 
+				$arResult["arUser"]["isCollaber"] = false;
+				if ($arResult["arUser"]["isExtranet"])
+				{
+					$arResult["arUser"]["isCollaber"] = User::isCollaber((int)$arPost["AUTHOR_ID"]);
+				}
+
 				if (!$arResult["bPublicPage"])
 				{
 					$arResult["arUser"]["url"] .= (
@@ -1391,7 +1399,7 @@ if(
 						foreach($v as $vv)
 						{
 							$name = $link = $id = $CRMPrefix = "";
-							$isExtranet = $isEmail = false;
+							$isExtranet = $isEmail = $isCollabEntity = false;
 
 							if ($type === "SG")
 							{
@@ -1427,6 +1435,10 @@ if(
 										is_array($GLOBALS["arExtranetGroupID"] ?? null)
 										&& in_array($vv["ENTITY_ID"], $GLOBALS["arExtranetGroupID"])
 									);
+									$isCollabEntity =
+										$isExtranet
+										&& CollabProvider::getInstance()->isCollab((int)$vv["ENTITY_ID"])
+									;
 									if (defined("BX_COMP_MANAGED_CACHE"))
 									{
 										$CACHE_MANAGER->RegisterTag("sonet_group_".(int)$vv["ENTITY_ID"]);
@@ -1471,6 +1483,7 @@ if(
 										is_array($GLOBALS["arExtranetUserID"] ?? null)
 										&& in_array($vv["ENTITY_ID"], $GLOBALS["arExtranetUserID"])
 									);
+									$isCollabEntity = User::isCollaber((int)$id);
 									$isEmail = (isset($vv["U_EXTERNAL_AUTH_ID"]) && $vv["U_EXTERNAL_AUTH_ID"] === 'email');
 									if ($isEmail)
 									{
@@ -1516,6 +1529,7 @@ if(
 								$id = $arDestination[0]['ID'];
 								$isExtranet = false;
 								$isEmail = false;
+								$isCollabEntity = false;
 								$CRMPrefix = $arDestination[0]['CRM_PREFIX'];
 							}
 
@@ -1527,6 +1541,7 @@ if(
 									"ID" => $id,
 									"IS_EXTRANET" => ($isExtranet ? "Y" : "N"),
 									"IS_EMAIL" => ($isEmail ? "Y" : "N"),
+									"IS_COLLAB" => ($isCollabEntity ? "Y" : "N"),
 									"CRM_PREFIX" => $CRMPrefix,
 									'entityType' => $entityType,
 									'entityId' => $entityId,

@@ -5,7 +5,7 @@ import { Core } from 'im.v2.application.core';
 import { ChatType, FakeDraftMessagePrefix, Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { ChannelManager } from 'im.v2.lib.channel';
-import { formatFieldsWithConfig } from 'im.v2.model';
+import { formatFieldsWithConfig, convertObjectKeysToCamelCase } from 'im.v2.model';
 
 import { recentFieldsConfig } from './format/field-config';
 import { CallsModel } from './nested-modules/calls';
@@ -21,6 +21,7 @@ type RecentState = {
 	unreadCollection: Set<string>,
 	copilotCollection: Set<string>,
 	channelCollection: Set<string>,
+	collabCollection: Set<string>,
 };
 
 type SetDraftPayload = {
@@ -52,6 +53,7 @@ export class RecentModel extends BuilderModel
 			unreadCollection: new Set(),
 			copilotCollection: new Set(),
 			channelCollection: new Set(),
+			collabCollection: new Set(),
 		};
 	}
 
@@ -111,6 +113,16 @@ export class RecentModel extends BuilderModel
 			/** @function recent/getChannelCollection */
 			getChannelCollection: (state: RecentState): ImModelRecentItem[] => {
 				return [...state.channelCollection].filter((dialogId) => {
+					const dialog = this.store.getters['chats/get'](dialogId);
+
+					return Boolean(dialog);
+				}).map((id) => {
+					return state.collection[id];
+				});
+			},
+			/** @function recent/getCollabCollection */
+			getCollabCollection: (state: RecentState): ImModelRecentItem[] => {
+				return [...state.collabCollection].filter((dialogId) => {
 					const dialog = this.store.getters['chats/get'](dialogId);
 
 					return Boolean(dialog);
@@ -242,6 +254,7 @@ export class RecentModel extends BuilderModel
 			/** @function recent/setRecent */
 			setRecent: async (store, payload: Array | Object) => {
 				const itemIds = await Core.getStore().dispatch('recent/store', payload);
+
 				store.commit('setRecentCollection', itemIds);
 
 				this.#updateUnloadedRecentCounters(payload);
@@ -262,6 +275,13 @@ export class RecentModel extends BuilderModel
 			setChannel: async (store, payload: Array | Object) => {
 				const itemIds = await this.store.dispatch('recent/store', payload);
 				store.commit('setChannelCollection', itemIds);
+			},
+			/** @function recent/setCollab */
+			setCollab: async (store, payload: Array | Object) => {
+				const itemIds = await this.store.dispatch('recent/store', payload);
+				store.commit('setCollabCollection', itemIds);
+
+				this.#updateUnloadedCollabCounters(payload);
 			},
 			/** @function recent/clearChannelCollection */
 			clearChannelCollection: (store) => {
@@ -430,6 +450,7 @@ export class RecentModel extends BuilderModel
 				store.commit('deleteFromRecentCollection', existingItem.dialogId);
 				store.commit('deleteFromCopilotCollection', existingItem.dialogId);
 				store.commit('deleteFromChannelCollection', existingItem.dialogId);
+				store.commit('deleteFromCollabCollection', existingItem.dialogId);
 				const canDelete = this.#canDelete(existingItem.dialogId);
 
 				if (!canDelete)
@@ -482,6 +503,14 @@ export class RecentModel extends BuilderModel
 			},
 			clearChannelCollection: (state: RecentState) => {
 				state.channelCollection = new Set();
+			},
+			setCollabCollection: (state: RecentState, payload: string[]) => {
+				payload.forEach((dialogId) => {
+					state.collabCollection.add(dialogId);
+				});
+			},
+			deleteFromCollabCollection: (state: RecentState, payload: string) => {
+				state.collabCollection.delete(payload);
 			},
 			add: (state: RecentState, payload: Object[] | Object) => {
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
@@ -543,6 +572,11 @@ export class RecentModel extends BuilderModel
 		this.#updateUnloadedCounters(payload, 'counters/setUnloadedCopilotCounters');
 	}
 
+	#updateUnloadedCollabCounters(payload: Array | Object)
+	{
+		this.#updateUnloadedCounters(payload, 'counters/setUnloadedCollabCounters');
+	}
+
 	#updateUnloadedCounters(payload: Array | Object, updateMethod: string)
 	{
 		if (!Array.isArray(payload) && Type.isPlainObject(payload))
@@ -550,8 +584,10 @@ export class RecentModel extends BuilderModel
 			payload = [payload];
 		}
 		const zeroedCountersForNewItems = {};
-		payload.forEach((item) => {
-			zeroedCountersForNewItems[item.chat_id] = 0;
+		const preparedItems = payload.map((item) => convertObjectKeysToCamelCase(item));
+
+		preparedItems.forEach((item) => {
+			zeroedCountersForNewItems[item.chatId] = 0;
 		});
 		void Core.getStore().dispatch(updateMethod, zeroedCountersForNewItems);
 	}

@@ -97,6 +97,7 @@
 	align-items: center;
 	margin-bottom: -34px;
 	min-width: 164px;
+	max-width: 164px;
 	height: 165px;
 	background-size: cover;
 }

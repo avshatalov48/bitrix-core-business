@@ -160,7 +160,10 @@
 				}
 				else if (this.calendar.util.type === 'group')
 				{
-					title = BX.message('EC_SEC_SLIDER_GROUP_CALENDARS_LIST');
+					const groupTitleMessage = Util.getCalendarContext().isCollabUser
+						? 'EC_SEC_SLIDER_COLLAB_CALENDARS_LIST'
+						: 'EC_SEC_SLIDER_GROUP_CALENDARS_LIST';
+					title = BX.message(groupTitleMessage);
 				}
 				else if (this.calendar.util.type === 'location')
 				{
@@ -200,6 +203,11 @@
 				this.sectionGroups.push({
 					title: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'),
 					type: 'group'
+				});
+				// 4.1 Collabs calendars
+				this.sectionGroups.push({
+					title: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_COLLAB'),
+					type: 'collab'
 				});
 
 				// 5. Resources calendars

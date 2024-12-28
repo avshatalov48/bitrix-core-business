@@ -19,6 +19,7 @@ type WidgetDateProps = {
 	allAttendees: boolean,
 	filled: boolean,
 	browserTimezone: boolean,
+	linkContext: null|string,
 };
 
 export default class WidgetDate
@@ -56,7 +57,7 @@ export default class WidgetDate
 		};
 	}
 
-	updateValue(data: Data)
+	updateValue(data: Data, linkContext: null|string)
 	{
 		if (data.from)
 		{
@@ -87,6 +88,8 @@ export default class WidgetDate
 		{
 			this.#value.rruleDescription = data.rruleDescription;
 		}
+
+		this.#props.linkContext = linkContext;
 
 		this.updateLayout();
 	}
@@ -343,6 +346,7 @@ export default class WidgetDate
 			avatarSize: 30,
 			members: this.#members,
 			allAttendees: this.#props.allAttendees,
+			linkContext: this.#props.linkContext,
 		}).render();
 
 		if (!this.#layout.avatarsSection)

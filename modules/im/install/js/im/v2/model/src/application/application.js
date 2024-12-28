@@ -53,7 +53,7 @@ export class ApplicationModel extends BuilderModel
 			},
 			/** @function application/isChatOpen */
 			isChatOpen: (state) => (dialogId: string): boolean => {
-				const allowedLayouts = [Layout.chat.name, Layout.copilot.name, Layout.channel.name];
+				const allowedLayouts = [Layout.chat.name, Layout.copilot.name, Layout.channel.name, Layout.collab.name];
 				if (!allowedLayouts.includes(state.layout.name))
 				{
 					return false;
@@ -62,7 +62,7 @@ export class ApplicationModel extends BuilderModel
 				return state.layout.entityId === dialogId.toString();
 			},
 			isLinesChatOpen: (state) => (dialogId: string): boolean => {
-				if (state.layout.name !== Layout.openlines.name)
+				if (state.layout.name !== Layout.openlines.name && state.layout.name !== Layout.openlinesV2.name)
 				{
 					return false;
 				}

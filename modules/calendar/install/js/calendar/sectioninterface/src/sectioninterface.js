@@ -7,10 +7,12 @@ import { FeaturePromotersRegistry } from 'ui.info-helper';
 import { EditForm } from './editform';
 import { TrackingUsersForm } from './trackingusersform';
 import { TrackingGroupsForm } from './trackinggroupsform';
+import { TrackingCollabsForm } from './trackingcollabform';
 import { TrackingTypesForm } from './trackingtypesform';
 import { SectionManager } from 'calendar.sectionmanager';
 import { MessageBox } from 'ui.dialogs.messagebox';
 
+/* eslint-disable @bitrix24/bitrix24-rules/no-native-dom-methods */
 export class SectionInterface extends EventEmitter
 {
 	name = 'sectioninterface';
@@ -21,8 +23,9 @@ export class SectionInterface extends EventEmitter
 	sliderId = 'calendar:section-slider';
 	denyClose = false;
 	deletedSectionsIds = [];
+	isCollabFeatureEnabled = false;
 
-	constructor({ calendarContext, readonly, sectionManager })
+	constructor({ calendarContext, readonly, sectionManager, isCollabFeatureEnabled = false })
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.SectionInterface');
@@ -33,6 +36,8 @@ export class SectionInterface extends EventEmitter
 		this.deleteSectionHandlerBinded = this.deleteSectionHandler.bind(this);
 		this.refreshSectionListBinded = this.refreshSectionList.bind(this);
 		this.keyHandlerBinded = this.keyHandler.bind(this);
+		this.currentUserId = this.calendarContext?.currentUser?.id;
+		this.isCollabFeatureEnabled = isCollabFeatureEnabled;
 
 		if (this.calendarContext !== null && this.calendarContext.util.config.accessNames)
 		{
@@ -159,6 +164,11 @@ export class SectionInterface extends EventEmitter
 				delete this.trackingGroupsForm;
 			}
 
+			if (this.trackingCollabsForm)
+			{
+				delete this.trackingCollabsForm;
+			}
+
 			if (this.addBtnMenu)
 			{
 				this.addBtnMenu.destroy();
@@ -201,8 +211,7 @@ export class SectionInterface extends EventEmitter
 		if (
 			calendarContext
 			&& !this.readonly
-			&& !this.calendarContext?.util?.isExtranetUser()
-			&&			(
+			&& (
 				!calendarContext.util.isUserCalendar()
 				|| calendarContext.util.userIsOwner()
 			)
@@ -220,7 +229,18 @@ export class SectionInterface extends EventEmitter
 								${Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP')}
 							</span>
 						</div>
-					</div>								
+					</div>
+				`,
+			);
+			this.DOM.trackingCollabsFormWrap = this.DOM.outerWrap.appendChild(
+				Tag.render`
+					<div class="calendar-list-slider-card-widget calendar-list-slider-form-wrap">
+						<div class="calendar-list-slider-card-widget-title">
+							<span class="calendar-list-slider-card-widget-title-text">
+								${Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COLLAB')}
+							</span>
+						</div>
+					</div>
 				`,
 			);
 			this.DOM.trackingUsersFormWrap = this.DOM.outerWrap.appendChild(
@@ -242,7 +262,7 @@ export class SectionInterface extends EventEmitter
 								${Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP')}
 							</span>
 						</div>
-					</div>								
+					</div>
 				`,
 			);
 		}
@@ -292,6 +312,7 @@ export class SectionInterface extends EventEmitter
 		this.createCompanySectionList();
 		this.createUsersSectionList();
 		this.createGroupsSectionList();
+		this.createCollabSectionList();
 	}
 
 	createExternalSectionsList()
@@ -500,7 +521,9 @@ export class SectionInterface extends EventEmitter
 		{
 			this.DOM.localSectionListWrap.appendChild(Tag.render`
 				<div class="calendar-list-slider-card-section-title">
-					<span class="calendar-list-slider-card-section-title-text">${Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CAL')}</span>
+					<span class="calendar-list-slider-card-section-title-text">
+						${Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CALENDAR')}
+					</span>
 				</div>
 			`);
 
@@ -524,9 +547,15 @@ export class SectionInterface extends EventEmitter
 
 			if (sections.length > 0)
 			{
+				const calendarName = this.currentUserId === parseInt(user.ID, 10)
+					? Loc.getMessage('EC_SEC_SLIDER_MY_CALENDARS_LIST')
+					: Text.encode(user.FORMATTED_NAME)
+				;
 				this.DOM.localSectionListWrap.appendChild(Tag.render`
 					<div class="calendar-list-slider-card-section-title">
-						<span class="calendar-list-slider-card-section-title-text">${Text.encode(user.FORMATTED_NAME)}</span>
+						<span class="calendar-list-slider-card-section-title-text">
+							${calendarName}
+						</span>
 					</div>
 				`);
 
@@ -540,15 +569,17 @@ export class SectionInterface extends EventEmitter
 
 	createGroupsSectionList()
 	{
-		const sections = this.sliderSections.filter((section) => {
-			return !section.belongsToView() && section.type === 'group';
-		});
+		const sections = this.sliderSections.filter((section) => (
+			!section.belongsToView() && section.type === 'group' && !section.isCollab()
+		));
 
 		if (sections.length > 0)
 		{
 			this.DOM.localSectionListWrap.appendChild(Tag.render`
 				<div class="calendar-list-slider-card-section-title">
-					<span class="calendar-list-slider-card-section-title-text">${Loc.getMessage('EC_SEC_SLIDER_TITLE_GROUP_CAL')}</span>
+					<span class="calendar-list-slider-card-section-title-text">
+						${Loc.getMessage('EC_SEC_SLIDER_TITLE_GROUP_CALENDAR')}
+					</span>
 				</div>
 			`);
 
@@ -559,7 +590,30 @@ export class SectionInterface extends EventEmitter
 		}
 	}
 
-	getSectionListWrap(title)
+	createCollabSectionList()
+	{
+		const sections = this.sliderSections.filter((section) => (
+			!section.belongsToView() && section.type === 'group' && section.isCollab()
+		));
+
+		if (sections.length > 0)
+		{
+			this.DOM.localSectionListWrap.appendChild(Tag.render`
+				<div class="calendar-list-slider-card-section-title">
+					<span class="calendar-list-slider-card-section-title-text">
+						${Loc.getMessage('EC_SEC_SLIDER_TITLE_COLLAB_CALENDAR')}
+					</span>
+				</div>
+			`);
+
+			this.createSectionsBlock({
+				wrap: this.DOM.localSectionListWrap,
+				sectionList: sections,
+			});
+		}
+	}
+
+	getSectionListWrap(title): HTMLElement
 	{
 		return Tag.render`
 			<div class="calendar-list-slider-card-widget">
@@ -572,14 +626,26 @@ export class SectionInterface extends EventEmitter
 		`;
 	}
 
-	getLocalSectionListTitle()
+	getLocalSectionListTitle(): string
 	{
 		if (this.sectionManager.calendarType === 'user')
 		{
 			return Loc.getMessage('EC_SEC_SLIDER_MY_CALENDARS_LIST');
 		}
 
-		if (this.sectionManager.calendarType === 'group')
+		const calendarContext = this.calendarContext || Util.getCalendarContext();
+		if (
+			this.sectionManager.calendarType === 'group'
+			&& calendarContext?.isCollabCalendar
+		)
+		{
+			return Loc.getMessage('EC_SEC_SLIDER_THIS_COLLAB_CALENDARS_LIST');
+		}
+
+		if (
+			this.sectionManager.calendarType === 'group'
+			&& !calendarContext?.isCollabCalendar
+		)
 		{
 			return Loc.getMessage('EC_SEC_SLIDER_GROUP_CALENDARS_LIST');
 		}
@@ -589,9 +655,11 @@ export class SectionInterface extends EventEmitter
 
 	createAddButton()
 	{
+		const calendarContext = this.calendarContext || Util.getCalendarContext();
+
 		if (
-			this.calendarContext.util.config.perm
-			&& this.calendarContext.util.config.perm.edit_section
+			calendarContext.util.config.perm?.edit_section
+			&& !calendarContext.isCollabUser
 		)
 		{
 			const addButtonOuter = this.DOM.titleWrap.appendChild(Tag.render`
@@ -609,11 +677,13 @@ export class SectionInterface extends EventEmitter
 		}
 	}
 
-	showAddButtonPopup()
+	showAddButtonPopup(): void
 	{
 		if (this.addBtnMenu && this.addBtnMenu.popupWindow && this.addBtnMenu.popupWindow.isShown())
 		{
-			return this.addBtnMenu.close();
+			this.addBtnMenu.close();
+
+			return;
 		}
 
 		const menuItems = [
@@ -636,6 +706,11 @@ export class SectionInterface extends EventEmitter
 			this.getAddUserMenuItem(),
 			this.getAddGroupMenuItem(),
 		];
+
+		if (this.isCollabFeatureEnabled)
+		{
+			menuItems.push(this.getAddCollabMenuItem());
+		}
 
 		this.addBtnMenu = MenuManager.create(
 			`add-btn-${Util.getRandomInt()}`,
@@ -702,6 +777,17 @@ export class SectionInterface extends EventEmitter
 		};
 	}
 
+	getAddCollabMenuItem(): Object
+	{
+		return {
+			text: Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COLLAB'),
+			onclick: (): void => {
+				this.addBtnMenu.close();
+				this.showTrackingCollabsForm();
+			},
+		};
+	}
+
 	createSectionsBlock({ sectionList, wrap })
 	{
 		if (Type.isArray(sectionList))
@@ -753,7 +839,7 @@ export class SectionInterface extends EventEmitter
 			if (target.getAttribute('data-bx-calendar-section-menu') !== null)
 			{
 				let sectionId = target.getAttribute('data-bx-calendar-section-menu');
-				sectionId = sectionId === 'tasks' ? sectionId : parseInt(sectionId);
+				sectionId = sectionId === 'tasks' ? sectionId : parseInt(sectionId, 10);
 				this.showSectionMenu(this.sectionManager.getSection(sectionId), target);
 			}
 			else if (target.getAttribute('data-bx-calendar-section') !== null)
@@ -767,7 +853,7 @@ export class SectionInterface extends EventEmitter
 		}
 	}
 
-	findCheckBoxNodes(id)
+	findCheckBoxNodes(id): Array<HTMLElement>
 	{
 		return this.DOM.sectonListOuterWrap.querySelectorAll(
 			`.calendar-list-slider-item[data-bx-calendar-section='${id}'] .calendar-list-slider-item-checkbox`,
@@ -871,7 +957,6 @@ export class SectionInterface extends EventEmitter
 			!this.readonly
 			&& section.canDo('edit_section')
 			&& !section.isPseudo()
-			&& !this.calendarContext?.util?.isExtranetUser()
 		)
 		{
 			menuItems.push({
@@ -950,7 +1035,6 @@ export class SectionInterface extends EventEmitter
 			section.canDo('edit_section')
 			&& section.belongsToView()
 			&& !section.isPseudo()
-			&& !this.calendarContext?.util?.isExtranetUser()
 			&& (
 				(!section.isGoogle() && !connection)
 				|| section.data.EXTERNAL_TYPE === 'local'
@@ -1008,29 +1092,30 @@ export class SectionInterface extends EventEmitter
 
 		if (section.isPseudo() && section.taskSectionBelongToUser())
 		{
-			menuItems.push({
-				text: Loc.getMessage('EC_SEC_EDIT'),
-				onclick: () => {
-					this.sectionActionMenu.close();
-					this.showEditSectionForm({
-						section,
-					});
+			menuItems.push(
+				{
+					text: Loc.getMessage('EC_SEC_EDIT'),
+					onclick: () => {
+						this.sectionActionMenu.close();
+						this.showEditSectionForm({
+							section,
+						});
+					},
 				},
-			});
+				{
+					text: Loc.getMessage('EC_SEC_TASK_HIDE'),
+					onclick: () => {
+						this.sectionActionMenu.close();
+						BX.userOptions.save('calendar', 'user_settings', 'showTasks', 'N');
 
-			menuItems.push({
-				text: Loc.getMessage('EC_SEC_TASK_HIDE'),
-				onclick: () => {
-					this.sectionActionMenu.close();
-					BX.userOptions.save('calendar', 'user_settings', 'showTasks', 'N');
-
-					Dom.addClass(section.DOM.item, 'calendar-list-slider-item-disappearing');
-					setTimeout(() => {
-						Dom.clean(section.DOM.item, true);
-						BX.reload();
-					}, 300);
+						Dom.addClass(section.DOM.item, 'calendar-list-slider-item-disappearing');
+						setTimeout(() => {
+							Dom.clean(section.DOM.item, true);
+							BX.reload();
+						}, 300);
+					},
 				},
-			});
+			);
 		}
 
 		if (menuItems && menuItems.length > 0)
@@ -1093,6 +1178,11 @@ export class SectionInterface extends EventEmitter
 		if (this.trackingGroupsForm)
 		{
 			this.trackingGroupsForm.close();
+		}
+
+		if (this.trackingCollabsForm)
+		{
+			this.trackingCollabsForm.close();
 		}
 
 		if (this.trackingTypesForm)
@@ -1194,28 +1284,94 @@ export class SectionInterface extends EventEmitter
 		if (!this.trackingGroupsForm)
 		{
 			const superposedSections = this.sectionManager.getSuperposedSectionList();
-			const trackingGroups = this.calendarContext.util.getSuperposedTrackedGroups();
+			const trackingGroups = [];
+			const collabs = [];
 
 			superposedSections.forEach((section) => {
-				if (section.getType() === 'group'
-					&& !trackingGroups.includes(section.getOwnerId()))
+				if (section.getType() !== 'group')
 				{
-					trackingGroups.push(section.getOwnerId());
+					return;
+				}
+
+				const ownerId = section.getOwnerId();
+				if (
+					!section.isCollab()
+					&& !trackingGroups.includes(ownerId)
+				)
+				{
+					trackingGroups.push(ownerId);
+				}
+				else if (
+					section.isCollab()
+					&& !collabs.includes(ownerId)
+				)
+				{
+					collabs.push(ownerId);
 				}
 			});
 
 			this.trackingGroupsForm = new TrackingGroupsForm({
 				wrap: this.DOM.trackingGroupsFormWrap,
 				trackingGroups,
+				collabs,
 				superposedSections,
-				closeCallback: () => {
-					this.allowSliderClose();
-				},
+				closeCallback: (): void => this.allowSliderClose(),
 			});
 		}
 
 		this.trackingGroupsForm.show();
 		this.denySliderClose();
+	}
+
+	showTrackingCollabsForm(): void
+	{
+		this.closeForms();
+
+		if (!this.trackingCollabsForm)
+		{
+			this.trackingCollabsForm = this.createTrackingCollabsForm();
+		}
+
+		this.trackingCollabsForm.show();
+		this.denySliderClose();
+	}
+
+	createTrackingCollabsForm(): TrackingCollabsForm
+	{
+		const superposedSections = this.sectionManager.getSuperposedSectionList();
+		const trackingCollabs = [];
+		const groups = [];
+
+		superposedSections.forEach((section): void => {
+			if (section.getType() !== 'group')
+			{
+				return;
+			}
+
+			const ownerId = section.getOwnerId();
+			if (
+				section.isCollab()
+				&& !trackingCollabs.includes(ownerId)
+			)
+			{
+				trackingCollabs.push(ownerId);
+			}
+			else if (
+				!section.isCollab()
+				&& !groups.includes(ownerId)
+			)
+			{
+				groups.push(ownerId);
+			}
+		});
+
+		return new TrackingCollabsForm({
+			wrap: this.DOM.trackingCollabsFormWrap,
+			trackingCollabs,
+			groups,
+			superposedSections,
+			closeCallback: (): void => this.allowSliderClose(),
+		});
 	}
 
 	deleteSectionHandler(event)
@@ -1226,7 +1382,7 @@ export class SectionInterface extends EventEmitter
 			const sectionId = parseInt(data.sectionId, 10);
 
 			this.sliderSections.forEach((section, index) => {
-				if (parseInt(section.id) === sectionId)
+				if (parseInt(section.id, 10) === sectionId)
 				{
 					this.sectionManager.deleteSectionHandler(sectionId);
 					this.deletedSectionsIds.push(sectionId);
@@ -1268,9 +1424,9 @@ export class SectionInterface extends EventEmitter
 
 		for (i = 0; i < superposedSections.length; i++)
 		{
-			if (parseInt(section.id) !== parseInt(superposedSections[i].id))
+			if (parseInt(section.id, 10) !== parseInt(superposedSections[i].id, 10))
 			{
-				sections.push(parseInt(superposedSections[i].id));
+				sections.push(parseInt(superposedSections[i].id, 10));
 			}
 		}
 
@@ -1278,17 +1434,10 @@ export class SectionInterface extends EventEmitter
 			data: {
 				sections,
 			},
-		})
-			.then(
-				// Success
-				(response) => {
-					BX.reload();
-				},
-				// Failure
-				(response) => {
-					Util.displayError(response.errors);
-				},
-			);
+		}).then(
+			() => BX.reload(),
+			(response) => Util.displayError(response.errors),
+		);
 	}
 
 	refreshSectionList()
@@ -1341,7 +1490,7 @@ export class SectionInterface extends EventEmitter
 
 					break;
 				}
-			// No default
+			// no default
 			}
 		}
 	}
@@ -1383,7 +1532,7 @@ export class SectionInterface extends EventEmitter
 		this.DOM.confirmSectionPopup.show();
 	}
 
-	getConfirmCallback()
+	getConfirmCallback(): Function | null
 	{
 		if (this.currentConfirmMode === 'delete')
 		{
@@ -1405,9 +1554,11 @@ export class SectionInterface extends EventEmitter
 				this.hideExternalSection(this.currentSection);
 			};
 		}
+
+		return null;
 	}
 
-	getOkCaption()
+	getOkCaption(): string | null
 	{
 		if (this.currentConfirmMode === 'delete')
 		{
@@ -1418,9 +1569,11 @@ export class SectionInterface extends EventEmitter
 		{
 			return Loc.getMessage('EC_CAL_SYNC_DISCONNECT');
 		}
+
+		return null;
 	}
 
-	getSectionConfirmContent()
+	getSectionConfirmContent(): HTMLElement
 	{
 		let phrase = '';
 

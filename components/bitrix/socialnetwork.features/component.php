@@ -198,6 +198,7 @@ else
 							$arResult["Features"][$feature]["Active"] = true;
 						}
 
+
 						foreach ($arFeature["operations"] as $op => $arOp)
 						{
 							$arResult["Features"][$feature]["Operations"][$op] = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_GROUP, $arResult["Group"]["ID"], $feature, $op);
@@ -529,6 +530,7 @@ else
 					$moderatorsValue = Loc::getMessage('SONET_C3_PVG_MOD_PROJECT');
 					$userValue = Loc::getMessage('SONET_C3_PVG_USER_PROJECT');
 				}
+
 
 				$arResult['PermsVar'] = [
 					UserToGroupTable::ROLE_OWNER => $ownerValue,

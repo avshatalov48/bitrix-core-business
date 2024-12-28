@@ -2993,7 +2993,13 @@ class CRatings
 				rr.RATING_ID = $ratingId
 			and rr.CURRENT_VALUE >= $ratingValueAdd
 			and ug.USER_ID IS NULL";
-		$DB->Query($strSql);
+		try
+		{
+			$DB->Query($strSql);
+		}
+		catch (\Bitrix\Main\DB\DuplicateEntryException)
+		{
+		}
 
 		return true;
 	}

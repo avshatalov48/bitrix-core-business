@@ -88,6 +88,16 @@
 	animation: calendar-sharing__animate-range 250ms ease forwards;
 }
 
+.calendar-sharing__settings.--read-only.--calendar .calendar-sharing__settings-weekdays {
+	text-align: center;
+	padding-right: 10px;
+}
+
+.calendar-sharing__settings.--read-only.--calendar .calendar-sharing__settings-select {
+	justify-content: center;
+	padding-right: 10px;
+}
+
 @keyframes calendar-sharing__animate-range {
 	0% {
 		height: 0;

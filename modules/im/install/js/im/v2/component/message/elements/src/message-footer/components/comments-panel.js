@@ -1,7 +1,7 @@
 import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { EventType, ChatActionType } from 'im.v2.const';
+import { EventType, ActionByRole } from 'im.v2.const';
 import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { FadeAnimation } from 'im.v2.component.animation';
@@ -98,7 +98,7 @@ export const CommentsPanel = {
 		{
 			const permissionManager = PermissionManager.getInstance();
 
-			return permissionManager.canPerformAction(ChatActionType.subscribeToComments, this.dialogId);
+			return permissionManager.canPerformActionByRole(ActionByRole.subscribeToComments, this.dialogId);
 		},
 		subscribeIconTitle(): string
 		{
@@ -115,7 +115,7 @@ export const CommentsPanel = {
 		onCommentsClick()
 		{
 			const permissionManager = PermissionManager.getInstance();
-			if (!permissionManager.canPerformAction(ChatActionType.openComments, this.dialogId))
+			if (!permissionManager.canPerformActionByRole(ActionByRole.openComments, this.dialogId))
 			{
 				return;
 			}

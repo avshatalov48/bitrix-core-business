@@ -112,7 +112,7 @@ class CalendarPubSharingComponent extends CBitrixComponent
 				&& Loader::includeModule('crm')
 			;
 
-			$owner = Sharing\Helper::getOwnerInfo($link['userId']);
+			$owner = Sharing\Helper::getLinkOwnerInfo($link);
 			$this->arResult['OWNER'] = [
 				'id' => $owner['id'],
 				'name' => htmlspecialcharsbx($owner['name']),
@@ -124,7 +124,13 @@ class CalendarPubSharingComponent extends CBitrixComponent
 			$this->setBrowserLanguageForLoc();
 			Loc::loadMessages($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/classes/general/calendar.php");
 
-			if ($link['type'] === Sharing\Link\Helper::USER_SHARING_TYPE)
+			if (
+				in_array(
+					$link['type'],
+					[Sharing\Link\Helper::USER_SHARING_TYPE, Sharing\Link\Helper::GROUP_SHARING_TYPE],
+					true
+				)
+			)
 			{
 				$this->prepareCalendarParams($link);
 			}
@@ -204,7 +210,7 @@ class CalendarPubSharingComponent extends CBitrixComponent
 
 		if ($link['active'] === true)
 		{
-			$this->prepareAdditionalCalendarParams($link, $userId);
+			$this->prepareAdditionalCalendarParams($link, $userId ?? $link['hostId'] ?? null);
 		}
 
 		$this->arResult['BITRIX24_LINK'] = $this->getBitrix24Link();
@@ -230,20 +236,11 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	 * @return void
 	 * @throws Main\LoaderException
 	 */
-	protected function prepareAdditionalCalendarParams(array $link, int $userId): void
+	protected function prepareAdditionalCalendarParams(array $link, int $userId = null): void
 	{
 		$this->arResult['USER_ACCESSIBILITY'] = $this->getUsersAccessibility($link['userIds']);
 		$this->arResult['TIMEZONE_LIST'] = \CCalendar::GetTimezoneList();
-
-		$this->arResult['CALENDAR_SETTINGS'] = [
-			'serverOffset' => \CCalendar::GetCurrentOffsetUTC($userId) / 60,
-			'weekHolidays' => explode('|', COption::GetOptionString('calendar', 'week_holidays', 'SA|SU')),
-			'yearHolidays' => $this->getYearHolidays(),
-			'weekStart' => CCalendar::GetWeekStart(),
-			'phoneFeatureEnabled' => Sharing\Helper::isPhoneFeatureEnabled(),
-			'mailFeatureEnabled' => Sharing\Helper::isMailFeatureEnabled(),
-		];
-
+		$this->arResult['CALENDAR_SETTINGS'] = $this->getCalendarSettings($link, $userId);
 		$this->arResult['HAS_CONTACT_DATA'] = !empty($link['contactType']) && !empty($link['contactId']);
 	}
 
@@ -283,7 +280,7 @@ class CalendarPubSharingComponent extends CBitrixComponent
 
 	protected function getAbuseLink(array $link): ?string
 	{
-		$ownerId = $link['userId'] ?? $link['ownerId'];
+		$ownerId = $link['userId'] ?? $link['ownerId'] ?? 0;
 		$calendarLink = $link['url'];
 
 		return Sharing\Helper::getPageAbuseLink($ownerId, $calendarLink);
@@ -578,5 +575,32 @@ class CalendarPubSharingComponent extends CBitrixComponent
 		);
 
 		return true;
+	}
+
+	private function getCalendarSettings(array $link, int $userId): array
+	{
+		switch ($link['type'])
+		{
+			case Sharing\Link\Helper::GROUP_SHARING_TYPE:
+				$portalCalendarConfig = \CCalendar::GetSettings();
+
+				return [
+					'serverOffset' => \CCalendar::GetCurrentOffsetUTC($userId) / 60,
+					'weekHolidays' => $portalCalendarConfig['week_holidays'],
+					'yearHolidays' => $portalCalendarConfig['year_holidays'],
+					'weekStart' => $portalCalendarConfig['week_start'],
+					'phoneFeatureEnabled' => Sharing\Helper::isPhoneFeatureEnabled(),
+					'mailFeatureEnabled' => Sharing\Helper::isMailFeatureEnabled(),
+				];
+			default:
+				return [
+					'serverOffset' => \CCalendar::GetCurrentOffsetUTC($userId) / 60,
+					'weekHolidays' => explode('|', COption::GetOptionString('calendar', 'week_holidays', 'SA|SU')),
+					'yearHolidays' => $this->getYearHolidays(),
+					'weekStart' => CCalendar::GetWeekStart(),
+					'phoneFeatureEnabled' => Sharing\Helper::isPhoneFeatureEnabled(),
+					'mailFeatureEnabled' => Sharing\Helper::isMailFeatureEnabled(),
+				];
+		}
 	}
 }

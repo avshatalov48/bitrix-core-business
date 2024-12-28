@@ -9,6 +9,7 @@ trait AccessErrorTrait
 {
 	protected array $errorCollection = [];
 
+	/** @return Error[] */
 	public function getErrors(): array
 	{
 		return $this->errorCollection;
@@ -16,15 +17,15 @@ trait AccessErrorTrait
 
 	public function addError(string $class, string $message = ''): void
 	{
-		$this->errorCollection[] = $class .': '. $message;
+		$this->errorCollection[] = new Error($message, $class);
 	}
 
 	public function getErrorCollection(): ErrorCollection
 	{
 		$collection = new ErrorCollection();
-		foreach ($this->errorCollection as $errorMessage)
+		foreach ($this->errorCollection as $error)
 		{
-			$collection->setError(new Error($errorMessage));
+			$collection->setError($error);
 		}
 
 		return $collection;

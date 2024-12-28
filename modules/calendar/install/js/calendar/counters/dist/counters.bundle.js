@@ -23,25 +23,26 @@ this.BX = this.BX || {};
 	  }
 	  onActivateItem(event) {
 	    const item = event.getData();
-	    if (item.id === 'invitation') {
+	    const shouldSetPreset = item.id === Counters.TYPE_INVITATION || Counters.checkCounterIsForGroup(item.id);
+	    if (shouldSetPreset) {
 	      this.search.setPresetInvitation();
 	    }
 	  }
-	  onDeactivateItem(event) {
+	  onDeactivateItem() {
 	    this.search.resetPreset();
 	  }
 	  recalculateCounters() {
 	    Object.entries(this.counters).forEach(([code, data]) => {
 	      const item = this.getItemById(code);
-	      item.updateValue(data.value);
-	      item.updateColor(data.color);
+	      item == null ? void 0 : item.updateValue(data.value);
+	      item == null ? void 0 : item.updateColor(data.color);
 	    });
 	  }
 	  markCounters() {
 	    Object.entries(this.counters).forEach(([code, data]) => {
 	      const item = this.getItemById(code);
-	      if (item.id === 'invitation') {
-	        this.fields['MEETING_STATUS'] === 'Q' ? item.activate(false) : item.deactivate(false);
+	      if (item.id === 'invitation' || item.id.includes('calendar_group_invites_')) {
+	        this.fields.MEETING_STATUS === 'Q' ? item.activate(false) : item.deactivate(false);
 	      }
 	    });
 	  }
@@ -52,6 +53,9 @@ this.BX = this.BX || {};
 	  onFilterApply() {
 	    this.fields = this.search.filter.getFilterFieldsValues();
 	    this.markCounters();
+	  }
+	  static checkCounterIsForGroup(counterName) {
+	    return new RegExp(Counters.TYPE_GROUP_INVITATION_TPL).test(counterName);
 	  }
 	  static getCountersValue(counters) {
 	    return Object.entries(counters).map(([code, item]) => {
@@ -64,11 +68,17 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  static getCountersName(type) {
-	    if (type === 'invitation') {
+	    if (type === Counters.TYPE_INVITATION || Counters.checkCounterIsForGroup(type)) {
 	      return main_core.Loc.getMessage('EC_COUNTER_INVITATION');
 	    }
+	    return null;
+	  }
+	  static getCounterNameByGroupId(groupId) {
+	    return Counters.TYPE_GROUP_INVITATION_TPL.replace('\\d', groupId);
 	  }
 	}
+	Counters.TYPE_INVITATION = 'invitation';
+	Counters.TYPE_GROUP_INVITATION_TPL = 'calendar_group_invites_\\d';
 
 	exports.Counters = Counters;
 

@@ -8,9 +8,11 @@ import { MessengerNavigation } from 'im.v2.component.navigation';
 import { RecentListContainer } from 'im.v2.component.list.container.recent';
 import { OpenlineListContainer } from 'im.v2.component.list.container.openline';
 import { ChannelListContainer } from 'im.v2.component.list.container.channel';
+import { CollabListContainer } from 'im.v2.component.list.container.collab';
 import { ChatContent } from 'im.v2.component.content.chat';
-import { CreateChatContent, UpdateChatContent } from 'im.v2.component.content.chat-forms';
+import { CreateChatContent, UpdateChatContent } from 'im.v2.component.content.chat-forms.forms';
 import { OpenlinesContent } from 'im.v2.component.content.openlines';
+import { OpenlinesV2Content } from 'im.v2.component.content.openlinesV2';
 import { NotificationContent } from 'im.v2.component.content.notification';
 import { MarketContent } from 'im.v2.component.content.market';
 import { SettingsContent } from 'im.v2.component.content.settings';
@@ -38,12 +40,14 @@ export const Messenger = {
 		MessengerNavigation,
 		RecentListContainer,
 		ChannelListContainer,
+		CollabListContainer,
 		OpenlineListContainer,
 		ChatContent,
 		CreateChatContent,
 		UpdateChatContent,
 		OpenlinesContent,
 		NotificationContent,
+		OpenlinesV2Content,
 		MarketContent,
 		SettingsContent,
 		CopilotListContainer,

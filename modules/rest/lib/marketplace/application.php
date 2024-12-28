@@ -428,13 +428,13 @@ class Application
 				}
 				else
 				{
-					$errorMessage = '';
+					$errorMessage = [];
 					foreach ($checkResult as $error)
 					{
-						$errorMessage .= $error->getMessage() . '\n';
+						$errorMessage[] = $error->getMessage();
 					}
 
-					$result = ['error' => $errorMessage];
+					$result = ['error' => implode(PHP_EOL, $errorMessage)];
 					$appType = AppTable::getAppType($appInfo['CODE']);
 					if (
 						$checkResult->isEmpty()

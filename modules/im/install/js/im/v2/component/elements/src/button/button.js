@@ -1,4 +1,4 @@
-import {Type} from 'main.core';
+import { Type } from 'main.core';
 
 import './button.css';
 
@@ -19,7 +19,8 @@ export const ButtonColor = {
 	LightBorder: 'light-border',
 	DangerBorder: 'danger-border',
 	PrimaryBorder: 'primary-border',
-	Link: 'link'
+	Link: 'link',
+	Collab: 'collab',
 };
 
 export const ButtonIcon = {
@@ -29,6 +30,8 @@ export const ButtonIcon = {
 	EndCall: 'end-call',
 	AddUser: 'add-user',
 	Camera: 'camera',
+	Delete: 'delete',
+	Forward: 'forward',
 };
 
 export type CustomColorScheme = {
@@ -46,22 +49,22 @@ export const Button = {
 	{
 		size: {
 			type: String,
-			required: true
+			required: true,
 		},
 		text: {
 			type: String,
 			required: false,
-			default: ''
+			default: '',
 		},
 		icon: {
 			type: String,
 			required: false,
-			default: ''
+			default: '',
 		},
 		color: {
 			type: String,
 			required: false,
-			default: ButtonColor.Primary
+			default: ButtonColor.Primary,
 		},
 		customColorScheme: {
 			type: Object,
@@ -72,30 +75,30 @@ export const Button = {
 					backgroundColor: '',
 					iconColor: '',
 					textColor: '',
-					hoverColor: ''
+					hoverColor: '',
 				};
-			}
+			},
 		},
 		isRounded: {
 			type: Boolean,
 			required: false,
-			default: false
+			default: false,
 		},
 		isDisabled: {
 			type: Boolean,
 			required: false,
-			default: false
+			default: false,
 		},
 		isLoading: {
 			type: Boolean,
 			required: false,
-			default: false
+			default: false,
 		},
 		isUppercase: {
 			type: Boolean,
 			required: false,
-			default: true
-		}
+			default: true,
+		},
 	},
 	emits: ['click'],
 	computed:
@@ -105,9 +108,9 @@ export const Button = {
 			const result = {};
 			if (this.hasCustomColorScheme)
 			{
-				result['borderColor'] = this.customColorScheme.borderColor;
-				result['backgroundColor'] = this.customColorScheme.backgroundColor;
-				result['color'] = this.customColorScheme.textColor;
+				result.borderColor = this.customColorScheme.borderColor;
+				result.backgroundColor = this.customColorScheme.backgroundColor;
+				result.color = this.customColorScheme.textColor;
 				result['--im-button__background-color_hover'] = this.customColorScheme.hoverColor;
 			}
 
@@ -120,22 +123,27 @@ export const Button = {
 			{
 				classes.push(`--color-${this.color.toLowerCase()}`);
 			}
+
 			if (this.isRounded)
 			{
 				classes.push('--rounded');
 			}
+
 			if (this.isDisabled)
 			{
 				classes.push('--disabled');
 			}
+
 			if (this.isLoading)
 			{
 				classes.push('--loading');
 			}
+
 			if (this.isUppercase && this.size !== ButtonSize.S)
 			{
 				classes.push('--uppercase');
 			}
+
 			if (this.text === '')
 			{
 				classes.push('--no-text');
@@ -148,7 +156,7 @@ export const Button = {
 			const result = {};
 			if (this.hasCustomColorScheme)
 			{
-				result['backgroundColor'] = this.customColorScheme.iconColor;
+				result.backgroundColor = this.customColorScheme.iconColor;
 			}
 
 			return result;
@@ -165,13 +173,15 @@ export const Button = {
 		},
 		hasCustomColorScheme(): boolean
 		{
-			return Type.isStringFilled(this.customColorScheme.borderColor)
+			return Type.isPlainObject(this.customColorScheme)
+				&& Type.isStringFilled(this.customColorScheme.borderColor)
 				&& Type.isStringFilled(this.customColorScheme.iconColor)
 				&& Type.isStringFilled(this.customColorScheme.textColor)
 				&& Type.isStringFilled(this.customColorScheme.hoverColor);
-		}
+		},
 	},
-	methods: {
+	methods:
+	{
 		onClick(event: PointerEvent)
 		{
 			if (this.isDisabled || this.isLoading)
@@ -180,7 +190,7 @@ export const Button = {
 			}
 
 			this.$emit('click', event);
-		}
+		},
 	},
 	template:
 	`
@@ -193,5 +203,5 @@ export const Button = {
 			<span v-if="icon" :style="iconStyles" :class="iconClasses" class="bx-im-button__icon"></span>
 			<span class="bx-im-button__text">{{ text }}</span>
 		</button>
-	`
+	`,
 };

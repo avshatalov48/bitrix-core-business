@@ -690,11 +690,47 @@ this.BX = this.BX || {};
 	  static getSharingConfig() {
 	    return Util.sharingConfig;
 	  }
+	  static async downloadIcsFileByEventId(eventId, fileName = 'event') {
+	    const {
+	      status,
+	      data
+	    } = await Util.getBX().ajax.runAction('calendar.api.calendarentryajax.getIcsContent', {
+	      data: {
+	        eventId
+	      }
+	    });
+	    if (status !== 'success') {
+	      return;
+	    }
+	    return Util.downloadIcsFile(data, fileName);
+	  }
 	  static downloadIcsFile(fileContent, fileName) {
 	    const link = document.createElement('a');
 	    link.href = `data:text/calendar,${encodeURI(fileContent)}`;
 	    link.download = fileName;
 	    link.click();
+	  }
+	  static filterSectionsByContext(sections, {
+	    isCollabUser,
+	    calendarType,
+	    calendarOwnerId
+	  }) {
+	    if (!main_core.Type.isArray(sections) || !isCollabUser) {
+	      return sections;
+	    }
+	    const isCollab = section => main_core.Type.isFunction(section.isCollab) && section.isCollab() || section.IS_COLLAB;
+	    switch (calendarType) {
+	      case 'user':
+	        return sections.filter(section => isCollab(section));
+	      case 'group':
+	        const isCalendarOwnerIsSectionOwner = section => {
+	          const sectionOwnerId = main_core.Type.isNumber(section.ownerId) && section.ownerId || parseInt(section.OWNER_ID, 10);
+	          return sectionOwnerId === calendarOwnerId;
+	        };
+	        return sections.filter(section => isCollab(section) && isCalendarOwnerIsSectionOwner(section));
+	      default:
+	        return sections;
+	    }
 	  }
 	}
 	Util.PLANNER_PULL_TAG = 'calendar-planner-#USER_ID#';

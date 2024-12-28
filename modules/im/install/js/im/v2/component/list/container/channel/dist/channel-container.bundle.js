@@ -33,7 +33,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	    },
 	    onCreateClick() {
-	      im_v2_lib_analytics.Analytics.getInstance().onStartCreateNewChat(im_v2_const.ChatType.channel);
+	      im_v2_lib_analytics.Analytics.getInstance().chatCreate.onStartClick(im_v2_const.ChatType.channel);
 	      const promoBannerIsNeeded = im_v2_lib_promo.PromoManager.getInstance().needToShow(im_v2_const.PromoId.createChannel);
 	      if (promoBannerIsNeeded) {
 	        this.showPromo = true;

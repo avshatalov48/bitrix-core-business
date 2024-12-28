@@ -18,6 +18,8 @@ import { LikeManager } from './classes/like-manager';
 
 import './css/recent-list.css';
 
+export { RecentItem } from './components/recent-item/recent-item';
+
 import type { JsonObject } from 'main.core';
 import type { ImModelRecentItem, ImModelCallItem } from 'im.v2.model';
 
@@ -235,7 +237,7 @@ export const RecentList = {
 					@click="onCallClick"
 				/>
 			</div>
-			<CreateChat v-if="isCreatingChat"></CreateChat>
+			<CreateChat v-if="isCreatingChat" />
 			<LoadingState v-if="isLoading && !firstPageLoaded" />
 			<div v-else @scroll="onScroll" class="bx-im-list-recent__scroll-container">
 				<EmptyState v-if="isEmptyCollection" />

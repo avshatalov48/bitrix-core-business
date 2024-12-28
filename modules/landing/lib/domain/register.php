@@ -46,9 +46,17 @@ class Register
 		$http = new HttpClient;
 		$zone = ($tld == 'kz') ? 'kz' : Manager::getZone();
 		$ip = $http->get(self::B24_SERVICE_DETECT_IP . $zone);
-		$ip = Json::decode($ip);
 
-		return isset($ip['IP']) ? $ip['IP'] : self::B24_DEFAULT_DNS_IP;
+		try
+		{
+			$ip = Json::decode($ip);
+		}
+		catch (\Exception $e)
+		{
+			return self::B24_DEFAULT_DNS_IP;
+		}
+
+		return $ip['IP'] ?? self::B24_DEFAULT_DNS_IP;
 	}
 
 	/**

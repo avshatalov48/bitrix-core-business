@@ -2,6 +2,8 @@
 
 namespace Bitrix\Calendar\Internals\Counter\Processor;
 
+use Bitrix\Calendar\Integration\Pull\PushCommand;
+use Bitrix\Calendar\Integration\Pull\PushService;
 use Bitrix\Calendar\Internals\Counter;
 use Bitrix\Calendar\Internals\Counter\CounterDictionary;
 use Bitrix\Calendar\Internals\Counter\Event\Event;
@@ -39,6 +41,8 @@ class Total implements Base
 					$value,
 					'**',
 				);
+
+				$this->sendUserCountersPush($userId);
 			}
 
 			// my calendar counter (top menu etc.)
@@ -90,5 +94,29 @@ class Total implements Base
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param int $userId
+	 *
+	 * @return void
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\DB\SqlQueryException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private function sendUserCountersPush(int $userId): void
+	{
+		PushService::addEvent($userId, [
+			'module_id' => PushService::MODULE_ID,
+			'command' => PushCommand::UpdateUserCounters->value,
+			'params' => [
+				'counters' => [
+					CounterDictionary::COUNTER_TOTAL => Counter::getInstance($userId)->get(CounterDictionary::COUNTER_TOTAL),
+					CounterDictionary::COUNTER_INVITES => Counter::getInstance($userId)->get(CounterDictionary::COUNTER_INVITES),
+					CounterDictionary::COUNTER_SYNC_ERRORS => Counter::getInstance($userId)->get(CounterDictionary::COUNTER_SYNC_ERRORS),
+				],
+			],
+		]);
 	}
 }

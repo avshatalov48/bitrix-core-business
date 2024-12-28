@@ -50,14 +50,14 @@ class Dialog
 		$userId = \Bitrix\Im\Common::getUserId($userId);
 		if (!$userId)
 		{
-			return false;
+			return '';
 		}
 
-		$chat = \Bitrix\Im\Chat::getById($chatId);
+		$chat = \Bitrix\Im\Chat::getById($chatId, ['USER_ID' => $userId]);
 
 		if (!$chat)
 		{
-			return false;
+			return '';
 		}
 
 		if ($chat['MESSAGE_TYPE'] !== Chat::TYPE_PRIVATE)
@@ -82,7 +82,7 @@ class Dialog
 		$queryResult = $query->fetch();
 		if (!$queryResult)
 		{
-			return false;
+			return '';
 		}
 
 		return $queryResult['DIALOG_ID'];

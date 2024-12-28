@@ -62,7 +62,12 @@ class Common
 
 	public static function isDialogId($id)
 	{
-		return $id && preg_match('/^([0-9]{1,}|(chat|sg|crm)[0-9]{1,})$/i', $id);
+		if (is_string($id) || is_int($id))
+		{
+			return $id && preg_match('/^([0-9]{1,}|(chat|sg|crm)[0-9]{1,})$/i', $id);
+		}
+
+		return false;
 	}
 
 	public static function getUserId($userId = null)
@@ -139,4 +144,3 @@ class Common
 		return $extra;
 	}
 }
-

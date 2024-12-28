@@ -348,7 +348,7 @@ export const Parser = {
 			files = false;
 		}
 
-		const message = getCore().store.getters['recent/getMessage'](recentMessage.dialogId);
+		const message = getCore().store.getters['messages/getById'](recentMessage.messageId);
 
 		let attach = false;
 		if (

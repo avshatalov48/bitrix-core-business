@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Web\Json;
 
 IncludeModuleLangFile(__FILE__);
@@ -12,7 +13,7 @@ class CIBlockPropertyUserID
 	public static function GetUserTypeDescription()
 	{
 		return [
-			"PROPERTY_TYPE" => "S",
+			"PROPERTY_TYPE" => PropertyTable::TYPE_NUMBER,
 			"USER_TYPE" => self::USER_TYPE,
 			"DESCRIPTION" => GetMessage("IBLOCK_PROP_USERID_DESC"),
 			"GetAdminListViewHTML" => [__CLASS__, "getAdminListViewHTMLExtended"],

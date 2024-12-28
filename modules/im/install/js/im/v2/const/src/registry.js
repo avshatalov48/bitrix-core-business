@@ -7,7 +7,7 @@ export { RecentCallStatus } from './recent';
 export { NotificationTypesCodes, NotificationSettingsMode } from './notification';
 export { Layout } from './layout';
 export { SearchEntityIdTypes } from './search-result';
-export { UserStatus, UserExternalType, UserRole, UserIdNetworkPrefix } from './user';
+export { UserStatus, UserType, UserRole, UserIdNetworkPrefix } from './user';
 export { SidebarDetailBlock, SidebarFileTabTypes, SidebarFileTypes } from './sidebar';
 export { Color, ColorToken } from './color';
 export { AttachType, AttachDescription } from './attach';
@@ -19,7 +19,7 @@ export { PopupType } from './popup';
 export { Settings, SettingsSection, NotificationSettingsType } from './settings';
 export { SoundType } from './sound';
 export { PromoId } from './promo';
-export { ChatActionType, ChatActionGroup } from './chat-action';
+export { ActionByRole, ChatActionGroup, ActionByUserType } from './chat-action';
 export { BotType, RawBotType, BotCode, BotCommand } from './bot';
 export { PathPlaceholder } from './path';
 export { GetParameter } from './get-params';
@@ -27,6 +27,8 @@ export { TextareaPanelType } from './textarea';
 export { ChatEntityLinkType } from './chat-entity-link';
 export { MultidialogStatus } from './multidialog';
 export { SliderCode } from './slider-code';
+export { CounterType } from './counter';
+export { CollabEntityType } from './collab';
 
 export type {
 	OnLayoutChangeEvent,

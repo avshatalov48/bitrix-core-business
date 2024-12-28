@@ -954,7 +954,7 @@ if (
 								$analytics->onCommentAdd(
 									$analyticsInfo['section'] ?? '',
 									$analyticsInfo['context'] ?? '',
-									'',
+									true,
 									$typeMap[$eventId] ?? '',
 								);
 							}

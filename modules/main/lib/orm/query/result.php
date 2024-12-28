@@ -120,7 +120,7 @@ class Result extends BaseResult
 
 		if (is_object($row) && $row instanceof EntityObject)
 		{
-			// all rows has already been fetched in initializeFetchObject
+			// all rows have already been fetched in initializeFetchObject
 			return $row;
 		}
 

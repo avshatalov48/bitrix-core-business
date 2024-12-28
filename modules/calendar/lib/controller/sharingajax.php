@@ -1,6 +1,8 @@
 <?php
+
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\Controller\Filter\RestrictExternalUser;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Mappers;
@@ -26,7 +28,14 @@ Loc::loadMessages(__FILE__);
 
 class SharingAjax extends \Bitrix\Main\Engine\Controller
 {
-	private ?Sharing\Link\Factory $factory = null;
+	private int $userId;
+
+	protected function init(): void
+	{
+		parent::init();
+
+		$this->userId = \CCalendar::GetUserId();
+	}
 
 	public function configureActions(): array
 	{
@@ -34,131 +43,165 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 			'getUsersAccessibility' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
-					ActionFilter\Csrf::class
+					ActionFilter\Csrf::class,
 				],
 				'+postfilters' => [
-					new ActionFilter\Cors()
+					new ActionFilter\Cors(),
 				],
 			],
 			'saveEvent' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
-					ActionFilter\Csrf::class
+					ActionFilter\Csrf::class,
 				],
 				'+postfilters' => [
-					new ActionFilter\Cors()
+					new ActionFilter\Cors(),
 				],
 			],
 			'saveCrmEvent' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
-					ActionFilter\Csrf::class
+					ActionFilter\Csrf::class,
 				],
 				'+postfilters' => [
-					new ActionFilter\Cors()
+					new ActionFilter\Cors(),
 				],
 			],
 			'deleteEvent' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
-					ActionFilter\Csrf::class
+					ActionFilter\Csrf::class,
 				],
 				'+postfilters' => [
-					new ActionFilter\Cors()
+					new ActionFilter\Cors(),
 				],
 			],
 			'saveFirstEntry' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
-					ActionFilter\Csrf::class
+					ActionFilter\Csrf::class,
 				],
 				'+postfilters' => [
-					new ActionFilter\Cors()
+					new ActionFilter\Cors(),
 				],
 			],
 			'getConferenceLink' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
-					ActionFilter\Csrf::class
+					ActionFilter\Csrf::class,
 				],
 				'+postfilters' => [
-					new ActionFilter\Cors()
+					new ActionFilter\Cors(),
 				],
 			],
 			'getIcsFileContent' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
-					ActionFilter\Csrf::class
+					ActionFilter\Csrf::class,
 				],
 				'+postfilters' => [
-					new ActionFilter\Cors()
+					new ActionFilter\Cors(),
 				],
 			],
 			'handleTimelineNotify' => [
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
-					ActionFilter\Csrf::class
+					ActionFilter\Csrf::class,
 				],
 				'+postfilters' => [
-					new ActionFilter\Cors()
+					new ActionFilter\Cors(),
+				],
+			],
+			'enableUserSharing' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
+				],
+			],
+			'disableUserSharing' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
+				],
+			],
+			'disableUserLink' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
+				],
+			],
+			'increaseFrequentUse' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
+				],
+			],
+			'generateUserJointSharingLink' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
+				],
+			],
+			'getAllUserLink' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
 				],
 			],
 		];
 	}
 
+	/**
+	 * @return void
+	 */
 	public function disableOptionPayAttentionToNewSharingFeatureAction(): void
 	{
 		Sharing\Helper::disableOptionPayAttentionToNewSharingFeature();
 	}
 
+	/**
+	 * @return array|null
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function enableUserSharingAction(): ?array
 	{
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
-		{
-			return null;
-		}
-
-		$sharing = new Sharing\Sharing(\CCalendar::GetUserId());
+		$sharing = new Sharing\Sharing($this->userId);
 		$result = $sharing->enable();
 		if (!$result->isSuccess())
 		{
-			$this->addErrors($this->getErrors());
+			$this->addErrors($result->getErrors());
 			return null;
 		}
 
 		return $sharing->getLinkInfo();
 	}
 
+	/**
+	 * @return bool|null
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function disableUserSharingAction(): ?bool
 	{
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
-		{
-			return null;
-		}
-
-		$sharing = new Sharing\Sharing(\CCalendar::GetUserId());
+		$sharing = new Sharing\Sharing($this->userId);
 		$result = $sharing->disable();
 		if (!$result->isSuccess())
 		{
-			$this->addErrors($this->getErrors());
+			$this->addErrors($result->getErrors());
 			return null;
 		}
 
 		return true;
 	}
 
-	public function disableUserLinkAction(?string $hash): bool
+	/**
+	 * @param string|null $hash
+	 * @return bool
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function disableUserLinkAction(?string $hash): ?bool
 	{
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
-		{
-			return false;
-		}
-
-		$sharing = new Sharing\Sharing(\CCalendar::GetUserId());
+		$sharing = new Sharing\Sharing($this->userId);
 		$result = $sharing->deactivateUserLink($hash);
 		if (!$result->isSuccess())
 		{
-			$this->addErrors($this->getErrors());
+			$this->addErrors($result->getErrors());
 
 			return false;
 		}
@@ -166,18 +209,18 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		return true;
 	}
 
+	/**
+	 * @param string|null $hash
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function increaseFrequentUseAction(?string $hash)
 	{
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
-		{
-			return false;
-		}
-
-		$sharing = new Sharing\Sharing(\CCalendar::GetUserId());
+		$sharing = new Sharing\Sharing($this->userId);
 		$result = $sharing->increaseFrequentUse($hash);
 		if (!$result->isSuccess())
 		{
-			$this->addErrors($this->getErrors());
+			$this->addErrors($result->getErrors());
 
 			return false;
 		}
@@ -185,18 +228,18 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		return true;
 	}
 
+	/**
+	 * @param array $memberIds
+	 * @return array|null
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function generateUserJointSharingLinkAction(array $memberIds): ?array
 	{
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
-		{
-			return null;
-		}
-
-		$userId = \CCalendar::GetCurUserId();
-		$result = (new Sharing\Sharing($userId))->generateUserJointLink($memberIds);
+		$result = (new Sharing\Sharing($this->userId))->generateUserJointLink($memberIds);
 		if (!$result->isSuccess())
 		{
-			$this->addErrors($this->getErrors());
+			$this->addErrors($result->getErrors());
 
 			return null;
 		}
@@ -211,10 +254,8 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 			return null;
 		}
 
-		$userId = \CCalendar::GetCurUserId();
-
 		return [
-			'userLinks' => (new Sharing\Sharing($userId))->getAllUserLinkInfo(),
+			'userLinks' => (new Sharing\Sharing($this->userId))->getAllUserLinkInfo(),
 			'pathToUser' => Option::get('intranet', 'path_user', '/company/personal/user/#USER_ID#/', '-'),
 		];
 	}
@@ -278,8 +319,12 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		if (
 			!$link
 			|| !$link->isActive()
-			|| $link->getObjectType() !== Sharing\Link\Helper::USER_SHARING_TYPE
-			|| $link->getObjectId() !== $ownerId
+			|| !in_array(
+				$link->getObjectType(),
+				[Sharing\Link\Helper::USER_SHARING_TYPE, Sharing\Link\Helper::GROUP_SHARING_TYPE],
+				true
+			)
+			|| !$this->checkLinkBelongsOwnerId($link, $ownerId)
 		)
 		{
 			$this->addError(new Error('Link not found'));
@@ -375,7 +420,6 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		$connection = Application::getConnection();
 		$sqlHelper = $connection->getSqlHelper();
 
-
 		$crmDealLinkHash = $sqlHelper->forSql(trim($request['crmDealLinkHash'] ?? ''));
 		$ownerId = (int)($request['ownerId'] ?? null);
 		$ownerCreated = ($request['ownerCreated'] ?? null) === 'true';
@@ -395,7 +439,7 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 			return $result;
 		}
 
-		if (!$crmDealLink->getContactId()|| !$crmDealLink->getContactType())
+		if (!$crmDealLink->getContactId() || !$crmDealLink->getContactType())
 		{
 			$userName = $sqlHelper->forSql(trim($request['userName'] ?? ''));
 			$userContact = $sqlHelper->forSql(trim($request['userContact'] ?? ''));
@@ -814,9 +858,7 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 
 	private function getUserTimezoneName(): string
 	{
-		$userId = \CCalendar::GetCurUserId();
-
-		return \CCalendar::getUserTimezoneName($userId);
+		return \CCalendar::getUserTimezoneName($this->userId);
 	}
 
 	private function autoAcceptSharingEvent(int $eventId, int $userId)
@@ -827,5 +869,14 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 			'status' => 'Y',
 			'sharingAutoAccept' => true,
 		]);
+	}
+
+	private function checkLinkBelongsOwnerId(Link\Link $link, int $ownerId): bool
+	{
+		return match ($link->getObjectType())
+		{
+			Sharing\Link\Helper::GROUP_SHARING_TYPE => $link->getHostId() === $ownerId,
+			default => $link->getOwnerId() === $ownerId,
+		};
 	}
 }

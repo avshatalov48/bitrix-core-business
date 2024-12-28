@@ -1,4 +1,4 @@
-import { Type, Loc } from 'main.core';
+import { Type, Loc, ajax } from 'main.core';
 import { WorkgroupForm } from './index';
 
 export class FieldsManager
@@ -23,19 +23,17 @@ export class FieldsManager
 		],
 	};
 
-	static check()
+	static async check()
 	{
 		if (WorkgroupForm.getInstance().wizardManager.stepsCount === 1)
 		{
-			return this.checkAll();
+			return await this.checkAll();
 		}
-		else
-		{
-			return this.checkStep(WorkgroupForm.getInstance().wizardManager.currentStep);
-		}
+
+		return await this.checkStep(WorkgroupForm.getInstance().wizardManager.currentStep);
 	}
 
-	static checkStep(step)
+	static async checkStep(step)
 	{
 		step = parseInt(step);
 
@@ -43,12 +41,13 @@ export class FieldsManager
 
 		if (Type.isArray(this.mandatoryFieldsByStep[step]))
 		{
-			this.mandatoryFieldsByStep[step].forEach((fieldData) => {
+			for (const fieldData of this.mandatoryFieldsByStep[step])
+			{
 
 				let fieldNode = document.getElementById(fieldData.id);
 				if (!Type.isDomNode(fieldNode))
 				{
-					return;
+					continue;
 				}
 
 				if (fieldNode.tagName.toLowerCase() !== 'input')
@@ -58,13 +57,14 @@ export class FieldsManager
 						fieldNode = fieldNode.querySelector('input[type="text"]');
 						if (!Type.isDomNode(fieldNode))
 						{
-							return;
+							continue;
 						}
 					}
 				}
 
 				fieldData.fieldNode = fieldNode;
-				const errorText = this.checkField(fieldData);
+				// eslint-disable-next-line no-await-in-loop
+				const errorText = await this.checkField(fieldData);
 				if (Type.isStringFilled(errorText))
 				{
 					const bindNode = document.getElementById(fieldData.bindNodeId)
@@ -73,23 +73,24 @@ export class FieldsManager
 						message: errorText,
 					});
 				}
-			});
+			}
 		}
 
 		return errorDataList;
 	}
 
-	static checkAll()
+	static async checkAll()
 	{
 		let errorDataList = [];
-		Object.entries(this.mandatoryFieldsByStep).forEach((stepData) => {
-			errorDataList = errorDataList.concat(this.checkStep(parseInt(stepData[0])));
-		});
+		for (const stepData of Object.entries(this.mandatoryFieldsByStep))
+		{
+			errorDataList = errorDataList.concat(await this.checkStep(parseInt(stepData[0])));
+		}
 
 		return errorDataList;
 	}
 
-	static checkField(fieldData)
+	static async checkField(fieldData)
 	{
 		let errorText = '';
 
@@ -111,11 +112,35 @@ export class FieldsManager
 
 		const fieldNode = fieldData.fieldNode;
 		const fieldType = (Type.isStringFilled(fieldData.type) ? fieldData.type : 'string');
+		const fieldId = fieldData.id;
+		const groupId = WorkgroupForm.getInstance()?.groupId;
+		const type = WorkgroupForm.getInstance()?.selectedProjectType;
+
 		switch (fieldType)
 		{
 			case 'string':
-				errorText = (fieldNode.value.trim() === '' ? Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR') : '');
-				break
+				if (fieldNode.value.trim() === '')
+				{
+					errorText = Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR');
+					break;
+				}
+
+				if (groupId <= 0 && fieldId === 'GROUP_NAME_input')
+				{
+					const exists = await FieldsManager.checkSameGroupExists(fieldNode.value);
+					if (exists)
+					{
+						errorText = type === 'project'
+							? Loc.getMessage('SONET_GCE_T_GROUP_NAME_EXISTS_PROJECT')
+							: Loc.getMessage('SONET_GCE_T_GROUP_NAME_EXISTS');
+					}
+
+					break;
+				}
+
+				errorText = '';
+				break;
+
 			case 'input_hidden_container':
 				let empty = true;
 				fieldNode.querySelectorAll('input[type="hidden"]').forEach((hiddenNode) => {
@@ -150,5 +175,19 @@ export class FieldsManager
 		}
 
 		WorkgroupForm.getInstance().alertManager.showAlert(errorData.message, errorData.bindNode.parentNode);
+	}
+
+	static async checkSameGroupExists(groupName: string)
+	{
+		const response = await ajax.runAction(
+			'socialnetwork.api.workgroup.isExistingGroup',
+			{
+				data: {
+					name: groupName,
+				},
+			},
+		);
+
+		return response?.data?.exists;
 	}
 }

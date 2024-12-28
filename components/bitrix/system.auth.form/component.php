@@ -141,7 +141,7 @@ if(!$USER->IsAuthorized())
 			if(!empty($arServices))
 			{
 				$arResult["AUTH_SERVICES"] = $arServices;
-				if(isset($_REQUEST["auth_service_id"]) && $_REQUEST["auth_service_id"] <> '' && isset($arResult["AUTH_SERVICES"][$_REQUEST["auth_service_id"]]))
+				if (!empty($_REQUEST["auth_service_id"]) && is_string($_REQUEST["auth_service_id"]) && isset($arResult["AUTH_SERVICES"][$_REQUEST["auth_service_id"]]))
 				{
 					$arResult["CURRENT_SERVICE"] = $_REQUEST["auth_service_id"];
 					if(isset($_REQUEST["auth_service_error"]) && $_REQUEST["auth_service_error"] <> '')

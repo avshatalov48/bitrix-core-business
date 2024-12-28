@@ -35,7 +35,7 @@ Class mobileapp extends CModule
 		global $DB, $APPLICATION;
 		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
-		
+
 		if (!$DB->TableExists('b_mobileapp_app'))
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/mobileapp/install/db/' . $connection->getType() . '/install.sql');
@@ -111,9 +111,9 @@ Class mobileapp extends CModule
 			return true;
 	}
 
-	function UnInstallFiles()
+	public function uninstallFiles(): void
 	{
-		return true;
+
 	}
 
 	function DoInstall()
@@ -141,7 +141,7 @@ Class mobileapp extends CModule
 			elseif($step == 2)
 			{
 				$this->UnInstallDB();
-				$this->UnInstallFiles();
+				$this->uninstallFiles();
 				$GLOBALS["errors"] = $this->errors;
 				$APPLICATION->IncludeAdminFile(Loc::getMessage("APP_PLATFORM_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/unstep.php");
 			}

@@ -6,7 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Disk\Folder;
-use Bitrix\Main\Context;
+use Bitrix\Socialnetwork\Collab\Registry\CollabRegistry;
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -23,10 +23,22 @@ use Bitrix\Main\Context;
 $folder = Folder::loadById($arResult['VARIABLES']['FOLDER_ID']);
 
 $pageId = "group_files";
+$groupId = (int)$arResult['VARIABLES']['group_id'];
+$isCollab = CollabRegistry::getInstance()->get($groupId) !== null;
 
-include("util_group_menu.php");
+if (!$isCollab)
+{
+	include("util_group_menu.php");
+}
+
 include("util_group_profile.php");
 include("util_group_limit.php");
+
+if (!($arResult['VARIABLES']['STORAGE'] ?? null))
+{
+	$storage = \Bitrix\Disk\Driver::getInstance()->getStorageByGroupId($arResult['VARIABLES']['group_id']);
+	$arResult['VARIABLES']['STORAGE'] = $storage;
+}
 
 $componentParams = array_merge($arResult, [
 	'STORAGE' => $arResult['VARIABLES']['STORAGE'],
@@ -50,7 +62,7 @@ $componentParams = array_merge($arResult, [
 	),
 	'FOLDER' => $folder,
 	'RELATIVE_PATH' => $arResult['VARIABLES']['RELATIVE_PATH'],
-	'RELATIVE_ITEMS' => $arResult['VARIABLES']['RELATIVE_ITEMS'],
+	'RELATIVE_ITEMS' => $arResult['VARIABLES']['RELATIVE_ITEMS'] ?? null,
 ]);
 
 if (($_REQUEST['IFRAME'] ?? null) === 'Y')

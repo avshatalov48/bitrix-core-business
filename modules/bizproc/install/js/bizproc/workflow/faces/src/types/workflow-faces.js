@@ -1,34 +1,32 @@
 export type WorkflowFacesData = {
 	workflowId: string,
 	target: HTMLElement,
-	targetUserId: number, // positive, integer
+	targetUserId?: number, // positive, integer
 	data: FacesData,
-	showArrow: boolean,
-	showTimeline: boolean,
-	subscribeToPushes: boolean,
+	showArrow?: boolean,
+	showTimeStep?: boolean,
+	subscribeToPushes?: boolean,
+	isWorkflowFinished?: boolean,
 };
 
 export type FacesData = {
-	avatars: {
-		author: Array<Avatar>,
-		running: Array<Avatar>,
-		completed: Array<Avatar>,
-		done: Array<Avatar>,
+	steps: Array<StepData>,
+	progressBox: ?{
+		text: string,
+		progressTasksCount: number,
 	},
-	statuses: {
-		completedSuccess: boolean,
-		doneSuccess: boolean,
-	},
-	time: {
-		author: ?number,
-		running: ?number,
-		completed: ?number,
-		done: ?number,
-		total: ?number,
-	},
-	completedTaskCount: number,
-	workflowIsCompleted: boolean,
-	runningTaskId: number,
+	timeStep: ?StepData,
+};
+
+export type StepData = {
+	id: string,
+	name: string,
+	avatars: [],
+	avatarsData: Array<Avatar>,
+	duration: number | string,
+	success: ?boolean,
+	status: null | 'success' | 'wait' | 'not-success',
+	taskId: number,
 };
 
 export type Avatar = {

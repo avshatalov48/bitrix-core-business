@@ -3,9 +3,11 @@
 namespace Bitrix\Calendar\Core\Builders;
 
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Section\Section;
+use Bitrix\Calendar\Integration\SocialNetwork\Collab;
 
 class SectionBuilderFromArray implements Builder
 {
@@ -42,6 +44,7 @@ class SectionBuilderFromArray implements Builder
 			->setXmlId($this->getXmlId())
 			->setOwner($this->getOwner())
 			->setCreator($this->getCreator())
+			->setIsCollab($this->getIsCollab())
 		;
 	}
 
@@ -142,7 +145,19 @@ class SectionBuilderFromArray implements Builder
 	{
 		try
 		{
-			return Helper::getUserRole($this->fields['OWNER_ID'] ?? 0);
+			$ownerId = $this->fields['OWNER_ID'] ?? 0;
+
+			if (!$ownerId)
+			{
+				return null;
+			}
+
+			return match ($this->fields['CAL_TYPE'])
+			{
+				Dictionary::CALENDAR_TYPE['group'] => Helper::getGroupRole($ownerId),
+				Dictionary::CALENDAR_TYPE['company'] => Helper::getCompanyRole($ownerId),
+				default => Helper::getUserRole($ownerId),
+			};
 		}
 		catch (BaseException $e)
 		{
@@ -165,5 +180,20 @@ class SectionBuilderFromArray implements Builder
 		{
 			return null;
 		}
+	}
+
+	private function getIsCollab(): bool
+	{
+		if (array_key_exists('IS_COLLAB', $this->fields))
+		{
+			return $this->fields['IS_COLLAB'];
+		}
+
+		if (!$this->getId())
+		{
+			return false;
+		}
+
+		return (bool)Collab\Entity\SectionEntityHelper::getIfCollab($this->getId());
 	}
 }

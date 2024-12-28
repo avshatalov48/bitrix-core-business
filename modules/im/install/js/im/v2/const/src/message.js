@@ -1,3 +1,5 @@
+import { OpenLinesMessageComponent } from 'imopenlines.v2.const';
+
 export const MessageType = Object.freeze({
 	self: 'self',
 	opponent: 'opponent',
@@ -31,6 +33,7 @@ export const MessageComponent = Object.freeze({
 	generalChannelCreationMessage: 'GeneralChannelCreationMessage',
 	channelCreationMessage: 'ChannelCreationMessage',
 	callMessage: 'CallMessage',
+	...OpenLinesMessageComponent,
 });
 
 export const MessageMentionType = Object.freeze({

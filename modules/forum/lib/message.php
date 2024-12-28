@@ -685,6 +685,11 @@ class Message extends Internals\Entity
 		return $result;
 	}
 
+	public function getXmlId(): string
+	{
+		return (string)($this->data['XML_ID'] ?? '');
+	}
+
 	/**
 	 * @param Topic $parentObject
 	 * @param array $fields

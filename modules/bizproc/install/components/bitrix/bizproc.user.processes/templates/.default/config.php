@@ -13,6 +13,7 @@ return [
 		'main.popup',
 		'bizproc.types',
 		'bizproc.task',
+		'ui.hint',
 		'bizproc.workflow.faces',
 		'bizproc.workflow.faces.summary',
 		'ui.cnt',

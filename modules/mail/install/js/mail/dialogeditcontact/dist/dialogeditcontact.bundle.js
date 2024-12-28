@@ -4,11 +4,13 @@ this.BX.Mail = this.BX.Mail || {};
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	var DialogEditContact = /*#__PURE__*/function () {
 	  function DialogEditContact() {
 	    babelHelpers.classCallCheck(this, DialogEditContact);
 	  }
-
 	  babelHelpers.createClass(DialogEditContact, null, [{
 	    key: "getCheckedFields",
 	    value: function getCheckedFields(contentElement) {
@@ -20,23 +22,19 @@ this.BX.Mail = this.BX.Mail || {};
 	      var name = nameInput.value;
 	      var fieldsAreFilledCorrectly = true;
 	      var checkedFields = [];
-
 	      if (!main_core.Validation.isEmail(email)) {
 	        fieldsAreFilledCorrectly = false;
 	        emailItem.showError(0);
 	      } else if (name.length < 1) {
 	        name = email.split('@')[0];
 	      }
-
 	      checkedFields = {
 	        name: name,
 	        email: email
 	      };
-
 	      if (fieldsAreFilledCorrectly) {
 	        return checkedFields;
 	      }
-
 	      return false;
 	    }
 	  }, {
@@ -49,11 +47,9 @@ this.BX.Mail = this.BX.Mail || {};
 	      var removeContact = this.removeContact;
 	      var topSlider = BX.SidePanel.Instance.getTopSlider();
 	      var messageBoxZIndex = 1;
-
 	      if (topSlider != null) {
 	        messageBoxZIndex += topSlider.getZindex();
 	      }
-
 	      var messageBox = new ui_dialogs_messagebox.MessageBox({
 	        title: main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_REMOVE_DIALOG_TITLE"),
 	        message: main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_REMOVE_DIALOG_MESSAGE"),
@@ -97,11 +93,9 @@ this.BX.Mail = this.BX.Mail || {};
 	        COLOR: data['color'],
 	        INITIALS: data['abbreviation']
 	      };
-
 	      if (id !== undefined) {
 	        contactData['ID'] = id;
 	      }
-
 	      return BX.ajax.runAction('mail.addressbook.savecontact', {
 	        data: {
 	          contactData: contactData
@@ -120,21 +114,18 @@ this.BX.Mail = this.BX.Mail || {};
 	    value: function hideError() {
 	      var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'all';
 	      this.emailInputWrapper.classList.remove('ui-ctl-danger');
-
 	      if (id === 'all') {
 	        this.errorTitle.forEach(function (element) {
 	          BX.hide(element);
 	        });
 	        return;
 	      }
-
 	      BX.hide(this.errorTitle[id]);
 	    }
 	  }, {
 	    key: "openDialog",
 	    value: function openDialog(titleText) {
 	      var _this = this;
-
 	      var contactConfig = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
 	        contactID: 'new'
 	      };
@@ -143,14 +134,12 @@ this.BX.Mail = this.BX.Mail || {};
 	      var currentName = '';
 	      var disablingEmailInputClass = '';
 	      var disablingEmailInputAttribute = '';
-
 	      if (contactConfig['contactData'] !== undefined) {
 	        currentName = contactConfig['contactData']['name'];
 	        currentEmail = contactConfig['contactData']['email'];
 	        disablingEmailInputClass = 'ui-ctl-disabled';
 	        disablingEmailInputAttribute = 'disabled';
 	      }
-
 	      var emailInput = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<input data-role=\"input-field\" type=\"text\" class=\"ui-ctl-element\" value=\"\" placeholder=\"info@example.com\"  ", ">"])), disablingEmailInputAttribute);
 	      var emailInputWrapper = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100 ", "\">\n\t\t\t", "\n\t\t</div>"])), disablingEmailInputClass, emailInput);
 	      emailInput.value = currentEmail;
@@ -168,11 +157,9 @@ this.BX.Mail = this.BX.Mail || {};
 	      emailItem.showError = this.showError;
 	      emailItem.hideError = this.hideError;
 	      emailItem.hideError();
-
 	      emailInput.oninput = function () {
 	        return emailItem.hideError();
 	      };
-
 	      mail_sidepanelwrapper.SidePanelWrapper.open({
 	        id: sliderId,
 	        titleText: titleText,
@@ -185,19 +172,30 @@ this.BX.Mail = this.BX.Mail || {};
 	          text: main_core.Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_BUTTON_SAVE"),
 	          "function": function _function(eventObject) {
 	            var checkedFields = _this.getCheckedFields(content);
-
 	            if (checkedFields) {
 	              eventObject.setClocking(true);
-
 	              _this.saveContact(checkedFields['name'], checkedFields['email'], contactConfig['contactID']).then(function (response) {
 	                BX.SidePanel.Instance.postMessageAll(sliderId, 'dialogEditContact::reloadList', {});
 	                BX.SidePanel.Instance.close();
 	              })["catch"](function (response) {
-	                var message = response.errors.pop().message.pop();
-
-	                if (message['ID']) {
+	                var message = null;
+	                var _iterator = _createForOfIteratorHelper(response.errors),
+	                  _step;
+	                try {
+	                  for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	                    var error = _step.value;
+	                    if (error.code === 'ALL_CONTACTS_ALREADY_ADDED') {
+	                      message = error.customData.lastFound[0];
+	                      break;
+	                    }
+	                  }
+	                } catch (err) {
+	                  _iterator.e(err);
+	                } finally {
+	                  _iterator.f();
+	                }
+	                if (message !== null) {
 	                  eventObject.setClocking(false);
-
 	                  openEditSliderBtn.onclick = function () {
 	                    _this.openEditDialog({
 	                      contactID: Number(message['ID']),
@@ -207,7 +205,6 @@ this.BX.Mail = this.BX.Mail || {};
 	                      }
 	                    });
 	                  };
-
 	                  emailItem.showError(1);
 	                } else {
 	                  BX.SidePanel.Instance.postMessageAll(sliderId, 'dialogEditContact::reloadList', {});

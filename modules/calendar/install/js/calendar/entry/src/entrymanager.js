@@ -739,4 +739,20 @@ export class EntryManager {
 
 		return new bx.Calendar.Controls.EmailLimitationDialog();
 	}
+
+	static async downloadIcs(eventId: number): void
+	{
+		const { status, data } = await Util.getBX().ajax.runAction('calendar.api.calendarentryajax.getIcsContent', {
+			data: {
+				eventId,
+			},
+		});
+
+		if (status !== 'success')
+		{
+			return;
+		}
+
+		Util.downloadIcsFile(data, 'event');
+	}
 }

@@ -1,0 +1,25 @@
+<?php
+$MESS["VIDEO_PLAYER_PLAY"] = "Воспроизвести";
+$MESS["VIDEO_PLAYER_PAUSE"] = "Приостановить";
+$MESS["VIDEO_PLAYER_REPLAY"] = "Воспроизвести снова";
+$MESS["VIDEO_PLAYER_CURRENT_TIME"] = "Текущее время";
+$MESS["VIDEO_PLAYER_DURATION"] = "Продолжительность";
+$MESS["VIDEO_PLAYER_REMAINING_TIME"] = "Оставшееся время";
+$MESS["VIDEO_PLAYER_LOADED"] = "Загрузка";
+$MESS["VIDEO_PLAYER_PROGRESS"] = "Прогресс";
+$MESS["VIDEO_PLAYER_PROGRESS_BAR"] = "Индикатор загрузки";
+$MESS["VIDEO_PLAYER_FULLSCREEN"] = "Полноэкранный режим";
+$MESS["VIDEO_PLAYER_EXIT_FULLSCREEN"] = "Неполноэкранный режим";
+$MESS["VIDEO_PLAYER_MUTE"] = "Без звука";
+$MESS["VIDEO_PLAYER_UNMUTE"] = "Со звуком";
+$MESS["VIDEO_PLAYER_PLAYBACK_RATE"] = "Скорость воспроизведения";
+$MESS["VIDEO_PLAYER_VOLUME_LEVEL"] = "Уровень громкости";
+$MESS["VIDEO_PLAYER_ABORTED_PLAYBACK"] = "Вы прервали воспроизведение видео";
+$MESS["VIDEO_PLAYER_NETWORK_ERROR"] = "Ошибка сети вызвала сбой во время загрузки.";
+$MESS["VIDEO_PLAYER_FORMAT_NOT_SUPPORTED"] = "Не удалось загрузить видео из-за сетевого или серверного сбоя либо неподдерживаемого формата видео.";
+$MESS["VIDEO_PLAYER_PLAYBACK_WAS_ABORTED"] = "Воспроизведение прервано из-за повреждения либо в связи с тем, что видео использует функции, неподдерживаемые вашим браузером.";
+$MESS["VIDEO_PLAYER_NO_COMPATIBLE_SOURCE"] = "Совместимые источники для этого видео отсутствуют.";
+$MESS["VIDEO_PLAYER_MEDIA_IS_ENCRYPTED"] = "Видео зашифровано, а у нас нет ключей для его расшифровки.";
+$MESS["VIDEO_PLAYER_PLAY_VIDEO"] = "Воспроизвести видео";
+$MESS["VIDEO_PLAYER_EXIT_PICTURE_IN_PICTURE"] = "Закрыть картинку в картинке";
+$MESS["VIDEO_PLAYER_PICTURE_IN_PICTURE"] = "Картинка в картинке";

@@ -110,7 +110,6 @@ class AttendeeService
 		}
 
 		return (new Accessibility())
-			->setCheckPermissions(false)
 			->setSkipEventId($curEventId)
 			->getBusyUsersIds($usersToCheck, $fromTs, $toTs);
 	}

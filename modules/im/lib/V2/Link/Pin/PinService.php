@@ -4,11 +4,13 @@ namespace Bitrix\Im\V2\Link\Pin;
 
 use Bitrix\Im\Dialog;
 use Bitrix\Im\Model\LinkPinTable;
+use Bitrix\Im\Services\MessageParam;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Error;
 use Bitrix\Im\V2\Link\Push;
 use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Query\Query;

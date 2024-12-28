@@ -7,11 +7,16 @@ use Bitrix\Main\Config\Option;
 
 class OAuthConfigPreparer
 {
-	public function prepareBeforeSendIfNeed(Config $config): void
+	public function prepareBeforeSendIfNeed(Config $config): ?Config
 	{
-		if (!$config->getIsOauth() || !\CModule::includeModule('mail'))
+		if (!$config->getIsOauth())
 		{
-			return;
+			return $config;
+		}
+
+		if (!\CModule::includeModule('mail'))
+		{
+			return null;
 		}
 
 		$expireGapSeconds = self::getOAuthTokenExpireGapSeconds();
@@ -19,8 +24,11 @@ class OAuthConfigPreparer
 		if ($mailOAuth)
 		{
 			$token = $mailOAuth->getStoredToken(null, $expireGapSeconds);
-			// method should be used after retrieve token
-			self::setCloudOAuthRefreshDataToConfig($config, $mailOAuth);
+			if ($token)
+			{
+				// method should be used after retrieve token
+				self::setCloudOAuthRefreshDataToConfig($config, $mailOAuth);
+			}
 		}
 		else
 		{
@@ -28,7 +36,14 @@ class OAuthConfigPreparer
 			$token = OAuth::getTokenByMeta($config->getPassword(), $expireGapSeconds);
 		}
 
+		if (empty($token))
+		{
+			return null;
+		}
+
 		$config->setPassword($token);
+
+		return $config;
 	}
 
 	public function getOAuthTokenExpireGapSeconds(): int

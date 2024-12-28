@@ -16,10 +16,22 @@ export class TouchController
 			return;
 		}
 
-		this.target.addEventListener('mousedown', this.mouseDownHandler.bind(this));
-		this.target.addEventListener('mousemove', this.mouseMoveHandler.bind(this));
-		this.target.addEventListener('mouseup', this.mouseUpHandler.bind(this));
-		this.target.addEventListener('mouseleave', this.mouseUpHandler.bind(this));
+		this.mouseDownHandler = this.mouseDownHandler.bind(this);
+		this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
+		this.mouseUpHandler = this.mouseUpHandler.bind(this);
+
+		this.target.addEventListener('mousedown', this.mouseDownHandler);
+		this.target.addEventListener('mousemove', this.mouseMoveHandler);
+		this.target.addEventListener('mouseup', this.mouseUpHandler);
+		this.target.addEventListener('mouseleave', this.mouseUpHandler);
+	}
+
+	destroy(): void
+	{
+		this.target.removeEventListener('mousedown', this.mouseDownHandler);
+		this.target.removeEventListener('mousemove', this.mouseMoveHandler);
+		this.target.removeEventListener('mouseup', this.mouseUpHandler);
+		this.target.removeEventListener('mouseleave', this.mouseUpHandler);
 	}
 
 	mouseDownHandler(ev)

@@ -174,11 +174,29 @@ class ChatIndexTable extends Main\Entity\DataManager
 
 		if ($update[0] !== '')
 		{
-			Application::getConnection()->query(
-				"UPDATE " . static::getTableName() . " SET " . $update[0] . " WHERE " . $primaryField . " = " . $id
-			);
+			$sql = "UPDATE " . static::getTableName() . " SET " . $update[0] . " WHERE " . $primaryField . " = " . $id;
+			self::safeUpdateIndex($sql);
 		}
 
 		return $result;
+	}
+
+	private static function safeUpdateIndex(string $sql): void
+	{
+		try
+		{
+			Application::getConnection()->query($sql);
+		}
+		catch (Main\DB\SqlQueryException $exception)
+		{
+			if (str_starts_with($exception->getMessage(), "Mysql query error: (1022) Can't write;"))
+			{
+				Application::getConnection()->query($sql);
+
+				return;
+			}
+
+			throw $exception;
+		}
 	}
 }

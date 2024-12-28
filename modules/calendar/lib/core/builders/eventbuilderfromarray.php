@@ -622,4 +622,14 @@ class EventBuilderFromArray extends EventBuilder
 
 		return null;
 	}
+
+	protected function getDtLength(): ?int
+	{
+		return $this->fields['DT_LENGTH'] ?? null;
+	}
+
+	protected function getCollabId(): ?int
+	{
+		return $this->fields['COLLAB_ID'] ?? null;
+	}
 }

@@ -64,6 +64,11 @@ export class ClientSelector
 
 	getHtml()
 	{
+		const hint = Loc.getMessage('SEO_ADS_CLIENT_NOTE_MSGVER_1', {
+			'#LINK#': '<a target="_blank" onclick="top.BX.Helper.show(\'redirect=detail&code=8771305\')" style="cursor: pointer">',
+			'#/LINK#': '</a>',
+		});
+
 		return Tag.render`
 		<div class="seo-ads-client">
 			<div class="seo-ads-client-selector">
@@ -75,7 +80,7 @@ export class ClientSelector
 				<span class="seo-ads-client-selector-loader"></span>
 			</div>
 			<div class="seo-ads-client-note">
-			${Loc.getMessage('SEO_ADS_CLIENT_NOTE')}
+			${hint}
 			</div>
 		</div>
 		`;

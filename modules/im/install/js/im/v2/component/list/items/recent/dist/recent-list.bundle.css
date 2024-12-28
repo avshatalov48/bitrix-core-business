@@ -370,8 +370,16 @@
 	color: var(--im-list-recent__font-color_message);
 }
 
+.bx-im-list-recent-item__author-avatar {
+	display: inline-block;
+	margin-right: 4px;
+	filter: saturate(70%);
+	vertical-align: text-bottom;
+	margin-bottom: 1px;
+	max-height: 14px;
+}
 
-.bx-im-list-recent-item__message_author-icon.--self {
+.bx-im-list-recent-item__self_author-icon {
 	display: inline-block;
 	width: 11px;
 	min-width: 11px;
@@ -381,26 +389,6 @@
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: contain;
-}
-
-.bx-im-list-recent-item__message_author-icon.--user {
-	display: inline-block;
-	margin-right: 4px;
-	width: 14px;
-	height: 14px;
-	border-radius: 50%;
-	filter: saturate(70%);
-	background-size: cover;
-	background-repeat: no-repeat;
-	vertical-align: text-bottom;
-	margin-bottom: 1px;
-}
-
-.bx-im-list-recent-item__message_author-icon.--user.--default {
-	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2018%2020%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M16.79%2015.354c0-.77-1.026-1.65-3.047-2.163a6.926%206.926%200%200%201-1.929-.862c-.13-.072-.11-.745-.11-.745l-.65-.097c0-.055-.056-.862-.056-.862.779-.257.698-1.772.698-1.772.495.27.817-.93.817-.93.585-1.665-.291-1.564-.291-1.564.153-1.017.153-2.05%200-3.067-.39-3.373-6.254-2.457-5.559-1.356-1.713-.31-1.322%203.518-1.322%203.518l.371.991c-.73.465-.222%201.027-.197%201.674.036.955.632.757.632.757.036%201.577.828%201.782.828%201.782.149.99.056.822.056.822l-.705.083a2.7%202.7%200%200%201-.055.672c-.829.362-1.007.575-1.83.93-1.592.684-3.321%201.574-3.629%202.772C.505%2017.136.22%2019.746.22%2019.746h17.433l-.862-4.392z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E);
-	background-position: 3px 2px;
-	background-color: #adaaaa;
-	background-size: 8px;
 }
 
 .bx-im-list-recent-item__message_text {
@@ -462,7 +450,7 @@
 	display: inline-flex;
 	align-items: center;
 	height: 23px;
-	max-width: 100%;
+	max-width: 270px;
 	margin-top: 8px;
 	padding: 4px 9px 5px;
 	border-radius: 100px;
@@ -584,7 +572,7 @@
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='16' height='16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M7.564 3.21a.5.5 0 01.784.41v8.499a.5.5 0 01-.78.415l-2.723-1.84v-.16a.53.53 0 01-.069.004h-2.11a.533.533 0 01-.533-.533V5.72c0-.295.238-.533.533-.533h2.11a.54.54 0 01.069.004v-.1L7.564 3.21zm5.68 6.746l.743-.742-1.484-1.485 1.484-1.484-.742-.742-1.484 1.484-1.485-1.484-.742.742 1.484 1.484-1.484 1.485.742.742 1.485-1.484 1.484 1.484z' fill='%23fff' fill-opacity='.5'/%3E%3C/svg%3E");
 }
 
-.bx-im-list-recent-item__wrap.--selected .bx-im-list-recent-item__message_author-icon.--self {
+.bx-im-list-recent-item__wrap.--selected .bx-im-list-recent-item__self_author-icon {
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='11' height='11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.95 4.575H2.5l2.1-2.25c.3-.3.3-.8 0-1.1-.3-.3-.75-.3-1.05 0L.2 4.825c-.05.05-.05.1-.1.1 0 0 0 .05-.05.05 0 .05-.05.05-.05.1v.6c0 .05.05.05.05.1v.05c.05.05.05.1.1.1l3.35 3.6c.15.15.35.25.55.25.2 0 .4-.1.55-.25.3-.3.3-.8 0-1.1l-2.1-2.25h3.45c1.65 0 3 1.4 3 3.2 0 .45.35.8.75.8s.75-.35.75-.8c0-2.65-2.05-4.8-4.5-4.8z' fill='%23fff'/%3E%3C/svg%3E");
 }
 
@@ -682,51 +670,34 @@
 }
 .bx-im-list-recent-create-chat__container {
 	--im-list-recent-create-chat__background-color_not-active: var(--im-color-palette-blue-15);
-	--im-list-recent-create-chat__background-color_avatar: var(--im-color-palette-blue-50);
 	--im-list-recent-create-chat__font-color_header: var(--im-color-palette-white-base);
 
-	margin: 4px 4px 6px 4px;
+	margin: 4px 4px 6px;
 }
 
 .bx-im-list-recent-create-chat__container .bx-im-list-recent-item__wrap:not(.--selected) {
 	background-color: var(--im-list-recent-create-chat__background-color_not-active);
 }
 
-.bx-im-list-recent-create-chat__avatar {
-	width: 48px;
-	height: 48px;
-	background-color: var(--im-list-recent-create-chat__background-color_avatar);
-	border-radius: var(--im-border-radius-circle);
-}
-
-.bx-im-list-recent-create-chat__avatar.--default {
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='42' height='42' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M15.433 14.119a2.1 2.1 0 01-1.746.934H10.5a1.4 1.4 0 00-1.4 1.4V29.75a1.4 1.4 0 001.4 1.4h21a1.4 1.4 0 001.4-1.4V16.453a1.4 1.4 0 00-1.4-1.4h-3.282a2.1 2.1 0 01-1.727-.905l-1.88-2.718a1.4 1.4 0 00-1.151-.604h-5.08a1.4 1.4 0 00-1.165.623l-1.747-1.165a3.5 3.5 0 012.911-1.557h5.08a3.5 3.5 0 012.88 1.508l1.88 2.718H31.5a3.5 3.5 0 013.5 3.5V29.75a3.5 3.5 0 01-3.5 3.5h-21a3.5 3.5 0 01-3.5-3.5V16.453a3.5 3.5 0 013.5-3.5h3.187l1.781-2.67 1.747 1.167-1.782 2.669z' fill='%23fff' fill-opacity='.7'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M21 26.843a4.15 4.15 0 100-8.3 4.15 4.15 0 000 8.3zm0 2.1a6.25 6.25 0 100-12.5 6.25 6.25 0 000 12.5z' fill='%23fff' fill-opacity='.7'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: center;
-}
-
-.bx-im-list-recent-create-chat__avatar.--image {
-	object-fit: cover;
-	border-radius: var(--im-border-radius-circle);
-}
-
-.bx-im-list-recent-item__avatar_container.--squared .bx-im-list-recent-create-chat__avatar {
-	border-radius: var(--im-border-radius-md);
+.bx-im-list-recent-create-chat__avatar-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	height: 100%;
+	margin-right: 13px;
 }
 
 .bx-im-list-recent-create-chat__header {
 	font: var(--im-font-size-lg) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-list-recent-create-chat__font-color_header);
-
-	text-overflow: ellipsis;
-	overflow: hidden;
-	white-space: nowrap;
 }
 
 .bx-im-list-recent-create-chat__container .bx-im-list-recent-item__wrap:not(.--selected) .bx-im-list-recent-create-chat__header {
 	--im-list-recent-create-chat__font-color_header: var(--im-color-palette-black-base)
 }
+
 .bx-im-list-recent-empty-state__container {
 	--im-list-recent-empty-state__font-color_title: var(--im-color-palette-gray-70);
 	--im-list-recent-empty-state__font-color_subtitle: var(--im-color-palette-gray-50);

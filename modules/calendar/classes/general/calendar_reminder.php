@@ -238,27 +238,23 @@ class CCalendarReminder
 		$entryFields = $params['arFields'];
 		$reminders = $params['reminders'] ?? null;
 		$userId = (int)$params['userId'];
+		$ownerId = $entryFields['OWNER_ID'] ?? $entryFields['CREATED_BY'] ?? null;
 
 		if (!$reminders)
 		{
 			$reminders = self::prepareReminder($entryFields['REMIND']);
 		}
 
-		$path = $params['path'];
-		if (empty($path))
-		{
-			$path = CCalendar::GetPath($entryFields['CAL_TYPE'], $entryFields['OWNER_ID'], true);
-		}
+		$path = CCalendar::GetPathForCalendarEx($ownerId);
 
 		$viewPath = (new \Bitrix\Main\Web\Uri($path))
 			->deleteParams(["action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE"])
 			->addParams(['EVENT_ID' => $eventId])
 		;
 
-
 		$agentParams = [
 			'eventId' => $eventId,
-			'userId' => $entryFields["OWNER_ID"] ?? $entryFields["CREATED_BY"] ?? null,
+			'userId' => $ownerId,
 			'viewPath' => $viewPath->getUri(),
 			'calendarType' => $entryFields["CAL_TYPE"] ?? null,
 			'ownerId' => $entryFields["OWNER_ID"] ?? null

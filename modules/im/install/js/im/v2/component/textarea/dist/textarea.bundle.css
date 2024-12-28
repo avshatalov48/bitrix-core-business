@@ -523,7 +523,28 @@
 	max-width: 90%;
 }
 
-.bx-im-message-panel__forward-author {
+.bx-im-message-panel__bulk-forward-author {
+	display: inline-block;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 100%;
+}
+
+.bx-im-message-panel__text.--compact .bx-im-message-panel__bulk-forward-author {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.bx-im-message-panel__forward-author_name {
+	display: inline-block;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.bx-im-message-panel__forward-author, .bx-im-message-panel__bulk-forward-author {
 	color: var(--im-message-panel__color_forward-text);
 	font-weight: var(--im-font-weight-medium);
 }

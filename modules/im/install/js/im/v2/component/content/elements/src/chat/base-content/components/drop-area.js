@@ -4,7 +4,6 @@ import { EventEmitter } from 'main.core.events';
 
 import { EventType } from 'im.v2.const';
 import { UploadingService } from 'im.v2.provider.service';
-import { ChannelManager } from 'im.v2.lib.channel';
 
 import { Height } from '../const/size';
 
@@ -121,15 +120,13 @@ export const DropArea = {
 		{
 			event.preventDefault();
 
-			const isChannelType = ChannelManager.isChannel(this.dialogId);
 			const uploaderId = await this.getUploadingService().uploadFromDragAndDrop({
 				event,
 				dialogId: this.dialogId,
 				sendAsFile: false,
-				autoUpload: !isChannelType,
 			});
 
-			if (Type.isStringFilled(uploaderId) && isChannelType)
+			if (Type.isStringFilled(uploaderId))
 			{
 				EventEmitter.emit(EventType.textarea.openUploadPreview, { uploaderId });
 			}
@@ -155,7 +152,7 @@ export const DropArea = {
 				<div class="bx-im-content-chat-drop-area__box">
 					<span class="bx-im-content-chat-drop-area__icon"></span>
 					<label class="bx-im-content-chat-drop-area__label-text">
-						{{ loc('IM_CONTENT_BASE_CHAT_DROP_AREA') }}
+						{{ loc('IM_CONTENT_DROP_AREA') }}
 					</label>
 				</div>
 			</div>

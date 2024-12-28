@@ -7,10 +7,14 @@ use Bitrix\Main\Loader;
 
 class SocNetGroup extends Handler
 {
+	private static array $groups = [];
+
 	/**
 	 * @param int $id
 	 * @param array $arFields
+	 *
 	 * @return void
+	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function onSocNetUserToGroupAdd(int $id, array $arFields): void
 	{
@@ -31,7 +35,12 @@ class SocNetGroup extends Handler
 	 * @param int $id
 	 * @param array $arFields
 	 * @param array $oldUser2GroupArFields
+	 *
 	 * @return void
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function onSocNetUserToGroupUpdate(int $id, array $arFields, array $oldUser2GroupArFields): void
 	{
@@ -44,7 +53,7 @@ class SocNetGroup extends Handler
 			return;
 		}
 		$groupId = $oldUser2GroupArFields['GROUP_ID'];
-		$group = WorkgroupTable::getById($groupId)->fetch();
+		$group = self::getGroup($groupId);
 
 		if (empty($group['ID']) || !isset($group['PROJECT']))
 		{
@@ -60,9 +69,33 @@ class SocNetGroup extends Handler
 	}
 
 	/**
+	 * @return array|false|mixed
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private static function getGroup(int $groupId): mixed
+	{
+		if (isset(self::$groups[$groupId]))
+		{
+			return self::$groups[$groupId];
+		}
+
+		self::$groups[$groupId] = WorkgroupTable::query()
+			->setSelect(['ID', 'PROJECT'])
+			->where('ID', $groupId)
+			->exec()->fetch()
+		;
+
+		return self::$groups[$groupId];
+	}
+
+	/**
 	 * @param int $id
 	 * @param array $arFields
+	 *
 	 * @return void
+	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function onSocNetUserToGroupDelete(int $id, array $arFields): void
 	{
@@ -82,7 +115,9 @@ class SocNetGroup extends Handler
 	/**
 	 * @param int $id
 	 * @param array $arFields
+	 *
 	 * @return void
+	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function onSocNetGroupUpdate(int $id, array $arFields): void
 	{

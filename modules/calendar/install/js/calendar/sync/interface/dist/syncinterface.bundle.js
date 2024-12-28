@@ -984,35 +984,44 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getActionButton() {
 	    if (this.connection.status === false && this.provider.getStatus() === 'failed' && this.provider.doSupportReconnectionScenario()) {
-	      this.actionButton = main_core.Tag.render(_t6$4 || (_t6$4 = _$6`
-				<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
-					<div class="ui-icon-set --refresh-4"></div>
-					${0}
-					<div class="calendar-sync__account-counter">${0}</div>
-				</button>
-			`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_FAILED_RECONNECT'), this.COUNTER_FAILED);
-	      main_core.Event.bind(this.actionButton, 'click', () => this.reconnect());
+	      this.getReconnectActionButton();
 	    } else if (this.provider.getStatus() === 'pending') {
-	      this.actionButton = main_core.Tag.render(_t7$3 || (_t7$3 = _$6`
-				<button class="ui-btn ui-btn-primary ui-btn-clock ui-btn-round calendar-sync__account-btn">
-					<div class="calendar-sync__account-counter">${0}</div>
-				</button>
-			`), this.COUNTER_FAILED);
+	      this.getPendingActionButton();
 	    } else {
-	      const {
-	        root,
-	        icon
-	      } = main_core.Tag.render(_t8$1 || (_t8$1 = _$6`
-				<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
-					<div ref="icon" class="ui-icon-set --refresh-4"></div>
-					${0}
-				</button>
-			`), main_core.Loc.getMessage('CAL_REFRESH'));
-	      this.actionButton = root;
-	      this.actionButtonIcon = icon;
-	      main_core.Event.bind(this.actionButton, 'click', () => this.updateConnection());
+	      this.getRefreshActionButton();
 	    }
 	    return this.actionButton;
+	  }
+	  getReconnectActionButton() {
+	    this.actionButton = main_core.Tag.render(_t6$4 || (_t6$4 = _$6`
+			<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
+				<div class="ui-icon-set --refresh-4"></div>
+				${0}
+				<div class="calendar-sync__account-counter">${0}</div>
+			</button>
+		`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_FAILED_RECONNECT'), this.COUNTER_FAILED);
+	    main_core.Event.bind(this.actionButton, 'click', () => this.reconnect());
+	  }
+	  getPendingActionButton() {
+	    this.actionButton = main_core.Tag.render(_t7$3 || (_t7$3 = _$6`
+			<button class="ui-btn ui-btn-primary ui-btn-clock ui-btn-round calendar-sync__account-btn">
+				<div class="calendar-sync__account-counter">${0}</div>
+			</button>
+		`), this.COUNTER_FAILED);
+	  }
+	  getRefreshActionButton() {
+	    const {
+	      root,
+	      icon
+	    } = main_core.Tag.render(_t8$1 || (_t8$1 = _$6`
+			<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
+				<div ref="icon" class="ui-icon-set --refresh-4"></div>
+				${0}
+			</button>
+		`), main_core.Loc.getMessage('CAL_REFRESH'));
+	    this.actionButton = root;
+	    this.actionButtonIcon = icon;
+	    main_core.Event.bind(this.actionButton, 'click', () => this.updateConnection());
 	  }
 	  updateConnection() {
 	    if (this.IS_UPDATING) {
@@ -1375,11 +1384,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  _t$8,
 	  _t2$8,
 	  _t3$7,
-	  _t4$7;
+	  _t4$7,
+	  _t5$6;
 	class ExchangeTemplate extends InterfaceTemplate {
 	  constructor(provider, connection = null) {
 	    super({
-	      title: main_core.Loc.getMessage("CALENDAR_TITLE_EXCHANGE"),
+	      title: main_core.Loc.getMessage('CALENDAR_TITLE_EXCHANGE'),
 	      helpDeskCode: '9860971',
 	      titleInfoHeader: main_core.Loc.getMessage('CAL_CONNECT_EXCHANGE_CALENDAR'),
 	      descriptionInfoHeader: main_core.Loc.getMessage('CAL_EXCHANGE_CONNECT_DESCRIPTION'),
@@ -1401,10 +1411,26 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 			${0}
 		`), this.getContentActiveBodyHeader(), this.getContentBody(), this.getHelpdeskBlock());
 	  }
+	  getActiveConnectionContent() {
+	    return main_core.Tag.render(_t2$8 || (_t2$8 = _$8`
+			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
+				<div class="calendar-sync-header">
+					<span class="calendar-sync-header-text">${0}</span>
+				</div>
+				<div class="calendar-sync__scope">
+					<div class="calendar-sync__content --border-radius">
+						<div class="calendar-sync__content-block --space-bottom">
+							${0}
+						</div>
+					</div>
+				</div>
+			</div>
+		`), this.getHeaderTitle(), this.getContentActiveBody());
+	  }
 	  getContentActiveBodyHeader() {
 	    const timestamp = this.connection.getSyncDate().getTime() / 1000;
 	    const syncTime = timestamp ? calendar_util.Util.formatDateUsable(timestamp) + ' ' + BX.date.format(calendar_util.Util.getTimeFormatShort(), timestamp) : '';
-	    return main_core.Tag.render(_t2$8 || (_t2$8 = _$8`
+	    return main_core.Tag.render(_t3$7 || (_t3$7 = _$8`
 			<div class="calendar-sync__account ${0}">
 				<div class="calendar-sync__account-logo">
 					<div class="calendar-sync__account-logo--image ${0}"></div>
@@ -1416,18 +1442,23 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 						${0}
 					</div>
 				</div>
+				${0}
 			</div>
-			`), this.getSyncStatusClassName(), this.getLogoIconClass(), BX.util.htmlspecialchars(this.connection.getConnectionName()), syncTime);
+		`), this.getSyncStatusClassName(), this.getLogoIconClass(), BX.util.htmlspecialchars(this.connection.getConnectionName()), syncTime, this.getActionButton());
+	  }
+	  getActionButton() {
+	    this.getRefreshActionButton();
+	    return this.actionButton;
 	  }
 	  getContentBody() {
-	    return main_core.Tag.render(_t3$7 || (_t3$7 = _$8`
+	    return main_core.Tag.render(_t4$7 || (_t4$7 = _$8`
 			<div class="calendar-sync__account-desc">
 				${0}
 			</div>
 		`), main_core.Loc.getMessage('CAL_EXCHANGE_SELECTED_DESCRIPTION'));
 	  }
 	  getHelpdeskBlock() {
-	    return main_core.Tag.render(_t4$7 || (_t4$7 = _$8`
+	    return main_core.Tag.render(_t5$6 || (_t5$6 = _$8`
 			<div>
 				<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${0}">
 					${0}
@@ -1442,7 +1473,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  _t2$9,
 	  _t3$8,
 	  _t4$8,
-	  _t5$6,
+	  _t5$7,
 	  _t6$5,
 	  _t7$4,
 	  _t8$2,
@@ -1557,7 +1588,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.infoStatusWrapper;
 	  }
 	  getErrorWrapper() {
-	    this.errorWrapper = main_core.Tag.render(_t5$6 || (_t5$6 = _$9`
+	    this.errorWrapper = main_core.Tag.render(_t5$7 || (_t5$7 = _$9`
 			<div class="calendar-sync__content-block --space-bottom-xl" style="display: none;">
 				<div class="calendar-sync__error">
 					<div class="calendar-sync__notification-message">
@@ -2221,7 +2252,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  _t2$b,
 	  _t3$a,
 	  _t4$9,
-	  _t5$7,
+	  _t5$8,
 	  _t6$6,
 	  _t7$5,
 	  _t8$3,
@@ -2400,7 +2431,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAppleIdError() {
 	    if (!this.DOM.appleIdError) {
-	      this.DOM.appleIdError = main_core.Tag.render(_t5$7 || (_t5$7 = _$c`
+	      this.DOM.appleIdError = main_core.Tag.render(_t5$8 || (_t5$8 = _$c`
 				<div class="calendar-sync__auth-popup--label-text --error">
 					${0}
 				</div>
@@ -3050,7 +3081,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  _t2$c,
 	  _t3$b,
 	  _t4$a,
-	  _t5$8,
+	  _t5$9,
 	  _t6$7;
 	class MacTemplate extends InterfaceTemplate {
 	  constructor(provider, connection = null) {
@@ -3122,7 +3153,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getContentInfoBodyHeaderHelper() {
 	    if (!this.headerHelper) {
-	      this.headerHelper = main_core.Tag.render(_t5$8 || (_t5$8 = _$g`
+	      this.headerHelper = main_core.Tag.render(_t5$9 || (_t5$9 = _$g`
 				<div class="calendar-sync-slider-info">
 					<span class="calendar-sync-slider-info-text">
 						<a class="calendar-sync-slider-info-link">
@@ -3253,7 +3284,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  _t2$d,
 	  _t3$c,
 	  _t4$b,
-	  _t5$9,
+	  _t5$a,
 	  _t6$8,
 	  _t7$6;
 	class MobileInterfaceTemplate extends InterfaceTemplate {
@@ -3308,7 +3339,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  getContentActiveBodyHeader() {
 	    const timestamp = this.connection.getSyncDate().getTime() / 1000;
 	    const syncTime = timestamp ? calendar_util.Util.formatDateUsable(timestamp) + ' ' + BX.date.format(calendar_util.Util.getTimeFormatShort(), timestamp) : '';
-	    return main_core.Tag.render(_t5$9 || (_t5$9 = _$h`
+	    return main_core.Tag.render(_t5$a || (_t5$a = _$h`
 			<div class="calendar-sync-slider-section">
 				<div class="calendar-sync-slider-header-icon ${0}"></div>
 				<div class="calendar-sync-slider-header">

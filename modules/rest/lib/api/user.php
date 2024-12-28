@@ -523,6 +523,7 @@ class User extends \IRestService
 
 		$sort = $query['SORT'] ?? null;
 		$order = $query['ORDER'] ?? null;
+		$select = $query['SELECT'] ?? null;
 		$adminMode = false;
 
 		//getting resize preset before user data preparing
@@ -677,7 +678,21 @@ class User extends \IRestService
 		{
 			$querySort[$sort] = $order;
 		}
+
 		$allowedFields = static::getAllowedUserFields($server->getAuthScope());
+
+		if (is_array($select) && !empty($select) && !in_array('*',  $select, true))
+		{
+			if (in_array('UF_*', $select, true))
+			{
+				$allowedAllUF = array_filter(
+					$allowedFields,
+					static fn($value) => $value && str_starts_with($value, 'UF_')
+				);
+			}
+
+			$allowedFields = array_merge(array_intersect($allowedFields, $select), $allowedAllUF ?? []);
+		}
 
 		$dbRes = $getListClassName::$getListMethodName(
 			[
@@ -912,7 +927,7 @@ class User extends \IRestService
 		}
 		else
 		{
-			throw new NonLoggedExceptionDecorator(\Exception('access_denied'));
+			throw new NonLoggedExceptionDecorator(new \Exception('access_denied'));
 		}
 
 		return $res;

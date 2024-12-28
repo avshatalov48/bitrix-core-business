@@ -32,13 +32,12 @@ $arResult["DB_SOCSERV_USER"] = [];
 if(
 	(
 		(
-			isset($_REQUEST["code"])
-			&& $_REQUEST["code"] <> ''
+			!empty($_REQUEST["code"])
 		)
 		||
 		(
-			isset($_REQUEST["auth_service_id"])
-			&& $_REQUEST["auth_service_id"] <> ''
+			!empty($_REQUEST["auth_service_id"])
+			&& is_string($_REQUEST["auth_service_id"])
 			&& isset($arResult["AUTH_SERVICES"][$_REQUEST["auth_service_id"]])
 		)
 	)
@@ -178,7 +177,7 @@ $arParamsToDelete = array(
 	"openid_sig",
 	"current_fieldset",
 );
-$add = (CModule::IncludeModule("socialnetwork") && $_REQUEST["auth_service_id"] <> '' && $componentTemplate == 'twitpost') ? "current_fieldset=SOCSERV" : "";
+$add = (CModule::IncludeModule("socialnetwork") && !empty($_REQUEST["auth_service_id"]) && $componentTemplate == 'twitpost') ? "current_fieldset=SOCSERV" : "";
 $isActionDelete = isset($_REQUEST["action"]) && $_REQUEST["action"] === "delete";
 
 if ($_SERVER["REQUEST_METHOD"] === "GET" && $isActionDelete && isset($_REQUEST["user_id"]) && intval($_REQUEST["user_id"] > 0) && check_bitrix_sessid())

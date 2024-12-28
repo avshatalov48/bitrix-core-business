@@ -554,14 +554,15 @@
 
 .ui-selector-item-avatar {
 	width: 28px;
-	height: 28px;
 	min-width: 28px;
+	height: 28px;
 	border-radius: 50%;
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='28' height='28' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='.5' fill-rule='evenodd' clip-rule='evenodd' d='M14 28c7.732 0 14-6.268 14-14S21.732 0 14 0 0 6.268 0 14s6.268 14 14 14z' fill='%23828B95'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M15.06 8.296a.262.262 0 00-.448.186v3.39H8.646a.262.262 0 00-.263.262v3.732c0 .145.118.262.263.262h5.966v3.39c0 .234.283.351.448.186l5.518-5.518a.262.262 0 000-.372L15.06 8.296z' fill='%23fff'/%3E%3C/svg%3E");
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
 	overflow: hidden;
+	box-sizing: border-box;
 }
 
 .ui-selector-dialog--compact-view .ui-selector-item-avatar {

@@ -22,4 +22,10 @@ export type {
 	RawRecentItem,
 	RecentRestResult,
 	ChannelRestResult,
+	CollabRestResult,
 } from './types/rest';
+
+export type {
+	ForwardedEntityConfig,
+	PanelContext,
+} from './sending/sending';

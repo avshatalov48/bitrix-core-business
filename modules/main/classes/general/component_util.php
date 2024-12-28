@@ -38,7 +38,7 @@ class CComponentUtil
 	{
 		unset($arData["NEW_COMPONENT_TEMPLATE"]);
 
-		if ($arData["SEF_MODE"] == "Y")
+		if (isset($arData["SEF_MODE"]) && $arData["SEF_MODE"] == "Y")
 		{
 			unset($arData["VARIABLE_ALIASES"]);
 			unset($arData["SEF_URL_TEMPLATES"]);
@@ -481,7 +481,7 @@ class CComponentUtil
 
 		if ($templateProperties && is_array($templateProperties))
 		{
-			if(is_array($arComponentParameters["PARAMETERS"]))
+			if(isset($arComponentParameters["PARAMETERS"]) && is_array($arComponentParameters["PARAMETERS"]))
 				$arComponentParameters["PARAMETERS"] = array_merge ($arComponentParameters["PARAMETERS"], $templateProperties);
 			else
 				$arComponentParameters["PARAMETERS"] = $templateProperties;

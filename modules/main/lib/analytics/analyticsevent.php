@@ -31,19 +31,33 @@ final class AnalyticsEvent
 	private string $status = self::STATUS_SUCCESS;
 	private ?int $userId;
 	private string $userAgent;
+	private string $host;
+	private string $dbname;
 
 	private bool $isInvalid = false;
 
 	public function __construct(
-		private string $event,
-		private string $tool,
-		private string $category,
+		private readonly string $event,
+		private readonly string $tool,
+		private readonly string $category,
 	)
 	{
 		$userAgent = Context::getCurrent()?->getRequest()->getUserAgent();
 		if ($userAgent && \is_string($userAgent))
 		{
-			$this->userAgent = $userAgent;
+			$this->setUserAgent($userAgent);
+		}
+
+		$httpHost = Context::getCurrent()?->getServer()->getHttpHost();
+		if ($httpHost && \is_string($httpHost))
+		{
+			$this->setHost($httpHost);
+		}
+
+		$dbname = \defined('BX24_DB_NAME') ? BX24_DB_NAME : null;
+		if ($dbname && \is_string($dbname))
+		{
+			$this->setDbName($dbname);
 		}
 	}
 
@@ -147,6 +161,20 @@ final class AnalyticsEvent
 	public function setUserAgent(string $userAgent): self
 	{
 		$this->userAgent = $userAgent;
+
+		return $this;
+	}
+
+	public function setHost(string $host): self
+	{
+		$this->host = $host;
+
+		return $this;
+	}
+
+	public function setDbName(string $dbname): self
+	{
+		$this->dbname = $dbname;
 
 		return $this;
 	}
@@ -280,8 +308,8 @@ final class AnalyticsEvent
 	{
 		$data = [
 			'date' => date('Y-m-d H:i:s'),
-			'host' => Context::getCurrent()->getServer()->getHttpHost(),
-			'dbname' => \defined('BX24_DB_NAME') ? BX24_DB_NAME : null,
+			'host' => $this->host ?? null,
+			'dbname' => $this->dbname ?? null,
 			'userId' => $this->userId ?? 0,
 			'event' => $this->exportToArray(),
 		];

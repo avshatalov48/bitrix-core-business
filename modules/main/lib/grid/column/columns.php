@@ -93,9 +93,21 @@ class Columns implements \IteratorAggregate, \Countable
 					$this->columns[$column->getId()] = $column;
 				}
 			}
+
+			$this->columns = $this->prepareColumns($this->columns);
 		}
 
 		return $this->columns;
+	}
+
+	/**
+	 * @var Column[] $columns
+	 *
+	 * @return Column[]
+	 */
+	protected function prepareColumns(array $columns): array
+	{
+		return $columns;
 	}
 
 	/**
@@ -195,6 +207,8 @@ class Columns implements \IteratorAggregate, \Countable
 			{
 				return [];
 			}
+
+			$columns = $this->prepareColumns($columns);
 		}
 		else
 		{

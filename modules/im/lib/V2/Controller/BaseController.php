@@ -10,6 +10,7 @@ use Bitrix\Im\V2\Controller\Filter\AuthorizationPrefilter;
 use Bitrix\Im\V2\Controller\Filter\AutoJoinToChat;
 use Bitrix\Im\V2\Controller\Filter\CheckChatAccess;
 use Bitrix\Im\V2\Controller\Filter\SameChatMessageFilter;
+use Bitrix\Im\V2\Controller\Filter\UpdateStatus;
 use Bitrix\Im\V2\Link\Pin\PinCollection;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\MessageError;
@@ -18,6 +19,7 @@ use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Im\V2\Rest\RestConvertible;
 use Bitrix\Main\Application;
+use Bitrix\Main\Engine\ActionFilter\CloseSession;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\Response\Converter;
@@ -85,9 +87,11 @@ abstract class BaseController extends Controller
 		return array_merge(
 			[
 				new AuthorizationPrefilter(),
+				new UpdateStatus(),
 			],
 			parent::getDefaultPreFilters(),
 			[
+				new CloseSession(true),
 				new SameChatMessageFilter(),
 				new CheckChatAccess(),
 				new ActionUuidHandler(),

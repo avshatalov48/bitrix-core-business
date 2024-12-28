@@ -13,11 +13,11 @@ class Step
 
 	public const STEPS = [
 		self::STEP_INIT => 0,
-		self::STEP_FILES => 40,
-		self::STEP_IBLOCK_INDEX => 50,
-		self::STEP_IBLOCK => 60,
-		self::STEP_FORUM_INDEX => 70,
-		self::STEP_FORUM => 80,
+		self::STEP_FILES => 10,
+		self::STEP_IBLOCK_INDEX => 20,
+		self::STEP_IBLOCK => 40,
+		self::STEP_FORUM_INDEX => 50,
+		self::STEP_FORUM => 70,
 		self::STEP_INDEX => 100,
 	];
 

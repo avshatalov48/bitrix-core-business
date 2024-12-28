@@ -298,6 +298,16 @@ class CBPWorkflow
 		return $this->isAbandoned;
 	}
 
+	public function isFinished(): bool
+	{
+		if ($this->isAbandoned())
+		{
+			return true;
+		}
+
+		return CBPWorkflowStatus::isFinished((int)$this->getWorkflowStatus());
+	}
+
 	/**********************  EXTERNAL EVENTS  **************************************************************/
 
 	/**
@@ -545,7 +555,7 @@ class CBPWorkflow
 								'SequenceActivity',
 								'DelayActivity',
 								'IfElseActivity',
-								'IfElseBranchActivity'
+								'IfElseBranchActivity',
 							]))
 							{
 								/** @var \Bitrix\Bizproc\Service\Analytics $analyticsService */
@@ -640,7 +650,7 @@ class CBPWorkflow
 			array(
 				"STATE" => "Terminated",
 				"TITLE" => $stateTitle ?: GetMessage("BPCGWF_TERMINATED_MSGVER_1"),
-				"PARAMETERS" => array()
+				"PARAMETERS" => array(),
 			),
 			false//array()
 		);

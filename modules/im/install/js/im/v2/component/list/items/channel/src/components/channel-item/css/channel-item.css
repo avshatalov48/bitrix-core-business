@@ -135,24 +135,13 @@
 	background-size: contain;
 }
 
-.bx-im-list-channel-item__message_author-icon.--user {
+.bx-im-list-channel-item__message_author-avatar {
 	display: inline-block;
 	margin-right: 4px;
-	width: 14px;
-	height: 14px;
-	border-radius: 50%;
+	max-height: 14px;
 	filter: saturate(70%);
-	background-size: cover;
-	background-repeat: no-repeat;
 	vertical-align: text-bottom;
 	margin-bottom: 1px;
-}
-
-.bx-im-list-channel-item__message_author-icon.--user.--default {
-	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2018%2020%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M16.79%2015.354c0-.77-1.026-1.65-3.047-2.163a6.926%206.926%200%200%201-1.929-.862c-.13-.072-.11-.745-.11-.745l-.65-.097c0-.055-.056-.862-.056-.862.779-.257.698-1.772.698-1.772.495.27.817-.93.817-.93.585-1.665-.291-1.564-.291-1.564.153-1.017.153-2.05%200-3.067-.39-3.373-6.254-2.457-5.559-1.356-1.713-.31-1.322%203.518-1.322%203.518l.371.991c-.73.465-.222%201.027-.197%201.674.036.955.632.757.632.757.036%201.577.828%201.782.828%201.782.149.99.056.822.056.822l-.705.083a2.7%202.7%200%200%201-.055.672c-.829.362-1.007.575-1.83.93-1.592.684-3.321%201.574-3.629%202.772C.505%2017.136.22%2019.746.22%2019.746h17.433l-.862-4.392z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E);
-	background-position: 3px 2px;
-	background-color: #adaaaa;
-	background-size: 8px;
 }
 /* end message */
 

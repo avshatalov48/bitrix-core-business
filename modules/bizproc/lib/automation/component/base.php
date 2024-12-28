@@ -6,6 +6,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Bizproc\Api\Enum\Template\WorkflowTemplateType;
 
 abstract class Base extends \CBitrixComponent implements Errorable
 {
@@ -87,6 +88,26 @@ abstract class Base extends \CBitrixComponent implements Errorable
 		}
 
 		return $result;
+	}
+
+	public static function getRunningCustomRobots(array $documentId, $template): array
+	{
+		if (!empty($template) && $template?->getId() > 0)
+		{
+			return \Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable::getList([
+				'select' => ['ID'],
+				'filter' => [
+					'=MODULE_ID' => $documentId[0],
+					'=ENTITY' => $documentId[1],
+					'=DOCUMENT_ID' => $documentId[2],
+					'=WORKFLOW_TEMPLATE_ID' => $template->getId(),
+					'!STARTED_EVENT_TYPE' => \CBPDocumentEventType::Debug,
+					'=TEMPLATE.TYPE' => WorkflowTemplateType::CustomRobots->value,
+				]
+			])->fetchAll();
+		}
+
+		return [];
 	}
 
 	protected static function getUsersFromResponsibleProperty(array $robot, $propertyName): ?array

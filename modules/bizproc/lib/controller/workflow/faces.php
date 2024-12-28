@@ -25,29 +25,21 @@ class Faces extends Bizproc\Controller\Base
 		}
 
 		$currentUserId = (int)($this->getCurrentUser()?->getId() ?? 0); // $this->getCurrentUser()->getId() return string
-		if ((new \CBPWorkflowTemplateUser($currentUserId))->isAdmin())
-		{
-			return $this->getWorkflowFaces($workflowId, $runningTaskId);
-		}
 
 		$accessService = new Bizproc\Api\Service\WorkflowAccessService();
-		$canViewTimelineResponse = $accessService->canViewTimeline(
-			new Bizproc\Api\Request\WorkflowAccessService\CanViewTimelineRequest($workflowId, $userId)
+		$canViewFacesResponse = $accessService->canViewFaces(
+			new Bizproc\Api\Request\WorkflowAccessService\CanViewFacesRequest($workflowId, $userId, $currentUserId)
 		);
 
-		$canView = $canViewTimelineResponse->isSuccess();
-		if ($canView && $currentUserId !== $userId)
-		{
-			$canView = \CBPHelper::checkUserSubordination($currentUserId, $userId);
-		}
-
-		if ($canView)
+		if ($canViewFacesResponse->isSuccess())
 		{
 			return $this->getWorkflowFaces($workflowId, $runningTaskId);
 		}
 
 		$this->addError(
-			new Bizproc\Error(Loc::getMessage('BIZPROC_CONTROLLER_WORKFLOW_FACES_CAN_READ_ERROR'), 'ACCESS_DENIED')
+			new Bizproc\Error(
+				Loc::getMessage('BIZPROC_CONTROLLER_WORKFLOW_FACES_CAN_READ_ERROR'), 'ACCESS_DENIED'
+			)
 		);
 
 		return null;

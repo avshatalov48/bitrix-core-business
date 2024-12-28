@@ -39,6 +39,9 @@ class Queue
 					'=NEXT_EXEC' => null,
 				]
 			],
+			'cache' => [
+				'ttl' => 60,
+			],
 			'limit' => 1,
 		]);
 

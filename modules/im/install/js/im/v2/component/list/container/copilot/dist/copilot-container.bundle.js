@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_public,im_v2_component_list_items_copilot,im_v2_const,im_v2_lib_analytics,im_v2_lib_logger,im_v2_provider_service,im_v2_component_elements) {
+(function (exports,im_public,im_v2_component_list_items_copilot,im_v2_const,im_v2_lib_analytics,im_v2_lib_logger,im_v2_provider_service,im_v2_lib_permission,im_v2_component_elements) {
 	'use strict';
 
 	// @vue/component
@@ -170,6 +170,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      isCreatingChat: false
 	    };
 	  },
+	  computed: {
+	    canCreate() {
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByUserType(im_v2_const.ActionByUserType.createCopilot);
+	    }
+	  },
 	  created() {
 	    im_v2_lib_logger.Logger.warn('List: Copilot container created');
 	  },
@@ -179,7 +184,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    async onCreateChatClick() {
-	      im_v2_lib_analytics.Analytics.getInstance().onStartCreateNewChat(im_v2_const.ChatType.copilot);
+	      im_v2_lib_analytics.Analytics.getInstance().chatCreate.onStartClick(im_v2_const.ChatType.copilot);
 	      this.showRoleSelector = true;
 	    },
 	    onChatClick(dialogId) {
@@ -228,6 +233,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div class="bx-im-list-container-copilot__header_container">
 				<div class="bx-im-list-container-copilot__header_title">CoPilot</div>
 				<div
+					v-if="canCreate"
 					class="bx-im-list-container-copilot__create-chat"
 					:class="{'--loading': isCreatingChat}"
 					ref="createChatButton"
@@ -259,5 +265,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.CopilotListContainer = CopilotListContainer;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.List,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.List,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=copilot-container.bundle.js.map

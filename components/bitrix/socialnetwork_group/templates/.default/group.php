@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Socialnetwork\Collab\Registry\CollabRegistry;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -14,6 +16,12 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @global CMain $APPLICATION */
 
 $component = $this->getComponent();
+$groupId = (int)($arResult['VARIABLES']['group_id'] ?? 0);
+$collab = CollabRegistry::getInstance()->get($groupId);
+if ($collab !== null)
+{
+	// die('You can open collab only from messenger.');
+}
 
 $pageId = "group";
 $blogPageId = '';

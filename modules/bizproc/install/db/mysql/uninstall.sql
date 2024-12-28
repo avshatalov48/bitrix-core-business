@@ -27,3 +27,6 @@ DROP TABLE if exists b_bp_workflow_meta;
 DROP TABLE if exists b_bp_workflow_filter;
 DROP TABLE if exists b_bp_task_search_content;
 DROP TABLE if exists b_bp_workflow_user_comment;
+DROP TABLE if exists b_bp_workflow_result;
+DROP TABLE if exists b_bp_workflow_template_settings;
+DROP TABLE if exists b_bp_workflow_template_user_option;

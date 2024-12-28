@@ -39,7 +39,7 @@ final class EventHandler
 		{
 			$items[self::SETTINGS_ITEM_MAIL_CRM_CODE] = [
 				'group' => AI\Tuning\Defaults::GROUP_TEXT,
-				'title' => Loc::getMessage('MAIL_INTEGRATION_AI_EVENTHANDLER_MAIL_CRM_SETTINGS_TITLE'),
+				'title' => Loc::getMessage('MAIL_INTEGRATION_AI_EVENTHANDLER_MAIL_CRM_SETTINGS_TITLE_MSGVER_1'),
 				'header' => Loc::getMessage('MAIL_INTEGRATION_AI_EVENTHANDLER_MAIL_CRM_SETTINGS_SUBTITLE'),
 				'type' => AI\Tuning\Type::BOOLEAN,
 				'default' => true,

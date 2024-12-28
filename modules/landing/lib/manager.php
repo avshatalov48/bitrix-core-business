@@ -1036,6 +1036,15 @@ class Manager
 	}
 
 	/**
+	 * Check is current hit is ajax
+	 * @return bool
+	 */
+	public static function isAjaxRequest(): bool
+	{
+		return Application::getInstance()->getContext()->getRequest()->isAjaxRequest();
+	}
+
+	/**
 	 * Get current host.
 	 * @return string
 	 */
@@ -1079,6 +1088,36 @@ class Manager
 		{
 			return $file;
 		}
+	}
+
+	/**
+	 * Get URL of external template preview server.
+	 * Can be rewrite by LANDING_PREVIEW_URL constant.
+	 * @return string
+	 */
+	public static function getPreviewHost(): string
+	{
+		if (!defined('LANDING_PREVIEW_URL'))
+		{
+			define('LANDING_PREVIEW_URL', 'https://preview.bitrix24.site');
+		}
+
+		return LANDING_PREVIEW_URL;
+	}
+
+	/**
+	 * Get webhook to the external template preview server.
+	 * Can be rewrite by LANDING_PREVIEW_WEBHOOK constant.
+	 * @return string
+	 */
+	public static function getPreviewWebhook(): string
+	{
+		if (!defined('LANDING_PREVIEW_WEBHOOK'))
+		{
+			define('LANDING_PREVIEW_WEBHOOK', 'https://preview.bitrix24.site/rest/1/gvsn3ngrn7vb4t1m/');
+		}
+
+		return LANDING_PREVIEW_WEBHOOK;
 	}
 
 	/**
@@ -1434,9 +1473,9 @@ class Manager
 				'SITE_ID',
 			],
 			'filter' => [
-				'ACTIVE' => 'Y',
-				'DELETED' => 'N',
-				'ID' => $lid,
+				'=ACTIVE' => 'Y',
+				'=DELETED' => 'N',
+				'=ID' => $lid,
 			],
 		]);
 		if ($row = $res->fetch())

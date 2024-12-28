@@ -6,6 +6,7 @@ import { FeaturePromotersRegistry } from 'ui.info-helper';
 import { Selector } from './selector.js';
 import { PopupWindowManager } from 'main.popup';
 import { DateTimeFormat } from 'main.date';
+import { AvatarRoundGuest } from 'ui.avatar';
 
 export class Planner extends EventEmitter
 {
@@ -1526,7 +1527,7 @@ export class Planner extends EventEmitter
 				rowWrap.append(Tag.render`
 					<span class="calendar-planner-user-name">
 						<span
-							class="calendar-planner-entry-name"
+							class="calendar-planner-entry-name${entry.isCollabUser ? ' calendar-collab-user' : ''}"
 							bx-tooltip-user-id="${entry.id}"
 							bx-tooltip-classname="calendar-planner-user-tooltip"
 						>
@@ -1639,7 +1640,20 @@ export class Planner extends EventEmitter
 		let imageNode;
 		const img = entry.avatar;
 
-		if (!img || img === "/bitrix/images/1.gif")
+		if (entry.isCollabUser)
+		{
+			imageNode = new AvatarRoundGuest(
+				{
+					size: 22,
+					userName: entry.name,
+					userpicPath: entry.avatar && entry.avatar !== '/bitrix/images/1.gif'
+						? entry.avatar
+						: null,
+					baseColor: '#19cc45',
+				},
+			).getContainer();
+		}
+		else if (!img || img === "/bitrix/images/1.gif")
 		{
 			let defaultAvatarClass = 'ui-icon-common-user';
 			if (entry.emailUser)
@@ -1656,6 +1670,7 @@ export class Planner extends EventEmitter
 		{
 			imageNode = Tag.render`<div bx-tooltip-user-id="${entry.id}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${Text.encode(entry.name)}" class="ui-icon calendar-planner-user-image-icon"><i style="background-image: url('${encodeURI(entry.avatar)}')"></i></div>`;
 		}
+
 		return imageNode;
 	}
 

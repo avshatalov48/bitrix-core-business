@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Main\Config\Option;
+use Bitrix\Landing\Mainpage;
 use Bitrix\Main\Localization\Loc;
 
 $return = [
@@ -13,7 +13,7 @@ $return = [
 		'name' => Loc::getMessage('LANDING_MPWIDGET_APPS_V2_NAME'),
 		'type' => ['mainpage'],
 		'section' => ['widgets_new_employees', 'widgets_hr'],
-		'disableEditButton' => Option::get('landing', 'use_demo_data_in_block_widgets') === 'Y',
+		'disableEditButton' => Mainpage\Manager::isUseDemoData(),
 	],
 	'nodes' => [
 		"bitrix:landing.blocks.mp_widget.apps" => [

@@ -20,6 +20,7 @@ CREATE TABLE b_lang (
   CULTURE_ID int,
   PRIMARY KEY (LID)
 );
+CREATE INDEX ix_b_lang_def_active ON b_lang (DEF, ACTIVE);
 
 CREATE TABLE b_language (
   LID char(2) NOT NULL,

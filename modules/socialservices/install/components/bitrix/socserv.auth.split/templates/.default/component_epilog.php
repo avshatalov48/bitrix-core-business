@@ -4,7 +4,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 $arExt = ['ui.design-tokens', 'ui.fonts.opensans'];
 
-if($arParams["POPUP"])
+if(isset($arParams["POPUP"]) && $arParams["POPUP"])
 	$arExt[] = "window";
 CUtil::InitJSCore($arExt);
 $GLOBALS["APPLICATION"]->SetAdditionalCSS("/bitrix/js/socialservices/css/ss.css");

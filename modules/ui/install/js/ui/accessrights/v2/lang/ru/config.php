@@ -1,0 +1,46 @@
+<?php
+
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLES"] = "Роли";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLE"] = "Роль";
+
+$MESS["JS_UI_ACCESSRIGHTS_V2_ADD"] = "Добавить";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLE_NAME"] = "Название роли";
+$MESS["JS_UI_ACCESSRIGHTS_V2_NEW_ROLE"] = "Новая роль";
+$MESS["JS_UI_ACCESSRIGHTS_V2_NEW_ROLE_SUBTITLE"] = "Добавится новая роль, в которой вы сможете настроить права доступа";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLE_VIEW"] = "Отображение ролей";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLE_VIEW_SUBTITLE"] = "Скроются неактуальные роли";
+$MESS["JS_UI_ACCESSRIGHTS_V2_COPY"] = "Скопировать";
+$MESS["JS_UI_ACCESSRIGHTS_V2_COPY_ROLE"] = "Скопировать роль";
+$MESS["JS_UI_ACCESSRIGHTS_V2_COPY_ROLE_SUBTITLE"] = "В новую роль скопируются все настроенные права доступа из этой роли";
+$MESS["JS_UI_ACCESSRIGHTS_V2_COPIED_ROLE_NAME"] = "Копия #ORIGINAL#";
+$MESS["JS_UI_ACCESSRIGHTS_V2_RENAME"] = "Переименовать";
+$MESS["JS_UI_ACCESSRIGHTS_V2_RENAME_SUBTITLE"] = "Изменится название роли";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLE_COUNTER"] = "#VISIBLE_ROLES# #GREY_START#из #ALL_ROLES##GREY_FINISH#";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLE_SELECTOR_MAX_VISIBLE_WARNING"] = "Одновременно в правах доступа может отображаться #COUNT# ролей";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLE_ADDING_DISABLED"] = "Одновременно в правах доступа может отображаться #COUNT# ролей. Чтобы добавить новую роль, скройте неактуальные роли в разделе Отображение ролей";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ROLE_COPYING_DISABLED"] = "Одновременно в правах доступа может отображаться #COUNT# ролей. Чтобы скопировать роль, скройте неактуальные роли в разделе Отображение ролей";
+$MESS["JS_UI_ACCESSRIGHTS_V2_SETTINGS_HAVE_BEEN_SAVED"] = "Настройки сохранены";
+$MESS["JS_UI_ACCESSRIGHTS_V2_REMOVE"] = "Удалить";
+$MESS["JS_UI_ACCESSRIGHTS_V2_REMOVE_SUBTITLE"] = "Роль удалится со всеми настроенными правами доступа";
+$MESS["JS_UI_ACCESSRIGHTS_V2_POPUP_REMOVE_ROLE"] = "Удалить роль?";
+$MESS["JS_UI_ACCESSRIGHTS_V2_POPUP_REMOVE_ROLE_YES"] = "Да, удалить";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ALL_ACCEPTED"] = "Все";
+$MESS["JS_UI_ACCESSRIGHTS_V2_HAS_SELECTED_ITEMS"] = "#FIRST_ITEM_NAME# + ещё #COUNT_REST_ITEMS#";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ALL_SELECT_LABEL"] = "выбрать все";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ALL_DESELECT_LABEL"] = "снять весь выбор";
+$MESS["JS_UI_ACCESSRIGHTS_V2_SELECTED_ITEMS_TITLE"] = "Выбрано:";
+$MESS["JS_UI_ACCESSRIGHTS_V2_SEARCH_PLACEHOLDER"] = "Поиск";
+$MESS["JS_UI_ACCESSRIGHTS_V2_MODIFIED_CLOSE_WARNING_TITLE"] = "Закрыть страницу?";
+$MESS["JS_UI_ACCESSRIGHTS_V2_MODIFIED_CLOSE_WARNING"] = "Ваши изменения не сохранятся";
+$MESS["JS_UI_ACCESSRIGHTS_V2_MODIFIED_CLOSE_YES_CLOSE"] = "Всё равно закрыть";
+$MESS["JS_UI_ACCESSRIGHTS_V2_MODIFIED_CANCEL_WARNING"] = "Отменить изменения?";
+$MESS["JS_UI_ACCESSRIGHTS_V2_MODIFIED_CANCEL_YES_CANCEL"] = "Да, отменить";
+$MESS["JS_UI_ACCESSRIGHTS_V2_MODIFIED_CANCEL_NO_CANCEL"] = "Не отменять";
+$MESS["JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS"] = "Открыть доступ ко всем";
+$MESS["JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS_SUBTITLE"] = "Для этой роли откроется доступ ко всем правам во всех разделах";
+$MESS["JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS"] = "Закрыть доступ ко всем";
+$MESS["JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS_SUBTITLE"] = "Для этой роли закроется доступ ко всем правам во всех разделах";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ACCESS"] = "Доступ";
+$MESS["JS_UI_ACCESSRIGHTS_V2_ACTIONS"] = "Действия";
+$MESS['JS_UI_ACCESSRIGHTS_V2_EXPAND_ALL_SECTIONS'] = 'Развернуть все разделы';
+$MESS['JS_UI_ACCESSRIGHTS_V2_COLLAPSE_ALL_SECTIONS'] = 'Свернуть все разделы';

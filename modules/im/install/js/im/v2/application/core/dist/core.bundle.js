@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,ui_vue3,ui_vue3_vuex,pull_client,rest_client,im_v2_application_launch,im_v2_model,im_v2_provider_pull,im_v2_lib_logger) {
+(function (exports,main_core,ui_vue3,ui_vue3_vuex,pull_client,rest_client,im_v2_application_launch,im_v2_model,im_v2_provider_pull,im_v2_lib_logger,imopenlines_v2_lib_launchResources) {
 	'use strict';
 
 	class CoreApplication {
@@ -42,6 +42,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  initStorage() {
 	    const builder = ui_vue3_vuex.Builder.init().addModel(im_v2_model.ApplicationModel.create()).addModel(im_v2_model.MessagesModel.create()).addModel(im_v2_model.ChatsModel.create()).addModel(im_v2_model.FilesModel.create()).addModel(im_v2_model.UsersModel.create()).addModel(im_v2_model.RecentModel.create()).addModel(im_v2_model.CountersModel.create()).addModel(im_v2_model.NotificationsModel.create()).addModel(im_v2_model.SidebarModel.create()).addModel(im_v2_model.MarketModel.create()).addModel(im_v2_model.CopilotModel.create());
+	    imopenlines_v2_lib_launchResources.OpenLinesLaunchResources.models.forEach(model => {
+	      builder.addModel(model.create());
+	    });
 	    return builder.build().then(result => {
 	      this.store = result.store;
 	      this.storeBuilder = result.builder;
@@ -58,8 +61,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.pullClient.subscribe(new im_v2_provider_pull.RecentPullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.NotificationPullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.NotifierPullHandler());
-	    this.pullClient.subscribe(new im_v2_provider_pull.LinesPullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.OnlinePullHandler());
+	    this.pullClient.subscribe(new im_v2_provider_pull.CounterPullHandler());
+	    imopenlines_v2_lib_launchResources.OpenLinesLaunchResources.pullHandlers.forEach(Handler => {
+	      this.pullClient.subscribe(new Handler());
+	    });
 	    this.pullClient.subscribe({
 	      type: this.pullInstance.SubscriptionType.Status,
 	      callback: this.onPullStatusChange.bind(this)
@@ -175,5 +181,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.Core = Core;
 	exports.CoreApplication = CoreApplication;
 
-}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX,BX.Vue3,BX.Vue3.Vuex,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Model,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX,BX.Vue3,BX.Vue3.Vuex,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Model,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Lib,BX.OpenLines.v2.Lib));
 //# sourceMappingURL=core.bundle.js.map

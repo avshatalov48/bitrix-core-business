@@ -78,18 +78,13 @@ export const userFieldsConfig: FieldsConfig = [
 		checkFunction: Type.isBoolean,
 	},
 	{
-		fieldName: 'extranet',
-		targetFieldName: 'extranet',
-		checkFunction: Type.isBoolean,
+		fieldName: 'type',
+		targetFieldName: 'type',
+		checkFunction: Type.isString,
 	},
 	{
 		fieldName: 'network',
 		targetFieldName: 'network',
-		checkFunction: Type.isBoolean,
-	},
-	{
-		fieldName: 'bot',
-		targetFieldName: 'bot',
 		checkFunction: Type.isBoolean,
 	},
 	{

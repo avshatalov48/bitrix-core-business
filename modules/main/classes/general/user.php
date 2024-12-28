@@ -7,6 +7,7 @@
  * @copyright 2001-2024 Bitrix
  */
 
+use Bitrix\Extranet;
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Authentication;
@@ -2151,8 +2152,17 @@ class CAllUser extends CDBResult
 					if ($intranet && empty($currentUser["UF_DEPARTMENT"]))
 					{
 						// only intranet AND extranet users are countable
-						if ($license->isExtraCountable())
+						if ($license->isExtraCountable() && Main\Loader::includeModule('extranet'))
 						{
+							if (
+								Extranet\Service\ServiceContainer::getInstance()
+									->getCollaberService()
+									->isCollaberById($user_id)
+							)
+							{
+								return true;
+							}
+
 							$groupId = (int)Option::get('extranet', 'extranet_group');
 							if ($groupId > 0 && in_array($groupId, static::GetUserGroup($user_id)))
 							{
@@ -2218,6 +2228,11 @@ class CAllUser extends CDBResult
 	{
 		/** @global CMain $APPLICATION */
 		global $DB, $APPLICATION;
+
+		if (!is_string($LOGIN) || !is_string($CHECKWORD) || !is_string($PASSWORD) || !is_string($CONFIRM_PASSWORD) || !is_string($phoneNumber) || !is_string($currentPassword))
+		{
+			return ["MESSAGE" => GetMessage("main_change_pass_error") . "<br>", "TYPE" => "ERROR"];
+		}
 
 		$arParams = [
 			"LOGIN" => &$LOGIN,
@@ -2640,7 +2655,7 @@ class CAllUser extends CDBResult
 		if ($bOk)
 		{
 			$found = false;
-			if ($arParams["PHONE_NUMBER"] != '')
+			if (is_string($arParams["PHONE_NUMBER"]) && $arParams["PHONE_NUMBER"] != '')
 			{
 				//user registered by phone number
 
@@ -2670,12 +2685,12 @@ class CAllUser extends CDBResult
 					}
 				}
 			}
-			elseif ($arParams["LOGIN"] != '' || $arParams["EMAIL"] != '')
+			elseif ((is_string($arParams["LOGIN"]) && $arParams["LOGIN"] != '') || (is_string($arParams["EMAIL"]) && $arParams["EMAIL"] != ''))
 			{
 				$confirmation = (Option::get('main', 'new_user_registration_email_confirmation', 'N') == 'Y');
 
 				$strSql = '';
-				if ($arParams["LOGIN"] != '')
+				if (is_string($arParams["LOGIN"]) && $arParams["LOGIN"] != '')
 				{
 					$strSql =
 						"SELECT ID, LID, ACTIVE, BLOCKED, CONFIRM_CODE, LOGIN, EMAIL, NAME, LAST_NAME, LANGUAGE_ID " .
@@ -2689,7 +2704,7 @@ class CAllUser extends CDBResult
 								: " AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 						);
 				}
-				if ($arParams["EMAIL"] != '')
+				if (is_string($arParams["EMAIL"]) && $arParams["EMAIL"] != '')
 				{
 					if ($strSql != '')
 					{
@@ -4427,7 +4442,7 @@ class CAllUser extends CDBResult
 
 		static $cache = [];
 
-		$cacheId = md5(serialize($userId));
+		$cacheId = md5(serialize(is_array($userId) ? $userId : (int)$userId));
 		if (isset($cache[$cacheId]))
 		{
 			return $cache[$cacheId];

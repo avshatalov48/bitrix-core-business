@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Sync\Managers;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Internals\PushTable;
@@ -303,7 +304,7 @@ class ConnectionManager
 			;
 
 			Util::addPullEvent(
-				'delete_sync_connection',
+				PushCommand::DeleteSyncConnection,
 				$connection->getOwner()->getId(),
 				[
 					'syncInfo' => [

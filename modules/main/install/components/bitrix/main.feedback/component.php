@@ -45,10 +45,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["submit"]) && (!isset($
 			$captcha_code = $_POST["captcha_sid"];
 			$captcha_word = $_POST["captcha_word"];
 			$cpt = new CCaptcha();
-			$captchaPass = COption::GetOptionString("main", "captcha_password", "");
 			if ($captcha_word <> '' && $captcha_code <> '')
 			{
-				if (!$cpt->CheckCodeCrypt($captcha_word, $captcha_code, $captchaPass))
+				if (!$cpt->CheckCodeCrypt($captcha_word, $captcha_code))
 					$arResult["ERROR_MESSAGE"][] = GetMessage("MF_CAPTCHA_WRONG");
 			}
 			else

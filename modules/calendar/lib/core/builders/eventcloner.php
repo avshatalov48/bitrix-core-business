@@ -409,4 +409,14 @@ class EventCloner extends EventBuilder
 	{
 		return null;
 	}
+
+	protected function getDtLength(): ?int
+	{
+		return null;
+	}
+
+	protected function getCollabId(): ?int
+	{
+		return null;
+	}
 }

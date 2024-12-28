@@ -19,6 +19,7 @@ return [
 		'im.v2.lib.channel',
 		'im.v2.lib.access',
 		'im.v2.lib.feature',
+		'im.v2.lib.bulk-actions',
 	],
 	'skip_core' => true,
 ];

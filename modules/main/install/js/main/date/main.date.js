@@ -303,7 +303,7 @@ this.BX = this.BX || {};
 	          _format = _format.replace('{{' + element + '}}', '{{' + index + '}}');
 	        });
 	      }
-	      const formatRegex = /\\?(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|sshort|ishort|Hshort|dshort|mhort|Yshort|yesterday|today|tommorow|tomorrow|[a-z])/gi;
+	      const formatRegex = /\\?(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|sshort|ishort|Hshort|dshort|mhort|Yshort|yesterday|today|tommorow|tomorrow|.)/gi;
 	      const dateFormats = {
 	        d: () => {
 	          // Day of the month 01 to 31

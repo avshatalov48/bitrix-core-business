@@ -123,6 +123,10 @@ export const GalleryItem = {
 			// a static image (w/o animation) .
 			return this.isVideo ? this.file.urlPreview : this.file.urlShow;
 		},
+		allowLazyLoad(): boolean
+		{
+			return !this.previewSourceLink.startsWith('blob:');
+		},
 	},
 	methods:
 	{
@@ -150,9 +154,17 @@ export const GalleryItem = {
 			:style="imageSize"
 		>
 			<img
+				v-if="allowLazyLoad"
 				v-lazyload
 				data-lazyload-dont-hide
 				:data-lazyload-src="previewSourceLink"
+				:title="imageTitle"
+				:alt="file.name"
+				class="bx-im-gallery-item__source"
+			/>
+			<img
+				v-else
+				:src="previewSourceLink"
 				:title="imageTitle"
 				:alt="file.name"
 				class="bx-im-gallery-item__source"

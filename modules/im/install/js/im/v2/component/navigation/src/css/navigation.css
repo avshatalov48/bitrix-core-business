@@ -192,6 +192,10 @@
 	background-image: url(./images/menu/openline.svg?v3);
 }
 
+.bx-im-navigation__item_icon.--openlinesV2 {
+	background-image: url(./images/menu/openline.svg?v3);
+}
+
 .bx-im-navigation__item_icon.--conference {
 	background-image: url(./images/menu/conference.svg?v3);
 }
@@ -214,6 +218,14 @@
 
 .bx-im-navigation__item_icon.--timemanager {
 	background-image: url(./images/menu/timemanager.svg?v2);
+}
+
+.bx-im-navigation__item_icon.--collab {
+	background-image: url(./images/menu/collab.svg);
+}
+
+.bx-im-navigation__item_icon.--main-page {
+	background-image: url(./images/menu/main-page.svg);
 }
 
 .bx-im-navigation__item_counter {

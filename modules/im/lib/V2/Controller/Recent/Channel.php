@@ -4,7 +4,7 @@ namespace Bitrix\Im\V2\Controller\Recent;
 
 use Bitrix\Im\V2\Chat\OpenChannelChat;
 use Bitrix\Im\V2\Controller\BaseController;
-use Bitrix\Im\V2\Recent\Recent;
+use Bitrix\Im\V2\Recent\RecentChannel;
 use Bitrix\Intranet\ActionFilter\IntranetUser;
 use Bitrix\Main\Loader;
 
@@ -17,7 +17,7 @@ class Channel extends BaseController
 	public function tailAction(int $limit = 50, array $filter = []): ?array
 	{
 		$limit = $this->getLimit($limit);
-		$recent = Recent::getOpenChannels($limit, $filter['lastMessageId'] ?? null);
+		$recent = RecentChannel::getOpenChannels($limit, $filter['lastMessageId'] ?? null);
 
 		return $this->toRestFormatWithPaginationData([$recent], $limit, $recent->count());
 	}

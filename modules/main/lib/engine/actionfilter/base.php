@@ -85,6 +85,19 @@ abstract class Base implements Errorable
 	}
 
 	/**
+	 * Adds list of errors to error collection.
+	 * @param Error[] $errors Errors.
+	 *
+	 * @return $this
+	 */
+	protected function addErrors(array $errors): static
+	{
+		$this->errorCollection->add($errors);
+
+		return $this;
+	}
+
+	/**
 	 * Getting array of errors.
 	 * @return Error[]
 	 */

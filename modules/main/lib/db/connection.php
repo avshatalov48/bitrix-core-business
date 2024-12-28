@@ -16,16 +16,19 @@ use Bitrix\Main\ORM\Fields\ScalarField;
  */
 abstract class Connection extends Data\Connection
 {
+	const PERSISTENT = 1;
+	const DEFERRED = 2;
+	const INDEX_UNIQUE = 'UNIQUE';
+	const INDEX_FULLTEXT = 'FULLTEXT';
+	const INDEX_SPATIAL = 'SPATIAL';
+
 	/** @var MysqliSqlHelper | PgsqlSqlHelper */
 	protected $sqlHelper;
-
 	/** @var Diag\SqlTracker */
 	protected $sqlTracker;
 	protected $trackSql = false;
-
 	protected $version;
 	protected $versionExpress;
-
 	protected $host;
 	protected $database;
 	protected $login;
@@ -33,26 +36,16 @@ abstract class Connection extends Data\Connection
 	protected $initCommand = 0;
 	protected $options = 0;
 	protected $nodeId = 0;
-	protected $utf8mb4 = array();
-
-	protected $tableColumnsCache = array();
+	protected $utf8mb4 = [];
+	protected $tableColumnsCache = [];
 	protected $lastQueryResult;
-
 	/**
 	 * @var bool Flag for static::query - if needed to execute query or just to collect it
 	 * @see $disabledQueryExecutingDump
 	 */
 	protected $queryExecutingEnabled = true;
-
 	/** @var null|string[] Queries that were collected while Query Executing was Disabled */
 	protected $disabledQueryExecutingDump;
-
-	const PERSISTENT = 1;
-	const DEFERRED = 2;
-
-	const INDEX_UNIQUE = 'UNIQUE';
-	const INDEX_FULLTEXT = 'FULLTEXT';
-	const INDEX_SPATIAL = 'SPATIAL';
 
 	/**
 	 * $configuration may contain following keys:
@@ -77,12 +70,12 @@ abstract class Connection extends Data\Connection
 		$this->password = $configuration['password'] ?? '';
 		$this->initCommand = $configuration['initCommand'] ?? '';
 		$this->options = intval($configuration['options'] ?? 2);
-		$this->utf8mb4 = (isset($configuration['utf8mb4']) && is_array($configuration['utf8mb4'])? $configuration['utf8mb4'] : []);
+		$this->utf8mb4 = (isset($configuration['utf8mb4']) && is_array($configuration['utf8mb4']) ? $configuration['utf8mb4'] : []);
 	}
 
 	/**
-	 * @deprecated Use getDatabase()
 	 * @return string
+	 * @deprecated Use getDatabase()
 	 */
 	public function getDbName()
 	{
@@ -132,11 +125,11 @@ abstract class Connection extends Data\Connection
 	/**
 	 * Temporary disables query executing. All queries being collected in disabledQueryExecutingDump
 	 *
-	 * @api
+	 * @return void
 	 * @see enableQueryExecuting
 	 * @see getDisabledQueryExecutingDump
 	 *
-	 * @return void
+	 * @api
 	 */
 	public function disableQueryExecuting()
 	{
@@ -146,10 +139,10 @@ abstract class Connection extends Data\Connection
 	/**
 	 * Enables query executing after it has been temporary disabled
 	 *
-	 * @api
+	 * @return void
 	 * @see disableQueryExecuting
 	 *
-	 * @return void
+	 * @api
 	 */
 	public function enableQueryExecuting()
 	{
@@ -157,10 +150,10 @@ abstract class Connection extends Data\Connection
 	}
 
 	/**
-	 * @api
+	 * @return bool
 	 * @see disableQueryExecuting
 	 *
-	 * @return bool
+	 * @api
 	 */
 	public function isQueryExecutingEnabled()
 	{
@@ -170,10 +163,10 @@ abstract class Connection extends Data\Connection
 	/**
 	 * Returns queries that were collected while Query Executing was disabled and clears the dump.
 	 *
-	 * @api
+	 * @return null|string[]
 	 * @see disableQueryExecuting
 	 *
-	 * @return null|string[]
+	 * @api
 	 */
 	public function getDisabledQueryExecutingDump()
 	{
@@ -271,7 +264,7 @@ abstract class Connection extends Data\Connection
 	 * @param Diag\SqlTrackerQuery|null $trackerQuery Debug collector object.
 	 *
 	 * @return resource
-	 * @throws SqlQueryException
+	 * @throws SqlQueryException | DuplicateEntryException
 	 */
 	abstract protected function queryInternal($sql, array $binds = null, Diag\SqlTrackerQuery $trackerQuery = null);
 
@@ -305,9 +298,9 @@ abstract class Connection extends Data\Connection
 	 */
 	public function query($sql)
 	{
-		list($sql, $binds, $offset, $limit) = self::parseQueryFunctionArgs(func_get_args());
+		[$sql, $binds, $offset, $limit] = self::parseQueryFunctionArgs(func_get_args());
 
-		if($limit > 0)
+		if ($limit > 0)
 		{
 			$sql = $this->getSqlHelper()->getTopSql($sql, $limit, $offset);
 		}
@@ -317,7 +310,7 @@ abstract class Connection extends Data\Connection
 		if ($this->queryExecutingEnabled)
 		{
 			$connection = Main\Application::getInstance()->getConnectionPool()->getSlaveConnection($sql);
-			if($connection === null)
+			if ($connection === null)
 			{
 				$connection = $this;
 			}
@@ -334,7 +327,7 @@ abstract class Connection extends Data\Connection
 		{
 			if ($this->disabledQueryExecutingDump === null)
 			{
-				$this->disabledQueryExecutingDump = array();
+				$this->disabledQueryExecutingDump = [];
 			}
 
 			$this->disabledQueryExecutingDump[] = $sql;
@@ -400,9 +393,11 @@ abstract class Connection extends Data\Connection
 		 */
 		$numArgs = count($args);
 		if ($numArgs < 1)
+		{
 			throw new ArgumentNullException("sql");
+		}
 
-		$binds = array();
+		$binds = [];
 		$offset = 0;
 		$limit = 0;
 
@@ -413,23 +408,31 @@ abstract class Connection extends Data\Connection
 		elseif ($numArgs == 2)
 		{
 			if (is_array($args[1]))
-				list($sql, $binds) = $args;
+			{
+				[$sql, $binds] = $args;
+			}
 			else
-				list($sql, $limit) = $args;
+			{
+				[$sql, $limit] = $args;
+			}
 		}
 		elseif ($numArgs == 3)
 		{
 			if (is_array($args[1]))
-				list($sql, $binds, $limit) = $args;
+			{
+				[$sql, $binds, $limit] = $args;
+			}
 			else
-				list($sql, $offset, $limit) = $args;
+			{
+				[$sql, $offset, $limit] = $args;
+			}
 		}
 		else
 		{
-			list($sql, $binds, $offset, $limit) = $args;
+			[$sql, $binds, $offset, $limit] = $args;
 		}
 
-		return array($sql, $binds, $offset, $limit);
+		return [$sql, $binds, $offset, $limit];
 	}
 
 	/**
@@ -449,8 +452,8 @@ abstract class Connection extends Data\Connection
 		$insert = $this->getSqlHelper()->prepareInsert($tableName, $data);
 
 		$sql =
-			"INSERT INTO ".$this->getSqlHelper()->quote($tableName)."(".$insert[0].") ".
-			"VALUES (".$insert[1].")";
+			"INSERT INTO " . $this->getSqlHelper()->quote($tableName) . "(" . $insert[0] . ") " .
+			"VALUES (" . $insert[1] . ")";
 
 		$this->queryExecute($sql);
 
@@ -459,7 +462,7 @@ abstract class Connection extends Data\Connection
 
 	/**
 	 * @param string $tableName
-	 * @param array  $rows
+	 * @param array $rows
 	 * @param string $identity
 	 *
 	 * @return int
@@ -488,7 +491,6 @@ abstract class Connection extends Data\Connection
 
 		foreach ($inserts as $insert)
 		{
-
 			$columns = array_flip($insert[0]);
 			$values = $insert[1];
 
@@ -508,11 +510,11 @@ abstract class Connection extends Data\Connection
 				}
 			}
 
-			$sqlValues[] = '('.join(', ', $finalValues).')';
+			$sqlValues[] = '(' . join(', ', $finalValues) . ')';
 		}
 
-		$sql = "INSERT INTO {$this->getSqlHelper()->quote($tableName)} (".join(', ', array_keys($uniqueColumns)).") ".
-				"VALUES ".join(', ', $sqlValues);
+		$sql = "INSERT INTO {$this->getSqlHelper()->quote($tableName)} (" . join(', ', array_keys($uniqueColumns)) . ") " .
+			"VALUES " . join(', ', $sqlValues);
 
 		$this->queryExecute($sql);
 
@@ -527,11 +529,11 @@ abstract class Connection extends Data\Connection
 	/**
 	 * Parses the string containing multiple queries and executes the queries one by one.
 	 * Queries delimiter depends on database type.
-	 * @see SqlHelper->getQueryDelimiter
-	 *
 	 * @param string $sqlBatch String with queries, separated by database-specific delimiters.
 	 * @param bool $stopOnError Whether return after the first error.
 	 * @return array Array of errors or empty array on success.
+	 * @see SqlHelper->getQueryDelimiter
+	 *
 	 */
 	public function executeSqlBatch($sqlBatch, $stopOnError = false)
 	{
@@ -572,7 +574,7 @@ abstract class Connection extends Data\Connection
 
 		do
 		{
-			if (preg_match("%^(.*?)(['\"`#]|--|\\$\\$|".$delimiter.")%is", $sqlBatch, $match))
+			if (preg_match("%^(.*?)(['\"`#]|--|\\$\\$|" . $delimiter . ")%is", $sqlBatch, $match))
 			{
 				//Found string start
 				if ($match[2] == "\"" || $match[2] == "'" || $match[2] == "`")
@@ -580,7 +582,7 @@ abstract class Connection extends Data\Connection
 					$sqlBatch = mb_substr($sqlBatch, mb_strlen($match[0]));
 					$sql .= $match[0];
 					//find a quote not preceded by \
-					if (preg_match("%^(.*?)(?<!\\\\)".$match[2]."%s", $sqlBatch, $stringMatch))
+					if (preg_match("%^(.*?)(?<!\\\\)" . $match[2] . "%s", $sqlBatch, $stringMatch))
 					{
 						$sqlBatch = mb_substr($sqlBatch, mb_strlen($stringMatch[0]));
 						$sql .= $stringMatch[0];
@@ -707,7 +709,7 @@ abstract class Connection extends Data\Connection
 	 * $columns may present a "prefix" of actual index columns.
 	 *
 	 * @param string $tableName A table name.
-	 * @param array  $columns An array of columns in the index.
+	 * @param array $columns An array of columns in the index.
 	 *
 	 * @return boolean
 	 * @throws SqlQueryException
@@ -745,23 +747,23 @@ abstract class Connection extends Data\Connection
 	 * @return void
 	 * @throws SqlQueryException
 	 */
-	abstract public function createTable($tableName, $fields, $primary = array(), $autoincrement = array());
+	abstract public function createTable($tableName, $fields, $primary = [], $autoincrement = []);
 
 	/**
 	 * Creates primary index on column(s)
-	 * @api
-	 *
 	 * @param string $tableName Name of the table.
 	 * @param string|string[] $columnNames Name of the column or array of column names to be included into the index.
 	 *
 	 * @return Result
 	 * @throws SqlQueryException
+	 * @api
+	 *
 	 */
 	public function createPrimaryIndex($tableName, $columnNames)
 	{
 		if (!is_array($columnNames))
 		{
-			$columnNames = array($columnNames);
+			$columnNames = [$columnNames];
 		}
 
 		foreach ($columnNames as &$columnName)
@@ -769,27 +771,27 @@ abstract class Connection extends Data\Connection
 			$columnName = $this->getSqlHelper()->quote($columnName);
 		}
 
-		$sql = 'ALTER TABLE '.$this->getSqlHelper()->quote($tableName).' ADD PRIMARY KEY('.join(', ', $columnNames).')';
+		$sql = 'ALTER TABLE ' . $this->getSqlHelper()->quote($tableName) . ' ADD PRIMARY KEY(' . join(', ', $columnNames) . ')';
 
 		return $this->query($sql);
 	}
 
 	/**
 	 * Creates index on column(s)
-	 * @api
-	 *
 	 * @param string $tableName Name of the table.
 	 * @param string $indexName Name of the new index.
 	 * @param string|string[] $columnNames Name of the column or array of column names to be included into the index.
 	 *
-	 * @return Result
+	 * @return Result | false
 	 * @throws SqlQueryException
+	 * @api
+	 *
 	 */
 	public function createIndex($tableName, $indexName, $columnNames)
 	{
 		if (!is_array($columnNames))
 		{
-			$columnNames = array($columnNames);
+			$columnNames = [$columnNames];
 		}
 
 		$sqlHelper = $this->getSqlHelper();
@@ -800,7 +802,7 @@ abstract class Connection extends Data\Connection
 		}
 		unset($columnName);
 
-		$sql = 'CREATE INDEX '.$sqlHelper->quote($indexName).' ON '.$sqlHelper->quote($tableName).' ('.join(', ', $columnNames).')';
+		$sql = 'CREATE INDEX ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . ' (' . join(', ', $columnNames) . ')';
 
 		return $this->query($sql);
 	}
@@ -829,7 +831,7 @@ abstract class Connection extends Data\Connection
 	 */
 	public function truncateTable($tableName)
 	{
-		return $this->query('TRUNCATE TABLE '.$this->getSqlHelper()->quote($tableName));
+		return $this->query('TRUNCATE TABLE ' . $this->getSqlHelper()->quote($tableName));
 	}
 
 	/**
@@ -855,7 +857,7 @@ abstract class Connection extends Data\Connection
 	 */
 	public function dropColumn($tableName, $columnName)
 	{
-		$this->query('ALTER TABLE '.$this->getSqlHelper()->quote($tableName).' DROP COLUMN '.$this->getSqlHelper()->quote($columnName));
+		$this->query('ALTER TABLE ' . $this->getSqlHelper()->quote($tableName) . ' DROP COLUMN ' . $this->getSqlHelper()->quote($columnName));
 	}
 
 	/**
@@ -935,9 +937,13 @@ abstract class Connection extends Data\Connection
 	public function startTracker($reset = false)
 	{
 		if ($this->sqlTracker == null)
+		{
 			$this->sqlTracker = new Diag\SqlTracker();
+		}
 		if ($reset)
+		{
 			$this->sqlTracker->reset();
+		}
 
 		$this->trackSql = true;
 		return $this->sqlTracker;
@@ -1011,13 +1017,23 @@ abstract class Connection extends Data\Connection
 	abstract public function getErrorMessage();
 
 	/**
+	 * Returns the error code of the last failed database operation.
+	 *
+	 * @return int|string
+	 */
+	public function getErrorCode()
+	{
+		return 0;
+	}
+
+	/**
 	 * Clears all internal caches which may be used by some dictionary functions.
 	 *
 	 * @return void
 	 */
 	public function clearCaches()
 	{
-		$this->tableColumnsCache = array();
+		$this->tableColumnsCache = [];
 	}
 
 	/**
@@ -1043,7 +1059,7 @@ abstract class Connection extends Data\Connection
 
 	protected function afterConnected()
 	{
-		if(isset($this->configuration["include_after_connected"]) && $this->configuration["include_after_connected"] <> '')
+		if (isset($this->configuration["include_after_connected"]) && $this->configuration["include_after_connected"] <> '')
 		{
 			include($this->configuration["include_after_connected"]);
 		}
@@ -1058,17 +1074,17 @@ abstract class Connection extends Data\Connection
 	 */
 	public function isUtf8mb4($table = null, $column = null)
 	{
-		if(isset($this->utf8mb4["global"]) && $this->utf8mb4["global"] === true)
+		if (isset($this->utf8mb4["global"]) && $this->utf8mb4["global"] === true)
 		{
 			return true;
 		}
 
-		if($table !== null && isset($this->utf8mb4["tables"][$table]) && $this->utf8mb4["tables"][$table] === true)
+		if ($table !== null && isset($this->utf8mb4["tables"][$table]) && $this->utf8mb4["tables"][$table] === true)
 		{
 			return true;
 		}
 
-		if($table !== null && $column !== null && isset($this->utf8mb4["tables"][$table][$column]) && $this->utf8mb4["tables"][$table][$column] === true)
+		if ($table !== null && $column !== null && isset($this->utf8mb4["tables"][$table][$column]) && $this->utf8mb4["tables"][$table][$column] === true)
 		{
 			return true;
 		}
@@ -1101,5 +1117,17 @@ abstract class Connection extends Data\Connection
 		}
 
 		return null;
+	}
+
+	/**
+	 * Creates an exception by the error code.
+	 *
+	 * @param int|string $code
+	 * @param string $databaseMessage
+	 * @param string $query
+	 */
+	public function createQueryException($code = 0, $databaseMessage = '', $query = '')
+	{
+		return new SqlQueryException('Query error', $databaseMessage, $query);
 	}
 }

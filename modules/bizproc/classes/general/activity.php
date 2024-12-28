@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Bizproc;
+use Bitrix\Bizproc\Result\RenderedResult;
 use Bitrix\Main;
 
 abstract class CBPActivity
@@ -40,6 +41,8 @@ abstract class CBPActivity
 	public $workflow = null;
 
 	public $arEventsMap = [];
+
+	protected int $resultPriority = 0;
 
 	/************************  PROPERTIES  ************************************************/
 
@@ -1060,6 +1063,14 @@ abstract class CBPActivity
 		return $usages;
 	}
 
+	public function collectPropertyUsages($propertyName): array
+	{
+		$usages = [];
+		$this->collectUsagesRecursive($this->getRawProperty($propertyName), $usages);
+
+		return $usages;
+	}
+
 	protected function collectUsagesRecursive($val, &$usages)
 	{
 		if (is_array($val))
@@ -1345,8 +1356,8 @@ abstract class CBPActivity
 				[
 					"code" => "ActivityNotFound",
 					"parameter" => $code,
-					"message" => GetMessage("BPGA_ACTIVITY_NOT_FOUND_1", ['#ACTIVITY#' => htmlspecialcharsbx($code)])
-				]
+					"message" => GetMessage("BPGA_ACTIVITY_NOT_FOUND_1", ['#ACTIVITY#' => htmlspecialcharsbx($code)]),
+				],
 			];
 		}
 
@@ -1463,6 +1474,87 @@ abstract class CBPActivity
 		if ($trackingType < 0)
 			$trackingType = CBPTrackingType::Custom;
 		$trackingService->Write($this->GetWorkflowInstanceId(), $trackingType, $this->name, $this->executionStatus, $this->executionResult, ($this->IsPropertyExists("Title") ? $this->Title : ""), $message, $modifiedBy);
+	}
+
+	protected function fixResult(Bitrix\Bizproc\Result\ResultDto $result): void
+	{
+		$workflowId = $this->getWorkflowInstanceId();
+		try
+		{
+			Bizproc\Result\Entity\ResultTable::upsert([
+				'WORKFLOW_ID' => $workflowId,
+				'PRIORITY' => $this->resultPriority,
+				'ACTIVITY' => $result->activity,
+				'RESULT' => $result->data,
+			]);
+		}
+		catch (Throwable $e)
+		{
+			$this->trackError($e->getMessage());
+		}
+	}
+
+	public static function renderResult(array $result, string $workflowId, int $userId): RenderedResult
+	{
+		if (!self::checkResultViewRights($result, $workflowId, $userId))
+		{
+
+			return RenderedResult::makeNoRights();
+		}
+
+		$documentService = CBPRuntime::getRuntime()->getDocumentService();
+
+		if (isset($result['DOCUMENT_ID']))
+		{
+			$url = $documentService->getDocumentDetailUrl($result['DOCUMENT_ID']);
+			$name = $documentService->getDocumentName($result['DOCUMENT_ID']);
+			if (isset($result['DOCUMENT_TYPE']))
+			{
+				$type = (string)$documentService->getDocumentTypeCaption($result['DOCUMENT_TYPE']);
+				$name = $type . ': ' . $name;
+			}
+
+			return new RenderedResult('[URL=' . $url . ']' . $name . '[/URL]', RenderedResult::BB_CODE_RESULT);
+		}
+
+		return RenderedResult::makeNoResult();
+	}
+
+	protected static function checkResultViewRights(array $result, string $workflowId, int $userId): bool
+	{
+		$currentUser = new \CBPWorkflowTemplateUser($userId);
+		$userCanReadDocument = false;
+
+		if (isset($result['DOCUMENT_ID']))
+		{
+			$userCanReadDocument = \CBPDocument::canUserOperateDocument(
+				\CBPCanUserOperateOperation::ReadDocument,
+				$currentUser->getId(),
+				$result['DOCUMENT_ID'],
+			);
+		}
+
+		return
+			$currentUser->isAdmin()
+			|| self::checkUserAccessWithSubordination($currentUser->getId(), $result['USERS'] ?? [])
+			|| $userCanReadDocument;
+	}
+
+	protected static function checkUserAccessWithSubordination(int $userId, array $users): bool
+	{
+		if (in_array($userId, $users, true))
+		{
+			return true;
+		}
+		foreach ($users as $user)
+		{
+			if (\CBPHelper::checkUserSubordination($userId, $user))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	protected function trackError(string $errorMsg)

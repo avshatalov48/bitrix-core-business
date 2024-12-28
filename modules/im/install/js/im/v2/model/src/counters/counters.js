@@ -12,6 +12,7 @@ type CountersState = {
 	unloadedChatCounters: {[chatId: string]: number},
 	unloadedLinesCounters: {[chatId: string]: number},
 	unloadedCopilotCounters: {[chatId: string]: number},
+	unloadedCollabCounters: {[chatId: string]: number},
 	commentCounters: CommentsCounters,
 };
 
@@ -39,6 +40,7 @@ export class CountersModel extends BuilderModel
 			unloadedChatCounters: {},
 			unloadedLinesCounters: {},
 			unloadedCopilotCounters: {},
+			unloadedCollabCounters: {},
 			commentCounters: {},
 		};
 	}
@@ -84,6 +86,22 @@ export class CountersModel extends BuilderModel
 
 				let unloadedChatsCounter = 0;
 				Object.values(state.unloadedCopilotCounters).forEach((counter) => {
+					unloadedChatsCounter += counter;
+				});
+
+				return loadedChatsCounter + unloadedChatsCounter;
+			},
+			/** @function counters/getTotalCollabCounter */
+			getTotalCollabCounter: (state: CountersState): number => {
+				let loadedChatsCounter = 0;
+				const recentCollection = Core.getStore().getters['recent/getCollabCollection'];
+				recentCollection.forEach((recentItem: ImModelRecentItem) => {
+					const recentItemCounter = this.#getRecentItemCounter(recentItem);
+					loadedChatsCounter += recentItemCounter;
+				});
+
+				let unloadedChatsCounter = 0;
+				Object.values(state.unloadedCollabCounters).forEach((counter) => {
 					unloadedChatsCounter += counter;
 				});
 
@@ -207,6 +225,15 @@ export class CountersModel extends BuilderModel
 
 				store.commit('setUnloadedCopilotCounters', payload);
 			},
+			/** @function counters/setUnloadedCollabCounters */
+			setUnloadedCollabCounters: (store, payload: {[chatId: string]: number}) => {
+				if (!Type.isPlainObject(payload))
+				{
+					return;
+				}
+
+				store.commit('setUnloadedCollabCounters', payload);
+			},
 			/** @function counters/setCommentCounters */
 			setCommentCounters: (store, payload: CommentsCounters) => {
 				if (!Type.isPlainObject(payload))
@@ -225,14 +252,14 @@ export class CountersModel extends BuilderModel
 
 				store.commit('readAllChannelComments', channelChatId);
 			},
-			/** @function counters/delete */
-			delete: (store, payload: {channelChatId: number, commentChatId: number}) => {
+			/** @function counters/deleteForChannel */
+			deleteForChannel: (store, payload: {channelChatId: number, commentChatId?: number}) => {
 				if (!Type.isPlainObject(payload))
 				{
 					return;
 				}
 
-				store.commit('delete', payload);
+				store.commit('deleteForChannel', payload);
 			},
 		};
 	}
@@ -273,6 +300,17 @@ export class CountersModel extends BuilderModel
 					state.unloadedCopilotCounters[chatId] = counter;
 				});
 			},
+			setUnloadedCollabCounters: (state: CountersState, payload: {[chatId: string]: number}) => {
+				Object.entries(payload).forEach(([chatId, counter]) => {
+					if (counter === 0)
+					{
+						delete state.unloadedCollabCounters[chatId];
+
+						return;
+					}
+					state.unloadedCollabCounters[chatId] = counter;
+				});
+			},
 			setCommentCounters: (state: CountersState, payload: CommentsCounters) => {
 				Object.entries(payload).forEach(([channelChatId, countersMap]) => {
 					if (!state.commentCounters[channelChatId])
@@ -296,10 +334,17 @@ export class CountersModel extends BuilderModel
 			readAllChannelComments: (state: CountersState, channelChatId: number) => {
 				delete state.commentCounters[channelChatId];
 			},
-			delete: (state: CountersState, payload: {channelChatId: number, commentChatId: number}) => {
+			deleteForChannel: (state: CountersState, payload: {channelChatId: number, commentChatId?: number}) => {
 				const { channelChatId, commentChatId } = payload;
 				if (!state.commentCounters[channelChatId])
 				{
+					return;
+				}
+
+				if (!commentChatId)
+				{
+					delete state.commentCounters[channelChatId];
+
 					return;
 				}
 

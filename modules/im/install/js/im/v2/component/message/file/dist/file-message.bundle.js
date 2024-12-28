@@ -219,6 +219,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      // for an image, we use "urlShow", because for large gif files in "urlPreview" we have
 	      // a static image (w/o animation) .
 	      return this.isVideo ? this.file.urlPreview : this.file.urlShow;
+	    },
+	    allowLazyLoad() {
+	      return !this.previewSourceLink.startsWith('blob:');
 	    }
 	  },
 	  methods: {
@@ -243,9 +246,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			:style="imageSize"
 		>
 			<img
+				v-if="allowLazyLoad"
 				v-lazyload
 				data-lazyload-dont-hide
 				:data-lazyload-src="previewSourceLink"
+				:title="imageTitle"
+				:alt="file.name"
+				class="bx-im-gallery-item__source"
+			/>
+			<img
+				v-else
+				:src="previewSourceLink"
 				:title="imageTitle"
 				:alt="file.name"
 				class="bx-im-gallery-item__source"
@@ -500,11 +511,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    hasAttach() {
 	      return this.message.attach.length > 0;
 	    },
+	    hasReply() {
+	      return this.message.replyId !== 0;
+	    },
 	    showContextMenu() {
 	      return this.onlyImage;
 	    },
 	    showBottomContainer() {
-	      return this.hasText || this.hasAttach;
+	      return this.hasText || this.hasAttach || this.hasReply;
 	    },
 	    isForward() {
 	      return main_core.Type.isStringFilled(this.message.forward.id);
@@ -1026,16 +1040,20 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return FileMessageType.media;
 	      }
 	      return FileMessageType.base;
+	    },
+	    isRealMessage() {
+	      return this.$store.getters['messages/isRealMessage'](this.message.id);
 	    }
 	  },
 	  template: `
 		<component 
 			:is="componentName" 
 			:item="message" 
-			:dialogId="dialogId" 
+			:dialogId="dialogId"
 			:withTitle="withTitle" 
 			:menuIsActiveForId="menuIsActiveForId"
 			:withRetryButton="false"
+			:withContextMenu="isRealMessage"
 		/>
 	`
 	};

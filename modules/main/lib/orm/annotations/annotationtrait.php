@@ -217,6 +217,7 @@ trait AnnotationTrait
 			$code[] = "\t * @method int count() Countable";
 			$code[] = "\t * @method {$collectionClass} merge(?{$collectionClass} \$collection)";
 			$code[] = "\t * @method bool isEmpty()";
+			$code[] = "\t * @method array collectValues(int \$valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int \$fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool \$recursive = false)";
 		}
 
 		// xTODO we can put path to the original file here
@@ -241,9 +242,26 @@ trait AnnotationTrait
 		{
 			// annotate Table class
 			$dataClassName = $entity->getName().'Table';
-			$queryClassName = Entity::DEFAULT_OBJECT_PREFIX.$entity->getName().'_Query';
 			$resultClassName = Entity::DEFAULT_OBJECT_PREFIX.$entity->getName().'_Result';
 			$entityClassName = Entity::DEFAULT_OBJECT_PREFIX.$entity->getName().'_Entity';
+			$eoQueryClassName = Entity::DEFAULT_OBJECT_PREFIX.$entity->getName().'_Query';
+
+			// custom query class
+			if ($entity->getDataClass()::getQueryClass() !== Query::class)
+			{
+				$queryClassName = '\\'.$entity->getDataClass()::getQueryClass();
+				$reflectionClass = new \ReflectionClass($queryClassName);
+
+				if ($reflectionClass->getNamespaceName() === $entityNamespace)
+				{
+					// short syntax for the same namespace
+					$queryClassName = $reflectionClass->getShortName();
+				}
+			}
+			else
+			{
+				$queryClassName = $eoQueryClassName;
+			}
 
 			$code[] = "namespace {$entityNamespace} {"; // start namespace
 
@@ -284,10 +302,8 @@ trait AnnotationTrait
 			$code[] = "\t * @method {$resultClassName} exec()";
 			$code[] = "\t * @method {$objectClass} fetchObject()";
 			$code[] = "\t * @method {$collectionClass} fetchCollection()";
-			$code[] = "\t *";
-			$code[] = "\t * Custom methods:";
-			$code[] = "\t * ---------------";
-			$code[] = "\t *";
+
+			$customQueryMethodsCode = [];
 
 			foreach (get_class_methods($dataClass) as $method)
 			{
@@ -308,14 +324,24 @@ trait AnnotationTrait
 
 						$argumentsMeta = join(', ', $arguments);
 
-						$code[] = "\t * @see {$dataClass}::{$method}()";
-						$code[] = "\t * @method {$queryClassName} {$method}({$argumentsMeta})";
+						$customQueryMethodsCode[] = "\t * @see {$dataClass}::{$method}()";
+						$customQueryMethodsCode[] = "\t * @method self {$method}({$argumentsMeta})";
 					}
 				}
 			}
 
+			if (!empty($customQueryMethodsCode))
+			{
+				$code[] = "\t *";
+				$code[] = "\t * Custom methods:";
+				$code[] = "\t * ---------------";
+				$code[] = "\t *";
+
+				array_push($code, $customQueryMethodsCode);
+			}
+
 			$code[] = "\t */";
-			$code[] = "\tclass {$queryClassName} extends \\".Query::class." {}";
+			$code[] = "\tclass {$eoQueryClassName} extends \\".Query::class." {}";
 
 			// annotate Result class
 			$code[] = "\t/**";

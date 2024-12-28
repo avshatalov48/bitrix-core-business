@@ -60,6 +60,8 @@ class UserDataProvider extends EntityDataProvider
 			$result = (
 				ModuleManager::isModuleInstalled('extranet')
 				&& Option::get('extranet', 'extranet_site') !== ''
+				&& method_exists(\Bitrix\Extranet\PortalSettings::class, 'isExtranetUsersAvailable')
+				&& \Bitrix\Extranet\PortalSettings::getInstance()->isExtranetUsersAvailable()
 			);
 		}
 

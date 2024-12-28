@@ -6,6 +6,7 @@ use Bitrix\Im;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Error;
 use Bitrix\Im\V2\Integration\AI\Restriction;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Message\Params;
@@ -114,14 +115,25 @@ class CopilotChat extends GroupChat
 		return parent::add($params, $context);
 	}
 
-	public function addUsers(
-		array $userIds,
-		array $managerIds = [],
-		?bool $hideHistory = null,
-		bool $withMessage = true,
-		bool $skipRecent = false,
-		Im\V2\Relation\Reason $reason = Im\V2\Relation\Reason::DEFAULT
-	): Chat
+	protected function getValidUsersToAdd(array $userIds): array
+	{
+		$filterUserIds = parent::getValidUsersToAdd($userIds);
+		$copilotChatBot = Loader::includeModule('imbot') ? CopilotChatBot::getBotId() : null;
+
+		if (!isset($copilotChatBot) || !in_array($copilotChatBot, $userIds, true))
+		{
+			return $filterUserIds;
+		}
+
+		if (!in_array($copilotChatBot, $filterUserIds, true))
+		{
+			$filterUserIds[] = CopilotChatBot::getBotId();
+		}
+
+		return $filterUserIds;
+	}
+
+	public function addUsers(array $userIds, AddUsersConfig $config = new AddUsersConfig()): Chat
 	{
 		if (empty($userIds) || !$this->getChatId())
 		{
@@ -130,7 +142,7 @@ class CopilotChat extends GroupChat
 
 		$usersToAdd = $this->getUsersWithoutBots($userIds);
 
-		return parent::addUsers($usersToAdd, $managerIds, $hideHistory, $withMessage, $skipRecent, $reason);
+		return parent::addUsers($usersToAdd, $config);
 	}
 
 	protected function getUsersWithoutBots(array $userIds): array
@@ -151,7 +163,7 @@ class CopilotChat extends GroupChat
 		return $usersToAdd;
 	}
 
-	protected function sendMessageUsersAdd(array $usersToAdd, bool $skipRecent = false): void
+	protected function sendMessageUsersAdd(array $usersToAdd, AddUsersConfig $config): void
 	{
 		if (empty($usersToAdd))
 		{
@@ -170,7 +182,7 @@ class CopilotChat extends GroupChat
 			unset($usersToAdd[Bot\CopilotChatBot::getBotId()]);
 		}
 
-		parent::sendMessageUsersAdd($usersToAdd, $skipRecent);
+		parent::sendMessageUsersAdd($usersToAdd, $config);
 	}
 
 	protected function sendGreetingMessage(?int $authorId = null)

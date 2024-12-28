@@ -1,12 +1,10 @@
 import { BaseEvent, EventEmitter } from 'main.core.events';
 
-import { Core } from 'im.v2.application.core';
-import { ChatType, EventType, MessageComponent, ChatActionType } from 'im.v2.const';
+import { ChatType, EventType, MessageComponent, ActionByRole } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Quote } from 'im.v2.lib.quote';
 import { FadeAnimation } from 'im.v2.component.animation';
-import { CopilotManager } from 'im.v2.lib.copilot';
 import { FeatureManager } from 'im.v2.lib.feature';
 import { MessageComponentManager } from 'im.v2.lib.message-component-manager';
 
@@ -32,7 +30,6 @@ export { MessageMenu } from './classes/message-menu';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelMessage, ImModelUser } from 'im.v2.model';
-
 export { AuthorGroup } from './components/block/author-group';
 export { MessageComponents } from './utils/message-components';
 export { CollectionManager } from './classes/collection-manager/collection-manager';
@@ -182,43 +179,14 @@ export const MessageList = {
 				dialogId: this.dialogId,
 			});
 		},
-		needToShowAvatarMenuFor(user: ImModelUser): boolean
-		{
-			if (!user)
-			{
-				return false;
-			}
-
-			const isCurrentUser = user.id === Core.getUserId();
-			const isBotChat = this.isUser && this.user.bot === true;
-
-			return !isCurrentUser && !isBotChat;
-		},
 		onAvatarClick(params: { dialogId: string, $event: PointerEvent })
 		{
-			const permissionManager = PermissionManager.getInstance();
-			if (!permissionManager.canPerformAction(ChatActionType.openAvatarMenu, this.dialogId))
-			{
-				return;
-			}
-
 			const { dialogId, $event: event } = params;
 			const user: ImModelUser = this.$store.getters['users/get'](dialogId);
-			if (!this.needToShowAvatarMenuFor(user))
-			{
-				return;
-			}
-
 			if (Utils.key.isAltOrOption(event))
 			{
 				this.insertMention(user);
 
-				return;
-			}
-
-			const copilotManager = new CopilotManager();
-			if (copilotManager.isCopilotBot(dialogId))
-			{
 				return;
 			}
 
@@ -227,7 +195,7 @@ export const MessageList = {
 		onMessageContextMenuClick(eventData: BaseEvent<{ message: ImModelMessage, dialogId: string, event: PointerEvent }>)
 		{
 			const permissionManager = PermissionManager.getInstance();
-			if (!permissionManager.canPerformAction(ChatActionType.openMessageMenu, this.dialogId))
+			if (!permissionManager.canPerformActionByRole(ActionByRole.openMessageMenu, this.dialogId))
 			{
 				return;
 			}

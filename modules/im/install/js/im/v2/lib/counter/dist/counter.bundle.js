@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events,ui_vue3_vuex,im_v2_application_core,im_v2_lib_desktop,im_v2_lib_logger,im_v2_const) {
+(function (exports,main_core_events,ui_vue3_vuex,im_v2_application_core,im_v2_lib_desktop,im_v2_lib_logger,im_v2_const) {
 	'use strict';
 
 	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
@@ -72,9 +72,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 	function _init2(counters) {
-	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setUnloadedChatCounters', babelHelpers.classPrivateFieldLooseBase(this, _prepareChatCounters)[_prepareChatCounters](counters));
+	  const preparedChatCounters = babelHelpers.classPrivateFieldLooseBase(this, _prepareChatCounters)[_prepareChatCounters](counters.CHAT, counters.CHAT_UNREAD);
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setUnloadedChatCounters', preparedChatCounters);
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setUnloadedLinesCounters', counters.LINES);
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setUnloadedCopilotCounters', counters.COPILOT);
+	  const preparedCollabCounters = babelHelpers.classPrivateFieldLooseBase(this, _prepareChatCounters)[_prepareChatCounters](counters.COLLAB, counters.COLLAB_UNREAD);
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setUnloadedCollabCounters', preparedCollabCounters);
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setCommentCounters', counters.CHANNEL_COMMENT);
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('notifications/setCounter', counters.TYPE.NOTIFY);
 	  babelHelpers.classPrivateFieldLooseBase(this, _subscribeToCountersChange)[_subscribeToCountersChange]();
@@ -82,17 +85,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _sendNotificationCounterChangeEvent)[_sendNotificationCounterChangeEvent](counters.TYPE.NOTIFY);
 	  babelHelpers.classPrivateFieldLooseBase(this, _sendLinesCounterChangeEvent)[_sendLinesCounterChangeEvent](counters.TYPE.LINES);
 	}
-	function _prepareChatCounters2(counters) {
-	  const chatCounters = main_core.Type.isArray(counters.CHAT) ? {} : counters.CHAT;
-	  const markedChats = counters.CHAT_UNREAD;
-	  markedChats.forEach(markedChatId => {
-	    const unreadChatHasCounter = Boolean(chatCounters[markedChatId]);
+	function _prepareChatCounters2(counters, unreadCounters) {
+	  const resultCounters = {
+	    ...counters
+	  };
+	  unreadCounters.forEach(markedChatId => {
+	    const unreadChatHasCounter = Boolean(counters[markedChatId]);
 	    if (unreadChatHasCounter) {
 	      return;
 	    }
-	    chatCounters[markedChatId] = 1;
+	    resultCounters[markedChatId] = 1;
 	  });
-	  return chatCounters;
+	  return resultCounters;
 	}
 	function _subscribeToCountersChange2() {
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].watch(notificationCounterWatch, newValue => {
@@ -166,5 +170,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CounterManager = CounterManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Vue3.Vuex,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Vue3.Vuex,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=counter.bundle.js.map

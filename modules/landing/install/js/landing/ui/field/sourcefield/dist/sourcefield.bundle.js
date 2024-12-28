@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -341,10 +342,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        main_core.Dom.addClass(placeholder.firstElementChild, 'landing-ui-field-source-placeholder-text-plain');
 	      }
 	      if (options.url) {
-	        var removeButton = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-source-placeholder-remove\"></span>\n\t\t\t"])));
-	        main_core.Dom.append(removeButton, placeholder);
+	        if (options.useLink) {
+	          var removeButton = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<span class=\"landing-ui-field-source-placeholder-remove\"></span>"])));
+	          main_core.Dom.append(removeButton, placeholder);
+	          main_core.Event.bind(removeButton, 'click', this.onPlaceholderRemoveClick.bind(this, options));
+	        }
 	        main_core.Event.bind(placeholder, 'click', this.onPlaceholderClick.bind(this, options));
-	        main_core.Event.bind(removeButton, 'click', this.onPlaceholderRemoveClick.bind(this, options));
 	      }
 	      main_core.Dom.append(placeholder, this.input);
 	    }

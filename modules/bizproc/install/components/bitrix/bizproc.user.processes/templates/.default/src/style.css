@@ -286,15 +286,35 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	text-overflow: ellipsis;
 }
 
+.bp-workflow-result {
+	display: block;
+	margin: 10px 4px;
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-normal);
+}
+
+.bp-workflow-result.no-rights {
+	color: var(--ui-color-base-60);
+}
+
+.bp-workflow-result.no-rights span.ui-hint {
+	display: inline;
+	line-height: 1em;
+	margin: 0;
+}
+
+.bp-workflow-result.no-rights span.ui-hint .ui-hint-icon {
+	margin: 0;
+	line-height: 1em;
+}
+
 .bp-status-panel {
 	min-height: 75px;
-	display: flex;
 	align-items: center;
 	min-width: 193px;
 }
 
 .bp-status-item {
-	display: flex;
 	align-items: center;
 	padding: 0 6px 0 12px;
 	height: 22px;

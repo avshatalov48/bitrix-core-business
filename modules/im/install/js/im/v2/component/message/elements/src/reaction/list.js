@@ -1,7 +1,7 @@
 import { EventEmitter } from 'main.core.events';
 import { reactionType as Reaction } from 'ui.reactions-select';
 
-import { DialogScrollThreshold, EventType, ChatType, ChatActionType } from 'im.v2.const';
+import { DialogScrollThreshold, EventType, ChatType, ActionByRole } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { ChannelManager } from 'im.v2.lib.channel';
 
@@ -95,7 +95,7 @@ export const ReactionList = {
 		onReactionSelect(reaction: ReactionType, event: {animateItemFunction: () => void})
 		{
 			const permissionManager = PermissionManager.getInstance();
-			if (!permissionManager.canPerformAction(ChatActionType.setReaction, this.dialog.dialogId))
+			if (!permissionManager.canPerformActionByRole(ActionByRole.setReaction, this.dialog.dialogId))
 			{
 				return;
 			}

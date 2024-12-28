@@ -16,8 +16,12 @@
 	align-items: center;
 	margin-right: 24px;
 	min-width: 68px;
-	height: 76px;
+	height: auto;
 	z-index: 1;
+}
+
+.ui-image-stack-steps-step.--with-header.--with-footer {
+	height: 76px;
 }
 
 .ui-image-stack-steps-step:before {
@@ -181,4 +185,22 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+.ui-image-stack-steps-counter {
+	display: inline-block;
+	min-width: 30px;
+	height: 30px;
+	border-radius: var(--ui-border-radius-circle);
+	border: 1px solid var(--ui-color-palette-blue-25);
+	background-color: var(--ui-color-background-primary);
+	background-size: cover;
+	box-sizing: border-box;
+	margin-right: -15px;
+	position: relative;
+	line-height: 28px;
+	color: var(--ui-color-palette-blue-70);
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-normal);
+	text-align: center;
 }

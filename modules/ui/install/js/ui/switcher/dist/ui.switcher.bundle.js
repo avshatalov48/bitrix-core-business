@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,main_core,ui_designTokens,main_core_events) {
 	'use strict';
 
 	let _ = t => t,
@@ -164,7 +164,7 @@ this.BX = this.BX || {};
 	    this.check(this.checked, false);
 	    this.disable(babelHelpers.classPrivateFieldLooseBase(this, _disabled)[_disabled], false);
 	  }
-	  disable(disabled, fireEvents) {
+	  disable(disabled, fireEvents = true, event = {}) {
 	    if (this.isLoading()) {
 	      return;
 	    }
@@ -172,13 +172,13 @@ this.BX = this.BX || {};
 	    fireEvents = fireEvents !== false;
 	    if (disabled) {
 	      main_core.Dom.addClass(this.node, babelHelpers.classPrivateFieldLooseBase(this, _classNameLock)[_classNameLock]);
-	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.lock) : null;
+	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.lock, event) : null;
 	    } else {
 	      main_core.Dom.removeClass(this.node, babelHelpers.classPrivateFieldLooseBase(this, _classNameLock)[_classNameLock]);
-	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.unlock) : null;
+	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.unlock, event) : null;
 	    }
 	  }
-	  check(checked, fireEvents) {
+	  check(checked, fireEvents = true, event = {}) {
 	    if (this.isLoading()) {
 	      return;
 	    }
@@ -189,13 +189,13 @@ this.BX = this.BX || {};
 	    fireEvents = fireEvents !== false;
 	    if (this.checked) {
 	      main_core.Dom.removeClass(this.node, babelHelpers.classPrivateFieldLooseBase(this, _classNameOff)[_classNameOff]);
-	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.unchecked) : null;
+	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.unchecked, event) : null;
 	    } else {
 	      main_core.Dom.addClass(this.node, babelHelpers.classPrivateFieldLooseBase(this, _classNameOff)[_classNameOff]);
-	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.checked) : null;
+	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.checked, event) : null;
 	    }
 	    if (fireEvents) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.toggled);
+	      babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.toggled, event);
 	    }
 	  }
 	  isDisabled() {
@@ -204,11 +204,11 @@ this.BX = this.BX || {};
 	  isChecked() {
 	    return this.checked;
 	  }
-	  toggle() {
+	  toggle(event) {
 	    if (this.isDisabled()) {
 	      return;
 	    }
-	    this.check(!this.isChecked());
+	    this.check(!this.isChecked(), true, event);
 	  }
 	  setLoading(mode) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _loading)[_loading] = Boolean(mode);
@@ -267,10 +267,10 @@ this.BX = this.BX || {};
 	  }
 	  main_core.bind(this.node, 'click', this.toggle.bind(this));
 	}
-	function _fireEvent2(eventName) {
+	function _fireEvent2(eventName, event) {
 	  main_core.onCustomEvent(this, eventName);
 	  if (this.handlers[eventName]) {
-	    this.handlers[eventName].call(this);
+	    this.handlers[eventName].call(this, event);
 	  }
 	}
 	Object.defineProperty(Switcher, _attributeInitName, {
@@ -284,5 +284,5 @@ this.BX = this.BX || {};
 	exports.SwitcherColor = SwitcherColor;
 	exports.Switcher = Switcher;
 
-}((this.BX.UI = this.BX.UI || {}),BX));
+}((this.BX.UI = this.BX.UI || {}),BX,BX,BX.Event));
 //# sourceMappingURL=ui.switcher.bundle.js.map

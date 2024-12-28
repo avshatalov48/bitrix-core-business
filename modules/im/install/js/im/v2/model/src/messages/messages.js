@@ -14,11 +14,14 @@ import { messageFieldsConfig } from './format/field-config';
 import { PinModel } from './nested-modules/pin';
 import { ReactionsModel } from './nested-modules/reactions';
 import { CommentsModel } from './nested-modules/comments/comments';
+import { SelectModel } from './nested-modules/select';
 
 import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
 import type { ImModelMessage, ImModelFile } from 'im.v2.model';
 import type { AttachConfig } from 'im.v2.const';
 import type { RawMessage } from '../type/message';
+
+type MessageId = string | number;
 
 type MessagesState = {
 	collection: {
@@ -26,7 +29,10 @@ type MessagesState = {
 	},
 	chatCollection: {
 		[chatId: string]: Set<string | number>
-	}
+	},
+	loadingMessages: {
+		[previousSibling: MessageId]: ImModelMessage,
+	},
 };
 
 export class MessagesModel extends BuilderModel
@@ -42,6 +48,7 @@ export class MessagesModel extends BuilderModel
 			pin: PinModel,
 			reactions: ReactionsModel,
 			comments: CommentsModel,
+			select: SelectModel,
 		};
 	}
 
@@ -50,6 +57,7 @@ export class MessagesModel extends BuilderModel
 		return {
 			collection: {},
 			chatCollection: {},
+			loadingMessages: {},
 		};
 	}
 
@@ -86,15 +94,28 @@ export class MessagesModel extends BuilderModel
 	{
 		return {
 			/** @function messages/getByChatId */
-			getByChatId: (state: MessagesState) => (chatId: number) => {
+			getByChatId: (state: MessagesState, getters) => (chatId: number) => {
 				if (!state.chatCollection[chatId])
 				{
 					return [];
 				}
 
-				return [...state.chatCollection[chatId]].map((messageId: number | string) => {
-					return state.collection[messageId];
-				}).sort(this.#sortCollection);
+				const fakeFirstMessage: { id: string } = { id: this.#makeFakePreviousSiblingId(chatId) };
+				const firstLoadingMessages: Array<ImModelMessage> = this.#findNextLoadingMessages(
+					fakeFirstMessage,
+					getters,
+				);
+
+				return [...state.chatCollection[chatId]]
+					.map((messageId: number | string) => {
+						return state.collection[messageId];
+					})
+					.sort(this.#sortCollection)
+					.reduce((acc: Array<ImModelMessage>, message: ImModelMessage) => {
+						acc.push(message, ...this.#findNextLoadingMessages(message, getters));
+
+						return acc;
+					}, [...firstLoadingMessages]);
 			},
 			/** @function messages/getById */
 			getById: (state: MessagesState) => (id: number | string): ?ImModelMessage => {
@@ -246,6 +267,54 @@ export class MessagesModel extends BuilderModel
 
 				return state.collection[desiredMessageId];
 			},
+			findPreviousMessageId: (state, getters) => (payload: { messageId: MessageId, chatId: number }): MessageId => {
+				const chatCollection: Array<ImModelMessage> = getters.getByChatId(payload.chatId);
+				const currentMessageIndex: number = chatCollection.findIndex((message: ImModelMessage) => {
+					return message.id === payload.messageId;
+				});
+
+				if (currentMessageIndex > 0)
+				{
+					return chatCollection[currentMessageIndex - 1].id;
+				}
+
+				return -1;
+			},
+			findLastChatMessageId: (state, getters) => (chatId: number): MessageId => {
+				const lastMessage: ?ImModelMessage = getters.getByChatId(chatId).pop();
+				if (lastMessage)
+				{
+					return lastMessage.id;
+				}
+
+				return -1;
+			},
+			hasLoadingMessageByPreviousSiblingId: (state: MessagesState) => (messageId: MessageId): boolean => {
+				return Boolean(state.loadingMessages[messageId]);
+			},
+			getLoadingMessageByPreviousSiblingId: (state: MessagesState) => (messageId: MessageId): ?ImModelMessage => {
+				return state.loadingMessages[messageId] ?? null;
+			},
+			getLoadingMessageByMessageId: (state: MessagesState) => (messageId: MessageId): ?ImModelMessage => {
+				const message: ImModelMessage = Object
+					.values(state.loadingMessages)
+					.find((currentMessage: ImModelMessage) => {
+						return currentMessage.id === messageId;
+					});
+
+				if (message)
+				{
+					return message;
+				}
+
+				return null;
+			},
+			hasLoadingMessageByMessageId: (state: MessagesState, getters) => (messageId: MessageId): boolean => {
+				return getters.getLoadingMessageByMessageId(messageId) !== null;
+			},
+			isRealMessage: () => (messageId: MessageId): boolean => {
+				return !Utils.text.isTempMessage(messageId);
+			},
 		};
 	}
 
@@ -394,6 +463,27 @@ export class MessagesModel extends BuilderModel
 					return;
 				}
 
+				if (store.getters.hasLoadingMessageByPreviousSiblingId(id))
+				{
+					const currentMessage: ImModelMessage = store.state.collection[id];
+					const newPreviousMessageId: MessageId = store.getters.findPreviousMessageId({
+						messageId: currentMessage.id,
+						chatId: currentMessage.chatId,
+					});
+
+					store.commit('updateLoadingMessagePreviousSiblingId', {
+						oldId: currentMessage.id,
+						newId: newPreviousMessageId,
+					});
+				}
+
+				if (store.getters.hasLoadingMessageByMessageId(id))
+				{
+					store.commit('deleteLoadingMessageByMessageId', {
+						messageId: id,
+					});
+				}
+
 				store.commit('delete', { id });
 			},
 			/** @function messages/clearChatCollection */
@@ -419,10 +509,50 @@ export class MessagesModel extends BuilderModel
 					fields: { ...message, ...this.#formatFields({ attach }) },
 				});
 			},
+			/** @function messages/addLoadingMessage */
+			addLoadingMessage: (store, payload: { message: ImModelMessage }) => {
+				const message = {
+					...this.getElementState(),
+					...this.#formatFields(payload.message),
+				};
+
+				store.commit('store', {
+					messages: [message],
+				});
+
+				if (!store.state.chatCollection[message.chatId])
+				{
+					store.commit('initChatCollection', {
+						chatId: message.chatId,
+					});
+				}
+
+				const previousSiblingId: ?MessageId = (() => {
+					const id: number | string = store.getters.findLastChatMessageId(message.chatId);
+					if (id === -1)
+					{
+						return this.#makeFakePreviousSiblingId(message.chatId);
+					}
+
+					return id;
+				})();
+
+				store.commit('addLoadingMessage', {
+					message,
+					previousSiblingId,
+				});
+			},
+			/** @function messages/deleteLoadingMessageByMessageId */
+			deleteLoadingMessageByMessageId: (store, payload: { messageId: string }) => {
+				store.commit('deleteLoadingMessageByMessageId', {
+					...payload,
+				});
+			},
 		};
 	}
 
 	/* eslint-disable no-param-reassign */
+	// eslint-disable-next-line max-lines-per-function
 	getMutations(): MutationTree
 	{
 		return {
@@ -435,6 +565,12 @@ export class MessagesModel extends BuilderModel
 					}
 					state.chatCollection[message.chatId].add(message.id);
 				});
+			},
+			initChatCollection: (state: MessagesState, payload: { chatId: number }) => {
+				if (!state.chatCollection[payload.chatId])
+				{
+					state.chatCollection[payload.chatId] = new Set();
+				}
 			},
 			store: (state: MessagesState, payload: {messages: ImModelMessage[]}) => {
 				Logger.warn('Messages model: store mutation', payload);
@@ -510,7 +646,59 @@ export class MessagesModel extends BuilderModel
 					message.viewedByOthers = true;
 				});
 			},
+			addLoadingMessage: (
+				state: MessagesState,
+				payload: {
+					message: ImModelMessage,
+					previousSiblingId: MessageId,
+				},
+			) => {
+				const { message, previousSiblingId } = payload;
+				state.loadingMessages[previousSiblingId] = message;
+			},
+			deleteLoadingMessageByMessageId: (state: MessagesState, payload: { messageId: MessageId }) => {
+				const entries: Array<Array<MessageId, ImModelMessage>> = Object.entries(state.loadingMessages);
+				const entry: ?Array<MessageId, ImModelMessage> = entries.find(([, message: ImModelMessage]) => {
+					return message.id === payload.messageId;
+				});
+
+				if (entry)
+				{
+					const [previousSiblingId: MessageId] = entry;
+					delete state.loadingMessages[previousSiblingId];
+				}
+			},
+			updateLoadingMessagePreviousSiblingId: (
+				state: MessagesState,
+				payload: {
+					oldId: MessageId,
+					newId: MessageId,
+				},
+			) => {
+				const { oldId, newId } = payload;
+				const loadingMessage: ImModelMessage = state.loadingMessages[oldId];
+				if (loadingMessage)
+				{
+					delete state.loadingMessages[oldId];
+					state.loadingMessages[newId] = loadingMessage;
+				}
+			},
 		};
+	}
+
+	#findNextLoadingMessages(message: ImModelMessage, getters: JsonObject): Array<ImModelMessage>
+	{
+		if (getters.hasLoadingMessageByPreviousSiblingId(message.id))
+		{
+			const loadingMessage: ImModelMessage = getters.getLoadingMessageByPreviousSiblingId(message.id);
+
+			return [
+				loadingMessage,
+				...this.#findNextLoadingMessages(loadingMessage, getters),
+			];
+		}
+
+		return [];
 	}
 
 	#formatFields(rawFields: JsonObject): JsonObject
@@ -666,5 +854,10 @@ export class MessagesModel extends BuilderModel
 		}
 
 		return a.id - b.id;
+	}
+
+	#makeFakePreviousSiblingId(chatId: number): number
+	{
+		return `${chatId}/-1`;
 	}
 }

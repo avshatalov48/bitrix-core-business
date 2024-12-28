@@ -9,6 +9,7 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
 use Bitrix\Im\V2\MessageCollection;
+use Bitrix\Im\V2\Permission\Action;
 use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
@@ -151,7 +152,7 @@ class NullChat extends Chat
 		return new Message\Send\Push\GroupPushService($message, $config);
 	}
 
-	public function canDo(string $action, mixed $target = null): bool
+	public function canDo(Action $action, mixed $target = null): bool
 	{
 		return false;
 	}

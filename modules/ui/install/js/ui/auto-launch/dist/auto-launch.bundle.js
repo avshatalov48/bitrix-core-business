@@ -287,6 +287,7 @@ this.BX.UI = this.BX.UI || {};
 	  clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _launchTimeoutId)[_launchTimeoutId]);
 	  babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem] = babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].getFirst();
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem] === null) {
+	    this.disable();
 	    return;
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].delete(babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem]);

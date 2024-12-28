@@ -7,13 +7,15 @@ import { ThemeManager } from 'im.v2.lib.theme';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { ResizeManager } from 'im.v2.lib.textarea';
 import { ChatSidebar } from 'im.v2.component.sidebar';
-import { ChatActionType, Settings, UserRole, EventType, SidebarDetailBlock } from 'im.v2.const';
+import { ActionByRole, Settings, UserRole, EventType, SidebarDetailBlock } from 'im.v2.const';
+import { BulkActionsManager } from 'im.v2.lib.bulk-actions';
 
 import { Height } from './const/size';
 import { ChatHeader } from '../header/chat-header';
 import { DropArea } from './components/drop-area';
 import { MutePanel } from './components/mute-panel';
 import { JoinPanel } from './components/join-panel';
+import { BulkActionsPanel } from './components/bulk-actions-panel';
 import { LoadingBar } from './components/loading-bar';
 import { TextareaObserverDirective } from './utils/observer-directive';
 
@@ -37,13 +39,15 @@ export const BaseChatContent = {
 		DropArea,
 		MutePanel,
 		JoinPanel,
+		BulkActionsPanel,
 		LoadingBar,
 	},
 	directives: { 'textarea-observer': TextareaObserverDirective },
-	provide(): { currentSidebarPanel: SidebarDetailBlockType }
+	provide(): { currentSidebarPanel: SidebarDetailBlockType, withSidebar: boolean }
 	{
 		return {
 			currentSidebarPanel: computed(() => this.currentSidebarPanel),
+			withSidebar: computed(() => this.withSidebar),
 		};
 	},
 	props:
@@ -53,8 +57,12 @@ export const BaseChatContent = {
 			default: '',
 		},
 		backgroundId: {
-			type: [Number, null],
+			type: [Number, String, null],
 			default: null,
+		},
+		withSidebar: {
+			type: Boolean,
+			default: true,
 		},
 	},
 	data(): JsonObject
@@ -73,11 +81,15 @@ export const BaseChatContent = {
 		},
 		canSend(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.send, this.dialog.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.send, this.dialog.dialogId);
 		},
 		isGuest(): boolean
 		{
 			return this.dialog.role === UserRole.guest;
+		},
+		isBulkActionsMode(): boolean
+		{
+			return this.$store.getters['messages/select/getBulkActionsMode'];
 		},
 		hasCommentsOnTop(): boolean
 		{
@@ -101,7 +113,7 @@ export const BaseChatContent = {
 		dialogContainerStyle(): Object
 		{
 			let textareaHeight = this.textareaHeight;
-			if (!this.canSend)
+			if (!this.canSend || this.isBulkActionsMode)
 			{
 				textareaHeight = Height.blockedTextarea;
 			}
@@ -130,10 +142,14 @@ export const BaseChatContent = {
 	{
 		this.initTextareaResizeManager();
 		this.bindEvents();
+
+		BulkActionsManager.getInstance().init();
 	},
 	beforeUnmount()
 	{
 		this.unbindEvents();
+
+		BulkActionsManager.getInstance().destroy();
 	},
 	methods:
 	{
@@ -201,30 +217,33 @@ export const BaseChatContent = {
 					</Transition>
 					<div class="bx-im-content-chat__dialog_content">
 						<slot name="dialog">
-							<ChatDialog :dialogId="dialogId" :key="dialogId" />
+							<ChatDialog :dialogId="dialogId" :key="dialogId"/>
 						</slot>
 					</div>
 				</div>
 				<!-- Textarea -->
-				<div v-if="canSend" v-textarea-observer class="bx-im-content-chat__textarea_container" ref="textarea-container">
-					<slot name="textarea" :onTextareaMount="onTextareaMount">
-						<ChatTextarea 
-							:dialogId="dialogId" 
-							:key="dialogId" 
-							:withAudioInput="false" 
-							@mounted="onTextareaMount" 
-						/>
+				<Transition name="bx-im-panel-transition">
+					<BulkActionsPanel v-if="isBulkActionsMode"/>
+					<div v-else-if="canSend" v-textarea-observer class="bx-im-content-chat__textarea_container" ref="textarea-container">
+						<slot name="textarea" :onTextareaMount="onTextareaMount">
+							<ChatTextarea
+								:dialogId="dialogId"
+								:key="dialogId"
+								:withAudioInput="false"
+								@mounted="onTextareaMount"
+							/>
+						</slot>
+					</div>
+					<slot v-else-if="isGuest" name="join-panel">
+						<JoinPanel :dialogId="dialogId" />
 					</slot>
-				</div>
-				<slot v-else-if="isGuest" name="join-panel">
-					<JoinPanel :dialogId="dialogId" />
-				</slot>
-				<MutePanel v-else :dialogId="dialogId" />
-				<!-- End textarea -->
+					<MutePanel v-else :dialogId="dialogId" />
+				</Transition>
 				<DropArea :dialogId="dialogId" :container="$refs.content || {}" :key="dialogId" />
+				<!-- End textarea -->
 			</div>
 			<ChatSidebar
-				v-if="dialogId.length > 0" 
+				v-if="dialogId && withSidebar" 
 				:originDialogId="dialogId"
 				:isActive="!hasCommentsOnTop"
 				@changePanel="onChangeSidebarPanel"

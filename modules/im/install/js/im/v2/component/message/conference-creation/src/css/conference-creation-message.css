@@ -14,7 +14,7 @@
 	border-radius: 16px;
 }
 
-.bx-im-message-base__wrap + .bx-im-message-conference-creation__scope {
+.bx-im-message-conference-creation__scope {
 	margin-top: 24px;
 }
 

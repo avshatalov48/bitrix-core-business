@@ -368,7 +368,8 @@ class Sender
 					'password' => $config['password'],
 					'isOauth' => $config['isOauth'],
 				));
-				(new Main\Mail\Smtp\OAuthConfigPreparer())->prepareBeforeSendIfNeed($config);
+				// config will be replaced with null value due errors
+				$config = (new Main\Mail\Smtp\OAuthConfigPreparer())->prepareBeforeSendIfNeed($config);
 			}
 
 			$smtp[$email] = $config;

@@ -4,11 +4,16 @@ import { Store } from 'ui.vue3.vuex';
 
 import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
-import { RestMethod, UserRole } from 'im.v2.const';
+import { RestMethod, UserRole, ChatType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { Analytics } from 'im.v2.lib.analytics';
+import { runAction } from 'im.v2.lib.rest';
 
-import type { ChatConfig, RestChatConfig, CollabConfig } from '../types/chat';
+import type { ChatConfig, RestChatConfig, RestCreateCollabConfig } from '../types/chat';
+
+type CreateCollabResult = {
+	CHAT_ID: number,
+};
 
 const PRIVATE_CHAT = 'CHAT';
 const OPEN_CHAT = 'OPEN';
@@ -48,28 +53,38 @@ export class CreateService
 		return { newDialogId, newChatId };
 	}
 
-	async createCollab(collabConfig: CollabConfig): Promise<{ newDialogId: string, newChatId: number }>
+	async createCollab(collabConfig: RestCreateCollabConfig): Promise<{ newDialogId: string, newChatId: number }>
 	{
 		Logger.warn('ChatService: createCollab', collabConfig);
 
 		const preparedFields = await this.#prepareFields(collabConfig);
-		//
-		// const createResult: RestResult = await this.#restClient.callMethod(RestMethod.imV2ChatAdd, {
-		// 	fields: preparedFields,
-		// }).catch((error) => {
-		// 	// eslint-disable-next-line no-console
-		// 	console.error('ChatService: createCollab error:', error);
-		// 	throw new Error(error);
-		// });
-		//
-		// const { chatId: newChatId } = createResult.data();
-		//
-		// Logger.warn('ChatService: createCollab result', newChatId);
-		// const newDialogId = `chat${newChatId}`;
-		// this.#addChatToModel(newDialogId, preparedFields);
-		// this.#sendAnalytics(newDialogId);
-		//
-		// return { newDialogId, newChatId };
+
+		const params = {
+			ownerId: preparedFields.ownerId,
+			name: preparedFields.title,
+			description: preparedFields.description,
+			avatarId: preparedFields.avatar,
+			moderatorMembers: Utils.user.prepareSelectorIds(collabConfig.moderatorMembers),
+			permissions: collabConfig.permissions,
+			options: collabConfig.options,
+		};
+
+		const createResult: CreateCollabResult = await runAction(RestMethod.socialnetworkCollabCreate, {
+			data: params,
+		}).catch(([error]) => {
+			// eslint-disable-next-line no-console
+			console.error('ChatService: createCollab error:', error);
+			throw error;
+		});
+
+		const { chatId: newChatId } = createResult;
+
+		Logger.warn('ChatService: createCollab result', newChatId);
+		const newDialogId = `chat${newChatId}`;
+		this.#addCollabToModel(newDialogId, preparedFields);
+		this.#sendAnalytics(newDialogId);
+
+		return { newDialogId, newChatId };
 	}
 
 	async #prepareFields(chatConfig: ChatConfig): RestChatConfig
@@ -119,7 +134,16 @@ export class CreateService
 		return result;
 	}
 
-	#addChatToModel(newDialogId: string, chatConfig: RestChatConfig)
+	#addCollabToModel(newDialogId: string, collabConfig: RestCreateCollabConfig): void
+	{
+		this.#store.dispatch('chats/set', {
+			dialogId: newDialogId,
+			type: ChatType.collab,
+			name: collabConfig.title,
+		});
+	}
+
+	#addChatToModel(newDialogId: string, chatConfig: RestChatConfig): void
 	{
 		let chatType = chatConfig.searchable === 'Y' ? OPEN_CHAT : PRIVATE_CHAT;
 		if (Type.isStringFilled(chatConfig.entityType))
@@ -150,6 +174,6 @@ export class CreateService
 
 	#sendAnalytics(dialogId)
 	{
-		Analytics.getInstance().onCreateChat(dialogId);
+		Analytics.getInstance().ignoreNextChatOpen(dialogId);
 	}
 }

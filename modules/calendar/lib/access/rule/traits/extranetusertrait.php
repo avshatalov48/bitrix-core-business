@@ -21,7 +21,7 @@ trait ExtranetUserTrait
 				&& $sectionModel->getOwnerId() !== $userModel->getUserId()
 			)
 			{
-				$result = false;
+				$result = \CAllSocNetUser::CanProfileView($userModel->getUserId(), $sectionModel->getOwnerId());
 			}
 			elseif ($sectionModel->getType() === Dictionary::CALENDAR_TYPE['group'])
 			{

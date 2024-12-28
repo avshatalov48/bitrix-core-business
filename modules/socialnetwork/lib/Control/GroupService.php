@@ -4,27 +4,23 @@ declare(strict_types=1);
 
 namespace Bitrix\Socialnetwork\Control;
 
-use Bitrix\Socialnetwork\Control\Command\AddCommand;
-use Bitrix\Socialnetwork\Control\Command\AddCommandHandler;
-use Bitrix\Socialnetwork\Control\Command\DeleteCommand;
-use Bitrix\Socialnetwork\Control\Command\DeleteCommandHandler;
-use Bitrix\Socialnetwork\Control\Command\UpdateCommand;
-use Bitrix\Socialnetwork\Control\Command\UpdateCommandHandler;
+use Bitrix\Socialnetwork\Control\Handler\Add;
+use Bitrix\Socialnetwork\Control\Handler\Update;
 
-class GroupService
+class GroupService extends AbstractGroupService
 {
-	public function add(AddCommand $command): GroupResult
+	protected function getAddHandlers(): array
 	{
-		return (new AddCommandHandler($command))();
+		return [new Add\AddInvitationHandler(), new Add\AddFeatureHandler()];
 	}
 
-	public function update(UpdateCommand $command): GroupResult
+	protected function getUpdateHandlers(): array
 	{
-		return (new UpdateCommandHandler($command))();
+		return [new Update\ExcludeMemberHandler(), new Update\AddInvitationHandler()];
 	}
 
-	public function delete(DeleteCommand $command): GroupResult
+	protected function getDeleteHandlers(): array
 	{
-		return (new DeleteCommandHandler($command))();
+		return [];
 	}
 }

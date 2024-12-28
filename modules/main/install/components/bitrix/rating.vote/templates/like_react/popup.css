@@ -164,6 +164,10 @@
 	text-decoration:underline;
 }
 
+.bx-ilike-popup-user-item-collaber span.bx-ilike-popup-user-name {
+	color: #19CC45;
+}
+
 .bx-ilike-wrap-block-react .bx-ilike-popup-user-status {
 	display: none;
 	position: absolute;

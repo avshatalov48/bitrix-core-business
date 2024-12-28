@@ -1698,16 +1698,12 @@ class CAllMailMessage
 		return static::saveMessage($mailboxId, $message, $header, $html, $text, $attachments, $params);
 	}
 
-	public static function saveMessage($mailboxId, &$message, &$header, &$bodyHtml, &$bodyText, &$attachments, $params = array())
+	public static function saveMessage(int $mailboxId, &$message, &$header, &$bodyHtml, &$bodyText, &$attachments, $params = array())
 	{
-		global $DB;
-
-		$mailbox_id = $mailboxId;
 		$obHeader = &$header;
 		$message_body_html = &$bodyHtml;
 		$message_body = &$bodyText;
 		$arMessageParts = &$attachments;
-		$initialHtmlLen = mb_strlen($message_body_html);
 
 		$isStrippedTagsToBody = false;
 		$isOriginalEmptyBody = empty(trim(strip_tags($message_body_html)));
@@ -1727,7 +1723,7 @@ class CAllMailMessage
 		}
 
 		$arFields = array(
-			"MAILBOX_ID" => $mailbox_id,
+			"MAILBOX_ID" => $mailboxId,
 			"HEADER" => $obHeader->strHeader,
 			"FIELD_DATE_ORIGINAL" => $obHeader->GetHeader("DATE"),
 			"NEW_MESSAGE"	=> "Y",
@@ -1793,7 +1789,7 @@ class CAllMailMessage
 
 		if (isset($params['replaces']) && $params['replaces'] > 0)
 		{
-			\CMailMessage::update($message_id = $params['replaces'], $arFields, $mailbox_id);
+			\CMailMessage::update($message_id = $params['replaces'], $arFields, $mailboxId);
 		}
 		else
 		{
@@ -1802,7 +1798,7 @@ class CAllMailMessage
 				$arFields['OPTIONS']['trackable'] = \Bitrix\Main\Config\Option::get('main', 'track_outgoing_emails_read', 'Y') == 'Y';
 			}
 
-			$message_id = \CMailMessage::add($arFields, $mailbox_id);
+			$message_id = \CMailMessage::add($arFields, $mailboxId);
 		}
 
 		if ($message_id > 0)
@@ -1811,7 +1807,7 @@ class CAllMailMessage
 			$arFields['FOR_SPAM_TEST'] = $forSpamTest;
 
 			\CMailLog::addMessage(array(
-				'MAILBOX_ID'  => $mailbox_id,
+				'MAILBOX_ID'  => $mailboxId,
 				'MESSAGE_ID'  => $message_id,
 				'STATUS_GOOD' => 'Y',
 				'LOG_TYPE'    => isset($params['replaces']) && $params['replaces'] > 0 ? 'RENEW_MESSAGE' : 'NEW_MESSAGE',
@@ -1837,13 +1833,20 @@ class CAllMailMessage
 				 * */
 				if (isset($arFields['IN_REPLY_TO']) && isset($arFields['MSG_ID']) && (string)isset($arFields['IN_REPLY_TO']) !== $arFields['MSG_ID'])
 				{
-					self::makeMessageClosureChain($message_id, $mailbox_id, (string)$arFields['IN_REPLY_TO']);
+					self::makeMessageClosureChain($message_id, $mailboxId, (string)$arFields['IN_REPLY_TO']);
 				}
 
-				$mailbox = Bitrix\Mail\MailboxTable::getList(array(
-					'select' => array('ID', 'USER_ID', 'OPTIONS'),
-					'filter' => array('=ID' => $mailbox_id, '=ACTIVE' => 'Y'),
-				))->fetch();
+				static $cachedMailboxes = [];
+
+				if (!array_key_exists($mailboxId, $cachedMailboxes))
+				{
+					$cachedMailboxes[$mailboxId] = Bitrix\Mail\MailboxTable::getList([
+						'select' => ['ID', 'USER_ID', 'OPTIONS'],
+						'filter' => ['=ID' => $mailboxId, '=ACTIVE' => 'Y'],
+					])->fetch();
+				}
+
+				$mailbox = $cachedMailboxes[$mailboxId];
 
 				if ($mailbox['USER_ID'] > 0)
 				{
@@ -1930,7 +1933,7 @@ class CAllMailMessage
 					);
 				}
 
-				\CMailMessage::update($message_id, array('BODY_HTML' => $arFields['BODY_HTML']), $mailbox_id);
+				\CMailMessage::update($message_id, array('BODY_HTML' => $arFields['BODY_HTML']), $mailboxId);
 			}
 			else
 			{

@@ -1,6 +1,10 @@
 import type { JsonObject } from 'main.core';
 
+import { CounterType } from 'im.v2.const';
+
 import type { RawUser } from './common';
+
+type CounterTypeItem = $Values<typeof CounterType>;
 
 export type ChatOwnerParams = {
 	chatId: number,
@@ -47,7 +51,8 @@ export type ChatUnreadParams = {
 	muted: boolean,
 	counter: number,
 	markedId: number | "0",
-	lines: boolean
+	lines: boolean,
+	counterType: CounterTypeItem
 };
 
 export type ChatMuteNotifyParams = {
@@ -57,7 +62,8 @@ export type ChatMuteNotifyParams = {
 	mute: boolean,
 	counter: number,
 	lines: boolean,
-	unread: boolean
+	unread: boolean,
+	counterType: CounterTypeItem
 };
 
 export type ChatRenameParams = {

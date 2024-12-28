@@ -3,7 +3,7 @@
 		<div class="landing-block-card js-animation fadeIn g-mx-15 u-block-hover g-pt-30 g-pb-30 g-mb-30 g-mb-0--last">
 			<div class="landing-block-node-padding-y g-px-100--md">
 				<h6 class="landing-block-node-subtitle">
-					Alex Teseira - 6 June <?= date("Y") ?>
+					Alex Teseira - 6 June #YEAR#
 				</h6>
 				<h2 class="landing-block-node-title g-font-weight-700 g-mb-50">
 					Talking Why Her?
@@ -22,7 +22,7 @@
 		<div class="landing-block-card js-animation fadeIn g-mx-15 u-block-hover g-pt-30 g-pb-30 g-mb-30 g-mb-0--last">
 			<div class="landing-block-node-padding-y g-px-100--md">
 				<h6 class="landing-block-node-subtitle">
-					William Sh. - 1 June <?= date("Y") ?>
+					William Sh. - 1 June #YEAR#
 				</h6>
 				<h2 class="landing-block-node-title g-font-weight-700 g-mb-50">
 					Talking about us?

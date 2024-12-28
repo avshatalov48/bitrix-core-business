@@ -1576,7 +1576,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (files.length === 0) {
 	      files = false;
 	    }
-	    const message = getCore().store.getters['recent/getMessage'](recentMessage.dialogId);
+	    const message = getCore().store.getters['messages/getById'](recentMessage.messageId);
 	    let attach = false;
 	    if (main_core.Type.isBoolean(message == null ? void 0 : message.attach) || main_core.Type.isStringFilled(message == null ? void 0 : message.attach) || main_core.Type.isArray(message == null ? void 0 : message.attach)) {
 	      attach = message.attach;

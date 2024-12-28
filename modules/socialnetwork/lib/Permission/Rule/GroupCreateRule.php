@@ -9,6 +9,7 @@ use Bitrix\Main\Access\Rule\AbstractRule;
 use Bitrix\Main\Authentication\Internal\ModuleGroupTable;
 use Bitrix\Socialnetwork\Permission\GroupAccessController;
 use Bitrix\Socialnetwork\Permission\Model\GroupModel;
+use Bitrix\Socialnetwork\Permission\User\UserModel;
 use COption;
 use CSocNetUser;
 use CUser;
@@ -21,11 +22,21 @@ class GroupCreateRule extends AbstractRule
 	/** @var GroupAccessController */
 	protected $controller;
 
+	/** @var UserModel */
+	protected $user;
+
 	public function execute(AccessibleItem $item = null, $params = null): bool
 	{
 		if (!$item instanceof GroupModel)
 		{
-			$this->controller->addError('Wrong instance');
+			$this->controller->addError(static::class, 'Wrong instance');
+
+			return false;
+		}
+
+		if ($this->user->isCollaber())
+		{
+			$this->controller->addError(static::class, 'Access denied by collaber role');
 
 			return false;
 		}
@@ -35,7 +46,7 @@ class GroupCreateRule extends AbstractRule
 			return true;
 		}
 
-		if (CSocNetUser::IsUserModuleAdmin($this->user->getUserId(), $item->getSiteId()))
+		if (CSocNetUser::IsUserModuleAdmin($this->user->getUserId(), $item->getSiteIds()))
 		{
 			return true;
 		}
@@ -45,7 +56,7 @@ class GroupCreateRule extends AbstractRule
 			return true;
 		}
 
-		$this->controller->addError('Access denied by permissions');
+		$this->controller->addError(static::class, 'Access denied by permissions');
 
 		return false;
 	}
@@ -55,7 +66,8 @@ class GroupCreateRule extends AbstractRule
 	 */
 	protected function hasPermissions(GroupModel $item): bool
 	{
-		$siteIds = [$item->getSiteId(), false];
+		$siteIds = $item->getSiteIds();
+		$siteIds[] = false;
 
 		$groups = CUser::GetUserGroup($this->user->getUserId());
 

@@ -1,16 +1,17 @@
 import { Loc } from 'main.core';
 
 import { Analytics } from 'im.v2.lib.analytics';
+import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
 
 import { UpdateFeatures } from '../../../base/src/const/features';
 
 const onOpenPriceTable = (featureId: string) => {
 	return () => {
-		Analytics.getInstance().onOpenPriceTable(featureId);
+		Analytics.getInstance().supervisor.onOpenPriceTable(featureId);
 		BX.SidePanel.Instance.open(`${window.location.origin}/settings/license_all.php`);
 	};
 };
-const onHelpClick = (ARTICLE_CODE: string) => BX.Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
+const onHelpClick = (ARTICLE_CODE: string) => openHelpdeskArticle(ARTICLE_CODE);
 
 export const metaData = {
 	[UpdateFeatures.collaborativeDocumentEditing]: {

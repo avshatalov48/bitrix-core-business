@@ -116,13 +116,17 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  canDo(action) {
-	    //action: access|add|edit|edit_section|view_full|view_time|view_title
+	    // action: access|add|edit|edit_section|view_full|view_time|view_title
 	    if (this.isVirtual() && ['access', 'add', 'edit'].includes(action)) {
 	      return false;
 	    }
 	    return this.hasPermission(action);
 	  }
 	  hasPermission(action) {
+	    var _Util$getCalendarCont;
+	    if (action === 'edit_section' && (_Util$getCalendarCont = calendar_util.Util.getCalendarContext()) != null && _Util$getCalendarCont.isCollabUser) {
+	      return false;
+	    }
 	    if (action === 'view_event') {
 	      action = 'view_time';
 	    }
@@ -228,6 +232,9 @@ this.BX = this.BX || {};
 	      return calendar_util.Util.getBX().reload();
 	    }
 	    calendar.reload();
+	  }
+	  isCollab() {
+	    return this.data['IS_COLLAB'];
 	  }
 	}
 
@@ -376,9 +383,8 @@ this.BX = this.BX || {};
 	    return this.sections;
 	  }
 	  getSuperposedSectionList() {
-	    var i,
-	      result = [];
-	    for (i = 0; i < this.sections.length; i++) {
+	    const result = [];
+	    for (let i = 0; i < this.sections.length; i++) {
 	      if (this.sections[i].isSuperposed() && this.sections[i].isActive()) {
 	        result.push(this.sections[i]);
 	      }
@@ -514,6 +520,9 @@ this.BX = this.BX || {};
 	      if (calendarType === 'location') {
 	        const section = calendarContext.sectionManager.getDefaultSection('user', calendarContext.util.userId);
 	        return parseInt(section == null ? void 0 : section.id, 10);
+	      } else if (calendarContext.isCollabUser && calendarContext.util.type === 'user') {
+	        const section = calendarContext.sectionManager.getSections().find(section => section.isCollab());
+	        return parseInt(section == null ? void 0 : section.id, 10);
 	      } else {
 	        const section = calendarContext.sectionManager.getDefaultSection(calendarType, ownerId);
 	        return parseInt(section == null ? void 0 : section.id, 10);
@@ -531,6 +540,8 @@ this.BX = this.BX || {};
 	    let type = options.type,
 	      ownerId = options.ownerId,
 	      userId = options.userId,
+	      isCollabUser = options.isCollabUser || false,
+	      isCollabContext = options.isCollabContext || false,
 	      followedUserList = options.trackingUsersList || calendar_util.Util.getFollowedUserList(userId),
 	      sectionGroups = [],
 	      title;
@@ -543,7 +554,8 @@ this.BX = this.BX || {};
 	        title = main_core.Loc.getMessage('EC_SEC_SLIDER_USER_CALENDARS_LIST');
 	      }
 	    } else if (type === 'group') {
-	      title = main_core.Loc.getMessage('EC_SEC_SLIDER_GROUP_CALENDARS_LIST');
+	      const groupTitleMessage = isCollabUser || isCollabContext ? 'EC_SEC_SLIDER_COLLAB_CALENDARS_LIST' : 'EC_SEC_SLIDER_GROUP_CALENDARS_LIST';
+	      title = main_core.Loc.getMessage(groupTitleMessage);
 	    } else if (type === 'location') {
 	      title = main_core.Loc.getMessage('EC_SEC_SLIDER_TYPE_LOCATION_LIST');
 	    } else if (type === 'resource') {
@@ -589,6 +601,11 @@ this.BX = this.BX || {};
 	    sectionGroups.push({
 	      title: main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'),
 	      type: 'group'
+	    });
+	    // 4.1 Collabs calendars
+	    sectionGroups.push({
+	      title: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_COLLAB'),
+	      type: 'collab'
 	    });
 
 	    // 5. Resources calendars

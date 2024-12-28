@@ -3,6 +3,10 @@
 
 namespace Bitrix\Calendar\ICal\Builder;
 
+use Bitrix\Calendar\ICal\Basic\Content;
+use Bitrix\Calendar\ICal\Basic\DatetimePropertyType;
+use Bitrix\Calendar\ICal\Basic\LengthPropertyType;
+use Bitrix\Calendar\ICal\Basic\Parameter;
 use Bitrix\Main\Type\Date;
 
 class Alert

@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,ui_icons_b24,calendar_util,main_core,main_popup,main_date,ui_bottomsheet,ui_iconSet_actions,main_core_events) {
+(function (exports,ui_icons_b24,ui_avatar,calendar_util,main_core,main_popup,main_date,ui_bottomsheet,ui_iconSet_actions,main_core_events) {
 	'use strict';
 
 	function bindShowOnHover(popup) {
@@ -92,11 +92,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _renderAvatarItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderAvatarItems");
 	var _renderMoreAvatar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderMoreAvatar");
 	var _renderAvatar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderAvatar");
+	var _renderCollabAvatar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderCollabAvatar");
 	var _hasAvatar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasAvatar");
 	class MembersList {
 	  constructor(params) {
 	    Object.defineProperty(this, _hasAvatar, {
 	      value: _hasAvatar2
+	    });
+	    Object.defineProperty(this, _renderCollabAvatar, {
+	      value: _renderCollabAvatar2
 	    });
 	    Object.defineProperty(this, _renderAvatar, {
 	      value: _renderAvatar2
@@ -141,7 +145,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 			</div>
 		`), babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].className, babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].textClassName, babelHelpers.classPrivateFieldLooseBase(this, _getMembersTitle)[_getMembersTitle](), babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].avatarSize, babelHelpers.classPrivateFieldLooseBase(this, _renderAvatarItems)[_renderAvatarItems]());
 	    const menu = main_popup.MenuManager.create({
-	      id: 'calendar-pub-welcome-more-avatar-popup' + Date.now(),
+	      id: `calendar-pub-welcome-more-avatar-popup${Date.now()}`,
 	      bindElement: babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].avatarItems,
 	      className: 'calendar-pub-users-popup',
 	      items: babelHelpers.classPrivateFieldLooseBase(this, _members)[_members].map(member => ({
@@ -167,10 +171,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 	function _getMembersTitle2() {
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].allAttendees) {
-	    return main_core.Loc.getMessage('CALENDAR_SHARING_MEETING_ATTENDEES');
+	  switch (true) {
+	    case babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].allAttendees:
+	      return main_core.Loc.getMessage('CALENDAR_SHARING_MEETING_ATTENDEES');
+	    case babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].linkContext === 'group':
+	      return main_core.Loc.getMessage('CALENDAR_SHARING_MEETING_GROUP_ATTENDEES');
+	    default:
+	      return main_core.Loc.getMessage('CALENDAR_SHARING_MEETING_HAS_MORE_USERS');
 	  }
-	  return main_core.Loc.getMessage('CALENDAR_SHARING_MEETING_HAS_MORE_USERS');
 	}
 	function _renderAvatarItems2() {
 	  var _babelHelpers$classPr;
@@ -194,11 +202,22 @@ this.BX.Calendar = this.BX.Calendar || {};
 		`));
 	}
 	function _renderAvatar2(member, className = '') {
+	  if (member.isCollabUser) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _renderCollabAvatar)[_renderCollabAvatar](member);
+	  }
 	  return main_core.Tag.render(_t5 || (_t5 = _`
 			<span class="ui-icon ui-icon-common-user ${0}">
 				<i style="${0}"></i>
 			</span>
 		`), className, babelHelpers.classPrivateFieldLooseBase(this, _hasAvatar)[_hasAvatar](member) ? `background-image: url('${member.avatar}')` : '');
+	}
+	function _renderCollabAvatar2(member) {
+	  return new ui_avatar.AvatarRoundGuest({
+	    size: 36,
+	    userName: `${member.name} ${member.lastName}`.trim(),
+	    userpicPath: member.avatar,
+	    baseColor: '#19cc45'
+	  }).getContainer();
 	}
 	function _hasAvatar2(member) {
 	  return main_core.Type.isStringFilled(member.avatar) && member.avatar !== '/bitrix/images/1.gif';
@@ -210,7 +229,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t3$1,
 	  _t4$1,
 	  _t5$1,
-	  _t6;
+	  _t6,
+	  _t7;
 	var _owner = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("owner");
 	var _link = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("link");
 	var _currentLang = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("currentLang");
@@ -219,13 +239,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _photo = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("photo");
 	var _layout$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _members$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("members");
+	var _isGroupContext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isGroupContext");
 	var _handleTimelineNotify = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleTimelineNotify");
 	var _getNodeButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNodeButton");
 	var _getNodeLabel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNodeLabel");
 	var _getNodeInfo = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNodeInfo");
 	var _renderAvatarsSection = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderAvatarsSection");
+	var _renderMainAvatar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderMainAvatar");
 	class Welcome {
 	  constructor(options) {
+	    var _babelHelpers$classPr;
+	    Object.defineProperty(this, _renderMainAvatar, {
+	      value: _renderMainAvatar2
+	    });
 	    Object.defineProperty(this, _renderAvatarsSection, {
 	      value: _renderAvatarsSection2
 	    });
@@ -273,6 +299,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _isGroupContext, {
+	      writable: true,
+	      value: void 0
+	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _owner)[_owner] = options.owner || null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _link)[_link] = options.link || null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _currentLang)[_currentLang] = options.currentLang || null;
@@ -285,6 +315,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      label: null
 	    };
 	    babelHelpers.classPrivateFieldLooseBase(this, _members$1)[_members$1] = options.members;
+	    babelHelpers.classPrivateFieldLooseBase(this, _isGroupContext)[_isGroupContext] = ((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _link)[_link]) == null ? void 0 : _babelHelpers$classPr.type) === 'group';
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _link)[_link] && babelHelpers.classPrivateFieldLooseBase(this, _link)[_link].type === 'crm_deal' && babelHelpers.classPrivateFieldLooseBase(this, _link)[_link].active === true && babelHelpers.classPrivateFieldLooseBase(this, _link)[_link].lastStatus !== 'viewed' && babelHelpers.classPrivateFieldLooseBase(this, _link)[_link].lastStatus !== 'notViewed') {
 	      babelHelpers.classPrivateFieldLooseBase(this, _handleTimelineNotify)[_handleTimelineNotify]('notViewed');
 	      babelHelpers.classPrivateFieldLooseBase(this, _link)[_link].lastStatus = 'notViewed';
@@ -314,15 +345,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].info = babelHelpers.classPrivateFieldLooseBase(this, _getNodeInfo)[_getNodeInfo](true);
 	  }
 	  render() {
-	    return main_core.Tag.render(_t$1 || (_t$1 = _$1`
+	    const node = main_core.Tag.render(_t$1 || (_t$1 = _$1`
 			<div class="calendar-pub__block --welcome">
 				${0}
 				<div class="calendar-pub__welcome">
 					<div class="calendar-pub__welcome-user">
 						<div class="calendar-pub__welcome-userpic ui-icon ui-icon-common-user">
-							<i ${0}></i>
+							${0}
 						</div>
-						<div class="calendar-pub-ui__typography-m">
+						<div class="calendar-pub-ui__typography-m" title="${0} ${0}">
 							${0} ${0} 
 						</div>
 					</div>
@@ -333,11 +364,21 @@ this.BX.Calendar = this.BX.Calendar || {};
 					</div>
 				</div>
 			</div>
-		`), babelHelpers.classPrivateFieldLooseBase(this, _getNodeLabel)[_getNodeLabel](), babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo] ? `style="background-image: url(${encodeURI(babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo])})"` : '', babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] || '', babelHelpers.classPrivateFieldLooseBase(this, _lastName)[_lastName] || '', babelHelpers.classPrivateFieldLooseBase(this, _getNodeInfo)[_getNodeInfo](), babelHelpers.classPrivateFieldLooseBase(this, _getNodeButton)[_getNodeButton]());
+		`), babelHelpers.classPrivateFieldLooseBase(this, _getNodeLabel)[_getNodeLabel](), babelHelpers.classPrivateFieldLooseBase(this, _renderMainAvatar)[_renderMainAvatar](), babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] || '', babelHelpers.classPrivateFieldLooseBase(this, _lastName)[_lastName] || '', babelHelpers.classPrivateFieldLooseBase(this, _name)[_name] || '', babelHelpers.classPrivateFieldLooseBase(this, _lastName)[_lastName] || '', babelHelpers.classPrivateFieldLooseBase(this, _getNodeInfo)[_getNodeInfo](), babelHelpers.classPrivateFieldLooseBase(this, _getNodeButton)[_getNodeButton]());
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isGroupContext)[_isGroupContext]) {
+	      const avatar = new ui_avatar.AvatarHexagonGuest({
+	        size: 64,
+	        userName: babelHelpers.classPrivateFieldLooseBase(this, _name)[_name].toUpperCase(),
+	        baseColor: '#19CC45',
+	        userpicPath: babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo]
+	      });
+	      avatar.renderTo(node.querySelector('.calendar-pub__group-avatar'));
+	    }
+	    return node;
 	  }
 	}
 	function _handleTimelineNotify2(mode) {
-	  BX.ajax.runAction('calendar.api.sharingajax.handleTimelineNotify', {
+	  void BX.ajax.runAction('calendar.api.sharingajax.handleTimelineNotify', {
 	    data: {
 	      linkHash: babelHelpers.classPrivateFieldLooseBase(this, _link)[_link].hash,
 	      entityId: babelHelpers.classPrivateFieldLooseBase(this, _link)[_link].entityId,
@@ -387,23 +428,35 @@ this.BX.Calendar = this.BX.Calendar || {};
 				</div>
 			`), babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].infoTitle, babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].infoSubTitle, babelHelpers.classPrivateFieldLooseBase(this, _renderAvatarsSection)[_renderAvatarsSection](babelHelpers.classPrivateFieldLooseBase(this, _members$1)[_members$1]));
 	  }
-	  let title = main_core.Loc.getMessage('CALENDAR_SHARING_MY_FREE_SLOTS');
-	  let subTitle = main_core.Loc.getMessage('CALENDAR_SHARING_YOU_CAN_CHOOSE_FREE_MEETING_TIME');
+	  const titleMessage = babelHelpers.classPrivateFieldLooseBase(this, _isGroupContext)[_isGroupContext] ? 'CALENDAR_SHARING_GROUP_FREE_SLOTS' : 'CALENDAR_SHARING_MY_FREE_SLOTS';
+	  let title = main_core.Loc.getMessage(titleMessage);
+	  const subtitleMessage = babelHelpers.classPrivateFieldLooseBase(this, _isGroupContext)[_isGroupContext] ? 'CALENDAR_SHARING_GROUP_YOU_CAN_CHOOSE_FREE_MEETING_TIME' : 'CALENDAR_SHARING_YOU_CAN_CHOOSE_FREE_MEETING_TIME';
+	  let subTitle = main_core.Loc.getMessage(subtitleMessage);
 	  if (accessDenied) {
 	    title = main_core.Loc.getMessage('CALENDAR_SHARING_SLOTS_ACCESS_DENIED');
 	    subTitle = main_core.Loc.getMessage('CALENDAR_SHARING_SLOTS_ACCESS_DENIED_INFO');
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].infoTitle.innerText = title;
-	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].infoSubTitle.innerText = subTitle;
+	  // eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-dom-methods
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].infoSubTitle.appendChild(main_core.Tag.render(_t7 || (_t7 = _$1`<span>${0}</span>`), subTitle));
 	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].info;
 	}
 	function _renderAvatarsSection2(members) {
+	  var _babelHelpers$classPr2;
 	  return new MembersList({
 	    className: 'calendar-pub-welcome-avatar-section-container',
 	    textClassName: 'calendar-pub-ui__typography-xs-uppercase',
 	    avatarSize: 36,
-	    members
+	    members,
+	    linkContext: (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _link)[_link]) == null ? void 0 : _babelHelpers$classPr2.type
 	  }).render();
+	}
+	function _renderMainAvatar2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isGroupContext)[_isGroupContext]) {
+	    return '<div class="calendar-pub__group-avatar"></div>';
+	  }
+	  const avatarStyle = babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo] ? `style="background-image: url(${encodeURI(babelHelpers.classPrivateFieldLooseBase(this, _photo)[_photo])})"` : '';
+	  return `<i ${avatarStyle}></i>`;
 	}
 
 	let _$2 = t => t,
@@ -529,7 +582,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t4$2,
 	  _t5$2,
 	  _t6$1,
-	  _t7,
+	  _t7$1,
 	  _t8,
 	  _t9,
 	  _t10,
@@ -1231,7 +1284,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  const firstDayOfMonth = (new Date(year, month, 7).getDay() - (babelHelpers.classPrivateFieldLooseBase(this, _config)[_config].weekStart - 1) + 7) % 7;
 	  const lastDateOfMonth = new Date(year, month + 1, 0).getDate();
 	  const lastDayOfLastMonth = month === 0 ? new Date(year - 1, 11, 0).getDate() : new Date(year, month, 0).getDate();
-	  const nodeMonth = main_core.Tag.render(_t7 || (_t7 = _$3`<div class="calendar-sharing__month-row"></div>`));
+	  const nodeMonth = main_core.Tag.render(_t7$1 || (_t7$1 = _$3`<div class="calendar-sharing__month-row"></div>`));
 	  let k = lastDayOfLastMonth - firstDayOfMonth + 1;
 	  for (let j = 0; j < firstDayOfMonth; j++) {
 	    main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _getNodeDay)[_getNodeDay]({
@@ -1501,7 +1554,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t4$3,
 	  _t5$3,
 	  _t6$2,
-	  _t7$1,
+	  _t7$2,
 	  _t8$1,
 	  _t9$1,
 	  _t10$1,
@@ -1631,7 +1684,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      rruleDescription: ''
 	    };
 	  }
-	  updateValue(data) {
+	  updateValue(data, linkContext) {
 	    if (data.from) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _value$1)[_value$1].from = data.from;
 	    }
@@ -1650,6 +1703,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    if (data.rruleDescription) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _value$1)[_value$1].rruleDescription = data.rruleDescription;
 	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].linkContext = linkContext;
 	    this.updateLayout();
 	  }
 	  updateLayout() {
@@ -1789,7 +1843,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	}
 	function _getNodeTimeInterval2() {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].timeInterval) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].timeInterval = main_core.Tag.render(_t7$1 || (_t7$1 = _$5`
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].timeInterval = main_core.Tag.render(_t7$2 || (_t7$2 = _$5`
 				<div class="calendar-pub__form-date-info_time"></div>
 			`));
 	  }
@@ -1835,7 +1889,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    textClassName: 'calendar-pub-ui__typography-xs',
 	    avatarSize: 30,
 	    members: babelHelpers.classPrivateFieldLooseBase(this, _members$2)[_members$2],
-	    allAttendees: babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].allAttendees
+	    allAttendees: babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].allAttendees,
+	    linkContext: babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].linkContext
 	  }).render();
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].avatarsSection) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].avatarsSection = main_core.Tag.render(_t10$1 || (_t10$1 = _$5`
@@ -1914,7 +1969,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t4$4,
 	  _t5$4,
 	  _t6$3,
-	  _t7$2,
+	  _t7$3,
 	  _t8$2;
 	var _layout$5 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _value$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("value");
@@ -1963,10 +2018,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _isControlKey = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isControlKey");
 	var _formatPhone = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("formatPhone");
 	var _findMask = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("findMask");
+	var _getLinkOwnerId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getLinkOwnerId");
 	class Form extends Base {
 	  constructor(options) {
 	    super({
 	      isHiddenOnStart: options.isHiddenOnStart
+	    });
+	    Object.defineProperty(this, _getLinkOwnerId, {
+	      value: _getLinkOwnerId2
 	    });
 	    Object.defineProperty(this, _findMask, {
 	      value: _findMask2
@@ -2195,7 +2254,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.updateFormLayout();
 	  }
 	  updateFormLayout() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _widgetDate)[_widgetDate].updateValue(babelHelpers.classPrivateFieldLooseBase(this, _value$2)[_value$2]);
+	    var _babelHelpers$classPr;
+	    babelHelpers.classPrivateFieldLooseBase(this, _widgetDate)[_widgetDate].updateValue(babelHelpers.classPrivateFieldLooseBase(this, _value$2)[_value$2], (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _link$1)[_link$1]) == null ? void 0 : _babelHelpers$classPr.type);
 	  }
 	  clearInputErrors() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _clearContactNameError)[_clearContactNameError]();
@@ -2280,7 +2340,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      response = await BX.ajax.runAction('calendar.api.sharingajax.saveEvent', {
 	        data: {
 	          ownerCreated: babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser].ownerCreated,
-	          ownerId: babelHelpers.classPrivateFieldLooseBase(this, _owner$1)[_owner$1].id,
+	          ownerId: babelHelpers.classPrivateFieldLooseBase(this, _getLinkOwnerId)[_getLinkOwnerId](),
 	          userName: babelHelpers.classPrivateFieldLooseBase(this, _inputData)[_inputData].authorName,
 	          userContact: babelHelpers.classPrivateFieldLooseBase(this, _inputData)[_inputData].contactData,
 	          dateFrom: babelHelpers.classPrivateFieldLooseBase(this, _parseDate)[_parseDate](babelHelpers.classPrivateFieldLooseBase(this, _value$2)[_value$2].from),
@@ -2431,15 +2491,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	}
 	function _getNodeInputName2() {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.name) {
-	    var _babelHelpers$classPr;
+	    var _babelHelpers$classPr2;
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.name = main_core.Tag.render(_t4$4 || (_t4$4 = _$6`
 				<input type="text" placeholder=" " class="calendar-sharing__form-input-area">
 			`));
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _hasContactData)[_hasContactData]) {
 	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.name, '--hidden');
-	    } else if ((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) != null && _babelHelpers$classPr.userName) {
-	      var _babelHelpers$classPr2;
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.name.value = (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) == null ? void 0 : _babelHelpers$classPr2.userName;
+	    } else if ((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) != null && _babelHelpers$classPr2.userName) {
+	      var _babelHelpers$classPr3;
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.name.value = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) == null ? void 0 : _babelHelpers$classPr3.userName;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _inputData)[_inputData].authorName = babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.name.value;
 	    main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.name, 'input', () => {
@@ -2464,11 +2524,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.contact, '--hidden');
 	    } else if (babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) {
 	      if (babelHelpers.classPrivateFieldLooseBase(this, _isMailFeatureEnabled)[_isMailFeatureEnabled] && babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser].personalMailbox) {
-	        var _babelHelpers$classPr3;
-	        babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.contact.value = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) == null ? void 0 : _babelHelpers$classPr3.personalMailbox;
-	      } else if (babelHelpers.classPrivateFieldLooseBase(this, _isPhoneFeatureEnabled)[_isPhoneFeatureEnabled] && babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser].personalPhone) {
 	        var _babelHelpers$classPr4;
-	        babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.contact.value = (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) == null ? void 0 : _babelHelpers$classPr4.personalPhone;
+	        babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.contact.value = (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) == null ? void 0 : _babelHelpers$classPr4.personalMailbox;
+	      } else if (babelHelpers.classPrivateFieldLooseBase(this, _isPhoneFeatureEnabled)[_isPhoneFeatureEnabled] && babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser].personalPhone) {
+	        var _babelHelpers$classPr5;
+	        babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.contact.value = (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _sharingUser)[_sharingUser]) == null ? void 0 : _babelHelpers$classPr5.personalPhone;
 	      }
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _inputData)[_inputData].contactData = babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.contact.value;
@@ -2494,7 +2554,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].inputs.description;
 	}
 	function _getNodeInputError2() {
-	  return main_core.Tag.render(_t7$2 || (_t7$2 = _$6`
+	  return main_core.Tag.render(_t7$3 || (_t7$3 = _$6`
 			<span class="calendar-sharing__form-input-error"></span>
 		`));
 	}
@@ -2608,6 +2668,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return b.code.length - a.code.length;
 	  })[0];
 	  return r ? r.mask : '_ ___ __ __ __';
+	}
+	function _getLinkOwnerId2() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _link$1)[_link$1].type === 'group' ? babelHelpers.classPrivateFieldLooseBase(this, _link$1)[_link$1].hostId : babelHelpers.classPrivateFieldLooseBase(this, _owner$1)[_owner$1].id;
 	}
 
 	let _$7 = t => t,
@@ -2814,7 +2877,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t4$5,
 	  _t5$5,
 	  _t6$4,
-	  _t7$3;
+	  _t7$4;
 	var _layout$9 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _slots$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("slots");
 	var _selectedSlot = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectedSlot");
@@ -3043,7 +3106,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      to: slot.timeTo
 	    }
 	  }));
-	  const result = main_core.Tag.render(_t7$3 || (_t7$3 = _$a`
+	  const result = main_core.Tag.render(_t7$4 || (_t7$4 = _$a`
 			<div class="calendar-sharing__slots">
 				${0}
 				${0}
@@ -3076,7 +3139,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t4$6,
 	  _t5$6,
 	  _t6$5,
-	  _t7$4,
+	  _t7$5,
 	  _t8$3,
 	  _t9$2,
 	  _t10$2,
@@ -3332,7 +3395,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  const widgetDate = new WidgetDate({
 	    allAttendees: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].allAttendees,
 	    filled: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].filled,
-	    browserTimezone: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].browserTimezone
+	    browserTimezone: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].browserTimezone,
+	    linkContext: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].linkContext
 	  });
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].from && babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].to) {
 	    widgetDate.updateValue({
@@ -3342,7 +3406,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      isFullDay: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].isFullDay,
 	      rruleDescription: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].rruleDescription,
 	      members: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].members
-	    });
+	    }, babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].linkContext);
 	  }
 	  return widgetDate.render();
 	}
@@ -3366,7 +3430,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    avatarSize: 30,
 	    members: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].members,
 	    allAttendees: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].allAttendees,
-	    maxAvatarsCount: 8
+	    maxAvatarsCount: 8,
+	    linkContext: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].linkContext
 	  }).render();
 	}
 	function _renderLocation2() {
@@ -3402,7 +3467,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$a)[_layout$a].description.append(babelHelpers.classPrivateFieldLooseBase(this, _renderCollapseButton)[_renderCollapseButton]());
 	    babelHelpers.classPrivateFieldLooseBase(this, _updateExpandCollapseButtonMargin)[_updateExpandCollapseButtonMargin](babelHelpers.classPrivateFieldLooseBase(this, _layout$a)[_layout$a].collapseButton);
 	  }
-	  return main_core.Tag.render(_t7$4 || (_t7$4 = _$b`
+	  return main_core.Tag.render(_t7$5 || (_t7$5 = _$b`
 			<div class="calendar-pub__event-prop">
 				<div class="calendar-pub-ui__typography-xs">
 					${0}
@@ -3746,6 +3811,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _inDeletedSlider = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("inDeletedSlider");
 	var _isView = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isView");
 	var _showBackCalendarButtons = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showBackCalendarButtons");
+	var _linkContext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("linkContext");
 	var _eventLayout = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("eventLayout");
 	var _initEventData = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initEventData");
 	var _getLayoutProps = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getLayoutProps");
@@ -3825,6 +3891,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _linkContext, {
+	      writable: true,
+	      value: void 0
+	    });
 	    Object.defineProperty(this, _eventLayout, {
 	      writable: true,
 	      value: void 0
@@ -3859,6 +3929,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _icsFile)[_icsFile] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _inDeletedSlider)[_inDeletedSlider] = options.inDeletedSlider === true;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showBackCalendarButtons)[_showBackCalendarButtons] = options.showBackCalendarButtons;
+	    babelHelpers.classPrivateFieldLooseBase(this, _linkContext)[_linkContext] = options.linkContext;
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _event)[_event]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _initEventData)[_initEventData]();
 	    }
@@ -3986,7 +4057,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    onDeleteEvent: babelHelpers.classPrivateFieldLooseBase(this, _state)[_state] === 'created' ? this.deleteEvent.bind(this) : '',
 	    cancelledInfo: babelHelpers.classPrivateFieldLooseBase(this, _getCancelledInfo)[_getCancelledInfo](),
 	    showBackCalendarButton: babelHelpers.classPrivateFieldLooseBase(this, _showBackCalendarButtons)[_showBackCalendarButtons],
-	    bottomButtons: babelHelpers.classPrivateFieldLooseBase(this, _getBottomButtons$1)[_getBottomButtons$1]()
+	    bottomButtons: babelHelpers.classPrivateFieldLooseBase(this, _getBottomButtons$1)[_getBottomButtons$1](),
+	    linkContext: babelHelpers.classPrivateFieldLooseBase(this, _linkContext)[_linkContext]
 	  };
 	}
 	function _getCancelledInfo2() {
@@ -4244,7 +4316,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        canceledByManager,
 	        showBackCalendarButtons: babelHelpers.classPrivateFieldLooseBase(this, _showBackCalendarButtons$1)[_showBackCalendarButtons$1],
 	        action: babelHelpers.classPrivateFieldLooseBase(this, _action)[_action],
-	        members: babelHelpers.classPrivateFieldLooseBase(this, _members$3)[_members$3]
+	        members: babelHelpers.classPrivateFieldLooseBase(this, _members$3)[_members$3],
+	        linkContext: babelHelpers.classPrivateFieldLooseBase(this, _link$2)[_link$2].type
 	      });
 	    }
 	    return main_core.Tag.render(_t$c || (_t$c = _$c`
@@ -4532,5 +4605,5 @@ this.BX.Calendar = this.BX.Calendar || {};
 	exports.EventLayout = EventLayout;
 	exports.WidgetDate = WidgetDate;
 
-}((this.BX.Calendar.Sharing = this.BX.Calendar.Sharing || {}),BX,BX.Calendar,BX,BX.Main,BX.Main,BX.UI,BX,BX.Event));
+}((this.BX.Calendar.Sharing = this.BX.Calendar.Sharing || {}),BX,BX.UI,BX.Calendar,BX,BX.Main,BX.Main,BX.UI,BX,BX.Event));
 //# sourceMappingURL=public-v2.bundle.js.map

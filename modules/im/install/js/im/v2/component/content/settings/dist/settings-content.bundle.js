@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_logger,ui_feedback_form,im_v2_component_dialog_chat,im_v2_lib_theme,im_v2_lib_user,ui_forms,main_core,im_v2_application_core,im_v2_lib_rest,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_lib_confirm,im_v2_const,im_v2_provider_service) {
+(function (exports,im_v2_lib_logger,im_v2_lib_helpdesk,ui_feedback_form,im_v2_component_dialog_chat,im_v2_lib_theme,im_v2_lib_user,ui_forms,main_core,im_v2_application_core,im_v2_lib_rest,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_lib_confirm,im_v2_const,im_v2_provider_service) {
 	'use strict';
 
 	const SectionMetaData = {
@@ -82,9 +82,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return SectionMetaData[section].icon;
 	    },
 	    onHelpClick() {
-	      var _BX$Helper;
 	      const ARTICLE_CODE = '17373696';
-	      (_BX$Helper = BX.Helper) == null ? void 0 : _BX$Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
+	      im_v2_lib_helpdesk.openHelpdeskArticle(ARTICLE_CODE);
 	    },
 	    onFeedbackClick() {
 	      BX.UI.Feedback.Form.open({
@@ -159,7 +158,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.appearance.background).toString();
 	    },
 	    backgroundIdList() {
-	      return Object.keys(im_v2_lib_theme.ThemeColorScheme);
+	      return Object.keys(im_v2_lib_theme.SelectableBackground);
 	    }
 	  },
 	  methods: {
@@ -1137,5 +1136,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SettingsContent = SettingsContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX.UI.Feedback,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI.Feedback,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Service));
 //# sourceMappingURL=settings-content.bundle.js.map

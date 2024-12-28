@@ -156,3 +156,13 @@ a.ui-icon-set.activitydel:hover, a.ui-icon-set.activityset:hover, a.ui-icon-set.
 .adm-detail-content-cell-r .bxhtmled-area-cnt {
 	top: 34px !important;
 }
+
+.settings-tab .settings-tab-content-description {
+	line-height: 18px;
+	margin-bottom: 11px;
+}
+
+.settings-tab label.adm-designed-checkbox-label {
+	margin-right: 5px;
+	margin-bottom: 6px;
+}

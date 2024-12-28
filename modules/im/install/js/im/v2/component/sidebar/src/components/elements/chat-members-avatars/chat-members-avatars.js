@@ -1,6 +1,7 @@
+import { Analytics } from 'im.v2.lib.analytics';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { AddToChat } from 'im.v2.component.entity-selector';
-import { ChatActionType, EventType, Layout, SidebarDetailBlock } from 'im.v2.const';
+import { AddToChat, AddToCollab } from 'im.v2.component.entity-selector';
+import { ActionByRole, ChatType, EventType, Layout, SidebarDetailBlock } from 'im.v2.const';
 
 import { EventEmitter } from 'main.core.events';
 import {
@@ -15,6 +16,7 @@ import './chat-members-avatars.css';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat } from 'im.v2.model';
+import type { BitrixVueComponentProps } from 'ui.vue3';
 
 // @vue/component
 export const ChatMembersAvatars = {
@@ -59,11 +61,14 @@ export const ChatMembersAvatars = {
 		},
 		canSeeMembers(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.userList, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.userList, this.dialogId);
 		},
 		canInviteMembers(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(
+				ActionByRole.extend,
+				this.dialogId,
+			);
 		},
 		usersInChatCount(): number
 		{
@@ -79,6 +84,10 @@ export const ChatMembersAvatars = {
 
 			return currentLayoutName === Layout.copilot.name;
 		},
+		isCollab(): boolean
+		{
+			return this.dialog.type === ChatType.collab;
+		},
 		addUsersButtonColor(): ButtonColor
 		{
 			if (this.isCopilotLayout)
@@ -86,7 +95,16 @@ export const ChatMembersAvatars = {
 				return this.ButtonColor.Copilot;
 			}
 
+			if (this.isCollab)
+			{
+				return this.ButtonColor.Collab;
+			}
+
 			return this.ButtonColor.PrimaryLight;
+		},
+		addMembersPopupComponent(): BitrixVueComponentProps
+		{
+			return this.dialog.type === ChatType.collab ? AddToCollab : AddToChat;
 		},
 	},
 	methods:
@@ -100,6 +118,7 @@ export const ChatMembersAvatars = {
 		},
 		onOpenInvitePopup()
 		{
+			Analytics.getInstance().userAdd.onChatSidebarClick(this.dialogId);
 			this.showAddToChatPopup = true;
 		},
 		loc(phraseCode: string): string
@@ -135,10 +154,11 @@ export const ChatMembersAvatars = {
 					@click="onOpenInvitePopup"
 				/>
 			</div>
-			<AddToChat
+			<component
+				v-if="showAddToChatPopup"
+				:is="addMembersPopupComponent"
 				:bindElement="$refs['add-members'] || {}"
 				:dialogId="dialogId"
-				:showPopup="showAddToChatPopup"
 				:popupConfig="{offsetTop: -220, offsetLeft: -420}"
 				@close="showAddToChatPopup = false"
 			/>

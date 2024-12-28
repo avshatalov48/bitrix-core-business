@@ -33,15 +33,9 @@ class NewsTemplate extends PlainTemplate
 		return $messageFields;
 	}
 
-	protected function buildDescriptionText(): string
+	protected function getTextContents(): string
 	{
-		$text = mb_substr(\CBPHelper::convertBBtoText($this->title . ' ' . $this->messageText), 0, 200);
-		if (mb_strlen($text) === 200)
-		{
-			$text .= '...';
-		}
-
-		return $text;
+		return $this->title . ' ' . $this->messageText;
 	}
 
 	protected function validate(): void

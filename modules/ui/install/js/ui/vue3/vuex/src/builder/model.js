@@ -100,10 +100,6 @@ export class BuilderModel
 		}
 
 		const nameParts = name.toString().split('.');
-		if (nameParts.length === 1)
-		{
-			return this.variables[nameParts[0]];
-		}
 
 		let result;
 		let variables = Object.assign({}, this.variables);

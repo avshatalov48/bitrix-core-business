@@ -1,5 +1,6 @@
 import { SettingsSection } from 'im.v2.const';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
+import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
 
 import { SectionMetaData } from '../sections';
 
@@ -59,7 +60,7 @@ export const SectionList = {
 		onHelpClick()
 		{
 			const ARTICLE_CODE = '17373696';
-			BX.Helper?.show(`redirect=detail&code=${ARTICLE_CODE}`);
+			openHelpdeskArticle(ARTICLE_CODE);
 		},
 		onFeedbackClick()
 		{

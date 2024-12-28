@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,ui_cnt,ui_dialogs_checkboxList,main_core,main_core_events,main_loader,main_popup) {
 	'use strict';
 
@@ -8061,13 +8062,31 @@
 	    this.saveColumns(columns, data);
 	    this.popup.hide();
 	  }
+	  prepareOrderedColumnsList(newColumns) {
+	    if (main_core.Type.isArray(newColumns)) {
+	      var _currentOptions$colum;
+	      const currentOptions = this.grid.getUserOptions().getCurrentOptions();
+	      const currentColumns = currentOptions == null ? void 0 : (_currentOptions$colum = currentOptions.columns) == null ? void 0 : _currentOptions$colum.split == null ? void 0 : _currentOptions$colum.split(',');
+	      if (main_core.Type.isArray(currentColumns)) {
+	        const filteredColumns = currentColumns.filter(column => {
+	          return newColumns.includes(column);
+	        });
+	        const newAddedColumns = newColumns.filter(column => {
+	          return !filteredColumns.includes(column);
+	        });
+	        return [...filteredColumns, ...newAddedColumns];
+	      }
+	    }
+	    return newColumns;
+	  }
 	  saveColumns(columns, data) {
 	    const options = this.grid.getUserOptions();
 	    const columnNames = this.getColumnNames(data);
 	    const stickyColumns = this.getStickedColumns();
+	    const orderedColumns = this.prepareOrderedColumnsList(columns);
 	    const batch = [{
 	      action: options.getAction('GRID_SET_COLUMNS'),
-	      columns: columns.join(',')
+	      columns: orderedColumns.join(',')
 	    }, {
 	      action: options.getAction('SET_CUSTOM_NAMES'),
 	      custom_names: columnNames
@@ -8559,9 +8578,14 @@
 	      }
 	      const gridsCount = BX.Main.gridManager.data.length;
 	      if (gridsCount === 1) {
-	        const pageTitleNode = document.getElementById('pagetitle');
-	        const pageTitle = main_core.Type.isDomNode(pageTitleNode) && main_core.Type.isStringFilled(pageTitleNode.innerText) ? `&laquo;${main_core.Text.encode(pageTitleNode.innerText)}&raquo;` : '';
-	        tmpDiv.innerHTML = `<span>${settingsTitle} ${pageTitle}</span>`;
+	        const getTitleFromNodeById = nodeId => {
+	          const node = document.getElementById(nodeId);
+	          return main_core.Type.isDomNode(node) && main_core.Type.isStringFilled(node.innerText) ? main_core.Text.encode(node.innerText) : '';
+	        };
+	        const pageTitle = getTitleFromNodeById('pagetitle');
+	        const pageTitleBtnWrapper = getTitleFromNodeById('pagetitle_btn_wrapper');
+	        const fullTitle = `${pageTitle} ${pageTitleBtnWrapper}`.trim();
+	        tmpDiv.innerHTML = `<span>${settingsTitle} &laquo;${fullTitle}&raquo;</span>`;
 	        return tmpDiv.firstChild.innerText;
 	      }
 	      return settingsTitle;

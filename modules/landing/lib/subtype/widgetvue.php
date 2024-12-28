@@ -5,16 +5,22 @@ namespace Bitrix\Landing\Subtype;
 use Bitrix\Landing\Assets\Manager;
 use Bitrix\Landing\Block;
 use Bitrix\Landing\Repo;
+use Bitrix\Landing\Mainpage;
+use Bitrix\Landing;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\DOM;
 use Bitrix\Main\Web\Json;
+use Bitrix\Rest\UsageStatTable;
 
 /**
  * Block with Vue library
  */
 class WidgetVue
 {
+	private const APP_DEBUG_OPTION_NAME = 'widgetvue_debug';
+
 	/**
 	 * Prepare manifest.
 	 * @param array $manifest Block's manifest.
@@ -31,7 +37,10 @@ class WidgetVue
 
 		$manifest['nodes'] = [];
 		$manifest['assets'] = [
-			'ext' => ['landing.widgetvue'],
+			'ext' => [
+				'landing.widgetvue',
+				'main.loader',
+			],
 		];
 
 		$manifest['style'] = [
@@ -41,27 +50,19 @@ class WidgetVue
 		];
 
 		$assets = Manager::getInstance();
+		$assets->addString(self::getVueScript($block, $params));
 
-		$vueScript = self::getVueScript($block, $params);
-		$assets->addString(
-			"<script>{$vueScript}</script>",
-		);
-
-		Extension::load('main.loader');
-		$loaderScript = self::getLoaderScript($block, $params);
-		$assets->addString(
-			"<script>{$loaderScript}</script>",
-		);
-
-		$loaderStyle = self::getLoaderStyle($block);
-		$assets->addString(
-			"<style>{$loaderStyle}</style>",
-		);
-
-		$widgetStyle = $params['style'] ?? null;
-		if ($widgetStyle)
+		if (
+			!Landing\Manager::isAjaxRequest()
+			&& Loader::includeModule('rest')
+		)
 		{
-			$assets->addAsset($widgetStyle);
+			$app = self::getAppInfo($block);
+			if (isset($app['CLIENT_ID']))
+			{
+				UsageStatTable::logLandingWidget($app['CLIENT_ID'], 'render');
+				UsageStatTable::finalize();
+			}
 		}
 
 		// add callbacks
@@ -69,14 +70,13 @@ class WidgetVue
 			'afterAdd' => function (Block $block) use ($params)
 			{
 				$content = $block->getContent();
-				$protected = self::protectVueContentBeforeParse($content);
-
 				$doc = new DOM\Document();
 				try
 				{
 					$doc->loadHTML($content);
 				}
-				catch (\Exception $e) {}
+				catch (\Exception $e)
+				{}
 
 				$rootNode = $doc->querySelector($params['rootNode']);
 				if (!$rootNode)
@@ -84,22 +84,45 @@ class WidgetVue
 					return;
 				}
 
-				$newId = WidgetVue::getRootNodeId($block);
+				$newId = self::getRootNodeId($block);
 				$rootNode->setAttribute('id', $newId);
-				$rootNode->setInnerHTML('');
+				$rootNode->setInnerHTML(
+					self::getLoaderString($block)
+					. self::getInitScript($block)
+				);
 
 				$parentNode = $rootNode->getParentNode();
-				$parentNode->setChildNodesArray([$rootNode]);
 
-				$contentAfter = $doc->saveHTML();
-				self::returnVueContentAfterParse($contentAfter, $protected);
+				$wrapperNode = $doc->createElement('div');
+				$wrapperNode->setClassName('landing-block');
 
-				$block->saveContent($contentAfter);
+				$wrapperNode->setChildNodesArray([$rootNode]);
+				$parentNode->setChildNodesArray([$wrapperNode]);
+
+				$block->saveContent($doc->saveHTML());
 				$block->save();
 			},
 		];
 
 		return $manifest;
+	}
+
+	private static function getAppInfo(Block $block): ?array
+	{
+		static $apps = [];
+
+		$repoId = $block->getRepoId();
+		if ($repoId)
+		{
+			if (!isset($apps[$repoId]))
+			{
+				$apps[$repoId] = Repo::getAppInfo($repoId);
+			}
+
+			return $apps[$repoId];
+		}
+
+		return null;
 	}
 
 	private static function getRootNodeId(Block $block, bool $loader = false): string
@@ -110,14 +133,13 @@ class WidgetVue
 		return $id;
 	}
 
-	private static function checkParams (?Block $block, array $params): bool
+	private static function checkParams(?Block $block, array $params): bool
 	{
 		if (!$block)
 		{
 			return false;
 		}
 
-		// todo: check exist node by dom
 		if (!isset($params['rootNode']) || !is_string($params['rootNode']))
 		{
 			return false;
@@ -128,24 +150,22 @@ class WidgetVue
 
 	private static function getVueScript(Block $block, array $params): string
 	{
+		$rootNodeId = self::getRootNodeId($block);
 		$vueParams = [
 			'blockId' => $block->getId(),
-			'rootNode' => '#' . WidgetVue::getRootNodeId($block),
+			'rootNode' => '#' . $rootNodeId,
 			'lang' => self::getLangPhrases($params),
 		];
 
-		if ($block->getRepoId())
+		$app = self::getAppInfo($block);
+		if ($app && isset($app['ID']))
 		{
-			$app = Repo::getAppInfo($block->getRepoId());
-			if ($app['ID'])
-			{
-				$vueParams['appId'] = (int)$app['ID'];
+			$vueParams['appId'] = (int)$app['ID'];
 
-				$vueParams['appAllowedByTariff'] = true;
-				if ($app['PAYMENT_ALLOW'] !== 'Y')
-				{
-					$vueParams['appAllowedByTariff'] = false;
-				}
+			$vueParams['appAllowedByTariff'] = true;
+			if ($app['PAYMENT_ALLOW'] !== 'Y')
+			{
+				$vueParams['appAllowedByTariff'] = false;
 			}
 		}
 
@@ -153,11 +173,20 @@ class WidgetVue
 		$vueParams['template'] = $content ?? '';
 
 		if (
-			is_array($params['data'])
-			&& !empty($params['data'])
+			isset($params['style'])
+			&& is_string($params['style'])
 		)
 		{
-			$vueParams['data'] = $params['data'];
+			$vueParams['style'] = $params['style'];
+		}
+
+		$vueParams['useDemoData'] = Mainpage\Manager::isUseDemoData();
+		if (
+			is_array($params['demoData'])
+			&& !empty($params['demoData'])
+		)
+		{
+			$vueParams['demoData'] = $params['demoData'];
 		}
 
 		if (
@@ -169,14 +198,44 @@ class WidgetVue
 			$vueParams['fetchable'] = true;
 		}
 
+		$vueParams['debug'] = false;
+		if (isset($app['CODE']))
+		{
+			$vueParams['debug'] = self::isAppDebugEnabled($app['CODE']);
+		}
+
 		$vueParams = Json::encode($vueParams);
+		$type = Landing\Site\Scope::getCurrentScopeId();
 
 		return "
-			BX.ready(() => {
-				(new BX.Landing.WidgetVue(
-					{$vueParams}
-				)).mount();
-			});
+			<script>
+				(() => {
+					if (BX.Landing.Env)
+					{
+						BX.Landing.Env.getInstance().setType('{$type}');
+					}
+						
+					const init = () => {
+						(new BX.Landing.WidgetVue(
+							{$vueParams}
+						)).mount();
+					};
+					
+					if (BX('{$rootNodeId}'))
+					{
+						init();
+					}
+					else 
+					{
+						BX.addCustomEvent('BX.Landing.WidgetVue:initNode', blockId => {
+							if (blockId === '$rootNodeId')
+							{
+								init();
+							}
+						});
+					}
+				})();
+			</script>
 		";
 	}
 
@@ -202,80 +261,78 @@ class WidgetVue
 		return $phrases;
 	}
 
-	private static function getLoaderScript(Block $block): string
+	private static function getLoaderString(Block $block): string
 	{
-		$rootNodeId = WidgetVue::getRootNodeId($block);
-		$loaderNodeId = WidgetVue::getRootNodeId($block, true);
+		$loaderNodeId = self::getRootNodeId($block, true);
 
 		return "
-			BX.ready(() => {
-				const rootNode = BX('$rootNodeId');
-				if (rootNode)
-				{
-					const loaderNode = document.createElement('div');
-					loaderNode.id = '{$loaderNodeId}';
-					BX.Dom.append(loaderNode, rootNode.parentElement);
-				
+			<div id=\"$loaderNodeId\"></div>
+			<script>
+				(() => {
+					const loaderNode = BX('$loaderNodeId');
 					(new BX.Loader({
 						target: loaderNode,
 					})).show();
+				})();
+			</script>
+			<style>
+				#{$loaderNodeId} {
+					height: 200px;
+					position: relative;
 				}
-			});
+			</style>
 		";
 	}
 
-	protected static function getLoaderStyle(Block $block): string
+	private static function getInitScript(Block $block): string
 	{
-		$id = '#' . self::getRootNodeId($block, true);
+		$rootNodeId = self::getRootNodeId($block);
 
-		// todo: need loader style?
 		return "
-			$id {
-				height: 200px;
-				position: relative;
-			}
+			<script>
+				BX.onCustomEvent('BX.Landing.WidgetVue:initNode', ['$rootNodeId']);
+			</script>
 		";
 	}
 
 	/**
-	 * HTML-parser broke some vue-constructions. Replace them before parse
-	 * @param string $content
-	 * @return array - array of replaced values
-	 */
-	private static function protectVueContentBeforeParse(string &$content): array
-	{
-		$protected = [];
-		$replaces = [
-			'/@click/' => 0,
-			'/v-if="([^"]+)"/' => 1,
-			'/v-for="([^"]+)"/' => 1,
-		];
-
-		foreach ($replaces as $pattern => $position)
-		{
-			$callback = function($matches) use (&$protected, $position) {
-				$replace = '__bxreplace' . count($protected);
-				$protected[$replace] = $matches[$position];
-
-				return ($position === 0)
-					? $replace
-					: str_replace($matches[$position], $replace, $matches[0]);
-			};
-
-			$content = preg_replace_callback($pattern, $callback, $content);
-		}
-
-		return $protected;
-	}
-
-	/**
-	 * Return replaced vue-constructions after html-parse
-	 * @param string $content
-	 * @param array $protected
+	 * Enable or disable widgets debug logging
+	 * @param string $appCode - code of repo application
+	 * @param bool $enable
 	 * @return void
 	 */
-	private static function returnVueContentAfterParse(string &$content, array $protected): void
+	public static function setAppDebug(string $appCode, bool $enable): void
 	{
-		$content = str_replace(array_keys($protected), array_values($protected), $content);
+		$data = Landing\Manager::getOption(self::APP_DEBUG_OPTION_NAME, '{}');
+		try
+		{
+			$data = Json::decode($data);
+			$data[$appCode] = $enable;
+			Landing\Manager::setOption(self::APP_DEBUG_OPTION_NAME, Json::encode($data));
+		}
+		catch (\Exception $exception)
+		{
+			return;
+		}
+	}
+
+	/**
+	 * Check is widget debug logging enabled
+	 * @param string $appCode - code of repo application
+	 * @return boolean
+	 */
+	private static function isAppDebugEnabled(string $appCode): bool
+	{
+		$data = Landing\Manager::getOption(self::APP_DEBUG_OPTION_NAME, '');
+		try
+		{
+			$data = Json::decode($data);
+
+			return $data[$appCode] ?? false;
+		}
+		catch (\Exception $exception)
+		{
+			return false;
+		}
 	}
 }

@@ -65,6 +65,7 @@ class PushFormat
 				'additionalEntities' => $this->getAdditionalEntities(),
 				'forward' => $message->getForwardInfo(),
 			],
+			'counterType' => $chat->getCounterType()->value,
 			'files' => $message->getFiles()->toRestFormat(['IDS_AS_KEY' => true]),
 			'notify' => $chat instanceof Chat\CommentChat ? false : true,
 		];
@@ -173,9 +174,9 @@ class PushFormat
 		}
 
 		$replyIds = [];
-		if (isset($arParams['PARAMS']['REPLY_ID']))
+		if ($message->getParams()->isSet(Message\Params::REPLY_ID))
 		{
-			$replyIds[] = (int)$arParams['PARAMS']['REPLY_ID'];
+			$replyIds[] = (int)$message->getParams()->get(Message\Params::REPLY_ID)->getValue();
 		}
 		$messages = new MessageCollection($replyIds);
 		$messages->fillAllForRest();

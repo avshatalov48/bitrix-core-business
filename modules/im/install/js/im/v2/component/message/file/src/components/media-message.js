@@ -72,13 +72,17 @@ export const MediaMessage = {
 		{
 			return this.message.attach.length > 0;
 		},
+		hasReply(): boolean
+		{
+			return this.message.replyId !== 0;
+		},
 		showContextMenu(): boolean
 		{
 			return this.onlyImage;
 		},
 		showBottomContainer(): boolean
 		{
-			return this.hasText || this.hasAttach;
+			return this.hasText || this.hasAttach || this.hasReply;
 		},
 		isForward(): boolean
 		{

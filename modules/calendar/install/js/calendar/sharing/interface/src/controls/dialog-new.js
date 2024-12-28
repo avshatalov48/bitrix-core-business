@@ -6,6 +6,7 @@ import type { RuleParams } from '../model/rule';
 import type { Context, User } from '../model/index';
 import { SettingsModel, CalendarSettings } from '../model/settings';
 import { Layout } from './layout';
+import { CalendarContext } from '../model';
 
 import 'main.qrcode';
 import 'ui.design-tokens';
@@ -21,6 +22,7 @@ type DialogOptions = {
 	readOnly: boolean,
 	settingsCollapsed: boolean,
 	sortJointLinksByFrequentUse: boolean,
+	calendarContext: CalendarContext | null,
 };
 
 export default class DialogNew
@@ -49,6 +51,7 @@ export default class DialogNew
 			calendarSettings: options.calendarSettings,
 			collapsed: options.settingsCollapsed,
 			sortJointLinksByFrequentUse: options.sortJointLinksByFrequentUse,
+			calendarContext: options.calendarContext,
 		});
 
 		this.bindEvents();
@@ -57,6 +60,7 @@ export default class DialogNew
 	bindEvents(): void
 	{
 		EventEmitter.subscribe('CalendarSharing:LinkCopied', this.onSuccessfulCopyingLink.bind(this));
+		EventEmitter.subscribe('SidePanel.Slider:onClose', (event): void => this.checkAndClosePopupOnSlider(event));
 	}
 
 	getPopup(): Popup
@@ -65,14 +69,13 @@ export default class DialogNew
 		{
 			this.#popup = new Popup({
 				bindElement: this.#layout.bindElement,
+				targetContainer: document.body,
 				className: 'calendar-sharing__dialog',
 				closeByEsc: true,
 				autoHide: true,
 				padding: 0,
 				width: 470,
-				angle: {
-					offset: this.#layout.bindElement.offsetWidth / 2 + 16,
-				},
+				angle: this.#getAngleConfig(),
 				autoHideHandler: (event) => this.canBeClosed(event),
 				content: this.getPopupWrapper(),
 				animation: 'fading-slide',
@@ -103,11 +106,16 @@ export default class DialogNew
 	{
 		const isClickInside = this.#layout.wrapper.contains(event.target);
 		const layoutHasShownPopups = this.#dialogLayout.hasShownPopups();
-		const checkTopSlider = (this.#settingsModel.getContext() === 'calendar') ? BX.SidePanel.Instance.getTopSlider() : false;
+		const topSlider = this.getTopSlider();
+		const calendarOpenInTopSlider = topSlider && this.getCalendarSliderParams(topSlider);
 
 		return !isClickInside
 			&& !layoutHasShownPopups
-			&& !checkTopSlider
+			&& (
+				!topSlider
+				|| calendarOpenInTopSlider
+				|| this.#isExternalSharing()
+			)
 		;
 	}
 
@@ -116,15 +124,23 @@ export default class DialogNew
 		if (!this.#layout.wrapper)
 		{
 			this.#dialogLayout = new Layout({
+				readOnly: this.#settingsModel.getCalendarContext()?.sharingObjectType === 'group',
 				settingsModel: this.#settingsModel,
 			});
 			this.#layout.wrapper = this.#dialogLayout.render();
 		}
 
-		return this.#layout.wrapper = this.#dialogLayout.render();
+		this.#layout.wrapper = this.#dialogLayout.render();
+
+		return this.#layout.wrapper;
 	}
 
 	onSuccessfulCopyingLink(): void
+	{
+		this.closePopup();
+	}
+
+	closePopup(): void
 	{
 		this.getPopup().close();
 	}
@@ -138,6 +154,7 @@ export default class DialogNew
 	{
 		this.#settingsModel.sortRanges();
 
+		this.getPopup().adjustPosition({ forceBindPosition: true });
 		this.getPopup().show();
 	}
 
@@ -146,8 +163,63 @@ export default class DialogNew
 		this.getPopup().destroy();
 	}
 
-	getSettingsControlRule(): RuleParams
+	getTopSlider(): BX.SidePanel.Slider | null
 	{
-		return this.#settingsModel?.getRule().toArray();
+		return (this.#settingsModel.getContext() === 'calendar')
+			? BX.SidePanel.Instance.getTopSlider()
+			: false
+		;
+	}
+
+	getCalendarSliderParams(slider: BX.SidePanel.Slider): Array | null
+	{
+		return slider.iframeSrc?.match(/\/workgroups\/group\/(\d+)\/calendar\//i);
+	}
+
+	checkAndClosePopupOnSlider(event): void
+	{
+		if (!this.isShown())
+		{
+			return;
+		}
+
+		const slider = event.getData() && event.getData()[0]?.slider;
+
+		const sliderParams = slider && this.getCalendarSliderParams(slider);
+		if (!sliderParams)
+		{
+			return;
+		}
+
+		const groupId = parseInt(sliderParams[1], 10);
+		if (!groupId)
+		{
+			return;
+		}
+
+		const currentGroupId = this.#settingsModel.getCalendarContext()?.sharingObjectId;
+		if (currentGroupId && groupId !== currentGroupId)
+		{
+			return;
+		}
+
+		this.closePopup();
+	}
+
+	#isExternalSharing(): boolean
+	{
+		return Boolean(this.#settingsModel.getCalendarContext()?.externalSharing);
+	}
+
+	#getAngleConfig()
+	{
+		if (this.#isExternalSharing())
+		{
+			return null;
+		}
+
+		return {
+			offset: this.#layout.bindElement.offsetWidth / 2 + 16,
+		};
 	}
 }

@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_draft,main_date,im_v2_lib_utils,im_v2_lib_parser,im_v2_component_elements,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_provider_service,main_core,im_public,im_v2_lib_menu) {
+(function (exports,im_v2_lib_draft,main_date,im_v2_lib_utils,im_v2_lib_parser,im_v2_component_elements,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_const,im_v2_lib_layout,im_v2_lib_logger,im_v2_provider_service,main_core,im_public,im_v2_lib_menu) {
 	'use strict';
 
 	// @vue/component
@@ -17,9 +17,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Object,
 	      required: true
 	    }
-	  },
-	  data() {
-	    return {};
 	  },
 	  computed: {
 	    AvatarSize: () => im_v2_component_elements.AvatarSize,
@@ -98,13 +95,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<span v-else-if="!showLastMessage">{{ hiddenMessageText }}</span>
 				<template v-else>
 					<span v-if="isLastMessageAuthor" class="bx-im-list-copilot-item__message_author-icon --self"></span>
-					<span v-else-if="message.authorId" class="bx-im-list-copilot-item__message_author-icon --user">
-						<MessageAvatar 
-							:messageId="message.id"
-							:authorId="message.authorId"
-							:size="AvatarSize.XXS" 
-						/>
-					</span>
+					<MessageAvatar
+						v-else-if="message.authorId"
+						:messageId="message.id"
+						:authorId="message.authorId"
+						:size="AvatarSize.XXS"
+						class="bx-im-list-copilot-item__message_author-avatar"
+					/>
 					<span class="bx-im-list-copilot-item__message_text_content">{{ formattedMessageText }}</span>
 				</template>
 			</span>
@@ -264,7 +261,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    });
 	    const chatIsOpened = im_v2_application_core.Core.getStore().getters['application/isChatOpen'](dialogId);
 	    if (chatIsOpened) {
-	      im_public.Messenger.openCopilot();
+	      im_v2_lib_layout.LayoutManager.getInstance().clearCurrentLayoutEntityId();
+	      void im_v2_lib_layout.LayoutManager.getInstance().deleteLastOpenedElementById(dialogId);
 	    }
 	    im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imRecentHide, {
 	      DIALOG_ID: dialogId
@@ -415,5 +413,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.CopilotList = CopilotList;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=copilot-list.bundle.js.map

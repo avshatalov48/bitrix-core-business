@@ -2,6 +2,7 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Bizproc\WorkflowTemplateTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -26,7 +27,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		$this->activitySettings = new \Bitrix\Bizproc\Activity\Settings('~bizprocdesigner');
 	}
 
-protected function listKeysSignedParameters()
+	protected function listKeysSignedParameters()
 	{
 		return ['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE'];
 	}
@@ -42,7 +43,7 @@ protected function listKeysSignedParameters()
 
 		if (!isset($params['MODULE_ID']) && !defined('MODULE_ID') && !empty($params['ID']))
 		{
-			$tpl = \Bitrix\Bizproc\WorkflowTemplateTable::getList([
+			$tpl = WorkflowTemplateTable::getList([
 				'filter' => ['=ID' => $params['ID']],
 				'select' => ['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE']
 			])->fetch();
@@ -111,9 +112,16 @@ protected function listKeysSignedParameters()
 		$ID = intval($this->arResult['ID']);
 		if($ID > 0)
 		{
-			$dbTemplatesList = CBPWorkflowTemplateLoader::GetList([], ["ID" =>$ID]);
-			if ($arTemplate = $dbTemplatesList->Fetch())
+			$result = WorkflowTemplateTable::query()
+				->setFilter(['ID' => $ID])
+				->setSelect(['*', 'TEMPLATE_SETTINGS'])
+			;
+			if ($tpl = $result->fetchObject())
 			{
+				$arTemplate = $tpl->collectValues();
+				CBPWorkflowTemplateLoader::prepareDocumentType($arTemplate);
+				CBPWorkflowTemplateLoader::prepareSettingsCollection($arTemplate);
+
 				$canWrite = CBPDocument::CanUserOperateDocumentType(
 					CBPCanUserOperateOperation::CreateWorkflow,
 					$GLOBALS["USER"]->GetID(),
@@ -135,12 +143,14 @@ protected function listKeysSignedParameters()
 				$workflowTemplateName = $arTemplate["NAME"];
 				$workflowTemplateDescription = $arTemplate["DESCRIPTION"];
 				$workflowTemplateAutostart = $arTemplate["AUTO_EXECUTE"];
-				$workflowTemplateIsSystem = $arTemplate["IS_SYSTEM"];
+				$workflowTemplateIsSystem = CBPHelper::getBool($arTemplate["IS_SYSTEM"]) ? 'Y' : 'N';
 				$workflowTemplateSort = $arTemplate["SORT"];
 				$arWorkflowTemplate = $arTemplate["TEMPLATE"];
 				$arWorkflowParameters = $arTemplate["PARAMETERS"];
 				$arWorkflowVariables = $arTemplate["VARIABLES"];
 				$arWorkflowConstants = $arTemplate["CONSTANTS"];
+				$workflowTemplateType = $arTemplate['TYPE'];
+				$workflowTemplateSettings = $arTemplate['TEMPLATE_SETTINGS'];
 			}
 			else
 			{
@@ -166,6 +176,7 @@ protected function listKeysSignedParameters()
 			$workflowTemplateAutostart = 1;
 			$workflowTemplateIsSystem = 'N';
 			$workflowTemplateSort = 10;
+			$workflowTemplateType = 'default';
 
 			if (isset($_GET['init']) && $_GET['init'] == 'statemachine')
 			{
@@ -193,6 +204,7 @@ protected function listKeysSignedParameters()
 			$arWorkflowParameters = [];
 			$arWorkflowVariables = [];
 			$arWorkflowConstants = [];
+			$workflowTemplateSettings = [];
 		}
 
 		if(!$canWrite)
@@ -240,16 +252,18 @@ protected function listKeysSignedParameters()
 				"VARIABLES" 	=> $_POST["arWorkflowVariables"],
 				"CONSTANTS" 	=> $_POST["arWorkflowConstants"],
 				"IS_SYSTEM" 	=> $_POST["workflowTemplateIsSystem"] ?? 'N',
-				"SORT" 	=> $_POST["workflowTemplateSort"] ?? 10,
+				"SORT" 	        => $_POST["workflowTemplateSort"] ?? 10,
 				"USER_ID"		=> intval($USER->GetID()),
 				"MODIFIER_USER" => new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser),
+				'TYPE' 	    	=> $workflowTemplateType,
+				'TEMPLATE_SETTINGS' => $_POST['workflowTemplateSettings']
 			];
 
-			if(!is_array($arFields["VARIABLES"]))
+			if (!is_array($arFields["VARIABLES"]))
 			{
 				$arFields["VARIABLES"] = [];
 			}
-			if(!is_array($arFields["CONSTANTS"]))
+			if (!is_array($arFields["CONSTANTS"]))
 			{
 				$arFields["CONSTANTS"] = [];
 			}
@@ -293,6 +307,7 @@ protected function listKeysSignedParameters()
 				'arWorkflowParameters',
 				'arWorkflowVariables',
 				'arWorkflowConstants',
+				'workflowTemplateSettings',
 			];
 			foreach ($fieldsToCheck as $fieldToCheck)
 			{
@@ -492,6 +507,8 @@ protected function listKeysSignedParameters()
 		$this->arResult['TEMPLATE_DESC'] = $workflowTemplateDescription;
 		$this->arResult['TEMPLATE_AUTOSTART'] = $workflowTemplateAutostart;
 		$this->arResult['TEMPLATE_IS_SYSTEM'] = $workflowTemplateIsSystem;
+		$this->arResult['TEMPLATE_SETTINGS'] = $workflowTemplateSettings;
+		$this->arResult['TEMPLATE_TYPE'] = $workflowTemplateType;
 		$this->arResult['TEMPLATE_SORT'] = $workflowTemplateSort;
 		$this->arResult['TEMPLATE'] = $arWorkflowTemplate;
 		$this->arResult['TEMPLATE_CHECK_STATUS'] = CBPWorkflowTemplateLoader::checkTemplateActivities($arWorkflowTemplate);
@@ -510,6 +527,12 @@ protected function listKeysSignedParameters()
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->getDocumentService();
 		$this->arResult['DOCUMENT_FIELDS'] = $documentService->GetDocumentFields([MODULE_ID, ENTITY, $documentType]);
+
+		$this->arResult['DOCUMENT_CATEGORIES'] = $documentService->getDocumentCategories([
+			MODULE_ID,
+			ENTITY,
+			$documentType
+		]);
 
 		$this->arResult["ID"] = $ID;
 

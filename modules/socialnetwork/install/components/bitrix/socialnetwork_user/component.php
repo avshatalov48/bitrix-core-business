@@ -873,7 +873,7 @@ if(check_bitrix_sessid() || $_SERVER['REQUEST_METHOD'] === "PUT")
 
 			"PHOTO_GROUP_IBLOCK_ID" => false,
 			"PATH_TO_GROUP_PHOTO_ELEMENT" => "",
-			"PHOTO_USER_IBLOCK_ID" => $arParams["PHOTO_USER_IBLOCK_ID"],
+			"PHOTO_USER_IBLOCK_ID" => $arParams["PHOTO_USER_IBLOCK_ID"] ?? null,
 			"PATH_TO_USER_PHOTO_ELEMENT" => $arResult["PATH_TO_USER_PHOTO_ELEMENT"],
 			"PHOTO_FORUM_ID" => $arParams["PHOTO_FORUM_ID"],
 

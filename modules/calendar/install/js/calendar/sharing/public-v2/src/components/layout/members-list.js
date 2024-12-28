@@ -2,6 +2,7 @@ import { Loc, Tag, Text, Type } from 'main.core';
 import 'ui.icon-set.actions';
 import { MenuManager } from 'main.popup';
 import bindShowOnHover from './bind-show-on-hover';
+import { AvatarRoundGuest } from 'ui.avatar';
 
 export type Member = {
 	name: string,
@@ -17,6 +18,7 @@ type MembersListParams = {
 	textClassName: string,
 	allAttendees: boolean,
 	maxAvatarsCount: number,
+	linkContext: null | string,
 };
 
 export class MembersList
@@ -37,7 +39,7 @@ export class MembersList
 		this.#members = params.members;
 	}
 
-	render(): HTMLElement|string
+	render(): HTMLElement | string
 	{
 		if (!Type.isArrayFilled(this.#members))
 		{
@@ -56,7 +58,7 @@ export class MembersList
 		`;
 
 		const menu = MenuManager.create({
-			id: 'calendar-pub-welcome-more-avatar-popup' + Date.now(),
+			id: `calendar-pub-welcome-more-avatar-popup${Date.now()}`,
 			bindElement: this.#layout.avatarItems,
 			className: 'calendar-pub-users-popup',
 			items: this.#members.map((member) => ({
@@ -85,12 +87,15 @@ export class MembersList
 
 	#getMembersTitle(): string
 	{
-		if (this.#params.allAttendees)
+		switch (true)
 		{
-			return Loc.getMessage('CALENDAR_SHARING_MEETING_ATTENDEES');
+			case this.#params.allAttendees:
+				return Loc.getMessage('CALENDAR_SHARING_MEETING_ATTENDEES');
+			case this.#params.linkContext === 'group':
+				return Loc.getMessage('CALENDAR_SHARING_MEETING_GROUP_ATTENDEES');
+			default:
+				return Loc.getMessage('CALENDAR_SHARING_MEETING_HAS_MORE_USERS');
 		}
-
-		return Loc.getMessage('CALENDAR_SHARING_MEETING_HAS_MORE_USERS');
 	}
 
 	#renderAvatarItems(): HTMLElement
@@ -121,11 +126,26 @@ export class MembersList
 
 	#renderAvatar(member, className = ''): HTMLElement
 	{
+		if (member.isCollabUser)
+		{
+			return this.#renderCollabAvatar(member);
+		}
+
 		return Tag.render`
 			<span class="ui-icon ui-icon-common-user ${className}">
 				<i style="${this.#hasAvatar(member) ? `background-image: url('${member.avatar}')` : ''}"></i>
 			</span>
 		`;
+	}
+
+	#renderCollabAvatar(member): HTMLElement
+	{
+		return new AvatarRoundGuest({
+			size: 36,
+			userName: `${member.name} ${member.lastName}`.trim(),
+			userpicPath: member.avatar,
+			baseColor: '#19cc45',
+		}).getContainer();
 	}
 
 	#hasAvatar(member): boolean

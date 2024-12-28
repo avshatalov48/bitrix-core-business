@@ -75,12 +75,26 @@ else
 		&& CExtranet::IsExtranetSite()
 	);
 
-	$arResult['isExtranetForGroupsEnabled'] = Option::get('socialnetwork', 'enable_extranet_for_groups', true);
+	$arResult['isExtranetForGroupsEnabled'] = (bool)Option::get('socialnetwork', 'enable_extranet_for_groups', 0);
 
 	$arResult["isCurrentUserIntranet"] = (
 		!Loader::includeModule('extranet')
 		|| CExtranet::IsIntranetUser()
 	);
+
+	if ($arResult['isCurrentUserIntranet'])
+	{
+		$arResult['currentUserType'] = 'intranet';
+	}
+	elseif (\Bitrix\Socialnetwork\Integration\Extranet\User::isCollaber($arResult['currentUserId']))
+	{
+		$arResult['currentUserType'] = 'collaber';
+	}
+	else
+	{
+		$arResult['currentUserType'] = 'extranet';
+	}
+
 	$arResult['bitrix24Installed'] = ModuleManager::isModuleInstalled('bitrix24');
 
 	$arResult["messageTextDisabled"] = (
@@ -159,6 +173,7 @@ else
 			? Helper\Workgroup::getProjectPresets([
 				'currentExtranetSite' => $arResult['bExtranet'],
 				'entityOptions' => $arParams['PROJECT_OPTIONS'],
+				'isFromFlowCreationForm' => $arParams['isFromFlowCreationForm'] ?? false,
 			])
 			: []
 	);
@@ -232,7 +247,10 @@ else
 					? $arResult['POST']['OWNER_ID']
 					: $arResult['currentUserId']
 			);
-			$leaveGroupTypeExtranet = ($_POST['IS_EXTRANET_GROUP'] ?? '') === 'Y' && $arResult['isExtranetForGroupsEnabled'];
+
+			$arResult['isExtranetGroup'] = Bitrix\Socialnetwork\Integration\Extranet\Group::isExtranetGroup($arParams['GROUP_ID'] ?? 0);
+
+			$leaveGroupTypeExtranet = $arResult['isExtranetGroup'] && !$arResult['isExtranetForGroupsEnabled'];
 
 			if (
 				!array_key_exists("TAB", $arResult)
@@ -256,7 +274,7 @@ else
 						(int) ($arResult['POST']['IMAGE_ID'] ?? 0) !== (int) $_POST['GROUP_IMAGE_ID']
 						&& (
 							in_array($_POST['GROUP_IMAGE_ID'], \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles('GROUP_IMAGE_ID', [ $_POST['GROUP_IMAGE_ID'] ]))
-							|| in_array((int)$_POST['GROUP_IMAGE_ID'], $_SESSION['workgroup_avatar_loader'], true)
+							|| in_array((int)$_POST['GROUP_IMAGE_ID'], $_SESSION['workgroup_avatar_loader'] ?? [], true)
 						)
 					)
 					{
@@ -290,9 +308,10 @@ else
 				$arResult['POST']['VISIBLE'] = (($_POST['GROUP_VISIBLE'] ?? null) === 'Y' ? 'Y' : 'N');
 				$arResult['POST']['OPENED'] = (($_POST['GROUP_OPENED'] ?? null) === 'Y' ? 'Y' : 'N');
 
-				$arResult['isExtranetGroup'] = Bitrix\Socialnetwork\Integration\Extranet\Group::isExtranetGroup($arResult['GROUP_ID'] ?? 0);
-
-				$makeGroupTypeExtranet = $arResult['isExtranetGroup'] && !$arResult['isExtranetForGroupsEnabled'];
+				$makeGroupTypeExtranet =
+					($_POST['IS_EXTRANET_GROUP'] ?? '') === 'Y'
+					&& $arResult['isExtranetForGroupsEnabled']
+				;
 				if ($leaveGroupTypeExtranet || $makeGroupTypeExtranet)
 				{
 					$arResult['POST']['IS_EXTRANET_GROUP'] = 'Y';
@@ -1414,7 +1433,11 @@ else
 									if ($arUser = $rsUser->Fetch())
 									{
 										$arErrorUsers[] = array(
-											CUser::FormatName($arParams["NAME_TEMPLATE"], $arUser, ($arParams['SHOW_LOGIN'] !== 'N')),
+											CUser::FormatName(
+												$arParams["NAME_TEMPLATE"],
+												$arUser,
+												(($arParams['SHOW_LOGIN'] ?? null) !== 'N')
+											),
 											CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $arUser["ID"], "viewprofile", $arResult['isCurrentUserAdmin'])
 												? CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arUser["ID"]))
 												: ''

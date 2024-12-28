@@ -1,5 +1,5 @@
 import { Core } from 'im.v2.application.core';
-import { ChatType, PlacementType } from 'im.v2.const';
+import { ChatType, PlacementType, UserType } from 'im.v2.const';
 import { ChannelManager } from 'im.v2.lib.channel';
 import { MarketManager } from 'im.v2.lib.market';
 import { Feature, FeatureManager } from 'im.v2.lib.feature';
@@ -52,7 +52,7 @@ function isBot(dialogId: string): boolean
 {
 	const user = Core.getStore().getters['users/get'](dialogId);
 
-	return user?.bot === true;
+	return user?.type === UserType.bot;
 }
 
 function isFileMigrationFinished(): boolean

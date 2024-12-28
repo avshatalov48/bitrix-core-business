@@ -156,14 +156,22 @@ import { Tag, Text, Type } from 'main.core';
 
 			if (gridsCount === 1)
 			{
-				const pageTitleNode = document.getElementById('pagetitle');
-				const pageTitle = (
-					Type.isDomNode(pageTitleNode) && Type.isStringFilled(pageTitleNode.innerText)
-						? `&laquo;${Text.encode(pageTitleNode.innerText)}&raquo;`
-						: ''
-				);
+				const getTitleFromNodeById = (nodeId: string): string => {
+					const node = document.getElementById(nodeId);
 
-				tmpDiv.innerHTML = `<span>${settingsTitle} ${pageTitle}</span>`;
+					return (
+						Type.isDomNode(node) && Type.isStringFilled(node.innerText)
+							? Text.encode(node.innerText)
+							: ''
+					);
+				};
+
+				const pageTitle = getTitleFromNodeById('pagetitle');
+				const pageTitleBtnWrapper = getTitleFromNodeById('pagetitle_btn_wrapper');
+
+				const fullTitle = `${pageTitle} ${pageTitleBtnWrapper}`.trim();
+
+				tmpDiv.innerHTML = `<span>${settingsTitle} &laquo;${fullTitle}&raquo;</span>`;
 
 				return tmpDiv.firstChild.innerText;
 			}

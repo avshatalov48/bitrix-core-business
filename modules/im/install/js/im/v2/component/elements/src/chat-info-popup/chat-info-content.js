@@ -1,6 +1,6 @@
 import { Messenger } from 'im.public';
 import { ChatService } from 'im.v2.provider.service';
-import { ChatType } from 'im.v2.const';
+import { ChatType, UserType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
 import { ChatAvatar, ChatTitle, Button, ButtonColor, ButtonSize } from '../registry';
@@ -43,7 +43,7 @@ export const ChatInfoContent = {
 		{
 			if (this.isUser)
 			{
-				return this.user.bot;
+				return this.user.type === UserType.bot;
 			}
 
 			return false;

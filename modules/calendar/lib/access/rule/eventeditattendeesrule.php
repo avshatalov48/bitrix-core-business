@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Access\Rule;
 use Bitrix\Calendar\Access\Model\EventModel;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Rule\Traits\CurrentUserTrait;
@@ -38,6 +39,11 @@ class EventEditAttendeesRule extends \Bitrix\Main\Access\Rule\AbstractRule
 		}
 
 		if ($item->getOwnerId() !== $this->user->getUserId())
+		{
+			return false;
+		}
+
+		if (Util::isCollabUser($this->user->getUserId()))
 		{
 			return false;
 		}

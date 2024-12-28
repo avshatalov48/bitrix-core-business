@@ -130,7 +130,7 @@ class CSocServMyMailRu extends CSocServAuth
 			$url = $GLOBALS['APPLICATION']->GetCurPageParam(('auth_service_id='.self::ID.'&auth_service_error='.$bSuccess), $aRemove);
 
 		echo '
-<script type="text/javascript">
+<script>
 if(window.opener)
 	window.opener.location = \''.CUtil::JSEscape($url).'\';
 window.close();
@@ -201,8 +201,6 @@ class CMailRuOAuthInterface
 			return false;
 		$sign=md5("app_id=".$this->appID."method=users.getInfosecure=1session_key=".$this->access_token.$this->appSecret);
 		$result = CHTTP::sGetHeader(self::CONTACTS_URL.'?method=users.getInfo&secure=1&app_id='.$this->appID.'&session_key='.urlencode($this->access_token).'&sig='.$sign, array(), $this->httpTimeout);
-		if(!defined("BX_UTF"))
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 
 		return CUtil::JsObjectToPhp($result);
 	}

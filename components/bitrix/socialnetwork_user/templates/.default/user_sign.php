@@ -16,6 +16,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 
 $pageId = "user_sign";
 include("util_menu.php");
@@ -30,11 +31,16 @@ if (Loader::includeModule('sign'))
 		'COMPONENT_TYPE' => 'personal',
 	];
 
+	$signVersion = (string)ModuleManager::getVersion('sign');
+	$componentName = (version_compare($signVersion, '24.1200.0') === -1)
+		? 'bitrix:sign.document.list'
+		: 'bitrix:sign.my-documents.list';
+
 	$APPLICATION->IncludeComponent(
 		"bitrix:ui.sidepanel.wrapper",
 		"",
 		[
-			'POPUP_COMPONENT_NAME' => 'bitrix:sign.document.list',
+			'POPUP_COMPONENT_NAME' => $componentName,
 			"POPUP_COMPONENT_TEMPLATE_NAME" => "",
 			"POPUP_COMPONENT_PARAMS" => $componentParams,
 			"POPUP_COMPONENT_PARENT" => $component,

@@ -577,7 +577,9 @@ this.BX.UI = this.BX.UI || {};
 	        bgColor: null,
 	        bgImage: null,
 	        border: null,
-	        borderRadius: null
+	        borderRadius: null,
+	        outline: null,
+	        outlineOffset: null
 	      };
 	      this.textColor = '';
 	      this.link = '';
@@ -1058,6 +1060,10 @@ this.BX.UI = this.BX.UI || {};
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('border-radius');
 	      }
+	      const outline = this.getAvatarOption('outline');
+	      main_core.Dom.style(this.getAvatarContainer(), 'outline', outline);
+	      const outlineOffset = this.getAvatarOption('outlineOffset');
+	      main_core.Dom.style(this.getAvatarContainer(), 'outline-offset', outlineOffset);
 	      main_core.Dom.clean(this.getBadgeContainer());
 	      this.getBadges().forEach(badge => {
 	        badge.renderTo(this.getBadgeContainer());
@@ -4441,10 +4447,14 @@ this.BX.UI = this.BX.UI || {};
 	      const bgSize = this.getAvatarOption('bgSize');
 	      const border = this.getAvatarOption('border');
 	      const borderRadius = this.getAvatarOption('borderRadius');
+	      const outline = this.getAvatarOption('outline');
+	      const outlineOffset = this.getAvatarOption('outlineOffset');
 	      main_core.Dom.style(this.getAvatarContainer(), 'background-color', bgColor);
 	      main_core.Dom.style(this.getAvatarContainer(), 'background-size', bgSize);
 	      main_core.Dom.style(this.getAvatarContainer(), 'border', border);
 	      main_core.Dom.style(this.getAvatarContainer(), 'border-radius', borderRadius);
+	      main_core.Dom.style(this.getAvatarContainer(), 'outline', outline);
+	      main_core.Dom.style(this.getAvatarContainer(), 'outline-offset', outlineOffset);
 	      const hasAvatar = avatar || bgColor && bgColor !== 'none' || bgImage && bgImage !== 'none';
 	      if (hasAvatar) {
 	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');

@@ -546,7 +546,7 @@ class CRestServer
 				$result = ExecuteModuleEventEx($event, array($this->method, $this->scope));
 				if(is_array($result))
 				{
-					if(!is_array($this->arServiceDesc[$result['scope']]))
+					if (!isset($this->arServiceDesc[$result['scope']]) || !is_array($this->arServiceDesc[$result['scope']]))
 					{
 						$this->arServiceDesc[$result['scope']] = array();
 					}

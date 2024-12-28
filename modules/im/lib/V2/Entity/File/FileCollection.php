@@ -67,7 +67,8 @@ class FileCollection extends EntityCollection implements DateFilterable
 		if (!empty($filesToLoad))
 		{
 			$diskFiles = File::getModelList([
-				'filter' => Query::filter()->whereIn('ID', $filesToLoad)->where('TYPE', FileTable::TYPE)
+				'filter' => Query::filter()->whereIn('ID', $filesToLoad)->where('TYPE', FileTable::TYPE),
+				'with' => ['PREVIEW'],
 			]);
 		}
 

@@ -467,7 +467,7 @@ class Landing
 	{
 		$result = new PublicActionResult();
 		$landing = LandingCore::createInstance($lid);
-		$afterId = $params['AFTER_ID'] ?? 0;
+		$afterId = (int)($params['AFTER_ID'] ?? 0);
 		if ($landing->exist())
 		{
 			if ($params['MOVE'])

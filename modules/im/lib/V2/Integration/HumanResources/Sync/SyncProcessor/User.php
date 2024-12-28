@@ -13,6 +13,7 @@ use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\SyncInfo;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Result\IterationResult;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Result\QueueItemResult;
 use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Relation\Reason;
 use Bitrix\Main\Config\Option;
 
@@ -110,7 +111,7 @@ class User extends Base
 
 		$userId = $item->syncInfo->entityId;
 		$chat = $chat->withContextUser(0);
-		$chat->addUsers([$userId], [], false, false, false, Reason::STRUCTURE);
+		$chat->addUsers([$userId], new AddUsersConfig(hideHistory: false, withMessage: false, reason: Reason::STRUCTURE));
 		$relations = $chat->getRelations()->filter(fn (Relation $relation) => $relation->getUserId() === $userId);
 		Recent::raiseChat($chat, $relations);
 	}

@@ -287,7 +287,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.entries(params).forEach(([key, value]) => {
 	      params[key] = decodeURIComponent(value);
 	    });
-	    im_v2_lib_desktopApi.DesktopApi.activateWindow();
+	    if (command !== im_v2_const.DesktopBxLink.openPage) {
+	      im_v2_lib_desktopApi.DesktopApi.activateWindow();
+	    }
 	    if (command === im_v2_const.DesktopBxLink.chat) {
 	      var _params$messageId;
 	      const messageId = (_params$messageId = params.messageId) != null ? _params$messageId : 0;
@@ -311,10 +313,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      void im_public.Messenger.openRecentSearch();
 	    } else if (command === im_v2_const.DesktopBxLink.copilot) {
 	      void im_public.Messenger.openCopilot(params.dialogId);
+	    } else if (command === im_v2_const.DesktopBxLink.collab) {
+	      void im_public.Messenger.openCollab(params.dialogId);
 	    } else if (command === im_v2_const.DesktopBxLink.settings) {
 	      void im_public.Messenger.openSettings({
 	        onlyPanel: params.section
 	      });
+	    } else if (command === im_v2_const.DesktopBxLink.chatCreation) {
+	      void im_public.Messenger.openChatCreation(params.chatType);
 	    } else if (command === im_v2_const.DesktopBxLink.timeManager) {
 	      var _BX$Timeman, _BX$Timeman$Monitor;
 	      (_BX$Timeman = BX.Timeman) == null ? void 0 : (_BX$Timeman$Monitor = _BX$Timeman.Monitor) == null ? void 0 : _BX$Timeman$Monitor.openReport();
@@ -813,6 +819,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.copilot}/dialogId/${dialogId}`);
 	    return Promise.resolve();
 	  }
+	  redirectToCollab(dialogId = '') {
+	    im_v2_lib_logger.Logger.warn('Desktop: redirectToCollab', dialogId);
+	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.collab}/dialogId/${dialogId}`);
+	    return Promise.resolve();
+	  }
 	  redirectToNotifications() {
 	    im_v2_lib_logger.Logger.warn('Desktop: redirectToNotifications');
 	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.notifications}`);
@@ -844,6 +855,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  toggleConference() {
 	    im_v2_lib_logger.Logger.warn('Desktop: toggleConference');
 	    Conference.toggleConference();
+	  }
+	  redirectToChatCreation(chatType) {
+	    im_v2_lib_logger.Logger.warn('Desktop: redirectToChatCreation', chatType);
+	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.chatCreation}/chatType/${chatType}/`);
+	    return Promise.resolve();
 	  }
 	  redirectToVideoCall(dialogId = '', withVideo = true) {
 	    im_v2_lib_logger.Logger.warn('Desktop: redirectToVideoCall', dialogId, withVideo);

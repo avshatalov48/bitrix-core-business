@@ -113,6 +113,7 @@ class CalendarService
 
 	public function prepareDataForCreateSlider(Chat $chat, ?Message $message = null): Result
 	{
+		$currentUserId = $this->getContext()->getUserId();
 		$result = new Result();
 
 		if (!Loader::includeModule('calendar'))
@@ -124,14 +125,25 @@ class CalendarService
 
 		$randomPostfix = mt_rand() & 1000; // get random number from 0 to 1000
 		$data['params']['sliderId'] = "im:chat{$chat->getChatId()}{$randomPostfix}";
+		$data['params']['createChatId'] = $chat->getId();
 
-		$userIds = RelationCollection::find(
-			['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true, 'CHAT_ID' => $chat->getId()],
-			limit: 50,
-			select: ['ID', 'USER_ID', 'CHAT_ID']
-		)->getUsers()->filterExtranet()->getIds();
-		$users = array_values(array_map(static fn($item) => ['id' => (int)$item, 'entityId' => 'user'], $userIds));
-		$data['params']['participantsEntityList'] = $users;
+		if ($chat->getEntityType() === Chat\Type::Sonet->value)
+		{
+			$data['params']['type'] = 'group';
+			$data['params']['ownerId'] = $chat->getEntityId();
+		}
+		else
+		{
+			$userIds = RelationCollection::find(
+				['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true, 'CHAT_ID' => $chat->getId()],
+				limit: 50,
+				select: ['ID', 'USER_ID', 'CHAT_ID']
+			)->getUsers()->filterExtranet()->getIds();
+			$userIds[$currentUserId] = $currentUserId;
+			$users = array_values(array_map(static fn($item) => ['id' => (int)$item, 'entityId' => 'user'], $userIds));
+			$data['params']['participantsEntityList'] = $users;
+			$data['params']['type'] = 'user';
+		}
 
 		if (isset($message))
 		{

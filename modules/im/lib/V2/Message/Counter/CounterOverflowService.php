@@ -7,6 +7,7 @@ use Bitrix\Im\V2\Chat;
 
 class CounterOverflowService
 {
+	protected const PARTIAL_INSERT_ROWS = 500;
 
 	/**
 	 * @var CounterOverflowInfo[]
@@ -172,13 +173,17 @@ class CounterOverflowService
 		}
 
 		$rows = $this->getRowsToInsert($userIds);
-		CounterOverflowTable::multiplyInsertWithoutDuplicate(
-			$rows,
-			[
-				'DEADLOCK_SAFE' => true,
-				'UNIQUE_FIELDS' => ['CHAT_ID', 'USER_ID']
-			]
-		);
+
+		foreach (array_chunk($rows, self::PARTIAL_INSERT_ROWS, true) as $part)
+		{
+			CounterOverflowTable::multiplyInsertWithoutDuplicate(
+				$part,
+				[
+					'DEADLOCK_SAFE' => true,
+					'UNIQUE_FIELDS' => ['CHAT_ID', 'USER_ID'],
+				]
+			);
+		}
 	}
 
 	protected function getRowsToInsert(array $userIds): array

@@ -15,6 +15,8 @@ export function getCategoryByChatType(type: $Values<typeof ChatType>): $Values<t
 			return AnalyticsCategory.copilot;
 		case ChatType.videoconf:
 			return AnalyticsCategory.videoconf;
+		case ChatType.collab:
+			return AnalyticsCategory.collab;
 		default:
 			return AnalyticsCategory.chat;
 	}

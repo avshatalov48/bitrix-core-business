@@ -11,10 +11,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      type: Object,
 	      default: null
 	    },
-	    fetchable: {
-	      type: Boolean,
-	      default: false
-	    },
 	    clickable: {
 	      type: Boolean,
 	      default: false
@@ -52,10 +48,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    fetch(params = {}) {
 	      if (!this.clickable || this.isFetching) {
 	        console.info('Events is disabled now');
-	        return;
-	      }
-	      if (!this.fetchable) {
-	        console.info('Fetch data is impossible now (haven`t handler)');
 	        return;
 	      }
 	      this.isFetching = true;
@@ -142,7 +134,12 @@ this.BX.Landing = this.BX.Landing || {};
 			<div class="w-loader-icon --error"></div>
 			<div class="w-error-text">
 				<div>{{message}}</div>
-				<a class="w-loader-link" :href="link">linkText: link</a>	
+				<a
+					v-show="link !== null"
+					class="w-loader-link" :href="link"
+				>
+			        {{linkText}}
+				</a>	
 			</div>
 		</div>
 	`
@@ -153,7 +150,6 @@ this.BX.Landing = this.BX.Landing || {};
 	var _rootNode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("rootNode");
 	var _data = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("data");
 	var _error = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("error");
-	var _fetchable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fetchable");
 	var _clickable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clickable");
 	var _application = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("application");
 	var _contentComponent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("contentComponent");
@@ -199,10 +195,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _fetchable, {
-	      writable: true,
-	      value: false
-	    });
 	    Object.defineProperty(this, _clickable, {
 	      writable: true,
 	      value: false
@@ -220,7 +212,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _parentOrigin)[_parentOrigin] = main_core.Type.isString(options.origin) ? options.origin : null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _data)[_data] = main_core.Type.isObject(options.data) ? options.data : null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _error)[_error] = main_core.Type.isString(options.error) ? options.error : null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _fetchable)[_fetchable] = main_core.Type.isBoolean(options.fetchable) ? options.fetchable : false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _clickable)[_clickable] = main_core.Type.isBoolean(options.clickable) ? options.clickable : false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _contentComponent)[_contentComponent] = main_core.Runtime.clone(Content);
 	  }
@@ -242,26 +233,35 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.loader.hide();
 	  }
 	  fetch(params = {}) {
+	    if (params instanceof Event) {
+	      params = {};
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _message)[_message]('fetchData', params);
 	  }
 	  openApplication(params = {}) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _message)[_message]('openApplication', params);
 	  }
 	  openPath(path) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _message)[_message]('openPath', path);
+	    babelHelpers.classPrivateFieldLooseBase(this, _message)[_message]('openPath', {
+	      path
+	    });
 	  }
 	}
 	function _message2(name, params = {}) {
 	  window.parent.postMessage({
 	    name,
-	    params
+	    params,
+	    origin: babelHelpers.classPrivateFieldLooseBase(this, _id)[_id]
 	  }, babelHelpers.classPrivateFieldLooseBase(this, _parentOrigin)[_parentOrigin]);
 	}
 	function _bindEvents2() {
 	  main_core.Event.bind(window, 'message', babelHelpers.classPrivateFieldLooseBase(this, _onMessage)[_onMessage].bind(this));
 	}
 	function _onMessage2(event) {
-	  if (event.data && event.data.name && event.data.params) {
+	  if (event.data && event.data.origin && event.data.name && event.data.params && main_core.Type.isObject(event.data.params)) {
+	    if (event.data.origin !== babelHelpers.classPrivateFieldLooseBase(this, _id)[_id]) {
+	      return;
+	    }
 	    if (event.data.name === 'setData' && main_core.Type.isObject(event.data.params.data)) {
 	      main_core_events.EventEmitter.emit('landing:widgetvue:engine:onSetData', {
 	        data: event.data.params.data
@@ -272,12 +272,15 @@ this.BX.Landing = this.BX.Landing || {};
 	        message: event.data.params.error.message
 	      });
 	    }
+	    if (event.data.name === 'getSize') ;
 	    babelHelpers.classPrivateFieldLooseBase(this, _refreshFrameSize)[_refreshFrameSize]();
 	  }
 	}
 	function _refreshFrameSize2() {
-	  babelHelpers.classPrivateFieldLooseBase(this, _message)[_message]('setSize', {
-	    size: document.body.offsetHeight
+	  requestAnimationFrame(() => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _message)[_message]('setSize', {
+	      size: babelHelpers.classPrivateFieldLooseBase(this, _rootNode)[_rootNode].offsetHeight
+	    });
 	  });
 	}
 	function _createApp2() {
@@ -309,15 +312,27 @@ this.BX.Landing = this.BX.Landing || {};
 	      this.$bitrix.eventEmitter.subscribe('landing:widgetvue:engine:endContentLoad', this.onHideLoader);
 	      this.$bitrix.eventEmitter.subscribe('landing:widgetvue:engine:onMessage', this.onShowMessage);
 	      this.$bitrix.eventEmitter.subscribe('landing:widgetvue:engine:onHideMessage', this.onHideMessage);
-	      this.$bitrix.eventEmitter.subscribe('landing:widgetvue:engine:onError', this.onShowError);
 	      main_core_events.EventEmitter.subscribe('landing:widgetvue:engine:onError', this.onShowError);
+	    },
+	    mounted() {
+	      babelHelpers.classPrivateFieldLooseBase(this.$bitrix.Application.get(), _refreshFrameSize)[_refreshFrameSize]();
+	      this.$nextTick(() => {
+	        const links = this.$el.getElementsByTagName('a');
+	        if (links.length > 0) {
+	          [].slice.call(links).map(link => {
+	            main_core.Event.bind(link, 'click', event => {
+	              event.preventDefault();
+	              event.stopPropagation();
+	            });
+	          });
+	        }
+	      });
 	    },
 	    beforeUnmount() {
 	      this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:startContentLoad', this.onShowLoader);
 	      this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:endContentLoad', this.onHideLoader);
 	      this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:onMessage', this.onShowMessage);
 	      this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:onHideMessage', this.onHideMessage);
-	      this.$bitrix.eventEmitter.unsubscribe('landing:widgetvue:engine:onError', this.onShowError);
 	      main_core_events.EventEmitter.unsubscribe('landing:widgetvue:engine:onError', this.onShowError);
 	    },
 	    methods: {
@@ -341,17 +356,19 @@ this.BX.Landing = this.BX.Landing || {};
 	      },
 	      onShowError(event) {
 	        var _event$getData2;
+	        // todo: set error link?
 	        const message = ((_event$getData2 = event.getData()) == null ? void 0 : _event$getData2.message) || null;
 	        this.error = message ? {
 	          message
 	        } : null;
+	        this.onHideLoader();
 	      }
 	    },
 	    beforeCreate() {
 	      this.$bitrix.Application.set(context);
 	    },
 	    template: `
-				<div>
+				<div class="widget">
 					<Error
 						v-show="error !== null"
 						v-bind="error && error.message !== null ? error : {}"
@@ -364,7 +381,6 @@ this.BX.Landing = this.BX.Landing || {};
 						v-show="message === null && error === null"
 						
 						:defaultData="defaultData"
-						:fetchable=${babelHelpers.classPrivateFieldLooseBase(this, _fetchable)[_fetchable]}
 						:clickable=${babelHelpers.classPrivateFieldLooseBase(this, _clickable)[_clickable]}
 					/>
 				</div>

@@ -386,10 +386,24 @@ class EventManager extends AbstractManager implements EventManagerInterface
 
 		if ($masterLink && $event->getOriginalDateFrom())
 		{
-			$instance = $this->getInstanceForDay(
-				$masterLink->getVendorEventId(),
-				$event->getOriginalDateFrom()->getDate()
-			);
+			try
+			{
+				$instance = $this->getInstanceForDay(
+					$masterLink->getVendorEventId(),
+					$event->getOriginalDateFrom()->getDate()
+				);
+			}
+			catch (ApiException $exception)
+			{
+				if (!in_array((int)$exception->getCode(), [400, 404], true))
+				{
+					throw $exception;
+				}
+
+				$result->addError(new Main\Error($exception->getMessage(), $exception->getCode()));
+
+				return $result;
+			}
 		}
 
 		if ($instance)

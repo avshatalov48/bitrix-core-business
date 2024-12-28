@@ -15,6 +15,7 @@ return [
 		'ui.info-helper',
 		'im.v2.lib.utils',
 		'im.v2.lib.desktop-api',
+		'im.v2.lib.helpdesk',
 		'rest.client',
 		'im.v2.const',
 		'main.core',

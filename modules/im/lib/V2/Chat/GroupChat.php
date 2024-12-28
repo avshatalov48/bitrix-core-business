@@ -7,6 +7,7 @@ use Bitrix\Im\Color;
 use Bitrix\Im\V2\Analytics\ChatAnalytics;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\Copilot\CopilotPopupItem;
+use Bitrix\Im\V2\Entity\File\ChatAvatar;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Integration\AI\RoleManager;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
@@ -14,6 +15,8 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
 use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
+use Bitrix\Im\V2\Relation\Reason;
 use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Result;
@@ -102,7 +105,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		}
 
 		$chat = new static($params);
-		$chat->setExtranet($chat->checkIsExtranet())->setContext($context);
+		$chat->onBeforeAdd();
 		$chat->save();
 
 		if (!$chat->getChatId())
@@ -110,14 +113,14 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			return $result->addError(new ChatError(ChatError::CREATION_ERROR));
 		}
 
-		$usersToInvite = $chat->resolveRelationConflicts($this->getValidUsersToAdd($chat->getUserIds()));
-		$addedUsers = $usersToInvite;
+		$addedUsers = $usersToInvite = $chat->getUserIds() ?? [];
 		if ($chat->getAuthorId())
 		{
 			$addedUsers[$chat->getAuthorId()] = $chat->getAuthorId();
 			unset($usersToInvite[$chat->getAuthorId()]);
 		}
-		$chat->addUsersToRelation($addedUsers, $params['MANAGERS'] ?? [], false);
+		$addUsersConfig = new AddUsersConfig($params['MANAGERS'] ?? [], false);
+		$chat->addUsersToRelation($addedUsers, $addUsersConfig);
 		$needToSendGreetingMessages = !$skipAddMessage && ($chat->needToSendGreetingMessages() || $forceSendGreetingMessages);
 		if ($needToSendGreetingMessages)
 		{
@@ -127,7 +130,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 
 		if (!$skipAddMessage)
 		{
-			$chat->sendMessageUsersAdd($usersToInvite);
+			$chat->sendMessageUsersAdd($usersToInvite, $addUsersConfig);
 		}
 		$chat->linkToStructureNodes($params['STRUCTURE_NODES'] ?? []);
 		$chat->sendEventUsersAdd($addedUsers);
@@ -148,6 +151,13 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		$chat->onUserAddAfterChatCreate($usersToInvite);
 
 		return $result;
+	}
+
+	protected function onBeforeAdd(?Context $context = null): void
+	{
+		$this->setExtranet($this->checkIsExtranet())->setContext($context);
+		$this->setUserIds($this->resolveRelationConflicts($this->getValidUsersToAdd($this->getUserIds())));
+		$this->setUserCount(count($this->getUserIds()));
 	}
 
 	protected function onUserAddAfterChatCreate(array $addedUsers): void
@@ -233,39 +243,19 @@ class GroupChat extends Chat implements PopupDataAggregatable
 
 		if (
 			isset($params['AVATAR'])
-			&& $params['AVATAR']
 			&& !is_numeric((string)$params['AVATAR'])
 		)
 		{
-			$params['AVATAR'] = \CRestUtil::saveFile($params['AVATAR']);
-			$imageCheck = (new \Bitrix\Main\File\Image($params['AVATAR']["tmp_name"]))->getInfo();
-			if(
-				!$imageCheck
-				|| !$imageCheck->getWidth()
-				|| $imageCheck->getWidth() > 5000
-				|| !$imageCheck->getHeight()
-				|| $imageCheck->getHeight() > 5000
-			)
-			{
-				$params['AVATAR'] = null;
-			}
-
-			if (!$params['AVATAR'] || mb_strpos($params['AVATAR']['type'], "image/") !== 0)
-			{
-				$params['AVATAR'] = null;
-			}
-			else
-			{
-				$params['AVATAR'] = \CFile::saveFile($params['AVATAR'], 'im');
-			}
+			$params['AVATAR'] = ChatAvatar::saveAvatarByString($params['AVATAR']);
 		}
 
 		return $result->setResult($params);
 	}
 
-	protected function addUsersToRelation(array $usersToAdd, array $managerIds = [], ?bool $hideHistory = null, \Bitrix\Im\V2\Relation\Reason $reason = \Bitrix\Im\V2\Relation\Reason::DEFAULT)
+	protected function addUsersToRelation(array $usersToAdd, AddUsersConfig $config): void
 	{
-		parent::addUsersToRelation($usersToAdd, $managerIds, $hideHistory ?? \CIMSettings::GetStartChatMessage() == \CIMSettings::START_MESSAGE_LAST, $reason);
+		$config->setHideHistory($config->isHideHistory() ?? \CIMSettings::GetStartChatMessage() == \CIMSettings::START_MESSAGE_LAST);
+		parent::addUsersToRelation($usersToAdd, $config);
 	}
 
 	public function addManagers(array $userIds, bool $sendPush = true): self
@@ -280,9 +270,27 @@ class GroupChat extends Chat implements PopupDataAggregatable
 
 	protected function changeManagers(array $userIds, bool $isManager, bool $sendPush = true): self
 	{
+		$usersMap = [];
+		foreach ($userIds as $userId)
+		{
+			$usersMap[(int)$userId] = $isManager;
+		}
+
+		$this->changeManagersByMap($usersMap, $sendPush);
+
+		return $this;
+	}
+
+	/**
+	 * @param bool[] $usersMap
+	 * @param bool $sendPush
+	 * @return self
+	 */
+	public function changeManagersByMap(array $usersMap, bool $sendPush = true): self
+	{
 		$relations = $this->getRelations();
 
-		foreach ($userIds as $userId)
+		foreach ($usersMap as $userId => $isManager)
 		{
 			$relation = $relations->getByUserId($userId, $this->getChatId());
 			if ($relation === null)
@@ -294,7 +302,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 
 			if ($this->chatId !== null)
 			{
-				(new ChatAnalytics())->addEditPermissions($this->chatId);
+				(new ChatAnalytics($this))->addEditPermissions();
 			}
 		}
 
@@ -630,7 +638,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 	{
 		if (
 			Loader::includeModule('imbot')
-			&& in_array(CopilotChatBot::getBotId(), $this->getRelations()->getUserIds(), true)
+			&& $this->getRelationFacade()?->getByUserId(CopilotChatBot::getBotId()) !== null
 		)
 		{
 			$copilotRoles = (new RoleManager())->getMainRole($this->getChatId());

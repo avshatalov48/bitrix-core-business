@@ -48,6 +48,11 @@ export function validateStep(data: StepType): boolean
 
 export function validateHeader(data: HeaderType): boolean
 {
+	if (Type.isNil(data))
+	{
+		return true;
+	}
+
 	if (!Type.isPlainObject(data))
 	{
 		// eslint-disable-next-line no-console
@@ -86,6 +91,11 @@ export function validateHeader(data: HeaderType): boolean
 
 export function validateFooter(data: FooterType): boolean
 {
+	if (Type.isNil(data))
+	{
+		return true;
+	}
+
 	if (!Type.isPlainObject(data))
 	{
 		// eslint-disable-next-line no-console
@@ -196,6 +206,14 @@ export function validateImage(data: ImageType): boolean
 	}
 
 	if (data.type === imageTypeEnum.USER_STUB || data.type === imageTypeEnum.IMAGE_STUB)
+	{
+		return true;
+	}
+
+	if (
+		data.type === imageTypeEnum.COUNTER
+		&& Type.isStringFilled(data.data?.text)
+	)
 	{
 		return true;
 	}

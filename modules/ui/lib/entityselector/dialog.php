@@ -467,7 +467,7 @@ class Dialog implements \JsonSerializable
 			'saveable' => false,
 			'link' => '',
 			'avatar' => '',
-			'availableInRecentTab' => false
+			'availableInRecentTab' => false,
 		]);
 	}
 
@@ -529,7 +529,7 @@ class Dialog implements \JsonSerializable
 						'USER_ID' => $GLOBALS['USER']->getId(),
 						'CONTEXT' => $this->getContext(),
 						'ENTITY_ID' => $recentItem->getEntityId(),
-						'ITEM_ID' => $recentItem->getId()
+						'ITEM_ID' => $recentItem->getId(),
 					]);
 				}
 			}
@@ -553,7 +553,7 @@ class Dialog implements \JsonSerializable
 						[
 							'id' => $usage['ITEM_ID'],
 							'entityId' => $usage['ENTITY_ID'],
-							'lastUseDate' => $usage['MAX_LAST_USE_DATE']->getTimestamp()
+							'lastUseDate' => $usage['MAX_LAST_USE_DATE']->getTimestamp(),
 						]
 					)
 				);
@@ -569,7 +569,7 @@ class Dialog implements \JsonSerializable
 						[
 							'id' => $usage->getItemId(),
 							'entityId' => $usage->getEntityId(),
-							'lastUseDate' => $usage->getLastUseDate()->getTimestamp()
+							'lastUseDate' => $usage->getLastUseDate()->getTimestamp(),
 						]
 					)
 				);
@@ -592,7 +592,7 @@ class Dialog implements \JsonSerializable
 					[
 						'id' => $usage['ITEM_ID'],
 						'entityId' => $usage['ENTITY_ID'],
-						'lastUseDate' => $usage['MAX_LAST_USE_DATE']->getTimestamp()
+						'lastUseDate' => $usage['MAX_LAST_USE_DATE']->getTimestamp(),
 					]
 				)
 			);
@@ -607,12 +607,12 @@ class Dialog implements \JsonSerializable
 				'filter' => [
 					'=USER_ID' => $this->getCurrentUserId(),
 					'=CONTEXT' => $this->getContext(),
-					'@ENTITY_ID' => $entities
+					'@ENTITY_ID' => $entities,
 				],
 				'limit' => $limit,
 				'order' => [
-					'LAST_USE_DATE' => 'DESC'
-				]
+					'LAST_USE_DATE' => 'DESC',
+				],
 			]
 		)->fetchCollection();
 	}
@@ -688,7 +688,7 @@ class Dialog implements \JsonSerializable
 					'=USER_ID' => $this->getCurrentUserId(),
 					'=CONTEXT' => $this->getContext(),
 					'=ENTITY_ID' => $entity->getId(),
-					'@ITEM_ID' => $unavailableIds
+					'@ITEM_ID' => $unavailableIds,
 				]);
 			}
 		}

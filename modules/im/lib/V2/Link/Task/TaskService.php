@@ -90,6 +90,7 @@ class TaskService
 		if (!$saveDelete)
 		{
 			$task->delete();
+			TaskItem::cleanCache($task->getEntityId() ?? 0);
 		}
 
 		return new Result();

@@ -1325,6 +1325,7 @@
 .ui-btn-icon-ai {
 	--ui-btn-icon: var(--ui-icon-set__path_copilot-ai);
 }
+.ui-btn-split.ui-btn-icon-ai .ui-btn-main::after,
 .ui-btn-icon-ai::after {
 	background-image: none;
 	background-color: var(--ui-color-on-primary);

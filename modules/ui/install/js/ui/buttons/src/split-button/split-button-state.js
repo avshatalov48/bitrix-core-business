@@ -14,4 +14,5 @@ export default class SplitButtonState
 	static MENU_DISABLED = 'ui-btn-menu-disabled';
 	static CLOCKING = 'ui-btn-clock';
 	static WAITING = 'ui-btn-wait';
+	static AI_WAITING = 'ui-btn-ai-waiting';
 }

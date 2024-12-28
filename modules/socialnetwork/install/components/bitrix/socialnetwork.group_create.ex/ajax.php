@@ -113,6 +113,14 @@ class SocialnetworkGroupCreateAjaxController extends \Bitrix\Main\Engine\Control
 			return null;
 		}
 
+		if (
+			!isset($_SESSION['workgroup_avatar_loader'])
+			|| !is_array($_SESSION['workgroup_avatar_loader'])
+		)
+		{
+			$_SESSION['workgroup_avatar_loader'] = [];
+		}
+
 
 		if (
 			$groupId <= 0
@@ -130,13 +138,6 @@ class SocialnetworkGroupCreateAjaxController extends \Bitrix\Main\Engine\Control
 			{
 				$this->addError(new Error(Loc::getMessage('SONET_GCE_AJAX_DELETE_FILE_FAILED')));
 				return null;
-			}
-			if (
-				!isset($_SESSION['workgroup_avatar_loader'])
-				|| !is_array($_SESSION['workgroup_avatar_loader'])
-			)
-			{
-				$_SESSION['workgroup_avatar_loader'] = [];
 			}
 
 			if (

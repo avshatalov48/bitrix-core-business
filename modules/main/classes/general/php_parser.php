@@ -83,7 +83,7 @@ class PHPParser
 	{
 		$found = false;
 		$paramsList = "";
-		if (mb_strtolower(substr($params, 0, 6)) == 'array(')
+		if (strtolower(substr($params, 0, 6)) == 'array(')
 		{
 			$found = true;
 			$paramsList = substr($params, 6);
@@ -98,10 +98,20 @@ class PHPParser
 			$arParams = PHPParser::GetParams($paramsList);
 			foreach ($arParams as $i => $el)
 			{
-				$p = mb_strpos($el, "=>");
+				if (strtolower(substr($el, 0, 6)) == 'array(' || str_starts_with($el, '['))
+				{
+					// no index, value is an array. We should check it first, because this array can contain '=>' operator.
+					$p = false;
+				}
+				else
+				{
+					// possible index
+					$p = mb_strpos($el, "=>");
+				}
 				if ($p === false)
 				{
-					if(is_string($arResult))
+					// value without index
+					if (is_string($arResult))
 					{
 						$arResult = PHPParser::ReplString($el, $arAllStr);
 					}
@@ -112,6 +122,7 @@ class PHPParser
 				}
 				else
 				{
+					// value with index
 					$el_ind = PHPParser::ReplString(mb_substr($el, 0, $p), $arAllStr);
 					$el_val = mb_substr($el, $p + 2);
 					PHPParser::GetParamsRec($el_val, $arAllStr, $arResult[$el_ind]);

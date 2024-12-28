@@ -1,11 +1,15 @@
-import { Type, Extension, Reflection, type JsonObject } from 'main.core';
+import { Type, Extension, Reflection, type JsonObject, Loc } from 'main.core';
 
 import { legacyMessenger, legacyDesktop } from './legacy';
 import { desktop } from './desktop';
 import { prepareSettingsSection } from './functions/settings';
 
+import type { ForwardedEntityConfig } from 'im.v2.provider.service';
+import type { CreatableChatType } from 'im.v2.component.content.chat-forms.forms';
+
 type Opener = {
 	openChat: (dialogId?: string, text?: string) => Promise,
+	forwardEntityToChat: (dialogId: string, entityConfig: ForwardedEntityConfig) => Promise,
 	openLines: (dialogId?: string) => Promise,
 	openCopilot: (dialogId?: string) => Promise,
 	openLinesHistory: (dialogId?: string) => Promise,
@@ -13,6 +17,7 @@ type Opener = {
 	openRecentSearch: () => Promise,
 	openSettings: ({ onlyPanel?: string }) => Promise,
 	openConference: ({ code?: string, link?: string }) => Promise,
+	openChatCreation: (chatType: CreatableChatType) => Promise,
 	startVideoCall: (dialogId?: string, withVideo?: boolean) => Promise,
 	startPhoneCall: (number: string, params: JsonObject) => Promise,
 	startCallList: (callListId: number, params: JsonObject) => Promise,
@@ -48,6 +53,18 @@ class Messenger
 		}
 
 		return getOpener()?.openChat(dialogId, messageId);
+	}
+
+	async forwardEntityToChat(dialogId: string, entityConfig: ForwardedEntityConfig): Promise
+	{
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const isRedirectAllowed = await DesktopManager?.getInstance().checkForRedirect();
+		if (isRedirectAllowed)
+		{
+			// return DesktopManager?.getInstance().redirectToEntityForward(dialogId, messageId);
+		}
+
+		return getOpener()?.forwardEntityToChat(dialogId, entityConfig);
 	}
 
 	async openLines(dialogId: string = ''): Promise
@@ -87,6 +104,18 @@ class Messenger
 		}
 
 		return getOpener()?.openCopilot(dialogId, contextId);
+	}
+
+	async openCollab(dialogId: string = ''): Promise
+	{
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const isRedirectAllowed = await DesktopManager?.getInstance().checkForRedirect();
+		if (isRedirectAllowed)
+		{
+			return DesktopManager?.getInstance().redirectToCollab(dialogId);
+		}
+
+		return getOpener()?.openCollab(dialogId);
 	}
 
 	async openLinesHistory(dialogId: string = ''): Promise
@@ -217,6 +246,18 @@ class Messenger
 		return getOpener()?.openConference(code);
 	}
 
+	async openChatCreation(chatType: CreatableChatType): Promise
+	{
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const isRedirectAllowed = await DesktopManager?.getInstance().checkForRedirect();
+		if (isRedirectAllowed)
+		{
+			return DesktopManager?.getInstance().redirectToChatCreation(chatType);
+		}
+
+		return getOpener()?.openChatCreation(chatType);
+	}
+
 	async startVideoCall(dialogId: string = '', withVideo: boolean = true): Promise
 	{
 		if (!this.v2enabled)
@@ -298,6 +339,23 @@ class Messenger
 
 		const CallManager = Reflection.getClass('BX.Messenger.v2.Lib.CallManager');
 		CallManager?.getInstance().toggleDebugFlag(debug);
+	}
+
+	async saveFileToDisk(fileId: number): Promise<void>
+	{
+		const { DiskService } = Reflection.getClass('BX.Messenger.v2.Service');
+		if (!DiskService)
+		{
+			return;
+		}
+
+		await (new DiskService()).save(fileId).catch((error) => {
+			console.error('Messenger.saveFileToDisk error:', error);
+		});
+
+		BX.UI.Notification.Center.notify({
+			content: Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS'),
+		});
 	}
 }
 

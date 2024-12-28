@@ -25,10 +25,11 @@ import {
 	RecentPullHandler,
 	NotificationPullHandler,
 	NotifierPullHandler,
-	LinesPullHandler,
 	OnlinePullHandler,
+	CounterPullHandler,
 } from 'im.v2.provider.pull';
 import { Logger } from 'im.v2.lib.logger';
+import { OpenLinesLaunchResources } from 'imopenlines.v2.lib.launch-resources';
 
 import type { RestClient } from 'rest.client';
 
@@ -104,6 +105,10 @@ class CoreApplication
 			.addModel(CopilotModel.create())
 		;
 
+		OpenLinesLaunchResources.models.forEach((model) => {
+			builder.addModel(model.create());
+		});
+
 		return builder.build().then((result) => {
 			this.store = result.store;
 			this.storeBuilder = result.builder;
@@ -125,8 +130,12 @@ class CoreApplication
 		this.pullClient.subscribe(new RecentPullHandler());
 		this.pullClient.subscribe(new NotificationPullHandler());
 		this.pullClient.subscribe(new NotifierPullHandler());
-		this.pullClient.subscribe(new LinesPullHandler());
 		this.pullClient.subscribe(new OnlinePullHandler());
+		this.pullClient.subscribe(new CounterPullHandler());
+
+		OpenLinesLaunchResources.pullHandlers.forEach((Handler) => {
+			this.pullClient.subscribe(new Handler());
+		});
 
 		this.pullClient.subscribe({
 			type: this.pullInstance.SubscriptionType.Status,

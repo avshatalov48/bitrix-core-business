@@ -6,11 +6,13 @@ import { FeaturePromoter } from 'ui.info-helper';
 import { Logger } from 'im.v2.lib.logger';
 import { MessengerSlider } from 'im.v2.lib.slider';
 import { CallManager } from 'im.v2.lib.call';
-import { Layout, SliderCode } from 'im.v2.const';
+import { ActionByUserType, Layout, SliderCode } from 'im.v2.const';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
 import { PhoneManager } from 'im.v2.lib.phone';
 import { Feature, FeatureManager } from 'im.v2.lib.feature';
 import { Analytics } from 'im.v2.lib.analytics';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { Utils } from 'im.v2.lib.utils';
 
 import { UserSettings } from './components/user-settings';
 import { MarketApps } from './components/market-apps';
@@ -27,6 +29,12 @@ type MenuItem = {
 	clickHandler?: (clickTarget: HTMLElement) => void,
 	showCondition?: () => boolean,
 };
+
+const LayoutToAction = Object.freeze({
+	[Layout.market.name]: ActionByUserType.getMarket,
+	[Layout.openlines.name]: ActionByUserType.getOpenlines,
+	[Layout.channel.name]: ActionByUserType.getChannels,
+});
 
 // @vue/component
 export const MessengerNavigation = {
@@ -67,6 +75,13 @@ export const MessengerNavigation = {
 					active: true,
 				},
 				{
+					id: Layout.collab.name,
+					text: this.prepareNavigationText('IM_NAVIGATION_COLLAB'),
+					counter: this.formatCounter(this.$store.getters['counters/getTotalCollabCounter']),
+					showCondition: () => FeatureManager.isFeatureAvailable(Feature.collabAvailable),
+					active: true,
+				},
+				{
 					id: Layout.channel.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_CHANNELS'),
 					active: true,
@@ -75,6 +90,16 @@ export const MessengerNavigation = {
 					id: Layout.openlines.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_OPENLINES'),
 					counter: this.formatCounter(this.$store.getters['counters/getTotalLinesCounter']),
+					showCondition: () => {
+						return !this.isOptionOpenLinesV2Activated();
+					},
+					active: true,
+				},
+				{
+					id: Layout.openlinesV2.name,
+					text: this.prepareNavigationText('IM_NAVIGATION_OPENLINES'),
+					counter: this.formatCounter(this.$store.getters['counters/getTotalLinesCounter']),
+					showCondition: this.isOptionOpenLinesV2Activated,
 					active: true,
 				},
 				{
@@ -95,6 +120,13 @@ export const MessengerNavigation = {
 					text: this.prepareNavigationText('IM_NAVIGATION_TIMEMANAGER'),
 					clickHandler: this.onTimeManagerClick,
 					showCondition: this.isTimeManagerActive,
+					active: true,
+				},
+				{
+					id: 'main-page',
+					text: this.prepareNavigationText('IM_NAVIGATION_MAIN_PAGE'),
+					clickHandler: this.onMainPageClick,
+					showCondition: this.isMainPageActive,
 					active: true,
 				},
 				{
@@ -213,12 +245,23 @@ export const MessengerNavigation = {
 		},
 		needToShowMenuItem(item: MenuItem): boolean
 		{
+			if (!this.hasLayoutAccess(item))
+			{
+				return false;
+			}
+
 			if (!Type.isFunction(item.showCondition))
 			{
 				return true;
 			}
 
 			return item.showCondition() === true;
+		},
+		hasLayoutAccess(item: MenuItem): boolean
+		{
+			const action = LayoutToAction[item.id];
+
+			return PermissionManager.getInstance().canPerformActionByUserType(action);
 		},
 		onScroll(event: Event)
 		{
@@ -274,12 +317,24 @@ export const MessengerNavigation = {
 			{
 				const promoter = new FeaturePromoter({ code: SliderCode.copilotDisabled });
 				promoter.show();
-				Analytics.getInstance().onOpenCopilotTab({ isAvailable: false });
+				Analytics.getInstance().copilot.onOpenTab({ isAvailable: false });
 
 				return;
 			}
 
 			this.sendClickEvent({ layoutName: Layout.copilot.name });
+		},
+		isOptionOpenLinesV2Activated(): boolean
+		{
+			return FeatureManager.isFeatureAvailable(Feature.openLinesV2);
+		},
+		onMainPageClick()
+		{
+			Utils.browser.openLink('/');
+		},
+		isMainPageActive(): boolean
+		{
+			return DesktopApi.isChatWindow();
 		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
@@ -304,7 +359,7 @@ export const MessengerNavigation = {
 				</template>
 				<!-- Menu items -->
 				<template v-for="item in menuItems">
-					<MarketApps v-if="item.id === 'market'" @clickMarketItem="sendClickEvent"/>
+					<MarketApps v-if="needToShowMenuItem(item) && item.id === 'market'" @clickMarketItem="sendClickEvent"/>
 					<div
 						v-else-if="needToShowMenuItem(item)"
 						:key="item.id"

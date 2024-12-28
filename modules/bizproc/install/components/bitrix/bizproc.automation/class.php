@@ -91,12 +91,21 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 					$templateArray['ROBOTS'][$i]['viewData'] = static::getRobotViewData($robot, $documentType);
 				}
 
+				$templateArray['CUSTOM_ROBOTS'] = [];
+				if ($templateArray['IS_EXTERNAL_MODIFIED'])
+				{
+					$documentType = $this->getDocumentType();
+					$complexDocumentId = [$documentType[0], $documentType[1], $this->getDocumentId()];
+					$templateArray['CUSTOM_ROBOTS'] = static::getRunningCustomRobots($complexDocumentId, $template);
+				}
+
 				$relation[$status] = $templateArray;
 			}
 			else
 			{
 				$template->save(array(), 1); // save bizproc template
 				$relation[$status] = $template->toArray();
+				$relation[$status]['CUSTOM_ROBOTS'] = [];
 			}
 		}
 
@@ -132,6 +141,14 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 			foreach ($templateArray['ROBOTS'] as $i => $robot)
 			{
 				$templateArray['ROBOTS'][$i]['viewData'] = static::getRobotViewData($robot, $documentType);
+			}
+
+			$templateArray['CUSTOM_ROBOTS'] = [];
+			if ($templateArray['IS_EXTERNAL_MODIFIED'])
+			{
+				$documentType = $this->getDocumentType();
+				$complexDocumentId = [$documentType[0], $documentType[1], $this->getDocumentId()];
+				$templateArray['CUSTOM_ROBOTS'] = static::getRunningCustomRobots($complexDocumentId, $template);
 			}
 
 			foreach (['PARAMETERS', 'CONSTANTS'] as $key)

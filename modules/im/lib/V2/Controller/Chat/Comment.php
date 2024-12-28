@@ -69,7 +69,7 @@ class Comment extends BaseController
 			return null;
 		}
 
-		(new ChatAnalytics())->addFollowComments($chat, $flag);
+		(new ChatAnalytics($chat))->addFollowComments($flag);
 
 		return ['result' => true];
 	}

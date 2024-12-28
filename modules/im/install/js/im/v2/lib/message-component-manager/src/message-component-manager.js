@@ -2,6 +2,7 @@ import { Utils } from 'im.v2.lib.utils';
 import { Core } from 'im.v2.application.core';
 import { MessageComponent } from 'im.v2.const';
 import { SmileManager } from 'im.v2.lib.smile-manager';
+import { OpenLinesMessageManager } from 'imopenlines.v2.lib.message-manager';
 
 import type { Store } from 'ui.vue3.vuex';
 import type { ImModelMessage } from 'im.v2.model';
@@ -42,6 +43,13 @@ export class MessageComponentManager
 
 	getName(): $Values<typeof MessageComponent>
 	{
+		const openLinesManager = new OpenLinesMessageManager(this.#message);
+
+		if (openLinesManager.checkComponentInOpenLinesList())
+		{
+			return openLinesManager.getMessageComponent();
+		}
+
 		if (this.#isDeletedMessage())
 		{
 			return MessageComponent.deleted;

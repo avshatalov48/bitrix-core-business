@@ -32,6 +32,8 @@
 			this.bindWindowEvents();
 			this.bindPrivateEvents();
 
+			this.analyticsLabel = {};
+
 			this.__bindLHEEvents = (function(handler, formId) {
 				if (formId === this.formId) {
 					this.handler = handler;
@@ -280,6 +282,8 @@
 				&& parseInt(this.currentEntity.messageId, 10) // only for edit messageId is not false
 			);
 
+			this.analyticsLabel.context = 'quote';
+
 			if (this.currentEntity && !isReinitAction)
 			{
 				this.show(entity);
@@ -291,11 +295,12 @@
 				this.onInitEditorFrame(quote);
 			}
 		},
-		onReply : function(entity, author) {
+		onReply : function(entity, author, context = '') {
 			if (this.isFormOccupied(entity))
 			{
 				return;
 			}
+			this.analyticsLabel.context = context;
 
 			if (this.currentEntity)
 			{
@@ -545,6 +550,16 @@
 			this.showWait();
 			this.busy = true;
 
+			const currentUrl = window.location.href;
+			if (currentUrl.includes('/stream/'))
+			{
+				this.analyticsLabel.section = 'feed';
+			}
+			else if (currentUrl.includes('/workgroups/'))
+			{
+				this.analyticsLabel.section = 'project';
+			}
+
 			var post_data = {};
 			convertFormToArray(this.form, post_data);
 			post_data["REVIEW_TEXT"] = text;
@@ -555,6 +570,7 @@
 			post_data["SITE_ID"] = BX.message("SITE_ID");
 			post_data["LANGUAGE_ID"] = BX.message("LANGUAGE_ID");
 			post_data["ACTION"] = "ADD";
+			post_data["ANALYTICS_LABEL"] = this.analyticsLabel;
 
 			if (this.currentEntity !== null && this.currentEntity.messageId > 0)
 			{

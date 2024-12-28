@@ -160,9 +160,7 @@ class ModuleManager
 
 	public static function unRegisterModule($moduleName)
 	{
-		$con = Application::getInstance()->getConnection();
-
-		$con->queryExecute("DELETE FROM b_agent WHERE MODULE_ID='" . $con->getSqlHelper()->forSql($moduleName) . "'");
+		\CAgent::RemoveModuleAgents($moduleName);
 		\CMain::DelGroupRight($moduleName);
 
 		static::delete($moduleName);

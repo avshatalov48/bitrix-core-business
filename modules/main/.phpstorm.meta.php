@@ -5,12 +5,14 @@ namespace PHPSTORM_META
 
 	registerArgumentsSet('bitrix_main_serviceLocator_codes',
 		'exceptionHandler',
+		'main.validation.service',
 	);
 
 	expectedArguments(\Bitrix\Main\DI\ServiceLocator::get(), 0, argumentsSet('bitrix_main_serviceLocator_codes'));
 
 	override(\Bitrix\Main\DI\ServiceLocator::get(0), map([
 		'exceptionHandler' => \Bitrix\Main\Diag\ExceptionHandler::class,
+		'main.validation.service' => \Bitrix\Main\Validation\ValidationService::class,
 	]));
 
 	exitPoint(\Bitrix\Main\Application::end());

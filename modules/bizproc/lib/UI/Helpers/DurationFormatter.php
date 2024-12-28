@@ -2,6 +2,8 @@
 
 namespace Bitrix\Bizproc\UI\Helpers;
 
+use Bitrix\Main\Localization\Loc;
+
 class DurationFormatter
 {
 	public const SECONDS = 60;
@@ -10,7 +12,7 @@ class DurationFormatter
 	public const HALF_MINUTES = self::MINUTES / 2;
 	public const HOURS = 24;
 	public const HALF_HOURS = self::HOURS / 2;
-	public const DAYS = 30;
+	public const DAYS = 31;
 	public const HALF_DAYS = self::DAYS / 2;
 	public const MONTHS = 12;
 	public const HALF_MONTHS = self::MONTHS / 2;
@@ -195,5 +197,31 @@ class DurationFormatter
 	public static function getSecondsFromYears(int $years): int
 	{
 		return $years * self::DAYS_YEAR * self::HOURS * self::MINUTES * self::SECONDS;
+	}
+
+	public static function format(int $duration): ?string
+	{
+		if ($duration === 0)
+		{
+			return Loc::getMessage('BIZPROC_UI_DURATION_FORMATTER_DURATION_ZERO');
+		}
+
+		$valuedMods = array_filter(self::getUnitMod($duration));
+		$targetFormat = array_key_last($valuedMods);
+		if ($targetFormat)
+		{
+			$formats = [
+				'Y' => 'Ydiff',
+				'm' => 'mdiff',
+				'd' => 'ddiff',
+				'H' => 'Hdiff',
+				'i' => 'idiff',
+				's' => 'sdiff',
+			];
+
+			return \FormatDate($formats[$targetFormat], time() - $duration);
+		}
+
+		return null;
 	}
 }

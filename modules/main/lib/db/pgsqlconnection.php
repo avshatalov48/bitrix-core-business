@@ -7,6 +7,10 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ORM\Fields\ScalarField;
 use Bitrix\Main\ORM\Fields\IntegerField;
 
+/**
+ * @method \PgSql\Connection getResource()
+ * @property \PgSql\Connection $resource
+ */
 class PgsqlConnection extends Connection
 {
 	protected int $transactionLevel = 0;
@@ -46,15 +50,21 @@ class PgsqlConnection extends Connection
 		}
 
 		set_error_handler([$this, 'connectionErrorHandler']);
-		if ($this->isPersistent())
+		try
 		{
-			$connection = @pg_pconnect($connectionString);
+			if ($this->isPersistent())
+			{
+				$connection = @pg_pconnect($connectionString);
+			}
+			else
+			{
+				$connection = @pg_connect($connectionString);
+			}
 		}
-		else
+		finally
 		{
-			$connection = @pg_connect($connectionString);
+			restore_error_handler();
 		}
-		restore_error_handler();
 
 		if (!$connection)
 		{
@@ -67,6 +77,7 @@ class PgsqlConnection extends Connection
 		$this->resource = $connection;
 		$this->isConnected = true;
 
+		$this->configureErrorVerbosity();
 		$this->afterConnected();
 	}
 
@@ -102,7 +113,14 @@ class PgsqlConnection extends Connection
 
 		$trackerQuery?->startQuery($sql, $binds);
 
+		// Handle E_WARNING
+		set_error_handler(function () {
+			// noop
+		});
+
 		$result = pg_query($this->resource, $sql);
+
+		restore_error_handler();
 
 		$trackerQuery?->finishQuery();
 
@@ -110,7 +128,7 @@ class PgsqlConnection extends Connection
 
 		if (!$result)
 		{
-			throw new SqlQueryException('Pgsql query error', $this->getErrorMessage(), $sql);
+			throw $this->createQueryException($this->getErrorCode(), $this->getErrorMessage(), $sql);
 		}
 
 		return $result;
@@ -570,5 +588,34 @@ class PgsqlConnection extends Connection
 	public function getErrorMessage()
 	{
 		return pg_last_error($this->resource);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getErrorCode()
+	{
+		if (preg_match("/ERROR:\\s*([^:]+):/i", $this->getErrorMessage(), $matches))
+		{
+			return $matches[1];
+		}
+		return '';
+	}
+
+	protected function configureErrorVerbosity()
+	{
+		pg_set_error_verbosity($this->resource, PGSQL_ERRORS_VERBOSE);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function createQueryException($code = '', $databaseMessage = '', $query = '')
+	{
+		if ($code == '23505')
+		{
+			return new DuplicateEntryException('Pgsql query error', $databaseMessage, $query);
+		}
+		return new SqlQueryException('Pgsql query error', $databaseMessage, $query);
 	}
 }

@@ -9,6 +9,7 @@ export const MainPanelType = {
 	openChannel: [ChatType.openChannel],
 	comment: [ChatType.comment],
 	generalChannel: [ChatType.generalChannel],
+	collab: [ChatType.collab],
 };
 
 export const MainPanelBlock = Object.freeze({
@@ -26,6 +27,7 @@ export const MainPanelBlock = Object.freeze({
 	market: 'market',
 	multidialog: 'multidialog',
 	tariffLimit: 'tariffLimit',
+	collabHelpdesk: 'collabHelpdesk',
 });
 
 export const MainPanels = {
@@ -84,5 +86,12 @@ export const MainPanels = {
 		[MainPanelBlock.multidialog]: 20,
 		[MainPanelBlock.info]: 30,
 		[MainPanelBlock.file]: 40,
+	},
+	[MainPanelType.collab]: {
+		[MainPanelBlock.chat]: 10,
+		[MainPanelBlock.info]: 20,
+		[MainPanelBlock.file]: 30,
+		[MainPanelBlock.fileUnsorted]: 30,
+		[MainPanelBlock.collabHelpdesk]: 40,
 	},
 };

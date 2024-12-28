@@ -388,7 +388,7 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 			"userId" => $preparedEvent['MEETING_HOST'],
 			"fields" => $preparedEvent,
 		]);
-		\CCalendar::UpdateCounter([$this->userId]);
+		\CCalendar::UpdateCounter([$this->userId], [$id]);
 
 		return $id;
 	}
@@ -718,7 +718,7 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 			"fields" => $updatedEvent,
 			"entryChanges" => $entryChanges,
 		]);
-		\CCalendar::UpdateCounter([$this->userId]);
+		\CCalendar::UpdateCounter([$this->userId], [$updatedEvent['ID']]);
 
 		return true;
 	}

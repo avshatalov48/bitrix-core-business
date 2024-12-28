@@ -1,7 +1,7 @@
 <?php
 
 use Bitrix\Intranet\UStat\UStat;
-use Bitrix\Main\Config\Option;
+use Bitrix\Landing\Mainpage;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -61,7 +61,7 @@ class LandingBlocksMainpageWidgetActiveEmployees extends LandingBlocksMainpageWi
 	{
 		$this->arResult['SHOW_EMPTY_STATE'] = false;
 
-		if (Option::get('landing', 'use_demo_data_in_block_widgets') === 'Y')
+		if (Mainpage\Manager::isUseDemoData())
 		{
 			$demoData = $this->getDemoData();
 			$usersData = $demoData['USERS'];

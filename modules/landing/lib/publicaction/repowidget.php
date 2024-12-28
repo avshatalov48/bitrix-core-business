@@ -2,6 +2,9 @@
 namespace Bitrix\Landing\PublicAction;
 
 use Bitrix\Landing;
+use Bitrix\Landing\Error;
+use Bitrix\Landing\PublicAction;
+use Bitrix\Landing\Subtype;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\PublicActionResult;
 use Bitrix\Landing\Site\Scope;
@@ -18,77 +21,60 @@ class RepoWidget extends Repo
 {
 	private const SUBTYPE_WIDGET = 'widgetvue';
 
-
-
-
-	// tmp hide
-	public static function register(string $code, array $fields, array $manifest = []): PublicActionResult
-	{
-		$result = new PublicActionResult();
-		$error = new \Bitrix\Landing\Error;
-		$error->addError(
-			'ILLEGAL_METHOD',
-			Loc::getMessage('LANDING_WIDGET_METHOD_NOT_AVAILABLE')
-		);
-		$result->setError($error);
-
-		return $result;
-	}
-
-	// tmp hide
-	public static function unregister($code)
-	{
-		$result = new PublicActionResult();
-		$error = new \Bitrix\Landing\Error;
-		$error->addError(
-			'ILLEGAL_METHOD',
-			Loc::getMessage('LANDING_WIDGET_METHOD_NOT_AVAILABLE')
-		);
-		$result->setError($error);
-
-		return $result;
-	}
-
-
-
-
 	/**
 	 * Some fixes in fields and manifest, specific by scope (mainpage widget or any)
 	 * @param array $fields
 	 * @param array $manifest
+	 * @param Error $error - object for set errors
 	 * @return array
 	 */
-	protected static function onRegisterBefore(array $fields, array $manifest = []): array
+	protected static function onRegisterBefore(array &$fields, array &$manifest, Error $error): void
 	{
-		if (isset($fields['WIDGET_PARAMS']) && is_array($fields['WIDGET_PARAMS']))
+		if (!isset($fields['WIDGET_PARAMS']) && !is_array($fields['WIDGET_PARAMS']))
 		{
-			$manifest['block']['type'] = mb_strtolower(Landing\Site\Type::SCOPE_CODE_MAINPAGE);
-			$manifest['block']['subtype'] = self::SUBTYPE_WIDGET;
-			$manifest['block']['subtype_params'] = [
-				'rootNode' => $fields['WIDGET_PARAMS']['rootNode'] ?? null,
-				'data' => $fields['WIDGET_PARAMS']['data'] ?? null,
-				'handler' => $fields['WIDGET_PARAMS']['handler'] ?? null,
-				'lang' => $fields['WIDGET_PARAMS']['lang'] ?? null,
-			];
+			$error->addError(
+				'REQUIRED_FIELD_NO_EXISTS',
+				Loc::getMessage('LANDING_WIDGET_FIELD_NO_EXISTS', ['#field#' => 'WIDGET_PARAMS'])
+			);
+
+			return;
 		}
 
+		$requiredParams = [
+			'rootNode',
+			'handler',
+			'demoData',
+		];
+		foreach ($requiredParams as $param)
+		{
+			if (!isset($fields['WIDGET_PARAMS'][$param]))
+			{
+				$error->addError(
+					'REQUIRED_PARAM_NO_EXISTS',
+					Loc::getMessage('LANDING_WIDGET_PARAM_NO_EXISTS', ['#param#' => $param])
+				);
+
+				return;
+			}
+		}
+
+		// Can set only available fields to manifest. Security!
+		$manifest = [];
+
+		$manifest['block']['type'] = mb_strtolower(Landing\Site\Type::SCOPE_CODE_MAINPAGE);
+		$manifest['block']['subtype'] = self::SUBTYPE_WIDGET;
+		$manifest['block']['subtype_params'] = [
+			'rootNode' => $fields['WIDGET_PARAMS']['rootNode'] ?? null,
+			'demoData' => $fields['WIDGET_PARAMS']['demoData'] ?? null,
+			'handler' => $fields['WIDGET_PARAMS']['handler'] ?? null,
+			'style' => $fields['WIDGET_PARAMS']['style'] ?? null,
+			'lang' => $fields['WIDGET_PARAMS']['lang'] ?? null,
+		];
+
 		$manifest = Scope\Mainpage::prepareBlockManifest($manifest);
-
-		return [$fields, $manifest];
 	}
 
-	/**
-	 * @param array $fields
-	 * @param array $manifest
-	 * @return array
-	 */
-	protected static function onRegisterBeforeSave(array $fields, array $manifest = []): array
-	{
-		$fields['CONTENT'] = str_replace('<st yle>', '<style>', $fields['CONTENT']);
-
-		return [$fields, $manifest];
-	}
-
+	// todo: move to non-rest namespace?
 	/**
 	 * @param int $blockId
 	 * @param array $params
@@ -96,19 +82,6 @@ class RepoWidget extends Repo
 	 */
 	public static function fetchData(int $blockId, array $params = []): PublicActionResult
 	{
-		// tmp hide
-		$result = new PublicActionResult();
-		$error = new \Bitrix\Landing\Error;
-		$error->addError(
-			'ILLEGAL_METHOD',
-			Loc::getMessage('LANDING_WIDGET_METHOD_NOT_AVAILABLE')
-		);
-		$result->setError($error);
-
-		return $result;
-
-
-
 		$result = new PublicActionResult();
 		$result->setResult(false);
 		$error = new Landing\Error;
@@ -129,19 +102,20 @@ class RepoWidget extends Repo
 		{
 			$error->addError(
 				'REST_NOT_FOUND',
-				Loc::getMessage('LANDING_WIDGETA_REST_NOT_FOUND')
+				Loc::getMessage('LANDING_WIDGET_REST_NOT_FOUND')
 			);
 			$result->setError($error);
 
 			return $result;
 		}
 
+		// check app
 		$repoId = $block->getRepoId();
 		$app = Landing\Repo::getAppInfo($repoId);
 		if (
 			!$repoId
 			|| empty($app)
-			|| !isset($app['CODE'])
+			|| !isset($app['CLIENT_ID'])
 		)
 		{
 			$error->addError(
@@ -153,6 +127,7 @@ class RepoWidget extends Repo
 			return $result;
 		}
 
+		// check subtype
 		$manifest = $block->getManifest();
 		if (
 			!in_array(self::SUBTYPE_WIDGET, (array)$manifest['block']['subtype'], true)
@@ -162,29 +137,33 @@ class RepoWidget extends Repo
 		{
 			$error->addError(
 				'HANDLER_NOT_FOUND',
-				Loc::getMessage('LANDING_WIDGET_HANDLER_NOT_FOUND')
+				Loc::getMessage('LANDING_WIDGET_HANDLER_NOT_FOUND_2')
 			);
+			$result->setError($error);
 
 			return $result;
 		}
 
+		// get auth
 		$auth = Rest\Application::getAuthProvider()->get(
-			$app['CODE'],
+			$app['CLIENT_ID'],
 			'landing',
 			[],
 			Manager::getUserId()
 		);
-
 		if (isset($auth['error']))
 		{
 			$error->addError(
-				$auth['error'],
+				'APP_AUTH_ERROR__' . $auth['error'],
 				$auth['error_description'] ?? ''
 			);
+			$result->setError($error);
 
 			return $result;
 		}
 		$params['auth'] = $auth;
+
+		// request
 		$url = (string)$manifest['block']['subtype_params']['handler'];
 		$http = new HttpClient();
 		$data = $http->post(
@@ -192,16 +171,20 @@ class RepoWidget extends Repo
 			$params
 		);
 
-		// todo: remove is_callable after rest's release
-		if (
-			Loader::includeModule('rest')
-			&& is_callable(['Bitrix\Rest\UsageStatTable', 'logLandingWidget'])
-		)
+		if ($http->getStatus() !== 200)
 		{
-			$type = empty($params) ? 'default' : 'with_params';
-			UsageStatTable::logLandingWidget($app['CLIENT_ID'], $type);
-			UsageStatTable::finalize();
+			$error->addError(
+				'HANDLER_NOT_ALLOW',
+				Loc::getMessage('LANDING_WIDGET_HANDLER_NOT_ALLOW')
+			);
+			$result->setError($error);
+
+			return $result;
 		}
+
+		$type = empty($params) ? 'fetch' : 'fetch_params';
+		UsageStatTable::logLandingWidget($app['CLIENT_ID'], $type);
+		UsageStatTable::finalize();
 
 		if (isset($data['error']))
 		{
@@ -209,11 +192,46 @@ class RepoWidget extends Repo
 				$data['error'],
 				$data['error_description'] ?? ''
 			);
+			$result->setError($error);
 
 			return $result;
 		}
 
 		$result->setResult($data);
+
+		return $result;
+	}
+
+	/**
+	 * Enable or disable widgets debug logging
+	 * @param string $appCode
+	 * @param bool $enable
+	 * @return PublicActionResult
+	 */
+	public static function debug(bool $enable): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$error = new \Bitrix\Landing\Error;
+		$result->setResult(false);
+
+		$app = PublicAction::restApplication();
+		if (
+			$app
+			&& isset($app['CODE'])
+			&& !empty(Landing\Repo::getAppByCode($app['CODE']))
+		)
+		{
+			Subtype\WidgetVue::setAppDebug($app['CODE'], $enable);
+			$result->setResult(true);
+		}
+		else
+		{
+			$error->addError(
+				'APP_NOT_FOUND',
+				Loc::getMessage('LANDING_WIDGET_APP_NOT_FOUND')
+			);
+			$result->setError($error);
+		}
 
 		return $result;
 	}
@@ -274,22 +292,48 @@ class RepoWidget extends Repo
 	}
 
 	/**
-	 * Can't use this method for widgets - @see parent
 	 * @param array $params Params ORM array.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function getList(array $params = array())
+	public static function getList(array $params = array()): PublicActionResult
 	{
-		// todo: how get getList if needed? add scope?
-
 		$result = new PublicActionResult();
-		$error = new \Bitrix\Landing\Error;
-		$error->addError(
-			'ILLEGAL_METHOD',
-			Loc::getMessage('LANDING_WIDGET_METHOD_NOT_AVAILABLE')
-		);
-		$result->setError($error);
 
-		return $result;
+		$listRes = parent::getList($params);
+		if ($listRes->isSuccess())
+		{
+			$result->setResult([]);
+
+			$listAll = $listRes->getResult();
+			if (is_array($listAll) && !empty($listAll))
+			{
+				$listAll = array_filter($listAll, function ($item) {
+					$isType = isset($item['MANIFEST']['block']['type'])
+						&& in_array(
+							mb_strtolower(Landing\Site\Type::SCOPE_CODE_MAINPAGE),
+							(array)$item['MANIFEST']['block']['type'],
+							true
+						)
+					;
+
+					$isSubtype =
+						isset($item['MANIFEST']['block']['subtype'])
+						&& in_array(
+							self::SUBTYPE_WIDGET,
+							(array)$item['MANIFEST']['block']['subtype'],
+							true
+						)
+					;
+
+					return $isType && $isSubtype;
+				});
+
+				$result->setResult($listAll);
+			}
+
+			return $result;
+		}
+
+		return $listRes;
 	}
 }

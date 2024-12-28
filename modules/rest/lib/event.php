@@ -2,6 +2,7 @@
 namespace Bitrix\Rest;
 
 use Bitrix\Main;
+use Bitrix\Main\ORM\Data\Internal\MergeTrait;
 use Bitrix\Rest\Preset\EventController;
 use Bitrix\Main\ORM\Fields\ArrayField;
 
@@ -35,6 +36,8 @@ use Bitrix\Main\ORM\Fields\ArrayField;
  */
 class EventTable extends Main\Entity\DataManager
 {
+	use MergeTrait;
+
 	const ERROR_EVENT_NOT_FOUND = 'ERROR_EVENT_NOT_FOUND';
 
 	const TYPE_ONLINE = 'online';

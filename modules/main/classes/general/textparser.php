@@ -7,10 +7,15 @@
  */
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Main\UrlPreview\UrlPreview;
 use Bitrix\Main\Application;
+use Bitrix\Socialnetwork\Collab\Url\UrlManager;
+use Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
+use Bitrix\Socialnetwork\Provider\GroupProvider;
 
 class CTextParser
 {
@@ -1757,32 +1762,20 @@ class CTextParser
 
 		if ($userId > 0)
 		{
-			$type = false;
+			$status = false;
 
 			if (isset($userTypeList[$userId]))
 			{
-				$type = $userTypeList[$userId];
+				$status = $userTypeList[$userId];
 			}
 			else
 			{
-				if (\Bitrix\Main\Loader::includeModule('intranet'))
+				if (Loader::includeModule('intranet'))
 				{
-					$res = \Bitrix\Intranet\UserTable::getList([
-						'filter' => [
-							'ID' => $userId,
-						],
-						'select' => [
-							'USER_TYPE',
-						],
-					]);
-
-					if ($userFields = $res->fetch())
-					{
-						$type = $userFields['USER_TYPE'];
-					}
+					$status = \Bitrix\Intranet\Util::getUserStatus($userId);
 				}
 
-				$userTypeList[$userId] = $type;
+				$userTypeList[$userId] = $status;
 			}
 
 			$pathToUser = (
@@ -1796,7 +1789,7 @@ class CTextParser
 				$pathToUser = COption::GetOptionString('main', 'TOOLTIP_PATH_TO_USER', '', SITE_ID);
 			}
 
-			switch($type)
+			switch($status)
 			{
 				case 'extranet':
 					$classAdditional = ' blog-p-user-name-extranet';
@@ -1812,6 +1805,9 @@ class CTextParser
 						$pathToUser .= (!str_contains($pathToUser, '?') ? '?' : '&') . 'entityType=' . $this->pathToUserEntityType . '&entityId=' . intval($this->pathToUserEntityId);
 					}
 					break;
+				case 'collaber':
+					$classAdditional = ' blog-p-user-name-collaber';
+					break;
 				default:
 					$classAdditional = '';
 			}
@@ -1824,7 +1820,7 @@ class CTextParser
 			];
 
 			if (
-				$type === 'email'
+				$status === 'email'
 				&& !empty($this->pathToUserEntityType)
 				&& !empty($this->pathToUserEntityId)
 			)
@@ -1865,7 +1861,6 @@ class CTextParser
 	{
 		static $projectTypeList = [];
 		static $extranetProjectIdList = null;
-		static $pathToProject = null;
 
 		$projectName = $matches[2];
 		$projectId = (int)$matches[1];
@@ -1879,7 +1874,7 @@ class CTextParser
 		{
 			if ($extranetProjectIdList === null)
 			{
-				$extranetSiteId = (\Bitrix\Main\Loader::includeModule('extranet') ? CExtranet::getExtranetSiteId() : '');
+				$extranetSiteId = (Loader::includeModule('extranet') ? CExtranet::getExtranetSiteId() : '');
 				if (!empty($extranetSiteId))
 				{
 					$res = \Bitrix\Socialnetwork\WorkgroupSiteTable::getList([
@@ -1904,24 +1899,23 @@ class CTextParser
 			}
 			else
 			{
-				if (!empty($extranetProjectIdList))
+				if (!empty($extranetProjectIdList) && in_array($projectId, $extranetProjectIdList, true))
 				{
-					$type = (in_array($projectId, $extranetProjectIdList, true) ? 'extranet' : false);
+					$type = $this->getExternalGroupType($projectId);
 				}
 
 				$projectTypeList[$projectId] = $type;
 			}
 
-			if ($pathToProject === null)
-			{
-				// then replace to \Bitrix\Socialnetwork\Helper\Path::get('group_path_template')
-				$pathToProject = Option::get('socialnetwork', 'group_path_template', SITE_DIR . 'workgroups/group/#group_id#/', SITE_ID);
-			}
+			$pathToProject = $this->getGroupPath($projectId, (array)$extranetProjectIdList);
 
 			switch ($type)
 			{
 				case 'extranet':
 					$classAdditional = ' blog-p-user-name-extranet';
+					break;
+				case 'collab':
+					$classAdditional = ' blog-p-user-name-collab';
 					break;
 				default:
 					$classAdditional = '';
@@ -2490,5 +2484,45 @@ class CTextParser
 	{
 		return preg_replace("/^\n|\n$/", '', $text);
 	}
-}
 
+	private function getExternalGroupType(int $groupId): string
+	{
+		if (
+			!Loader::includeModule('socialnetwork')
+			|| !class_exists(GroupProvider::class)
+		)
+		{
+			return 'extranet';
+		}
+
+		return GroupProvider::getInstance()->getGroupType($groupId) === Type::Collab ? 'collab' : 'extranet';
+	}
+
+	private function getGroupPath(int $groupId, array $extranetGroupIds): string
+	{
+		$path = Option::get('socialnetwork', 'group_path_template', SITE_DIR . 'workgroups/group/#group_id#/', SITE_ID);
+
+		if (
+			!Loader::includeModule('socialnetwork')
+			|| !class_exists(UrlManager::class)
+		)
+		{
+			return $path;
+		}
+
+		if (!in_array($groupId, $extranetGroupIds, true))
+		{
+			return $path;
+		}
+
+		$type = GroupProvider::getInstance()->getGroupType($groupId);
+		if ($type !== Type::Collab)
+		{
+			return $path;
+		}
+
+		$chatId = Workgroup::getChatData(['group_id' => $groupId])[$groupId] ?? null;
+
+		return UrlManager::getCollabUrlById($groupId, ['chatId' => $chatId]);
+	}
+}

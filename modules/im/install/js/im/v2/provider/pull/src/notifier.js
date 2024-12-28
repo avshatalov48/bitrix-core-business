@@ -1,6 +1,6 @@
 import { Core } from 'im.v2.application.core';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
-import { SoundType, UserStatus, LocalStorageKey, Settings, RawSettings } from 'im.v2.const';
+import { SoundType, UserStatus, LocalStorageKey, Settings, RawSettings, UserType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { NotifierManager } from 'im.v2.lib.notifier';
 import { DesktopManager } from 'im.v2.lib.desktop';
@@ -174,7 +174,7 @@ export class NotifierPullHandler
 		}
 
 		const authorId = params.message.senderId;
-		if (authorId > 0 && params.users[authorId].extranet === false)
+		if (authorId > 0 && params.users[authorId].type !== UserType.extranet)
 		{
 			return true;
 		}

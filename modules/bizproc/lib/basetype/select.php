@@ -12,6 +12,8 @@ use Bitrix\Bizproc\FieldType;
  */
 class Select extends Base
 {
+
+	public const VIEW_TYPE_MENU = 'menu';
 	/**
 	 * @return string
 	 */
@@ -28,8 +30,11 @@ class Select extends Base
 	protected static function formatValuePrintable(FieldType $fieldType, $value)
 	{
 		$options = static::getFieldOptions($fieldType);
-		if (isset($options[$value]))
+		if (is_scalar($value) && isset($options[$value]))
+		{
 			return (string) $options[$value];
+		}
+
 		return '';
 	}
 
@@ -127,6 +132,31 @@ class Select extends Base
 	 */
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
+		if (
+			$renderMode === FieldType::RENDER_MODE_PUBLIC
+			&& $fieldType->getProperty()['Settings']
+			&& isset($fieldType->getProperty()['Settings']['ViewType'])
+			&& $fieldType->getProperty()['Settings']['ViewType'] === self::VIEW_TYPE_MENU
+		)
+		{
+			$properties = $fieldType->getProperty();
+			if (is_null($value) && !is_null($properties['Default']))
+			{
+				$value = is_array($properties['Default']) ? $properties['Default'] : [$properties['Default']];
+			}
+			$config = [
+				'name' => $properties['Name'] ?? '',
+				'fieldName' => $field['Field'],
+				'options' =>  $properties['Options'] ?? [],
+				'multiple' => $properties['Multiple'] ?? false,
+				'selected' => is_array($value) ? $value : [$value],
+			];
+			$config =  htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($config));
+
+			return <<<HTML
+				<div data-role="menu-selector" data-config="${config}"></div>
+			HTML;
+		}
 		$selectorValue = null;
 		$typeValue = [];
 		if (!is_array($value))

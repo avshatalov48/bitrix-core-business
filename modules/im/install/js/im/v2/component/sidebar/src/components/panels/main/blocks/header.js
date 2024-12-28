@@ -1,15 +1,16 @@
 import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { EventType, ChatType, ChatActionType } from 'im.v2.const';
+import { EventType, ChatType, ActionByRole } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { AddToChat } from 'im.v2.component.entity-selector';
+import { AddToChat, AddToCollab } from 'im.v2.component.entity-selector';
 
 import { MainMenu } from '../../../../classes/context-menu/main/main-menu';
 
 import '../css/header.css';
 
 import type { JsonObject } from 'main.core';
+import type { BitrixVueComponentProps } from 'ui.vue3';
 import type { ImModelRecentItem, ImModelChat } from 'im.v2.model';
 
 const HeaderTitleByChatType = {
@@ -17,6 +18,7 @@ const HeaderTitleByChatType = {
 	[ChatType.openChannel]: Loc.getMessage('IM_SIDEBAR_CHANNEL_HEADER_TITLE'),
 	[ChatType.generalChannel]: Loc.getMessage('IM_SIDEBAR_CHANNEL_HEADER_TITLE'),
 	[ChatType.comment]: Loc.getMessage('IM_SIDEBAR_COMMENTS_HEADER_TITLE'),
+	[ChatType.collab]: Loc.getMessage('IM_SIDEBAR_COLLAB_HEADER_TITLE'),
 	default: Loc.getMessage('IM_SIDEBAR_HEADER_TITLE'),
 };
 
@@ -25,7 +27,7 @@ const ChatTypesWithMenuDisabled = new Set([ChatType.comment]);
 // @vue/component
 export const MainHeader = {
 	name: 'MainHeader',
-	components: { AddToChat },
+	components: { AddToChat, AddToCollab },
 	props:
 	{
 		dialogId: {
@@ -59,11 +61,15 @@ export const MainHeader = {
 		},
 		canOpenMenu(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.openSidebarMenu, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.openSidebarMenu, this.dialogId);
 		},
 		isMenuEnabledForType(): boolean
 		{
 			return !ChatTypesWithMenuDisabled.has(this.dialog.type);
+		},
+		addMembersPopupComponent(): BitrixVueComponentProps
+		{
+			return this.dialog.type === ChatType.collab ? AddToCollab : AddToChat;
 		},
 	},
 	created()
@@ -115,10 +121,11 @@ export const MainHeader = {
 				@click="onContextMenuClick"
 				ref="context-menu"
 			></button>
-			<AddToChat
+			<component
+				v-if="showAddToChatPopup"
+				:is="addMembersPopupComponent"
 				:bindElement="$refs['context-menu'] || {}"
 				:dialogId="dialogId"
-				:showPopup="showAddToChatPopup"
 				:popupConfig="{offsetTop: 0, offsetLeft: -420}"
 				@close="showAddToChatPopup = false"
 			/>

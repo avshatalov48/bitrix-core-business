@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Bizproc\Result\ResultDto;
 use Bitrix\Main\Localization\Loc;
 
 CBPRuntime::getRuntime()->includeActivityFile('CreateDocumentActivity');
@@ -48,8 +49,8 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$documentType = $this->DocumentType;
-		if (!$documentType)
+		$documentType = $this->getCreatedDocumentType();
+		if (empty($documentType))
 		{
 			$this->writeToTrackingService(
 				Loc::getMessage('BPCLDA_ERROR_DT_1'),
@@ -94,6 +95,15 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 			$this->ErrorMessage = $e->getMessage();
 		}
 
+		if (
+			$this->ElementId
+			&& (bool)\Bitrix\Main\Config\Option::get('bizproc', 'release_preview_2024')
+			&& method_exists($this, 'fixResult')
+		)
+		{
+			$this->fixResult($this->makeResultFromId($this->ElementId));
+		}
+
 		if ($this->workflow->isDebug())
 		{
 			$this->logDebugId($this->ElementId);
@@ -111,6 +121,11 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 		}
 
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	protected function getCreatedDocumentType(): array
+	{
+		return $this->DocumentType ?? [];
 	}
 
 	public static function validateProperties($testProperties = [], CBPWorkflowTemplateUser $user = null)

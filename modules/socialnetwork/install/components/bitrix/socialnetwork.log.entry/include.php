@@ -428,7 +428,8 @@ if (!function_exists('__SLEGetLogRecord'))
 									"TOOLTIP_FIELDS",
 									"FORMATTED",
 									"URL",
-									"IS_EXTRANET"
+									"IS_EXTRANET",
+									"IS_COLLAB",
 								);
 								foreach ($arEvent["FIELDS_FORMATTED"]["CREATED_BY"] as $field => $value)
 								{

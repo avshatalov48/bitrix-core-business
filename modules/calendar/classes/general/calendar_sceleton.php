@@ -38,6 +38,7 @@ class CCalendarSceleton
 			'calendar.categorymanager',
 			'calendar.sharing.interface',
 			'calendar.sharing.public',
+			'calendar.collabmanager',
 		]);
 
 		if(($config['type'] ?? null) === 'location')

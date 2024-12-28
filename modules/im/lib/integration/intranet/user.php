@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Im\Integration\Intranet;
 
+use Bitrix\Im\V2\Entity\User\UserCollaber;
+use Bitrix\Im\V2\Recent\Initializer;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Localization\Loc;
@@ -240,12 +242,21 @@ class User
 			return true;
 		}
 
-		if (!self::isEmployee($userId))
+		$user = \Bitrix\Im\V2\Entity\User\User::getInstance($userId);
+
+		if (!self::isEmployee($userId) && !($user instanceof UserCollaber))
 		{
 			return false;
 		}
 
 		\CUser::SetLastActivityDate($userId);
+		$user->unsetOnlineData();
+		Initializer::onAfterUserAcceptInvite($userId);
+
+		if ($user instanceof UserCollaber)
+		{
+			return true;
+		}
 
 		\CIMContactList::SetRecent(Array('ENTITY_ID' => $userId));
 

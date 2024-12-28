@@ -1,6 +1,9 @@
 <?php
 
+use Bitrix\Bizproc\Result\RenderedResult;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Bizproc\Result\Entity\ResultTable;
+use Bitrix\Main\Type\DateTime;
 
 class CBPViewHelper
 {
@@ -364,5 +367,82 @@ class CBPViewHelper
 			return '<a href="#" data-url="'.SITE_DIR.'mobile/ajax.php?'.http_build_query($query)
 				.'" data-name="'.htmlspecialcharsbx($filename).'" onclick="BXMobileApp.UI.Document.open({url: this.getAttribute(\'data-url\'), filename: this.getAttribute(\'data-name\')}); return false;">'.$matches[3];
 		};
+	}
+
+	public static function getWorkflowResult(string $workflowId, int $userId): ?array
+	{
+		static $cache = [];
+
+		$cacheKey = $workflowId . '|' . $userId;
+
+		if (array_key_exists($cacheKey, $cache))
+		{
+			return $cache[$cacheKey];
+		}
+
+		$result = ResultTable::getList([
+			'filter' => [
+				'=WORKFLOW_ID' => $workflowId,
+			],
+			'select' => ['ACTIVITY', 'RESULT'],
+		])->fetch();
+
+		if ($result)
+		{
+			$renderedResult = \CBPActivity::callStaticMethod(
+				$result['ACTIVITY'],
+				'renderResult',
+				[
+					$result['RESULT'],
+					$workflowId,
+					$userId,
+				],
+			);
+			switch ($renderedResult->status)
+			{
+				case RenderedResult::BB_CODE_RESULT:
+					return [
+						'text' => \CBPViewHelper::prepareTaskDescription(
+							\CBPHelper::convertBBtoText(
+								preg_replace('|\n+|', "\n", trim($renderedResult->text)),
+							)),
+						'status' => $renderedResult->status,
+					];
+
+				case RenderedResult::USER_RESULT:
+					return [
+						'text' => \CBPHelper::convertBBtoText(
+							preg_replace('|\n+|', "\n", trim($renderedResult->text)),
+						),
+						'status' => $renderedResult->status,
+					];
+
+				case RenderedResult::NO_RIGHTS:
+					return [
+						'text' => $renderedResult->text,
+						'status' => $renderedResult->status,
+					];
+			}
+		}
+
+		return null;
+	}
+
+	public static function formatDateTime(?DateTime $date): string
+	{
+		if (!$date)
+		{
+			return '';
+		}
+
+		$thisYear = $date->format('Y') === date('Y');
+		$culture = \Bitrix\Main\Application::getInstance()->getContext()->getCulture();
+		$df = $thisYear
+			? $culture?->getDayMonthFormat() ?? 'j F'
+			: $culture?->getLongDateFormat() ?? 'j F Y'
+		;
+		$tf = $culture?->getShortTimeFormat() ?? 'H:i';
+
+		return \FormatDate("$df, $tf", $date->toUserTime());
 	}
 }

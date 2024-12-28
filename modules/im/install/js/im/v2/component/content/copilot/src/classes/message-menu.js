@@ -21,6 +21,7 @@ export class CopilotMessageMenu extends MessageMenu
 			this.getForwardItem(),
 			this.getSendFeedbackItem(),
 			this.getDeleteItem(),
+			this.getSelectItem(),
 		];
 	}
 

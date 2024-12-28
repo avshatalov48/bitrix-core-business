@@ -270,6 +270,11 @@ class Sender extends Providers\Edna\Sender
 
 		$from = $messageFields['MESSAGE_FROM'];
 		$lineId = $this->connectorLine->getLineId((int)$from);
+		if (!$lineId)
+		{
+			return (new Result())->addError(new Error('Missing Line Id. Please reconfigure the open line'));
+		}
+
 		$userSessionCode = $this->getSessionUserCode($lineId, $externalChatId, $from, $userId);
 		$chatId = $this->getOpenedSessionChatId($userSessionCode);
 		if (!$chatId)

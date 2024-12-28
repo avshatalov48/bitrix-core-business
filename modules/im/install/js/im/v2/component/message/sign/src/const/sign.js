@@ -1,6 +1,7 @@
 import { ButtonColor } from 'im.v2.component.elements';
 
 export const Await = Object.freeze({
+	// initiated by company
 	inviteCompany: 'inviteCompany',
 	inviteCompanyWithInitiator: 'inviteCompanyWithInitiator',
 	inviteEmployeeSes: 'inviteEmployeeSes',
@@ -12,18 +13,34 @@ export const Await = Object.freeze({
 	inviteReviewerWithInitiator: 'inviteReviewerWithInitiator',
 	inviteEditor: 'inviteEditor',
 	inviteEditorWithInitiator: 'inviteEditorWithInitiator',
+	inviteB2bDocumentSigning: 'inviteB2bDocumentSigning',
+
+	// initiated by employee
+	byEmployeeInviteCompany: 'byEmployeeInviteCompany',
+	byEmployeeInviteReviewer: 'byEmployeeInviteReviewer',
+	byEmployeeInviteEmployee: 'byEmployeeInviteEmployee',
+	byEmployeeSignedByEmployee: 'byEmployeeSignedByEmployee',
 });
 
 export const Success = Object.freeze({
+	// initiated by company
 	doneCompany: 'doneCompany',
 	doneEmployee: 'doneEmployee',
 	doneEmployeeGosKey: 'doneEmployeeGosKey',
 	doneFromAssignee: 'doneFromAssignee',
 	doneFromEditor: 'doneFromEditor',
 	doneFromReviewer: 'doneFromReviewer',
+
+	// initiated by employee
+	byEmployeeDoneEmployee: 'byEmployeeDoneEmployee',
+	byEmployeeDoneEmployeeM: 'byEmployeeDoneEmployeeM',
+	byEmployeeDoneEmployeeF: 'byEmployeeDoneEmployeeF',
+	byEmployeeDoneCompany: 'byEmployeeDoneCompany',
+	doneB2bDocumentSigning: 'doneB2bDocumentSigning',
 });
 
 export const Failure = Object.freeze({
+	// initiated by company
 	refusedCompanyV2: 'refusedCompanyV2',
 	refusedCompanyV2M: 'refusedCompanyV2M',
 	refusedCompanyV2F: 'refusedCompanyV2F',
@@ -51,6 +68,11 @@ export const Failure = Object.freeze({
 	stoppedToEmployeeF: 'stoppedToEmployeeF',
 	signingError: 'signingError',
 	repeatSigning: 'repeatSigning',
+
+	// initiated by employee
+	byEmployeeStoppedToEmployee: 'byEmployeeStoppedToEmployee',
+	byEmployeeStoppedToEmployeeM: 'byEmployeeStoppedToEmployeeM',
+	byEmployeeStoppedToEmployeeF: 'byEmployeeStoppedToEmployeeF',
 });
 
 export type SignButtonParams = {

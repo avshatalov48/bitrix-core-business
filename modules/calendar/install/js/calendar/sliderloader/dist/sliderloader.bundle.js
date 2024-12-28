@@ -62,6 +62,9 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isStringFilled(options.jumpToControl)) {
 	      this.extensionParams.jumpToControl = options.jumpToControl;
 	    }
+	    if (options.createChatId) {
+	      this.extensionParams.createChatId = options.createChatId;
+	    }
 	  }
 	  show() {
 	    if (this.isSharing) {

@@ -308,23 +308,23 @@ else
 			}
 
 			if (
-				array_key_exists("ENTITY_TYPE", $arEvent["EVENT"])
+				isset($arEvent["EVENT"]["ENTITY_TYPE"])
 				&& $arEvent["EVENT"]["ENTITY_TYPE"] <> ''
-				&& array_key_exists("ENTITY_ID", $arEvent["EVENT"])
+				&& isset($arEvent["EVENT"]["ENTITY_ID"])
 				&& (int)$arEvent["EVENT"]["ENTITY_ID"] > 0
 			)
 			{
 				$aditStylesList[] = 'sonet-log-item-where-'.$arEvent["EVENT"]["ENTITY_TYPE"].'-'.(int)$arEvent["EVENT"]["ENTITY_ID"].'-all';
 
 				if (
-					array_key_exists("EVENT_ID", $arEvent["EVENT"])
+					isset($arEvent["EVENT"]["EVENT_ID"])
 					&& $arEvent["EVENT"]["EVENT_ID"] <> ''
 				)
 				{
 					$aditStylesList[] = 'sonet-log-item-where-'.$arEvent["EVENT"]["ENTITY_TYPE"].'-'.(int)$arEvent["EVENT"]["ENTITY_ID"].'-'.str_replace('_', '-', $arEvent["EVENT"]["EVENT_ID"]);
 
 					if (
-						array_key_exists("EVENT_ID_FULLSET", $arEvent["EVENT"])
+						isset($arEvent["EVENT"]["EVENT_ID_FULLSET"])
 						&& $arEvent["EVENT"]["EVENT_ID_FULLSET"] <> ''
 						&& $arEvent["EVENT"]["EVENT_ID_FULLSET"] !== $arEvent["EVENT"]["EVENT_ID"]
 					)
@@ -350,8 +350,13 @@ else
 				}
 
 				$style = ($avatar ? "background: url('" . Uri::urnEncode($avatar) . "'); background-size: cover;" : "");
+				$userTypeClass = "";
+				if (($arEvent["CREATED_BY"]["IS_COLLAB"] ?? "N") === "Y")
+				{
+					$userTypeClass = "feed-user-avatar-collaber";
+				}
 
-				?><div class="ui-icon ui-icon-common-user feed-user-avatar"><i style="<?= $style ?>"></i></div><?php
+				?><div class="ui-icon ui-icon-common-user feed-user-avatar <?= $userTypeClass ?>"><i style="<?= $style ?>"></i></div><?php
 
 				?><div class="feed-post-pinned-block"><?php
 					?><div class="feed-post-pinned-title"><?php
@@ -410,6 +415,13 @@ else
 								)
 								{
 									$classAdditionalList[] = 'feed-add-post-destination-new-email';
+								}
+								elseif (
+									array_key_exists("IS_COLLAB", $arDestination)
+									&& $arDestination["IS_COLLAB"] === true
+								)
+								{
+									$classAdditionalList[] = 'feed-add-post-destination-new-collab';
 								}
 								elseif (
 									array_key_exists("IS_EXTRANET", $arDestination)
@@ -495,10 +507,11 @@ else
 							if ($arParams["PUBLIC_MODE"] !== 'Y')
 							{
 								$classNameList = [ 'feed-post-user-name' ];
-								if (
-									array_key_exists("IS_EXTRANET", $arEvent["CREATED_BY"])
-									&& $arEvent["CREATED_BY"]["IS_EXTRANET"] === "Y"
-								)
+								if (($arEvent["CREATED_BY"]["IS_COLLAB"] ?? 'N') === 'Y')
+								{
+									$classNameList[] = 'feed-post-user-name-collaber';
+								}
+								elseif (($arEvent["CREATED_BY"]["IS_EXTRANET"] ?? 'N') === 'Y')
 								{
 									$classNameList[] = 'feed-post-user-name-extranet';
 								}
@@ -539,7 +552,11 @@ else
 						)
 						{
 							$classNameList = [ 'feed-post-user-name' ];
-							if (isset($arEvent["CREATED_BY"]["IS_EXTRANET"]) && $arEvent["CREATED_BY"]["IS_EXTRANET"] === "Y")
+							if (($arEvent["CREATED_BY"]["IS_COLLAB"] ?? 'N') === 'Y')
+							{
+								$classNameList[] = 'feed-post-user-name-collaber';
+							}
+							elseif (($arEvent["CREATED_BY"]["IS_EXTRANET"] ?? 'N') === 'Y')
 							{
 								$classNameList[] = 'feed-post-user-name-extranet';
 							}

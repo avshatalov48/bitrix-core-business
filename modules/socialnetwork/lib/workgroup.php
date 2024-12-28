@@ -11,10 +11,11 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Socialnetwork\Internals\Group\GroupEntity;
 use Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection;
-use Bitrix\Socialnetwork\Item\Workgroup\Type;
 
 Loc::loadMessages(__FILE__);
 
@@ -175,6 +176,12 @@ class WorkgroupTable extends Entity\DataManager
 			(new StringField('TYPE'))
 				->configureNullable()
 				->configureDefaultValue(null),
+
+			(new OneToMany('SITES', WorkgroupSiteTable::class, 'GROUP'))
+				->configureJoinType(Join::TYPE_LEFT),
+
+			(new OneToMany('MEMBERS', UserToGroupTable::class, 'GROUP'))
+				->configureJoinType(Join::TYPE_LEFT),
 		];
 	}
 

@@ -19,7 +19,7 @@ import {
 	PopupType,
 	DialogScrollThreshold,
 	UserRole,
-	ChatActionType,
+	ActionByRole,
 } from 'im.v2.const';
 
 import { ScrollManager } from './classes/scroll-manager';
@@ -68,7 +68,7 @@ export const ChatDialog = {
 		return {
 			forwardPopup: {
 				show: false,
-				messageId: 0,
+				messagesIds: [],
 			},
 			contextMode: {
 				active: false,
@@ -397,7 +397,7 @@ export const ChatDialog = {
 
 			const permissionManager = PermissionManager.getInstance();
 
-			return permissionManager.canPerformAction(ChatActionType.readMessage, this.dialogId);
+			return permissionManager.canPerformActionByRole(ActionByRole.readMessage, this.dialogId);
 		},
 		/* endregion Reading */
 		/* region Event handlers */
@@ -601,7 +601,7 @@ export const ChatDialog = {
 		{
 			const { message, event: $event } = event.getData();
 			const permissionManager = PermissionManager.getInstance();
-			if (!permissionManager.canPerformAction(ChatActionType.send, this.dialogId))
+			if (!permissionManager.canPerformActionByRole(ActionByRole.send, this.dialogId))
 			{
 				return;
 			}
@@ -632,13 +632,13 @@ export const ChatDialog = {
 		},
 		onShowForwardPopup(event: BaseEvent)
 		{
-			const { messageId } = event.getData();
-			this.forwardPopup.messageId = messageId;
+			const { messagesIds } = event.getData();
+			this.forwardPopup.messagesIds = messagesIds;
 			this.forwardPopup.show = true;
 		},
 		onCloseForwardPopup()
 		{
-			this.forwardPopup.messageId = 0;
+			this.forwardPopup.messagesIds = [];
 			this.forwardPopup.show = false;
 		},
 		onMessageIsVisible(event: BaseEvent<{ messageId: number, dialogId: string }>)
@@ -796,7 +796,7 @@ export const ChatDialog = {
 			<!-- Message list -->
 			<div @scroll="onScroll" class="bx-im-dialog-chat__scroll-container" ref="container">
 				<slot name="message-list">
-					<component :is="messageListComponent" :dialogId="dialogId" />
+					<component :is="messageListComponent" :dialogId="dialogId"/>
 				</slot>
 			</div>
 			<!-- Float buttons -->
@@ -806,8 +806,8 @@ export const ChatDialog = {
 			</Transition>
 			<!-- Absolute elements -->
 			<ForwardPopup
-				:showPopup="forwardPopup.show"
-				:messageId="forwardPopup.messageId"
+				v-if="forwardPopup.show"
+				:messagesIds="forwardPopup.messagesIds"
 				@close="onCloseForwardPopup"
 			/>
 			<Transition name="fade-up">

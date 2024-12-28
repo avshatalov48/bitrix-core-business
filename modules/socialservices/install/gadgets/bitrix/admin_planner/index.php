@@ -28,7 +28,7 @@ if($clientId == '' || $clientSecret == '' || $portalURI == '')
 ?>
 <div  id="rss_container_<?=$idAttr?>">
 </div>
-<script type="text/javascript">
+<script>
 
 	lastWaitRSS = [];
 

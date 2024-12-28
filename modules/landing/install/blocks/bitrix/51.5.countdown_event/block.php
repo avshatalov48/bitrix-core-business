@@ -52,7 +52,7 @@
 		</div>
 
 		<h2 class="landing-block-node-title text-center text-uppercase g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
-			UI & UX Design <?= date("Y") ?></h2>
+			UI & UX Design #YEAR#</h2>
 
 		<div class="row">
 			<div class="col-sm-6 col-md-4 text-center text-md-left g-mb-30 g-mb-0--md">
@@ -65,7 +65,7 @@
 						<div class="landing-block-node-date-title g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
 							<span style="font-weight: bold;">When</span></div>
 						<h3 class="landing-block-node-date-text h3 text-uppercase g-font-size-15 g-color-white mb-0">
-							13:00, 12 April, <?= date("Y") ?>
+							13:00, 12 April, #YEAR#
 						</h3>
 					</div>
 				</div>

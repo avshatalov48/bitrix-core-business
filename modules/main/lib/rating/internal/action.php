@@ -2,6 +2,8 @@
 
 namespace Bitrix\Main\Rating\Internal;
 
+use Bitrix\Extranet\Service\ServiceContainer;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 
@@ -188,7 +190,17 @@ class Action
 				)
 			)
 			{
-				$userVote['USER_TYPE'] = 'extranet';
+				if (
+					Loader::includeModule('extranet')
+					&& ServiceContainer::getInstance()->getCollaberService()->isCollaberById((int)$value['ID'])
+				)
+				{
+					$userVote['USER_TYPE'] = 'collaber';
+				}
+				else
+				{
+					$userVote['USER_TYPE'] = 'extranet';
+				}
 			}
 
 			$voteList['items'][] = $userVote;

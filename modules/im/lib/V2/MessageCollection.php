@@ -9,7 +9,9 @@ use Bitrix\Im\V2\Entity\File\FilePopupItem;
 use Bitrix\Im\V2\Entity\Url\UrlCollection;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Integration\AI\RoleManager;
+use Bitrix\Im\V2\Link\Pin\PinService;
 use Bitrix\Im\V2\Message\AdditionalMessagePopupItem;
+use Bitrix\Im\V2\Message\Param;
 use Bitrix\Im\V2\Message\Reaction\ReactionMessages;
 use Bitrix\Im\V2\Message\Reaction\ReactionPopupItem;
 use Bitrix\Im\V2\Message\ReadService;
@@ -247,6 +249,7 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 			$paramsCollection = MessageParamTable::query()
 				->setSelect(['*'])
 				->whereIn('MESSAGE_ID', $this->getIds())
+				->whereNot('PARAM_NAME', 'LIKE')
 				->fetchCollection()
 			;
 
@@ -577,11 +580,12 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 
 	public function getPopupData(array $excludedList = []): PopupData
 	{
+		$additionalMessageIds = array_diff($this->getReplayedMessageIds(), $this->getIds());
 		$popup = [
 			new UserPopupItem($this->getUserIds()),
 			new FilePopupItem($this->getFiles()),
 			//new ReminderPopupItem($this->getReminders()),
-			new AdditionalMessagePopupItem($this->getReplayedMessageIds()),
+			new AdditionalMessagePopupItem($additionalMessageIds),
 			new CopilotPopupItem($this->getCopilotRoles(), CopilotPopupItem::ENTITIES['messageCollection']),
 		];
 

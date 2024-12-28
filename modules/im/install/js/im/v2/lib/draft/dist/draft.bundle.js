@@ -110,12 +110,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.drafts[dialogId].text = text.trim();
 	    this.refreshSaveTimeout();
 	  }
-	  setDraftPanel(dialogId, panelType, messageId) {
+	  setDraftPanel(dialogId, panelType, panelContext) {
 	    if (!this.drafts[dialogId]) {
 	      this.drafts[dialogId] = {};
 	    }
 	    this.drafts[dialogId].panelType = panelType;
-	    this.drafts[dialogId].panelMessageId = messageId;
+	    this.drafts[dialogId].panelContext = panelContext;
 	    this.refreshSaveTimeout();
 	  }
 	  setDraftMentions(dialogId, mentions) {

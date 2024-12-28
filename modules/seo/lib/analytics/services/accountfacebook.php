@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Seo\Analytics\Services;
 
@@ -136,6 +136,58 @@ class AccountFacebook extends Account
 		]);
 
 		return $response;
+	}
+
+	/**
+	 * @param string|null $accountId
+	 * @param Date|null $dateFrom
+	 * @param Date|null $dateTo
+	 *
+	 * @return Result
+	 */
+	public function getDailyExpensesReport(?string $accountId, ?Date $dateFrom, ?Date $dateTo): Result
+	{
+		if (mb_substr($accountId, 0, 4) === 'act_')
+		{
+			$accountId = mb_substr($accountId, 4);
+		}
+
+		$parameters = [
+			'ACCOUNT_ID' => $accountId,
+			'LEVEL' => 'campaign',
+		];
+
+		if ($dateFrom && $dateTo)
+		{
+			$parameters['DATE_FROM'] = $dateFrom->format('Ymd');
+			$parameters['DATE_TO'] = $dateTo->format('Ymd');
+		}
+
+		$response = $this->getRequest()->send([
+			'methodName' => 'analytics.expenses.report',
+			'parameters' => $parameters,
+			'streamTimeout' => static::LOAD_DAILY_EXPENSES_TIMEOUT,
+		]);
+
+		$result = new Result();
+		$response->getData();
+
+		if (!$response->isSuccess())
+		{
+			$result->addErrors($response->getErrors());
+
+			return $result;
+		}
+
+		$data = $response->getData();
+		$result->setData(['expenses' => Helpers\ExpensesAdapter::translateExpensesReportToDailyExpenses($data)]);
+
+		return $result;
+	}
+
+	public function hasDailyExpensesReport(): bool
+	{
+		return true;
 	}
 
 	/**

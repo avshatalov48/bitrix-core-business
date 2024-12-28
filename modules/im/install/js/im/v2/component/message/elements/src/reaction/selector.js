@@ -1,7 +1,7 @@
 import { Type } from 'main.core';
 import { ReactionsSelect, reactionType as ReactionType } from 'ui.reactions-select';
 
-import { ChatActionType } from 'im.v2.const';
+import { ActionByRole, UserType } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 
 import { ReactionService } from './classes/reaction-service';
@@ -45,7 +45,7 @@ export const ReactionSelector = {
 		{
 			const user: ImModelUser = this.$store.getters['users/get'](this.dialog.dialogId);
 
-			return user?.bot === true;
+			return user?.type === UserType.bot;
 		},
 		hasError(): boolean
 		{
@@ -62,7 +62,7 @@ export const ReactionSelector = {
 		{
 			const permissionManager = PermissionManager.getInstance();
 
-			return permissionManager.canPerformAction(ChatActionType.setReaction, this.dialog.dialogId);
+			return permissionManager.canPerformActionByRole(ActionByRole.setReaction, this.dialog.dialogId);
 		},
 	},
 	methods:

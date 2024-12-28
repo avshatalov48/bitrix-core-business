@@ -1,0 +1,2 @@
+<?
+$MESS["IM_LIST_CONTAINER_COLLAB_HEADER_TITLE"] = "Коллабы";

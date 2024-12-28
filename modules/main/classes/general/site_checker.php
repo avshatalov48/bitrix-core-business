@@ -1638,13 +1638,13 @@ class CSiteCheckerTest
 			return $this->Result(null, GetMessage("MAIN_SC_NO_IM"));
 		}
 
-		if ($this->arTestVars['push_stream_warn'])
+		if (!empty($this->arTestVars['push_stream_warn']))
 		{
 			return $this->Result(null, GetMessage("MAIN_SC_NO_PUSH_STREAM_VIDEO_2"));
 		}
 		else
 		{
-			if ($this->arTestVars['push_stream_fail'])
+			if (!empty($this->arTestVars['push_stream_fail']))
 			{
 				return $this->Result(false, GetMessage("MAIN_SC_NO_PUSH_STREAM_VIDEO_2"));
 			}
@@ -2636,6 +2636,7 @@ class CSiteCheckerTest
 				TABLE_SCHEMA = '" . $DB->ForSql($DB->DBName) . "'
 				and TABLE_TYPE = 'BASE TABLE'
 				and TABLE_NAME like 'b\_%'
+				and CREATE_OPTIONS <> _ascii'row_format=DYNAMIC'
 				and (
 					UPPER(ROW_FORMAT) in ('REDUNDANT', 'COMPACT')
 					or ENGINE <> 'InnoDB'

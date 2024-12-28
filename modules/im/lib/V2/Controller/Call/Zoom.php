@@ -6,6 +6,7 @@ use Bitrix\Im\V2\Call\CallError;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Controller\BaseController;
 use Bitrix\Im\V2\Message\MessageError;
+use Bitrix\Im\V2\Permission\Action;
 use Bitrix\Main\Engine\CurrentUser;
 use CIMChat;
 
@@ -37,7 +38,7 @@ class Zoom extends BaseController
 			return null;
 		}
 
-		if (!$chat->canDo(Chat\Permission::ACTION_SEND))
+		if (!$chat->canDo(Action::Send))
 		{
 			$this->addError(new Chat\ChatError(Chat\ChatError::ACCESS_DENIED));
 

@@ -25,7 +25,12 @@ class CrmType extends EntityLink
 
 	protected function getUrl(): string
 	{
-		if($this->crmType === '' || $this->crmId === 0 || !Loader::includeModule('crm'))
+		if(
+			$this->crmType === ''
+			|| $this->crmId === 0
+			|| !Loader::includeModule('crm')
+			|| $this->getContext()->getUser()->isExtranet()
+		)
 		{
 			return '';
 		}

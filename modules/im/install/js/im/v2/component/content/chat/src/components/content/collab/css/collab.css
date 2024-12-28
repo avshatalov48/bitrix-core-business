@@ -1,20 +1,17 @@
-.bx-im-collab-header__links-container {
-	--im-collab-header__background-color_links-container: var(--im-color-palette-gray-10);
-	--im-collab-header__font-color_links-container: var(--im-color-palette-gray-90);
-
-	display: flex;
-	align-items: center;
-	margin-right: 10px;
-
-	padding: 5px 12px;
-	border: 1px solid var(--im-collab-header__background-color_links-container);
-	border-radius: 88px;
+.bx-im-collab-header__add-people-icon {
+	width: 22px;
+	height: 22px;
+	margin-right: 12px;
+	background-image: url('./images/add-people.svg');
+	background-position: center;
+	background-repeat: no-repeat;
+	cursor: pointer;
 }
 
-.bx-im-collab-header__links-container_item {
-	margin-right: 8px;
+.bx-im-collab-header__add-people-icon:hover {
+	background-image: url('./images/add-people-hover.svg');
+}
 
-	font: var(--im-font-size-sm) var(--im-font-family-system);
-	font-weight: var(--im-font-weight-semi-bold);
-	cursor: pointer;
+.bx-im-collab-header__add-people-icon.--active {
+	background-image: url('./images/add-people-active.svg');
 }

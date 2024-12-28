@@ -48,6 +48,7 @@ export const RestMethod = Object.freeze({
 	imV2BetaDisable: 'im.v2.Beta.disable',
 	imV2ChatTaskPrepare: 'im.v2.Chat.Task.prepare',
 	imV2RecentChannelTail: 'im.v2.Recent.Channel.Tail',
+	imV2RecentCollabTail: 'im.v2.Recent.Collab.Tail',
 	imV2ChatCopilotUpdateRole: 'im.v2.Chat.Copilot.updateRole',
 	imV2AccessCheck: 'im.v2.Access.check',
 	imV2ChatMemberEntitiesList: 'im.v2.Chat.MemberEntities.list',
@@ -125,4 +126,13 @@ export const RestMethod = Object.freeze({
 	imBotNetworkChatAdd: 'imbot.Network.Chat.add',
 
 	linesDialogGet: 'imopenlines.dialog.get',
+
+	socialnetworkCollabCreate: 'socialnetwork.collab.Collab.add',
+	socialnetworkCollabUpdate: 'socialnetwork.collab.Collab.update',
+	socialnetworkCollabDelete: 'socialnetwork.collab.Collab.delete',
+	socialnetworkMemberAdd: 'socialnetwork.collab.Member.add',
+	socialnetworkMemberDelete: 'socialnetwork.collab.Member.delete',
+	socialnetworkMemberLeave: 'socialnetwork.collab.Member.leave',
+	intranetInviteGetLinkByCollabId: 'intranet.invite.getLinkByCollabId',
+	intranetInviteRegenerateLinkByCollabId: 'intranet.invite.regenerateLinkByCollabId',
 });

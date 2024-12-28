@@ -220,6 +220,11 @@ export class ReadService
 
 	#checkChatCounter(readResult: ReadResult)
 	{
+		if (!readResult)
+		{
+			return;
+		}
+
 		const { chatId, counter } = readResult;
 
 		const dialog = this.#getDialogByChatId(chatId);

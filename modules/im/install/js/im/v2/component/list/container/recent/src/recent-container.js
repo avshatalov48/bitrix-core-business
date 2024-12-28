@@ -3,10 +3,11 @@ import { Event as CoreEvent } from 'main.core';
 
 import { Messenger } from 'im.public';
 import { Utils } from 'im.v2.lib.utils';
+import { PermissionManager } from 'im.v2.lib.permission';
 import { RecentList } from 'im.v2.component.list.items.recent';
 import { ChatSearchInput } from 'im.v2.component.search.chat-search-input';
 import { ChatSearch } from 'im.v2.component.search.chat-search';
-import { Layout, EventType } from 'im.v2.const';
+import { Layout, EventType, ActionByUserType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 
 import { HeaderMenu } from './components/header-menu';
@@ -38,6 +39,17 @@ export const RecentListContainer = {
 	computed:
 	{
 		searchConfig: () => searchConfig,
+		canCreateChat(): boolean
+		{
+			const actions = [
+				ActionByUserType.createChat,
+				ActionByUserType.createCollab,
+				ActionByUserType.createChannel,
+				ActionByUserType.createConference,
+			];
+
+			return actions.some((action) => PermissionManager.getInstance().canPerformActionByUserType(action));
+		},
 	},
 	created()
 	{
@@ -108,7 +120,7 @@ export const RecentListContainer = {
 						@updateSearch="onUpdateSearch"
 					/>
 				</div>
-				<CreateChatMenu />
+				<CreateChatMenu v-if="canCreateChat" />
 			</div>
 			<div class="bx-im-list-container-recent__elements_container">
 				<div class="bx-im-list-container-recent__elements">

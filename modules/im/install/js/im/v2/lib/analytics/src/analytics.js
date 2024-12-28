@@ -9,36 +9,55 @@ import {
 	AnalyticsCategory,
 	AnalyticsType,
 	AnalyticsSection,
-	AnalyticsStatus,
-	CopilotChatType,
 	AnalyticsSubSection,
 	AnalyticsElement,
 } from './const';
 
+import { getCollabId } from './helpers/get-collab-id';
+import { getUserType } from './helpers/get-user-type';
 import { getCategoryByChatType } from './helpers/get-category-by-chat-type';
 import { getChatType } from './helpers/get-chat-type';
+
+import { CollabEntities } from './classes/collab-entities';
+import { ChatEntities } from './classes/chat-entities';
 import { ChatDelete } from './classes/chat-delete';
 import { MessageDelete } from './classes/message-delete';
 import { HistoryLimit } from './classes/history-limit';
+import { UserAdd } from './classes/user-add';
+import { ChatEdit } from './classes/chat-edit';
+import { ChatCreate } from './classes/chat-create';
+import { Supervisor } from './classes/supervisor';
+import { CheckIn } from './classes/check-in';
+import { Copilot } from './classes/copilot';
+import { AttachMenu } from './classes/attach-menu';
 
 import type { ImModelChat } from 'im.v2.model';
 
 type DialogId = string;
 
+export { CreateChatContext } from './const';
+export { getCollabId } from './helpers/get-collab-id';
+export { getUserType } from './helpers/get-user-type';
+
 export class Analytics
 {
 	#excludedChats: Set<DialogId> = new Set();
 	#currentTab: string = Layout.chat.name;
+
+	chatCreate: ChatCreate = new ChatCreate();
+	chatEdit: ChatEdit = new ChatEdit();
 	chatDelete: ChatDelete = new ChatDelete();
 	messageDelete: MessageDelete = new MessageDelete();
 	historyLimit: HistoryLimit = new HistoryLimit();
+	userAdd: UserAdd = new UserAdd();
+	collabEntities: CollabEntities = new CollabEntities();
+	chatEntities: ChatEntities = new ChatEntities();
+	supervisor: Supervisor = new Supervisor();
+	checkIn: CheckIn = new CheckIn();
+	copilot: Copilot = new Copilot();
+	attachMenu: AttachMenu = new AttachMenu();
 
 	static #instance: Analytics;
-
-	static AnalyticsType = AnalyticsType;
-	static AnalyticsSection = AnalyticsSection;
-	static AnalyticsSubSection = AnalyticsSubSection;
-	static AnalyticsElement = AnalyticsElement;
 
 	static getInstance(): Analytics
 	{
@@ -50,6 +69,11 @@ export class Analytics
 		return this.#instance;
 	}
 
+	ignoreNextChatOpen(dialogId: string): void
+	{
+		this.#excludedChats.add(dialogId);
+	}
+
 	onOpenMessenger()
 	{
 		sendData({
@@ -59,55 +83,12 @@ export class Analytics
 		});
 	}
 
-	onCreateCopilotChat({ chatId, dialogId })
-	{
-		this.#excludedChats.add(dialogId);
-
-		sendData({
-			event: AnalyticsEvent.createNewChat,
-			tool: AnalyticsTool.ai,
-			category: AnalyticsCategory.chatOperations,
-			c_section: AnalyticsSection.copilotTab,
-			type: AnalyticsType.ai,
-			p3: CopilotChatType.private,
-			p5: `chatId_${chatId}`,
-		});
-	}
-
-	onOpenCopilotChat(dialogId: string)
-	{
-		const dialog = Core.getStore().getters['chats/get'](dialogId);
-		const copilotChatType = dialog.userCounter <= 2 ? CopilotChatType.private : CopilotChatType.multiuser;
-
-		sendData({
-			event: AnalyticsEvent.openChat,
-			tool: AnalyticsTool.ai,
-			category: AnalyticsCategory.chatOperations,
-			c_section: AnalyticsSection.copilotTab,
-			type: AnalyticsType.ai,
-			p3: copilotChatType,
-			p5: `chatId_${dialog.chatId}`,
-		});
-	}
-
-	onOpenCopilotTab({ isAvailable = true } = {})
-	{
-		const payload = {
-			event: AnalyticsEvent.openTab,
-			tool: AnalyticsTool.ai,
-			category: AnalyticsCategory.chatOperations,
-			c_section: AnalyticsSection.copilotTab,
-			status: isAvailable ? AnalyticsStatus.success : AnalyticsStatus.errorTurnedOff,
-		};
-
-		sendData(payload);
-	}
-
 	onOpenTab(tabName: string)
 	{
 		const existingTabs = [
 			Layout.chat.name,
 			Layout.copilot.name,
+			Layout.collab.name,
 			Layout.channel.name,
 			Layout.notification.name,
 			Layout.settings.name,
@@ -131,67 +112,8 @@ export class Analytics
 			tool: AnalyticsTool.im,
 			category: AnalyticsCategory.messenger,
 			type: tabName,
+			p2: getUserType(),
 		});
-	}
-
-	onUseCopilotAudioInput()
-	{
-		sendData({
-			event: AnalyticsEvent.audioUse,
-			tool: AnalyticsTool.ai,
-			category: AnalyticsCategory.chatOperations,
-			c_section: AnalyticsSection.copilotTab,
-		});
-	}
-
-	onOpenCheckInPopup()
-	{
-		sendData({
-			event: AnalyticsEvent.popupOpen,
-			tool: AnalyticsTool.checkin,
-			category: AnalyticsCategory.shift,
-			c_section: AnalyticsSection.chat,
-		});
-	}
-
-	onOpenPriceTable(featureId: string)
-	{
-		sendData({
-			tool: AnalyticsTool.infoHelper,
-			category: AnalyticsCategory.limit,
-			event: AnalyticsEvent.openPrices,
-			type: featureId,
-			c_section: AnalyticsSection.chat,
-		});
-	}
-
-	onOpenToolsSettings(toolId: string)
-	{
-		sendData({
-			tool: AnalyticsTool.infoHelper,
-			category: AnalyticsCategory.toolOff,
-			event: AnalyticsEvent.openSettings,
-			type: toolId,
-			c_section: AnalyticsSection.chat,
-		});
-	}
-
-	onStartCreateNewChat(type: $Values<typeof ChatType>)
-	{
-		const currentLayout = Core.getStore().getters['application/getLayout'].name;
-
-		sendData({
-			tool: AnalyticsTool.im,
-			category: getCategoryByChatType(type),
-			event: AnalyticsEvent.clickCreateNew,
-			type,
-			c_section: `${currentLayout}_tab`,
-		});
-	}
-
-	onCreateChat(dialogId: string)
-	{
-		this.#excludedChats.add(dialogId);
 	}
 
 	onOpenChat(dialog: ImModelChat)
@@ -207,7 +129,7 @@ export class Analytics
 
 		if (chatType === ChatType.copilot)
 		{
-			this.onOpenCopilotChat(dialog.dialogId);
+			this.copilot.onOpenChat(dialog.dialogId);
 		}
 
 		const currentLayout = Core.getStore().getters['application/getLayout'].name;
@@ -219,6 +141,7 @@ export class Analytics
 			event: AnalyticsEvent.openExisting,
 			type: chatType,
 			c_section: `${currentLayout}_tab`,
+			p2: getUserType(),
 			p3: `isMember_${isMember}`,
 			p5: `chatId_${dialog.chatId}`,
 		};
@@ -230,80 +153,11 @@ export class Analytics
 			params.p4 = `parentChatId_${dialog.parentChatId}`;
 		}
 
+		if (chatType === ChatType.collab)
+		{
+			params.p4 = getCollabId(dialog.chatId);
+		}
+
 		sendData(params);
-	}
-
-	onOpenChatEditForm(dialogId: string)
-	{
-		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
-
-		sendData({
-			tool: AnalyticsTool.im,
-			category: getCategoryByChatType(chat.type),
-			event: AnalyticsEvent.clickEdit,
-			c_section: AnalyticsSection.sidebar,
-			c_sub_section: AnalyticsSubSection.contextMenu,
-			p1: `chatType_${chat.type}`,
-			p5: `chatId_${chat.chatId}`,
-		});
-	}
-
-	onSubmitChatEditForm(dialogId: string)
-	{
-		this.#excludedChats.add(dialogId);
-
-		const chat: ImModelChat = Core.getStore().getters['chats/get'](dialogId);
-
-		sendData({
-			tool: AnalyticsTool.im,
-			category: getCategoryByChatType(chat.type),
-			event: AnalyticsEvent.submitEdit,
-			p1: `chatType_${chat.type}`,
-			p5: `chatId_${chat.chatId}`,
-		});
-	}
-
-	onCancelChatEditForm(dialogId: string)
-	{
-		this.#excludedChats.add(dialogId);
-	}
-
-	onStartCallClick(params)
-	{
-		sendData({
-			tool: AnalyticsTool.im,
-			category: AnalyticsCategory.messenger,
-			event: AnalyticsEvent.clickCallButton,
-			type: params.type,
-			c_section: params.section,
-			c_sub_section: params.subSection,
-			c_element: params.element,
-			p5: `chatId_${params.chatId}`,
-		});
-	}
-
-	onStartConferenceClick(params)
-	{
-		sendData({
-			tool: AnalyticsTool.im,
-			category: AnalyticsCategory.call,
-			event: AnalyticsEvent.clickStartConf,
-			type: AnalyticsType.videoconf,
-			c_section: AnalyticsSection.chatWindow,
-			c_element: params.element,
-			p5: `chatId_${params.chatId}`,
-		});
-	}
-
-	onJoinConferenceClick(params)
-	{
-		sendData({
-			tool: AnalyticsTool.im,
-			category: AnalyticsCategory.call,
-			event: AnalyticsEvent.clickJoin,
-			type: AnalyticsType.videoconf,
-			c_section: AnalyticsSection.chatList,
-			p5: `callId_${params.callId}`,
-		});
 	}
 }

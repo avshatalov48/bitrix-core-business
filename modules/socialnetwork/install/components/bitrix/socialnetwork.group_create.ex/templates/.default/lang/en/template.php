@@ -1,11 +1,19 @@
 <?php
 $MESS["SONET_GCE_T_AJAX_ERROR"] = "Error processing form data. Please try again.";
 $MESS["SONET_GCE_T_DEMO_INFO_BTN"] = "Start";
+$MESS["SONET_GCE_T_DEMO_INFO_BTN_1"] = "OK";
 $MESS["SONET_GCE_T_DEMO_INFO_TEXT_PROJECT"] = "Distribute tasks across projects and keep track of the project progress.";
+$MESS["SONET_GCE_T_DEMO_INFO_TEXT_PROJECT_1"] = " ";
 $MESS["SONET_GCE_T_DEMO_INFO_TEXT_SCRUM"] = "Add tasks to backlog, assign priority level, plan sprints and communicate with the team.";
+$MESS["SONET_GCE_T_DEMO_INFO_TEXT_SCRUM_1"] = " ";
 $MESS["SONET_GCE_T_DEMO_INFO_TEXT_TRIAL"] = "This full-featured trial is available for <span>15 days</span>.";
+$MESS["SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1"] = "Please invite your team members now. We are giving free access to premium project management features for 15 days to explore all Bitrix24 capabilities.";
 $MESS["SONET_GCE_T_DEMO_INFO_TITLE_PROJECT"] = "<span>Projects</span> activated";
+$MESS["SONET_GCE_T_DEMO_INFO_TITLE_PROJECT_1"] = "<span>Thank you for trying Bitrix24!</span>";
 $MESS["SONET_GCE_T_DEMO_INFO_TITLE_SCRUM"] = "<span>Scrum</span> activated";
+$MESS["SONET_GCE_T_DEMO_INFO_TITLE_SCRUM_1"] = "<span>Thank you for trying Bitrix24!</span>";
+$MESS["SONET_GCE_T_GROUP_NAME_EXISTS"] = "Workgroup with this name already exists.";
+$MESS["SONET_GCE_T_GROUP_NAME_EXISTS_PROJECT"] = "Project with this name already exists.";
 $MESS["SONET_GCE_T_STRING_FIELD_ERROR"] = "Field is required.";
 $MESS["SONET_GCE_T_SUCCESS_CREATE"] = "The group has been created successfully.";
 $MESS["SONET_GCE_T_SUCCESS_EDIT"] = "The group parameters have been changed successfully.";

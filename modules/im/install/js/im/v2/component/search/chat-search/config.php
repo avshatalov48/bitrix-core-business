@@ -23,11 +23,11 @@ return [
 		'im.v2.lib.call',
 		'im.v2.lib.permission',
 		'main.core',
-		'im.v2.const',
 		'im.v2.lib.utils',
 		'im.v2.lib.text-highlighter',
 		'im.v2.lib.date-formatter',
 		'im.v2.application.core',
+		'im.v2.const',
 		'im.v2.component.elements',
 	],
 	'settings' => [

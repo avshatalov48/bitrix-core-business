@@ -13,6 +13,9 @@ use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Entity\User\UserBot;
 use Bitrix\Im\V2\Entity\User\UserCollection;
+use Bitrix\Im\V2\Integration\HumanResources\Department\Department;
+use Bitrix\Im\V2\Integration\Socialnetwork\Group;
+use Bitrix\Im\V2\Permission\ActionGroup;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -119,21 +122,25 @@ class RecentProvider extends BaseProvider
 			return;
 		}
 
-		$result = \CIntranetUtils::getDepartmentColleagues(null, true, false, 'Y', ['ID']);
-		$colleaguesIds = [];
+		$defaultItems = $this->getDefaultDialogItems();
 
-		while (($row = $result->Fetch()))
+		rsort($defaultItems);
+		$defaultItems = array_slice($defaultItems, 0, $requiredCountToFill);
+
+		foreach ($defaultItems as $itemId)
 		{
-			$colleaguesIds[] = (int)$row['ID'];
+			$dialog->getRecentItems()->add(new RecentItem(['id' => $itemId, 'entityId' => self::ENTITY_ID]));
+		}
+	}
+
+	protected function getDefaultDialogItems(): array
+	{
+		if (!$this->getContext()->getUser()->isExtranet())
+		{
+			return Department::getInstance()->getColleagues();
 		}
 
-		rsort($colleaguesIds);
-		$colleaguesIds = array_slice($colleaguesIds, 0, $requiredCountToFill);
-
-		foreach ($colleaguesIds as $userId)
-		{
-			$dialog->getRecentItems()->add(new RecentItem(['id' => $userId, 'entityId' => self::ENTITY_ID]));
-		}
+		return Group::getUsersInSameGroups($this->getContext()->getUserId());
 	}
 
 	public function getItems(array $ids): array
@@ -445,7 +452,7 @@ class RecentProvider extends BaseProvider
 				))->configureValueType(BooleanField::class)
 			)
 			->setLimit(self::LIMIT)
-			->whereIn('TYPE', [Chat::IM_TYPE_CHAT, Chat::IM_TYPE_OPEN, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL])
+			->whereIn('TYPE', [Chat::IM_TYPE_CHAT, Chat::IM_TYPE_OPEN, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL, Chat::IM_TYPE_COLLAB])
 		;
 		if ($joinType === Join::TYPE_LEFT)
 		{
@@ -454,7 +461,7 @@ class RecentProvider extends BaseProvider
 
 		if ($this->options[self::ONLY_WITH_MANAGE_MESSAGES_RIGHT_OPTION])
 		{
-			Chat\Permission::getRoleOrmFilter($query, 'MANAGE_MESSAGES', 'RELATION', '');
+			\Bitrix\Im\V2\Permission::getRoleOrmFilter($query, ActionGroup::ManageMessages, 'RELATION', '');
 		}
 
 		return $query;
@@ -631,7 +638,7 @@ class RecentProvider extends BaseProvider
 			return $filter->where($this->getRealUserOrBotCondition());
 		}
 
-		$subQuery = $this->getExtranetUsersQuery();
+		$subQuery = Group::getExtranetAccessibleUsersQuery($this->getContext()->getUserId());
 		if (!User::getCurrent()->isExtranet())
 		{
 			$filter->logic('or');
@@ -663,58 +670,6 @@ class RecentProvider extends BaseProvider
 			->whereNotIn('EXTERNAL_AUTH_ID', UserTable::filterExternalUserTypes(['bot']))
 			->whereNull('EXTERNAL_AUTH_ID')
 		;
-	}
-
-	private function getExtranetUsersQuery(): ?Query
-	{
-		if (!Loader::includeModule('socialnetwork'))
-		{
-			return null;
-		}
-
-		$extranetSiteId = Option::get('extranet', 'extranet_site');
-		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
-
-		if (
-			!$extranetSiteId
-			|| \CSocNetUser::isCurrentUserModuleAdmin()
-		)
-		{
-			return null;
-		}
-
-		/** @see \Bitrix\Socialnetwork\Integration\UI\EntitySelector\UserProvider::EXTRANET_ROLES */
-		$extranetRoles = [
-			\Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER,
-			\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER,
-			\Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR,
-			\Bitrix\Socialnetwork\UserToGroupTable::ROLE_REQUEST,
-		];
-
-		$query = \Bitrix\Socialnetwork\UserToGroupTable::query();
-		$query->addSelect(new ExpressionField('DISTINCT_USER_ID', 'DISTINCT %s', 'USER.ID'));
-		$query->whereIn('ROLE', $extranetRoles);
-		$query->registerRuntimeField(
-			new Reference(
-				'GS',
-				\Bitrix\Socialnetwork\WorkgroupSiteTable::class,
-				Join::on('ref.GROUP_ID', 'this.GROUP_ID')->where('ref.SITE_ID', $extranetSiteId),
-				['join_type' => 'INNER']
-			)
-		);
-
-		$query->registerRuntimeField(
-			new Reference(
-				'UG_MY',
-				\Bitrix\Socialnetwork\UserToGroupTable::class,
-				Join::on('ref.GROUP_ID', 'this.GROUP_ID')
-					->where('ref.USER_ID', $this->getContext()->getUserId())
-					->whereIn('ref.ROLE', $extranetRoles),
-				['join_type' => 'INNER']
-			)
-		);
-
-		return $query;
 	}
 
 	private function prepareSearchFlags(array $options): void

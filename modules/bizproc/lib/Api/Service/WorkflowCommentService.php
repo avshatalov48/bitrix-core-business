@@ -31,6 +31,10 @@ class WorkflowCommentService
 			WorkflowUserCommentTable::incrementUnreadCounter($comment->workflowId, $toIncrement);
 			$this->incrementUsersCounters($toIncrement);
 			$this->pushCounters($comment->workflowId, $toIncrement);
+
+			$documentId = \CBPStateService::getStateDocumentId($comment->workflowId); //TODO using events mechanism
+			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+			$documentService->onWorkflowCommentAdded($documentId, $comment->workflowId, $comment->authorId);
 		}
 	}
 
@@ -44,6 +48,10 @@ class WorkflowCommentService
 		$userIds = WorkflowUserCommentTable::decrementUnreadCounterByDate($comment->workflowId, $comment->created);
 		$this->decrementUsersCounters($userIds);
 		$this->pushCounters($comment->workflowId, $userIds);
+
+		$documentId = \CBPStateService::getStateDocumentId($comment->workflowId); //TODO using events mechanism
+		$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+		$documentService->onWorkflowCommentDeleted($documentId, $comment->workflowId, $comment->authorId);
 	}
 
 	public function markAsRead(MarkAsReadRequest $markRead): void
@@ -57,6 +65,10 @@ class WorkflowCommentService
 
 		if ($hasUnread)
 		{
+			$documentId = \CBPStateService::getStateDocumentId($markRead->workflowId); //TODO using events mechanism
+			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+			$documentService->onWorkflowAllCommentViewed($documentId, $markRead->workflowId, $markRead->userId);
+
 			WorkflowUserCommentTable::delete([
 				'WORKFLOW_ID' => $markRead->workflowId,
 				'USER_ID' => $markRead->userId,

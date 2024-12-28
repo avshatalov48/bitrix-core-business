@@ -1,0 +1,49 @@
+.bizproc-workflow-start-list-grid-template-name-wrapper .ui-hint {
+	line-height: 1em;
+	height: 20px;
+}
+
+.bizproc-workflow-start-list-grid-template-name-wrapper .ui-hint-icon {
+	margin: 0;
+}
+
+.menu-popup .menu-popup-item-disabled {
+	pointer-events: all;
+}
+
+.bizproc-workflow-start-list-column-start {
+	margin-top: 3px;
+	margin-bottom: 2px;
+}
+
+.bizproc-workflow-start-list-column-start-counter-wrapper {
+	margin-top: 8px;
+	color: var(--ui-color-text-subtle);
+}
+
+.bizproc-workflow-start-list-column-start-counter {
+	font-weight: var(--ui-font-weight-bold);
+}
+
+.bizproc-workflow-start-list-grid-header-pin {
+	width: 36px;
+}
+
+.bizproc-workflow-start-list-grid-header-pin span.main-grid-head-title::before {
+	position: absolute;
+	display: inline-block;
+	background-position: center center;
+	background-repeat: no-repeat;
+	content: '';
+	width: 18px;
+	height: 18px;
+	top: 50%;
+	left: 55%;
+	transform: translate3d(-50%, -50%, 0) rotate(-45deg);
+	transition: 200ms all ease;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='15' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.835 3.97c.356.356.337.95-.04 1.328-.379.377-.973.394-1.328.038l-.663-.663L7.59 10.2l.646.647c.332.36.304.935-.063 1.302-.367.368-.943.396-1.302.064l-1.58-1.577L1.22 13.7a.249.249 0 01-.237.08.219.219 0 01-.168-.17.249.249 0 01.08-.236l3.02-4.117-1.548-1.547c-.339-.359-.313-.94.057-1.31.37-.37.951-.395 1.31-.056l.646.647 5.527-4.215-.658-.658c-.338-.358-.313-.939.058-1.31.37-.37.95-.394 1.309-.055l3.218 3.216z' fill='%23525C69' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.bizproc-workflow-start-list-item-pinned td:not([style*="background-color"]) {
+	background-color: var(--ui-color-palette-gray-03) !important;
+}

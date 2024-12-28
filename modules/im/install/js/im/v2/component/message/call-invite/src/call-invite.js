@@ -1,5 +1,5 @@
 import { Messenger } from 'im.public';
-import { ChatActionType } from 'im.v2.const';
+import { ActionByRole } from 'im.v2.const';
 import { CallManager } from 'im.v2.lib.call';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Type } from 'main.core';
@@ -86,7 +86,7 @@ export const CallInviteMessage = {
 			}
 
 			const chatCanBeCalled = CallManager.getInstance().chatCanBeCalled(this.dialogId);
-			const chatIsAllowedToCall = PermissionManager.getInstance().canPerformAction(ChatActionType.call, this.dialogId);
+			const chatIsAllowedToCall = PermissionManager.getInstance().canPerformActionByRole(ActionByRole.call, this.dialogId);
 
 			return chatCanBeCalled && chatIsAllowedToCall;
 		},

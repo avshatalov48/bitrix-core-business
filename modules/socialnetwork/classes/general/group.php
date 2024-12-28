@@ -2,12 +2,14 @@
 
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Helper\Path;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ProjectLimit;
@@ -180,7 +182,7 @@ class CAllSocNetGroup
 			is_set($arFields, "IMAGE_ID")
 			&& is_array($arFields["IMAGE_ID"])
 			&& ($arFields["IMAGE_ID"]["name"] ?? '') == ''
-			&& ($arFields["IMAGE_ID"]["del"] == '' || $arFields["IMAGE_ID"]["del"] !== "Y")
+			&& (($arFields["IMAGE_ID"]["del"] ?? null) == '' || $arFields["IMAGE_ID"]["del"] !== "Y")
 		)
 		{
 			unset($arFields["IMAGE_ID"]);
@@ -212,6 +214,23 @@ class CAllSocNetGroup
 		if (!empty($arFields['NAME']))
 		{
 			$arFields['NAME'] = Emoji::encode($arFields['NAME']);
+		}
+
+		if (isset($arFields['NAME']))
+		{
+			$isCollab = $arFields['TYPE'] === Bitrix\Socialnetwork\Item\Workgroup\Type::Collab->value;
+			$isCheckNameNeeded = $isCollab || (Option::get('socialnetwork', 'check_group_name_enable', 'Y') === 'Y');
+
+			if ($isCheckNameNeeded)
+			{
+				$groupProvider = Bitrix\Socialnetwork\Provider\GroupProvider::getInstance();
+
+				if ($groupProvider->isExistingGroup($arFields['NAME'], $ID))
+				{
+					$APPLICATION->ThrowException(GetMessage("SONET_ERROR_SAME_GROUP_NAME_EXISTS"), 'ERROR_GROUP_NAME_EXISTS');
+					return false;
+				}
+			}
 		}
 
 		if (!empty($arFields['DESCRIPTION']))
@@ -255,7 +274,7 @@ class CAllSocNetGroup
 
 		$queryObject = \Bitrix\Socialnetwork\WorkgroupTable::getList([
 			'filter' => ['ID' => $ID],
-			'select' => ['IMAGE_ID', 'NAME', 'PROJECT'],
+			'select' => ['IMAGE_ID', 'NAME', 'PROJECT', 'TYPE'],
 		]);
 		$arGroup = $queryObject->fetch();
 		if (!$arGroup)
@@ -263,6 +282,8 @@ class CAllSocNetGroup
 			$APPLICATION->ThrowException(GetMessage("SONET_NO_GROUP"), "ERROR_NO_GROUP");
 			return false;
 		}
+
+		$isCollab = $arGroup['TYPE'] === Type::Collab->value;
 
 		$DB->StartTransaction();
 
@@ -290,11 +311,14 @@ class CAllSocNetGroup
 
 		if ($bSuccess)
 		{
-			Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup::unlinkChat([
-				'group_id' => $ID,
-				'group_name' => $arGroup['NAME'],
-				'group_project' => $arGroup['PROJECT'],
-			]);
+			if (!$isCollab)
+			{
+				Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup::unlinkChat([
+					'group_id' => $ID,
+					'group_name' => $arGroup['NAME'],
+					'group_project' => $arGroup['PROJECT'],
+				]);
+			}
 
 			$bSuccessTmp = true;
 			$dbResult = CSocNetFeatures::GetList(
@@ -397,6 +421,7 @@ class CAllSocNetGroup
 
 			unset($sonetGroupCache[$ID]);
 			self::setStaticCache($sonetGroupCache);
+			GroupRegistry::getInstance()->invalidate($ID);
 		}
 
 		if ($bSuccess)
@@ -440,6 +465,12 @@ class CAllSocNetGroup
 			$USER_FIELD_MANAGER->Delete("SONET_GROUP", $ID);
 		}
 
+		$groupId = (int)$ID;
+		if ($bSuccess && $groupId > 0)
+		{
+			GroupRegistry::getInstance()->invalidate($groupId);
+		}
+
 		if (Loader::includeModule('tasks'))
 		{
 			$tagService = new Tag(0);
@@ -480,7 +511,7 @@ class CAllSocNetGroup
 		}
 	}
 
-	public static function SetStat($ID): void
+	public static function SetStat($ID, int $currentUserId = 0): void
 	{
 		if (!CSocNetGroup::__ValidateID($ID))
 			return;
@@ -511,7 +542,8 @@ class CAllSocNetGroup
 			$ID,
 			array(
 				"NUMBER_OF_MEMBERS" => $num,
-				"NUMBER_OF_MODERATORS" => $num_mods
+				"NUMBER_OF_MODERATORS" => $num_mods,
+				'INITIATED_BY_USER_ID' => $currentUserId,
 			),
 			true,
 			false,
@@ -625,7 +657,7 @@ class CAllSocNetGroup
 				'IMAGE_ID', 'AVATAR_TYPE',
 				"NUMBER_OF_MEMBERS", "NUMBER_OF_MODERATORS",
 				"INITIATE_PERMS", "SPAM_PERMS",
-				"DATE_ACTIVITY", "SUBJECT_NAME", "UF_*",
+				"DATE_ACTIVITY", "SUBJECT_NAME", 'TYPE', "UF_*",
 			];
 			if (ModuleManager::isModuleInstalled('intranet'))
 			{
@@ -843,6 +875,15 @@ class CAllSocNetGroup
 			if ($isScrumLimitExceeded)
 			{
 				$APPLICATION->ThrowException("Scrum limit exceeded");
+
+				return false;
+			}
+		}
+		elseif (isset($arFields['TYPE']) && $arFields['TYPE'] === 'collab')
+		{
+			if (!\Bitrix\Socialnetwork\Collab\CollabFeature::isFeatureEnabled())
+			{
+				$APPLICATION->ThrowException('Collab feature not available');
 
 				return false;
 			}
@@ -1483,7 +1524,7 @@ class CAllSocNetGroup
 		}
 	}
 
-	public static function ConfirmAllRequests($groupId, $bAutoSubscribe = true)
+	public static function ConfirmAllRequests($groupId, $bAutoSubscribe = true, $currentUserId = 0)
 	{
 		$dbRequests = CSocNetUserToGroup::GetList(
 			array(),
@@ -1503,7 +1544,17 @@ class CAllSocNetGroup
 			{
 				$arIDs[] = $arRequests["ID"];
 			}
-			CSocNetUserToGroup::ConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), $groupId, $arIDs, $bAutoSubscribe);
+
+			$userId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
+			if ($userId)
+			{
+				CSocNetUserToGroup::ConfirmRequestToBeMember(
+					$userId,
+					$groupId,
+					$arIDs,
+					$bAutoSubscribe,
+				);
+			}
 		}
 	}
 
@@ -1511,12 +1562,12 @@ class CAllSocNetGroup
 	{
 		if (isset($fields['SCRUM_MASTER_ID']))
 		{
-			return Type::SCRUM;
+			return Type::Scrum;
 		}
 
 		if (($fields['PROJECT'] ?? 'N') === 'Y')
 		{
-			return Type::PROJECT;
+			return Type::Project;
 		}
 
 		return Type::getDefault();

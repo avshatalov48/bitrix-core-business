@@ -2059,8 +2059,11 @@ final class CCalendarRestService extends IRestService
 			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
 
-		$idList = $params['filter']['resourceIdList'];
-		if (isset($idList))
+		$idList = isset($params['filter']) && is_array($params['filter'])
+			? ($params['filter']['resourceIdList'] ?? [])
+			: []
+		;
+		if (!empty($idList))
 		{
 			if(!is_array($idList) && $idList > 0)
 			{
@@ -2082,7 +2085,7 @@ final class CCalendarRestService extends IRestService
 						$bookingIndex[$resEntry['EVENT_ID']] = (int)$resEntry['ID'];
 					}
 
-					if (count($eventIdList) > 0)
+					if (!empty($eventIdList))
 					{
 						$entries = CCalendarEvent::GetList(
 							array(
@@ -2108,8 +2111,11 @@ final class CCalendarRestService extends IRestService
 			}
 		}
 
-		$resourceTypeIdList = $params['filter']['resourceTypeIdList'];
-		if (!isset($resourceTypeIdList) || !is_array($resourceTypeIdList) || !count($resourceTypeIdList))
+		$resourceTypeIdList = isset($params['filter']) && is_array($params['filter'])
+			? ($params['filter']['resourceTypeIdList'] ?? [])
+			: []
+		;
+		if (empty($resourceTypeIdList) || !is_array($resourceTypeIdList))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => 'filter[\'resourceTypeIdList\']', '#REST_METHOD#' => $methodName)));
 		}

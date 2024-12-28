@@ -9,6 +9,7 @@ import scrollTo from './internal/scroll-to';
 
 import './css/style.css';
 import 'landing.utils';
+import type {BaseCard} from 'landing.ui.card.basecard';
 
 /**
  * @memberOf BX.Landing.UI.Panel
@@ -368,7 +369,7 @@ export class Content extends BasePanel
 		Dom.remove(oldForm.getNode());
 	}
 
-	appendCard(card)
+	appendCard(card: BaseCard)
 	{
 		if (this.data.scrollAnimation)
 		{
@@ -377,6 +378,7 @@ export class Content extends BasePanel
 		}
 
 		Dom.append(card.layout, this.content);
+		card.onAppend();
 	}
 
 	clear()

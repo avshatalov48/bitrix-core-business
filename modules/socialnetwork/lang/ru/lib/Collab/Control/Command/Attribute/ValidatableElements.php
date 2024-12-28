@@ -1,0 +1,4 @@
+<?php
+
+$MESS['SOCIALNETWORK_COLLAB_VALIDATOR_VALIDATABLE_ELEMENTS_INVALID_TYPE'] = 'Значение поля должно быть массивом.';
+$MESS['SOCIALNETWORK_COLLAB_VALIDATOR_VALIDATABLE_ELEMENTS_INVALID_VALUE'] = 'Значение поля не является объектом.';

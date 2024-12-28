@@ -1,0 +1,48 @@
+.bizproc__ws_start__content-form {
+	padding: inherit;
+	margin: 0 -16px 18px -16px;
+	border-radius: calc(var(--bizproc-workflow-start-border-radius) / 2);
+	border: 1px solid var(--ui-color-base-10);
+}
+
+.bizproc__ws_start__content-form:last-of-type {
+	margin-bottom: -12px;
+}
+
+.bizproc__ws_start__content-form select {
+	max-width: 100%;
+}
+
+.bizproc__ws_start__content-form-title-block {
+	margin-bottom: 14px;
+	padding: 3px 0 10px 0;
+	border-bottom: 1px solid var(--ui-color-base-10);
+}
+
+.bizproc__ws_start__content-form-title {
+	display: flex;
+	align-items: center;
+	color: var(--ui-color-text-secondary);
+	font-size: var(--ui-font-size-3xs);
+	font-weight: var(--ui-font-weight-semi-bold);
+	text-transform: uppercase;
+}
+
+.bizproc__ws_start__content-form-description {
+	color: var(--ui-color-base-40);
+	font-size: var(--ui-font-size-3xs);
+}
+
+.bizproc__ws_start__content-form-block {
+	margin-bottom: 14px;
+}
+
+.bizproc__ws_start__content-form-block .ui-ctl-title {
+	margin-bottom: 5px;
+	margin-left: 1px;
+}
+
+.bizproc__ws_start__content-form-block .ui-ctl-title.--required:after {
+	content: '*';
+	color: var(--ui-color-background-on-alert);
+}

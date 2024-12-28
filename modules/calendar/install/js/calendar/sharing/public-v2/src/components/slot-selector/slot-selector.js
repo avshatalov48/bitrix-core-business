@@ -1,4 +1,4 @@
-import { Dom, Tag, Type } from 'main.core';
+import { Tag, Type } from 'main.core';
 import { Form } from './form/index';
 import { EmptyState, AccessDenied } from './empty-state/index';
 import { SlotList } from './slot-list/index';
@@ -209,6 +209,7 @@ export default class SlotSelector
 				showBackCalendarButtons: this.#showBackCalendarButtons,
 				action: this.#action,
 				members: this.#members,
+				linkContext: this.#link.type,
 			});
 		}
 

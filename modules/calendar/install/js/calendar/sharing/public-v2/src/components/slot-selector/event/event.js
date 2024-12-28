@@ -34,6 +34,7 @@ type EventOptions = {
 	canceledByManager: boolean,
 	showBackCalendarButtons: boolean,
 	members: Member[],
+	linkContext: null|string,
 };
 
 export default class Event extends Base
@@ -48,6 +49,7 @@ export default class Event extends Base
 	#inDeletedSlider;
 	#isView;
 	#showBackCalendarButtons;
+	#linkContext: null|string;
 
 	#eventLayout: EventLayout;
 
@@ -85,6 +87,7 @@ export default class Event extends Base
 		this.#icsFile = null;
 		this.#inDeletedSlider = options.inDeletedSlider === true;
 		this.#showBackCalendarButtons = options.showBackCalendarButtons;
+		this.#linkContext = options.linkContext;
 
 		if (this.#event)
 		{
@@ -215,6 +218,7 @@ export default class Event extends Base
 
 			showBackCalendarButton: this.#showBackCalendarButtons,
 			bottomButtons: this.#getBottomButtons(),
+			linkContext: this.#linkContext,
 		};
 	}
 

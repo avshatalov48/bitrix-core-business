@@ -20,6 +20,8 @@ CREATE TABLE b_bp_workflow_template (
 	ORIGIN_ID VARCHAR(255) NULL,
 	IS_SYSTEM char(1) NOT NULL default 'N',
 	`SORT` INT(10) NOT NULL DEFAULT 10,
+	TYPE varchar(15) NOT NULL DEFAULT 'default',
+	SETTINGS TEXT NULL,
 	primary key (ID),
 	index ix_bp_wf_template_mo(MODULE_ID, ENTITY, DOCUMENT_TYPE)
 );
@@ -40,7 +42,8 @@ CREATE TABLE b_bp_workflow_state (
 	primary key (ID),
 	index ix_bp_ws_document_id(DOCUMENT_ID, ENTITY, MODULE_ID),
 	index ix_bp_ws_document_id1(DOCUMENT_ID_INT, ENTITY, MODULE_ID, STATE),
-	index ix_bp_ws_started_by (STARTED_BY)
+	index ix_bp_ws_started_by (STARTED_BY),
+	index ix_bp_ws_started (STARTED)
 );
 
 CREATE TABLE b_bp_workflow_permissions (
@@ -69,7 +72,8 @@ CREATE TABLE b_bp_workflow_instance (
 	OWNED_UNTIL datetime NULL,
 	primary key (ID),
 	index ix_bp_wi_document(DOCUMENT_ID, ENTITY, MODULE_ID, STARTED_EVENT_TYPE),
-	index ix_bp_wi_started_by(STARTED_BY)
+	index ix_bp_wi_started_by(STARTED_BY),
+	index ix_bp_wi_tpl_started(WORKFLOW_TEMPLATE_ID, STARTED)
 );
 
 CREATE TABLE b_bp_tracking (
@@ -108,7 +112,8 @@ CREATE TABLE b_bp_task (
 	primary key (ID),
 	index ix_bp_tasks_sort(OVERDUE_DATE, MODIFIED),
 	index ix_bp_tasks_wf(WORKFLOW_ID),
-	index ix_bp_tasks_modified (MODIFIED)
+	index ix_bp_tasks_modified (MODIFIED),
+	index ix_bp_tasks_created (CREATED_DATE)
 );
 
 CREATE TABLE b_bp_task_user (
@@ -410,4 +415,36 @@ CREATE TABLE b_bp_workflow_user_comment
 	index ix_bp_wuc_wf(WORKFLOW_ID),
 	index ix_bp_wuc_lt(LAST_TYPE),
 	index ix_bp_wuc_ltm(LAST_TYPE, MODIFIED)
+);
+
+CREATE TABLE b_bp_workflow_result(
+	ID int NOT NULL auto_increment,
+	WORKFLOW_ID varchar(32) NOT NULL,
+	ACTIVITY varchar(128) NOT NULL,
+	RESULT text NULL,
+	CREATED_DATE datetime NOT NULL,
+	PRIORITY int not null default 0,
+	KEY ix_bp_r_wf (WORKFLOW_ID),
+	primary key (ID)
+);
+
+CREATE TABLE b_bp_workflow_template_settings
+(
+	ID int NOT NULL AUTO_INCREMENT,
+	TEMPLATE_ID int NOT NULL,
+	NAME varchar(255) NOT NULL,
+	VALUE text DEFAULT NULL,
+	primary key (ID),
+	index ix_bp_wf_template_settings_tpl_id(TEMPLATE_ID)
+);
+
+CREATE TABLE b_bp_workflow_template_user_option
+(
+	ID INT NOT NULL AUTO_INCREMENT,
+	TEMPLATE_ID int NOT NULL,
+	USER_ID int NOT NULL,
+	OPTION_CODE int NOT NULL,
+	PRIMARY KEY (ID),
+	UNIQUE KEY UX_BP_TEMPLATE_USER_OPTION (TEMPLATE_ID, USER_ID, OPTION_CODE),
+	INDEX IX_BP_USER_OPTION (USER_ID, OPTION_CODE)
 );

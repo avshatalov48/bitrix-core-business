@@ -35,6 +35,7 @@ export class CopilotService
 
 	#sendAnalytics({ chatId, dialogId })
 	{
-		Analytics.getInstance().onCreateCopilotChat({ chatId, dialogId });
+		Analytics.getInstance().copilot.onCreateChat(chatId);
+		Analytics.getInstance().ignoreNextChatOpen(dialogId);
 	}
 }

@@ -2,37 +2,11 @@
 
 class WizardServices
 {
+	/**
+	 * @deprecated Does nothing.
+	 */
 	public static function PatchHtaccess($path)
 	{
-		if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === "WIN")
-		{
-			$io = CBXVirtualIo::GetInstance();
-			$fnhtaccess = $io->CombinePath($path, '.htaccess');
-			if ($io->FileExists($fnhtaccess))
-			{
-				$ffhtaccess = $io->GetFile($fnhtaccess);
-				$ffhtaccessContent = $ffhtaccess->GetContents();
-
-				if (!str_contains($ffhtaccessContent, "/bitrix/virtual_file_system.php"))
-				{
-					$ffhtaccessContent = preg_replace('/RewriteEngine On/is', "RewriteEngine On\r\n\r\n".
-						"RewriteCond %{REQUEST_FILENAME} -f [OR]\r\n".
-						"RewriteCond %{REQUEST_FILENAME} -l [OR]\r\n".
-						"RewriteCond %{REQUEST_FILENAME} -d\r\n".
-						"RewriteCond %{REQUEST_FILENAME} [\\xC2-\\xDF][\\x80-\\xBF] [OR]\r\n".
-						"RewriteCond %{REQUEST_FILENAME} \\xE0[\\xA0-\\xBF][\\x80-\\xBF] [OR]\r\n".
-						"RewriteCond %{REQUEST_FILENAME} [\\xE1-\\xEC\\xEE\\xEF][\\x80-\\xBF]{2} [OR]\r\n".
-						"RewriteCond %{REQUEST_FILENAME} \\xED[\\x80-\\x9F][\\x80-\\xBF] [OR]\r\n".
-						"RewriteCond %{REQUEST_FILENAME} \\xF0[\\x90-\\xBF][\\x80-\\xBF]{2} [OR]\r\n".
-						"RewriteCond %{REQUEST_FILENAME} [\\xF1-\\xF3][\\x80-\\xBF]{3} [OR]\r\n".
-						"RewriteCond %{REQUEST_FILENAME} \\xF4[\\x80-\\x8F][\\x80-\\xBF]{2}\r\n".
-						"RewriteCond %{REQUEST_FILENAME} !/bitrix/virtual_file_system.php$\r\n".
-						"RewriteRule ^(.*)$ /bitrix/virtual_file_system.php [L]", $ffhtaccessContent);
-
-					$ffhtaccess->PutContents($ffhtaccessContent);
-				}
-			}
-		}
 	}
 
 	public static function GetTemplates($relativePath)

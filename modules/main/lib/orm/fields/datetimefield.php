@@ -48,6 +48,15 @@ class DatetimeField extends DateField
 	}
 
 	/**
+	 * Sets the value to the current time at the moment of the getDefaultValue() call
+	 * @return self
+	 */
+	public function configureDefaultValueNow(): self
+	{
+		return $this->configureDefaultValue(static fn() => new DateTime());
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function getFetchDataModifiers()

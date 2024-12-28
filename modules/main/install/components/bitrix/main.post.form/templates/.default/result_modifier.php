@@ -123,7 +123,7 @@ if (!empty($arParams["DEST_SORT"]))
 elseif (
 	$arResult["SELECTOR_VERSION"] < 2
 	&& Loader::includeModule("socialnetwork")
-	&& $USER->IsAuthorized()
+	&& $USER?->IsAuthorized()
 )
 {
 	$arResult["DEST_SORT"] = CSocNetLogDestination::GetDestinationSort(array(

@@ -55,6 +55,21 @@ class Result
 	}
 
 	/**
+	 * Returns the Error object.
+	 *
+	 * @return Error|null
+	 */
+	public function getError(): ?Error
+	{
+		foreach ($this->errors as $error)
+		{
+			return $error;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Returns an array of Error objects.
 	 *
 	 * @return Error[]

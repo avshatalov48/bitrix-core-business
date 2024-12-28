@@ -7,7 +7,7 @@ namespace Bitrix\Socialnetwork\Permission\Rule;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Main\Access\Rule\AbstractRule;
 use Bitrix\Socialnetwork\Permission\GroupAccessController;
-use Bitrix\Socialnetwork\Permission\GroupAction;
+use Bitrix\Socialnetwork\Permission\GroupDictionary;
 use Bitrix\Socialnetwork\Permission\Model\GroupModel;
 use Bitrix\Socialnetwork\Permission\Rule\Trait\AccessTrait;
 
@@ -22,7 +22,7 @@ class GroupDeleteRule extends AbstractRule
 	{
 		if (!$item instanceof GroupModel)
 		{
-			$this->controller->addError('Wrong instance');
+			$this->controller->addError(static::class, 'Wrong instance');
 
 			return false;
 		}
@@ -34,9 +34,9 @@ class GroupDeleteRule extends AbstractRule
 			return false;
 		}
 
-		if (!$this->controller->check(GroupAction::UPDATE, $item))
+		if (!$this->controller->check(GroupDictionary::UPDATE, $item))
 		{
-			$this->controller->addError('Access denied by permissions');
+			$this->controller->addError(static::class, 'Access denied by permissions');
 
 			return false;
 		}

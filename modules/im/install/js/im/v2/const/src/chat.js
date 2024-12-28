@@ -21,6 +21,7 @@ export const ChatType = Object.freeze({
 	generalChannel: 'generalChannel',
 	comment: 'comment',
 	collab: 'collab',
+	openlinesV2: 'openlinesV2',
 });
 
 export const DialogScrollThreshold = Object.freeze({

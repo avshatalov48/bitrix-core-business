@@ -353,6 +353,10 @@ abstract class Base
 
 		$remove = isset($value['REMOVE']) && is_string($value['REMOVE']) && mb_strtoupper($value['REMOVE']) === 'Y';
 		$data = isset($value['FILE_DATA']) ? $value['FILE_DATA'] : [];
+		if (!is_array($data))
+		{
+			$data = [$data];
+		}
 
 		$data = $this->parserFileValue($data);
 

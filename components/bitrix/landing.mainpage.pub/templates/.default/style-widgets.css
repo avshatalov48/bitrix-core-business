@@ -18279,18 +18279,14 @@ h6, .h6 {
  * Copyright 2011-2019 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
-html {
-  box-sizing: border-box;
-  -ms-overflow-style: scrollbar;
-}
 
-*,
-*::before,
-*::after {
+.landing-layout-flex *,
+.landing-layout-flex *::before,
+.landing-layout-flex *::after {
   box-sizing: inherit;
 }
 
-:root {
+.landing-layout-flex {
   --bs-gutter-x: 30px;
   --bs-gutter-y: 0;
 }

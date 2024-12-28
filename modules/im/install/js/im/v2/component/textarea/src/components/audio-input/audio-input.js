@@ -112,7 +112,7 @@ export const AudioInput = {
 		{
 			if (this.audioUsed)
 			{
-				Analytics.getInstance().onUseCopilotAudioInput();
+				Analytics.getInstance().copilot.onUseAudioInput();
 				this.audioUsed = false;
 			}
 

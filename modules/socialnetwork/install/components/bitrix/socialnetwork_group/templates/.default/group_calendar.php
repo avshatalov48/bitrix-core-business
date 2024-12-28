@@ -15,14 +15,20 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @global CMain $APPLICATION */
 
 use Bitrix\Main\Application;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 
 $pageId = "group_calendar";
+$ownerId = $arResult["VARIABLES"]["group_id"];
+$isCollab = GroupRegistry::getInstance()->get($ownerId)?->isCollab();
 
-include("util_group_menu.php");
+
+if (!$isCollab)
+{
+	include("util_group_menu.php");
+}
 include("util_group_profile.php");
 include("util_group_limit.php");
 
-$ownerId = $arResult["VARIABLES"]["group_id"];
 if (
 	!empty($arResult['groupFields'])
 	&& \CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $ownerId, 'calendar')

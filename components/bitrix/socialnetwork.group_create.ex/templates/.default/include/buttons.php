@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Collab\CollabFeature;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -71,6 +72,16 @@ $buttons[] = [
 	'TYPE' => 'custom',
 	'LAYOUT' => '<button class="' . implode(' ', $classList) . '" id="sonet_group_create_popup_form_button_submit" bx-action-type="' . ($actionType ?? 'none') . '">' . $strSubmitButtonTitle . '</button>'
 ];
+
+
+if (CollabFeature::isOn())
+{
+	$buttons[] = [
+		'TYPE' => 'custom',
+		'LAYOUT' => '<button class="ui-btn ui-btn-md ui-btn-round socialnetwork-group-create-ex__button-invisible" id="sonet_group_create_popup_form_button_collab" >' . Loc::getMessage('SONET_GCE_T_DO_CREATE_COLLAB') . '</button>'
+	];
+
+}
 
 if (
 	!empty($arResult['TAB'])

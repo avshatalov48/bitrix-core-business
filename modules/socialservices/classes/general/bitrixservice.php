@@ -43,6 +43,7 @@ class CBitrixServiceTransport
 	protected $clientId = '';
 	protected $clientSecret = '';
 	protected $httpTimeout = SOCSERV_DEFAULT_HTTP_TIMEOUT;
+	protected ?int $streamTimeout = null;
 
 	protected $serviceHost = '';
 
@@ -72,10 +73,6 @@ class CBitrixServiceTransport
 			{
 				$additionalParams = array();
 			}
-			else
-			{
-				$additionalParams = $APPLICATION->ConvertCharsetArray($additionalParams, LANG_CHARSET, "utf-8");
-			}
 
 			$additionalParams['client_id'] = $this->clientId;
 			$additionalParams['client_secret'] = $this->clientSecret;
@@ -85,7 +82,16 @@ class CBitrixServiceTransport
 				$additionalParams['key'] = static::getLicense();
 			}
 
-			$http = new HttpClient(array('socketTimeout' => $this->httpTimeout));
+			$httpClientParams = [
+				'socketTimeout' => $this->httpTimeout,
+			];
+
+			if ($this->streamTimeout)
+			{
+				$httpClientParams['streamTimeout'] = $this->streamTimeout;
+			}
+
+			$http = new HttpClient($httpClientParams);
 			$result = $http->post(
 				$this->serviceHost.static::SERVICE_URL.$methodName,
 				$additionalParams
@@ -146,6 +152,11 @@ class CBitrixServiceTransport
 	public function setTimeout($timeout)
 	{
 		$this->httpTimeout = $timeout;
+	}
+
+	public function setStreamTimeout(int $streamTimeout): void
+	{
+		$this->streamTimeout = $streamTimeout;
 	}
 
 	protected static function getLicense()

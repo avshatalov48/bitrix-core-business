@@ -567,11 +567,25 @@ a.ui-btn-split:focus,
 	--ui-btn-color-active: var(--ui-color-base-80);
 }
 
+.ui-btn-collab {
+	--ui-btn-background: #19CC45;
+	--ui-btn-background-hover: #6BE860;
+	--ui-btn-background-active: #00A94E;
+	--ui-btn-border-color: var(--ui-color-background-transparent);
+	--ui-btn-border-color-hover: var(--ui-color-background-transparent);
+	--ui-btn-border-color-active: var(--ui-color-background-transparent);
+	--ui-btn-color: var(--ui-color-palette-white-base);
+	--ui-btn-color-hover: var(--ui-color-palette-white-base);
+	--ui-btn-color-active: var(--ui-color-palette-white-base);
+}
+
 /* hack for preloading icon */
+.ui-btn-split.ui-btn-icon-ai .ui-btn-main::before:hover,
 .ui-btn.ui-btn-icon-ai::before:hover {
 	background-image: url(../images/ui-btn-ai-waiting.gif?3);
 }
 
+.ui-btn-split.ui-btn-icon-ai .ui-btn-main::before,
 .ui-btn.ui-btn-icon-ai::before {
 	content: '';
 	width: 100%;
@@ -609,6 +623,7 @@ a.ui-btn-split:focus,
 	}
 }
 
+.ui-btn-split.ui-btn-icon-ai.ui-btn-ai-waiting .ui-btn-main::before,
 .ui-btn.ui-btn-icon-ai.ui-btn-ai-waiting::before {
 	animation: fade-in-animated-icon 0.5s both;
 }
@@ -635,6 +650,7 @@ a.ui-btn-split:focus,
 	}
 }
 
+.ui-btn-split.ui-btn-icon-ai.ui-btn-color-ai .ui-btn-main::after,
 .ui-btn.ui-btn-icon-ai.ui-btn-color-ai::after {
 	animation: fade-in-static-icon 0.5s forwards;
 }
@@ -659,6 +675,7 @@ a.ui-btn-split:focus,
 	}
 }
 
+.ui-btn-split.ui-btn-icon-ai.ui-btn-ai-waiting .ui-btn-main::after,
 .ui-btn.ui-btn-icon-ai.ui-btn-ai-waiting::after {
 	animation: fade-out-static-icon 0.5s forwards;
 }
@@ -682,21 +699,24 @@ a.ui-btn-split:focus,
 	}
 }
 
+.ui-btn-icon-ai .ui-btn-main .ui-btn-text,
 .ui-btn-icon-ai .ui-btn-text {
 	transition: 0.1s ease-in-out opacity;
 	transition-delay: 0.4s;
 }
 
+.ui-btn-ai-waiting .ui-btn-main .ui-btn-text,
 .ui-btn-ai-waiting .ui-btn-text {
 	transition-delay: 0s;
 	opacity: 0;
 }
 
+.ui-btn-ai-waiting .ui-btn-main,
+.ui-btn-ai-waiting .ui-btn-menu,
 .ui-btn-ai-waiting {
 	opacity: 0.85;
 	pointer-events: none;
 }
-
 /*endregion*/
 
 /*region Button Color*/

@@ -18,17 +18,6 @@ class EntityLink implements RestConvertible
 {
 	use ContextCustomer;
 
-	public const TYPE_TASKS = 'TASKS';
-	public const TYPE_SONET = 'SONET_GROUP';
-	public const TYPE_CRM = 'CRM';
-	public const TYPE_MAIL = 'MAIL';
-	public const TYPE_CALL = 'CALL';
-	public const TYPE_CALENDAR = 'CALENDAR';
-	public const TYPE_SUPPORT24_NOTIFIER = 'SUPPORT24_NOTIFIER';
-	public const TYPE_SUPPORT24_QUESTION = 'SUPPORT24_QUESTION';
-	public const TYPE_NETWORK_DIALOG = 'NETWORK_DIALOG';
-
-
 	protected const HAS_URL = false;
 
 	private const CACHE_TTL = 18144000;
@@ -42,30 +31,35 @@ class EntityLink implements RestConvertible
 	{
 	}
 
+	public function getEntityId(): string
+	{
+		return $this->entityId;
+	}
+
 	public static function getInstance(Chat $chat): self
 	{
 		$type = $chat->getEntityType() ?? '';
-		if ($type === self::TYPE_SONET && Loader::includeModule('socialnetwork'))
+		if ($type === Type::Sonet->value && Loader::includeModule('socialnetwork'))
 		{
 			$instance = new SonetType();
 		}
-		elseif ($type === self::TYPE_TASKS && Loader::includeModule('tasks'))
+		elseif ($type === Type::Tasks->value && Loader::includeModule('tasks'))
 		{
 			$instance = new TasksType();
 		}
-		elseif (Loader::includeModule('calendar') && $type === \CCalendar::CALENDAR_CHAT_ENTITY_TYPE)
+		elseif ($type === Type::Calendar->value && Loader::includeModule('calendar'))
 		{
 			$instance = new CalendarType();
 		}
-		elseif ($type === self::TYPE_CRM && Loader::includeModule('crm'))
+		elseif ($type === Type::Crm->value && Loader::includeModule('crm'))
 		{
 			$instance = new CrmType($chat->getEntityId() ?? '');
 		}
-		elseif ($type === self::TYPE_CALL && Loader::includeModule('crm'))
+		elseif ($type === Type::Call->value && Loader::includeModule('crm'))
 		{
 			$instance = new CallType($chat->getEntityData1() ?? '');
 		}
-		elseif ($type === self::TYPE_MAIL && Loader::includeModule('mail'))
+		elseif ($type === Type::Mail->value && Loader::includeModule('mail'))
 		{
 			$instance = new MailType();
 		}
@@ -82,13 +76,18 @@ class EntityLink implements RestConvertible
 		return $instance;
 	}
 
-	private function fillUrl(): void
+	protected function fillUrl(): void
 	{
 		if (!static::HAS_URL)
 		{
 			return;
 		}
 
+		$this->url = $this->getUrl();
+	}
+
+	protected function fillUrlWithCache(): void
+	{
 		$cache = Application::getInstance()->getCache();
 		if ($cache->initCache(self::CACHE_TTL, $this->getCacheId(), $this->getCacheDir()))
 		{

@@ -4,6 +4,7 @@ import { ChatHistoryManager } from './classes/chat-history';
 
 export const Feature = {
 	chatV2: 'chatV2',
+	openLinesV2: 'openLinesV2',
 	chatDepartments: 'chatDepartments',
 	copilotActive: 'copilotActive',
 	copilotAvailable: 'copilotAvailable',
@@ -14,6 +15,10 @@ export const Feature = {
 	zoomAvailable: 'zoomAvailable',
 	giphyAvailable: 'giphyAvailable',
 	collabAvailable: 'collabAvailable',
+	collabCreationAvailable: 'collabCreationAvailable',
+	inviteByLinkAvailable: 'inviteByLinkAvailable',
+	inviteByPhoneAvailable: 'inviteByPhoneAvailable',
+	documentSignAvailable: 'documentSignAvailable',
 };
 
 export const FeatureManager = {

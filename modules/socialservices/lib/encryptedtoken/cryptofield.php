@@ -45,7 +45,7 @@ class CryptoField extends \Bitrix\Main\ORM\Fields\CryptoField
 			if (false === $value) // not base64 decoded so not encrypted
 				return $data;
 
-			if (mb_strlen($value, 'latin1') <= $this->ivLength) // too short to be encrypted
+			if (strlen($value) <= $this->ivLength) // too short to be encrypted
 				return $data;
 
 			$value = static::$cipher->decrypt($value, $this->cryptoKey);

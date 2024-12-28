@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Sync\Google;
 
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Managers\ServiceBase;
 use Bitrix\Calendar\Util;
@@ -32,7 +33,7 @@ abstract class Manager extends ServiceBase
 	{
 		parent::__construct($connection);
 		$this->userId = $userId;
-		
+
 		if (!$this->initHttpClient())
 		{
 			$this->deactivateConnection();
@@ -80,7 +81,7 @@ abstract class Manager extends ServiceBase
 
 		return $success;
 	}
-	
+
 	/**
 	 * @param int $userId
 	 * @return \CGoogleOAuthInterface|\CGoogleProxyOAuthInterface
@@ -96,7 +97,7 @@ abstract class Manager extends ServiceBase
 		{
 			$oAuth = new \CSocServGoogleOAuth($userId);
 		}
-		
+
 		$oAuthEntity = $oAuth->getEntityOAuth();
 		$oAuthEntity->addScope([
 			'https://www.googleapis.com/auth/calendar',
@@ -105,7 +106,7 @@ abstract class Manager extends ServiceBase
 		$oAuthEntity->removeScope('https://www.googleapis.com/auth/drive');
 
 		$oAuthEntity->setUser($userId);
-		
+
 		$tokens = $this->getStorageToken($userId);
 		if ($tokens)
 		{
@@ -113,7 +114,7 @@ abstract class Manager extends ServiceBase
 			$oAuthEntity->setAccessTokenExpires($tokens['OATOKEN_EXPIRES']);
 			$oAuthEntity->setRefreshToken($tokens['REFRESH_TOKEN']);
 		}
-		
+
 		if (!$oAuthEntity->checkAccessToken())
 		{
 			$oAuthEntity->getNewAccessToken(
@@ -122,7 +123,7 @@ abstract class Manager extends ServiceBase
 				true,
 			);
 		}
-		
+
 		return $oAuthEntity;
 	}
 
@@ -134,26 +135,30 @@ abstract class Manager extends ServiceBase
 				->setStatus('[401] Unauthorized')
 				->setLastSyncTime(new Core\Base\Date())
 			;
-			
+
 			/** @var Core\Mappers\Factory $mapperFactory */
 			$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
 			$mapperFactory->getConnection()->update($this->connection);
-			
-			Util::addPullEvent('refresh_sync_status', $this->connection->getOwner()->getId(), [
-				'syncInfo' => [
-					'google' => [
-						'status' => false,
-						'type' => $this->connection->getAccountType(),
-						'connected' => true,
-						'id' => $this->connection->getId(),
-						'syncOffset' => 0
+
+			Util::addPullEvent(
+				PushCommand::RefreshSyncStatus,
+				$this->connection->getOwner()->getId(),
+				[
+					'syncInfo' => [
+						'google' => [
+							'status' => false,
+							'type' => $this->connection->getAccountType(),
+							'connected' => true,
+							'id' => $this->connection->getId(),
+							'syncOffset' => 0
+						],
 					],
-				],
-				'requestUid' => Util::getRequestUid(),
-			]);
+					'requestUid' => Util::getRequestUid(),
+				]
+			);
 		}
 	}
-	
+
 	protected function getStorageToken($userId)
 	{
 		return \Bitrix\Socialservices\UserTable::query()
@@ -178,7 +183,7 @@ abstract class Manager extends ServiceBase
 
 		return in_array($this->httpClient->getStatus(), $acceptedCodes);
 	}
-	
+
 	/**
 	 * @param Connection $connection
 	 * @return void
@@ -190,12 +195,12 @@ abstract class Manager extends ServiceBase
 		$oAuth = $this->prepareAuthEntity($userId);
 		$userTokenInfo = $this->getStorageToken($userId);
 		$refreshResult = false;
-		
+
 		if ($userTokenInfo['REFRESH_TOKEN'])
 		{
 			$refreshResult = $oAuth->getNewAccessToken($userTokenInfo['REFRESH_TOKEN'], $userId, true);
 		}
-		
+
 		if (!$refreshResult)
 		{
 			$this->deactivateConnection();

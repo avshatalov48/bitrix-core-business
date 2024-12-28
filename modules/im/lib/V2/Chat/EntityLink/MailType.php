@@ -18,4 +18,14 @@ class MailType extends EntityLink
 
 		return \Bitrix\Mail\Integration\Intranet\Secretary::getMessageUrlForChat((int)$this->entityId, $this->chatId) ?? '';
 	}
+
+	protected function fillUrl(): void
+	{
+		if ($this->getContext()->getUser()->isExtranet())
+		{
+			return;
+		}
+
+		$this->fillUrlWithCache();
+	}
 }

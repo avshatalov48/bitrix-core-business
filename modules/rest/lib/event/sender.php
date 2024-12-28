@@ -315,25 +315,16 @@ class Sender
 			static::getProviderOffline()->send($offlineEvents);
 		}
 
-		if (!static::$forkSet && count(static::$queryData) > 0)
+		if (count(static::$queryData) > 0)
 		{
-			LoggerManager::getInstance()->getLogger()?->debug(
-				"\n{delimiter}\n"
-				. "{date} - {host}\n{delimiter}\n"
-				. "Registers send event background job.\n"
-				. "count: {eventCount}", [
-				'eventCount' => count(static::$queryData),
-				'MESSAGE' => LogType::READY_ONLINE_EVENT_LIST->value,
-			]);
-			\Bitrix\Main\Application::getInstance()->addBackgroundJob(array(__CLASS__, "send"));
-			static::$forkSet = true;
+			self::enqueueBackgroundJob();
 		}
 	}
 
 	/**
 	 * Sends all scheduled handlers to SQS.
 	 */
-	public static function send()
+	public static function send(): void
 	{
 		LoggerManager::getInstance()->getLogger()?->debug(
 			"\n{delimiter}\n"
@@ -350,26 +341,15 @@ class Sender
 		{
 			UsageStatTable::finalize();
 			static::getProvider()->send(self::$queryData);
-			self::$queryData = array();
+			self::$queryData = [];
+			self::$forkSet = false;
 		}
 	}
 
 	public static function queueEvent($queryItem)
 	{
 		self::$queryData[] = $queryItem;
-		if (!static::$forkSet)
-		{
-			LoggerManager::getInstance()->getLogger()?->debug(
-				"\n{delimiter}\n"
-				. "{date} - {host}\n{delimiter}\n"
-				. "Manually registers the background job to send the event.\n"
-				. "count: {eventCount}", [
-				'eventCount' => count(static::$queryData),
-				'MESSAGE' => LogType::READY_ONLINE_EVENT_LIST->value,
-			]);
-			\Bitrix\Main\Application::getInstance()->addBackgroundJob(array(__CLASS__, "send"));
-			static::$forkSet = true;
-		}
+		self::enqueueBackgroundJob();
 	}
 
 	/**
@@ -421,6 +401,27 @@ class Sender
 	public static function setProviderOffline(ProviderOfflineInterface $providerOffline)
 	{
 		static::$providerOffline = $providerOffline;
+	}
+
+	protected static function enqueueBackgroundJob(): void
+	{
+		if (!static::$forkSet)
+		{
+			LoggerManager::getInstance()->getLogger()?->debug(
+				"\n{delimiter}\n"
+				. "{date} - {host}\n{delimiter}\n"
+				. "Registers the background job to send the event.\n"
+				. "count: {eventCount}", [
+				'eventCount' => count(static::$queryData),
+				'MESSAGE' => LogType::READY_ONLINE_EVENT_LIST->value,
+			]);
+			$application = \Bitrix\Main\Application::getInstance();
+			$application->addBackgroundJob(
+				job: [__CLASS__, 'send'],
+				priority: $application::JOB_PRIORITY_LOW
+			);
+			static::$forkSet = true;
+		}
 	}
 
 	protected static function getDefaultProviderOffline()

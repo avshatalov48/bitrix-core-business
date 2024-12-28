@@ -33,6 +33,10 @@ export class Main extends EventEmitter
 	static createInstance(id: number)
 	{
 		const rootWindow = BX.Landing.PageObject.getRootWindow();
+		if (rootWindow.BX.Landing.Main.instance)
+		{
+			rootWindow.BX.Landing.Main.instance.clear();
+		}
 		rootWindow.BX.Landing.Main.instance = new BX.Landing.Main(id);
 	}
 
@@ -133,6 +137,11 @@ export class Main extends EventEmitter
 				Dom.addClass(mainArea, 'landing-ui-collapse');
 			}
 		}
+	}
+
+	clear(): void
+	{
+		BX.removeCustomEvent('Landing.Block:onAfterDelete', this.onBlockDelete);
 	}
 
 	isCrmFormPage(): boolean
@@ -870,7 +879,6 @@ export class Main extends EventEmitter
 			return blocks[category].items[code];
 		}
 	}
-
 
 	/**
 	 * Handles copy block event

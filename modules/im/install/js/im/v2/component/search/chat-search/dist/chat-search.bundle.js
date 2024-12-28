@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,im_v2_lib_logger,im_v2_lib_search,main_core_events,im_public,im_v2_lib_menu,im_v2_lib_call,im_v2_lib_permission,main_core,im_v2_const,im_v2_lib_utils,im_v2_lib_textHighlighter,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_component_elements) {
+(function (exports,ui_designTokens,ui_fonts_opensans,im_v2_lib_logger,im_v2_lib_search,main_core_events,im_public,im_v2_lib_menu,im_v2_lib_call,im_v2_lib_permission,main_core,im_v2_lib_utils,im_v2_lib_textHighlighter,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_const,im_v2_component_elements) {
 	'use strict';
 
 	const SEARCH_REQUEST_ENDPOINT = 'ui.entityselector.doSearch';
@@ -204,7 +204,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  if (dialog.type === im_v2_const.ChatType.user) {
 	    const user = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['users/get'](dialogId);
-	    return user && user.extranet;
+	    return user && user.type === im_v2_const.UserType.extranet;
 	  }
 	  return dialog.extranet;
 	}
@@ -269,7 +269,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return false;
 	    }
 	    const user = this.store.getters['users/get'](this.context.dialogId);
-	    return user.bot === true;
+	    return user.type === im_v2_const.UserType.bot;
 	  }
 	}
 
@@ -277,6 +277,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  [im_v2_const.ChatType.openChannel]: main_core.Loc.getMessage('IM_SEARCH_ITEM_OPEN_CHANNEL_TYPE_GROUP'),
 	  [im_v2_const.ChatType.generalChannel]: main_core.Loc.getMessage('IM_SEARCH_ITEM_OPEN_CHANNEL_TYPE_GROUP'),
 	  [im_v2_const.ChatType.channel]: main_core.Loc.getMessage('IM_SEARCH_ITEM_PRIVATE_CHANNEL_TYPE_GROUP'),
+	  [im_v2_const.ChatType.collab]: main_core.Loc.getMessage('IM_SEARCH_ITEM_COLLAB_TYPE'),
 	  default: main_core.Loc.getMessage('IM_SEARCH_ITEM_CHAT_TYPE_GROUP_V2')
 	};
 
@@ -328,7 +329,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.isUser) {
 	        return '';
 	      }
-	      return this.user.workPosition;
+	      return this.$store.getters['users/getPosition'](this.dialogId);
 	    },
 	    userItemText() {
 	      if (!this.position) {
@@ -475,7 +476,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return (_this$user$firstName = this.user.firstName) != null ? _this$user$firstName : this.user.name;
 	    },
 	    isExtranet() {
-	      return this.user.extranet;
+	      return this.user.type === im_v2_const.UserType.extranet;
 	    }
 	  },
 	  created() {
@@ -554,7 +555,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return;
 	        }
 	        const user = this.$store.getters['users/get'](recentItem.dialogId, true);
-	        if (user.bot || user.id === im_v2_application_core.Core.getUserId()) {
+	        const isBot = user.type === im_v2_const.UserType.bot;
+	        if (isBot || user.id === im_v2_application_core.Core.getUserId()) {
 	          return;
 	        }
 	        recentUsers.push(user);
@@ -1034,5 +1036,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.ChatSearch = ChatSearch;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=chat-search.bundle.js.map

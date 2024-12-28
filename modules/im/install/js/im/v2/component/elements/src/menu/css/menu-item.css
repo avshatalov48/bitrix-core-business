@@ -98,11 +98,12 @@
 
 .bx-im-menu-item__subtitle {
 	max-width: 100%;
+	margin-top: 2px;
 	font: var(--im-font-size-3xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
 	color: var(--im-menu-item__font-color_subtitle);
 	overflow: hidden;
 	display: -webkit-box;
-	-webkit-line-clamp: 2;
+	-webkit-line-clamp: 4;
 	-webkit-box-orient: vertical;
 	word-break: break-word;
 }
@@ -112,7 +113,11 @@
 }
 
 .bx-im-menu_item__icon.--channel {
-	background-image: url('./images/channel.svg');
+	background-image: url('./images/channel.svg?v2');
+}
+
+.bx-im-menu_item__icon.--collab {
+	background-image: url('./images/collab.svg');
 }
 
 .bx-im-menu_item__icon.--conference {
@@ -157,4 +162,12 @@
 
 .bx-im-menu_item__icon.--copilot {
 	background-image: url('./images/copilot.svg');
+}
+
+.bx-im-menu_item__icon.--document-sign {
+	background-image: url('./images/document-sign.svg');
+}
+
+.bx-im-menu_item__icon.--calendar-slot {
+	background-image: url('./images/calendar-slot.svg');
 }

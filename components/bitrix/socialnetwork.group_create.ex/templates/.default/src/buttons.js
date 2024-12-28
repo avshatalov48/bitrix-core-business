@@ -1,6 +1,7 @@
 import { Type } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { ButtonManager } from 'ui.buttons';
+import { Messenger } from 'im.public.iframe';
 
 import { WorkgroupForm } from './index';
 import { FieldsManager } from './fields';
@@ -18,6 +19,8 @@ export class Buttons
 		{
 			return;
 		}
+
+		this.initCollabCreateButton();
 
 		this.submitButtonClickHandler = this.submitButtonClickHandler.bind(this);
 		this.submitButton.addEventListener('click', this.submitButtonClickHandler);
@@ -103,8 +106,10 @@ export class Buttons
 		}
 	}
 
-	submitButtonClickHandler(e)
+	async submitButtonClickHandler(e)
 	{
+		e.preventDefault();
+
 		const button = ButtonManager.createFromNode(e.currentTarget);
 		if (
 			button
@@ -116,7 +121,7 @@ export class Buttons
 
 		WorkgroupForm.getInstance().alertManager.hideAllAlerts();
 
-		const errorDataList = FieldsManager.check().filter((errorData) => {
+		const errorDataList = (await FieldsManager.check()).filter((errorData) => {
 			return (
 				Type.isPlainObject(errorData)
 				&& Type.isStringFilled(errorData.message)
@@ -219,5 +224,59 @@ export class Buttons
 		}
 
 		buttonNode.classList.add(this.cssClass.hidden);
+	}
+
+	initCollabCreateButton()
+	{
+		this.collabCreateButton = document.getElementById('sonet_group_create_popup_form_button_collab');
+
+		if (!this.collabCreateButton)
+		{
+			return;
+		}
+
+		this.collabCreateButton.onclick = (e) => {
+			e.preventDefault();
+
+			this.#sendCollabCreateButtonAnalytics();
+			Messenger.openChatCreation('collab');
+		};
+	}
+
+	#sendCollabCreateButtonAnalytics()
+	{
+		const analyticsData = {
+			event: 'click_create_new',
+			category: 'collab',
+			c_section: 'project',
+			tool: 'im',
+			p2: `user_${WorkgroupForm.getInstance().currentUserType}`,
+		};
+
+		if (BX.UI.Analytics)
+		{
+			BX.UI.Analytics.sendData(analyticsData);
+		}
+		else
+		{
+			// eslint-disable-next-line promise/catch-or-return
+			BX.Runtime.loadExtension('ui.analytics').then(() => {
+				BX.UI.Analytics.sendData(analyticsData);
+			});
+		}
+	}
+
+	updateButtonsByProject(projectType: string)
+	{
+		if (projectType === 'collab')
+		{
+			Buttons.hideButton(this.submitButton);
+			Buttons.showButton(this.collabCreateButton);
+		}
+		else
+		{
+			Buttons.hideButton(this.collabCreateButton);
+			Buttons.showButton(this.submitButton);
+		}
 	}
 }

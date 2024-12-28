@@ -8,6 +8,7 @@ use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Handlers\UpdateMasterExdateHandler;
 use Bitrix\Calendar\Core\Managers\Compare\EventCompareManager;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Util\FlagRegistry;
 use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
 use Bitrix\Calendar\Sync;
@@ -202,18 +203,22 @@ class VendorDataExchangeManager
 			: $connection->getAccountType()
 		;
 
-		Util::addPullEvent('refresh_sync_status', $connection->getOwner()->getId(), [
-			'syncInfo' => [
-				$accountType => [
-					'status' => $this->getSyncStatus($connection->getStatus()),
-					'type' => $accountType,
-					'connected' => true,
-					'id' => $connection->getId(),
-					'syncOffset' => 0,
+		Util::addPullEvent(
+			PushCommand::RefreshSyncStatus,
+			$connection->getOwner()->getId(),
+			[
+				'syncInfo' => [
+					$accountType => [
+						'status' => $this->getSyncStatus($connection->getStatus()),
+						'type' => $accountType,
+						'connected' => true,
+						'id' => $connection->getId(),
+						'syncOffset' => 0,
+					],
 				],
-			],
-			'requestUid' => Util::getRequestUid(),
-		]);
+				'requestUid' => Util::getRequestUid(),
+			]
+		);
 
 		return $this;
 	}

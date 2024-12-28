@@ -1154,6 +1154,7 @@
 
 		innerContainer = partWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-event-line-inner-container'}}));
 		innerNode = innerContainer.appendChild(BX.create('DIV', {props: {className: 'calendar-event-line-inner'}}));
+
 		dotNode = innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-line-dot'}}));
 
 		if (entry.isFullDay())
@@ -1260,7 +1261,7 @@
 			innerContainer: innerContainer,
 			timeNode: timeNode || false,
 			endTimeNode: endTimeNode || false,
-			dotNode: dotNode
+			dotNode: dotNode,
 		};
 
 		if (!params.popupMode)
@@ -1378,13 +1379,19 @@
 			{
 				titleNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-refused'}}));
 			}
-			else if (entry.isSharingEvent())
+			else if (this.shouldEntryLookLikeSharing(entry))
 			{
 				titleNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-sharing'}}));
 			}
 			else if (entry.hasEmailAttendees() || entry.ownerIsEmailUser())
 			{
 				titleNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-mail'}}));
+			}
+
+			if (this.shouldEntryLookLikeCollab(entry) && entry.getCurrentStatus() !== 'N')
+			{
+				const iconColor = entry.isExpired() ? '--gray' : '--white';
+				titleNode.appendChild(BX.Tag.render`<span class="calendar-event-block-icon-collab ${iconColor}"></span>`);
 			}
 
 			nameNode = titleNode.appendChild(
@@ -1406,7 +1413,40 @@
 				html: this.calendar.util.formatTime(entry.from) + ' &ndash; ' + this.calendar.util.formatTime(entry.to)
 			}));
 
-			innerNode.style.backgroundColor = entry.color;
+			let collabNode;
+			if (this.shouldEntryLookLikeCollab(entry) && entry.getCollabId())
+			{
+				const collab = this.calendar.collabManager.getById(entry.getCollabId());
+				const isCurrentCollabCalendar = this.calendar.util.config.type === 'group'
+					&& collab
+					&& this.calendar.util.config.ownerId === collab.getId()
+				;
+				if (collab && !isCurrentCollabCalendar)
+				{
+					const prefixedTitle = BX.Loc.getMessage(
+						'EC_VIEW_COLLAB_PREFIXED_NAME',
+						{
+							'#TITLE#': collab.getName(),
+							'[collab_prefix]': '<span class="collab-prefix">',
+							'[/collab_prefix]': '</span>',
+						},
+					);
+					collabNode = BX.Tag.render`
+						<span class="calendar-event-block-collab">
+							<span class="calendar-event-block-collab-name">
+								${prefixedTitle}
+							</span>
+						</span>
+					`;
+					innerNode.appendChild(collabNode);
+				}
+			}
+
+			const innerNodeColor = this.shouldEntryLookLikeCollab(entry)
+				? this.calendar.util.getCollabColor()
+				: entry.color
+			;
+			innerNode.style.backgroundColor = innerNodeColor;
 
 			let resizerNodeTop, resizerNodeBottom;
 			if (this.calendar.util.type !== 'location' && this.calendar.entryController.canDo(entry, 'edit'))
@@ -1422,6 +1462,7 @@
 				nameNode: nameNode,
 				innerNode: innerNode,
 				timeNode: timeNode,
+				collabNode: collabNode,
 				blockBackgroundNode: innerNode,
 				resizerNodeTop: resizerNodeTop,
 				resizerNodeBottom: resizerNodeBottom,
@@ -2302,9 +2343,10 @@
 
 	DayView.prototype.getEvents = function(day)
 	{
-		const items = this.name === 'week'
-			? this.days[day.dayOffset].entries.timeline
+		let items = this.name === 'week'
+			? this.days[day.dayOffset]?.entries?.timeline
 			: this.days[0].entries.timeline;
+		items = items || [];
 		const events = items.map(item => item.entry);
 		return events.filter(event => {
 			let isEventDeleted = false;
@@ -2326,10 +2368,11 @@
 
 		const fromDateOrig = new Date(fromDate.getTime());
 		const toDateOrig = new Date(toDate.getTime());
-		const items =
+		let items =
 			this.name === 'week'
-				? this.days[entry.dayFrom.dayOffset].entries.timeline
+				? this.days[entry.dayFrom.dayOffset]?.entries?.timeline
 				: this.days[0].entries.timeline;
+		items = items || [];
 
 		for (var i = 0; i < items.length; i++)
 		{
@@ -2737,6 +2780,7 @@
 		}
 		// clear all compact levels
 		BX.removeClass(entryNode, 'calendar-event-block-compact');
+		BX.removeClass(entryNode, 'calendar-event-block-hide-collab');
 		nameNode.style.overflow = 'visible';
 
 		// add compactness level by level
@@ -2769,6 +2813,29 @@
 			if (textWidth < titleWidth)
 			{
 				titleNode.style.width = `${textWidth + 1}px`;
+			}
+		}
+
+		const collabNode = entryNode.querySelector('.calendar-event-block-collab');
+		if (!collabNode)
+		{
+			return;
+		}
+
+		if (nameNode.offsetHeight + timeNode.offsetHeight + collabNode.offsetHeight > innerNode.offsetHeight)
+		{
+			BX.addClass(entryNode, 'calendar-event-block-hide-collab');
+		}
+
+		if (nameNode.offsetHeight + timeNode.offsetHeight + collabNode.offsetHeight > innerNode.offsetHeight - 10)
+		{
+			const lineHeight = parseInt(window.getComputedStyle(nameNode).lineHeight);
+			const fitHeight = innerNode.offsetHeight - timeNode.offsetHeight - collabNode.offsetHeight - 10;
+			const lineCount = Math.floor(fitHeight / lineHeight);
+
+			if (lineCount <= 1)
+			{
+				BX.addClass(entryNode, 'calendar-event-block-compact');
 			}
 		}
 	}
@@ -2931,9 +2998,14 @@
 			entryClassName += ' calendar-event-line-past';
 		}
 
-		if (entry.isSharingEvent())
+		if (this.shouldEntryLookLikeSharing(entry))
 		{
 			entryClassName += ' calendar-event-line-wrap-sharing';
+			entryClassName += ' calendar-event-wrap-icon';
+		}
+		else if (this.shouldEntryLookLikeCollab(entry))
+		{
+			entryClassName += ' calendar-event-line-wrap-collab';
 			entryClassName += ' calendar-event-wrap-icon';
 		}
 

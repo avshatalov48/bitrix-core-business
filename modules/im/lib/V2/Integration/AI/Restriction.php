@@ -4,8 +4,12 @@ namespace Bitrix\Im\V2\Integration\AI;
 
 use Bitrix\AI\Engine;
 use Bitrix\AI\Facade\Bitrix24;
+use Bitrix\AI\Quality;
 use Bitrix\AI\Tuning\Defaults;
+use Bitrix\AI\Tuning\Manager;
+use Bitrix\AI\Tuning\Type;
 use Bitrix\Main\Application;
+use Bitrix\Main\Entity\EventResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -34,6 +38,8 @@ class Restriction
 		'cn',
 	];
 
+	private static array $activeListByType = [];
+	private static ?bool $isAvailable = null;
 	private string $type;
 
 	public function __construct(string $type)
@@ -43,46 +49,28 @@ class Restriction
 
 	public function isActive(): bool
 	{
-		if (
-			!Loader::includeModule('ai')
-			|| !$this->isAvailable()
-			|| !isset(self::CATEGORIES_BY_TYPE[$this->type])
-		)
-		{
-			return false;
-		}
+		self::$activeListByType[$this->type] ??= $this->isActiveInternal();
 
-		$category = self::CATEGORIES_BY_TYPE[$this->type];
-		$engine = Engine::getListAvailable($category);
-		if (empty($engine))
-		{
-			return false;
-		}
-
-		$copilotSetting = (new \Bitrix\AI\Tuning\Manager())->getItem(self::SETTINGS_BY_TYPE[$this->type]);
-		if (!isset($copilotSetting))
-		{
-			return false;
-		}
-
-		return $copilotSetting->getValue();
+		return self::$activeListByType[$this->type];
 	}
 
 	public function isAvailable(): bool
 	{
-		return $this->isZoneAvailable();
+		self::$isAvailable ??= $this->isAvailableInternal();
+
+		return self::$isAvailable;
 	}
 
-	public static function onTuningLoad(): \Bitrix\Main\Entity\EventResult
+	public static function onTuningLoad(): EventResult
 	{
-		$result = new \Bitrix\Main\Entity\EventResult;
+		$result = new EventResult;
 		$items = [];
 		$groups = [];
 
 		if (!empty(Engine::getListAvailable(self::CATEGORIES_BY_TYPE[self::AI_COPILOT_CHAT])))
 		{
 			$groups['im_copilot_chat'] = [
-				'title' => Loc::getMessage('IM_RESTRICTION_COPILOT_TITLE'),
+				'title' => Loc::getMessage('IM_RESTRICTION_COPILOT_GROUP_MSGVER_1'),
 				'description' => Loc::getMessage('IM_RESTRICTION_COPILOT_DESCRIPTION'),
 				'helpdesk' => '18505482',
 			];
@@ -91,7 +79,7 @@ class Restriction
 				'group' => 'im_copilot_chat',
 				'title' => Loc::getMessage('IM_RESTRICTION_COPILOT_TITLE'),
 				'header' => Loc::getMessage('IM_RESTRICTION_COPILOT_HEADER'),
-				'type' => \Bitrix\AI\Tuning\Type::BOOLEAN,
+				'type' => Type::BOOLEAN,
 				'default' => true,
 			];
 
@@ -119,7 +107,34 @@ class Restriction
 		return $result;
 	}
 
-	private function isZoneAvailable(): bool
+	private function isActiveInternal(): bool
+	{
+		if (
+			!Loader::includeModule('ai')
+			|| !$this->isAvailable()
+			|| !isset(self::CATEGORIES_BY_TYPE[$this->type])
+		)
+		{
+			return false;
+		}
+
+		$category = self::CATEGORIES_BY_TYPE[$this->type];
+		$engine = Engine::getListAvailable($category);
+		if (empty($engine))
+		{
+			return false;
+		}
+
+		$copilotSetting = (new Manager())->getItem(self::SETTINGS_BY_TYPE[$this->type]);
+		if (!isset($copilotSetting))
+		{
+			return false;
+		}
+
+		return $copilotSetting->getValue();
+	}
+
+	private function isAvailableInternal(): bool
 	{
 		// todo: need to support changes
 		$portalZone = Application::getInstance()->getLicense()->getRegion() ?? 'ru';

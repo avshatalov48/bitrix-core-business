@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/registry.bundle.js',
 	'rel' => [
 		'im.v2.lib.channel',
+		'ui.avatar',
 		'im.v2.lib.copilot',
 		'ui.icons.disk',
 		'im.v2.lib.parser',
@@ -27,7 +28,6 @@ return [
 		'im.v2.lib.text-highlighter',
 		'im.v2.lib.utils',
 		'im.v2.lib.permission',
-		'main.core',
 		'im.v2.lib.date-formatter',
 		'im.v2.application.core',
 		'im.v2.lib.user',
@@ -40,6 +40,7 @@ return [
 		'main.polyfill.intersectionobserver',
 		'ui.vue3.directives.lazyload',
 		'im.v2.component.animation',
+		'main.core',
 	],
 	'skip_core' => false,
 ];

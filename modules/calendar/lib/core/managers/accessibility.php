@@ -9,21 +9,12 @@ use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Sharing\Helper;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ObjectException;
 use Bitrix\Main\Type\DateTime;
 
 class Accessibility
 {
 	private array $canSeeNameCache = [];
-	private bool $checkPermissions = true;
 	private int $skipEventId = 0;
-
-	public function setCheckPermissions(bool $checkPermissions): self
-	{
-		$this->checkPermissions = $checkPermissions;
-
-		return $this;
-	}
 
 	public function setSkipEventId(int $curEventId): self
 	{
@@ -34,16 +25,12 @@ class Accessibility
 
 	/**
 	 * @param array<int> $userIds
-	 * @param int $timestampFromUTC
-	 * @param int $timestampToUTC
-	 * @return array
 	 */
-	public function getBusyUsersIds(array $userIds, int $timestampFromUTC, int $timestampToUTC): array
+	public function getBusyUsersIds(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
-		$dateFromTs = \CCalendar::TimestampUTC(Util::formatDateTimestampUTC($timestampFromUTC));
-		$dateToTs = \CCalendar::TimestampUTC(Util::formatDateTimestampUTC($timestampToUTC));
+		$dateFromTs = $timestampFrom - ($timestampFrom % \CCalendar::DAY_LENGTH);
+		$dateToTs = $timestampTo - ($timestampTo % \CCalendar::DAY_LENGTH);
 		$accessibility = $this
-			->setCheckPermissions(false)
 			->getAccessibility($userIds, $dateFromTs, $dateToTs)
 		;
 
@@ -63,34 +50,65 @@ class Accessibility
 					$itemTo -= $timezoneOffset;
 				}
 
-				if (Util::doIntervalsIntersect($timestampFromUTC, $timestampToUTC, $itemFrom, $itemTo))
+				if (Util::doIntervalsIntersect($timestampFrom, $timestampTo, $itemFrom, $itemTo))
 				{
 					$busyUsersList[] = $userId;
+					continue 2;
 				}
 			}
 		}
 
 		return $busyUsersList;
 	}
-	
+
 	/**
 	 * @param array<int> $userIds
-	 * @param int $timestampFromUTC
-	 * @param int $timestampToUTC
-	 * @return array
-	 * @throws ObjectException
 	 */
-	public function getAccessibility(array $userIds, int $timestampFromUTC, int $timestampToUTC): array
+	public function getAccessibility(array $userIds, int $timestampFrom, int $timestampTo): array
+	{
+		$accessibilityTs = $this->getAccessibilityTs($userIds, $timestampFrom, $timestampTo);
+
+		return $this->formatAccessibilityTs($accessibilityTs);
+	}
+
+	private function formatAccessibilityTs(array $accessibilityTs): array
+	{
+		return array_map(
+			fn(array $userAccessibility) => array_map(
+				fn(array $accessibilityItem) => array_merge($accessibilityItem, [
+					'from' => $this->formatTimestamp($accessibilityItem['from'], $accessibilityItem['isFullDay']),
+					'to' => $this->formatTimestamp($accessibilityItem['to'], $accessibilityItem['isFullDay']),
+				]),
+				$userAccessibility,
+			),
+			$accessibilityTs,
+		);
+	}
+
+	private function formatTimestamp(int $timestamp, bool $isFullDay): string
+	{
+		if ($isFullDay)
+		{
+			return Util::formatDateTimestampUTC($timestamp);
+		}
+
+		return Util::formatDateTimeTimestampUTC($timestamp);
+	}
+
+	/**
+	 * @param array<int> $userIds
+	 */
+	public function getAccessibilityTs(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
 		$accessibility = [];
-		
+
 		if (empty($userIds))
 		{
 			return $accessibility;
 		}
-		
-		$events = $this->getEvents($userIds, $timestampFromUTC, $timestampToUTC);
-		$absences = $this->getAbsences($userIds, $timestampFromUTC, $timestampToUTC);
+
+		$events = $this->getEventsTs($userIds, $timestampFrom, $timestampTo);
+		$absences = $this->getAbsencesTs($userIds, $timestampFrom, $timestampTo);
 
 		foreach ($userIds as $userId)
 		{
@@ -99,17 +117,13 @@ class Accessibility
 
 		return $accessibility;
 	}
-	
+
 	/**
 	 * @param array<int> $userIds
-	 * @param int $timestampFromUTC
-	 * @param int $timestampToUTC
-	 * @return array
-	 * @throws ObjectException
 	 */
-	public function getEvents(array $userIds, int $timestampFromUTC, int $timestampToUTC): array
+	public function getEventsTs(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
-		[$from, $to] = $this->formatLimitFromTimestamps($timestampFromUTC, $timestampToUTC);
+		[$from, $to] = $this->formatLimitFromTimestamps($timestampFrom, $timestampTo);
 		$events = \CCalendarEvent::GetList([
 			'arFilter' => [
 				'FROM_LIMIT' => $from,
@@ -128,7 +142,7 @@ class Accessibility
 			'fetchSection' => true,
 			'parseDescription' => false,
 			'setDefaultLimit' => false,
-			'checkPermissions' => $this->checkPermissions
+			'checkPermissions' => false,
 		]);
 
 		$accessibility = $this->initAccessibility($userIds);
@@ -154,18 +168,17 @@ class Accessibility
 			$isFullDay = $event['DT_SKIP_TIME'] === 'Y';
 			if ($isFullDay)
 			{
-				$from = Util::formatDateTimestampUTC(\CCalendar::TimestampUTC($event['DATE_FROM']));
-				$to = Util::formatDateTimestampUTC(\CCalendar::TimestampUTC($event['DATE_TO']) + \CCalendar::GetDayLen());
+				$from = \CCalendar::TimestampUTC($event['DATE_FROM']);
+				$to = \CCalendar::TimestampUTC($event['DATE_TO']) + \CCalendar::GetDayLen();
 			}
 			else
 			{
-				$eventTsFromUTC = Helper::getEventTimestampUTC(new DateTime($event['DATE_FROM']), $event['TZ_FROM']);
-				$eventTsToUTC = Helper::getEventTimestampUTC(new DateTime($event['DATE_TO']), $event['TZ_TO']);
-				$from = Util::formatDateTimeTimestampUTC($eventTsFromUTC);
-				$to = Util::formatDateTimeTimestampUTC($eventTsToUTC);
+				$from = Helper::getEventTimestampUTC(new DateTime($event['DATE_FROM']), $event['TZ_FROM']);
+				$to = Helper::getEventTimestampUTC(new DateTime($event['DATE_TO']), $event['TZ_TO']);
 			}
 			$accessibility[$event['OWNER_ID']][] = [
-				'id' => $event['ID'],
+				'id' => (int)$event['ID'],
+				'parentId' => (int)$event['PARENT_ID'],
 				'name' => $this->getEventName($event),
 				'from' => $from,
 				'to' => $to,
@@ -213,18 +226,15 @@ class Accessibility
 
 	/**
 	 * @param array<int> $userIds
-	 * @param int $timestampFromUTC
-	 * @param int $timestampToUTC
-	 * @return array
 	 */
-	public function getAbsences(array $userIds, int $timestampFromUTC, int $timestampToUTC): array
+	public function getAbsencesTs(array $userIds, int $timestampFrom, int $timestampTo): array
 	{
 		if (!\CCalendar::IsIntranetEnabled())
 		{
 			return [];
 		}
 
-		[$from, $to] = $this->formatLimitFromTimestamps($timestampFromUTC, $timestampToUTC);
+		[$from, $to] = $this->formatLimitFromTimestamps($timestampFrom, $timestampTo);
 		$usersAbsence = \CIntranetUtils::GetAbsenceData(
 			array(
 				'DATE_START' => $from,
@@ -232,7 +242,7 @@ class Accessibility
 				'USERS' => $userIds,
 				'PER_USER' => true,
 			),
-			BX_INTRANET_ABSENCE_HR
+			BX_INTRANET_ABSENCE_HR,
 		);
 
 		$absenceTypes = \Bitrix\Intranet\UserAbsence::getVacationTypes();
@@ -242,31 +252,27 @@ class Accessibility
 		);
 		$vacationTypesIds = array_map(fn ($type) => (int)$type['ENUM_ID'], $vacationTypes);
 
-		$serverOffset = (int)date('Z');
-		$userOffset = \CCalendar::GetOffset(\CCalendar::GetUserId());
+		$offset = (int)date('Z') + \CCalendar::GetOffset(\CCalendar::GetUserId());
 		$accessibility = $this->initAccessibility($userIds);
 		foreach($usersAbsence as $userId => $absenceData)
 		{
 			foreach($absenceData as $event)
 			{
-				$fromUTC = \CCalendar::TimestampUTC($event['DATE_ACTIVE_FROM']);
-				$toUTC = \CCalendar::TimestampUTC($event['DATE_ACTIVE_TO']);
+				$from = \CCalendar::TimestampUTC($event['DATE_ACTIVE_FROM']);
+				$to = \CCalendar::TimestampUTC($event['DATE_ACTIVE_TO']);
 				$isFullDay = $this->isFullDay($event['DATE_ACTIVE_FROM'], $event['DATE_ACTIVE_TO']);
+
 				if ($this->isDateWithoutTimeOrIsMidnight($event['DATE_ACTIVE_TO']))
 				{
-					$toUTC += \CCalendar::GetDayLen();
+					$to += \CCalendar::GetDayLen();
 				}
 
-				if ($isFullDay)
+				if (!$isFullDay)
 				{
-					$from = Util::formatDateTimestampUTC($fromUTC);
-					$to = Util::formatDateTimestampUTC($toUTC);
+					$from -= $offset;
+					$to -= $offset;
 				}
-				else
-				{
-					$from = Util::formatDateTimeTimestampUTC($fromUTC - $serverOffset - $userOffset);
-					$to = Util::formatDateTimeTimestampUTC($toUTC - $serverOffset - $userOffset);
-				}
+
 				$accessibility[$userId][] = [
 					'from' => $from,
 					'to' => $to,
@@ -291,11 +297,11 @@ class Accessibility
 			=== \CCalendar::TimestampUTC(Util::formatDateTimestampUTC(\CCalendar::TimestampUTC($date)));
 	}
 
-	private function formatLimitFromTimestamps(int $timestampFromUTC, int $timestampToUTC): array
+	private function formatLimitFromTimestamps(int $timestampFrom, int $timestampTo): array
 	{
 		return [
-			Util::formatDateTimeTimestampUTC($timestampFromUTC),
-			Util::formatDateTimeTimestampUTC($timestampToUTC)
+			Util::formatDateTimeTimestampUTC($timestampFrom),
+			Util::formatDateTimeTimestampUTC($timestampTo),
 		];
 	}
 

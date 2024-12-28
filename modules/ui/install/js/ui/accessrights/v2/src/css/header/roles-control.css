@@ -1,0 +1,48 @@
+.ui-access-rights-v2-column-item.ui-access-rights-v2-header-roles-control {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 10px 10px 10px 15px;
+	height: calc(100% - 10px - 10px); /* height: 100% overflows because of top/bottom paddings */
+}
+
+.ui-access-rights-v2-header-roles-control-header {
+	display: flex;
+	justify-content: space-between;
+	width: 100%
+}
+.ui-access-rights-v2-header-roles-control-actions {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.ui-access-rights-v2-header-roles-control-counter {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	font-size: var(--ui-font-size-sm);
+	border-radius: var(--ui-border-radius-pill);
+	box-shadow: var(--ui-shadow-bottom-s);
+	padding: 5px 10px 5px 10px;
+	border: var(--ui-border-width-thin) solid rgba(var(--ui-color-palette-black-solid-rgb), 0.07)
+}
+
+.ui-access-rights-v2-header-roles-control-chevron {
+	margin-left: 2px;
+	--ui-icon-set__icon-size: 13px;
+	opacity: var(--ui-opacity-40);
+}
+
+.ui-access-rights-v2-header-roles-control-expander {
+	display: flex;
+	align-items: center;
+}
+
+.ui-access-rights-v2-header-roles-control-expander .ui-icon-set {
+	--ui-icon-set__icon-size: 16px;
+	opacity: var(--ui-opacity-60);
+	cursor: pointer;
+}

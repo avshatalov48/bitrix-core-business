@@ -21,7 +21,7 @@ class CIMEvent
 		]);
 		while ($row = $result->fetch())
 		{
-			IM\Model\ChatTable::update($row['ID'], ['AVATAR' => '']);
+			IM\Model\ChatTable::update($row['ID'], ['AVATAR' => null]);
 		}
 	}
 
@@ -797,8 +797,12 @@ class CIMEvent
 
 	public static function OnAfterUserUpdate($arParams)
 	{
+		IM\V2\Entity\User\UserFactory::getInstance()->clearCache((int)$arParams["ID"]);
+		$user = IM\V2\Entity\User\User::getInstance((int)$arParams["ID"]);
+
 		IM\V2\Message\CounterService::onAfterUserUpdate($arParams);
 		IM\V2\Chat\User\OwnerService::onAfterUserUpdate($arParams);
+
 		$commonChatId = CIMChat::GetGeneralChatId();
 		if ($commonChatId > 0 && (isset($arParams['ACTIVE']) || isset($arParams['UF_DEPARTMENT'])))
 		{
@@ -821,12 +825,12 @@ class CIMEvent
 				$commonChatId = CIMChat::GetGeneralChatId();
 				if ($commonChatId)
 				{
-					if (\Bitrix\Im\User::getInstance($arParams["ID"])->isBot())
+					if ($user->isBot())
 					{
 						return true;
 					}
 
-					if ($arParams['ACTIVE'] != 'Y' && !\Bitrix\Im\User::getInstance($arParams["ID"])->isActive())
+					if ($arParams['ACTIVE'] != 'Y' && !$user->isActive())
 					{
 						return true;
 					}

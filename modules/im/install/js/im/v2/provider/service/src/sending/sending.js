@@ -10,7 +10,7 @@ import { EventType, RestMethod, DialogScrollThreshold, ChatType } from 'im.v2.co
 import { MessageService } from '../registry';
 
 import type { Store } from 'ui.vue3.vuex';
-import type { JsonObject } from 'main.core';
+import type { JsonObject, JsonValue } from 'main.core';
 import type { ImModelChat, ImModelMessage } from 'im.v2.model';
 
 type BaseMessageParams = {
@@ -50,6 +50,16 @@ type PreparedMessage = {
 	viewedByOthers: boolean,
 };
 
+export type ForwardedEntityConfig = {
+	id: number,
+	title: string,
+};
+
+export type PanelContext = {
+	messageId: number,
+	[prop: string]: JsonValue,
+}
+
 export class SendingService
 {
 	#store: Store;
@@ -85,20 +95,33 @@ export class SendingService
 		return this.#processMessageSending(message);
 	}
 
-	async sendMessageWithFiles(params: FileMessageParams): Promise
+	async #addLoadingMessage(message: PreparedMessage): Promise<void>
+	{
+		return this.#store.dispatch('messages/addLoadingMessage', {
+			message,
+		});
+	}
+
+	async sendMessageWithFiles(params: FileMessageParams): Promise<void>
 	{
 		const { text = '', fileIds = [] } = params;
 		if (!Type.isStringFilled(text) && !Type.isArrayFilled(fileIds))
 		{
-			return Promise.resolve();
+			return;
 		}
 
 		Logger.warn('SendingService: sendMessage with files', params);
-		const message = this.#prepareMessageWithFiles(params);
+		const message: PreparedMessage = this.#prepareMessageWithFiles(params);
 
-		await this.#handleAddingMessageToModels(message);
+		await this.#handlePagination(message.dialogId);
+		await this.#addLoadingMessage(message);
+		await this.#addMessageToRecent(message);
+		await this.#clearLastMessageViews(message.dialogId);
 
-		return Promise.resolve();
+		this.#sendScrollEvent({
+			force: true,
+			dialogId: message.dialogId,
+		});
 	}
 
 	async forwardMessages(params: PlainMessageParams): Promise
@@ -119,13 +142,13 @@ export class SendingService
 			await this.#addMessageToModels(commentMessage);
 		}
 
-		const forwardUuidMap = this.#getForwardUuidMap(forwardIds);
+		const sortForwardIds = [...forwardIds].sort();
+		const forwardUuidMap = this.#getForwardUuidMap(sortForwardIds);
 		const forwardedMessages = this.#prepareForwardMessages(params, forwardUuidMap);
 
 		await this.#addForwardsToModels(forwardedMessages);
 
 		this.#sendScrollEvent({ force: true, dialogId });
-
 		try
 		{
 			const requestParams = this.#prepareSendForwardRequest({ forwardUuidMap, commentMessage, dialogId });
@@ -287,23 +310,23 @@ export class SendingService
 	{
 		this.#addMessageToRecent(message);
 
-		void this.#store.dispatch('chats/clearLastMessageViews', { dialogId: message.dialogId });
+		void this.#clearLastMessageViews(message.dialogId);
 
 		return this.#store.dispatch('messages/add', message);
 	}
 
 	#addMessageToRecent(message: PreparedMessage)
 	{
-		const recentItem = this.#store.getters['recent/get'](message.dialogId);
-		if (!recentItem || message.text === '')
-		{
-			return;
-		}
+		const hasMessageText: boolean = Type.isStringFilled(message.text);
+		const hasMessageFile: boolean = Type.isArrayFilled(message.params?.FILE_ID);
 
-		void this.#store.dispatch('recent/update', {
-			id: message.dialogId,
-			fields: { messageId: message.temporaryId },
-		});
+		if (hasMessageText || hasMessageFile)
+		{
+			void this.#store.dispatch('recent/update', {
+				id: message.dialogId,
+				fields: { messageId: message.temporaryId },
+			});
+		}
 	}
 
 	#sendMessageToServer(message: PreparedMessage): Promise
@@ -553,6 +576,13 @@ export class SendingService
 		errors.forEach((error) => {
 			// eslint-disable-next-line no-console
 			console.error(`SendingService: ${methodName} error: code: ${error.code} message: ${error.message}`);
+		});
+	}
+
+	#clearLastMessageViews(dialogId: string): Promise<any>
+	{
+		return this.#store.dispatch('chats/clearLastMessageViews', {
+			dialogId,
 		});
 	}
 }

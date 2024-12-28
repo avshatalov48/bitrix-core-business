@@ -353,18 +353,18 @@ class CBPMailActivity extends CBPActivity
 				'Default' => static::DEFAULT_SEPARATOR,
 			],
 			'File' => [
-				'Name' => Loc::getMessage('BPMA_ATTACHMENT'),
+				'Name' => Loc::getMessage('BPMA_ATTACHMENT_1'),
 				'FieldName' => 'file',
 				'Type' => 'file',
 				'Multiple' => true,
 			],
 			'FileType' => [
-				'Name' => Loc::getMessage('BPMA_ATTACHMENT_TYPE'),
+				'Name' => Loc::getMessage('BPMA_ATTACHMENT_TYPE_1'),
 				'FieldName' => 'file_type',
 				'Type' => 'select',
 				'Options' => [
-					static::FILE_TYPE_FILE => GetMessage('BPMA_ATTACHMENT_FILE'),
-					static::FILE_TYPE_DISK => GetMessage('BPMA_ATTACHMENT_DISK'),
+					static::FILE_TYPE_FILE => GetMessage('BPMA_ATTACHMENT_FILE_1'),
+					static::FILE_TYPE_DISK => GetMessage('BPMA_ATTACHMENT_DISK_1'),
 				],
 			],
 		];

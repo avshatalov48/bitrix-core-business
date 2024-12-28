@@ -805,11 +805,13 @@ class CAllIMContactList
 			$toChatId = intval($arParams['TO_CHAT_ID']);
 			$fromUserId = intval($USER->GetID());
 
+			$groupTypes = CIMChat::implodeTypesForQuery(CIMChat::getGroupTypes());
+
 			$strSql = "
 				SELECT R.CHAT_ID
 				FROM b_im_relation R
 				WHERE R.USER_ID = ".$fromUserId."
-					AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_CHAT."', '".IM_MESSAGE_OPEN."', '".IM_MESSAGE_OPEN_LINE."', '".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."', '".Chat::IM_TYPE_CHANNEL."', '".Chat::IM_TYPE_OPEN_CHANNEL."')
+					AND R.MESSAGE_TYPE IN ({$groupTypes})
 					AND R.CHAT_ID = ".$toChatId."";
 			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
@@ -877,7 +879,7 @@ class CAllIMContactList
 			}
 
 			$uid = md5(implode('|', $arFilter['=ID']));
-			$cache_id = 'user_data_v39_'.$uid.'_'.$nameTemplate.'_'.$nameTemplateSite.'_'.$extraFields.'_'.$getPhones.'_'.$getDepartment.'_'.$bIntranetEnable.'_'.$bVoximplantEnable.'_'.LANGUAGE_ID.'_'.$bColorEnabled;
+			$cache_id = 'user_data_v40_'.$uid.'_'.$nameTemplate.'_'.$nameTemplateSite.'_'.$extraFields.'_'.$getPhones.'_'.$getDepartment.'_'.$bIntranetEnable.'_'.$bVoximplantEnable.'_'.LANGUAGE_ID.'_'.$bColorEnabled;
 			$cache_dir = '/bx/imc/userdata/' . mb_substr($uid, 0, 2) . '/' . mb_substr($uid, 2, 2) . '/' . $uid;
 			if ($obCache->initCache($cache_ttl, $cache_id, $cache_dir))
 			{
@@ -1018,6 +1020,8 @@ class CAllIMContactList
 				$userExternalAuthId = 'support24';
 			}
 
+			$userV2 = IM\V2\Entity\User\User::getInstance((int)$arUser["ID"]);
+
 			$arUsers[$arUser["ID"]] = Array(
 				'id' => $arUser["ID"],
 				'name' => \Bitrix\Im\User::formatFullNameFromDatabase($arUser),
@@ -1050,6 +1054,7 @@ class CAllIMContactList
 				'desktop_last_date' => false,
 				'departments' => $getDepartment && !empty($arUser["UF_DEPARTMENT"]) && is_array($arUser["UF_DEPARTMENT"])? array_values($arUser["UF_DEPARTMENT"]): Array(),
 				'absent' => self::formatAbsentResult($arUser["ID"]),
+				'type' => $userV2->getType()->value,
 			);
 
 			$services = [];
@@ -1288,7 +1293,7 @@ class CAllIMContactList
 		$dateUpdate = new \Bitrix\Main\Type\DateTime();
 
 		$arParams['ENTITY_TYPE'] = $arParams['CHAT_TYPE'] ?? $arParams['ENTITY_TYPE'] ?? IM_MESSAGE_PRIVATE;
-		if (in_array($arParams['ENTITY_TYPE'], [IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE, IM\V2\Chat::IM_TYPE_COPILOT, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL], true))
+		if (in_array($arParams['ENTITY_TYPE'], CIMChat::getGroupTypes(), true))
 		{
 			$itemType = $arParams['ENTITY_TYPE'];
 		}
@@ -1662,7 +1667,7 @@ class CAllIMContactList
 					continue;
 				}
 			}
-			else if ($arRes['ITEM_TYPE'] == IM_MESSAGE_CHAT || $arRes['ITEM_TYPE'] == IM_MESSAGE_OPEN_LINE || $arRes['ITEM_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT || $arRes['ITEM_TYPE'] == Chat::IM_TYPE_CHANNEL || $arRes['ITEM_TYPE'] == Chat::IM_TYPE_OPEN_CHANNEL)
+			else if (in_array($arRes['ITEM_TYPE'], CIMChat::getGroupTypes()))
 			{
 				if (intval($arRes['RID']) <= 0)
 				{

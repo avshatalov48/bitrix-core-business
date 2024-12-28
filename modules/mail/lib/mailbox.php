@@ -114,7 +114,7 @@ class MailboxTable extends Entity\DataManager
 		return array_key_exists($mailboxId, $mailboxes) ? $mailboxes[$mailboxId] : false;
 	}
 
-	public static function getTheOwnersMailboxes($userId = null): array
+	public static function getTheOwnersMailboxes($userId = null, bool $onlyIds = false): array
 	{
 		global $USER;
 
@@ -137,7 +137,7 @@ class MailboxTable extends Entity\DataManager
 
 			(new \CAccess)->updateCodes(['USER_ID' => $userId]);
 
-			$res = static::getList([
+			$getListParams = [
 				'filter' => [
 					[
 						'=USER_ID' => $userId,
@@ -148,7 +148,14 @@ class MailboxTable extends Entity\DataManager
 				'order' => [
 					'ID' => 'DESC',
 				],
-			]);
+			];
+
+			if ($onlyIds)
+			{
+				$getListParams['select'] = ['ID'];
+			}
+
+			$res = static::getList($getListParams);
 
 			while ($mailbox = $res->fetch())
 			{
@@ -169,7 +176,7 @@ class MailboxTable extends Entity\DataManager
 		return $result;
 	}
 
-	public static function getTheSharedMailboxes($userId = null): array
+	public static function getTheSharedMailboxes($userId = null, bool $onlyIds = false): array
 	{
 		global $USER;
 
@@ -192,7 +199,7 @@ class MailboxTable extends Entity\DataManager
 
 			(new \CAccess)->updateCodes(['USER_ID' => $userId]);
 
-			$res = static::getList([
+			$getListParams = [
 				'runtime' => [
 					new Entity\ReferenceField(
 						'ACCESS',
@@ -227,7 +234,14 @@ class MailboxTable extends Entity\DataManager
 				'order' => [
 					'ID' => 'DESC',
 				],
-			]);
+			];
+
+			if ($onlyIds)
+			{
+				$getListParams['select'] = ['ID'];
+			}
+
+			$res = static::getList($getListParams);
 
 			while ($mailbox = $res->fetch())
 			{
@@ -254,7 +268,7 @@ class MailboxTable extends Entity\DataManager
 	 * @param $userId
 	 * @return array
 	 */
-	public static function getUserMailboxes($userId = null): array
+	public static function getUserMailboxes($userId = null, bool $onlyIds = false): array
 	{
 		global $USER;
 
@@ -268,8 +282,8 @@ class MailboxTable extends Entity\DataManager
 			$userId = $USER->getId();
 		}
 
-		$sharedMailboxes = static::getTheSharedMailboxes($userId);
-		$ownersMailboxes = static::getTheOwnersMailboxes($userId);
+		$sharedMailboxes = static::getTheSharedMailboxes($userId, $onlyIds);
+		$ownersMailboxes = static::getTheOwnersMailboxes($userId, $onlyIds);
 
 		return $ownersMailboxes + $sharedMailboxes;
 	}

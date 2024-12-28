@@ -579,8 +579,8 @@ class Bot
 
 		return \Bitrix\Pull\Event::add($userId, [
 			'module_id' => 'im',
-			'expiry' => 10,
-			'command' => 'dialogChange',
+			'expiry' => 5,
+			'command' => 'applicationOpenChat',
 			'params' => [
 				'dialogId' => $botId
 			],
@@ -791,7 +791,7 @@ class Bot
 				'SYSTEM' => 'Y',
 				'SKIP_COMMAND' => 'Y',
 				'PARAMS' => Array(
-					"CLASS" => "bx-messenger-content-item-system"
+					"CLASS" => "bx-messenger-content-item-system",
 				),
 			));
 		}
@@ -819,14 +819,7 @@ class Bot
 		}
 		else if (
 			$bot["TEXT_CHAT_WELCOME_MESSAGE"] <> ''
-			&& (
-				$joinFields['CHAT_TYPE'] == IM_MESSAGE_CHAT
-				|| $joinFields['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE
-				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT
-				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL
-				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL
-				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COMMENT
-			)
+			&& in_array($joinFields['CHAT_TYPE'], \CIMChat::getGroupTypesExtra())
 			&& $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID']
 		)
 		{
@@ -1525,11 +1518,12 @@ class Bot
 		}
 		else
 		{
+			/** @todo Use SiteTable::getDefaultLanguageId() */
 			$languageId = '';
-
 			$siteIterator = \Bitrix\Main\SiteTable::getList(array(
-				'select' => array('LANGUAGE_ID'),
-				'filter' => array('=DEF' => 'Y', '=ACTIVE' => 'Y')
+				'select' => array('LID', 'LANGUAGE_ID'),
+				'filter' => array('=DEF' => 'Y', '=ACTIVE' => 'Y'),
+				'cache' => ['ttl' => 86400],
 			));
 			if ($site = $siteIterator->fetch())
 				$languageId = (string)$site['LANGUAGE_ID'];

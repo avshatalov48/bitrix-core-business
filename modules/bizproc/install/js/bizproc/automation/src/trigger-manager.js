@@ -896,7 +896,7 @@ export class TriggerManager extends EventEmitter
 								value="Y"
 								${trigger.isBackwardsAllowed() ? 'checked' : ''}
 							/>
-							${Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE')}
+							${Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE_1')}
 						</label>
 					</div>
 				</div>

@@ -350,7 +350,7 @@ class Catalog
 		$products = array();
 
 		$result = \CSaleBasket::getList(
-			array(), $arFilter = array('ORDER_ID' => $orderId), false, false,
+			array(), array('ORDER_ID' => $orderId), false, false,
 			array('PRODUCT_ID', 'RECOMMENDATION', 'QUANTITY', 'PRICE', 'CURRENCY', 'MODULE')
 		);
 

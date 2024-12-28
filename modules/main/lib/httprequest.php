@@ -496,14 +496,14 @@ class HttpRequest extends Request
 	}
 
 	/**
-	 * Returns script file possibly corrected by urlrewrite.php or virtual_file_system.php.
+	 * Returns script file possibly corrected by urlrewrite.php.
 	 *
 	 * @return string
 	 */
 	public function getScriptFile()
 	{
 		$scriptName = $this->getScriptName();
-		if ($scriptName == "/bitrix/routing_index.php" || $scriptName == "/bitrix/urlrewrite.php" || $scriptName == "/404.php" || $scriptName == "/bitrix/virtual_file_system.php")
+		if ($scriptName == "/bitrix/routing_index.php" || $scriptName == "/bitrix/urlrewrite.php" || $scriptName == "/404.php")
 		{
 			if (($v = $this->server->get("REAL_FILE_PATH")) != null)
 			{

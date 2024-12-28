@@ -77,7 +77,7 @@ class SiteTable extends ORM\Data\DataManager
 		return array(
 			'LID' => array(
 				'data_type' => 'string',
-				'primary' => true
+				'primary' => true,
 			),
 			'ID' => array(
 				'data_type' => 'string',
@@ -95,10 +95,10 @@ class SiteTable extends ORM\Data\DataManager
 				'values' => array('N', 'Y'),
 			),
 			'NAME' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
 			),
 			'DIR' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
 			),
 			'LANGUAGE_ID' => array(
 				'data_type' => 'string',
@@ -111,13 +111,13 @@ class SiteTable extends ORM\Data\DataManager
 				'values' => array('N', 'Y'),
 			),
 			'SERVER_NAME' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
 			),
 			'SITE_NAME' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
 			),
 			'EMAIL' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
 			),
 			'CULTURE_ID' => array(
 				'data_type' => 'integer',
@@ -259,6 +259,28 @@ class SiteTable extends ORM\Data\DataManager
 		}
 
 		return $site;
+	}
+
+	public static function getDefaultSite(array $selectFields = ['*']): ?EO_Site
+	{
+		return static::getList([
+			'select' => $selectFields,
+			'filter' => ['=DEF' => 'Y', '=ACTIVE' => 'Y'],
+			'limit' => 1,
+			'cache' => ['ttl' => static::CACHE_TTL],
+		])->fetchObject();
+	}
+
+	public static function getDefaultLanguageId(): ?string
+	{
+		// using the same cache
+		return static::getDefaultSite(['LID', 'LANGUAGE_ID'])?->getLanguageId();
+	}
+
+	public static function getDefaultSiteId(): ?string
+	{
+		// using the same cache
+		return static::getDefaultSite(['LID', 'LANGUAGE_ID'])?->getLid();
 	}
 
 	public static function cleanCache(): void

@@ -1,0 +1,41 @@
+.bizproc__ws_start__header {
+	display: flex;
+	align-items: center;
+	margin-bottom: 18px;
+	padding: var(--ui-space-inset-md2) var(--ui-space-inset-lg) calc(var(--ui-space-inset-md2) + 10px) var(--ui-space-inset-lg);
+	border-radius: var(--bizproc-workflow-start-border-radius);
+	background: rgba(var(--ui-color-background-primary-rgb), var(--ui-opacity-80));
+}
+
+.bizproc__ws_start__header:last-of-type {
+	margin-bottom: unset;
+}
+
+.bizproc__ws_start__header-icon {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	margin-right: 20px;
+	width: 68px;
+	height: 68px;
+	background: var(--ui-color-primary);
+	border-radius: 100%;
+}
+
+.bizproc__ws_start__header-content {
+	flex: 1;
+	overflow: hidden;
+}
+
+.bizproc__ws_start__header__title {
+	margin-bottom: 5px;
+	font-size: var(--ui-typography-heading-h1-font-size);
+	font-weight: var(--ui-font-weight-light);
+	color: var(--ui-color-text-primary);
+}
+
+.bizproc__ws_start__header__info {
+	font-size: var(--ui-typography-text-sm-font-size);
+	color: var(--ui-color-palette-gray-80);
+}

@@ -39,6 +39,9 @@ class FeaturePermTable extends Entity\DataManager
 	/** @see SONET_ROLES_AUTHORIZED */
 	public const PERM_AUTHORIZED = 'L';
 
+	/** @see SONET_ROLES_EMPLOYEE */
+	public const PERM_EMPLOYEE = 'J';
+
 	/** @see SONET_ROLES_ALL */
 	public const PERM_ALL = 'N';
 

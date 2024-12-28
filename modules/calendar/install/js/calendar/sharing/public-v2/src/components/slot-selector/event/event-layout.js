@@ -54,6 +54,8 @@ export type Props = {
 	poweredLabel: {
 		isRu: boolean,
 	},
+
+	linkContext: null|string,
 };
 
 export default class EventLayout
@@ -164,6 +166,7 @@ export default class EventLayout
 			allAttendees: this.#props.allAttendees,
 			filled: this.#props.filled,
 			browserTimezone: this.#props.browserTimezone,
+			linkContext: this.#props.linkContext
 		});
 
 		if (this.#props.from && this.#props.to)
@@ -175,7 +178,7 @@ export default class EventLayout
 				isFullDay: this.#props.isFullDay,
 				rruleDescription: this.#props.rruleDescription,
 				members: this.#props.members,
-			});
+			}, this.#props.linkContext);
 		}
 
 		return widgetDate.render();
@@ -207,6 +210,7 @@ export default class EventLayout
 			members: this.#props.members,
 			allAttendees: this.#props.allAttendees,
 			maxAvatarsCount: 8,
+			linkContext: this.#props.linkContext,
 		}).render();
 	}
 

@@ -1,8 +1,8 @@
-import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
-import { RestMethod } from 'im.v2.const';
+import { RestMethod, Layout } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { CopilotManager } from 'im.v2.lib.copilot';
+import { LayoutManager } from 'im.v2.lib.layout';
 
 import { RecentDataExtractor } from './classes/recent-data-extractor';
 
@@ -82,7 +82,7 @@ export class RecentService
 		this.updateModels(params);
 	}
 
-	hideChat(dialogId): void
+	hideChat(dialogId: string): void
 	{
 		Logger.warn('Im.RecentList: hide chat', dialogId);
 		const recentItem = Core.getStore().getters['recent/get'](dialogId);
@@ -91,14 +91,13 @@ export class RecentService
 			return;
 		}
 
-		Core.getStore().dispatch('recent/delete', {
-			id: dialogId,
-		});
+		Core.getStore().dispatch('recent/delete', { id: dialogId });
 
 		const chatIsOpened = Core.getStore().getters['application/isChatOpen'](dialogId);
 		if (chatIsOpened)
 		{
-			Messenger.openChat();
+			LayoutManager.getInstance().clearCurrentLayoutEntityId();
+			void LayoutManager.getInstance().deleteLastOpenedElementById(dialogId);
 		}
 
 		Core.getRestClient().callMethod(RestMethod.imRecentHide, { DIALOG_ID: dialogId })

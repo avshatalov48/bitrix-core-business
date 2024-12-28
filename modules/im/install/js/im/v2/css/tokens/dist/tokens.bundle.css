@@ -76,6 +76,7 @@
 	--im-font-size-3xs: var(--ui-font-size-3xs, 11px);
 	--im-font-size-4xs: var(--ui-font-size-4xs, 10px);
 	--im-font-size-5xs: var(--ui-font-size-5xs, 9px);
+	--im-font-size-6xs: var(--ui-font-size-6xs, 8px);
 	--im-font-size-7xs: var(--ui-font-size-7xs, 7px);
 
 	--im-font-line-height-3xl: var(--ui-font-line-height-3xl, 2);
@@ -117,6 +118,8 @@
 	--im-color-palette-gray-40-rgb: 189, 193, 198;
 	--im-color-palette-gray-30: var(--ui-color-palette-gray-30, #d5d7db);
 	--im-color-palette-gray-30-rgb: 213, 215, 219;
+	--im-color-palette-gray-35: var(--ui-color-palette-gray-35, #c9ccd0);
+	--im-color-palette-gray-35-rgb: 201, 204, 208;
 	--im-color-palette-gray-20: var(--ui-color-palette-gray-20, #dfe0e3);
 	--im-color-palette-gray-20-rgb: 223, 224, 227;
 	--im-color-palette-gray-15: var(--ui-color-palette-gray-15, #e6e7e9);
@@ -172,4 +175,16 @@
 	--im-color-accent-red-rgb: var(--ui-color-palette-red-70-rgb);
 	--im-color-accent-blue: #00ace3;
 	--im-color-accent-blue-rgb: 0, 172, 227;
+
+	--im-color-collab-90: #065217;
+	--im-color-collab-80: #1e8d36;
+	--im-color-collab-80-rgb: 30, 141, 54;
+	--im-color-collab-70: #00a94e;
+	--im-color-collab-70-rgb: 0, 169, 78;
+	--im-color-collab-60: #19cc45;
+	--im-color-collab-50: #6be860;
+	--im-color-collab-40: #8cef73;
+	--im-color-collab-30: #d4fdb0;
+	--im-color-collab-20: #e9ffcf;
+	--im-color-collab-10: #f2fee2;
 }

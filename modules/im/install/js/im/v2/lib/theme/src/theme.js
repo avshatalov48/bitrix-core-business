@@ -1,9 +1,10 @@
 import { Core } from 'im.v2.application.core';
 import { Settings } from 'im.v2.const';
-import { ThemeColorScheme, ThemeType } from './color-scheme';
+import { SelectableBackground, SpecialBackground, SpecialBackgroundId, ThemeType } from './color-scheme';
 
-import type { ThemeItem } from './color-scheme';
-export type { ThemeItem } from './color-scheme';
+import type { BackgroundItem } from './color-scheme';
+
+export { SelectableBackground, SpecialBackgroundId as SpecialBackground, ThemeType, ThemeManager };
 
 const IMAGE_FOLDER_PATH = '/bitrix/js/im/images/chat-v2-background';
 
@@ -23,7 +24,7 @@ const ThemeManager = {
 	isLightTheme(): boolean
 	{
 		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.appearance.background);
-		const selectedColorScheme: ThemeItem = ThemeColorScheme[selectedBackgroundId];
+		const selectedColorScheme: BackgroundItem = SelectableBackground[selectedBackgroundId];
 
 		return selectedColorScheme?.type === ThemeType.light;
 	},
@@ -31,7 +32,7 @@ const ThemeManager = {
 	isDarkTheme(): boolean
 	{
 		const selectedBackgroundId = Core.getStore().getters['application/settings/get'](Settings.appearance.background);
-		const selectedColorScheme: ThemeItem = ThemeColorScheme[selectedBackgroundId];
+		const selectedColorScheme: BackgroundItem = SelectableBackground[selectedBackgroundId];
 
 		return selectedColorScheme?.type === ThemeType.dark;
 	},
@@ -45,7 +46,8 @@ const ThemeManager = {
 
 	getBackgroundStyleById(backgroundId: string | number): BackgroundStyle
 	{
-		const colorScheme: ThemeItem = ThemeColorScheme[backgroundId];
+		const backgroundsList = { ...SelectableBackground, ...SpecialBackground };
+		const colorScheme: BackgroundItem = backgroundsList[backgroundId];
 		if (!colorScheme)
 		{
 			return {};
@@ -67,5 +69,3 @@ const ThemeManager = {
 		};
 	},
 };
-
-export { ThemeColorScheme, ThemeType, ThemeManager };

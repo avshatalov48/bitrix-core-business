@@ -115,8 +115,8 @@ export const ChatsWithUserPanel = {
 	template: `
 		<div class="bx-im-sidebar-chats-with-user-detail__scope">
 			<DetailHeader
-				:title="loc('IM_SIDEBAR_CHATSWITHUSER_DETAIL_TITLE')"
 				:dialogId="dialogId"
+				:title="loc('IM_SIDEBAR_CHATSWITHUSER_DETAIL_TITLE')"
 				:secondLevel="secondLevel"
 				@back="onBackClick"
 			/>

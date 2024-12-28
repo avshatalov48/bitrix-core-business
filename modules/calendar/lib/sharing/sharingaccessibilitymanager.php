@@ -29,7 +29,6 @@ class SharingAccessibilityManager
 	public function checkUsersAccessibility(): bool
 	{
 		$busyUserIds = (new Accessibility())
-			->setCheckPermissions(false)
 			->getBusyUsersIds($this->userIds, $this->timestampFrom, $this->timestampTo)
 		;
 
@@ -43,7 +42,6 @@ class SharingAccessibilityManager
 	public function getUsersAccessibilitySegmentsInUtc(): array
 	{
 		$accessibility = (new Accessibility())
-			->setCheckPermissions(false)
 			->getAccessibility($this->userIds, $this->timestampFrom, $this->timestampTo)
 		;
 

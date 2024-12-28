@@ -43,6 +43,8 @@ export type BpMixedSelectorOptions = {
 	template?: Array,
 	activityName?: string,
 	checkActivityChildren?: boolean,
+	activityFilter?: Array,
+	exceptErrorMessages?: boolean,
 	size?: {
 		maxWidth?: number,
 		maxHeight?: number,

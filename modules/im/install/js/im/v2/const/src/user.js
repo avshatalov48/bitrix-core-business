@@ -8,10 +8,11 @@ export const UserStatus = {
 	break: 'break',
 };
 
-export const UserExternalType = {
-	default: 'default',
+export const UserType = {
+	user: 'user',
 	bot: 'bot',
-	call: 'call',
+	extranet: 'extranet',
+	collaber: 'collaber',
 };
 
 export const UserRole = {

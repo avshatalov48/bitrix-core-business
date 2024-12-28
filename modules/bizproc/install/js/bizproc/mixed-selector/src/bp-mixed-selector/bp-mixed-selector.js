@@ -1,5 +1,5 @@
-import { Type, Tag, Loc, Dom, Event, Text} from 'main.core';
-import { EventEmitter } from 'main.core.events'
+import { Type, Tag, Loc, Dom, Event, Text } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 import { Menu, MenuManager } from 'main.popup';
 import type { BpMixedSelectorOptions } from 'bizproc.mixed-selector';
 
@@ -17,6 +17,8 @@ export class BpMixedSelector extends EventEmitter
 	objectName: string = 'mixed_selector[object]';
 	fieldName: string = 'mixed_selector[field]';
 	checkActivityChildren: boolean = true;
+	activityFilter: Array = [];
+	exceptErrorMessages: boolean = false;
 
 	map: Object<string, Object> = null;
 	menuItems: Array = null;
@@ -41,6 +43,8 @@ export class BpMixedSelector extends EventEmitter
 		this.setInputNames(options.inputNames);
 		this.setTargetTitle(options.targetTitle);
 		this.setCheckActivityChildren(options.checkActivityChildren);
+		this.setActivityFilter(options.activityFilter);
+		this.setExceptErrorMessages(options.exceptErrorMessages);
 	}
 
 	static getAvailableTabsName(): Array
@@ -124,19 +128,22 @@ export class BpMixedSelector extends EventEmitter
 
 		if (Type.isNumber(size.maxWidth))
 		{
-			this.maxWidth = size.maxWidth
+			this.maxWidth = size.maxWidth;
 		}
+
 		if (Type.isNumber(size.minWidth))
 		{
-			this.minWidth = size.minWidth
+			this.minWidth = size.minWidth;
 		}
+
 		if (Type.isNumber(size.maxHeight))
 		{
-			this.maxHeight = size.maxHeight
+			this.maxHeight = size.maxHeight;
 		}
+
 		if (Type.isNumber(size.minHeight))
 		{
-			this.minHeight = size.minHeight
+			this.minHeight = size.minHeight;
 		}
 	}
 
@@ -172,7 +179,7 @@ export class BpMixedSelector extends EventEmitter
 	{
 		return {
 			object: this.objectName,
-			field: this.fieldName
+			field: this.fieldName,
 		};
 	}
 
@@ -206,6 +213,32 @@ export class BpMixedSelector extends EventEmitter
 		return this.checkActivityChildren;
 	}
 
+	setActivityFilter(filter)
+	{
+		if (Type.isArray(filter))
+		{
+			this.activityFilter = filter;
+		}
+	}
+
+	getActivityFilter(): Array
+	{
+		return this.activityFilter;
+	}
+
+	setExceptErrorMessages(except)
+	{
+		if (Type.isBoolean(except))
+		{
+			this.exceptErrorMessages = except;
+		}
+	}
+
+	getExceptErrorMessages(): boolean
+	{
+		return this.exceptErrorMessages;
+	}
+
 	/* endregion */
 
 	getMenu(): Menu | null
@@ -213,7 +246,7 @@ export class BpMixedSelector extends EventEmitter
 		const me = this;
 		if (this.menuId)
 		{
-			//todo: modify popup position.
+			// todo: modify popup position.
 			return MenuManager.getMenuById(this.menuId);
 		}
 		this.menuId = BX.util.getRandomString();
@@ -227,13 +260,13 @@ export class BpMixedSelector extends EventEmitter
 			{
 				zIndex: 200,
 				autoHide: true,
-				offsetLeft: (Dom.getPosition(me.getMenuTargetNode())['width'] / 2),
+				offsetLeft: (Dom.getPosition(me.getMenuTargetNode()).width / 2),
 				angle: { position: 'top', offset: 0 },
 				maxWidth: size.maxWidth,
 				maxHeight: size.maxHeight,
 				minWidth: size.minWidth,
-				minHeight: size.minHeight
-			}
+				minHeight: size.minHeight,
+			},
 		);
 	}
 
@@ -278,15 +311,7 @@ export class BpMixedSelector extends EventEmitter
 		const mapKeys = BX.util.object_keys(map);
 		for (const i in mapKeys)
 		{
-			if (mapKeys[i] !== 'Activity')
-			{
-				this.menuItems.push({
-					text: locMapNames[mapKeys[i]],
-					items: this.#extractMenuItem(map[mapKeys[i]], mapKeys[i]),
-					tabName: mapKeys[i]
-				});
-			}
-			else
+			if (mapKeys[i] === 'Activity')
 			{
 				const activitiesItems = this.#getTemplateActivitiesItems(this.template, map[mapKeys[i]]);
 				const groupByItemActivitiesItems = [];
@@ -303,13 +328,24 @@ export class BpMixedSelector extends EventEmitter
 							return;
 						}
 
-						items.push({
-							text: Text.encode(item.text + ' (' + item.description + ')'),
-							object: item.object,
-							field: item.field,
-							property: item,
-							onclick: me.#onChooseFieldClick.bind(me),
-							})
+						if (
+							(
+								(item.field !== 'ErrorMessage')
+								|| (this.getExceptErrorMessages() === false))
+							&& (
+								(this.getActivityFilter().length === 0)
+								|| this.getActivityFilter().includes(item.activity)
+							)
+						)
+						{
+							items.push({
+								text: Text.encode(`${item.text} (${item.description})`),
+								object: item.object,
+								field: item.field,
+								property: item,
+								onclick: me.#onChooseFieldClick.bind(me),
+							});
+						}
 					});
 
 					if (Type.isArrayFilled(items))
@@ -317,7 +353,7 @@ export class BpMixedSelector extends EventEmitter
 						groupByItemActivitiesItems.push({
 							text: activityItem[0].description,
 							object: activityItem[0].object,
-							items: items,
+							items,
 						});
 					}
 				});
@@ -327,9 +363,17 @@ export class BpMixedSelector extends EventEmitter
 					this.menuItems.push({
 						text: locMapNames[mapKeys[i]],
 						items: groupByItemActivitiesItems,
-						tabName: 'Activity'
+						tabName: 'Activity',
 					});
 				}
+			}
+			else
+			{
+				this.menuItems.push({
+					text: locMapNames[mapKeys[i]],
+					items: this.#extractMenuItem(map[mapKeys[i]], mapKeys[i]),
+					tabName: mapKeys[i],
+				});
 			}
 		}
 	}
@@ -353,12 +397,9 @@ export class BpMixedSelector extends EventEmitter
 			}
 		}
 
-		if (this.template.length < 0)
+		if (this.template.length < 0 && this.map.Activity)
 		{
-			if (this.map['Activity'])
-			{
-				delete this.map['Activity'];
-			}
+			delete this.map.Activity;
 		}
 
 		return this.map;
@@ -396,8 +437,8 @@ export class BpMixedSelector extends EventEmitter
 			const activityType = template[i].Type.toLowerCase();
 			const activityData = activities[activityType] ?? {};
 
-			const returnActivityData = activityData['RETURN'];
-			const additionalResult = activityData['ADDITIONAL_RESULT'];
+			const returnActivityData = activityData.RETURN;
+			const additionalResult = activityData.ADDITIONAL_RESULT;
 
 			if (returnActivityData)
 			{
@@ -409,13 +450,14 @@ export class BpMixedSelector extends EventEmitter
 					activityResult.push({
 						text: returnActivityData[keys[j]].NAME,
 						description: template[i].Properties.Title || activityData.NAME,
-						value: '{=' + template[i].Name + ':' + keys[j] + '}',
+						activity: activityType,
+						value: `{=${template[i].Name}:${keys[j]}}`,
 						object: template[i].Name,
 						field: keys[j],
 						property: {
 							Name: returnActivityData[keys[j]].NAME,
 							Type: returnActivityData[keys[j]].TYPE,
-						}
+						},
 					});
 				}
 
@@ -426,9 +468,8 @@ export class BpMixedSelector extends EventEmitter
 			}
 			else if (Type.isArray(additionalResult))
 			{
-				const properties = template[i]['Properties'];
-				additionalResult.forEach(function (addProp)
-				{
+				const properties = template[i].Properties;
+				additionalResult.forEach((addProp) => {
 					if (properties[addProp])
 					{
 						const keys = Object.keys(properties[addProp]);
@@ -439,11 +480,11 @@ export class BpMixedSelector extends EventEmitter
 							const field = properties[addProp][keys[j]];
 							activityResult.push({
 								text: field.Name,
-								description: properties['Title'] || activityData['NAME'],
-								value: '{=' + template[i]['Name'] + ':' + keys[j] + '}',
-								object: template[i]['Name'],
+								description: properties.Title || activityData.NAME,
+								value: `{=${template[i].Name}:${keys[j]}}`,
+								object: template[i].Name,
 								field: keys[j],
-								property: field
+								property: field,
 							});
 						}
 
@@ -452,12 +493,12 @@ export class BpMixedSelector extends EventEmitter
 							result.push(activityResult);
 						}
 					}
-				}, this);
+				});
 			}
 
-			if (template[i]['Children'] && template[i]['Children'].length > 0)
+			if (template[i].Children && template[i].Children.length > 0)
 			{
-				const subResult = this.#getTemplateActivitiesItems(template[i]['Children'], activities);
+				const subResult = this.#getTemplateActivitiesItems(template[i].Children, activities);
 				result = result.concat(subResult);
 			}
 		}
@@ -472,7 +513,7 @@ export class BpMixedSelector extends EventEmitter
 
 		// todo: item.text htmlspecialchars applied twice
 		this.setSelectedObjectAndField(item.object, item.field, item.text);
-		EventEmitter.emit(this, 'onSelect', {item: item});
+		EventEmitter.emit(this, 'onSelect', { item });
 	}
 
 	renderMixedSelector()
@@ -541,11 +582,11 @@ export class BpMixedSelector extends EventEmitter
 
 		if (BpMixedSelector.getAvailableTabsName().includes(object))
 		{
-			target.innerText = tabsLocMessage[object] + ': ' + fieldTitle;
+			target.innerText = `${tabsLocMessage[object]}: ${fieldTitle}`;
 		}
 		else
 		{
-			target.innerText = tabsLocMessage['Activity'] + ': ' + fieldTitle;
+			target.innerText = `${tabsLocMessage.Activity}: ${fieldTitle}`;
 		}
 
 		if (Type.isStringFilled(object) && Type.isStringFilled(field))

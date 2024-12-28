@@ -1,6 +1,6 @@
 import { Loc } from 'main.core';
 
-import { ChatType, Layout } from 'im.v2.const';
+import { ChatType, Layout, UserType } from 'im.v2.const';
 
 import './chat-description.css';
 
@@ -49,7 +49,11 @@ export const ChatDescription = {
 		{
 			const user: ImModelUser = this.$store.getters['users/get'](this.dialogId, true);
 
-			return user.bot === true;
+			return user.type === UserType.bot;
+		},
+		isCollabChat(): boolean
+		{
+			return this.dialog.type === ChatType.collab;
 		},
 		isLongDescription(): boolean
 		{
@@ -84,7 +88,12 @@ export const ChatDescription = {
 
 			if (this.isBot)
 			{
-				return this.$Bitrix.Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_BOT');
+				return this.loc('IM_SIDEBAR_CHAT_TYPE_BOT');
+			}
+
+			if (this.isCollabChat)
+			{
+				return this.loc('IM_SIDEBAR_CHAT_TYPE_COLLAB');
 			}
 
 			return DescriptionByChatType[this.dialog.type] ?? DescriptionByChatType.default;

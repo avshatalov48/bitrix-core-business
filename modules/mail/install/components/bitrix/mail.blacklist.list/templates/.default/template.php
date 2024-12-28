@@ -111,21 +111,15 @@ $APPLICATION->IncludeComponent(
 		'SORT' => $arResult['SORT'],
 		'SORT_VARS' => $arResult['SORT_VARS'],
 		'ROWS' => $arResult['GRID_DATA'],
-		'FOOTER' =>
-			[
-				[
-					'title' => Loc::getMessage('CRM_ALL'),
-					'value' => $arResult['ROWS_COUNT'],
-				],
-			],
 		'EDITABLE' => $arResult['CAN_EDIT'],
+		'SHOW_TOTAL_COUNTER' => false,
 		'ACTIONS' =>
 			[
 				'delete' => $arResult['CAN_DELETE'],
 				'list' => [],
 			],
 		'ACTION_ALL_ROWS' => false,
-		'NAV_OBJECT' => $arResult['ITEMS'],
+		'NAV_OBJECT' => $arResult['NAV_OBJECT'],
 		'ACTION_PANEL' => [
 			'GROUPS' => [
 				[
@@ -136,7 +130,6 @@ $APPLICATION->IncludeComponent(
 				],
 			],
 		],
-		'TOTAL_ROWS_COUNT' => $arResult['ROWS_COUNT'],
 	],
 	$component
 );

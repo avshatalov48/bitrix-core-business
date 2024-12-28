@@ -2,10 +2,13 @@
 namespace Bitrix\Rest\Api;
 
 
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Entity\ExpressionField;
+use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Result;
 use Bitrix\Rest\AccessException;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AuthTypeException;
@@ -257,7 +260,22 @@ class Placement extends \IRestService
 				}
 			}
 
-			$result = PlacementTable::add($placementBind);
+			$lockKey = implode('|', [
+				$placementBind['APP_ID'],
+				$placementBind['PLACEMENT'],
+				$placementBind['PLACEMENT_HANDLER']
+			]);
+
+			if (Application::getConnection()->lock($lockKey))
+			{
+				$result = PlacementTable::add($placementBind);
+				Application::getConnection()->unlock($lockKey);
+			}
+			else
+			{
+				$result = (new Result())->addError(new Error('Process of binding the handler has already started'));
+			}
+
 			if ($result->isSuccess())
 			{
 				$placementId = $result->getId();
@@ -510,7 +528,7 @@ class Placement extends \IRestService
 
 		if (!is_string($params['PLACEMENT']))
 		{
-			throw new ArgumentTypeException('PLACEMENT', 'string');
+			throw new Exceptions\ArgumentTypeException('PLACEMENT', 'string');
 		}
 
 		$placement = mb_strtoupper($params['PLACEMENT']);
@@ -518,7 +536,7 @@ class Placement extends \IRestService
 
 		if ($placement == '')
 		{
-			throw new ArgumentNullException("PLACEMENT");
+			throw new Exceptions\ArgumentNullException("PLACEMENT");
 		}
 
 		$cnt = 0;

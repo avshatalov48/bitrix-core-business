@@ -51,6 +51,11 @@ export class Env
 		return this.getOptions().params.type;
 	}
 
+	setType(type: string): void
+	{
+		this.getOptions().params.type = type;
+	}
+
 	getSpecialType(): string
 	{
 		return this.getOptions().specialType;

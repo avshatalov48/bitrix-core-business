@@ -6,8 +6,9 @@ use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Base\EntityInterface;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Main\Type\Contract\Arrayable;
 
-class Section implements EntityInterface
+class Section implements EntityInterface, Arrayable
 {
 	public const LOCAL_EXTERNAL_TYPE = 'local';
 
@@ -91,6 +92,8 @@ class Section implements EntityInterface
 	protected ?string $davExchangeMod = null;
 	protected ?string $calDavCal = null;
 	protected ?string $calDavMod = null;
+
+	protected ?bool $isCollab = false;
 
 	/**
 	 * @param int $id
@@ -536,5 +539,37 @@ class Section implements EntityInterface
 	public function isNew(): bool
 	{
 		return $this->id === null;
+	}
+
+	public function setIsCollab(?bool $isCollab): Section
+	{
+		$this->isCollab = (bool)$isCollab;
+
+		return $this;
+	}
+
+	public function isCollab(): bool
+	{
+		return $this->isCollab;
+	}
+
+	public function toArray(): array
+	{
+		return [
+			'ID' => $this->id,
+			'NAME' => $this->name,
+			'COLOR' => $this->color,
+			'DESCRIPTION' => $this->description,
+			'GAPI_CALENDAR_ID' => $this->googleId,
+			'CAL_DAV_MOD' => $this->syncToken,
+			'CAL_DAV_CON' => $this->calDavConnectionId,
+			'EXTERNAL_TYPE' => $this->externalType,
+			'CAL_TYPE' => $this->type,
+			'ACTIVE' => $this->isActive,
+			'XML_ID' => $this->xmlId,
+			'OWNER_ID' => $this->owner?->getId(),
+			'CREATED_BY' => $this->creator?->getId(),
+			'IS_COLLAB' => $this->isCollab,
+		];
 	}
 }

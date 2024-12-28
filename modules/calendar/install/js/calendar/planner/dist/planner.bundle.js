@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,ui_infoHelper,main_core_events,calendar_util,main_core,calendar_ui_tools_draganddrop,main_popup,main_date) {
+(function (exports,ui_infoHelper,main_core_events,calendar_util,main_core,calendar_ui_tools_draganddrop,main_popup,main_date,ui_avatar) {
 	'use strict';
 
 	let _ = t => t,
@@ -1897,7 +1897,7 @@ this.BX = this.BX || {};
 	        rowWrap.append(main_core.Tag.render(_t32 || (_t32 = _$1`
 					<span class="calendar-planner-user-name">
 						<span
-							class="calendar-planner-entry-name"
+							class="calendar-planner-entry-name${0}"
 							bx-tooltip-user-id="${0}"
 							bx-tooltip-classname="calendar-planner-user-tooltip"
 						>
@@ -1905,7 +1905,7 @@ this.BX = this.BX || {};
 						</span>
 						${0}
 					</span>
-				`), entry.id, main_core.Text.encode(entry.name), entry.vacationNode));
+				`), entry.isCollabUser ? ' calendar-collab-user' : '', entry.id, main_core.Text.encode(entry.name), entry.vacationNode));
 	      }
 	    } else if (entry.id && entry.type === 'room') {
 	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t33 || (_t33 = _$1`
@@ -1983,7 +1983,14 @@ this.BX = this.BX || {};
 	  static getEntryAvatarNode(entry) {
 	    let imageNode;
 	    const img = entry.avatar;
-	    if (!img || img === "/bitrix/images/1.gif") {
+	    if (entry.isCollabUser) {
+	      imageNode = new ui_avatar.AvatarRoundGuest({
+	        size: 22,
+	        userName: entry.name,
+	        userpicPath: entry.avatar && entry.avatar !== '/bitrix/images/1.gif' ? entry.avatar : null,
+	        baseColor: '#19cc45'
+	      }).getContainer();
+	    } else if (!img || img === "/bitrix/images/1.gif") {
 	      let defaultAvatarClass = 'ui-icon-common-user';
 	      if (entry.emailUser) {
 	        defaultAvatarClass = 'ui-icon-common-user-mail';
@@ -3376,5 +3383,5 @@ this.BX = this.BX || {};
 
 	exports.Planner = Planner;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.UI,BX.Event,BX.Calendar,BX,BX.Calendar.Ui.Tools,BX.Main,BX.Main));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.UI,BX.Event,BX.Calendar,BX,BX.Calendar.Ui.Tools,BX.Main,BX.Main,BX.UI));
 //# sourceMappingURL=planner.bundle.js.map

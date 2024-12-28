@@ -18,7 +18,8 @@ CREATE TABLE b_lang
 	SITE_NAME varchar(255),
 	EMAIL varchar(255),
 	CULTURE_ID int,
-	PRIMARY KEY (LID)
+	PRIMARY KEY (LID),
+	INDEX ix_b_lang_def_active (DEF, ACTIVE)
 );
 
 CREATE TABLE b_language

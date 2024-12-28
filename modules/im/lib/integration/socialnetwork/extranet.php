@@ -151,7 +151,7 @@ class Extranet
 			return [];
 		}
 
-		$extranetUsers = [];
+		$extranetUsers = [$currentUserId => $currentUserId];
 		$groups = self::getGroup([], $currentUserId);
 		if (is_array($groups))
 		{

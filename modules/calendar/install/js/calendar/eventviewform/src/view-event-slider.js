@@ -15,7 +15,7 @@ export const ViewEventSlider = {
 	data() {
 		return {
 			id: this.params.id,
-			eventId: parseInt(this.params.eventId),
+			eventId: parseInt(this.params.eventId, 10),
 			name: this.params.name,
 			description: this.params.description,
 			timezoneHint: this.params.timezoneHint,
@@ -30,10 +30,11 @@ export const ViewEventSlider = {
 			avatarUsers: [],
 			avatarMoreUsers: [],
 			avatarMoreCount: 0,
-			userList: {y : [], i: [], q: [], n: []},
+			userList: { y: [], i: [], q: [], n: [] },
 			curUserStatus: this.params.curUserStatus,
 			meetingCreatorUrl: this.params.meetingCreatorUrl,
 			meetingCreatorDisplayName: this.params.meetingCreatorDisplayName,
+			meetingCreatorCollabUser: this.params.meetingCreatorCollabUser,
 			isRemind: this.params.isRemind,
 			isWebdavEvent: this.params.isWebdavEvent,
 			isCrmEvent: this.params.isCrmEvent,
@@ -46,6 +47,7 @@ export const ViewEventSlider = {
 			isPrivate: this.params.isPrivate,
 			location: this.params.location,
 			canEditCalendar: this.params.canEditCalendar,
+			downloadIcsEnabled: this.params.downloadIcsEnabled,
 			canAttendeeEditCalendar: this.params.canAttendeeEditCalendar,
 			canDeleteEvent: this.params.canDeleteEvent,
 			showComments: this.params.showComments,
@@ -57,7 +59,7 @@ export const ViewEventSlider = {
 			updateParamsDebounce: Runtime.debounce(this.updateParams, 500, this),
 			hasPulls: false,
 			backgroundPullEvent: null,
-		}
+		};
 	},
 	created()
 	{
@@ -104,6 +106,10 @@ export const ViewEventSlider = {
 		{
 			return this.id + '_detail-author-info';
 		},
+		meetingCreatorClassName(): string
+		{
+			return `calendar-slider-sidebar-user-info-name${this.meetingCreatorCollabUser ? ' calendar-collab-user' : ''}`;
+		},
 	},
 	methods: {
 		getComponentHTML(json)
@@ -112,6 +118,7 @@ export const ViewEventSlider = {
 			{
 				return '';
 			}
+
 			return JSON.parse(json).data.html;
 		},
 		loadCommentsView()
@@ -119,8 +126,8 @@ export const ViewEventSlider = {
 			BX.ajax.runAction('calendar.api.calendareventviewform.getCommentsView', {
 				data: {
 					signedEvent: this.params.signedEvent,
-				}
-			}).then(response => {
+				},
+			}).then((response) => {
 				const commentsElement = document.createElement('div');
 				commentsElement.innerHTML = response.data.html;
 				this.$refs.commentsView.appendChild(commentsElement);
@@ -133,7 +140,7 @@ export const ViewEventSlider = {
 			{
 				return;
 			}
-			//run scripts
+			// run scripts
 			const scripts = element.querySelectorAll('script');
 			for (const script of scripts)
 			{
@@ -142,16 +149,16 @@ export const ViewEventSlider = {
 				script.parentNode.appendChild(s);
 				script.remove();
 			}
-			//remove script elements
+			// remove script elements
 			// element.querySelectorAll('script').forEach(e => e.remove());
 		},
 		quote(e)
 		{
-			window.mplCheckForQuote(e, e.currentTarget, 'EVENT_' + this.eventId, this.authorNodeId);
+			window.mplCheckForQuote(e, e.currentTarget, `EVENT_${this.eventId}`, this.authorNodeId);
 		},
 		updateUserList()
 		{
-			this.userList = {y : [], i: [], q: [], n: []};
+			this.userList = { y: [], i: [], q: [], n: [] };
 			if (this.entry.isMeeting())
 			{
 				this.entry.getAttendees().forEach(function(user) {
@@ -194,7 +201,7 @@ export const ViewEventSlider = {
 			this.avatarMoreCount = this.avatarMoreUsers.length;
 			if (this.avatarMoreCount >= 1000)
 			{
-				this.avatarMoreCount = `${parseInt(this.avatarMoreUsers.length / 1000)}K`;
+				this.avatarMoreCount = `${parseInt(this.avatarMoreUsers.length / 1000, 10)}K`;
 			}
 		},
 		reloadPlanner()
@@ -210,7 +217,7 @@ export const ViewEventSlider = {
 				dateTo: Util.formatDate(this.entry.to.getTime() + Util.getDayLength() * 10),
 				timezone: this.timezone,
 				location: this.entry.getLocation(),
-				entry: this.entry
+				entry: this.entry,
 			};
 			this.reloadPlannerCallback(plannerData);
 		},
@@ -230,7 +237,7 @@ export const ViewEventSlider = {
 		},
 		handlePullEvent(event: BaseEvent)
 		{
-			if (event.data[0] === "refresh_sync_status")
+			if (event.data[0] === 'refresh_sync_status')
 			{
 				return;
 			}
@@ -253,9 +260,10 @@ export const ViewEventSlider = {
 		},
 		updateParams(event: BaseEvent)
 		{
-			if (parseInt(event.data[1].fields.PARENT_ID) !== parseInt(this.params.parentId))
+			if (parseInt(event.data[1].fields.PARENT_ID, 10) !== parseInt(this.params.parentId, 10))
 			{
 				this.reloadPlanner();
+
 				return;
 			}
 			const pullData = event.data[1].fields;
@@ -268,8 +276,8 @@ export const ViewEventSlider = {
 					entryId: this.eventId,
 					dateFrom: Util.formatDate(pullData.DATE_FROM),
 					timezoneOffset: pullData.TZ_OFFSET_FROM
-				}
-			}).then(response => {
+				},
+			}).then((response) => {
 				const newData = response.data;
 
 				this.description = newData.description;
@@ -284,6 +292,7 @@ export const ViewEventSlider = {
 				this.attendees = newData.attendees;
 				this.meetingCreatorUrl = newData.meetingCreatorUrl;
 				this.meetingCreatorDisplayName = newData.meetingCreatorDisplayName;
+				this.meetingCreatorCollabUser = newData.meetingCreatorCollabUser;
 				this.isRemind = newData.isRemind;
 				this.isWebdavEvent = newData.isWebdavEvent;
 				this.isCrmEvent = newData.isCrmEvent;
@@ -301,8 +310,8 @@ export const ViewEventSlider = {
 				this.filesView = this.getComponentHTML(newData.filesView);
 				if (this.filesView)
 				{
-					//wait for div element created
-					setTimeout(() => {this.executeScripts(this.$refs.filesView)}, 1000);
+					// wait for div element created
+					setTimeout(() => { this.executeScripts(this.$refs.filesView); }, 1000);
 				}
 				this.crmView = this.getComponentHTML(newData.crmView);
 				this.entry = new Entry({data: newData.entry, userIndex: newData.userIndex});
@@ -318,7 +327,7 @@ export const ViewEventSlider = {
 
 			const offset = menu.getBoundingClientRect().bottom - this.$refs.comments.getBoundingClientRect().bottom;
 
-			const marginBottom = parseInt(this.$refs.comments.style.marginBottom);
+			const marginBottom = parseInt(this.$refs.comments.style.marginBottom, 10);
 
 			if ((isNaN(marginBottom) && offset > 0) || (!isNaN(marginBottom) && marginBottom < offset))
 			{
@@ -339,7 +348,7 @@ export const ViewEventSlider = {
 				element.style.opacity = savedOpacity;
 				setTimeout(() => { element.style.transition = savedTransition; }, 1000);
 			}, 100);
-		}
+		},
 	},
 	watch: {
 		name: { handler(newValue, oldValue) { this.highlightChange(this.$refs.highlightName); } },
@@ -428,7 +437,12 @@ export const ViewEventSlider = {
 									<div class="calendar-slider-sidebar-row calendar-slider-sidebar-border-bottom" v-if="meetingCreatorUrl">
 										<div class="calendar-slider-sidebar-string-name">{{$Bitrix.Loc.getMessage('EC_VIEW_CREATED_BY')}}:</div>
 										<div class="calendar-slider-sidebar-string-value">
-											<a :href="meetingCreatorUrl" class="calendar-slider-sidebar-user-info-name">{{meetingCreatorDisplayName}}</a>
+											<a
+												:href="meetingCreatorUrl"
+												:class="meetingCreatorClassName"
+											>
+												{{meetingCreatorDisplayName}}
+											</a>
 										</div>
 									</div>
 								</div>
@@ -444,7 +458,7 @@ export const ViewEventSlider = {
 										<div class="calendar-slider-sidebar-user-info-status" v-if="meetingHostWorkPosition">{{meetingHostWorkPosition}}</div>
 									</div>
 								</div>
-								
+
 							</div>
 								<div class="calendar-slider-sidebar-user-social calendar-slider-sidebar-border-bottom" v-if="isMeeting">
 								<div class="calendar-slider-sidebar-user-social-left">
@@ -488,7 +502,7 @@ export const ViewEventSlider = {
 									</div>
 								</div>
 							</div>
-								
+
 							</div>
 						</div>
 						<div class="calendar-slider-sidebar-layout-main calendar-slider-sidebar-border-bottom calendar-slider-sidebar-remind" v-if="isRemind">
@@ -504,7 +518,7 @@ export const ViewEventSlider = {
 							<div class="calendar-slider-sidebar-string-name">{{$Bitrix.Loc.getMessage('EC_T_REPEAT')}}:</div>
 							<div class="calendar-slider-sidebar-string-value">{{rruleDescription}}</div>
 						</div>
-						
+
 					</div>
 					<div class="calendar-slider-sidebar-copy" style="display: none;">
 						<span class="calendar-slider-sidebar-copy-link">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_COPY_LINK')}}</span>
@@ -557,7 +571,7 @@ export const ViewEventSlider = {
 										<div class="calendar-slider-detail-option-name">{{$Bitrix.Loc.getMessage('EC_ACCESSIBILITY_TITLE')}}:</div>
 										<div class="calendar-slider-detail-option-value">{{$Bitrix.Loc.getMessage('EC_ACCESSIBILITY_' + accessibility.toUpperCase())}}</div>
 									</div>
-									
+
 									<div class="calendar-slider-detail-option-block" v-if="isPrivate && isIntranetEnabled">
 										<div class="calendar-slider-detail-option-name">{{$Bitrix.Loc.getMessage('EC_EDDIV_SPECIAL_NOTES')}}:</div>
 										<div class="calendar-slider-detail-option-value">{{$Bitrix.Loc.getMessage('EC_PRIVATE_EVENT')}}</div>
@@ -578,24 +592,30 @@ export const ViewEventSlider = {
 
 										<div>
 											<button v-show="canEditCalendar || (canAttendeeEditCalendar && ['H', 'Y'].includes(curUserStatus))" :id="id + '_but_edit'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EDIT')}}</button>
+											<button
+												v-show="downloadIcsEnabled"
+												:id="id + '_but_download'"
+												class="ui-btn ui-btn-light-border"
+											>
+												{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_DOWNLOAD')}}
+											</button>
 											<button v-if="canDeleteEvent" :id="id + '_but_del'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_DEL')}}</button>
 										</div>
-										
 									</div>
 								</div>
 							</div>
 						</div>
-						
+
 						<div class="calendar-slider-comments" v-if="showComments" ref="comments">
 							<div class="calendar-slider-comments-title">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_COMMENTS')}}</div>
 							<div class="calendar-slider-comments-main" :id="id + 'comments-cont'" style="opacity: 1;">
 								<div ref="commentsView"></div>
 							</div>
 						</div>
-						
+
 					</div>
 				</div>
 			</div>
 		</div>
-	`
+	`,
 };

@@ -1,0 +1,25 @@
+<?php
+$MESS["VIDEO_PLAYER_PLAY"] = "Play";
+$MESS["VIDEO_PLAYER_PAUSE"] = "Pause";
+$MESS["VIDEO_PLAYER_REPLAY"] = "Replay";
+$MESS["VIDEO_PLAYER_CURRENT_TIME"] = "Current Time";
+$MESS["VIDEO_PLAYER_DURATION"] = "Duration";
+$MESS["VIDEO_PLAYER_REMAINING_TIME"] = "Remaining Time";
+$MESS["VIDEO_PLAYER_LOADED"] = "Loaded";
+$MESS["VIDEO_PLAYER_PROGRESS"] = "Progress";
+$MESS["VIDEO_PLAYER_PROGRESS_BAR"] = "Progress Bar";
+$MESS["VIDEO_PLAYER_FULLSCREEN"] = "Fullscreen";
+$MESS["VIDEO_PLAYER_EXIT_FULLSCREEN"] = "Exit Fullscreen";
+$MESS["VIDEO_PLAYER_MUTE"] = "Mute";
+$MESS["VIDEO_PLAYER_UNMUTE"] = "Unmute";
+$MESS["VIDEO_PLAYER_PLAYBACK_RATE"] = "Playback Rate";
+$MESS["VIDEO_PLAYER_VOLUME_LEVEL"] = "Volume Level";
+$MESS["VIDEO_PLAYER_ABORTED_PLAYBACK"] = "You aborted the media playback";
+$MESS["VIDEO_PLAYER_NETWORK_ERROR"] = "A network error caused the media download to fail part-way.";
+$MESS["VIDEO_PLAYER_FORMAT_NOT_SUPPORTED"] = "The media could not be loaded, either because the server or network failed or because the format is not supported.";
+$MESS["VIDEO_PLAYER_PLAYBACK_WAS_ABORTED"] = "The media playback was aborted due to a corruption problem or because the media used features your browser did not support.";
+$MESS["VIDEO_PLAYER_NO_COMPATIBLE_SOURCE"] = "No compatible source was found for this media.";
+$MESS["VIDEO_PLAYER_MEDIA_IS_ENCRYPTED"] = "The media is encrypted and we do not have the keys to decrypt it.";
+$MESS["VIDEO_PLAYER_PLAY_VIDEO"] = "Play Video";
+$MESS["VIDEO_PLAYER_EXIT_PICTURE_IN_PICTURE"] = "Exit Picture-in-Picture";
+$MESS["VIDEO_PLAYER_PICTURE_IN_PICTURE"] = "Picture-in-Picture";

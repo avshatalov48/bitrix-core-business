@@ -5,6 +5,7 @@
 	display: flex;
 	align-items: center;
 	margin-left: 4px;
+	overflow: hidden;
 }
 
 .bx-im-chat-header-entity-link__container,
@@ -39,6 +40,7 @@
 	width: 10px;
 	height: 10px;
 	background-image: url('./images/right-chevron.svg');
+	flex-shrink: 0;
 }
 
 .bx-im-chat-header-entity-link__container.--task .bx-im-chat-header-entity-link__icon {

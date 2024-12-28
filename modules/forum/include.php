@@ -326,8 +326,6 @@ function ForumAddMessage(
 		//region 0. CAPTCHA
 		if (!$USER->IsAuthorized() && $forum["USE_CAPTCHA"]=="Y")
 		{
-			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-
 			$cpt = new CCaptcha();
 			if ($captcha_code <> '')
 			{

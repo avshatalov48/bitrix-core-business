@@ -34,6 +34,7 @@ use Bitrix\Im\Model\ReactionTable;
 use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Message\CounterService;
 use Bitrix\Im\V2\Sync\Event;
 use Bitrix\Im\V2\Sync\Logger;
 use Bitrix\ImConnector\Model\ChatLastMessageTable;
@@ -48,6 +49,7 @@ use CPullStack;
 class ChatContentCollector
 {
 	private int $chatId;
+	private array $chatMembers;
 
 	public function __construct(Chat|int $chat)
 	{
@@ -224,6 +226,17 @@ class ChatContentCollector
 		ChatCleanupAgent::register($this->chatId, userId: $userId);
 	}
 
+	protected function getChatMembers(): array
+	{
+		$this->chatMembers ??= $this->collectByColumn(
+			RelationTable::class,
+			$this->chatId,
+			selectColumnName: 'USER_ID',
+		);
+
+		return $this->chatMembers;
+	}
+
 	/**
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
@@ -231,11 +244,7 @@ class ChatContentCollector
 	 */
 	protected function writeSyncLog(): void
 	{
-		$userIds = $this->collectByColumn(
-			RelationTable::class,
-			$this->chatId,
-			selectColumnName: 'USER_ID',
-		);
+		$userIds = $this->getChatMembers();
 		$chatType = Chat::getInstance($this->chatId)->getType();
 		$logger = Logger::getInstance();
 
@@ -277,9 +286,19 @@ class ChatContentCollector
 		Chat::cleanCache($this->chatId);
 		$this->deleteByColumn(RecentTable::class, [$this->chatId], 'ITEM_CID');
 		$this->deleteByColumn(MessageUnreadTable::class, [$this->chatId], 'CHAT_ID');
+		$this->deleteByColumn(MessageUnreadTable::class, [$this->chatId], 'PARENT_ID');
+		$this->cleanupCounterCache();
 		$this->deleteByColumn(ChatIndexTable::class, [$this->chatId], 'CHAT_ID');
 
 		CPullStack::AddShared($arMessage);
+	}
+
+	protected function cleanupCounterCache(): void
+	{
+		foreach ($this->getChatMembers() as $userId)
+		{
+			CounterService::clearCache((int)$userId);
+		}
 	}
 
 	/**

@@ -108,6 +108,11 @@ export class SliderLoader
 		{
 			this.extensionParams.jumpToControl = options.jumpToControl;
 		}
+
+		if (options.createChatId)
+		{
+			this.extensionParams.createChatId = options.createChatId;
+		}
 	}
 
 	show()

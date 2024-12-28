@@ -314,6 +314,16 @@ class Signaling
 		return $this->send('Call::finish', $this->call->getUsers(), [], $push, 3600);
 	}
 
+	public function sendSwitchTrackRecordStatus(int $senderId, bool $isTrackRecordOn)
+	{
+		$toUserIds = array_diff($this->call->getUsers(), [$senderId]);
+
+		return $this->send('Call::switchTrackRecordStatus', $toUserIds, [
+			'senderId' => $senderId,
+			'isTrackRecordOn' => $isTrackRecordOn,
+		]);
+	}
+
 	public static function filterPushesForApple($message, $deviceType, $deviceToken)
 	{
 		if (!Loader::includeModule('pull'))

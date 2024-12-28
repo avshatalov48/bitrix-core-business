@@ -1,9 +1,6 @@
-import { Type } from 'main.core';
-
 import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
 import { Utils } from 'im.v2.lib.utils';
-import { ChatType } from 'im.v2.const';
 import { ImModelMessage } from 'im.v2.model';
 
 import { NewMessageManager } from './classes/new-message-manager';
@@ -14,11 +11,10 @@ import type {
 	MessageAddParams,
 	AddReactionParams,
 	MessageDeleteCompleteParams,
-	ReadMessageParams,
-	UnreadMessageParams,
 } from '../types/message';
+import type { ChatUnreadParams } from '../types/chat';
 import type { UserInviteParams } from '../types/user';
-import type { RecentUpdateParams } from '../types/recent';
+import type { RecentUpdateParams, UserShowInRecentParams } from '../types/recent';
 import type { ImModelRecentItem } from 'im.v2.model';
 
 // noinspection JSUnusedGlobalSymbols
@@ -42,15 +38,6 @@ export class RecentPullHandler
 	handleMessageAdd(params: MessageAddParams, extra: PullExtraParams)
 	{
 		const manager = new NewMessageManager(params, extra);
-		if (manager.isCommentChat())
-		{
-			this.#updateCommentCounter({
-				channelChatId: manager.getParentChatId(),
-				commentChatId: manager.getChatId(),
-				commentCounter: params.counter,
-			});
-		}
-
 		if (manager.needToSkipMessageEvent(params))
 		{
 			return;
@@ -59,6 +46,7 @@ export class RecentPullHandler
 		Logger.warn('RecentPullHandler: handleMessageAdd', params);
 		const newRecentItem = {
 			id: params.dialogId,
+			chatId: params.chatId,
 			messageId: params.message.id,
 		};
 
@@ -70,8 +58,10 @@ export class RecentPullHandler
 			newRecentItem.liked = false;
 		}
 
-		const addMethod = manager.getActionName();
-		Core.getStore().dispatch(addMethod, newRecentItem);
+		const addActions = manager.getAddActions();
+		addActions.forEach((actionName) => {
+			Core.getStore().dispatch(actionName, newRecentItem);
+		});
 	}
 
 	handleMessageDeleteComplete(params: MessageDeleteCompleteParams)
@@ -79,66 +69,18 @@ export class RecentPullHandler
 		const lastMessageWasDeleted = Boolean(params.newLastMessage);
 		if (lastMessageWasDeleted)
 		{
-			this.updateRecentForMessageDelete(params.dialogId, params.newLastMessage.id);
+			this.#updateRecentForMessageDelete(params.dialogId, params.newLastMessage.id);
 		}
-
-		this.#updateUnloadedChatCounter(params);
 	}
 
-	/* region Counters handling */
-	handleReadMessage(params: ReadMessageParams)
-	{
-		this.#updateUnloadedChatCounter(params);
-	}
-
-	handleReadMessageChat(params: ReadMessageParams)
-	{
-		if (params.type === ChatType.comment)
-		{
-			this.#updateCommentCounter({
-				channelChatId: params.parentChatId,
-				commentChatId: params.chatId,
-				commentCounter: params.counter,
-			});
-
-			return;
-		}
-
-		this.#updateUnloadedChatCounter(params);
-	}
-
-	handleUnreadMessage(params: UnreadMessageParams)
-	{
-		this.#updateUnloadedChatCounter(params);
-	}
-
-	handleUnreadMessageChat(params: UnreadMessageParams)
-	{
-		this.#updateUnloadedChatCounter(params);
-	}
-
-	handleChatMuteNotify(params)
-	{
-		this.#updateUnloadedChatCounter(params);
-	}
-
-	handleChatUnread(params)
+	handleChatUnread(params: ChatUnreadParams)
 	{
 		Logger.warn('RecentPullHandler: handleChatUnread', params);
-		this.#updateUnloadedChatCounter({
-			dialogId: params.dialogId,
-			chatId: params.chatId,
-			counter: params.counter,
-			muted: params.muted,
-			unread: params.active,
-		});
-
 		Core.getStore().dispatch('recent/unread', {
 			id: params.dialogId,
 			action: params.active,
 		});
 	}
-	/* endregion Counters handling */
 
 	handleAddReaction(params: AddReactionParams)
 	{
@@ -231,6 +173,25 @@ export class RecentPullHandler
 		});
 	}
 
+	handleUserShowInRecent(params: UserShowInRecentParams)
+	{
+		Logger.warn('RecentPullHandler: handleUserShowInRecent', params);
+		const { items } = params;
+
+		items.forEach((item) => {
+			const messageId = Utils.text.getUuidV4();
+			Core.getStore().dispatch('messages/store', {
+				id: messageId,
+				date: item.date,
+			});
+
+			Core.getStore().dispatch('recent/setRecent', {
+				id: item.user.id,
+				messageId,
+			});
+		});
+	}
+
 	handleRecentUpdate(params: RecentUpdateParams)
 	{
 		Logger.warn('RecentPullHandler: handleRecentUpdate', params);
@@ -246,67 +207,7 @@ export class RecentPullHandler
 		Core.getStore().dispatch('recent/setRecent', newRecentItem);
 	}
 
-	#updateUnloadedChatCounter(params: {
-		dialogId: string,
-		chatId: number,
-		counter: number,
-		muted: boolean,
-		unread: boolean,
-		lines: boolean
-	})
-	{
-		const { dialogId, chatId, counter, muted, unread, lines = false } = params;
-		if (lines)
-		{
-			return;
-		}
-
-		const recentItem: ?ImModelRecentItem = Core.getStore().getters['recent/get'](dialogId);
-		if (recentItem)
-		{
-			return;
-		}
-		Logger.warn('RecentPullHandler: updateUnloadedChatCounter:', { dialogId, chatId, counter, muted, unread });
-
-		let newCounter = 0;
-		if (muted)
-		{
-			newCounter = 0;
-		}
-		else if (unread && counter === 0)
-		{
-			newCounter = 1;
-		}
-		else if (unread && counter > 0)
-		{
-			newCounter = counter;
-		}
-		else if (!unread)
-		{
-			newCounter = counter;
-		}
-
-		Core.getStore().dispatch('counters/setUnloadedChatCounters', { [chatId]: newCounter });
-	}
-
-	#updateCommentCounter(payload: { channelChatId: number, commentChatId: number, commentCounter: number })
-	{
-		const { channelChatId, commentChatId, commentCounter } = payload;
-		if (Type.isUndefined(commentCounter))
-		{
-			return;
-		}
-
-		const counters = {
-			[channelChatId]: {
-				[commentChatId]: commentCounter,
-			},
-		};
-
-		Core.getStore().dispatch('counters/setCommentCounters', counters);
-	}
-
-	updateRecentForMessageDelete(dialogId: string, newLastMessageId: number): void
+	#updateRecentForMessageDelete(dialogId: string, newLastMessageId: number): void
 	{
 		if (!newLastMessageId)
 		{

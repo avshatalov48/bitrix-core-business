@@ -46,6 +46,7 @@ class EntityManager
 			'SCRUM_MASTER_ID',
 			'SCRUM_SPRINT_DURATION',
 			'SCRUM_TASK_RESPONSIBLE',
+			'TYPE',
 		];
 		$entityFields = $this->getEntityFields($groupFields, $whiteList);
 

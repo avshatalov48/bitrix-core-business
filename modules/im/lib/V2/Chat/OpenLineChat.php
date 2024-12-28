@@ -3,9 +3,11 @@
 namespace Bitrix\Im\V2\Chat;
 
 use Bitrix\Im\Recent;
+use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
 use Bitrix\Im\V2\MessageCollection;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Relation\Reason;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
@@ -15,6 +17,7 @@ use Bitrix\ImOpenLines\Model\SessionTable;
 use Bitrix\ImOpenLines;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ORM\Query\Query;
 
 class OpenLineChat extends EntityChat
 {
@@ -55,7 +58,7 @@ class OpenLineChat extends EntityChat
 	];
 	protected bool $isSessionFilled = false;
 	protected ?RelationCollection $fakeRelation = null;
-	protected ?array $session = null;
+	protected ?ImOpenLines\V2\Session\Session $session = null;
 
 	public function setEntityMap(array $entityMap): EntityChat
 	{
@@ -154,30 +157,62 @@ class OpenLineChat extends EntityChat
 	{
 		$session = $this->getSession();
 
-		if ($session === null)
+		if (!isset($session))
 		{
 			return null;
 		}
 
 		return [
-			'id' => (int)$session['ID'],
-			'status' => (int)$session['STATUS'],
-			'date_create' => $session['DATE_CREATE'],
+			'id' => $session->getId(),
+			'status' => $session->getStatus(),
+			'date_create' => $session->getDateCreate(),
+			'statusGroup' => $session->getStatusGroup(),
+			'queueId' => $session->getConfigId(),
+			'pinned' => $session->getPinMode(),
+			'isClosed' => $session->isClosed(),
+			'operatorId' => $session->getOperatorId(),
 		];
 	}
 
-	protected function getSession(): ?array
+	public function getSessionId(): int
 	{
-		if ($this->isSessionFilled)
+		if (!isset($this->session))
+		{
+			return $this->getSession()?->getSessionId() ?? 0;
+		}
+
+		return $this->session->getSessionId();
+	}
+
+	protected function getSessionIdByEntityData(): int
+	{
+		if ($this->getEntityData1())
+		{
+			return (int)(explode('|', $this->getEntityData1())[5] ?? 0);
+		}
+
+		return 0;
+	}
+
+	public function getSession(): ?ImOpenLines\V2\Session\Session
+	{
+		if (isset($this->session))
 		{
 			return $this->session;
 		}
 
-		$this->isSessionFilled = true;
-
-		if ($this->getSessionId())
+		if (!Loader::includeModule('imopenlines'))
 		{
-			$this->session = SessionTable::getByPrimary($this->getSessionId())->fetch() ?: null;
+			return null;
+		}
+
+		if ($sessionId = $this->getSessionIdByEntityData())
+		{
+			$this->session = ImOpenLines\V2\Session\Session::getInstance($sessionId);
+		}
+		else
+		{
+			$this->session = ImOpenLines\V2\Session\Session::getInstanceByChatId($this->chatId);
 		}
 
 		return $this->session;
@@ -211,17 +246,30 @@ class OpenLineChat extends EntityChat
 
 		$entityData = $this->getEntityData(true);
 		$canJoin = Config::canJoin(
-			$entityData['lineId'] ?? 0,
+			$entityData['entityId']['lineId'] ?? 0,
 			$entityData['crmEntityType'] ?? null,
 			$entityData['crmEntityId'] ?? null
 		);
 
-		if (!$canJoin)
+		if (!$canJoin && !$this->checkAccessByRecentTable($userId))
 		{
 			$result->addError(new ChatError(ChatError::ACCESS_DENIED));
 		}
 
 		return $result;
+	}
+
+	protected function checkAccessByRecentTable(int $userId): bool
+	{
+		$result = ImOpenLines\Model\RecentTable::query()
+			->setSelect(['USER_ID'])
+			->where('CHAT_ID', $this->getChatId())
+			->where('USER_ID', $userId)
+			->setLimit(1)
+			->fetch()
+		;
+
+		return $result !== false;
 	}
 
 	public function canUpdateOwnMessage(): bool
@@ -289,7 +337,7 @@ class OpenLineChat extends EntityChat
 		if (
 			$this->getSessionId()
 			&& Loader::includeModule('imopenlines')
-			&& ImOpenLines\Recent::isRecentAvailableByStatus($this->getSession()['STATUS'] ?? null)
+			&& ImOpenLines\Recent::isRecentAvailableByStatus($this->getSession()?->getStatus())
 		)
 		{
 			ImOpenLines\Recent::update($message);
@@ -314,10 +362,16 @@ class OpenLineChat extends EntityChat
 	{
 		if ($this->hasFakeRelations())
 		{
+			$counter = 1;
+			if ($this->getSession()?->isClosed())
+			{
+				$counter = 0;
+			}
+
 			$counters = [];
 			foreach ($this->fakeRelation as $fakeRelation)
 			{
-				$counters[$fakeRelation->getUserId()] = 1;
+				$counters[$fakeRelation->getUserId()] = $counter;
 			}
 
 			return (new Result())->setResult(['COUNTERS' => $counters]);
@@ -338,30 +392,16 @@ class OpenLineChat extends EntityChat
 		return $fields;
 	}
 
-	public function getSessionId(): int
+	protected function isValidToAdd(int $userId): bool
 	{
-		if (!$this->getEntityData1())
+		if(!parent::isValidToAdd($userId))
 		{
-			return 0;
+			return false;
 		}
 
-		return (int)(explode('|', $this->getEntityData1())[5] ?? 0);
-	}
+		$user = User::getInstance($userId);
 
-	protected function resolveRelationConflicts(array $userIds, Reason $reason = Reason::DEFAULT): array
-	{
-		$filteredUsers = parent::resolveRelationConflicts($this->getValidUsersToAdd($userIds), $reason);
-
-		foreach ($filteredUsers as $key => $userId)
-		{
-			$user = \Bitrix\Im\V2\Entity\User\User::getInstance($userId);
-			if (!$user->isConnector() && ($user->isExtranet() || $user->isNetwork()))
-			{
-				unset($filteredUsers[$key]);
-			}
-		}
-
-		return $filteredUsers;
+		return $user->isConnector() || (!$user->isExtranet() && !$user->isConnector());
 	}
 
 	public function setExtranet(?bool $extranet): \Bitrix\Im\V2\Chat
@@ -389,9 +429,10 @@ class OpenLineChat extends EntityChat
 		return $this;
 	}
 
-	protected function addUsersToRelation(array $usersToAdd, array $managerIds = [], ?bool $hideHistory = null, \Bitrix\Im\V2\Relation\Reason $reason = \Bitrix\Im\V2\Relation\Reason::DEFAULT)
+	protected function addUsersToRelation(array $usersToAdd, AddUsersConfig $config): void
 	{
-		parent::addUsersToRelation($usersToAdd, $managerIds, false, $reason);
+		$config->setHideHistory(false);
+		parent::addUsersToRelation($usersToAdd, $config);
 	}
 
 	protected function addIndex(): \Bitrix\Im\V2\Chat
@@ -421,5 +462,18 @@ class OpenLineChat extends EntityChat
 	protected function hasFakeRelations(): bool
 	{
 		return isset($this->fakeRelation);
+	}
+
+	public function getPopupData(array $excludedList = []): \Bitrix\Im\V2\Rest\PopupData
+	{
+		$popupData = parent::getPopupData($excludedList);
+		$session = $this->getSession();
+
+		if (isset($session))
+		{
+			$popupData->add($session);
+		}
+
+		return $popupData;
 	}
 }

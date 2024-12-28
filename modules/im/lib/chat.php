@@ -4,6 +4,7 @@ namespace Bitrix\Im;
 use Bitrix\Im\Model\BlockUserTable;
 use Bitrix\Im\V2\Chat\EntityLink;
 use Bitrix\Im\V2\Chat\GeneralChannel;
+use Bitrix\Im\V2\Message\Counter\CounterType;
 use Bitrix\Im\V2\Message\CounterService;
 use Bitrix\Im\V2\Message\Delete\DisappearService;
 use Bitrix\Im\V2\Message\ReadService;
@@ -35,15 +36,7 @@ class Chat
 
 	public static function getTypes()
 	{
-		return [
-			self::TYPE_GROUP,
-			self::TYPE_OPEN_LINE,
-			self::TYPE_OPEN,
-			self::TYPE_THREAD,
-			\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT,
-			\Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL,
-			\Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL,
-		];
+		return \CIMChat::getGroupTypes();
 	}
 
 	public static function getType($chatData, bool $camelCase = true)
@@ -71,6 +64,10 @@ class Chat
 		else if ($messageType === \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)
 		{
 			$result = 'COPILOT';
+		}
+		else if ($messageType === \Bitrix\Im\V2\Chat::IM_TYPE_COLLAB)
+		{
+			$result = 'COLLAB';
 		}
 		else if ($messageType === \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL)
 		{
@@ -408,6 +405,7 @@ class Chat
 			])->fetch();
 
 			$counter = $relation[$userId]['COUNTER'];
+			$counterType = CounterType::tryFromType($relation[$userId]['MESSAGE_TYPE'] ?? \Bitrix\Im\V2\Chat::IM_TYPE_CHAT)->value;
 
 			\Bitrix\Pull\Event::add($userId, Array(
 				'module_id' => 'im',
@@ -420,6 +418,7 @@ class Chat
 					'counter' => $counter,
 					'lines' => $element['ITEM_TYPE'] === self::TYPE_OPEN_LINE,
 					'unread' => ($element['UNREAD'] ?? 'N') === 'Y',
+					'counterType' => $counterType,
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
@@ -878,7 +877,7 @@ class Chat
 	 */
 	public static function getById($id, $params = array())
 	{
-		$userId = \Bitrix\Im\Common::getUserId();
+		$userId = \Bitrix\Im\Common::getUserId($params['USER_ID'] ?? null);
 		if (!$userId)
 		{
 			return false;
@@ -888,6 +887,7 @@ class Chat
 		$chats = self::getList(Array(
 			'FILTER' => Array('ID' => $id),
 			'SKIP_ACCESS_CHECK' => $checkAccessParam === 'Y'? 'N': 'Y',
+			'CURRENT_USER' => $userId,
  		));
 		if ($chats)
 		{

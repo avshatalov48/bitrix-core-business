@@ -132,7 +132,7 @@ export default class Form extends Base
 
 	updateFormLayout()
 	{
-		this.#widgetDate.updateValue(this.#value);
+		this.#widgetDate.updateValue(this.#value, this.#link?.type);
 	}
 
 	#getNodeWrapper(): HTMLElement
@@ -239,7 +239,7 @@ export default class Form extends Base
 				response = await BX.ajax.runAction('calendar.api.sharingajax.saveEvent', {
 					data: {
 						ownerCreated: this.#sharingUser.ownerCreated,
-						ownerId: this.#owner.id,
+						ownerId: this.#getLinkOwnerId(),
 						userName: this.#inputData.authorName,
 						userContact: this.#inputData.contactData,
 						dateFrom: this.#parseDate(this.#value.from),
@@ -721,5 +721,13 @@ export default class Form extends Base
 		})[0];
 
 		return r ? r.mask : '_ ___ __ __ __';
+	}
+
+	#getLinkOwnerId(): number
+	{
+		return this.#link.type === 'group'
+			? this.#link.hostId
+			: this.#owner.id
+		;
 	}
 }

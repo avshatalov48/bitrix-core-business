@@ -36,6 +36,8 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "objectName", 'mixed_selector[object]');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "fieldName", 'mixed_selector[field]');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "checkActivityChildren", true);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "activityFilter", []);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "exceptErrorMessages", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "map", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "menuItems", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "menuTargetNode", null);
@@ -52,6 +54,8 @@ this.BX = this.BX || {};
 	    _this.setInputNames(options.inputNames);
 	    _this.setTargetTitle(options.targetTitle);
 	    _this.setCheckActivityChildren(options.checkActivityChildren);
+	    _this.setActivityFilter(options.activityFilter);
+	    _this.setExceptErrorMessages(options.exceptErrorMessages);
 	    return _this;
 	  }
 	  babelHelpers.createClass(BpMixedSelector, [{
@@ -177,13 +181,37 @@ this.BX = this.BX || {};
 	    key: "getCheckActivityChildren",
 	    value: function getCheckActivityChildren() {
 	      return this.checkActivityChildren;
+	    }
+	  }, {
+	    key: "setActivityFilter",
+	    value: function setActivityFilter(filter) {
+	      if (main_core.Type.isArray(filter)) {
+	        this.activityFilter = filter;
+	      }
+	    }
+	  }, {
+	    key: "getActivityFilter",
+	    value: function getActivityFilter() {
+	      return this.activityFilter;
+	    }
+	  }, {
+	    key: "setExceptErrorMessages",
+	    value: function setExceptErrorMessages(except) {
+	      if (main_core.Type.isBoolean(except)) {
+	        this.exceptErrorMessages = except;
+	      }
+	    }
+	  }, {
+	    key: "getExceptErrorMessages",
+	    value: function getExceptErrorMessages() {
+	      return this.exceptErrorMessages;
 	    } /* endregion */
 	  }, {
 	    key: "getMenu",
 	    value: function getMenu() {
 	      var me = this;
 	      if (this.menuId) {
-	        //todo: modify popup position.
+	        // todo: modify popup position.
 	        return main_popup.MenuManager.getMenuById(this.menuId);
 	      }
 	      this.menuId = BX.util.getRandomString();
@@ -191,7 +219,7 @@ this.BX = this.BX || {};
 	      return main_popup.MenuManager.create(me.menuId, me.getMenuTargetNode(), me.getMenuItems(), {
 	        zIndex: 200,
 	        autoHide: true,
-	        offsetLeft: main_core.Dom.getPosition(me.getMenuTargetNode())['width'] / 2,
+	        offsetLeft: main_core.Dom.getPosition(me.getMenuTargetNode()).width / 2,
 	        angle: {
 	          position: 'top',
 	          offset: 0
@@ -264,9 +292,9 @@ this.BX = this.BX || {};
 	      var target = this.getMenuTargetNode();
 	      var tabsLocMessage = BpMixedSelector.getAvailableTabsLocMessages();
 	      if (BpMixedSelector.getAvailableTabsName().includes(object)) {
-	        target.innerText = tabsLocMessage[object] + ': ' + fieldTitle;
+	        target.innerText = "".concat(tabsLocMessage[object], ": ").concat(fieldTitle);
 	      } else {
-	        target.innerText = tabsLocMessage['Activity'] + ': ' + fieldTitle;
+	        target.innerText = "".concat(tabsLocMessage.Activity, ": ").concat(fieldTitle);
 	      }
 	      if (main_core.Type.isStringFilled(object) && main_core.Type.isStringFilled(field)) {
 	        this.objectInputNode.value = object;
@@ -301,13 +329,7 @@ this.BX = this.BX || {};
 	  var locMapNames = BpMixedSelector.getAvailableTabsLocMessages();
 	  var mapKeys = BX.util.object_keys(map);
 	  var _loop = function _loop() {
-	    if (mapKeys[i] !== 'Activity') {
-	      _this2.menuItems.push({
-	        text: locMapNames[mapKeys[i]],
-	        items: _classPrivateMethodGet(_this2, _extractMenuItem, _extractMenuItem2).call(_this2, map[mapKeys[i]], mapKeys[i]),
-	        tabName: mapKeys[i]
-	      });
-	    } else {
+	    if (mapKeys[i] === 'Activity') {
 	      var activitiesItems = _classPrivateMethodGet(_this2, _getTemplateActivitiesItems, _getTemplateActivitiesItems2).call(_this2, _this2.template, map[mapKeys[i]]);
 	      var groupByItemActivitiesItems = [];
 	      activitiesItems.forEach(function (activityItem) {
@@ -319,13 +341,15 @@ this.BX = this.BX || {};
 	          if (!main_core.Type.isStringFilled(item.description)) {
 	            return;
 	          }
-	          items.push({
-	            text: main_core.Text.encode(item.text + ' (' + item.description + ')'),
-	            object: item.object,
-	            field: item.field,
-	            property: item,
-	            onclick: _classPrivateMethodGet(me, _onChooseFieldClick, _onChooseFieldClick2).bind(me)
-	          });
+	          if ((item.field !== 'ErrorMessage' || _this2.getExceptErrorMessages() === false) && (_this2.getActivityFilter().length === 0 || _this2.getActivityFilter().includes(item.activity))) {
+	            items.push({
+	              text: main_core.Text.encode("".concat(item.text, " (").concat(item.description, ")")),
+	              object: item.object,
+	              field: item.field,
+	              property: item,
+	              onclick: _classPrivateMethodGet(me, _onChooseFieldClick, _onChooseFieldClick2).bind(me)
+	            });
+	          }
 	        });
 	        if (main_core.Type.isArrayFilled(items)) {
 	          groupByItemActivitiesItems.push({
@@ -342,6 +366,12 @@ this.BX = this.BX || {};
 	          tabName: 'Activity'
 	        });
 	      }
+	    } else {
+	      _this2.menuItems.push({
+	        text: locMapNames[mapKeys[i]],
+	        items: _classPrivateMethodGet(_this2, _extractMenuItem, _extractMenuItem2).call(_this2, map[mapKeys[i]], mapKeys[i]),
+	        tabName: mapKeys[i]
+	      });
 	    }
 	  };
 	  for (var i in mapKeys) {
@@ -360,10 +390,8 @@ this.BX = this.BX || {};
 	      this.map[keys[i]] = this.tabs[keys[i]];
 	    }
 	  }
-	  if (this.template.length < 0) {
-	    if (this.map['Activity']) {
-	      delete this.map['Activity'];
-	    }
+	  if (this.template.length < 0 && this.map.Activity) {
+	    delete this.map.Activity;
 	  }
 	  return this.map;
 	}
@@ -391,8 +419,8 @@ this.BX = this.BX || {};
 	    }
 	    var activityType = template[i].Type.toLowerCase();
 	    var activityData = (_activities$activityT = activities[activityType]) !== null && _activities$activityT !== void 0 ? _activities$activityT : {};
-	    var returnActivityData = activityData['RETURN'];
-	    var additionalResult = activityData['ADDITIONAL_RESULT'];
+	    var returnActivityData = activityData.RETURN;
+	    var additionalResult = activityData.ADDITIONAL_RESULT;
 	    if (returnActivityData) {
 	      var keys = Object.keys(returnActivityData);
 	      var activityResult = [];
@@ -400,7 +428,8 @@ this.BX = this.BX || {};
 	        activityResult.push({
 	          text: returnActivityData[keys[j]].NAME,
 	          description: template[i].Properties.Title || activityData.NAME,
-	          value: '{=' + template[i].Name + ':' + keys[j] + '}',
+	          activity: activityType,
+	          value: "{=".concat(template[i].Name, ":").concat(keys[j], "}"),
 	          object: template[i].Name,
 	          field: keys[j],
 	          property: {
@@ -413,7 +442,7 @@ this.BX = this.BX || {};
 	        result.push(activityResult);
 	      }
 	    } else if (main_core.Type.isArray(additionalResult)) {
-	      var properties = template[i]['Properties'];
+	      var properties = template[i].Properties;
 	      additionalResult.forEach(function (addProp) {
 	        if (properties[addProp]) {
 	          var _keys = Object.keys(properties[addProp]);
@@ -422,9 +451,9 @@ this.BX = this.BX || {};
 	            var field = properties[addProp][_keys[_j]];
 	            _activityResult.push({
 	              text: field.Name,
-	              description: properties['Title'] || activityData['NAME'],
-	              value: '{=' + template[i]['Name'] + ':' + _keys[_j] + '}',
-	              object: template[i]['Name'],
+	              description: properties.Title || activityData.NAME,
+	              value: "{=".concat(template[i].Name, ":").concat(_keys[_j], "}"),
+	              object: template[i].Name,
 	              field: _keys[_j],
 	              property: field
 	            });
@@ -433,10 +462,10 @@ this.BX = this.BX || {};
 	            result.push(_activityResult);
 	          }
 	        }
-	      }, _this3);
+	      });
 	    }
-	    if (template[i]['Children'] && template[i]['Children'].length > 0) {
-	      var subResult = _classPrivateMethodGet(_this3, _getTemplateActivitiesItems, _getTemplateActivitiesItems2).call(_this3, template[i]['Children'], activities);
+	    if (template[i].Children && template[i].Children.length > 0) {
+	      var subResult = _classPrivateMethodGet(_this3, _getTemplateActivitiesItems, _getTemplateActivitiesItems2).call(_this3, template[i].Children, activities);
 	      result = result.concat(subResult);
 	    }
 	  };

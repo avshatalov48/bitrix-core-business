@@ -483,6 +483,9 @@ this.BX = this.BX || {};
 	    key: "createInstance",
 	    value: function createInstance(id) {
 	      var rootWindow = BX.Landing.PageObject.getRootWindow();
+	      if (rootWindow.BX.Landing.Main.instance) {
+	        rootWindow.BX.Landing.Main.instance.clear();
+	      }
 	      rootWindow.BX.Landing.Main.instance = new BX.Landing.Main(id);
 	    }
 	  }, {
@@ -563,6 +566,11 @@ this.BX = this.BX || {};
 	    return _this;
 	  }
 	  babelHelpers.createClass(Main, [{
+	    key: "clear",
+	    value: function clear() {
+	      BX.removeCustomEvent('Landing.Block:onAfterDelete', this.onBlockDelete);
+	    }
+	  }, {
 	    key: "isCrmFormPage",
 	    value: function isCrmFormPage() {
 	      return landing_env.Env.getInstance().getSpecialType() === 'crm_forms';

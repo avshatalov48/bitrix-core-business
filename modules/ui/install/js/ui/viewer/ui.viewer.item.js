@@ -1065,29 +1065,33 @@
 				return;
 			}
 
-			if (this.adjustVideoWidth(container, this.player.width, this.player.height, this.player.vjsPlayer.videoWidth(), this.player.vjsPlayer.videoHeight()))
-			{
-				this.player.vjsPlayer.fluid(true);
-			}
+			this.adjustVideoWidth(
+				this.player.width,
+				this.player.height,
+				this.player.vjsPlayer.videoWidth(),
+				this.player.vjsPlayer.videoHeight()
+			);
 
 			BX.addClass(container, 'player-loaded');
 			BX.style(container, 'opacity', 1);
+
+			this.controller.hideLoading();
 		},
 
-		adjustVideoWidth: function(node, maxWidth, maxHeight, videoWidth, videoHeight)
+		adjustVideoWidth: function(maxWidth, maxHeight, videoWidth, videoHeight)
 		{
-			if (!BX.type.isDomNode(node))
-			{
-				return false;
-			}
 			if (!maxWidth || !maxHeight || !videoWidth || !videoHeight)
 			{
 				return false;
 			}
 			if (videoHeight < maxHeight && videoWidth < maxWidth)
 			{
-				BX.width(node, videoWidth);
-				this.videoWidth = videoWidth;
+				const width = Math.max(videoWidth, 400);
+				const height = Math.max(videoHeight, 130);
+				this.player.vjsPlayer.width(width);
+				this.player.vjsPlayer.height(height);
+				this.videoWidth = width;
+
 				if (!this.contentWidthPromise.state)
 				{
 					this.contentWidthPromise.fulfill(this.videoWidth);
@@ -1111,8 +1115,13 @@
 					reduceRatio = maxWidth / videoWidth;
 				}
 
-				BX.width(node, Math.floor(videoWidth * reduceRatio));
-				this.videoWidth = Math.floor(videoWidth * reduceRatio);
+				const width = Math.max(videoWidth * reduceRatio, 400);
+				const height = Math.max(videoHeight * reduceRatio, 130);
+
+				this.player.vjsPlayer.width(width);
+				this.player.vjsPlayer.height(height);
+				this.videoWidth = width;
+
 				if (!this.contentWidthPromise.state)
 				{
 					this.contentWidthPromise.fulfill(this.videoWidth);

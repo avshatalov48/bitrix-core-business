@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Main\UI;
 
@@ -12,7 +12,6 @@ class Extension
 	/**
 	 * Loads specified extension
 	 * @param $extNames
-	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function load($extNames)
 	{
@@ -33,7 +32,6 @@ class Extension
 	/**
 	 * @param $extName
 	 * @return bool
-	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function register($extName)
 	{
@@ -66,7 +64,7 @@ class Extension
 		if (is_array($path))
 		{
 			$result = [];
-			foreach ($path as $key => $item)
+			foreach ($path as $item)
 			{
 				$result[] = static::normalizeAssetPath($item, $extensionPath);
 			}
@@ -90,19 +88,33 @@ class Extension
 	/**
 	 * Gets extension config
 	 * @param $extName
-	 * @return array|mixed|null
+	 * @return array|null
 	 */
 	public static function getConfig($extName)
 	{
-		$extensionPath = static::getPath($extName);
-		if ($extensionPath === null)
+		static $cache = [];
+
+		if (!is_string($extName))
 		{
 			return null;
 		}
 
-		$configFile = Application::getDocumentRoot().$extensionPath."/config.php";
+		if (isset($cache[$extName]) || array_key_exists($extName, $cache))
+		{
+			return $cache[$extName];
+		}
+
+		$extensionPath = static::getPath($extName);
+		if ($extensionPath === null)
+		{
+			$cache[$extName] = null;
+			return null;
+		}
+
+		$configFile = Application::getDocumentRoot() . $extensionPath . "/config.php";
 		if (!File::isFileExists($configFile))
 		{
+			$cache[$extName] = null;
 			return null;
 		}
 
@@ -120,7 +132,7 @@ class Extension
 				$config['css'] = static::normalizeAssetPath($config['css'], $extensionPath);
 			}
 
-			$langDirectory = Application::getDocumentRoot().$extensionPath.'/lang/';
+			$langDirectory = Application::getDocumentRoot() . $extensionPath . '/lang/';
 
 			if (Directory::isDirectoryExists($langDirectory))
 			{
@@ -130,16 +142,16 @@ class Extension
 
 					if (is_array($config["lang"]))
 					{
-						$config["lang"][] = $extensionPath."/config.php";
+						$config["lang"][] = $extensionPath . "/config.php";
 					}
 					else
 					{
-						$config["lang"] = [$config["lang"], $extensionPath."/config.php"];
+						$config["lang"] = [$config["lang"], $extensionPath . "/config.php"];
 					}
 				}
 				else
 				{
-					$config["lang"] = $extensionPath."/config.php";
+					$config["lang"] = $extensionPath . "/config.php";
 				}
 			}
 
@@ -149,13 +161,14 @@ class Extension
 			}
 		}
 
+		$cache[$extName] = is_array($config) ? $config : null;
 
-		return is_array($config) ? $config : null;
+		return $cache[$extName];
 	}
 
 	/**
 	 * @param $extName
-	 * @return array|bool|mixed|\SplFixedArray|string|null
+	 * @return array|null
 	 * @throws \Bitrix\Main\IO\FileNotFoundException
 	 */
 	public static function getBundleConfig($extName)
@@ -167,7 +180,7 @@ class Extension
 			return null;
 		}
 
-		$configFilePath = Application::getDocumentRoot().$extensionPath."/bundle.config.js";
+		$configFilePath = Application::getDocumentRoot() . $extensionPath . "/bundle.config.js";
 		$configFile = new File($configFilePath);
 
 		if (!$configFile->isExists())
@@ -175,55 +188,65 @@ class Extension
 			return null;
 		}
 
-        $namespace = '';
-        $configContent = $configFile->getContents();
-        if (is_string($configContent) && !empty($configContent))
-        {
-            preg_match('/namespace:(?:\s+)?[\'"](.*)[\'"]/', $configContent, $matches);
-            if (!empty($matches) && !empty($matches[1]))
-            {
-                $namespace = $matches[1];
-            }
-        }
+		$namespace = '';
+		$configContent = $configFile->getContents();
+		if (is_string($configContent) && !empty($configContent))
+		{
+			preg_match('/namespace:(?:\s+)?[\'"](.*)[\'"]/', $configContent, $matches);
+			if (!empty($matches) && !empty($matches[1]))
+			{
+				$namespace = $matches[1];
+			}
+		}
 
 		return [
-            'namespace' => $namespace,
-        ];
+			'namespace' => $namespace,
+		];
 	}
 
 	private static function getPath($extName)
 	{
+		static $cache = [];
+
 		if (!is_string($extName))
 		{
 			return null;
 		}
 
+		if (isset($cache[$extName]) || array_key_exists($extName, $cache))
+		{
+			return $cache[$extName];
+		}
+
 		$namespaces = explode(".", $extName);
 		if (count($namespaces) < 2)
 		{
+			$cache[$extName] = null;
 			return null;
 		}
 
 		$path = "js";
 		foreach ($namespaces as $namespace)
 		{
-			if (!preg_match("/^[a-z0-9_\\.\\-]+$/i", $namespace))
+			if (!preg_match("/^[a-z0-9_.\-]+$/i", $namespace))
 			{
+				$cache[$extName] = null;
 				return null;
 			}
 
-			$path .= "/".$namespace;
+			$path .= "/" . $namespace;
 		}
 
 		$localPath = \getLocalPath($path);
 
-		return is_string($localPath) && !empty($localPath) ? $localPath : null;
+		$cache[$extName] = is_string($localPath) && !empty($localPath) ? $localPath : null;
+
+		return $cache[$extName];
 	}
 
 	/**
 	 * @param $extName
 	 * @return bool|string|null
-	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function getHtml($extName)
 	{
@@ -247,7 +270,7 @@ class Extension
 
 		if (is_array($extName))
 		{
-			foreach ($extName as $key => $name)
+			foreach ($extName as $name)
 			{
 				$currentAssets = static::getAssets($name);
 				$assets['js'] = array_merge($assets['js'], $currentAssets['js']);
@@ -343,9 +366,9 @@ class Extension
 		}
 
 		$extensions = [];
+		$extNameList = is_array($extName) ? $extName : [$extName];
 		if ($withDependency)
 		{
-			$extNameList = is_array($extName)? $extName: [$extName];
 			foreach ($extNameList as $extName)
 			{
 				if (in_array($extName, $alreadyResolved))
@@ -358,7 +381,6 @@ class Extension
 		}
 		else
 		{
-			$extNameList = is_array($extName)? $extName: [$extName];
 			foreach ($extNameList as $extName)
 			{
 				if (in_array($extName, $alreadyResolved))
@@ -376,29 +398,29 @@ class Extension
 
 		foreach ($extensions as $index => $extension)
 		{
-			if(isset($extension[1]['oninit']) && is_callable($extension[1]['oninit']))
+			if (isset($extension[1]['oninit']) && is_callable($extension[1]['oninit']))
 			{
 				$callbackResult = call_user_func_array(
 					$extension[1]['oninit'],
-					array($extension[1])
+					[$extension[1]]
 				);
 
-				if(is_array($callbackResult))
+				if (is_array($callbackResult))
 				{
-					foreach($callbackResult as $option => $value)
+					foreach ($callbackResult as $option => $value)
 					{
-						if(!is_array($value))
+						if (!is_array($value))
 						{
-							$value = array($value);
+							$value = [$value];
 						}
 
-						if(!isset($extension[1][$option]))
+						if (!isset($extension[1][$option]))
 						{
-							$extension[1][$option] = array();
+							$extension[1][$option] = [];
 						}
-						elseif(!is_array($extension[1][$option]))
+						elseif (!is_array($extension[1][$option]))
 						{
-							$extension[1][$option] = array($extension[1][$option]);
+							$extension[1][$option] = [$extension[1][$option]];
 						}
 
 						$extensions[$index][1][$option] = array_merge($extension[1][$option], $value);
@@ -438,13 +460,16 @@ class Extension
 					{
 						$result[$option][$extensionName] = $config[$option];
 					}
-					else if (is_array($config[$option]))
-					{
-						$result[$option] = array_merge($result[$option], $config[$option]);
-					}
 					else
 					{
-						$result[$option][] = $config[$option];
+						if (is_array($config[$option]))
+						{
+							$result[$option] = array_merge($result[$option], $config[$option]);
+						}
+						else
+						{
+							$result[$option][] = $config[$option];
+						}
 					}
 				}
 			}

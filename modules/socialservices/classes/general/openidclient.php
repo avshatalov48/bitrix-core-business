@@ -80,7 +80,7 @@ class COpenIDClient
 			$server_name = $protocol.'://'.$_SERVER['SERVER_NAME'].$port;
 
 			if ($return_to === false)
-				$return_to = $server_name.$GLOBALS['APPLICATION']->GetCurPageParam('', array('SEF_APPLICATION_CUR_PAGE_URL'), false);
+				$return_to = $server_name.$GLOBALS['APPLICATION']->GetCurPageParam('', [], false);
 
 			$return_to = preg_replace("|amp%3B|", '', $return_to);
 
@@ -126,7 +126,7 @@ class COpenIDClient
 
 				$str = CHTTP::sPost($arOpenidServerTags['server'], $arParams, true);
 
-				if (preg_match('/is_valid\s*\:\s*/' . BX_UTF_PCRE_MODIFIER, $str))
+				if (preg_match('/is_valid\s*\:\s*/u', $str))
 				{
 					return array(
 						'server' => $arOpenidServerTags['server'],
@@ -178,7 +178,7 @@ class COpenIDClient
 
 			if (array_key_exists('openid_sreg_fullname', $_GET))
 			{
-				$fullname = (defined("BX_UTF")? $_GET['openid_sreg_fullname'] : CharsetConverter::ConvertCharset($_GET['openid_sreg_fullname'], 'UTF-8', LANG_CHARSET));
+				$fullname = $_GET['openid_sreg_fullname'];
 				$fullname = trim($fullname);
 				if (($pos = mb_strpos($fullname, ' ')) !== false)
 				{

@@ -648,7 +648,7 @@ class CUserTypeManager
 
 	/**
 	 * Add field for filter.
-	 * @param int $entityId Entity id.
+	 * @param string $entityId Entity id.
 	 * @param array $arFilterFields Array for fill.
 	 */
 	public function AdminListAddFilterFields($entityId, &$arFilterFields)
@@ -721,7 +721,7 @@ class CUserTypeManager
 
 	/**
 	 * Add value for filter.
-	 * @param int $entityId Entity id.
+	 * @param string $entityId Entity id.
 	 * @param array $arFilter Array for fill.
 	 */
 	public function AdminListAddFilter($entityId, &$arFilter)

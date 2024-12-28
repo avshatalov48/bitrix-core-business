@@ -76,7 +76,8 @@ class Attach extends Param
 		$value = '';
 		if (!empty($this->value['DESCRIPTION']))
 		{
-			$value = \Bitrix\Im\Text::encodeEmoji($this->value['DESCRIPTION']);
+			$value = parent::saveValueFilter($this->value['DESCRIPTION']);
+			$value = \Bitrix\Im\Text::encodeEmoji($value);
 		}
 
 		return $value;

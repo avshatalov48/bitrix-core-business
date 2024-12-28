@@ -16,6 +16,8 @@ use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Delete\DeleteService;
 use Bitrix\Im\V2\Message\MessageError;
+use Bitrix\Im\V2\MessageCollection;
+use Bitrix\Im\V2\Permission\Action;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
 use Bitrix\Tasks\Internals\TaskObject;
@@ -202,7 +204,7 @@ class Messenger
 			$taskService = new TaskService();
 			$chat = Chat::getInstance($chatId);
 
-			if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(Chat\Permission::ACTION_CREATE_TASK))
+			if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(Action::CreateTask))
 			{
 				return;
 			}

@@ -10,6 +10,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\Activity\Mixins\ErrorHandling;
+use Bitrix\Main\Type\DateTime;
 
 class CBPRequestInformationActivity extends CBPCompositeActivity implements
 	IBPEventActivity,
@@ -127,12 +128,11 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 		$arUsers = CBPHelper::extractUsers($arUsersTmp, $documentId, false);
 
 		$overdueDate = $this->OverdueDate;
-		$timeoutDuration = $this->CalculateTimeoutDuration();
+		$timeoutDuration = $this->calculateTimeoutDuration();
 		if ($timeoutDuration > 0)
 		{
-			$overdueDate = ConvertTimeStamp(
-				time() + max($timeoutDuration, CBPSchedulerService::getDelayMinLimit()),
-				"FULL"
+			$overdueDate = DateTime::createFromTimestamp(
+				time() + max($timeoutDuration, CBPSchedulerService::getDelayMinLimit())
 			);
 		}
 
@@ -188,8 +188,6 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 		{
 			$taskParameters = [$taskParameters];
 		}
-
-		$documentService = CBPRuntime::getRuntime()->getDocumentService();
 
 		$taskParameters["DOCUMENT_ID"] = $documentId;
 		$taskParameters["DOCUMENT_URL"] = $documentService->getDocumentAdminPage($documentId);
@@ -268,8 +266,7 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 			);
 		}
 
-		$timeoutDuration = $this->CalculateTimeoutDuration();
-		if ($timeoutDuration > 0)
+		if ($this->subscriptionId > 0)
 		{
 			$schedulerService = $this->workflow->getService("SchedulerService");
 			$schedulerService->unSubscribeOnTime($this->subscriptionId);
@@ -300,21 +297,14 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 			return;
 		}
 
-		$timeoutDuration = $this->CalculateTimeoutDuration();
-		if ($timeoutDuration > 0)
+		if (($eventParameters['SchedulerService'] ?? null) === 'OnAgent')
 		{
-			if (
-				array_key_exists("SchedulerService", $eventParameters)
-				&& $eventParameters["SchedulerService"] === "OnAgent"
-			)
-			{
-				$this->IsTimeout = 1;
-				$this->taskStatus = CBPTaskStatus::Timeout;
-				$this->Unsubscribe($this);
-				$this->closeActivity();
+			$this->IsTimeout = 1;
+			$this->taskStatus = CBPTaskStatus::Timeout;
+			$this->Unsubscribe($this);
+			$this->closeActivity();
 
-				return;
-			}
+			return;
 		}
 
 		if (!array_key_exists("USER_ID", $eventParameters) || intval($eventParameters["USER_ID"]) <= 0)
@@ -821,7 +811,7 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 		return $result;
 	}
 
-	private function CalculateTimeoutDuration()
+	private function calculateTimeoutDuration()
 	{
 		$timeoutDuration = ($this->isPropertyExists("TimeoutDuration") ? $this->TimeoutDuration : 0);
 
@@ -1004,42 +994,20 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 
 	public static function validateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = [];
+		$errors = [];
 
-		if (!array_key_exists("Users", $arTestProperties))
+		if (CBPHelper::isEmptyValue($arTestProperties['Users'] ?? null))
 		{
-			$bUsersFieldEmpty = true;
-		}
-		else
-		{
-			if (!is_array($arTestProperties["Users"]))
-			{
-				$arTestProperties["Users"] = [$arTestProperties["Users"]];
-			}
-
-			$bUsersFieldEmpty = true;
-			foreach ($arTestProperties["Users"] as $userId)
-			{
-				if (!is_array($userId) && (trim($userId) <> '') || is_array($userId) && (count($userId) > 0))
-				{
-					$bUsersFieldEmpty = false;
-					break;
-				}
-			}
-		}
-
-		if ($bUsersFieldEmpty)
-		{
-			$arErrors[] = [
+			$errors[] = [
 				"code" => "NotExist",
 				"parameter" => "Users",
 				"message" => Loc::getMessage("BPRIA_ACT_PROP_EMPTY1"),
 			];
 		}
 
-		if (!array_key_exists("Name", $arTestProperties) || $arTestProperties["Name"] == '')
+		if (empty($arTestProperties['Name']))
 		{
-			$arErrors[] = [
+			$errors[] = [
 				"code" => "NotExist",
 				"parameter" => "Name",
 				"message" => Loc::getMessage("BPRIA_ACT_PROP_EMPTY4"),
@@ -1047,19 +1015,18 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 		}
 
 		if (
-			!array_key_exists("RequestedInformation", $arTestProperties)
+			empty($arTestProperties["RequestedInformation"])
 			|| !is_array($arTestProperties["RequestedInformation"])
-			|| count($arTestProperties["RequestedInformation"]) <= 0
 		)
 		{
-			$arErrors[] = [
+			$errors[] = [
 				"code" => "NotExist",
 				"parameter" => "RequestedInformation",
 				"message" => Loc::getMessage("BPRIA_ACT_PROP_EMPTY2"),
 			];
 		}
 
-		return array_merge($arErrors, parent::validateProperties($arTestProperties, $user));
+		return array_merge($errors, parent::validateProperties($arTestProperties, $user));
 	}
 
 	protected static function getPropertiesDialogMap()

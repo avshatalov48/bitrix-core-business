@@ -6,7 +6,7 @@ use Bitrix\Calendar\Core\EventCategory\EventCategory;
 use Bitrix\Calendar\EventCategory\Enum\PushCommandEnum;
 use Bitrix\Calendar\EventCategory\Enum\PushTagEnum;
 use Bitrix\Calendar\EventCategory\Helper\EventCategoryResponseHelper;
-use Bitrix\Calendar\Integration\pull\PushService;
+use Bitrix\Calendar\Integration\Pull\PushService;
 use Bitrix\Main\Loader;
 
 final class EventCategoryPullService

@@ -9,11 +9,13 @@ import { IndexedDbManager } from './indexed-db-manager';
 
 import type { JsonObject } from 'main.core';
 import type { OnLayoutChangeEvent } from 'im.v2.const';
+import type { PanelContext } from 'im.v2.provider.service';
+
 type TextareaPanelTypeItem = $Values<typeof TextareaPanelType>;
 type Draft = {
 	text?: string,
 	panelType?: TextareaPanelTypeItem,
-	panelMessageId?: number,
+	panelContext?: PanelContext,
 	mentions?: JsonObject
 };
 
@@ -112,14 +114,14 @@ export class DraftManager
 		this.refreshSaveTimeout();
 	}
 
-	setDraftPanel(dialogId: number, panelType: TextareaPanelTypeItem, messageId: number): void
+	setDraftPanel(dialogId: number, panelType: TextareaPanelTypeItem, panelContext: PanelContext): void
 	{
 		if (!this.drafts[dialogId])
 		{
 			this.drafts[dialogId] = {};
 		}
 		this.drafts[dialogId].panelType = panelType;
-		this.drafts[dialogId].panelMessageId = messageId;
+		this.drafts[dialogId].panelContext = panelContext;
 
 		this.refreshSaveTimeout();
 	}

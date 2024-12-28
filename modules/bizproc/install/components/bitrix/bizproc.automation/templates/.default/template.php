@@ -167,8 +167,8 @@ endif;
 			</div>
 			<div class="automation-base-button" data-role="automation-base-toolbar">
 				<button
-					class="ui-btn ui-btn-success ui-btn-themes <?php if (!$arResult['CAN_EDIT']):?> ui-btn-disabled<?php endif?>"
-					<?php if ($arResult['CAN_EDIT']):?>data-role="automation-btn-create"<?php endif?>
+					class="ui-btn ui-btn-success ui-btn-themes"
+					data-role="automation-btn-create"
 					>
 					<?=$getMessage('BIZPROC_AUTOMATION_CMP_CREATE')?>
 				</button>
@@ -293,7 +293,7 @@ endif;
 				BIZPROC_AUTOMATION_YES: '<?=GetMessageJS('MAIN_YES')?>',
 				BIZPROC_AUTOMATION_NO: '<?=GetMessageJS('MAIN_NO')?>',
 				BIZPROC_AUTOMATION_DELAY_MIN_LIMIT_LABEL: '<?=CUtil::JSEscape($arResult['DELAY_MIN_LIMIT_LABEL'])?>',
-				BIZPROC_AUTOMATION_RIGHTS_ERROR: '<?=GetMessageJS("BIZPROC_AUTOMATION_RIGHTS_ERROR")?>',
+				BIZPROC_AUTOMATION_RIGHTS_ERROR_1: '<?=GetMessageJS("BIZPROC_AUTOMATION_RIGHTS_ERROR_1")?>',
 				BIZPOC_AUTOMATION_NO_ROBOT_OR_TRIGGER_SELECTED: '<?=GetMessageJS("BIZPOC_AUTOMATION_NO_ROBOT_OR_TRIGGER_SELECTED")?>',
 			});
 

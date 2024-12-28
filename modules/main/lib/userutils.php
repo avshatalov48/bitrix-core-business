@@ -268,7 +268,14 @@ class UserUtils
 
 	/**
 	 * @param $departmentId
+	 *
 	 * @return bool|mixed
+	 * @throws ArgumentException
+	 * @throws LoaderException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @deprecated Use \Bitrix\HumanResources\Service\Container::getNodeRepository()->findAllByAccessCodes($accessCodes)
+	 * instead. $accessCodes need to be an array of strings like ['D1', 'D2', ...].
 	 */
 	public static function getDepartmentName($departmentId)
 	{
@@ -278,10 +285,18 @@ class UserUtils
 
 	/**
 	 * @param array $departmentIds
+	 *
 	 * @return array
+	 * @throws ArgumentException
+	 * @throws LoaderException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @deprecated Use \Bitrix\HumanResources\Service\Container::getNodeRepository()->findAllByAccessCodes($accessCodes)
+	 * instead. $accessCodes need to be an array of strings like ['D1', 'D2', ...].
 	 */
 	public static function getDepartmentNames($departmentIds)
 	{
+		// todo метод на новый апи
 		$result = Array();
 		if (!ModuleManager::isModuleInstalled('intranet'))
 		{

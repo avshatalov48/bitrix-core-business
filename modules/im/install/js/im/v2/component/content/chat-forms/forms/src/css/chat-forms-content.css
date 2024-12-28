@@ -1,0 +1,63 @@
+.bx-im-content-chat-forms__container {
+	--bx-im-content-chat-forms__background-color_container: var(--im-color-palette-gray-04);
+
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.bx-im-content-chat-forms__content {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	scrollbar-gutter: stable;
+	padding: 24px 24px 95px;
+	background-color: var(--bx-im-content-chat-forms__background-color_container);
+	position: relative;
+}
+
+.bx-im-content-chat-forms__skeleton {
+	height: 100%;
+	margin: 24px 28px 0 17px;
+	background: url("./images/skeleton.svg") no-repeat center;
+}
+
+.bx-im-content-chat-forms__header {
+	display: flex;
+	align-items: center;
+	gap: 17px;
+	margin-bottom: 30px;
+}
+
+.bx-im-content-chat-forms__content.--channel .bx-im-content-chat-forms__header {
+	margin-bottom: 16px;
+}
+
+.bx-im-content-chat-forms__members_container {
+	margin-bottom: 36px;
+}
+
+.bx-im-content-chat-forms__description_container {
+	height: 59px;
+	min-height: 59px;
+	margin-bottom: 36px;
+}
+
+.bx-im-content-chat-forms__content.--collab .bx-im-content-chat-forms__description_container {
+	height: 88px;
+	margin-bottom: 16px;
+}
+
+.bx-im-content-chat-forms__collapsed-users {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.bx-im-content-chat-forms__collapsed-users-icon {
+	background: url("./images/collapsed-users-edit-icon.svg") no-repeat center;
+	width: 16px;
+	height: 16px;
+}

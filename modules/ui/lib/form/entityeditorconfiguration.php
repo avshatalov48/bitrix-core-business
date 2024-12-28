@@ -7,15 +7,17 @@ use Bitrix\Ui\EntityForm\Scope;
 class EntityEditorConfiguration
 {
 	protected $categoryName;
+	protected int $userId;
 
 	public static function canEditOtherSettings(): bool
 	{
 		return Main\Engine\CurrentUser::get()->canDoOperation('edit_other_settings');
 	}
 
-	public function __construct(string $categoryName = null)
+	public function __construct(string $categoryName = null, ?int $userId = null)
 	{
 		$this->categoryName = $categoryName;
+		$this->userId = $userId ?? (($GLOBALS['USER'] instanceof \CUser) ? $GLOBALS['USER']->getId() : 0);
 	}
 
 	protected function getCategoryName(): string
@@ -73,11 +75,16 @@ class EntityEditorConfiguration
 			return null;
 		}
 
+		if (!$this->userId)
+		{
+			return null;
+		}
+
 		return \CUserOptions::GetOption(
 			$this->getCategoryName(),
 			$this->prepareName($configID, $scope),
 			null,
-			$scope === EntityEditorConfigScope::COMMON ? 0 : false
+			$scope === EntityEditorConfigScope::COMMON ? 0 : $this->userId
 		);
 	}
 
@@ -118,7 +125,11 @@ class EntityEditorConfiguration
 		}
 		elseif($scope === EntityEditorConfigScope::PERSONAL)
 		{
-			\CUserOptions::SetOption($categoryName, $configID, $config);
+			if ($this->userId)
+			{
+				\CUserOptions::SetOption($categoryName, $configID, $config, false, $this->userId);
+			}
+
 		}
 		elseif($userScopeId > 0)
 		{
@@ -151,7 +162,10 @@ class EntityEditorConfiguration
 					}
 					\CUserOptions::SetOption($categoryName, $optionName, $options, true);
 				}
-				\CUserOptions::SetOption($categoryName, $optionName, $options);
+				if ($this->userId)
+				{
+					\CUserOptions::SetOption($categoryName, $optionName, $options, false, $this->userId);
+				}
 			}
 			//todo check what to do with options for custom scopes
 		}
@@ -193,15 +207,17 @@ class EntityEditorConfiguration
 				\CUserOptions::DeleteOptionsByName($categoryName, static::prepareOptionsName($configID, $scope));
 				\CUserOptions::DeleteOptionsByName($categoryName, $this->prepareScopeName($configID));
 			}
-			else
+			elseif ($this->userId)
 			{
-				\CUserOptions::DeleteOption($categoryName, $this->prepareName($configID, $scope));
-				\CUserOptions::DeleteOption($categoryName, static::prepareOptionsName($configID, $scope));
+				\CUserOptions::DeleteOption($categoryName, $this->prepareName($configID, $scope), false, $this->userId);
+				\CUserOptions::DeleteOption($categoryName, static::prepareOptionsName($configID, $scope), false, $this->userId);
 
 				\CUserOptions::SetOption(
 					$categoryName,
 					$this->prepareScopeName($configID),
-					EntityEditorConfigScope::PERSONAL
+					EntityEditorConfigScope::PERSONAL,
+					false,
+					$this->userId
 				);
 			}
 		}
@@ -214,7 +230,10 @@ class EntityEditorConfiguration
 			$scope = EntityEditorConfigScope::PERSONAL;
 		}
 
-		\CUserOptions::SetOption($this->getCategoryName(), $this->prepareScopeName($configID), $scope);
+		if ($this->userId)
+		{
+			\CUserOptions::SetOption($this->getCategoryName(), $this->prepareScopeName($configID), $scope, false, $this->userId);
+		}
 	}
 	public function forceCommonScopeForAll($configID)
 	{

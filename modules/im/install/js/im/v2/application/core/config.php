@@ -23,6 +23,7 @@ return [
 		'im.v2.model',
 		'im.v2.provider.pull',
 		'im.v2.lib.logger',
+		'imopenlines.v2.lib.launch-resources',
 	],
 	'skip_core' => false,
 	'settings' => [

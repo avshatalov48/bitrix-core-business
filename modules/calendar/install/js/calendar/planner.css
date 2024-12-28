@@ -318,6 +318,10 @@
 	vertical-align: middle;
 }
 
+.calendar-planner-user .ui-avatar {
+	margin: -1px 5px 0 0;
+}
+
 .calendar-planner-entry-name {
 	font: var(--ui-font-weight-bold) 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	display: inline-block;
@@ -327,6 +331,11 @@
 	width: 100%;
 	vertical-align: middle;
 	color: #525c69;
+
+}
+
+.calendar-planner-entry-name.calendar-collab-user {
+	color: #19cc45;
 }
 
 .calendar-planner-all-users {

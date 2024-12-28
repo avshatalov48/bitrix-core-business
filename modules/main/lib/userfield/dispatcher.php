@@ -212,7 +212,7 @@ class Dispatcher
 				$this->validateFieldList[$fieldInfo['ENTITY_ID']][$fieldInfo['ENTITY_VALUE_ID']] = array();
 			}
 
-			$this->validateFieldList[$fieldInfo['ENTITY_ID']][$fieldInfo['ENTITY_VALUE_ID']][$fieldInfo['FIELD']] = $fieldInfo['VALUE'];
+			$this->validateFieldList[$fieldInfo['ENTITY_ID']][$fieldInfo['ENTITY_VALUE_ID']][$fieldInfo['FIELD']] = $fieldInfo['VALUE'] ?? null;
 		}
 	}
 

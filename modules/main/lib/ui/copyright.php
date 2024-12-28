@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\UI;
@@ -69,7 +69,7 @@ class Copyright
 			->setVendorName(Loc::getMessage("EPILOG_ADMIN_URL_MAIN_TEXT_".$vendor))
 			->setVendorUrl(Loc::getMessage("EPILOG_ADMIN_URL_MAIN_".$vendor))
 			->setSupportUrl(Loc::getMessage("EPILOG_ADMIN_URL_SUPPORT_".$vendor))
-			->setLicenceUrl("/bitrix/legal/license.php");
+			->setLicenceUrl(\CUpdateClient::getLicenseTextPath());
 	}
 
 	/**
@@ -668,8 +668,8 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setLicence(static::LICENCE_MIT),
 
 			// ui/install/js/ui/vue3/vue
-			(new static("Vue v3.2.40"))
-				->setCopyright("Copyright 2014-2022 Evan You")
+			(new static("Vue v3.5.4"))
+				->setCopyright("2018-present Yuxi (Evan) You and Vue contributors")
 				->setProductUrl("https://vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
@@ -680,20 +680,20 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setLicence(static::LICENCE_MIT),
 
 			// ui/install/js/ui/vue3/vuex
-			(new static("Vuex v4.0.2"))
-				->setCopyright("Copyright 2021 Evan You")
+			(new static("Vuex v4.1.0"))
+				->setCopyright("Copyright 2022 Evan You")
 				->setProductUrl("https://vuex.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
 			// ui/install/js/ui/vue3/router
-			(new static("Vue-router v4.1.5"))
-				->setCopyright("Copyright 2022 Eduardo San Martin Morote")
+			(new static("Vue-router v4.4.4"))
+				->setCopyright("Copyright 2024 Eduardo San Martin Morote")
 				->setProductUrl("https://router.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
 			// ui/install/js/ui/vue3/pinia
-			(new static("Pinia v2.0.22"))
-				->setCopyright("Copyright 2022 Eduardo San Martin Morote")
+			(new static("Pinia v2.2.2"))
+				->setCopyright("Copyright 2024 Eduardo San Martin Morote")
 				->setProductUrl("https://pinia.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
@@ -886,6 +886,13 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl('https://github.com/facebook/lexical/')
 				->setLicence(static::LICENCE_MIT)
 				->setLicenceUrl('https://github.com/facebook/lexical/blob/main/LICENSE'),
+
+			// booking/lib/Internals/Recurr
+			(new static("Recurr"))
+				->setCopyright('Copyright (c) 2015 Shaun Simmons')
+				->setProductUrl('https://github.com/simshaun/recurr')
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl('https://github.com/simshaun/recurr/blob/master/LICENSE'),
 		];
 	}
 }

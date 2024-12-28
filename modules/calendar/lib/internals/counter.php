@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Internals;
 
+use Bitrix\Calendar\Internals\Counter\Provider\GroupInvite;
 use Bitrix\Calendar\Internals\Counter\Provider\OpenEvent;
 use Bitrix\Calendar\Internals\Counter\State\Loader;
 use Bitrix\Calendar\Internals\Counter\State\State;
@@ -72,6 +73,7 @@ class Counter
 			CounterDictionary::COUNTER_SYNC_ERRORS => (new Sync($this->userId, $entityId))->getValue(),
 			CounterDictionary::COUNTER_OPEN_EVENTS => (new OpenEvent($this->state, $entityId))->getValue(),
 			CounterDictionary::COUNTER_NEW_EVENT => $this->state->get(CounterDictionary::META_PROP_NEW_EVENTS)[$entityId] ?? 0,
+			CounterDictionary::COUNTER_GROUP_INVITES => (new GroupInvite($this->userId, $entityId))->getValue(),
 			default => 0,
 		};
 	}

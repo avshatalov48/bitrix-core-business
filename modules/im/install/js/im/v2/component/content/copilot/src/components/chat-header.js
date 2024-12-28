@@ -2,13 +2,12 @@ import 'ui.notification';
 import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { PromoManager } from 'im.v2.lib.promo';
 import { ChatService } from 'im.v2.provider.service';
 import { EditableChatTitle, AvatarSize, ChatAvatar } from 'im.v2.component.elements';
 import { ChatHeader } from 'im.v2.component.content.elements';
-import { EventType, PromoId, SidebarDetailBlock } from 'im.v2.const';
+import { EventType, SidebarDetailBlock } from 'im.v2.const';
 
-import { AddToChatHint } from './add-to-chat-hint';
+import { AddToChatButton } from './add-to-chat/add-to-chat-button';
 
 import '../css/chat-header.css';
 
@@ -18,7 +17,7 @@ import type { ImModelChat } from 'im.v2.model';
 // @vue/component
 export const CopilotChatHeader = {
 	name: 'CopilotChatHeader',
-	components: { ChatHeader, EditableChatTitle, ChatAvatar, AddToChatHint },
+	components: { ChatHeader, EditableChatTitle, ChatAvatar, AddToChatButton },
 	inject: ['currentSidebarPanel'],
 	props:
 	{
@@ -30,8 +29,7 @@ export const CopilotChatHeader = {
 	data(): JsonObject
 	{
 		return {
-			showAddToChatPopup: false,
-			showAddToChatHint: false,
+			buttonPanelReady: false,
 		};
 	},
 	computed:
@@ -72,11 +70,6 @@ export const CopilotChatHeader = {
 				});
 			});
 		},
-		onHintHide()
-		{
-			void PromoManager.getInstance().markAsWatched(PromoId.addUsersToCopilotChat);
-			this.showAddToChatHint = false;
-		},
 		onMembersClick()
 		{
 			if (!this.isInited)
@@ -96,9 +89,9 @@ export const CopilotChatHeader = {
 				dialogId: this.dialogId,
 			});
 		},
-		handleAddToChatHint(): void
+		onButtonPanelReady()
 		{
-			this.showAddToChatHint = PromoManager.getInstance().needToShow(PromoId.addUsersToCopilotChat);
+			this.buttonPanelReady = true;
 		},
 		getChatService(): ChatService
 		{
@@ -119,7 +112,7 @@ export const CopilotChatHeader = {
 			:dialogId="dialogId"
 			:withSearchButton="false"
 			class="bx-im-copilot-header__container"
-			@buttonPanelReady="handleAddToChatHint"
+			@buttonPanelReady="onButtonPanelReady"
 		>
 			<template #left>
 				<div class="bx-im-copilot-header__avatar">
@@ -145,13 +138,8 @@ export const CopilotChatHeader = {
 					</div>
 				</div>
 			</template>
-			<template #invite-hint="{ inviteButtonRef }">
-				<AddToChatHint
-					v-if="showAddToChatHint"
-					:bindElement="inviteButtonRef"
-					@close="showAddToChatHint = false"
-					@hide="onHintHide"
-				/>
+			<template v-if="buttonPanelReady" #add-to-chat-button>
+				<AddToChatButton :dialogId="dialogId" />
 			</template>
 		</ChatHeader>
 	`,

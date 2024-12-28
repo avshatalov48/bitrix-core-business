@@ -9,6 +9,7 @@ namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Internals\site\SiteEntityCollection;
 
 Loc::loadMessages(__FILE__);
 
@@ -24,13 +25,18 @@ Loc::loadMessages(__FILE__);
  * @method static EO_WorkgroupSite_Result getList(array $parameters = [])
  * @method static EO_WorkgroupSite_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite createObject($setDefaultValues = true)
- * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection createCollection()
  * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite wakeUpObject($row)
- * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite_Collection wakeUpCollection($rows)
+ * @method static \Bitrix\Socialnetwork\Internals\site\SiteEntityCollection wakeUpCollection($rows)
  */
 class WorkgroupSiteTable extends Entity\DataManager
 {
-	public static function getTableName()
+	public static function getCollectionClass(): string
+	{
+		return SiteEntityCollection::class;
+	}
+
+	public static function getTableName(): string
 	{
 		return 'b_sonet_group_site';
 	}
@@ -40,19 +46,19 @@ class WorkgroupSiteTable extends Entity\DataManager
 		return array(
 			'GROUP_ID' => array(
 				'data_type' => 'integer',
-				'primary' => true
+				'primary' => true,
 			),
 			'GROUP' => array(
 				'data_type' => '\Bitrix\Socialnetwork\Workgroup',
-				'reference' => array('=this.GROUP_ID' => 'ref.ID')
+				'reference' => array('=this.GROUP_ID' => 'ref.ID'),
 			),
 			'SITE_ID' => array(
 				'data_type' => 'string',
-				'primary' => true
+				'primary' => true,
 			),
 			'SITE' => array(
 				'data_type' => '\Bitrix\Main\Site',
-				'reference' => array('=this.SITE_ID' => 'ref.LID')
+				'reference' => array('=this.SITE_ID' => 'ref.LID'),
 			),
 		);
 	}

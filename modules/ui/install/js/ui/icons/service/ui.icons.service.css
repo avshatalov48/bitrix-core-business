@@ -474,6 +474,11 @@
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-1c.svg);
 }
 
+.ui-icon-service-yellow-1c {
+	--ui-icon-service-bg-color: #E4BD59;
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-red-1c.svg?v=1);
+}
+
 .ui-icon-service-red-1c {
 	--ui-icon-service-bg-color: #eb181e;
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-red-1c.svg?v=1);

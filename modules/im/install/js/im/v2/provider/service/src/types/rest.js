@@ -1,3 +1,4 @@
+import type { RawSession } from 'imopenlines.v2.provider.service';
 import { reactionType as Reaction } from 'ui.reactions-select';
 import { MessageStatus, ChatType } from 'im.v2.const';
 
@@ -5,7 +6,9 @@ export type ChatLoadRestResult = {
 	additionalMessages: RawMessage[],
 	chat: RawChat,
 	commentInfo: RawCommentInfo[],
+	collabInfo?: RawCollabInfo,
 	files: RawFile[],
+	session?: RawSession,
 	hasNextPage: boolean,
 	hasPrevPage: boolean,
 	messages: RawMessage[],
@@ -42,6 +45,19 @@ export type RawCommentInfo = {
 	messageCount: 0,
 	messageId: number,
 	isUserSubscribed: boolean,
+};
+
+export type RawCollabInfo = {
+	collabId: number,
+	guestCount: number,
+	tasks: RawCollabEntityInfo,
+	files: RawCollabEntityInfo,
+	calendar: RawCollabEntityInfo,
+};
+
+type RawCollabEntityInfo = {
+	counter: number,
+	url: string,
 };
 
 export type RawChat = {
@@ -248,4 +264,17 @@ export type ChannelRestResult = {
 export type CommentInfoRestResult = {
 	commentInfo: RawCommentInfo[],
 	usersShort: RawShortUser[],
+};
+
+const isBot = user.type === UserType.bot;
+const isBotChat = this.isUser && isBot;
+
+export type CollabRestResult = {
+	hasNextPage: boolean,
+	chats: RawChat[],
+	files: RawFile[],
+	recentItems: RawRecentItem[],
+	users: RawUser[],
+	messages: RawMessage[],
+	additionalMessages: RawMessage[],
 };

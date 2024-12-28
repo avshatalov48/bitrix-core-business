@@ -12,7 +12,9 @@ import {
 	SelectorManager, SelectorItemsManager, enrichFieldsWithModifiers,
 } from 'bizproc.automation';
 import { SaveButton, BaseButton, CancelButton } from 'ui.buttons';
+import { UI } from 'ui.notification';
 import { Robot } from './robot';
+import { TrackingStatus } from './tracker/types';
 import { UserOptions } from './user-options';
 import { ViewMode } from './view-mode';
 import { Helper } from './helper';
@@ -249,12 +251,18 @@ export class Template extends EventEmitter
 		return Number.isNaN(id) ? 0 : id;
 	}
 
+	getDocumentType(): ?Array
+	{
+		return this.#data.DOCUMENT_TYPE;
+	}
+
 	initButtons()
 	{
 		if (this.isExternalModified())
 		{
 			this.createExternalLocker();
 			this.createManageModeButton();
+			this.createTerminateRobotsButton();
 		}
 		else if (this.#viewMode.isEdit() && this.getTemplateId() > 0)
 		{
@@ -262,6 +270,7 @@ export class Template extends EventEmitter
 			this.createParametersEditButton();
 			this.createExternalEditTemplateButton();
 			this.createManageModeButton();
+			this.createTerminateRobotsButton();
 		}
 	}
 
@@ -309,7 +318,7 @@ export class Template extends EventEmitter
 			else
 			{
 				this.#robots.forEach((robot) => {
-					robot.disableManageMode()
+					robot.disableManageMode();
 
 					if (!robot.isInvalid())
 					{
@@ -412,6 +421,75 @@ export class Template extends EventEmitter
 		}
 	}
 
+	createTerminateRobotsButton()
+	{
+		if (!this.hasRunningRobots() && this.getRunningCustomRobots().length === 0)
+		{
+			return;
+		}
+
+		const terminateButton = Tag.render`
+			<a class="bizproc-automation-robot-btn-set btn-pointer" target="_top">
+				${Loc.getMessage('BIZPROC_JS_AUTOMATION_ROBOTS_TERMINATE')}
+			</a>
+		`;
+		Event.bind(terminateButton, 'click', (event) => {
+			event.preventDefault();
+			this.onTerminateRobotsButtonClick(terminateButton);
+		});
+
+		Dom.append(terminateButton, this.#buttonsNode);
+	}
+
+	onTerminateRobotsButtonClick(terminateButton)
+	{
+		const templateId = this.getTemplateId();
+		const signedDocument = this.#context.signedDocument;
+		if (templateId > 0 && signedDocument)
+		{
+			Dom.addClass(terminateButton, '--disabled');
+			ajax
+				.runAction('bizproc.workflow.terminateByTemplate', {
+					data: { templateId, signedDocument },
+				})
+				.then((response) => {
+					this.notifyMessage(Loc.getMessage('BIZPROC_JS_AUTOMATION_ROBOTS_STOPPED'));
+					this.stopTemplate();
+				})
+				.catch((response) => {
+					response.errors.forEach((error) => {
+						this.notifyMessage(error.message);
+					});
+				});
+		}
+	}
+
+	stopTemplate()
+	{
+		const loaders = this.#templateNode.querySelectorAll('.bizproc-automation-robot-information.--loader');
+		loaders.forEach((loader) => {
+			Dom.removeClass(loader, '--loader');
+		});
+	}
+
+	notifyMessage(message)
+	{
+		UI.Notification.Center.notify({
+			content: message,
+			autoHideDelay: 5000,
+		});
+	}
+
+	hasRunningRobots(): boolean
+	{
+		return Boolean(this.#robots.some((robot) => robot.getLogStatus() === TrackingStatus.RUNNING));
+	}
+
+	getRunningCustomRobots(): []
+	{
+		return this.#data.CUSTOM_ROBOTS ?? [];
+	}
+
 	createConstantsEditButton(): boolean | undefined
 	{
 		if (Type.isNil(this.#context.constantsEditorUrl))
@@ -462,16 +540,22 @@ export class Template extends EventEmitter
 
 	createExternalLocker()
 	{
-		const div = Tag.render`
+		const { root, iconBlock } = Tag.render`
 			<div class="bizproc-automation-robot-container">
 				<div class="bizproc-automation-robot-container-wrapper bizproc-automation-robot-container-wrapper-lock">
 					<div class="bizproc-automation-robot-deadline"></div>
 					<div class="bizproc-automation-robot-title">
 						${Loc.getMessage('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_TEXT')}
 					</div>
+					<div class="bizproc-automation-robot-information" ref="iconBlock"></div>
 				</div>
 			</div>
 		`;
+
+		if (this.getRunningCustomRobots().length > 0)
+		{
+			Dom.addClass(iconBlock, '--loader');
+		}
 
 		if (this.#viewMode.isEdit())
 		{
@@ -480,14 +564,14 @@ export class Template extends EventEmitter
 					${Loc.getMessage('BIZPROC_AUTOMATION_CMP_EDIT')}
 				</div>
 			`;
-			Event.bind(div, 'click', (event) => {
+			Event.bind(root, 'click', (event) => {
 				event.stopPropagation();
 				if (!this.#viewMode.isManage())
 				{
-					this.onExternalEditTemplateButtonClick(div);
+					this.onExternalEditTemplateButtonClick(root);
 				}
 			});
-			Dom.append(settingsBtn, div);
+			Dom.append(settingsBtn, root);
 
 			const deleteBtn = Tag.render`<span class="bizproc-automation-robot-btn-delete"></span>`;
 			Event.bind(deleteBtn, 'click', (event) => {
@@ -497,11 +581,11 @@ export class Template extends EventEmitter
 					this.onUnsetExternalModifiedClick(deleteBtn);
 				}
 			});
-			Dom.append(deleteBtn, div.lastChild);
+			Dom.append(deleteBtn, root.lastChild);
 		}
 
-		Dom.append(div, this.#listNode);
-		this.#templateNode = div;
+		Dom.append(root, this.#listNode);
+		this.#templateNode = root;
 	}
 
 	onSearch(event: BaseEvent)

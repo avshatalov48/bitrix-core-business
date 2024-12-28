@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_channel,im_v2_lib_copilot,ui_icons_disk,im_v2_lib_parser,rest_client,ui_loader,im_v2_model,main_core_events,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,main_popup,ui_forms,ui_vue3_components_audioplayer,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_lib_permission,main_core,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_lib_user,im_v2_lib_logger,im_v2_const,ui_lottie,ai_rolesDialog,ui_vue3_components_hint,ui_fonts_opensans,main_polyfill_intersectionobserver,ui_vue3_directives_lazyload,im_v2_component_animation) {
+(function (exports,im_v2_lib_channel,ui_avatar,im_v2_lib_copilot,ui_icons_disk,im_v2_lib_parser,rest_client,ui_loader,im_v2_model,main_core_events,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,main_popup,ui_forms,ui_vue3_components_audioplayer,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_lib_permission,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_lib_user,im_v2_lib_logger,im_v2_const,ui_lottie,ai_rolesDialog,ui_vue3_components_hint,ui_fonts_opensans,main_polyfill_intersectionobserver,ui_vue3_directives_lazyload,im_v2_component_animation,main_core) {
 	'use strict';
 
 	const AvatarSize = Object.freeze({
@@ -15,6 +15,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  XL: 'XL',
 	  XXL: 'XXL',
 	  XXXL: 'XXXL'
+	});
+	const AvatarSizeMap = Object.freeze({
+	  [AvatarSize.XXXL]: 94,
+	  [AvatarSize.XXL]: 60,
+	  [AvatarSize.XL]: 48,
+	  [AvatarSize.L]: 42,
+	  [AvatarSize.M]: 32,
+	  [AvatarSize.S]: 22,
+	  [AvatarSize.XS]: 18,
+	  [AvatarSize.XXS]: 14
 	});
 
 	// @vue/component
@@ -59,23 +69,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    user() {
-	      return this.$store.getters['users/get'](this.dialogId, true);
-	    },
-	    isUser() {
-	      return this.dialog.type === im_v2_const.ChatType.user;
-	    },
-	    isBot() {
-	      if (this.isUser) {
-	        return this.user.bot;
-	      }
-	      return false;
-	    },
 	    isChannel() {
 	      return im_v2_lib_channel.ChannelManager.isChannel(this.dialogId);
 	    },
 	    isSpecialType() {
-	      const commonTypes = [im_v2_const.ChatType.user, im_v2_const.ChatType.chat, im_v2_const.ChatType.open];
+	      const commonTypes = [im_v2_const.ChatType.user, im_v2_const.ChatType.chat, im_v2_const.ChatType.open, im_v2_const.ChatType.lines];
 	      return !commonTypes.includes(this.dialog.type);
 	    },
 	    containerTitle() {
@@ -154,10 +152,264 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	// @vue/component
+	const UiAvatarHexagon = {
+	  name: 'UiAvatarHexagon',
+	  props: {
+	    size: {
+	      type: String,
+	      default: AvatarSize.M
+	    },
+	    url: {
+	      type: String,
+	      default: ''
+	    },
+	    title: {
+	      type: String,
+	      default: ''
+	    },
+	    backgroundColor: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  computed: {
+	    AvatarSize: () => AvatarSize,
+	    calculatedSize() {
+	      return AvatarSizeMap[this.size];
+	    }
+	  },
+	  watch: {
+	    title() {
+	      this.avatar.setTitle(this.title);
+	    },
+	    url() {
+	      this.setAvatarImage();
+	    }
+	  },
+	  created() {
+	    this.avatar = new ui_avatar.AvatarHexagonGuest({
+	      size: this.calculatedSize,
+	      title: this.title
+	    });
+	    this.setAvatarImage();
+	    this.setBackgroundColor();
+	  },
+	  mounted() {
+	    this.avatar.renderTo(this.$refs['im-hexagon-avatar']);
+	  },
+	  methods: {
+	    setAvatarImage() {
+	      if (!this.url) {
+	        return;
+	      }
+	      this.avatar.setUserPic(this.url);
+	    },
+	    setBackgroundColor() {
+	      if (!this.backgroundColor) {
+	        return;
+	      }
+	      this.avatar.setBaseColor(this.backgroundColor);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-ui-avatar-hexagon__container" ref="im-hexagon-avatar"></div>
+	`
+	};
+
+	// @vue/component
+	const CollabChatAvatar = {
+	  name: 'CollabChatAvatar',
+	  components: {
+	    UiAvatarHexagon
+	  },
+	  props: {
+	    dialogId: {
+	      type: [String, Number],
+	      default: 0
+	    },
+	    size: {
+	      type: String,
+	      default: AvatarSize.M
+	    },
+	    withAvatarLetters: {
+	      type: Boolean,
+	      default: true
+	    },
+	    customSource: {
+	      type: String,
+	      default: ''
+	    },
+	    withSpecialTypes: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withSpecialTypeIcon: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withTooltip: {
+	      type: Boolean,
+	      default: true
+	    }
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    dialogName() {
+	      return this.dialog.name;
+	    },
+	    dialogAvatarUrl() {
+	      return this.dialog.avatar;
+	    },
+	    collabBackgroundColor() {
+	      return im_v2_const.Color.collab60;
+	    }
+	  },
+	  template: `
+		<UiAvatarHexagon
+			:key="dialogId"
+			:title="dialogName" 
+			:size="size" 
+			:url="dialogAvatarUrl" 
+			:backgroundColor="collabBackgroundColor" 
+		/>
+	`
+	};
+
+	// @vue/component
+	const UiAvatarGuest = {
+	  name: 'UiAvatarGuest',
+	  props: {
+	    size: {
+	      type: String,
+	      default: AvatarSize.M
+	    },
+	    url: {
+	      type: String,
+	      default: ''
+	    },
+	    title: {
+	      type: String,
+	      default: ''
+	    },
+	    backgroundColor: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  computed: {
+	    AvatarSize: () => AvatarSize,
+	    calculatedSize() {
+	      return AvatarSizeMap[this.size];
+	    }
+	  },
+	  watch: {
+	    title() {
+	      this.avatar.setTitle(this.title);
+	    },
+	    url() {
+	      this.setAvatarImage();
+	    }
+	  },
+	  created() {
+	    this.avatar = new ui_avatar.AvatarRoundGuest({
+	      size: this.calculatedSize,
+	      title: this.title
+	    });
+	    this.setAvatarImage();
+	    this.setBackgroundColor();
+	  },
+	  mounted() {
+	    this.avatar.renderTo(this.$refs['im-guest-avatar']);
+	  },
+	  methods: {
+	    setAvatarImage() {
+	      if (!this.url) {
+	        return;
+	      }
+	      this.avatar.setUserPic(this.url);
+	    },
+	    setBackgroundColor() {
+	      if (!this.backgroundColor) {
+	        return;
+	      }
+	      this.avatar.setBaseColor(this.backgroundColor);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-ui-avatar-guest__container" ref="im-guest-avatar"></div>
+	`
+	};
+
+	// @vue/component
+	const CollaberAvatar = {
+	  name: 'CollaberAvatar',
+	  components: {
+	    UiAvatarGuest
+	  },
+	  props: {
+	    dialogId: {
+	      type: [String, Number],
+	      default: 0
+	    },
+	    size: {
+	      type: String,
+	      default: AvatarSize.M
+	    },
+	    withAvatarLetters: {
+	      type: Boolean,
+	      default: true
+	    },
+	    customSource: {
+	      type: String,
+	      default: ''
+	    },
+	    withSpecialTypes: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withSpecialTypeIcon: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withTooltip: {
+	      type: Boolean,
+	      default: true
+	    }
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    dialogName() {
+	      return this.dialog.name;
+	    },
+	    dialogAvatarUrl() {
+	      return this.dialog.avatar;
+	    },
+	    collaberBackgroundColor() {
+	      return im_v2_const.Color.collab60;
+	    }
+	  },
+	  template: `
+		<UiAvatarGuest 
+			:key="dialogId"
+			:title="dialogName" 
+			:size="size" 
+			:url="dialogAvatarUrl"
+			:backgroundColor="collaberBackgroundColor" 
+		/>
+	`
+	};
+
+	// @vue/component
 	const ChatAvatar = {
 	  name: 'ChatAvatar',
 	  components: {
-	    Avatar
+	    Avatar,
+	    CollabAvatar: CollabChatAvatar,
+	    CollaberAvatar
 	  },
 	  props: {
 	    avatarDialogId: {
@@ -199,10 +451,31 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        avatarDialogId: this.avatarDialogId,
 	        contextDialogId: this.contextDialogId
 	      });
+	    },
+	    avatarDialog() {
+	      return this.$store.getters['chats/get'](this.avatarDialogId, true);
+	    },
+	    isCollabChat() {
+	      return this.avatarDialog.type === im_v2_const.ChatType.collab;
+	    },
+	    isCollaber() {
+	      const isUser = this.avatarDialog.type === im_v2_const.ChatType.user;
+	      if (!isUser) {
+	        return false;
+	      }
+	      const user = this.$store.getters['users/get'](this.avatarDialogId, true);
+	      return user.type === im_v2_const.UserType.collaber;
+	    },
+	    avatarComponent() {
+	      if (this.isCollaber) {
+	        return CollaberAvatar;
+	      }
+	      return this.isCollabChat ? CollabChatAvatar : Avatar;
 	    }
 	  },
 	  template: `
-		<Avatar
+		<component
+			:is="avatarComponent"
 			:dialogId="avatarDialogId"
 			:customSource="customAvatarUrl"
 			:size="size"
@@ -218,7 +491,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const MessageAvatar = {
 	  name: 'MessageAvatar',
 	  components: {
-	    Avatar
+	    Avatar,
+	    CollaberAvatar
 	  },
 	  props: {
 	    messageId: {
@@ -257,10 +531,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return '';
 	      }
 	      return copilotManager.getMessageRoleAvatar(this.messageId);
+	    },
+	    isCollaber() {
+	      const user = this.$store.getters['users/get'](this.authorId, true);
+	      return user.type === im_v2_const.UserType.collaber;
+	    },
+	    avatarComponent() {
+	      return this.isCollaber ? CollaberAvatar : Avatar;
 	    }
 	  },
 	  template: `
-		<Avatar
+		<component
+			:is="avatarComponent"
 			:dialogId="authorId"
 			:customSource="customAvatarUrl"
 			:size="size"
@@ -272,10 +554,85 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	const EmptyAvatarType = Object.freeze({
+	  default: 'default',
+	  squared: 'squared',
+	  collab: 'collab'
+	});
+	const COLLAB_EMPTY_AVATAR_URL = '/bitrix/js/im/v2/component/elements/src/avatar/components/base/css/images/camera.png';
+
+	// @vue/component
+	const EmptyAvatar = {
+	  name: 'EmptyAvatar',
+	  components: {
+	    UiAvatarHexagon
+	  },
+	  props: {
+	    url: {
+	      type: String,
+	      default: ''
+	    },
+	    title: {
+	      type: String,
+	      default: ''
+	    },
+	    type: {
+	      type: String,
+	      default: EmptyAvatarType.default
+	    },
+	    size: {
+	      type: String,
+	      default: AvatarSize.M
+	    }
+	  },
+	  data() {
+	    return {
+	      imageLoadError: false
+	    };
+	  },
+	  computed: {
+	    AvatarSize: () => AvatarSize,
+	    Color: () => im_v2_const.Color,
+	    isSquared() {
+	      return this.type === EmptyAvatarType.squared;
+	    },
+	    isCollabType() {
+	      return this.type === EmptyAvatarType.collab;
+	    },
+	    collabEmptyAvatarUrl() {
+	      if (!main_core.Type.isStringFilled(this.url)) {
+	        return COLLAB_EMPTY_AVATAR_URL;
+	      }
+	      return this.url;
+	    },
+	    containerClasses() {
+	      const classes = [`--size-${this.size.toLowerCase()}`];
+	      if (this.isSquared) {
+	        classes.push('--squared');
+	      }
+	      return classes;
+	    }
+	  },
+	  template: `
+		<UiAvatarHexagon 
+			v-if="isCollabType" 
+			:url="collabEmptyAvatarUrl" 
+			:size="size"
+			:title="title"
+			:backgroundColor="Color.collab10"
+		/>
+		<div v-else class="bx-im-empty-avatar__container" :class="containerClasses">
+			<div v-if="!url" class="bx-im-empty-avatar__avatar --default"></div>
+			<img v-else class="bx-im-empty-avatar__avatar --image" :src="url" :alt="title"/>
+		</div>
+	`
+	};
+
 	const DialogSpecialType = {
 	  bot: 'bot',
 	  extranet: 'extranet',
 	  network: 'network',
+	  collaber: 'collaber',
 	  support24: 'support24'
 	};
 	const TitleIcons = {
@@ -353,15 +710,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      let resultText = this.dialog.name;
 	      if (this.isUser) {
-	        if (this.onlyFirstName) {
-	          resultText = this.user.firstName;
-	        }
-	        resultText = this.user.name;
+	        resultText = this.onlyFirstName ? this.user.firstName : this.user.name;
 	      }
 	      return main_core.Text.encode(resultText);
 	    },
 	    dialogSpecialType() {
 	      if (!this.isUser) {
+	        if (this.isCollabChat) {
+	          return '';
+	        }
 	        if (this.isExtranet) {
 	          return DialogSpecialType.extranet;
 	        }
@@ -376,16 +733,25 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.isExtranet) {
 	        return DialogSpecialType.extranet;
 	      }
+	      if (this.isCollaber) {
+	        return DialogSpecialType.collaber;
+	      }
 	      if (this.isNetwork) {
 	        return DialogSpecialType.network;
 	      }
 	      return '';
 	    },
+	    isDialogSpecialTypeWithLeftIcon() {
+	      if (this.isCollaber) {
+	        return false;
+	      }
+	      return main_core.Type.isStringFilled(this.dialogSpecialType);
+	    },
 	    leftIcon() {
 	      if (!this.withLeftIcon) {
 	        return '';
 	      }
-	      if (this.dialogSpecialType) {
+	      if (this.isDialogSpecialTypeWithLeftIcon) {
 	        return this.dialogSpecialType;
 	      }
 	      if (!this.isUser) {
@@ -412,13 +778,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (!this.isUser) {
 	        return false;
 	      }
-	      return this.user.bot === true;
+	      return this.user.type === im_v2_const.UserType.bot;
 	    },
 	    isExtranet() {
 	      if (this.isUser) {
-	        return this.user.extranet;
+	        return this.user.type === im_v2_const.UserType.extranet;
 	      }
 	      return this.dialog.extranet;
+	    },
+	    isCollaber() {
+	      return this.user.type === im_v2_const.UserType.collaber;
+	    },
+	    isCollabChat() {
+	      return this.dialog.type === im_v2_const.ChatType.collab;
 	    },
 	    isNetwork() {
 	      if (this.isUser) {
@@ -562,7 +934,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  LightBorder: 'light-border',
 	  DangerBorder: 'danger-border',
 	  PrimaryBorder: 'primary-border',
-	  Link: 'link'
+	  Link: 'link',
+	  Collab: 'collab'
 	};
 	const ButtonIcon = {
 	  Plus: 'plus',
@@ -570,7 +943,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  Call: 'call',
 	  EndCall: 'end-call',
 	  AddUser: 'add-user',
-	  Camera: 'camera'
+	  Camera: 'camera',
+	  Delete: 'delete',
+	  Forward: 'forward'
 	};
 	// @vue/component
 	const Button = {
@@ -634,9 +1009,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    buttonStyles() {
 	      const result = {};
 	      if (this.hasCustomColorScheme) {
-	        result['borderColor'] = this.customColorScheme.borderColor;
-	        result['backgroundColor'] = this.customColorScheme.backgroundColor;
-	        result['color'] = this.customColorScheme.textColor;
+	        result.borderColor = this.customColorScheme.borderColor;
+	        result.backgroundColor = this.customColorScheme.backgroundColor;
+	        result.color = this.customColorScheme.textColor;
 	        result['--im-button__background-color_hover'] = this.customColorScheme.hoverColor;
 	      }
 	      return result;
@@ -666,7 +1041,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    iconStyles() {
 	      const result = {};
 	      if (this.hasCustomColorScheme) {
-	        result['backgroundColor'] = this.customColorScheme.iconColor;
+	        result.backgroundColor = this.customColorScheme.iconColor;
 	      }
 	      return result;
 	    },
@@ -678,7 +1053,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return classes;
 	    },
 	    hasCustomColorScheme() {
-	      return main_core.Type.isStringFilled(this.customColorScheme.borderColor) && main_core.Type.isStringFilled(this.customColorScheme.iconColor) && main_core.Type.isStringFilled(this.customColorScheme.textColor) && main_core.Type.isStringFilled(this.customColorScheme.hoverColor);
+	      return main_core.Type.isPlainObject(this.customColorScheme) && main_core.Type.isStringFilled(this.customColorScheme.borderColor) && main_core.Type.isStringFilled(this.customColorScheme.iconColor) && main_core.Type.isStringFilled(this.customColorScheme.textColor) && main_core.Type.isStringFilled(this.customColorScheme.hoverColor);
 	    }
 	  },
 	  methods: {
@@ -826,6 +1201,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const MenuItemIcon = {
 	  chat: 'chat',
 	  channel: 'channel',
+	  collab: 'collab',
 	  conference: 'conference',
 	  disk: 'disk',
 	  upload: 'upload',
@@ -836,7 +1212,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  vote: 'vote',
 	  aiText: 'ai-text',
 	  aiImage: 'ai-image',
-	  copilot: 'copilot'
+	  copilot: 'copilot',
+	  calendarSlot: 'calendar-slot',
+	  documentSign: 'document-sign'
 	};
 
 	// @vue/component
@@ -873,7 +1251,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.counter === 0) {
 	        return '';
 	      }
-	      return this.counter > 99 ? '99+' : `${this.counter}`;
+	      return this.counter > 99 ? '99+' : String(this.counter);
 	    }
 	  },
 	  template: `
@@ -883,9 +1261,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div class="bx-im-menu-item__text-content" :class="{'--with-subtitle': !!subtitle}">
 					<div class="bx-im-menu-item__title">
 						<div class="bx-im-menu-item__title_text">{{ title }}</div>
+						<slot name="after-title"></slot>
 						<div v-if="counter" class="bx-im-menu-item__title_counter">{{ formattedCounter }}</div>
 					</div>
 					<div v-if="subtitle" :title="subtitle" class="bx-im-menu-item__subtitle">{{ subtitle }}</div>
+					<slot name="below-content"></slot>
 				</div>
 			</div>
 		</div>
@@ -1775,7 +2155,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isBot() {
 	      if (this.isUser) {
-	        return this.user.bot;
+	        return this.user.type === im_v2_const.UserType.bot;
 	      }
 	      return false;
 	    },
@@ -2807,7 +3187,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    if (this.$refs.tabs.scrollWidth > this.$refs.tabs.offsetWidth) {
 	      this.hasRightControl = true;
 	    }
-	    if (savedTabIndex) {
+	    if (savedTabIndex && this.tabs[savedTabIndex]) {
 	      this.currentElementIndex = parseInt(savedTabIndex, 10);
 	    }
 	    this.updateHighlightPosition(this.currentElementIndex);
@@ -3192,7 +3572,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    canBeRenamed() {
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.rename, this.dialogId);
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.rename, this.dialogId);
 	    },
 	    inputStyle() {
 	      return {
@@ -3317,7 +3697,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    onScroll(event) {
 	      this.$emit('scroll', event);
-	      const scrollPosition = Math.ceil(event.target.scrollTop + event.target.clientHeight);
+	      const scrollPosition = Math.floor(event.target.scrollTop + event.target.clientHeight);
 	      this.showBottomGradient = scrollPosition !== event.target.scrollHeight;
 	      if (event.target.scrollTop === 0) {
 	        this.showTopGradient = false;
@@ -38602,9 +38982,52 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	// @vue/component
+	const SegmentButton = {
+	  name: 'SegmentButton',
+	  props: {
+	    tabs: {
+	      type: Array,
+	      required: true,
+	      validator(value) {
+	        return main_core.Type.isArrayFilled(value);
+	      }
+	    }
+	  },
+	  emits: ['segmentSelected'],
+	  data() {
+	    return {
+	      activeTabId: this.tabs[0].id
+	    };
+	  },
+	  methods: {
+	    isTabActive(tab) {
+	      return this.activeTabId === tab.id;
+	    },
+	    onTabClick(tab) {
+	      this.activeTabId = tab.id;
+	      this.$emit('segmentSelected', tab.id);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-segment-button__container">
+			<button
+				v-for="tab in tabs"
+				:class="{'--active': isTabActive(tab)}"
+				class="--ellipsis"
+				@click="onTabClick(tab)"
+			>
+				{{ tab.title }}
+			</button>
+		</div>
+	`
+	};
+
 	exports.AvatarSize = AvatarSize;
 	exports.ChatAvatar = ChatAvatar;
 	exports.MessageAvatar = MessageAvatar;
+	exports.EmptyAvatar = EmptyAvatar;
+	exports.EmptyAvatarType = EmptyAvatarType;
 	exports.ChatTitle = ChatTitle;
 	exports.MessageAuthorTitle = MessageAuthorTitle;
 	exports.Button = Button;
@@ -38642,6 +39065,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.CopilotRolesDialog = CopilotRolesDialog;
 	exports.ChatHint = ChatHint;
 	exports.VideoPlayer = VideoPlayer;
+	exports.SegmentButton = SegmentButton;
 
-}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.UI,BX.Messenger.v2.Model,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Main,BX,BX.Vue3.Components,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.UI,BX.AI,BX.Vue3.Components,BX,BX,BX.Vue3.Directives,BX.Messenger.v2.Component.Animation));
+}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.UI,BX.Messenger.v2.Model,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Main,BX,BX.Vue3.Components,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.UI,BX.AI,BX.Vue3.Components,BX,BX,BX.Vue3.Directives,BX.Messenger.v2.Component.Animation,BX));
 //# sourceMappingURL=registry.bundle.js.map

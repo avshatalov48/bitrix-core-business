@@ -163,6 +163,12 @@
 	transition: unset;
 }
 
+.calendar-sharing__dialog-bottom {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .calendar-sharing__dialog-bottom .calendar-sharing__dialog-link,
 .calendar-sharing__dialog-bottom .calendar-sharing__dialog-people {
 	margin-left: 20px;

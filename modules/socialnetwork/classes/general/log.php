@@ -152,8 +152,13 @@ class CAllSocNetLog
 
 		if (is_set($arFields, "USER_ID"))
 		{
-			$dbResult = CUser::GetByID($arFields["USER_ID"]);
-			if (!$dbResult->Fetch())
+			$res = CUser::getList(
+				'ID',
+				'ASC',
+				['ID_EQUAL_EXACT' => $arFields["USER_ID"]],
+				['FIELDS' => ['ID']],
+			);
+			if (!$res->fetch())
 			{
 				$APPLICATION->ThrowException(Loc::getMessage("SONET_GL_ERROR_NO_USER_ID"), "ERROR_NO_USER_ID");
 				return false;

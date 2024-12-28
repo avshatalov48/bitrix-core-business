@@ -151,6 +151,7 @@ export const MultidialogPanel = {
 	template: `
 		<div class="bx-im-sidebar-multidialog-detail__scope">
 			<DetailHeader
+				:dialogId="dialogId"
 				:title="loc('IM_SIDEBAR_SUPPORT_TICKET_DETAIL_TITLE')"
 				:secondLevel="true"
 				@back="onBackClick"

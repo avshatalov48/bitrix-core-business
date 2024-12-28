@@ -1,0 +1,39 @@
+.bx-im-segment-button__container {
+	--im-segment-button__background-color_container: rgba(var(--im-color-palette-gray-90-rgb), 0.1);
+	--im-segment-button__color_button: var(--im-color-palette-gray-50);
+	--im-segment-button__color_button-active: var(--im-color-palette-gray-90);
+	--im-segment-button__background-color_button-active: var(--im-color-palette-white-base);
+	--im-segment-button__background-color_button-hover: rgba(var(--im-color-palette-white-base-rgb), 0.7);
+
+	display: flex;
+	flex-direction: row;
+	gap: 4px;
+	height: 30px;
+	background-color: var(--im-segment-button__background-color_container);
+	padding: 2px;
+	border-radius: var(--im-border-radius-xs);
+	line-height: var(--im-font-line-height-2xs);
+}
+
+.bx-im-segment-button__container button {
+	flex: 1;
+	border-radius: var(--im-border-radius-2xs);
+	text-align: center;
+	font-size: var(--im-font-size-sm);
+	color: var(--im-segment-button__color_button);
+	transition: .2s;
+	cursor: pointer;
+	border: none;
+	outline: none;
+	background-color: transparent;
+}
+
+.bx-im-segment-button__container button.--active {
+	font-weight: var(--im-font-weight-medium);
+	background: var(--im-segment-button__background-color_button-active);
+	color: var(--im-segment-button__color_button-active);
+}
+
+.bx-im-segment-button__container button:hover {
+	background: var(--im-segment-button__background-color_button-hover)
+}

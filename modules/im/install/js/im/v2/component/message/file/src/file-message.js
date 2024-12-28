@@ -100,15 +100,20 @@ export const FileMessage = {
 
 			return FileMessageType.base;
 		},
+		isRealMessage(): boolean
+		{
+			return this.$store.getters['messages/isRealMessage'](this.message.id);
+		},
 	},
 	template: `
 		<component 
 			:is="componentName" 
 			:item="message" 
-			:dialogId="dialogId" 
+			:dialogId="dialogId"
 			:withTitle="withTitle" 
 			:menuIsActiveForId="menuIsActiveForId"
 			:withRetryButton="false"
+			:withContextMenu="isRealMessage"
 		/>
 	`,
 };

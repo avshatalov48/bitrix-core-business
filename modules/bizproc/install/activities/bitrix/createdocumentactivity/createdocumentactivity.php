@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Bizproc\Result\ResultDto;
 use Bitrix\Main\Localization\Loc;
 
 /** @property-write string|null ErrorMessage */
@@ -19,11 +20,13 @@ class CBPCreateDocumentActivity extends CBPActivity
 		$this->arProperties = [
 			'Title' => '',
 			'Fields' => null,
-			//return
+			'ItemId' => 0,
+		//return
 			'ErrorMessage' => null,
 		];
 
 		$this->setPropertiesTypes([
+			'ItemId' => ['Type' => 'int'],
 			'ErrorMessage' => ['Type' => 'string'],
 		]);
 	}
@@ -31,7 +34,7 @@ class CBPCreateDocumentActivity extends CBPActivity
 	public function execute()
 	{
 		$documentId = $this->getDocumentId();
-		$documentType = $this->getDocumentType();
+		$documentType = $this->getCreatedDocumentType();
 
 		$fieldValue = $this->Fields;
 		if (!is_array($fieldValue))
@@ -47,22 +50,52 @@ class CBPCreateDocumentActivity extends CBPActivity
 		self::increaseExecutionDepth($executionKey);
 		try
 		{
-			$documentService->createDocument($documentId, $resultFields);
+			$this->ItemId = $documentService->createDocument($documentId, $resultFields);
 		}
 		catch (Exception $e)
 		{
 			$this->writeToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
 			$this->ErrorMessage = $e->getMessage();
 		}
+
+		if ($this->ItemId)
+		{
+			$this->fixResult($this->makeResultFromId($this->ItemId));
+		}
+
 		self::resetExecutionDepth($executionKey);
 
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	protected function getCreatedDocumentType(): array
+	{
+		return $this->getDocumentType();
+	}
+
+	public function makeResultFromId(int $id): ResultDto
+	{
+		$type = $this->getCreatedDocumentType();
+		$documentId = $type;
+		$documentId[2] = $id;
+
+		/** @var CBPDocumentService $documentService */
+		$documentService = CBPRuntime::GetRuntime()->GetService('DocumentService');
+		$documentId = $documentService->normalizeDocumentId($documentId, $type[2]);
+
+		$resultValue = [
+			'DOCUMENT_ID' => $documentId,
+			'DOCUMENT_TYPE' => $type,
+		];
+
+		return new ResultDto(get_class($this), $resultValue);
 	}
 
 	protected function reInitialize()
 	{
 		parent::reInitialize();
 		$this->ErrorMessage = null;
+		$this->ItemId = 0;
 	}
 
 	public static function GetPropertiesDialog(

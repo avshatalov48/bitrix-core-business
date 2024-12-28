@@ -102,6 +102,8 @@ export default class ItemNode
 				bgImage: null,
 				border: null,
 				borderRadius: null,
+				outline: null,
+				outlineOffset: null,
 			};
 			this.textColor = '';
 			this.link = '';
@@ -723,6 +725,12 @@ export default class ItemNode
 		{
 			this.getAvatarContainer().style.removeProperty('border-radius');
 		}
+
+		const outline = this.getAvatarOption('outline');
+		Dom.style(this.getAvatarContainer(), 'outline', outline);
+
+		const outlineOffset = this.getAvatarOption('outlineOffset');
+		Dom.style(this.getAvatarContainer(), 'outline-offset', outlineOffset);
 
 		Dom.clean(this.getBadgeContainer());
 		this.getBadges().forEach((badge: ItemBadge) => {

@@ -17,6 +17,7 @@ class Audio extends Renderer
 	{
 		return [
 			'audio/mp3',
+			'audio/ogg',
 			'audio/mpeg'
 		];
 	}

@@ -1,22 +1,32 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php
+
 use \Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
 
 $id = $arParams['id'];
 
 $arDays = CCalendarSceleton::GetWeekDays();
-$arWorTimeList = array();
+$arWorTimeList = [];
 for ($i = 0; $i < 24; $i++)
 {
-	$arWorTimeList[strval($i)] = CCalendar::FormatTime($i, 0);
-	$arWorTimeList[strval($i).'.30'] = CCalendar::FormatTime($i, 30);
+	$arWorTimeList[(string)$i] = CCalendar::FormatTime($i, 0);
+	$arWorTimeList[$i .'.30'] = CCalendar::FormatTime($i, 30);
 }
 $timezoneList = CCalendar::GetTimezoneList();
 $isPersonal = $arParams['is_personal'];
 $showGeneralSettings = $arParams['show_general_settings'];
 $showAccess = $arParams['show_access_control'] || $showGeneralSettings;
 $showPersonalTitle = $showGeneralSettings && $isPersonal;
+$isExtranet = \Bitrix\Main\Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
 
 $listLockedFeatures = (
 	is_array($arParams['list_locked_features'] ?? null)
@@ -69,6 +79,7 @@ $syncTasksLockCode = ((
 					</div>
 				</div>
 				<?endif;?>
+				<?if(!$isExtranet):?>
 				<div class="calendar-settings-control">
 					<div class="calendar-settings-control-name"><?=Loc::getMessage('EC_ADV_MEETING_CAL')?></div>
 					<div class="calendar-field-container calendar-field-container-select">
@@ -85,6 +96,7 @@ $syncTasksLockCode = ((
 						</div>
 					</div>
 				</div>
+				<?endif;?>
 				<div class="calendar-settings-control calendar-settings-checkbox">
 					<div class="calendar-field-container calendar-field-container-checkbox">
 						<div class="calendar-field-block">
@@ -105,6 +117,7 @@ $syncTasksLockCode = ((
 						</div>
 					</div>
 				</div>
+				<?if(!$isExtranet):?>
 				<div class="calendar-settings-control calendar-settings-checkbox">
 					<div class="calendar-field-container calendar-field-container-checkbox">
 						<div class="calendar-field-block <?= $syncTasksLocked ? '--locked' : ''?>">
@@ -121,6 +134,7 @@ $syncTasksLockCode = ((
 						</div>
 					</div>
 				</div>
+				<?endif;?>
 				<div class="calendar-settings-control calendar-settings-checkbox">
 					<div class="calendar-field-container calendar-field-container-checkbox">
 						<div class="calendar-field-block">
@@ -148,6 +162,7 @@ $syncTasksLockCode = ((
 					</div>
 				</div>
 
+				<?if(!$isExtranet):?>
 				<?$APPLICATION->IncludeComponent('bitrix:main.mail.confirm', '', []);?>
 				<div class="calendar-settings-control calendar-settings-email-wrap">
 					<div class="calendar-settings-control-name"><?=Loc::getMessage('EC_SEND_FROM_EMAIL')?>
@@ -164,6 +179,7 @@ $syncTasksLockCode = ((
 						</div>
 					</div>
 				</div>
+				<?endif;?>
 
 <!--				<div class="calendar-settings-control calendar-settings-checkbox">-->
 <!--					<div class="calendar-field-container calendar-field-container-checkbox">-->

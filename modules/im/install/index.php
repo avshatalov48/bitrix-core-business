@@ -92,6 +92,7 @@ class im extends \CModule
 		\CAgent::AddAgent('Bitrix\Im\Update\MessageDisappearing::disappearMessagesAgent();', 'im', 'N', 60); /** @see \Bitrix\Im\Update\MessageDisappearing::disappearMessagesAgent */
 		\CAgent::AddAgent('\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService::syncRelationAgent();', 'im', 'N', 300); /** @see \Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService::syncRelationAgent() */
 		\CAgent::AddAgent('\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService::syncMemberAgent();', 'im', 'N', 300); /** @see \Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService::syncMemberAgent() */
+		\CAgent::AddAgent('\Bitrix\Im\V2\Recent\Initializer::executeAgent();', 'im', 'N', 300); /** @see \Bitrix\Im\V2\Recent\Initializer::executeAgent() */
 
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounter', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounter');
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounterTypes', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounterTypes');
@@ -108,6 +109,7 @@ class im extends \CModule
 		$eventManager->registerEventHandler('humanresources', 'MEMBER_ADDED', 'im', '\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService', 'onMemberAdded');
 		$eventManager->registerEventHandler('humanresources', 'MEMBER_DELETED', 'im', '\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService', 'onMemberDeleted');
 		$eventManager->registerEventHandler('intranet', 'onLicenseHasChanged', 'im', '\Bitrix\Im\V2\TariffLimit\Limit', 'onLicenseHasChanged');
+		$eventManager->registerEventHandler('humanresources', 'MEMBER_UPDATED', 'im', '\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService', 'onMemberUpdated');
 
 		//marketplace
 		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', 'im','\Bitrix\Im\V2\Marketplace\Placement', 'onRestServiceBuildDescription');
@@ -452,6 +454,7 @@ class im extends \CModule
 		\CAgent::RemoveAgent('Bitrix\Im\Update\MessageDisappearing::disappearMessagesAgent();', 'im');
 		\CAgent::RemoveAgent('\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService::syncRelationAgent();', 'im');
 		\CAgent::RemoveAgent('\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService::syncMemberAgent();', 'im');
+		\CAgent::RemoveAgent('\Bitrix\Im\V2\Recent\Initializer::executeAgent();', 'im');
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 
@@ -492,6 +495,7 @@ class im extends \CModule
 		$eventManager->unRegisterEventHandler('humanresources', 'MEMBER_ADDED', 'im', '\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService', 'onMemberAdded');
 		$eventManager->unRegisterEventHandler('humanresources', 'MEMBER_DELETED', 'im', '\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService', 'onMemberDeleted');
 		$eventManager->unRegisterEventHandler('intranet', 'onLicenseHasChanged', 'im', '\Bitrix\Im\V2\TariffLimit\Limit', 'onLicenseHasChanged');
+		$eventManager->unRegisterEventHandler('humanresources', 'MEMBER_UPDATED', 'im', '\Bitrix\Im\V2\Integration\HumanResources\Sync\SyncService', 'onMemberUpdated');
 
 		$this->UnInstallUserFields($arParams);
 

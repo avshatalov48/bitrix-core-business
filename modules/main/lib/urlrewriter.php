@@ -8,93 +8,111 @@ class UrlRewriter
 
 	protected static function loadRules($siteId)
 	{
-		$site = SiteTable::getRow(array("filter" => array("=LID" => $siteId), "cache" => array("ttl" => 3600)));
+		$site = SiteTable::getRow(["filter" => ["=LID" => $siteId], "cache" => ["ttl" => 3600]]);
 		$docRoot = $site["DOC_ROOT"];
 
 		if (!empty($docRoot))
+		{
 			$docRoot = IO\Path::normalize($docRoot);
+		}
 		else
+		{
 			$docRoot = Application::getDocumentRoot();
+		}
 
-		$arUrlRewrite = array();
+		$arUrlRewrite = [];
 
-		if (IO\File::isFileExists($docRoot."/urlrewrite.php"))
-			include($docRoot."/urlrewrite.php");
+		if (IO\File::isFileExists($docRoot . "/urlrewrite.php"))
+		{
+			include($docRoot . "/urlrewrite.php");
+		}
 
 		foreach ($arUrlRewrite as &$rule)
 		{
 			if (!isset($rule["SORT"]))
+			{
 				$rule["SORT"] = self::DEFAULT_SORT;
+			}
 		}
 
 		return $arUrlRewrite;
 	}
 
-	protected static function saveRules($siteId, array $arUrlRewrite)
+	protected static function saveRules($siteId, array $urlRewrite)
 	{
-		$site = SiteTable::getRow(array("filter" => array("=LID" => $siteId), "cache" => array("ttl" => 3600)));
+		$site = SiteTable::getRow(["filter" => ["=LID" => $siteId], "cache" => ["ttl" => 3600]]);
 		$docRoot = $site["DOC_ROOT"];
 
 		if (!empty($docRoot))
+		{
 			$docRoot = IO\Path::normalize($docRoot);
+		}
 		else
+		{
 			$docRoot = Application::getDocumentRoot();
+		}
 
-		$data = var_export($arUrlRewrite, true);
+		$data = var_export($urlRewrite, true);
 
 		$event = new Event("main", "onUrlRewriteSaveRules", [
 			$siteId,
 			$docRoot,
-			$arUrlRewrite
+			$urlRewrite,
 		]);
 		$event->send();
 
 		$filename = $docRoot . "/urlrewrite.php";
-		IO\File::putFileContents($filename, "<"."?php\n\$arUrlRewrite=".$data.";\n");
+		IO\File::putFileContents($filename, "<" . "?php\n\$arUrlRewrite=" . $data . ";\n");
 		Application::resetAccelerator($filename);
 	}
 
-	public static function getList($siteId, $arFilter = array(), $arOrder = array())
+	public static function getList($siteId, $filter = [], $order = [])
 	{
 		if (empty($siteId))
-			throw new ArgumentNullException("siteId");
-
-		$arUrlRewrite = static::loadRules($siteId);
-
-		$arResult = array();
-		$arResultKeys = self::filterRules($arUrlRewrite, $arFilter);
-		foreach ($arResultKeys as $key)
-			$arResult[] = $arUrlRewrite[$key];
-
-		if (!empty($arOrder) && !empty($arResult))
 		{
-			$arOrderKeys = array_keys($arOrder);
-			$orderBy = array_shift($arOrderKeys);
-			$orderDir = $arOrder[$orderBy];
+			throw new ArgumentNullException("siteId");
+		}
+
+		$urlRewrite = static::loadRules($siteId);
+
+		$result = [];
+		$resultKeys = self::filterRules($urlRewrite, $filter);
+		foreach ($resultKeys as $key)
+		{
+			$result[] = $urlRewrite[$key];
+		}
+
+		if (!empty($order) && !empty($result))
+		{
+			$orderKeys = array_keys($order);
+			$orderBy = array_shift($orderKeys);
+			$orderDir = $order[$orderBy];
 
 			$orderBy = mb_strtoupper($orderBy);
 			$orderDir = mb_strtoupper($orderDir);
 
 			$orderDir = (($orderDir == "DESC") ? SORT_DESC : SORT_ASC);
 
-			$ar = array();
-			foreach ($arResult as $key => $row)
+			$ar = [];
+			foreach ($result as $key => $row)
+			{
 				$ar[$key] = $row[$orderBy];
+			}
 
-			array_multisort($ar, $orderDir, $arResult);
+			array_multisort($ar, $orderDir, $result);
 		}
 
-		return $arResult;
+		return $result;
 	}
 
-	protected static function filterRules(array $arUrlRewrite, array $arFilter)
+	protected static function filterRules(array $urlRewrite, array $filter)
 	{
-		$arResultKeys = array();
+		$resultKeys = [];
 
-		foreach ($arUrlRewrite as $keyRule => $arRule)
+		foreach ($urlRewrite as $keyRule => $rule)
 		{
 			$isMatched = true;
-			foreach ($arFilter as $keyFilter => $valueFilter)
+			foreach ($filter as $keyFilter => $valueFilter)
 			{
 				$isNegative = false;
 				if (str_starts_with($keyFilter, "!"))
@@ -104,27 +122,41 @@ class UrlRewriter
 				}
 
 				if ($keyFilter === 'QUERY')
-					$isMatchedTmp = preg_match($arRule["CONDITION"], $valueFilter);
+				{
+					$isMatchedTmp = preg_match($rule["CONDITION"], $valueFilter);
+				}
 				elseif ($keyFilter === 'CONDITION')
-					$isMatchedTmp = ($arRule["CONDITION"] == $valueFilter);
+				{
+					$isMatchedTmp = ($rule["CONDITION"] == $valueFilter);
+				}
 				elseif ($keyFilter === 'ID')
-					$isMatchedTmp = (isset($arRule["ID"]) && ($arRule["ID"] == $valueFilter));
+				{
+					$isMatchedTmp = (isset($rule["ID"]) && ($rule["ID"] == $valueFilter));
+				}
 				elseif ($keyFilter === 'PATH')
-					$isMatchedTmp = ($arRule["PATH"] == $valueFilter);
+				{
+					$isMatchedTmp = ($rule["PATH"] == $valueFilter);
+				}
 				else
+				{
 					throw new ArgumentException("arFilter");
+				}
 
 				$isMatched = ($isNegative xor $isMatchedTmp);
 
 				if (!$isMatched)
+				{
 					break;
+				}
 			}
 
 			if ($isMatched)
-				$arResultKeys[] = $keyRule;
+			{
+				$resultKeys[] = $keyRule;
+			}
 		}
 
-		return $arResultKeys;
+		return $resultKeys;
 	}
 
 	protected static function recordsCompare($a, $b)
@@ -133,163 +165,204 @@ class UrlRewriter
 		$sortB = isset($b["SORT"]) ? intval($b["SORT"]) : self::DEFAULT_SORT;
 
 		if ($sortA > $sortB)
+		{
 			return 1;
+		}
 		elseif ($sortA < $sortB)
+		{
 			return -1;
+		}
 
 		$lenA = mb_strlen($a["CONDITION"]);
 		$lenB = mb_strlen($b["CONDITION"]);
 		if ($lenA < $lenB)
+		{
 			return 1;
+		}
 		elseif ($lenA > $lenB)
+		{
 			return -1;
+		}
 		else
+		{
 			return 0;
+		}
 	}
 
-	public static function add($siteId, $arFields)
+	public static function add($siteId, $fields)
 	{
 		if (empty($siteId))
+		{
 			throw new ArgumentNullException("siteId");
+		}
 
-		$arUrlRewrite = static::loadRules($siteId);
+		$urlRewrite = static::loadRules($siteId);
 
 		// if rule is exist – return
-		foreach ($arUrlRewrite as $rule)
+		foreach ($urlRewrite as $rule)
 		{
-			if ($arFields["CONDITION"] == $rule["CONDITION"])
+			if ($fields["CONDITION"] == $rule["CONDITION"])
 			{
 				return;
 			}
 		}
 
-		$arUrlRewrite[] = array(
-			"CONDITION" => $arFields["CONDITION"],
-			"RULE" => $arFields["RULE"],
-			"ID" => $arFields["ID"],
-			"PATH" => $arFields["PATH"],
-			"SORT" => isset($arFields["SORT"]) ? intval($arFields["SORT"]) : self::DEFAULT_SORT,
-		);
+		$urlRewrite[] = [
+			"CONDITION" => $fields["CONDITION"],
+			"RULE" => $fields["RULE"],
+			"ID" => $fields["ID"],
+			"PATH" => $fields["PATH"],
+			"SORT" => isset($fields["SORT"]) ? intval($fields["SORT"]) : self::DEFAULT_SORT,
+		];
 
-		uasort($arUrlRewrite, array('\Bitrix\Main\UrlRewriter', "recordsCompare"));
+		uasort($urlRewrite, ['\Bitrix\Main\UrlRewriter', "recordsCompare"]);
 
-		static::saveRules($siteId, $arUrlRewrite);
+		static::saveRules($siteId, $urlRewrite);
 	}
 
-	public static function update($siteId, $arFilter, $arFields)
+	public static function update($siteId, $filter, $fields)
 	{
 		if (empty($siteId))
-			throw new ArgumentNullException("siteId");
-
-		$arUrlRewrite = static::loadRules($siteId);
-
-		$arResultKeys = self::filterRules($arUrlRewrite, $arFilter);
-		foreach ($arResultKeys as $key)
 		{
-			if (array_key_exists("CONDITION", $arFields))
-				$arUrlRewrite[$key]["CONDITION"] = $arFields["CONDITION"];
-			if (array_key_exists("RULE", $arFields))
-				$arUrlRewrite[$key]["RULE"] = $arFields["RULE"];
-			if (array_key_exists("ID", $arFields))
-				$arUrlRewrite[$key]["ID"] = $arFields["ID"];
-			if (array_key_exists("PATH", $arFields))
-				$arUrlRewrite[$key]["PATH"] = $arFields["PATH"];
-			if (array_key_exists("SORT", $arFields))
-				$arUrlRewrite[$key]["SORT"] = intval($arFields["SORT"]);
+			throw new ArgumentNullException("siteId");
 		}
 
-		uasort($arUrlRewrite, array('\Bitrix\Main\UrlRewriter', "recordsCompare"));
+		$urlRewrite = static::loadRules($siteId);
 
-		static::saveRules($siteId, $arUrlRewrite);
+		$resultKeys = self::filterRules($urlRewrite, $filter);
+		foreach ($resultKeys as $key)
+		{
+			if (array_key_exists("CONDITION", $fields))
+			{
+				$urlRewrite[$key]["CONDITION"] = $fields["CONDITION"];
+			}
+			if (array_key_exists("RULE", $fields))
+			{
+				$urlRewrite[$key]["RULE"] = $fields["RULE"];
+			}
+			if (array_key_exists("ID", $fields))
+			{
+				$urlRewrite[$key]["ID"] = $fields["ID"];
+			}
+			if (array_key_exists("PATH", $fields))
+			{
+				$urlRewrite[$key]["PATH"] = $fields["PATH"];
+			}
+			if (array_key_exists("SORT", $fields))
+			{
+				$urlRewrite[$key]["SORT"] = intval($fields["SORT"]);
+			}
+		}
+
+		uasort($urlRewrite, ['\Bitrix\Main\UrlRewriter', "recordsCompare"]);
+
+		static::saveRules($siteId, $urlRewrite);
 	}
 
-	public static function delete($siteId, $arFilter)
+	public static function delete($siteId, $filter)
 	{
 		if (empty($siteId))
+		{
 			throw new ArgumentNullException("siteId");
+		}
 
-		$arUrlRewrite = static::loadRules($siteId);
+		$urlRewrite = static::loadRules($siteId);
 
-		$arResultKeys = self::filterRules($arUrlRewrite, $arFilter);
-		foreach ($arResultKeys as $key)
-			unset($arUrlRewrite[$key]);
+		$resultKeys = self::filterRules($urlRewrite, $filter);
+		foreach ($resultKeys as $key)
+		{
+			unset($urlRewrite[$key]);
+		}
 
-		uasort($arUrlRewrite, array('\Bitrix\Main\UrlRewriter', "recordsCompare"));
+		uasort($urlRewrite, ['\Bitrix\Main\UrlRewriter', "recordsCompare"]);
 
-		static::saveRules($siteId, $arUrlRewrite);
+		static::saveRules($siteId, $urlRewrite);
 	}
 
-	public static function reindexAll($maxExecutionTime = 0, $ns = array())
+	public static function reindexAll($maxExecutionTime = 0, $ns = [])
 	{
 		@set_time_limit(0);
 		if (!is_array($ns))
-			$ns = array();
+		{
+			$ns = [];
+		}
 
 		if ($maxExecutionTime <= 0)
 		{
 			$nsOld = $ns;
-			$ns = array(
+			$ns = [
 				"CLEAR" => "N",
 				"ID" => "",
 				"FLG" => "",
-				"SESS_ID" => md5(uniqid("")),
+				"SESS_ID" => md5(uniqid()),
 				"max_execution_time" => $nsOld["max_execution_time"],
 				"stepped" => $nsOld["stepped"],
-				"max_file_size" => $nsOld["max_file_size"]
-			);
+				"max_file_size" => $nsOld["max_file_size"],
+			];
 
 			if (!empty($nsOld["SITE_ID"]))
+			{
 				$ns["SITE_ID"] = $nsOld["SITE_ID"];
+			}
 		}
 		$ns["CNT"] = intval($ns["CNT"] ?? 0);
 
-		$arSites = array();
+		$sites = [];
 		$filterRootPath = "";
 
 		$db = SiteTable::getList(
-			array(
-				"select" => array("LID", "DOC_ROOT", "DIR"),
-				"filter" => array("=ACTIVE" => "Y"),
-			)
+			[
+				"select" => ["LID", "DOC_ROOT", "DIR"],
+				"filter" => ["=ACTIVE" => "Y"],
+			]
 		);
 		while ($ar = $db->fetch())
 		{
 			if (empty($ar["DOC_ROOT"]))
+			{
 				$ar["DOC_ROOT"] = Application::getDocumentRoot();
+			}
 
-			$arSites[] = array(
+			$sites[] = [
 				"site_id" => $ar["LID"],
 				"root" => $ar["DOC_ROOT"],
-				"path" => IO\Path::combine($ar["DOC_ROOT"], $ar["DIR"])
-			);
+				"path" => IO\Path::combine($ar["DOC_ROOT"], $ar["DIR"]),
+			];
 
 			if (!empty($ns["SITE_ID"]) && $ns["SITE_ID"] == $ar["LID"])
+			{
 				$filterRootPath = $ar["DOC_ROOT"];
+			}
 		}
 
 		if (!empty($ns["SITE_ID"]) && !empty($filterRootPath))
 		{
-			$arSitesTmp = array();
-			$arKeys = array_keys($arSites);
-			foreach ($arKeys as $key)
+			$sitesTmp = [];
+			$keys = array_keys($sites);
+			foreach ($keys as $key)
 			{
-				if ($arSites[$key]["root"] == $filterRootPath)
-					$arSitesTmp[] = $arSites[$key];
+				if ($sites[$key]["root"] == $filterRootPath)
+				{
+					$sitesTmp[] = $sites[$key];
+				}
 			}
-			$arSites = $arSitesTmp;
+			$sites = $sitesTmp;
 		}
 
-		uasort($arSites,
-			function($a, $b)
-			{
+		uasort($sites,
+			function ($a, $b) {
 				$la = mb_strlen($a["path"]);
 				$lb = mb_strlen($b["path"]);
 				if ($la == $lb)
 				{
 					if ($a["site_id"] == $b["site_id"])
+					{
 						return 0;
+					}
 					else
+					{
 						return ($a["site_id"] > $b["site_id"]) ? -1 : 1;
+					}
 				}
 				return ($la > $lb) ? -1 : 1;
 			}
@@ -297,17 +370,17 @@ class UrlRewriter
 
 		if ($ns["CLEAR"] != "Y")
 		{
-			$arAlreadyDeleted = array();
-			foreach ($arSites as $site)
+			$alreadyDeleted = [];
+			foreach ($sites as $site)
 			{
 				Component\ParametersTable::deleteBySiteId($site["site_id"]);
-				if (!in_array($site["root"], $arAlreadyDeleted))
+				if (!in_array($site["root"], $alreadyDeleted))
 				{
 					static::delete(
 						$site["site_id"],
-						array("!ID" => "")
+						["!ID" => ""]
 					);
-					$arAlreadyDeleted[] = $site["root"];
+					$alreadyDeleted[] = $site["root"];
 				}
 			}
 		}
@@ -315,34 +388,38 @@ class UrlRewriter
 
 		clearstatcache();
 
-		$arAlreadyParsed = array();
-		foreach ($arSites as $site)
+		$alreadyParsed = [];
+		foreach ($sites as $site)
 		{
-			if (in_array($site["root"], $arAlreadyParsed))
+			if (in_array($site["root"], $alreadyParsed))
+			{
 				continue;
-			$arAlreadyParsed[] = $site["root"];
+			}
+			$alreadyParsed[] = $site["root"];
 
 			if ($maxExecutionTime > 0 && !empty($ns["FLG"])
-				&& mb_substr($ns["ID"]."/", 0, mb_strlen($site["root"]."/")) != $site["root"]."/")
+				&& mb_substr($ns["ID"] . "/", 0, mb_strlen($site["root"] . "/")) != $site["root"] . "/")
 			{
 				continue;
 			}
 
-			static::recursiveReindex($site["root"], "/", $arSites, $maxExecutionTime, $ns);
+			static::recursiveReindex($site["root"], "/", $sites, $maxExecutionTime, $ns);
 
 			if ($maxExecutionTime > 0 && !empty($ns["FLG"]))
+			{
 				return $ns;
+			}
 		}
 
 		return $ns["CNT"];
 	}
 
-	protected static function recursiveReindex($rootPath, $path, $arSites, $maxExecutionTime, &$ns)
+	protected static function recursiveReindex($rootPath, $path, $sites, $maxExecutionTime, &$ns)
 	{
 		$pathAbs = IO\Path::combine($rootPath, $path);
 
 		$siteId = "";
-		foreach ($arSites as $site)
+		foreach ($sites as $site)
 		{
 			if (str_starts_with($pathAbs . "/", $site["path"] . "/"))
 			{
@@ -351,32 +428,36 @@ class UrlRewriter
 			}
 		}
 		if (empty($siteId))
+		{
 			return 0;
+		}
 
 		$dir = new IO\Directory($pathAbs, $siteId);
 		if (!$dir->isExists())
+		{
 			return 0;
+		}
 
-		$arChildren = $dir->getChildren();
-		foreach ($arChildren as $child)
+		$children = $dir->getChildren();
+		foreach ($children as $child)
 		{
 			if ($child->isDirectory())
 			{
 				if ($child->isSystem())
+				{
 					continue;
+				}
 
-				//this is not first step and we had stopped here, so go on to reindex
+				//this is not first step, and we had stopped here, so go on to reindex
 				if ($maxExecutionTime <= 0
 					|| $ns["FLG"] == ''
 					|| str_starts_with($ns["ID"] . "/", $child->getPath() . "/")
 				)
 				{
-					if (static::recursiveReindex($rootPath, mb_substr($child->getPath(), mb_strlen($rootPath)), $arSites, $maxExecutionTime, $ns) === false)
+					if (static::recursiveReindex($rootPath, mb_substr($child->getPath(), mb_strlen($rootPath)), $sites, $maxExecutionTime, $ns) === false)
+					{
 						return false;
-				}
-				else //all done
-				{
-					continue;
+					}
 				}
 			}
 			else
@@ -391,7 +472,9 @@ class UrlRewriter
 				{
 					$ID = static::reindexFile($siteId, $rootPath, mb_substr($child->getPath(), mb_strlen($rootPath)), $ns["max_file_size"]);
 					if ($ID)
+					{
 						$ns["CNT"] = intval($ns["CNT"]) + 1;
+					}
 				}
 
 				if ($maxExecutionTime > 0
@@ -411,64 +494,70 @@ class UrlRewriter
 		$pathAbs = IO\Path::combine($rootPath, $path);
 
 		if (!static::checkPath($pathAbs))
+		{
 			return 0;
+		}
 
 		$file = new IO\File($pathAbs);
 		if ($maxFileSize > 0 && $file->getSize() > $maxFileSize * 1024)
+		{
 			return 0;
+		}
 
 		$fileSrc = $file->getContents();
 
 		if (!$fileSrc || $fileSrc == "")
-			return 0;
-
-		$arComponents = \PHPParser::parseScript($fileSrc);
-
-		for ($i = 0, $cnt = count($arComponents); $i < $cnt; $i++)
 		{
-			$sef = (is_array($arComponents[$i]["DATA"]["PARAMS"]) && $arComponents[$i]["DATA"]["PARAMS"]["SEF_MODE"] == "Y");
+			return 0;
+		}
+
+		$components = \PHPParser::parseScript($fileSrc);
+
+		for ($i = 0, $cnt = count($components); $i < $cnt; $i++)
+		{
+			$sef = (isset($components[$i]["DATA"]["PARAMS"]["SEF_MODE"]) && $components[$i]["DATA"]["PARAMS"]["SEF_MODE"] == "Y");
 
 			Component\ParametersTable::add(
-				array(
+				[
 					'SITE_ID' => $siteId,
-					'COMPONENT_NAME' => $arComponents[$i]["DATA"]["COMPONENT_NAME"],
-					'TEMPLATE_NAME' => $arComponents[$i]["DATA"]["TEMPLATE_NAME"],
+					'COMPONENT_NAME' => $components[$i]["DATA"]["COMPONENT_NAME"],
+					'TEMPLATE_NAME' => $components[$i]["DATA"]["TEMPLATE_NAME"],
 					'REAL_PATH' => $path,
-					'SEF_MODE' => ($sef? Component\ParametersTable::SEF_MODE : Component\ParametersTable::NOT_SEF_MODE),
-					'SEF_FOLDER' => ($sef? $arComponents[$i]["DATA"]["PARAMS"]["SEF_FOLDER"] : null),
-					'START_CHAR' => $arComponents[$i]["START"],
-					'END_CHAR' => $arComponents[$i]["END"],
-					'PARAMETERS' => serialize($arComponents[$i]["DATA"]["PARAMS"]),
-				)
+					'SEF_MODE' => ($sef ? Component\ParametersTable::SEF_MODE : Component\ParametersTable::NOT_SEF_MODE),
+					'SEF_FOLDER' => ($sef ? $components[$i]["DATA"]["PARAMS"]["SEF_FOLDER"] : null),
+					'START_CHAR' => $components[$i]["START"],
+					'END_CHAR' => $components[$i]["END"],
+					'PARAMETERS' => serialize($components[$i]["DATA"]["PARAMS"]),
+				]
 			);
 
 			if ($sef)
 			{
-				if (array_key_exists("SEF_RULE", $arComponents[$i]["DATA"]["PARAMS"]))
+				if (array_key_exists("SEF_RULE", $components[$i]["DATA"]["PARAMS"]))
 				{
 					$ruleMaker = new UrlRewriterRuleMaker;
-					$ruleMaker->process($arComponents[$i]["DATA"]["PARAMS"]["SEF_RULE"]);
+					$ruleMaker->process($components[$i]["DATA"]["PARAMS"]["SEF_RULE"]);
 
-					$arFields = array(
+					$fields = [
 						"CONDITION" => $ruleMaker->getCondition(),
 						"RULE" => $ruleMaker->getRule(),
-						"ID" => $arComponents[$i]["DATA"]["COMPONENT_NAME"],
+						"ID" => $components[$i]["DATA"]["COMPONENT_NAME"],
 						"PATH" => $path,
 						"SORT" => self::DEFAULT_SORT,
-					);
+					];
 				}
 				else
 				{
-					$arFields = array(
-						"CONDITION" => "#^".$arComponents[$i]["DATA"]["PARAMS"]["SEF_FOLDER"]."#",
+					$fields = [
+						"CONDITION" => "#^" . $components[$i]["DATA"]["PARAMS"]["SEF_FOLDER"] . "#",
 						"RULE" => "",
-						"ID" => $arComponents[$i]["DATA"]["COMPONENT_NAME"],
+						"ID" => $components[$i]["DATA"]["COMPONENT_NAME"],
 						"PATH" => $path,
 						"SORT" => self::DEFAULT_SORT,
-					);
+					];
 				}
 
-				static::add($siteId, $arFields);
+				static::add($siteId, $fields);
 			}
 		}
 
@@ -478,44 +567,63 @@ class UrlRewriter
 	public static function checkPath($path)
 	{
 		static $searchMasksCache = false;
+
 		if (is_array($searchMasksCache))
 		{
-			$arExc = $searchMasksCache["exc"];
-			$arInc = $searchMasksCache["inc"];
+			$exclude = $searchMasksCache["exc"];
+			$include = $searchMasksCache["inc"];
 		}
 		else
 		{
-			$arExc = array();
-			$arInc = array();
+			$exclude = [];
+			$include = [];
 
 			$inc = Config\Option::get("main", "urlrewrite_include_mask", "*.php");
 			$inc = str_replace("'", "\\'", str_replace("*", ".*?", str_replace("?", ".", str_replace(".", "\\.", str_replace("\\", "/", $inc)))));
-			$arIncTmp = explode(";", $inc);
-			foreach ($arIncTmp as $preg_mask)
-				if (trim($preg_mask) <> '')
-					$arInc[] = "'^".trim($preg_mask)."$'";
+			$incTmp = explode(";", $inc);
+			foreach ($incTmp as $pregMask)
+			{
+				if (trim($pregMask) <> '')
+				{
+					$include[] = "'^" . trim($pregMask) . "$'";
+				}
+			}
 
 			$exc = Config\Option::get("main", "urlrewrite_exclude_mask", "/bitrix/*;");
 			$exc = str_replace("'", "\\'", str_replace("*", ".*?", str_replace("?", ".", str_replace(".", "\\.", str_replace("\\", "/", $exc)))));
-			$arExcTmp = explode(";", $exc);
-			foreach ($arExcTmp as $preg_mask)
-				if (trim($preg_mask) <> '')
-					$arExc[] = "'^".trim($preg_mask)."$'";
+			$excTmp = explode(";", $exc);
+			foreach ($excTmp as $pregMask)
+			{
+				if (trim($pregMask) <> '')
+				{
+					$exclude[] = "'^" . trim($pregMask) . "$'";
+				}
+			}
 
-			$searchMasksCache = array("exc" => $arExc, "inc" => $arInc);
+			$searchMasksCache = ["exc" => $exclude, "inc" => $include];
 		}
 
 		$file = IO\Path::getName($path);
 		if (str_starts_with($file, "."))
+		{
 			return 0;
+		}
 
-		foreach ($arExc as $preg_mask)
-			if (preg_match($preg_mask, $path))
+		foreach ($exclude as $pregMask)
+		{
+			if (preg_match($pregMask, $path))
+			{
 				return false;
+			}
+		}
 
-		foreach ($arInc as $preg_mask)
-			if (preg_match($preg_mask, $path))
+		foreach ($include as $pregMask)
+		{
+			if (preg_match($pregMask, $path))
+			{
 				return true;
+			}
+		}
 
 		return false;
 	}
@@ -531,7 +639,7 @@ class UrlRewriter
 class UrlRewriterRuleMaker
 {
 	protected $condition = "";
-	protected $variables = array();
+	protected $variables = [];
 	protected $rule = "";
 
 	/**
@@ -542,18 +650,20 @@ class UrlRewriterRuleMaker
 	public function process($sefRule)
 	{
 		$this->rule = "";
-		$this->variables = array();
-		$this->condition = "#^".preg_replace_callback("/(#[a-zA-Z0-9_]+#)/", array($this, "_callback"), $sefRule)."\\??(.*)#";
+		$this->variables = [];
+		$this->condition = "#^" . preg_replace_callback("/(#[a-zA-Z0-9_]+#)/", [$this, "_callback"], $sefRule) . "\\??(.*)#";
 		$i = 0;
 		foreach ($this->variables as $variableName)
 		{
 			$i++;
 			if ($this->rule)
+			{
 				$this->rule .= "&";
-			$this->rule .= $variableName."=\$".$i;
+			}
+			$this->rule .= $variableName . "=\$" . $i;
 		}
 		$i++;
-		$this->rule .= "&\$".$i;
+		$this->rule .= "&\$" . $i;
 	}
 
 	/**

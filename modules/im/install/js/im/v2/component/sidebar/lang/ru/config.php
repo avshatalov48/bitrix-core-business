@@ -2,6 +2,7 @@
 $MESS['IM_SIDEBAR_HEADER_TITLE'] = "О чате";
 $MESS['IM_SIDEBAR_CHANNEL_HEADER_TITLE'] = "О канале";
 $MESS['IM_SIDEBAR_COMMENTS_HEADER_TITLE'] = "О посте";
+$MESS['IM_SIDEBAR_COLLAB_HEADER_TITLE'] = "О коллабе";
 $MESS['IM_SIDEBAR_COMMENTS_POST_PREVIEW_TITLE'] = "Комментарии";
 $MESS['IM_SIDEBAR_ENABLE_NOTIFICATION_TITLE_2'] = "Звук";
 $MESS['IM_SIDEBAR_ENABLE_AUTODELETE_TITLE'] = "Автоудаление сообщений";
@@ -12,12 +13,13 @@ $MESS['IM_SIDEBAR_COPIED_SUCCESS'] = "Ссылка скопирована";
 $MESS['IM_SIDEBAR_CHAT_DESCRIPTION_SHOW'] = "Показать полностью...";
 $MESS['IM_SIDEBAR_LINKS_NOT_AVAILABLE'] = "Подождите, идёт конвертация...";
 $MESS['IM_SIDEBAR_MUTE_NOT_AVAILABLE'] = "В этом чате нельзя отключить уведомления";
-$MESS['IM_SIDEBAR_FILE_SAVE_ON_DISK_SUCCESS'] = "Файл успешно сохранён на ваш Диск";
 $MESS['IM_SIDEBAR_SYSTEM_USER'] = "Системный пользователь";
 $MESS['IM_SIDEBAR_SYSTEM_MESSAGE'] = "Системное сообщение";
 $MESS['IM_SIDEBAR_SEARCH_MESSAGE_PLACEHOLDER'] = "Поиск по чату";
 $MESS['IM_SIDEBAR_SEARCH_MESSAGE_START_TITLE'] = "Здесь появятся сообщения, которые вы ищете";
 $MESS['IM_SIDEBAR_SEARCH_RESULT_START_TITLE'] = "Здесь появятся результаты, которые вы ищете";
+$MESS['IM_SIDEBAR_COLLAB_HELPDESK_TITLE'] = "Коллабы";
+$MESS['IM_SIDEBAR_COLLAB_HELPDESK_DESCRIPTION'] = "Как работать с внешними командами и клиентами";
 
 // detail titles
 $MESS['IM_SIDEBAR_MAIN_DETAIL_TITLE'] = "Участники: #NUMBER#";
@@ -47,6 +49,9 @@ $MESS['IM_SIDEBAR_MENU_INVITE_SUBSCRIBERS'] = "Добавить подписчи
 $MESS['IM_SIDEBAR_MENU_UPDATE_CHAT'] = "Редактировать";
 $MESS['IM_SIDEBAR_MENU_DELETE_CHAT'] = "Удалить";
 $MESS['IM_SIDEBAR_MENU_DELETE_CHAT_ERROR'] = "Не удалось выполнить действие. Попробуйте позже";
+$MESS['IM_SIDEBAR_MENU_DELETE_COLLAB_NOTIFICATION'] = "Удаляем коллабу. Это займёт какое-то время";
+$MESS['IM_SIDEBAR_MENU_DELETE_COLLAB_ERROR'] = "Не удалось удалить коллабу, попробуйте позже";
+$MESS['IM_SIDEBAR_MENU_DELETE_COLLAB_WITH_ENTITIES_ERROR'] = "Нельзя удалить коллабу, пока в ней есть файлы, задачи и встречи";
 $MESS['IM_SIDEBAR_MENU_JOIN_CHAT'] = "Присоединиться к чату";
 $MESS['IM_SIDEBAR_MENU_KICK_FROM_CHAT'] = "Исключить из чата";
 $MESS['IM_SIDEBAR_MENU_REMOVE_FROM_SAVED_V2'] = "Убрать из Избранного";
@@ -54,7 +59,6 @@ $MESS['IM_SIDEBAR_MENU_COPY_LINK'] = "Скопировать ссылку";
 $MESS['IM_SIDEBAR_MENU_COPY_TASK_LINK'] = "Скопировать ссылку на задачу";
 $MESS['IM_SIDEBAR_MENU_COPY_MEETING_LINK'] = "Скопировать ссылку на встречу";
 $MESS['IM_SIDEBAR_MENU_DELETE_FROM_LINKS'] = "Скрыть из списка";
-$MESS['IM_SIDEBAR_MENU_INSERT_NAME_V2'] = "Упомянуть";
 $MESS['IM_SIDEBAR_MENU_DELETE_TASK_CONNECTION'] = "Удалить связь задачи с чатом";
 $MESS['IM_SIDEBAR_MENU_DELETE_MEETING_CONNECTION'] = "Удалить связь встречи с чатом";
 $MESS['IM_SIDEBAR_MENU_MANAGER_ADD'] = "Сделать администратором";
@@ -87,6 +91,7 @@ $MESS['IM_SIDEBAR_CHAT_TYPE_USER'] = "Пользователь";
 $MESS['IM_SIDEBAR_CHAT_TYPE_BOT'] = "Чат-бот";
 $MESS['IM_SIDEBAR_CHAT_TYPE_CHANNEL'] = "Канал";
 $MESS['IM_SIDEBAR_CHAT_TYPE_COMMENTS'] = "Комментарии";
+$MESS['IM_SIDEBAR_CHAT_TYPE_COLLAB'] = "Коллаба";
 
 //support statuses
 $MESS['IM_SIDEBAR_SUPPORT_TICKET_STATUS_NEW'] = "открыт";

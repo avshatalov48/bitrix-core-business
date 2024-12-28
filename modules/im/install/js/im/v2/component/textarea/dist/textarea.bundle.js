@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_localStorage,im_v2_lib_soundNotification,im_v2_lib_channel,rest_client,im_v2_lib_analytics,im_v2_lib_desktopApi,im_v2_lib_feature,im_v2_lib_smileManager,im_v2_lib_rest,im_v2_lib_entityCreator,main_popup,im_v2_lib_draft,im_v2_lib_hotkey,im_v2_lib_textarea,im_v2_provider_service,ui_icons,main_core_events,im_v2_lib_textHighlighter,im_v2_application_core,im_v2_lib_logger,im_v2_lib_search,im_v2_lib_utils,im_v2_lib_parser,im_v2_const,main_core,im_v2_lib_market,im_v2_component_elements) {
+(function (exports,im_v2_lib_localStorage,im_v2_lib_soundNotification,im_v2_lib_channel,rest_client,im_v2_lib_desktopApi,im_v2_lib_smileManager,im_v2_lib_helpdesk,im_v2_lib_rest,calendar_sharing_interface,im_v2_lib_entityCreator,im_v2_lib_analytics,im_v2_lib_feature,im_v2_lib_permission,main_popup,im_v2_lib_draft,im_v2_lib_hotkey,im_v2_lib_textarea,im_v2_provider_service,ui_icons,main_core_events,im_v2_lib_textHighlighter,im_v2_lib_logger,im_v2_lib_search,im_v2_lib_utils,im_v2_application_core,im_v2_lib_parser,im_v2_const,main_core,im_v2_lib_market,im_v2_component_elements) {
 	'use strict';
 
 	const MentionSymbols = new Set(['@', '+']);
@@ -621,7 +621,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    handleOnAfterSendMessage() {
 	      if (this.audioUsed) {
-	        im_v2_lib_analytics.Analytics.getInstance().onUseCopilotAudioInput();
+	        im_v2_lib_analytics.Analytics.getInstance().copilot.onUseAudioInput();
 	        this.audioUsed = false;
 	      }
 	      this.audioMode = false;
@@ -3968,9 +3968,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    },
 	    openHelpArticle() {
-	      var _BX$Helper;
 	      const ARTICLE_CODE = '17942324';
-	      (_BX$Helper = BX.Helper) == null ? void 0 : _BX$Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
+	      im_v2_lib_helpdesk.openHelpdeskArticle(ARTICLE_CODE);
 	    }
 	  },
 	  template: `
@@ -4333,12 +4332,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  template: `<template></template>`
 	};
 
+	const DOCUMENT_SIGN_SLIDER_URL = '/sign/doc/0/?chat_id=';
+
 	// @vue/component
 	const UploadMenu = {
 	  components: {
 	    MessengerMenu: im_v2_component_elements.MessengerMenu,
 	    MenuItem: im_v2_component_elements.MenuItem,
 	    DiskPopup
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
 	  },
 	  emits: ['fileSelect', 'diskFileSelect'],
 	  data() {
@@ -4349,7 +4356,47 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  },
 	  computed: {
-	    MenuItemIcon: () => im_v2_component_elements.MenuItemIcon,
+	    menuItems() {
+	      return [{
+	        icon: im_v2_component_elements.MenuItemIcon.upload,
+	        title: this.loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO'),
+	        clickHandler: this.onSelectFromPhotoOrVideo
+	      }, {
+	        icon: im_v2_component_elements.MenuItemIcon.file,
+	        title: this.loc('IM_TEXTAREA_SELECT_FILE'),
+	        clickHandler: this.onSelectFromComputerClick
+	      }, {
+	        icon: im_v2_component_elements.MenuItemIcon.disk,
+	        title: this.loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK_1'),
+	        clickHandler: this.onSelectFromDiskClick
+	      }, {
+	        icon: im_v2_component_elements.MenuItemIcon.task,
+	        title: this.loc('IM_TEXTAREA_SELECT_TASK'),
+	        clickHandler: this.onCreateTaskClick
+	      }, {
+	        icon: im_v2_component_elements.MenuItemIcon.meeting,
+	        title: this.loc('IM_TEXTAREA_SELECT_MEETING'),
+	        clickHandler: this.onCreateMeetingClick
+	      }, {
+	        icon: im_v2_component_elements.MenuItemIcon.calendarSlot,
+	        title: this.loc('IM_TEXTAREA_SELECT_CALENDAR_SLOT'),
+	        clickHandler: this.onCreateCalendarSlotClick,
+	        showCondition: () => this.isCalendarSlotAvailable
+	      }, {
+	        icon: im_v2_component_elements.MenuItemIcon.documentSign,
+	        title: this.loc('IM_TEXTAREA_SELECT_DOCUMENT_SIGN'),
+	        clickHandler: this.onCreateDocumentSignClick,
+	        showCondition: () => this.isDocumentSignAvailable
+	      }];
+	    },
+	    availableMenuItems() {
+	      return this.menuItems.filter(item => {
+	        if (!main_core.Type.isFunction(item.showCondition)) {
+	          return true;
+	        }
+	        return item.showCondition();
+	      });
+	    },
 	    menuConfig() {
 	      return {
 	        width: 278,
@@ -4361,6 +4408,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        offsetLeft: -10,
 	        padding: 0
 	      };
+	    },
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    chatId() {
+	      return this.dialog.chatId;
+	    },
+	    isDocumentSignAvailable() {
+	      const isActiveFeature = im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.documentSignAvailable);
+	      if (!isActiveFeature) {
+	        return false;
+	      }
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.createDocumentSign, this.dialogId);
+	    },
+	    isCalendarSlotAvailable() {
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.createCalendarSlots, this.dialogId);
 	    }
 	  },
 	  methods: {
@@ -4393,100 +4456,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
-	    }
-	  },
-	  template: `
-		<div
-			class="bx-im-textarea__icon --upload"
-			:class="{'--active': showMenu}"
-			:title="loc('IM_TEXTAREA_ICON_UPLOAD')"
-			@click="showMenu = true"
-			ref="upload"
-		>
-		</div>
-		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false" className="bx-im-file-menu__scope">
-			<MenuItem
-				:icon="MenuItemIcon.upload"
-				:title="loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO')"
-				@click="onSelectFromPhotoOrVideo"
-			/>
-			<MenuItem
-				:icon="MenuItemIcon.file"
-				:title="loc('IM_TEXTAREA_SELECT_FILE')"
-				@click="onSelectFromComputerClick"
-			/>
-			<MenuItem
-				:icon="MenuItemIcon.disk"
-				:title="loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK_1')"
-				@click="onSelectFromDiskClick"
-			/>
-			<input type="file" @change="onFileSelect" multiple class="bx-im-file-menu__file-input" ref="fileInput">
-		</MessengerMenu>
-		<DiskPopup v-if="showDiskPopup" @diskFileSelect="onDiskFileSelect" @close="showDiskPopup = false"/>
-	`
-	};
-
-	// @vue/component
-	const CreateEntityMenu = {
-	  components: {
-	    MessengerMenu: im_v2_component_elements.MessengerMenu,
-	    MenuItem: im_v2_component_elements.MenuItem
-	  },
-	  props: {
-	    dialogId: {
-	      type: String,
-	      required: true
-	    },
-	    textareaValue: {
-	      type: String,
-	      required: false,
-	      default: ''
-	    }
-	  },
-	  data() {
-	    return {
-	      showMenu: false
-	    };
-	  },
-	  computed: {
-	    MenuItemIcon: () => im_v2_component_elements.MenuItemIcon,
-	    dialog() {
-	      return this.$store.getters['chats/get'](this.dialogId, true);
-	    },
-	    chatId() {
-	      return this.dialog.chatId;
-	    },
-	    menuConfig() {
-	      return {
-	        width: 288,
-	        bindElement: this.$refs.createEntity || {},
-	        bindOptions: {
-	          position: 'top'
-	        },
-	        offsetTop: 30,
-	        offsetLeft: -139,
-	        padding: 0
-	      };
-	    }
-	  },
-	  methods: {
-	    onCreateAiTextClick() {
-	      this.getEntityCreator().createAiTextForChat(this.textareaValue);
-	      this.showMenu = false;
-	    },
-	    onCreateAiImageClick() {
-	      //
-	    },
-	    onCreateTaskClick() {
-	      this.getEntityCreator().createTaskForChat();
-	      this.showMenu = false;
-	    },
-	    onCreateMeetingClick() {
-	      this.getEntityCreator().createMeetingForChat();
-	      this.showMenu = false;
-	    },
-	    onCreateSummaryClick() {
-	      //
 	    },
 	    getEntityCreator() {
 	      if (!this.entityCreator) {
@@ -4494,47 +4463,70 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	      return this.entityCreator;
 	    },
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    onCreateTaskClick() {
+	      void this.getEntityCreator().createTaskForChat();
+	      im_v2_lib_analytics.Analytics.getInstance().chatEntities.onCreateTaskFromTextareaClick(this.dialogId);
+	      this.showMenu = false;
+	    },
+	    onCreateMeetingClick() {
+	      void this.getEntityCreator().createMeetingForChat();
+	      im_v2_lib_analytics.Analytics.getInstance().chatEntities.onCreateEventFromTextareaClick(this.dialogId);
+	      this.showMenu = false;
+	    },
+	    onUploadButtonClick() {
+	      if (this.showMenu !== true) {
+	        im_v2_lib_analytics.Analytics.getInstance().attachMenu.onOpenUploadMenu(this.dialogId);
+	      }
+	      this.showMenu = true;
+	    },
+	    async onCreateCalendarSlotClick(event) {
+	      if (!calendar_sharing_interface.GroupSharingController) {
+	        return;
+	      }
+	      const collabInfo = im_v2_application_core.Core.getStore().getters['chats/collabs/getByChatId'](this.chatId);
+	      if (!collabInfo || !collabInfo.collabId) {
+	        return;
+	      }
+	      try {
+	        const groupSharing = await calendar_sharing_interface.GroupSharingController.getGroupSharing(collabInfo.collabId, event.target);
+	        groupSharing.openDialog();
+	        this.showMenu = false;
+	      } catch (errors) {
+	        this.showNotification(this.loc('IM_TEXTAREA_UNKNOWN_ERROR'));
+	        console.error('ChatTextarea: UploadMenu: select slots error', errors);
+	      }
+	    },
+	    onCreateDocumentSignClick() {
+	      const preparedUrl = DOCUMENT_SIGN_SLIDER_URL + this.chatId;
+	      BX.SidePanel.Instance.open(preparedUrl, {
+	        cacheable: false
+	      });
+	    },
+	    showNotification(content) {
+	      BX.UI.Notification.Center.notify({
+	        content
+	      });
 	    }
 	  },
 	  template: `
 		<div
-			@click="showMenu = true"
-			:title="loc('IM_TEXTAREA_ICON_CREATE')"
-			class="bx-im-textarea__icon --create"
+			class="bx-im-textarea__icon --upload"
 			:class="{'--active': showMenu}"
-			ref="createEntity"
+			:title="loc('IM_TEXTAREA_ICON_UPLOAD_TITLE')"
+			@click="onUploadButtonClick"
+			ref="upload"
 		>
 		</div>
-		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false">
+		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false" className="bx-im-file-menu__scope">
 			<MenuItem
-				:icon="MenuItemIcon.task"
-				:title="loc('IM_TEXTAREA_CREATE_TASK_TITLE')"
-				:subtitle="loc('IM_TEXTAREA_CREATE_TASK_SUBTITLE')"
-				@click="onCreateTaskClick"
+				v-for="item in availableMenuItems"
+				:icon="item.icon"
+				:title="item.title"
+				@click="item.clickHandler"
 			/>
-			<MenuItem
-				:icon="MenuItemIcon.meeting"
-				:title="loc('IM_TEXTAREA_CREATE_MEETING_TITLE')"
-				:subtitle="loc('IM_TEXTAREA_CREATE_MEETING_SUBTITLE')"
-				@click="onCreateMeetingClick"
-			/>
-			<MenuItem
-				v-if="false"
-				:icon="MenuItemIcon.summary"
-				:title="loc('IM_TEXTAREA_CREATE_SUMMARY_TITLE')"
-				:subtitle="loc('IM_TEXTAREA_CREATE_SUMMARY_SUBTITLE')"
-				:disabled="true"
-			/>
-			<MenuItem
-				v-if="false"
-				:icon="MenuItemIcon.vote"
-				:title="loc('IM_TEXTAREA_CREATE_VOTE_TITLE')"
-				:subtitle="loc('IM_TEXTAREA_CREATE_VOTE_SUBTITLE')"
-				:disabled="true"
-			/>
+			<input type="file" @change="onFileSelect" multiple class="bx-im-file-menu__file-input" ref="fileInput">
 		</MessengerMenu>
+		<DiskPopup v-if="showDiskPopup" @diskFileSelect="onDiskFileSelect" @close="showDiskPopup = false"/>
 	`
 	};
 
@@ -5057,6 +5049,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  [im_v2_const.ChatType.openChannel]: main_core.Loc.getMessage('IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE'),
 	  [im_v2_const.ChatType.generalChannel]: main_core.Loc.getMessage('IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE'),
 	  [im_v2_const.ChatType.channel]: main_core.Loc.getMessage('IM_TEXTAREA_MENTION_PRIVATE_CHANNEL_TYPE'),
+	  [im_v2_const.ChatType.collab]: main_core.Loc.getMessage('IM_TEXTAREA_MENTION_COLLAB_TYPE'),
 	  default: main_core.Loc.getMessage('IM_TEXTAREA_MENTION_CHAT_TYPE')
 	};
 
@@ -5104,7 +5097,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!this.isUser) {
 	        return '';
 	      }
-	      return this.user.workPosition;
+	      return this.$store.getters['users/getPosition'](this.dialogId);
 	    },
 	    userItemText() {
 	      if (!this.position) {
@@ -5406,7 +5399,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  if (dialog.type === im_v2_const.ChatType.user) {
 	    const user = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['users/get'](dialogId);
-	    return user && user.extranet;
+	    return user && user.type === im_v2_const.UserType.extranet;
 	  }
 	  return dialog.extranet;
 	}
@@ -5476,7 +5469,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return;
 	        }
 	        const user = this.$store.getters['users/get'](recentItem.dialogId, true);
-	        if (user.bot || user.id === im_v2_application_core.Core.getUserId()) {
+	        const isBot = user.type === im_v2_const.UserType.bot;
+	        if (isBot || user.id === im_v2_application_core.Core.getUserId()) {
 	          return;
 	        }
 	        recentUsers.push(user);
@@ -5881,7 +5875,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 					v-if="this.messageFile.urlPreview" 
 					class="bx-im-message-panel__image_img" 
 					:src="this.messageFile.urlPreview"
-                    :alt="this.messageFile.name"
+		                  :alt="this.messageFile.name"
 				>
 			</div>
 			<div class="bx-im-message-panel__content">
@@ -5893,34 +5887,149 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
+	const MESSAGE_DISPLAY_LIMIT = 5;
+
 	// @vue/component
 	const ForwardPanel = {
 	  name: 'ForwardPanel',
 	  props: {
-	    messageId: {
-	      type: Number,
+	    context: {
+	      type: Object,
 	      required: true
 	    }
 	  },
 	  emits: ['close'],
 	  computed: {
-	    message() {
-	      return this.$store.getters['messages/getById'](this.messageId);
+	    forwardContext() {
+	      return this.context;
 	    },
-	    forwardAuthor() {
-	      const isForward = this.$store.getters['messages/isForward'](this.messageId);
-	      const userId = isForward ? this.message.forward.userId : this.message.authorId;
-	      return this.$store.getters['users/get'](userId, true);
+	    messagesIds() {
+	      return this.forwardContext.messagesIds;
+	    },
+	    sortedMessagesIds() {
+	      return [...this.messagesIds].sort();
+	    },
+	    authorsOfMessages() {
+	      return this.sortedMessagesIds.map(id => {
+	        const isForward = this.$store.getters['messages/isForward'](id);
+	        const message = this.getMessage(id);
+	        const userId = isForward ? message.forward.userId : message.authorId;
+	        return this.$store.getters['users/get'](userId, true);
+	      });
+	    },
+	    uniqueUsers() {
+	      const uniqueUsersObj = {};
+	      this.authorsOfMessages.forEach(user => {
+	        if (!uniqueUsersObj[user.id]) {
+	          uniqueUsersObj[user.id] = user;
+	        }
+	      });
+	      return Object.values(uniqueUsersObj);
+	    },
+	    forwardMessagesCount() {
+	      return this.messagesIds.length;
 	    },
 	    forwardAuthorName() {
-	      let name = this.forwardAuthor.name;
-	      if (this.forwardAuthor.id === 0) {
+	      const author = this.authorsOfMessages[0];
+	      let name = author.name;
+	      if (author.id === 0) {
 	        name = this.loc('IM_TEXTAREA_FORWARD_SYSTEM');
 	      }
 	      return `${name}: `;
 	    },
+	    displayedAuthorNames() {
+	      const systemMessagesCount = this.authorsOfMessages.filter(user => user.id === 0).length;
+	      const displayedNames = this.uniqueUsers.slice(0, MESSAGE_DISPLAY_LIMIT);
+	      const names = [];
+	      displayedNames.forEach(user => {
+	        if (user.id === 0) {
+	          return systemMessagesCount > 1 ? names.push(this.loc('IM_TEXTAREA_FORWARD_MESSAGES_SYSTEM')) : names.push(this.loc('IM_TEXTAREA_FORWARD_SYSTEM'));
+	        }
+	        if (this.isOwnMessage(user)) {
+	          return names.unshift(this.loc('IM_TEXTAREA_FORWARD_OWN_MESSAGE'));
+	        }
+	        return names.push(user.firstName);
+	      });
+	      return names.join(', ');
+	    },
+	    formattedAuthorNames() {
+	      if (this.remainingAuthors > 0) {
+	        return main_core.Loc.getMessage('IM_TEXTAREA_FORWARD_TEXT_MORE', {
+	          '[name]': '<span class="bx-im-message-panel__forward-author_name">',
+	          '[/name]': '</span>',
+	          '#USER_LIST#': main_core.Text.encode(this.displayedAuthorNames),
+	          '[remaining]': '<span class="bx-im-message-panel__forward-author_remaining">',
+	          '[/remaining]': '</span>',
+	          '#COUNT#': this.remainingAuthors
+	        });
+	      }
+	      return this.loc('IM_TEXTAREA_FORWARD_TEXT', {
+	        '#USER_LIST#': main_core.Text.encode(this.displayedAuthorNames)
+	      });
+	    },
+	    remainingAuthors() {
+	      return this.uniqueUsers.length - MESSAGE_DISPLAY_LIMIT;
+	    },
 	    messageText() {
-	      return im_v2_lib_parser.Parser.purifyMessage(this.message);
+	      return im_v2_lib_parser.Parser.purifyMessage(this.getMessage(this.messagesIds));
+	    },
+	    titleText() {
+	      if (this.forwardMessagesCount > 1) {
+	        return this.formattedMessageCounter;
+	      }
+	      return this.loc('IM_TEXTAREA_FORWARD_TITLE');
+	    },
+	    formattedMessageCounter() {
+	      return main_core.Loc.getMessagePlural('IM_TEXTAREA_FORWARD_TITLE_MULTIPLE_COUNT', this.forwardMessagesCount, {
+	        '#COUNT_MESSAGES#': this.forwardMessagesCount
+	      });
+	    }
+	  },
+	  methods: {
+	    isOwnMessage(user) {
+	      return user.id === im_v2_application_core.Core.getUserId() && this.uniqueUsers.length > 1;
+	    },
+	    getMessage(messageId) {
+	      return this.$store.getters['messages/getById'](messageId);
+	    },
+	    loc(phraseCode, replacements = {}) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-panel__container">
+			<div class="bx-im-message-panel__icon --forward"></div>
+			<div class="bx-im-message-panel__content">
+				<div class="bx-im-message-panel__title">{{ titleText }}</div>
+				<div v-if="forwardMessagesCount > 1" class="bx-im-message-panel__text" :class="{'--compact': remainingAuthors > 0}">
+					<div class="bx-im-message-panel__bulk-forward-author" v-html="formattedAuthorNames"></div>
+				</div>
+				<div v-else class="bx-im-message-panel__text">
+					<span class="bx-im-message-panel__forward-author">{{ forwardAuthorName }}</span>
+					<span class="bx-im-message-panel__forward-message-text">{{ messageText }}</span>
+				</div>
+			</div>
+			<div @click="$emit('close')" class="bx-im-message-panel__close"></div>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const ForwardEntityPanel = {
+	  name: 'ForwardEntityPanel',
+	  props: {
+	    context: {
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  emits: ['close'],
+	  computed: {
+	    forwardedEntityContext() {
+	      return this.context;
+	    },
+	    config() {
+	      return this.forwardedEntityContext.entityConfig;
 	    }
 	  },
 	  methods: {
@@ -5932,10 +6041,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 		<div class="bx-im-message-panel__container">
 			<div class="bx-im-message-panel__icon --forward"></div>
 			<div class="bx-im-message-panel__content">
-				<div class="bx-im-message-panel__title">{{ loc('IM_TEXTAREA_FORWARD_TITLE') }}</div>
+				<div class="bx-im-message-panel__title">{{ config.title }}</div>
 				<div class="bx-im-message-panel__text">
-					<span class="bx-im-message-panel__forward-author">{{ forwardAuthorName }}</span>
-					<span class="bx-im-message-panel__forward-message-text">{{ messageText }}</span>
+					<span class="bx-im-message-panel__forward-author">author</span>
+					<span class="bx-im-message-panel__forward-message-text">message</span>
 				</div>
 			</div>
 			<div @click="$emit('close')" class="bx-im-message-panel__close"></div>
@@ -6359,6 +6468,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    EditPanel,
 	    ReplyPanel,
 	    ForwardPanel,
+	    ForwardEntityPanel,
 	    MarketAppsPanel
 	  },
 	  props: {
@@ -6370,27 +6480,28 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      type: String,
 	      required: true
 	    },
-	    messageId: {
-	      type: Number,
+	    context: {
+	      type: Object,
 	      required: true
 	    }
 	  },
 	  emits: ['close'],
-	  data() {
-	    return {};
-	  },
 	  computed: {
-	    PanelType: () => im_v2_const.TextareaPanelType
+	    PanelType: () => im_v2_const.TextareaPanelType,
+	    configContext() {
+	      return this.context;
+	    }
 	  },
 	  template: `
-		<EditPanel v-if="type === PanelType.edit" :messageId="messageId" @close="$emit('close')" />
-		<ReplyPanel v-if="type === PanelType.reply" :messageId="messageId" @close="$emit('close')" />
-		<ForwardPanel v-if="type === PanelType.forward" :messageId="messageId" @close="$emit('close')" />
-		<MarketAppsPanel v-if="type === PanelType.market" :dialogId="dialogId"/>
+		<EditPanel v-if="type === PanelType.edit" :messageId="configContext.messageId" @close="$emit('close')" />
+		<ReplyPanel v-if="type === PanelType.reply" :messageId="configContext.messageId" @close="$emit('close')" />
+		<ForwardPanel v-if="type === PanelType.forward" :context="configContext" @close="$emit('close')" />
+		<ForwardEntityPanel v-if="type === PanelType.forwardEntity" :context="configContext" @close="$emit('close')" />
+		<MarketAppsPanel v-if="type === PanelType.market" :dialogId="dialogId" />
 	`
 	};
 
-	const MESSAGE_ACTION_PANELS = new Set([im_v2_const.TextareaPanelType.edit, im_v2_const.TextareaPanelType.reply, im_v2_const.TextareaPanelType.forward]);
+	const MESSAGE_ACTION_PANELS = new Set([im_v2_const.TextareaPanelType.edit, im_v2_const.TextareaPanelType.reply, im_v2_const.TextareaPanelType.forward, im_v2_const.TextareaPanelType.forwardEntity]);
 	const TextareaHeight$1 = {
 	  max: 400,
 	  min: 22
@@ -6400,7 +6511,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const ChatTextarea = {
 	  components: {
 	    UploadMenu,
-	    CreateEntityMenu,
 	    SmileSelector,
 	    SendButton,
 	    UploadPreviewPopup,
@@ -6456,7 +6566,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      showUploadPreviewPopup: false,
 	      previewPopupUploaderId: '',
 	      panelType: im_v2_const.TextareaPanelType.none,
-	      panelMessageId: 0
+	      panelContext: {
+	        messageId: 0
+	      }
 	    };
 	  },
 	  computed: {
@@ -6472,6 +6584,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    forwardMode() {
 	      return this.panelType === im_v2_const.TextareaPanelType.forward;
 	    },
+	    forwardEntityMode() {
+	      return this.panelType === im_v2_const.TextareaPanelType.forwardEntity;
+	    },
 	    editMode() {
 	      return this.panelType === im_v2_const.TextareaPanelType.edit;
 	    },
@@ -6479,7 +6594,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.panelType === im_v2_const.TextareaPanelType.market;
 	    },
 	    isDisabled() {
-	      return this.text.trim() === '' && !this.editMode && !this.forwardMode;
+	      return this.text.trim() === '' && !this.editMode && !this.forwardMode && !this.forwardEntityMode;
 	    },
 	    textareaPlaceholder() {
 	      if (!this.placeholder) {
@@ -6526,6 +6641,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.insertText, this.onInsertText);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.editMessage, this.onEditMessage);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.replyMessage, this.onReplyMessage);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.forwardEntity, this.onForwardEntity);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.sendMessage, this.onSendMessage);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.insertForward, this.onInsertForward);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.openUploadPreview, this.onOpenUploadPreview);
@@ -6542,6 +6658,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.insertText, this.onInsertText);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.editMessage, this.onEditMessage);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.replyMessage, this.onReplyMessage);
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.forwardEntity, this.onForwardEntity);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.sendMessage, this.onSendMessage);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.insertForward, this.onInsertForward);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.openUploadPreview, this.onOpenUploadPreview);
@@ -6572,26 +6689,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    handlePanelAction(text) {
 	      if (this.editMode && text === '') {
-	        void this.getMessageService().deleteMessage(this.panelMessageId);
+	        void this.getMessageService().deleteMessage(this.panelContext.messageId);
 	      } else if (this.editMode && text !== '') {
-	        this.getMessageService().editMessageText(this.panelMessageId, text);
+	        this.getMessageService().editMessageText(this.panelContext.messageId, text);
 	      } else if (this.forwardMode) {
 	        this.getSendingService().forwardMessages({
 	          text,
 	          dialogId: this.dialogId,
-	          forwardIds: [this.panelMessageId]
+	          forwardIds: this.panelContext.messagesIds
 	        });
+	      } else if (this.forwardEntityMode) {
+	        console.error('sending forwarded entity message');
 	      } else if (this.replyMode) {
 	        this.getSendingService().sendMessage({
 	          text,
 	          dialogId: this.dialogId,
-	          replyId: this.panelMessageId
+	          replyId: this.panelContext.messageId
 	        });
 	      }
 	    },
 	    clear() {
+	      var _this$mentionManager;
 	      this.text = '';
-	      this.mentionManager.clearMentionReplacements();
+	      (_this$mentionManager = this.mentionManager) == null ? void 0 : _this$mentionManager.clearMentionReplacements();
 	    },
 	    hasActiveMessageAction() {
 	      return MESSAGE_ACTION_PANELS.has(this.panelType);
@@ -6601,8 +6721,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.clear();
 	      }
 	      this.panelType = im_v2_const.TextareaPanelType.none;
-	      this.panelMessageId = 0;
-	      this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+	      this.panelContext = {
+	        messageId: 0
+	      };
+	      this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 	    },
 	    openEditPanel(messageId) {
 	      if (!this.withEdit) {
@@ -6613,13 +6735,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      this.panelType = im_v2_const.TextareaPanelType.edit;
-	      this.panelMessageId = messageId;
+	      this.panelContext.messageId = messageId;
 	      const mentions = this.mentionManager.extractMentions(message.text);
 	      this.mentionManager.setMentionReplacements(mentions);
 	      this.text = im_v2_lib_parser.Parser.prepareEdit(message);
 	      this.focus();
 	      this.draftManager.setDraftText(this.dialogId, this.text);
-	      this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+	      this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 	      this.draftManager.setDraftMentions(this.dialogId, mentions);
 	    },
 	    openReplyPanel(messageId) {
@@ -6627,16 +6749,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.clear();
 	      }
 	      this.panelType = im_v2_const.TextareaPanelType.reply;
-	      this.panelMessageId = messageId;
+	      this.panelContext.messageId = messageId;
 	      this.focus();
-	      this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+	      this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 	    },
-	    openForwardPanel(messageId) {
+	    openForwardPanel(messagesIds) {
 	      this.panelType = im_v2_const.TextareaPanelType.forward;
-	      this.panelMessageId = messageId;
+	      this.panelContext.messageId = 0;
+	      this.panelContext.messagesIds = messagesIds;
 	      this.clear();
 	      this.focus();
-	      this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+	      this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
+	    },
+	    async openForwardEntityPanel(entityConfig) {
+	      this.panelType = im_v2_const.TextareaPanelType.forwardEntity;
+	      this.panelContext.messageId = 0;
+	      this.panelContext.entityConfig = entityConfig;
+	      this.clear();
+	      this.focus();
 	    },
 	    toggleMarketPanel() {
 	      if (this.marketMode) {
@@ -6644,7 +6774,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      this.panelType = im_v2_const.TextareaPanelType.market;
-	      this.panelMessageId = 0;
+	      this.panelContext.messageId = 0;
 	    },
 	    async adjustTextareaHeight() {
 	      this.textareaHeight = 'auto';
@@ -6676,11 +6806,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const {
 	        text = '',
 	        panelType = im_v2_const.TextareaPanelType.none,
-	        panelMessageId = 0
+	        panelContext = {
+	          messageId: 0
+	        }
 	      } = await this.getDraftManager().getDraft(this.dialogId);
 	      this.text = text;
-	      this.panelType = panelType;
-	      this.panelMessageId = panelMessageId;
+	      if (this.panelType === im_v2_const.TextareaPanelType.none) {
+	        this.panelType = panelType;
+	      }
+	      this.panelContext = panelContext;
 	    },
 	    async onKeyDown(event) {
 	      if (this.showMention) {
@@ -6762,13 +6896,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const uploaderId = await this.getUploadingService().uploadFromInput({
 	        event,
 	        sendAsFile,
-	        autoUpload: !this.isChannelType,
 	        dialogId: this.dialogId
 	      });
-	      if (this.isChannelType) {
-	        this.showUploadPreviewPopup = true;
-	        this.previewPopupUploaderId = uploaderId;
-	      }
+	      this.showUploadPreviewPopup = true;
+	      this.previewPopupUploaderId = uploaderId;
 	    },
 	    onDiskFileSelect({
 	      files
@@ -6827,15 +6958,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	      this.openReplyPanel(messageId);
 	    },
+	    onForwardEntity(event) {
+	      const {
+	        dialogId,
+	        entityConfig
+	      } = event.getData();
+	      if (this.dialogId !== dialogId) {
+	        return;
+	      }
+	      this.openForwardEntityPanel(entityConfig);
+	    },
 	    onInsertForward(event) {
 	      const {
-	        messageId,
+	        messagesIds,
 	        dialogId
 	      } = event.getData();
 	      if (this.dialogId !== dialogId) {
 	        return;
 	      }
-	      this.openForwardPanel(messageId);
+	      this.openForwardPanel(messagesIds);
 	    },
 	    async onPaste(clipboardEvent) {
 	      if (!this.withUploadMenu) {
@@ -6844,7 +6985,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const uploaderId = await this.getUploadingService().uploadFromClipboard({
 	        clipboardEvent,
 	        dialogId: this.dialogId,
-	        autoUpload: false,
 	        imagesOnly: !this.isChannelType
 	      });
 	      if (!uploaderId) {
@@ -6867,7 +7007,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const {
 	        messageId
 	      } = event.getData();
-	      if (this.panelMessageId === messageId) {
+	      if (this.panelContext.messageId === messageId) {
 	        this.closePanel();
 	      }
 	    },
@@ -6969,8 +7109,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.showMention = true;
 	    },
 	    focus() {
-	      var _this$$refs;
-	      (_this$$refs = this.$refs) == null ? void 0 : _this$$refs.textarea.focus({
+	      var _this$$refs$textarea;
+	      (_this$$refs$textarea = this.$refs.textarea) == null ? void 0 : _this$$refs$textarea.focus({
 	        preventScroll: true
 	      });
 	    },
@@ -6993,14 +7133,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				<div @mousedown="onResizeStart" class="bx-im-textarea__drag-handle"></div>
 				<TextareaPanel
 					:type="panelType"
-					:messageId="panelMessageId"
+					:context="panelContext"
 					:dialogId="dialogId"
 					@close="closePanel"
 				/>
 				<div class="bx-im-textarea__content" ref="textarea-content">
 					<div class="bx-im-textarea__left">
 						<div v-if="withUploadMenu" class="bx-im-textarea__upload_container">
-							<UploadMenu @fileSelect="onFileSelect" @diskFileSelect="onDiskFileSelect" />
+							<UploadMenu 
+								:dialogId="dialogId" 
+								@fileSelect="onFileSelect" 
+								@diskFileSelect="onDiskFileSelect" 
+							/>
 						</div>
 						<textarea
 							v-model="text"
@@ -7021,7 +7165,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 					</div>
 					<div class="bx-im-textarea__right">
 						<div class="bx-im-textarea__action-panel">
-							<CreateEntityMenu v-if="withCreateMenu" :dialogId="dialogId" :textareaValue="text" />
 							<div
 								v-if="withMarket"
 								:title="loc('IM_TEXTAREA_ICON_APPLICATION')"
@@ -7059,5 +7202,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.ChatTextarea = ChatTextarea;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Calendar.Sharing,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=textarea.bundle.js.map

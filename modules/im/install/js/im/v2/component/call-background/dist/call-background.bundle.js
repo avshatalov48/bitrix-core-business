@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_vue3,ui_buttons,ui_fonts_opensans,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,im_v2_lib_desktopApi,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
+(function (exports,ui_vue3,ui_buttons,ui_fonts_opensans,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_lib_helpdesk,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -426,8 +426,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }, {
 	    key: "showHelpArticle",
 	    value: function showHelpArticle(articleCode) {
-	      var _window$BX$Helper;
-	      (_window$BX$Helper = window.BX.Helper) === null || _window$BX$Helper === void 0 ? void 0 : _window$BX$Helper.show("redirect=detail&code=".concat(articleCode));
+	      im_v2_lib_helpdesk.openHelpdeskArticle(articleCode);
 	    }
 	  }]);
 	  return LimitManager;
@@ -482,7 +481,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        tabs.push({
 	          id: TabId.mask,
 	          loc: 'BX_IM_CALL_BG_TAB_MASK',
-	          isNew: true
+	          isNew: false
 	        });
 	      }
 	      tabs.push({
@@ -1208,5 +1207,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CallBackground = CallBackground;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3,BX.UI,BX,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3,BX.UI,BX,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
 //# sourceMappingURL=call-background.bundle.js.map

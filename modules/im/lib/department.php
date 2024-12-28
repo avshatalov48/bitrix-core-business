@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\V2\Entity\User\UserCollection;
+
 class Department
 {
 	public static function getColleagues($userId = null, $options = array())
@@ -68,6 +70,8 @@ class Department
 
 		if ($userDataOption === 'Y')
 		{
+			$userCollection = new UserCollection($list);
+			$userCollection->fillOnlineData();
 			$result = Array();
 
 			$getOptions = Array();
@@ -76,9 +80,9 @@ class Department
 				$getOptions['JSON'] = 'Y';
 			}
 
-			foreach ($list as $userId)
+			foreach ($userCollection as $user)
 			{
-				$result[] = \Bitrix\Im\User::getInstance($userId)->getArray($getOptions);
+				$result[] = $user->getArray($getOptions);
 			}
 		}
 		else

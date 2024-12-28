@@ -14,6 +14,8 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Call\Settings;
+use Bitrix\Call\Integration\AI\CallAISettings;
 
 
 class Call extends Engine\Controller
@@ -170,6 +172,17 @@ class Call extends Engine\Controller
 		if ($isNew)
 		{
 			$response['isNew'] = $isNew;
+		}
+		if (Settings::isAIServiceEnabled())
+		{
+			$response['ai'] = [
+				'serviceEnabled' => Settings::isAIServiceEnabled(),
+				'settingsEnabled' => CallAISettings::isEnableBySettings(),
+				'recordingMinUsers' => CallAISettings::getRecordMinUsers(),
+				'agreementAccepted' => CallAISettings::isAgreementAccepted(),
+				'tariffAvailable' => CallAISettings::isTariffAvailable(),
+				'baasAvailable' => CallAISettings::isBaasServiceHasPackage(),
+			];
 		}
 
 		return $response;

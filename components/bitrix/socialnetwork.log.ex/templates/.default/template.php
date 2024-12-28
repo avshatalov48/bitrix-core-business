@@ -15,6 +15,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 $component = $this->getComponent();
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
@@ -737,3 +738,38 @@ if (defined("BITRIX24_INDEX_COMPOSITE"))
 {
 	$dynamicArea->finishDynamicArea();
 }
+?>
+
+<script>
+	<?php
+		$userId = (int)($arResult["currentUserId"] ?? 0);
+		$feedAiPromo = new \Bitrix\Socialnetwork\Promotion\FeedAi();
+		$chatAiPromo = new \Bitrix\Socialnetwork\Promotion\ChatAi();
+		$shouldShowFeedAiPromo = $feedAiPromo->shouldShow($userId);
+		$shouldShowChatAiPromo = $chatAiPromo->shouldShow($userId);
+		$shouldShowAiPromo = $shouldShowFeedAiPromo || $shouldShowChatAiPromo;
+
+		if ($shouldShowAiPromo)
+		{
+			Asset::getInstance()->addJs('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/built-script.js');
+			UI\Extension::load([
+				'ui.promo-video-popup',
+				'ui.banner-dispatcher',
+				'ai.copilot-promo-popup',
+			]);
+		}
+	?>
+
+	<?php if ($shouldShowAiPromo): ?>
+		BX.ready(() => (new BX.Socialnetwork.Log.Ex.FeedAiPromo({
+			feedPromo: {
+				type: '<?= CUtil::JSEscape($feedAiPromo->getPromotionType()->value) ?>',
+				isShown: <?= \Bitrix\Main\Web\Json::encode(!$shouldShowFeedAiPromo) ?>,
+			},
+			chatPromo: {
+				type: '<?= CUtil::JSEscape($chatAiPromo->getPromotionType()->value) ?>',
+				isShown: <?= \Bitrix\Main\Web\Json::encode(!$shouldShowChatAiPromo) ?>,
+			},
+		})).show());
+	<?php endif; ?>
+</script>

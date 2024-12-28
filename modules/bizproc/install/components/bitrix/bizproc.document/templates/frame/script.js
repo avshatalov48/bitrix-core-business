@@ -172,37 +172,36 @@
 			BX.bind(button, 'click', this.onApplyEventsClick.bind(this));
 		},
 
-		initStartButton: function()
+		initStartButton()
 		{
-			var button = this.getNode('start-button');
+			const button = this.getNode('start-button');
 			if (button)
 			{
-				var Starter = new BX.Bizproc.Starter({
-					moduleId: this.config.moduleId,
-					entity: this.config.entity,
-					documentType: this.config.documentType,
-					documentId: this.config.documentId
-				});
-
-				BX.addCustomEvent(Starter, 'onAfterStartWorkflow', this.onAfterStartWorkflow.bind(this));
-				BX.bind(button, 'click', this.onStartClick.bind(this, button, Starter));
+				BX.Event.bind(button, 'click', this.onStartClick.bind(this));
 			}
 		},
 
-		onAfterStartWorkflow: function(event)
+		onAfterStartWorkflow(event)
 		{
 			this.reloadWorkflows();
 
+			if (
+				!event
+				|| !BX.Type.isFunction(event.getData)
+				|| !BX.Type.isStringFilled(event.getData.workflowId))
+			{
+				return;
+			}
+
 			this.callAction(
 				'get_completed_workflow',
-				{offset: 0, workflowId: event.getData().workflow_id},
-				function(data)
-				{
+				{ offset: 0, workflowId: event.getData().workflowId },
+				(data) => {
 					if (data.workflow)
 					{
 						this.prependCompletedWorkflows([data.workflow]);
 					}
-				}.bind(this)
+				},
 			);
 		},
 
@@ -300,9 +299,17 @@
 			}
 		},
 
-		onStartClick: function(button, starter, e)
+		onStartClick()
 		{
-			starter.showTemplatesMenu(button);
+			BX.Bizproc.Workflow.Starter.showTemplates(
+				{
+					signedDocumentType: this.config.signedDocumentType,
+					signedDocumentId: this.config.signedDocumentId,
+				},
+				{
+					callback: this.onAfterStartWorkflow.bind(this),
+				},
+			);
 		},
 
 		onLoadCompletedClick: function(button, e)

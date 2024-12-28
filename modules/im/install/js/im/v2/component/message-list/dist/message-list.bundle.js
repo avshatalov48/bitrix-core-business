@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_quote,im_v2_component_animation,im_v2_lib_copilot,im_v2_lib_messageComponentManager,im_public,im_v2_lib_channel,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_entityCreator,im_v2_provider_service,im_v2_lib_market,im_v2_lib_utils,im_v2_lib_permission,im_v2_lib_confirm,ui_notification,main_polyfill_intersectionobserver,im_v2_component_elements,main_core,main_core_events,im_v2_lib_analytics,im_v2_lib_feature,im_v2_application_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_copilot_creation,im_v2_component_message_copilot_answer,im_v2_component_message_copilot_addedUsers,im_v2_component_message_support_vote,im_v2_component_message_support_sessionNumber,im_v2_component_message_support_chatCreation,im_v2_component_message_conferenceCreation,im_v2_component_message_supervisor_updateFeature,im_v2_component_message_supervisor_enableFeature,im_v2_component_message_sign,im_v2_component_message_checkIn,im_v2_component_message_ownChatCreation,im_v2_component_message_zoomInvite,im_v2_component_message_generalChatCreation,im_v2_component_message_generalChannelCreation,im_v2_component_message_channelCreation,im_v2_component_message_call) {
+(function (exports,im_v2_lib_quote,im_v2_component_animation,im_v2_lib_messageComponentManager,im_v2_lib_channel,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_entityCreator,im_v2_provider_service,im_v2_lib_market,im_v2_lib_utils,im_v2_lib_confirm,ui_notification,main_polyfill_intersectionobserver,im_v2_component_elements,im_v2_lib_copilot,im_v2_lib_permission,main_core,main_core_events,im_v2_lib_analytics,im_v2_lib_feature,im_v2_application_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_copilot_creation,im_v2_component_message_copilot_answer,im_v2_component_message_copilot_addedUsers,im_v2_component_message_support_vote,im_v2_component_message_support_sessionNumber,im_v2_component_message_support_chatCreation,im_v2_component_message_conferenceCreation,im_v2_component_message_supervisor_updateFeature,im_v2_component_message_supervisor_enableFeature,im_v2_component_message_sign,im_v2_component_message_checkIn,im_v2_component_message_ownChatCreation,im_v2_component_message_zoomInvite,im_v2_component_message_generalChatCreation,im_v2_component_message_generalChannelCreation,im_v2_component_message_channelCreation,imopenlines_v2_component_message_startDialog,imopenlines_v2_component_message_hidden,imopenlines_v2_component_message_feedbackForm,im_v2_component_message_call) {
 	'use strict';
 
 	// @vue/component
@@ -30,11 +30,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	class AvatarMenu extends im_v2_lib_menu.BaseMenu {
+	class AvatarMenu extends im_v2_lib_menu.UserMenu {
 	  constructor() {
 	    super();
 	    this.id = 'bx-im-avatar-context-menu';
-	    this.permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
 	  }
 	  getMenuOptions() {
 	    return {
@@ -47,77 +46,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getMenuItems() {
 	    return [this.getMentionItem(), this.getSendItem(), this.getProfileItem(), this.getKickItem()];
 	  }
-	  getMentionItem() {
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_MENTION_2'),
-	      onclick: () => {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
-	          mentionText: this.context.user.name,
-	          mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(this.context.user.id, this.context.user.name),
-	          dialogId: this.context.dialog.dialogId,
-	          isMentionSymbol: false
-	        });
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getSendItem() {
-	    if (this.context.dialog.type === im_v2_const.ChatType.user) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_SEND_MESSAGE'),
-	      onclick: () => {
-	        im_public.Messenger.openChat(this.context.user.id);
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getProfileItem() {
-	    if (this.isBot()) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_OPEN_PROFILE'),
-	      href: im_v2_lib_utils.Utils.user.getProfileLink(this.context.user.id),
-	      onclick: () => {
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getKickItem() {
-	    const canKick = this.permissionManager.canPerformAction(im_v2_const.ChatActionType.kick, this.context.dialog.dialogId);
-	    if (!canKick) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_KICK'),
-	      onclick: async () => {
-	        this.menuInstance.close();
-	        const userChoice = await im_v2_lib_confirm.showKickUserConfirm();
-	        if (userChoice === true) {
-	          const chatService = new im_v2_provider_service.ChatService();
-	          chatService.kickUserFromChat(this.context.dialog.dialogId, this.context.user.id);
-	        }
-	      }
-	    };
-	  }
-	  isUser() {
-	    return this.store.getters['chats/isUser'](this.context.user.id);
-	  }
-	  isBot() {
-	    if (!this.isUser()) {
-	      return false;
-	    }
-	    const user = this.store.getters['users/get'](this.context.user.id);
-	    return user.bot === true;
-	  }
 	}
 
 	var _isOwnMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOwnMessage");
 	var _isDeletedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletedMessage");
 	var _getMessageFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessageFile");
 	var _isForwardedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isForwardedMessage");
+	var _isRealMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isRealMessage");
 	var _onDelete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onDelete");
 	var _isDeletionCancelled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletionCancelled");
 	class MessageMenu extends im_v2_lib_menu.BaseMenu {
@@ -128,6 +63,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _onDelete, {
 	      value: _onDelete2
+	    });
+	    Object.defineProperty(this, _isRealMessage, {
+	      value: _isRealMessage2
 	    });
 	    Object.defineProperty(this, _isForwardedMessage, {
 	      value: _isForwardedMessage2
@@ -154,7 +92,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getMenuItems() {
-	    return [this.getReplyItem(), this.getCopyItem(), this.getCopyLinkItem(), this.getCopyFileItem(), this.getPinItem(), this.getForwardItem(), this.getDelimiter(), this.getMarkItem(), this.getFavoriteItem(), this.getDelimiter(), this.getCreateItem(), this.getDelimiter(), this.getDownloadFileItem(), this.getSaveToDisk(), this.getDelimiter(), this.getEditItem(), this.getDeleteItem()];
+	    return [this.getReplyItem(), this.getCopyItem(), this.getCopyLinkItem(), this.getCopyFileItem(), this.getPinItem(), this.getForwardItem(), this.getDelimiter(), this.getMarkItem(), this.getFavoriteItem(), this.getDelimiter(), this.getCreateItem(), this.getDelimiter(), this.getDownloadFileItem(), this.getSaveToDisk(), this.getDelimiter(), this.getEditItem(), this.getDeleteItem(), this.getDelimiter(), this.getSelectItem()];
+	  }
+	  getSelectItem() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]() || !babelHelpers.classPrivateFieldLooseBase(this, _isRealMessage)[_isRealMessage]()) {
+	      return null;
+	    }
+	    return {
+	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SELECT'),
+	      onclick: () => {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.openBulkActionsMode, {
+	          messageId: this.context.id
+	        });
+	        this.menuInstance.close();
+	      }
+	    };
 	  }
 	  getReplyItem() {
 	    return {
@@ -169,14 +121,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getForwardItem() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]() || main_core.Type.isString(this.context.id)) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]() || !babelHelpers.classPrivateFieldLooseBase(this, _isRealMessage)[_isRealMessage]()) {
 	      return null;
 	    }
 	    return {
 	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_FORWARD'),
 	      onclick: () => {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.showForwardPopup, {
-	          messageId: this.context.id
+	          messagesIds: [this.context.id]
 	        });
 	        this.menuInstance.close();
 	      }
@@ -232,7 +184,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getPinItem() {
-	    const canPin = im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.pinMessage, this.context.dialogId);
+	    const canPin = im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.pinMessage, this.context.dialogId);
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]() || !canPin) {
 	      return null;
 	    }
@@ -343,7 +295,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return null;
 	    }
 	    const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	    const canDeleteOthersMessage = permissionManager.canPerformAction(im_v2_const.ChatActionType.deleteOthersMessage, this.context.dialogId);
+	    const canDeleteOthersMessage = permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.deleteOthersMessage, this.context.dialogId);
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() && !canDeleteOthersMessage) {
 	      return null;
 	    }
@@ -403,7 +355,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      onclick: function () {
 	        void this.diskService.save(file.id).then(() => {
 	          BX.UI.Notification.Center.notify({
-	            content: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS')
+	            content: main_core.Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS')
 	          });
 	        });
 	        this.menuInstance.close();
@@ -432,6 +384,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _isForwardedMessage2() {
 	  return main_core.Type.isStringFilled(this.context.forward.id);
+	}
+	function _isRealMessage2() {
+	  return this.store.getters['messages/isRealMessage'](this.context.id);
 	}
 	async function _onDelete2() {
 	  const {
@@ -611,11 +566,81 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
+	const forwardMessageComponents = new Set([im_v2_const.MessageComponent.default, im_v2_const.MessageComponent.copilotMessage, im_v2_const.MessageComponent.checkIn, im_v2_const.MessageComponent.FeedbackFormMessage, im_v2_const.MessageComponent.ImOpenLinesMessage, im_v2_const.MessageComponent.ImOpenLinesForm]);
+
+	// @vue/component
+	const MessageSelectButton = {
+	  name: 'MessageSelectButton',
+	  props: {
+	    message: {
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    messageItem() {
+	      return this.message;
+	    },
+	    selectedMessages() {
+	      return this.$store.getters['messages/select/getCollection'];
+	    },
+	    bulkActionMessageLimit() {
+	      const settings = main_core.Extension.getSettings('im.v2.component.message-list');
+	      return settings.get('multipleActionMessageLimit');
+	    },
+	    isMessageSelected() {
+	      return this.$store.getters['messages/select/isMessageSelected'](this.messageItem.id);
+	    },
+	    isSelectionLimitReached() {
+	      return this.selectedMessages.size === this.bulkActionMessageLimit && !this.isMessageSelected;
+	    },
+	    isRealMessage() {
+	      return this.$store.getters['messages/isRealMessage'](this.messageItem.id);
+	    },
+	    canSelectMessage() {
+	      if (this.messageItem.isDeleted || !this.isRealMessage) {
+	        return false;
+	      }
+	      return forwardMessageComponents.has(this.messageItem.componentId);
+	    }
+	  },
+	  methods: {
+	    onSelectMessage() {
+	      if (!this.canSelectMessage) {
+	        return;
+	      }
+	      if (this.isSelectionLimitReached) {
+	        this.showNotification(this.loc('IM_MESSAGE_LIST_MAX_LIMIT_SELECTED_MESSAGES'));
+	        return;
+	      }
+	      this.$store.dispatch('messages/select/toggle', this.messageItem.id);
+	    },
+	    showNotification(text) {
+	      BX.UI.Notification.Center.notify({
+	        content: text
+	      });
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div @click="onSelectMessage" class="bx-im-message-list-select-button__container">
+			<div
+				v-if="canSelectMessage"
+				class="bx-im-message-list-select-button__checkbox-circle"
+				:class="{'--selected': isMessageSelected}"
+			/>
+		</div>
+	`
+	};
+
 	// @vue/component
 	const AuthorGroup = {
 	  name: 'AuthorGroup',
 	  components: {
-	    MessageAvatar: im_v2_component_elements.MessageAvatar
+	    MessageAvatar: im_v2_component_elements.MessageAvatar,
+	    MessageSelectButton
 	  },
 	  props: {
 	    item: {
@@ -625,47 +650,110 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    contextDialogId: {
 	      type: String,
 	      required: true
+	    },
+	    withAvatarMenu: {
+	      type: Boolean,
+	      default: true
 	    }
 	  },
 	  emits: ['avatarClick'],
-	  data() {
-	    return {};
-	  },
 	  computed: {
 	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    contextDialog() {
+	      return this.$store.getters['chats/get'](this.contextDialogId, true);
+	    },
+	    contextUser() {
+	      return this.$store.getters['users/get'](this.contextDialogId, true);
+	    },
+	    isUser() {
+	      return this.contextDialog.type === im_v2_const.ChatType.user;
+	    },
+	    isBulkActionsMode() {
+	      return this.$store.getters['messages/select/getBulkActionsMode'];
+	    },
 	    authorGroup() {
 	      return this.item;
+	    },
+	    authorDialogId() {
+	      return this.authorGroup.avatar.avatarId;
 	    },
 	    firstMessageIdInAuthorGroup() {
 	      // this is potentially dangerous.
 	      // for now, we always have the same avatar in one authorGroup
 	      // in future it can be different: several support answers (with different avatars) in one authorGroup
 	      return this.authorGroup.messages[0].id;
+	    },
+	    avatarMenuAvailable() {
+	      if (!this.withAvatarMenu) {
+	        return false;
+	      }
+	      const authorUser = this.$store.getters['users/get'](this.authorDialogId);
+	      if (!authorUser) {
+	        return false;
+	      }
+	      const copilotManager = new im_v2_lib_copilot.CopilotManager();
+	      if (copilotManager.isCopilotBot(this.authorDialogId)) {
+	        return false;
+	      }
+	      const isCurrentUser = authorUser.id === im_v2_application_core.Core.getUserId();
+	      if (isCurrentUser) {
+	        return false;
+	      }
+	      const isBotChat = this.isUser && this.contextUser.type === im_v2_const.UserType.bot;
+	      if (isBotChat) {
+	        return false;
+	      }
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      return permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.openAvatarMenu, this.contextDialogId);
+	    },
+	    containerClasses() {
+	      const classes = [`--${this.authorGroup.messageType}`];
+	      if (!this.avatarMenuAvailable) {
+	        classes.push('--no-menu');
+	      }
+	      if (this.isBulkActionsMode) {
+	        classes.push('--is-bulk-actions-mode');
+	      }
+	      if (this.authorGroup.avatar.isNeeded) {
+	        classes.push('--has-avatar');
+	      }
+	      return classes;
 	    }
 	  },
 	  methods: {
+	    isAvatarNeeded(index) {
+	      const lastIndexMessageInGroup = this.authorGroup.messages.length - 1;
+	      return this.authorGroup.avatar.isNeeded && index === lastIndexMessageInGroup;
+	    },
 	    onAvatarClick(event) {
+	      if (!this.avatarMenuAvailable) {
+	        return;
+	      }
 	      this.$emit('avatarClick', {
 	        dialogId: this.authorGroup.avatar.avatarId,
 	        $event: event
 	      });
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
 	  },
 	  template: `
-		<div class="bx-im-message-list-author-group__container" :class="'--' + authorGroup.messageType">
-			<div v-if="authorGroup.avatar.isNeeded" class="bx-im-message-list-author-group__avatar">
-				<MessageAvatar
-					:messageId="firstMessageIdInAuthorGroup"
-					:authorId="authorGroup.avatar.avatarId"
-					:size="AvatarSize.L"
-					@click="onAvatarClick"
-				/>
-			</div>
-			<div class="bx-im-message-list__content">
-				<template v-for="(message, index) in authorGroup.messages">
-					<slot name="message" :message="message" :index="index"></slot>
-				</template>
-			</div>
+		<div class="bx-im-message-list-author-group__container" :class="containerClasses">
+			<template v-for="(message, index) in authorGroup.messages">
+				<Transition name="bx-im-select-button-transition">
+					<MessageSelectButton v-if="isBulkActionsMode" :message="message" />
+				</Transition>
+				<div v-if="isAvatarNeeded(index)" class="bx-im-message-list-author-group__avatar">
+					<MessageAvatar
+						:messageId="firstMessageIdInAuthorGroup"
+						:authorId="authorGroup.avatar.avatarId"
+						:size="AvatarSize.L"
+						@click="onAvatarClick"
+					/>
+				</div>
+				<slot name="message" :message="message" :index="index"></slot>
+			</template>
 		</div>
 	`
 	};
@@ -1127,7 +1215,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  GeneralChatCreationMessage: im_v2_component_message_generalChatCreation.GeneralChatCreationMessage,
 	  GeneralChannelCreationMessage: im_v2_component_message_generalChannelCreation.GeneralChannelCreationMessage,
 	  ChannelCreationMessage: im_v2_component_message_channelCreation.ChannelCreationMessage,
-	  CallMessage: im_v2_component_message_call.CallMessage
+	  CallMessage: im_v2_component_message_call.CallMessage,
+	  StartDialogMessage: imopenlines_v2_component_message_startDialog.StartDialogMessage,
+	  FeedbackFormMessage: imopenlines_v2_component_message_feedbackForm.FeedbackFormMessage,
+	  HiddenMessage: imopenlines_v2_component_message_hidden.HiddenMessage
 	};
 
 	// @vue/component
@@ -1247,33 +1338,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        dialogId: this.dialogId
 	      });
 	    },
-	    needToShowAvatarMenuFor(user) {
-	      if (!user) {
-	        return false;
-	      }
-	      const isCurrentUser = user.id === im_v2_application_core.Core.getUserId();
-	      const isBotChat = this.isUser && this.user.bot === true;
-	      return !isCurrentUser && !isBotChat;
-	    },
 	    onAvatarClick(params) {
-	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.openAvatarMenu, this.dialogId)) {
-	        return;
-	      }
 	      const {
 	        dialogId,
 	        $event: event
 	      } = params;
 	      const user = this.$store.getters['users/get'](dialogId);
-	      if (!this.needToShowAvatarMenuFor(user)) {
-	        return;
-	      }
 	      if (im_v2_lib_utils.Utils.key.isAltOrOption(event)) {
 	        this.insertMention(user);
-	        return;
-	      }
-	      const copilotManager = new im_v2_lib_copilot.CopilotManager();
-	      if (copilotManager.isCopilotBot(dialogId)) {
 	        return;
 	      }
 	      this.avatarMenu.openMenu({
@@ -1283,7 +1355,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    onMessageContextMenuClick(eventData) {
 	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.openMessageMenu, this.dialogId)) {
+	      if (!permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.openMessageMenu, this.dialogId)) {
 	        return;
 	      }
 	      const {
@@ -1392,5 +1464,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.MessageComponents = MessageComponents;
 	exports.CollectionManager = CollectionManager;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Component.Elements,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.Messenger.v2.Component.Message));
 //# sourceMappingURL=message-list.bundle.js.map

@@ -6,7 +6,7 @@ use Bitrix\Main\Analytics\AnalyticsEvent;
 
 class Analytics
 {
-	private static ?self $instance = null;
+	protected static ?array $instances = [];
 
 	public const TOOL_FEED = 'feed';
 
@@ -33,14 +33,14 @@ class Analytics
 	public const STATUS_SUCCESS = 'success';
 	public const STATUS_ERROR = 'error';
 
-	public static function getInstance(): self
+	public static function getInstance(): static
 	{
-		if (!self::$instance)
+		if (!isset(static::$instances[static::class]))
 		{
-			self::$instance = new self();
+			static::$instances[static::class] = new static();
 		}
 
-		return self::$instance;
+		return static::$instances[static::class];
 	}
 
 	public static function getTools(): array
@@ -157,9 +157,9 @@ class Analytics
 		);
 	}
 
-	private function sendAnalytics(
+	protected function sendAnalytics(
 		AnalyticsEvent $analyticsEvent,
-		string $type,
+		?string $type = null,
 		?string $section = null,
 		?string $element = null,
 		?string $subSection = null,
@@ -169,37 +169,38 @@ class Analytics
 	{
 		$analyticsEvent->setStatus($status ? self::STATUS_SUCCESS : self::STATUS_ERROR);
 
-		if (in_array($section, self::getTypes(), true))
+		if (!empty($type))
 		{
 			$analyticsEvent->setType($type);
 		}
 
-		if (in_array($section, self::getSections(), true))
+		if (!empty($section))
 		{
 			$analyticsEvent->setSection($section);
 		}
-		if (in_array($element, self::getElements(), true))
+		if (!empty($element))
 		{
 			$analyticsEvent->setElement($element);
 		}
-		if (in_array($subSection, self::getSubSections(), true))
+		if (!empty($subSection))
 		{
 			$analyticsEvent->setSubSection($subSection);
 		}
 
-		foreach (range(1, 5) as $i)
+		foreach ($params as $pName => $pValue)
 		{
-			$paramKey = 'p' . $i;
-			$methodName = 'setP' . $i;
-
-			if (
-				!empty($params[$paramKey])
-				&& is_string($params[$paramKey])
-				&& method_exists($analyticsEvent, $methodName)
-			)
+			$setter = 'set' . ucfirst($pName);
+			if (!is_string($pValue) || empty($pValue))
 			{
-				$analyticsEvent->$methodName($params[$paramKey]);
+				continue;
 			}
+
+			if (!method_exists($analyticsEvent, $setter))
+			{
+				continue;
+			}
+
+			$analyticsEvent->$setter($pValue);
 		}
 
 		$analyticsEvent->send();

@@ -3,20 +3,21 @@
 namespace Bitrix\Im\V2\Integration\HumanResources\Department;
 
 use Bitrix\HumanResources\Compatibility\Utils\DepartmentBackwardAccessCode;
+use Bitrix\HumanResources\Contract\Repository\NodeRepository;
+use Bitrix\HumanResources\Contract\Repository\StructureRepository;
+use Bitrix\HumanResources\Contract\Service\NodeMemberService;
+use Bitrix\HumanResources\Contract\Service\NodeService;
 use Bitrix\HumanResources\Enum\DepthLevel;
 use Bitrix\HumanResources\Enum\NodeActiveFilter;
 use Bitrix\HumanResources\Item\Node;
-use Bitrix\HumanResources\Repository\NodeRepository;
-use Bitrix\HumanResources\Repository\StructureRepository;
 use Bitrix\HumanResources\Service\Container;
-use Bitrix\HumanResources\Service\NodeMemberService;
-use Bitrix\HumanResources\Service\NodeService;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
 use Bitrix\Main\Config\Option;
 
 class Department extends BaseDepartment
 {
 	protected static ?IDepartment $instance = null;
+
 	protected NodeRepository $nodeRepository;
 	protected NodeMemberService $nodeMemberService;
 	protected StructureRepository $structureRepository;

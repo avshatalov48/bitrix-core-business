@@ -4,6 +4,9 @@ namespace Bitrix\Bizproc\UI;
 
 use Bitrix\Bizproc\Api\Data\UserService\UsersToGet;
 use Bitrix\Bizproc\Api\Service\UserService;
+use Bitrix\Bizproc\Api\Request\WorkflowFacesService\GetDataRequest;
+use Bitrix\Bizproc\Api\Service\WorkflowAccessService;
+use Bitrix\Bizproc\Api\Service\WorkflowFacesService;
 use Bitrix\Bizproc\UI\Helpers\DurationFormatter;
 use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Bizproc\Workflow\WorkflowState;
@@ -31,6 +34,7 @@ class WorkflowFacesView implements \JsonSerializable
 	public function __construct(string $workflowId, ?int $runningTaskId = null)
 	{
 		$this->workflowId = $workflowId;
+		$this->runningTaskId = max($runningTaskId ?? 0, 0);
 
 		$this->loadWorkflow();
 		$this->loadTasks($runningTaskId);
@@ -140,6 +144,65 @@ class WorkflowFacesView implements \JsonSerializable
 		}
 	}
 
+	public function jsonSerialize(): array
+	{
+		$workflowFacesService = new WorkflowFacesService(
+			new WorkflowAccessService()
+		);
+
+		$request = new GetDataRequest(
+			workflowId: $this->workflowId,
+			runningTaskId: $this->runningTaskId,
+			skipAccessCheck: true,
+		);
+
+		$data = $workflowFacesService->getDataBySteps($request);
+		if (!$data->isSuccess())
+		{
+			return [];
+		}
+
+		$this->loadUsersView($data->getUniqueUserIds());
+
+		$steps = [];
+		foreach ($data->getSteps() as $step)
+		{
+			if ($step)
+			{
+				$stepData = $step->getData();
+				$stepData['avatarsData'] = $this->getStepAvatars($step->getAvatars());
+
+				if ($step->getDuration() <= 0)
+				{
+					$stepData['duration'] = $step::getEmptyDurationText();
+				}
+
+				$steps[] = $stepData;
+			}
+		}
+
+		$result = [
+			'workflowId' => $this->workflowId,
+			'steps' => $steps,
+			'timeStep' => $data->getTimeStep()?->getData(),
+			'isWorkflowFinished' => $data->getIsWorkflowFinished(),
+			'avatars' => $this->getAvatars(),
+			'statuses' => $this->getStatuses(),
+			'time' => $this->getDuration(),
+			'completedTaskCount' => $this->completedTasksCount,
+			'workflowIsCompleted' => $this->workflowIsCompleted,
+			'runningTaskId' => $this->runningTaskId,
+		];
+
+		$progressBox = $data->getProgressBox();
+		if ($progressBox && $progressBox->getProgressTasksCount() > 0)
+		{
+			$result['progressBox'] = $progressBox->getData();
+		}
+
+		return $result;
+	}
+
 	private function loadUsersView(): void
 	{
 		if (!$this->workflowId)
@@ -183,16 +246,15 @@ class WorkflowFacesView implements \JsonSerializable
 		}
 	}
 
-	public function jsonSerialize(): array
+	private function getStepAvatars(array $userIds): array
 	{
-		return [
-			'avatars' => $this->getAvatars(),
-			'statuses' => $this->getStatuses(),
-			'time' => $this->getDuration(),
-			'completedTaskCount' => $this->completedTasksCount,
-			'workflowIsCompleted' => $this->workflowIsCompleted,
-			'runningTaskId' => $this->runningTaskId,
-		];
+		$result = [];
+		foreach ($userIds as $userId)
+		{
+			$result[] = $this->getUserById((int)$userId);
+		}
+
+		return $result;
 	}
 
 	private function getAvatars(): array
@@ -280,12 +342,15 @@ class WorkflowFacesView implements \JsonSerializable
 			$totalDuration = $authorDuration + $completedDuration + $doneDuration;
 		}
 
+		$currentDuration = $this->getCurrentDuration();
+
 		return [
 			'author' => $authorDuration,
 			'running' => $runningDuration,
 			'completed' => $completedDuration,
 			'done' => $doneDuration,
 			'total' => $totalDuration !== null ? DurationFormatter::roundUpTimeInSeconds($totalDuration) : null,
+			'current' => $currentDuration !== null ? DurationFormatter::roundUpTimeInSeconds($currentDuration) : null,
 		];
 	}
 
@@ -361,6 +426,13 @@ class WorkflowFacesView implements \JsonSerializable
 				? ($finishWorkflowTimestamp - $startWorkflowTimestamp)
 				: null
 		);
+	}
+
+	private function getCurrentDuration(): ?int
+	{
+		$startWorkflowTimestamp = $this->getDateTimeTimestamp($this->workflow?->getStarted());
+
+		return $startWorkflowTimestamp ? time() - $startWorkflowTimestamp : null;
 	}
 
 	private function getRunningTask(): array|false

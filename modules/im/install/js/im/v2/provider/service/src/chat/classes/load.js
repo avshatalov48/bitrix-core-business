@@ -1,3 +1,4 @@
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
 import { Loc, Type } from 'main.core';
 import { Store } from 'ui.vue3.vuex';
 
@@ -11,6 +12,7 @@ import { UserManager } from 'im.v2.lib.user';
 import { LayoutManager } from 'im.v2.lib.layout';
 import { Utils } from 'im.v2.lib.utils';
 import { CopilotManager } from 'im.v2.lib.copilot';
+import { OpenLinesManager } from 'imopenlines.v2.lib.openlines';
 
 import { ChatDataExtractor } from './chat-data-extractor';
 
@@ -228,12 +230,21 @@ export class LoadService
 		const copilotManager = new CopilotManager();
 		const copilotPromise = copilotManager.handleChatLoadResponse(extractor.getCopilot());
 
+		const openLinesPromise = OpenLinesManager.handleChatLoadResponse(extractor.getSession());
+
+		const collabPromise = this.#store.dispatch('chats/collabs/set', {
+			chatId: extractor.getChatId(),
+			collabInfo: extractor.getCollabInfo(),
+		});
+
 		await Promise.all([
 			chatsPromise,
 			filesPromise,
 			usersPromise,
 			messagesPromise,
 			copilotPromise,
+			openLinesPromise,
+			collabPromise,
 		]);
 
 		return { dialogId: extractor.getDialogId(), chatId: extractor.getChatId() };
@@ -272,6 +283,13 @@ export class LoadService
 
 	#needRedirectToOpenLinesLayout(actionResult: ChatLoadRestResult): boolean
 	{
+		const optionOpenLinesV2Activated = FeatureManager.isFeatureAvailable(Feature.openLinesV2);
+
+		if (optionOpenLinesV2Activated)
+		{
+			return false;
+		}
+
 		const extractor = new ChatDataExtractor(actionResult);
 
 		return extractor.isOpenlinesChat() && Type.isStringFilled(extractor.getDialogId());

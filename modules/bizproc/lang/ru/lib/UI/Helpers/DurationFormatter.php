@@ -1,0 +1,3 @@
+<?php
+
+$MESS['BIZPROC_UI_DURATION_FORMATTER_DURATION_ZERO'] = 'Мгновенно';

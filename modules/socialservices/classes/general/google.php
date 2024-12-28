@@ -743,11 +743,6 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 
 		$result = $http->get($url);
 
-		if (!defined("BX_UTF"))
-		{
-			$result = \Bitrix\Main\Text\Encoding::convertEncoding($string, $charset_in, $charset_out)($result, "utf-8", LANG_CHARSET);
-		}
-
 		if((int)$http->getStatus() === 200)
 		{
 			$obXml = new \CDataXML();

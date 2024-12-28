@@ -3,6 +3,7 @@
 namespace Bitrix\Im\V2\Chat;
 
 use Bitrix\Im\V2\Entity\User\User;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
@@ -11,9 +12,28 @@ class OpenChannelChat extends ChannelChat
 {
 	public const PULL_TAG_SHARED_LIST = 'IM_SHARED_CHANNEL_LIST';
 
-	protected function sendMessageUsersAdd(array $usersToAdd, bool $skipRecent = false): void
+	protected function sendMessageUsersAdd(array $usersToAdd, AddUsersConfig $config): void
 	{
-		return;
+		parent::sendMessageUsersAdd($this->getExtranetUsersToAdd($usersToAdd), $config);
+	}
+
+	protected function getExtranetUsersToAdd(array $usersToAdd): array
+	{
+		if (!$this->getExtranet())
+		{
+			return [];
+		}
+
+		$extranetUsersToAdd = [];
+		foreach ($usersToAdd as $userId)
+		{
+			if (User::getInstance($userId)->isExtranet())
+			{
+				$extranetUsersToAdd[$userId] = $userId;
+			}
+		}
+
+		return $extranetUsersToAdd;
 	}
 
 	protected function sendMessageUserDelete(int $userId, bool $skipRecent = false): void

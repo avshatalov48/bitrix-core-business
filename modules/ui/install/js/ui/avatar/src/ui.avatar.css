@@ -2,12 +2,20 @@
 	display: inline-flex;
 	position: relative;
 	--ui-avatar-size: 102px;
-	--ui-avatar-base-color: #b15ef5;
+	--ui-avatar-base-color: #c6cdd3;
+	--ui-avatar-base-color-rgb: 198, 205, 211;
 	--ui-avatar-color-collab: #19cc45;
+	--ui-avatar-color-collab-rgb: 25, 204, 69;
 	--ui-avatar-color-extranet: #faa72c;
+	--ui-avatar-color-extranet-rgb: 250, 167, 44;
+	--ui-avatar-color-accent: #0075ff;
+	--ui-avatar-color-accent-rgb: 0, 117, 255;
 	--ui-avatar-border-inner-color: #fff;
+	--ui-avatar-border-inner-color-rgb: 255, 255, 255;
 	--ui-avatar-color-gradient-start: #86ffc7;
+	--ui-avatar-color-gradient-start-rgb: 134, 255, 199;
 	--ui-avatar-color-gradient-stop: #0075ff;
+	--ui-avatar-color-gradient-stop-rgb: 0, 117, 255;
 
 	height: var(--ui-avatar-size);
 	width: var(--ui-avatar-size);
@@ -41,8 +49,20 @@
 	fill: #fff;
 }
 
+.ui-avatar.--guest {
+	--ui-avatar-base-color-rgb: var(--ui-avatar-color-collab-rgb);
+}
+
+.ui-avatar.--extranet {
+	--ui-avatar-base-color-rgb: var(--ui-avatar-color-extranet-rgb);
+}
+
+.ui-avatar.--accent {
+	--ui-avatar-base-color-rgb: var(--ui-avatar-color-accent-rgb);
+}
+
 .ui-avatar-base {
-	fill: var(--ui-avatar-base-color);
+	fill: rgba(var(--ui-avatar-base-color-rgb), 1);
 	d: path("M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z");
 }
 
@@ -73,23 +93,23 @@
 .ui-avatar.--hexagon.--guest .ui-avatar-border,
 .ui-avatar.--round.--guest .ui-avatar-border,
 .ui-avatar.--square.--guest .ui-avatar-border {
-	fill: var(--ui-avatar-color-collab);
+	fill: rgba(var(--ui-avatar-color-collab-rgb), 1);
 }
 
 .ui-avatar.--hexagon.--extranet .ui-avatar-border,
 .ui-avatar.--round.--extranet .ui-avatar-border,
 .ui-avatar.--square.--extranet .ui-avatar-border {
-	fill: var(--ui-avatar-color-extranet);
+	fill: rgba(var(--ui-avatar-color-extranet-rgb), 1);
 }
 
 .ui-avatar.--hexagon .ui-avatar-border-inner {
-	fill: var(--ui-avatar-border-inner-color);
+	fill: rgba(var(--ui-avatar-border-inner-color-rgb), 1);
 	d: path("M40.4429 2.77436C47.0211 -0.823713 54.979 -0.823711 61.5572 2.77436L88.9207 17.7412C95.9759 21.6001 100.363 29.001 100.363 37.0426V64.9573C100.363 72.9989 95.9759 80.3998 88.9207 84.2588L61.5572 99.2256C54.979 102.824 47.0211 102.824 40.4429 99.2256L13.0794 84.2588C6.02419 80.3998 1.6366 72.9989 1.6366 64.9573V37.0426C1.6366 29.001 6.0242 21.6001 13.0794 17.7412L40.4429 2.77436Z");
 }
 
 /*avatar round*/
 .ui-avatar.--round .ui-avatar-base {
-	fill: var(--ui-avatar-base-color);
+	fill: rgba(var(--ui-avatar-base-color-rgb), 1);
 }
 
 .ui-avatar.--round .ui-avatar-border {
@@ -98,12 +118,12 @@
 }
 
 .ui-avatar.--round .ui-avatar-border-inner {
-	fill: var(--ui-avatar-border-inner-color);
+	fill: rgba(var(--ui-avatar-border-inner-color-rgb), 1);
 }
 
 /*avatar square*/
 .ui-avatar.--square .ui-avatar-base {
-	fill: var(--ui-avatar-base-color);
+	fill: rgba(var(--ui-avatar-base-color-rgb), 1);
 	d: path("M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z");
 }
 
@@ -130,6 +150,23 @@
 }
 
 .ui-avatar.--square .ui-avatar-border-inner {
-	fill: var(--ui-avatar-border-inner-color);
+	fill: rgba(var(--ui-avatar-border-inner-color-rgb), 1);
 	d: path("M12 0C5.37258 0 0 5.37258 0 12V90C0 96.6274 5.37258 102 12 102H90C96.6274 102 102 96.6274 102 90V12C102 5.37258 96.6274 0 90 0H12Z");
+}
+
+/*avatar default*/
+.ui-avatar-default-path {
+	fill: rgba(var(--ui-avatar-base-color-rgb), 1);
+}
+
+.ui-avatar.--default-user-pic .ui-avatar-base {
+	fill: rgba(var(--ui-avatar-base-color-rgb), .1);
+}
+
+.ui-avatar.--base .ui-avatar-base {
+	fill: rgba(var(--ui-avatar-base-color-rgb), 1);
+}
+
+.ui-avatar-default-path-bg {
+	fill: transparent;
 }

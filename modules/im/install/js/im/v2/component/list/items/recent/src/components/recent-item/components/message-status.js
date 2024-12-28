@@ -1,5 +1,5 @@
 import { Core } from 'im.v2.application.core';
-import { ChatType, OwnMessageStatus } from 'im.v2.const';
+import { ChatType, OwnMessageStatus, UserType } from 'im.v2.const';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelRecentItem, ImModelUser, ImModelMessage } from 'im.v2.model';
@@ -92,7 +92,7 @@ export const MessageStatus = {
 		{
 			if (this.isUser)
 			{
-				return this.user.bot;
+				return this.user.type === UserType.bot;
 			}
 
 			return false;

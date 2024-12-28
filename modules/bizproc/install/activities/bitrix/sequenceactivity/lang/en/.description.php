@@ -1,4 +1,3 @@
-<?
-$MESS ['BPSA_DESCR_DESCR'] = "Runs the subactivities in this activity";
-$MESS ['BPSA_DESCR_NAME'] = "Sequence Of Activities";
-?>
+<?php
+$MESS["BPSA_DESCR_DESCR"] = "Runs the subactions in this action";
+$MESS["BPSA_DESCR_NAME"] = "Sequence of actions";

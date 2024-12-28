@@ -5,6 +5,8 @@ namespace Bitrix\Socialnetwork\Helper;
 use Bitrix\Bitrix24;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Collab\CollabFeature;
+use Bitrix\Socialnetwork\Collab\Registry\CollabRegistry;
 use Bitrix\Tasks\Flow\FlowFeature;
 
 class Feature
@@ -16,7 +18,7 @@ class Feature
 
 	const FIRST_ERA = 'socialnetwork_first_era';
 
-	public static function isFeatureEnabled(string $featureName): bool
+	public static function isFeatureEnabled(string $featureName, int $groupId = 0): bool
 	{
 		if (!Loader::includeModule('bitrix24'))
 		{
@@ -30,6 +32,15 @@ class Feature
 		)
 		{
 			return true;
+		}
+
+		if ($groupId)
+		{
+			$isCollab = (CollabRegistry::getInstance()->get($groupId) !== null);
+			if ($isCollab && CollabFeature::isFeatureEnabled())
+			{
+				return true;
+			}
 		}
 
 		return Bitrix24\Feature::isFeatureEnabled($featureName);

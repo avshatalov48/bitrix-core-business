@@ -2,6 +2,8 @@
 
 use Bitrix\Main;
 use Bitrix\Bizproc;
+use Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
 
 /**
  * Bizproc API Helper for external usage.
@@ -530,11 +532,15 @@ class CBPDocument
 			CBPTaskService::DeleteByWorkflow($workflowId);
 			CBPStateService::DeleteWorkflow($workflowId);
 			Bizproc\Workflow\Entity\WorkflowMetadataTable::deleteByWorkflowId($workflowId);
+			Bizproc\Result\Entity\ResultTable::deleteByWorkflowId($workflowId);
 
 			if (!Bizproc\Debugger\Session\Manager::isDebugWorkflow($workflowId))
 			{
 				CBPTrackingService::DeleteByWorkflow($workflowId);
 			}
+
+			$event = new Event('bizproc', 'onAfterWorkflowKill', ['ID' => $workflowId]);
+			EventManager::getInstance()->send($event);
 		}
 
 		return $errors;
@@ -1724,5 +1730,22 @@ class CBPDocument
 		}
 
 		return $templates;
+	}
+
+	public static function getUserGroups(array $parameterDocumentType, array $parameterDocumentId, int $userId)
+	{
+		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
+
+		if ($moduleId)
+		{
+			\Bitrix\Main\Loader::includeModule($moduleId);
+		}
+
+		if (class_exists($entity) && method_exists($entity, 'GetUserGroups'))
+		{
+			return call_user_func([$entity, 'GetUserGroups'], $parameterDocumentType, $parameterDocumentId, $userId);
+		}
+
+		return null;
 	}
 }

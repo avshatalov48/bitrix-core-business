@@ -38,18 +38,16 @@ $cpt->SetLinesNumber(20);
 $cpt->SetLineColor(array(array(100, 140), array(100, 140), array(100, 140)));
 */
 
-if (isset($_GET["captcha_sid"]))
+if (isset($_GET["captcha_sid"]) && is_string($_GET["captcha_sid"]))
 {
 	if ($cpt->InitCode($_GET["captcha_sid"]))
 		$cpt->Output();
 	else
 		$cpt->OutputError();
 }
-elseif (isset($_GET["captcha_code"]))
+elseif (isset($_GET["captcha_code"]) && is_string($_GET["captcha_code"]))
 {
-	$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-
-	if ($cpt->InitCodeCrypt($_GET["captcha_code"], $captchaPass))
+	if ($cpt->InitCodeCrypt($_GET["captcha_code"]))
 		$cpt->Output();
 	else
 		$cpt->OutputError();

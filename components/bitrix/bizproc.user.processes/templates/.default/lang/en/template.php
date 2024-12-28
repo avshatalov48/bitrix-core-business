@@ -1,4 +1,8 @@
 <?php
+$MESS["BIZPROC_RENDERED_RESULT_NO_RIGHTS_TOOLTIP"] = "Please contact your supervisor or Bitrix24 administrator to view workflow results.";
+$MESS["BIZPROC_RENDERED_RESULT_NO_RIGHTS_VIEW"] = "Insufficient permissions to view result.";
+$MESS["BIZPROC_RENDERED_RESULT_POSITIVE_RESULT_FOR"] = "Workflow completed for #USER#.";
+$MESS["BIZPROC_RENDERED_RESULT_VALUE"] = "Workflow result:";
 $MESS["BIZPROC_USER_PROCESSES_TEMPLATE_COUNTERS_COMMENT"] = "Comments";
 $MESS["BIZPROC_USER_PROCESSES_TEMPLATE_COUNTERS_LABEL"] = "Assignments:";
 $MESS["BIZPROC_USER_PROCESSES_TEMPLATE_COUNTERS_TASK"] = "Pending";

@@ -12,6 +12,7 @@ namespace Bitrix\Main\Controller;
 use Bitrix\Main;
 use Bitrix\Main\Application;
 use Bitrix\Main\Rating\Internal\Action;
+use Bitrix\Main\Security\Sign\BadSignatureException;
 
 class Rating extends Main\Engine\Controller
 {
@@ -39,10 +40,24 @@ class Rating extends Main\Engine\Controller
 		$payloadValue = $entityTypeId . '-' . $entityId;
 
 		$signer = new \Bitrix\Main\Security\Sign\TimeSigner();
-		if (
-			$signedKey === ''
-			|| $signer->unsign($signedKey, 'main.rating.vote') !== $payloadValue
-		)
+		
+		$accessDenied = false;
+		try
+		{
+			if (
+				$signedKey === ''
+				|| $signer->unsign($signedKey, 'main.rating.vote') !== $payloadValue
+			)
+			{
+				$accessDenied = true;
+			}
+		}
+		catch(BadSignatureException $e)
+		{
+			$accessDenied = true;
+		}
+		
+		if ($accessDenied)
 		{
 			$this->addError(new Main\Error('Access denied'));
 
@@ -120,13 +135,27 @@ class Rating extends Main\Engine\Controller
 		$payloadValue = $entityTypeId . '-' . $entityId;
 
 		$signer = new \Bitrix\Main\Security\Sign\TimeSigner();
-		if (
-			$signedKey === ''
-			|| $signer->unsign($signedKey, 'main.rating.vote') !== $payloadValue
-		)
+		
+		$accessDenied = false;
+		try
+		{
+			if (
+				$signedKey === ''
+				|| $signer->unsign($signedKey, 'main.rating.vote') !== $payloadValue
+			)
+			{
+				$accessDenied = true;
+			}
+		}
+		catch(BadSignatureException $e)
+		{
+			$accessDenied = true;
+		}
+		
+		if ($accessDenied)
 		{
 			$this->addError(new Main\Error('Access denied'));
-
+			
 			return null;
 		}
 

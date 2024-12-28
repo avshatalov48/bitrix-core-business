@@ -34,6 +34,8 @@
 		this.entryManager = new BX.Calendar.EntryManager(data, config);
 		this.roomsManager = new BX.Calendar.RoomsManager(data, config);
 		this.categoryManager = new BX.Calendar.CategoryManager(data, config);
+		// CollabManager uses it extension settings if no data.collabs presented
+		this.collabManager = new BX.Calendar.CollabManager(data, config);
 		if (BX.Calendar.Controls && BX.Calendar.Controls.Location)
 		{
 			BX.Calendar.Controls.Location.setLocationList(additionalParams.locationList);
@@ -67,6 +69,9 @@
 		this.ownerUser = config.ownerUser || false;
 		this.viewRangeDate = new Date();
 		this.keyHandlerEnabled = true;
+		this.isCollabUser = config.isCollabUser || false;
+		this.isCollabCalendar = config.isCollabCalendar || false;
+		this.isCollabFeatureEnabled = config.isCollabFeatureEnabled || false;
 
 		// build basic DOM structure
 		this.build();
@@ -139,7 +144,7 @@
 						this.search.applyFilter();
 					}
 
-					if (this.search && this.util.getCounters())
+					if (this.search && this.getCountersByCalendarContext())
 					{
 						this.buildCountersControl();
 					}
@@ -187,40 +192,54 @@
 					}
 				}
 
-				if (this.util.userIsOwner() && !this.util.isExtranetUser())
+				if (this.util.userIsOwner())
 				{
-					this.syncInterface = new BX.Calendar.Sync.Manager.Manager({
-						wrapper: document.getElementById(`${this.id}-sync-container`),
-						syncInfo: this.util.config.syncInfo,
-						payAttentionToNewSharingFeature: this.payAttentionToNewSharingFeature,
-						userId: this.currentUser.id,
-						syncLinks: this.util.config.syncLinks,
-						isSetSyncGoogleSettings: this.util.config.isSetSyncGoogleSettings,
-						isSetSyncOffice365Settings: this.util.config.isSetSyncOffice365Settings,
-						sections: this.sectionManager.getSections(),
-						portalAddress: this.util.config.caldav_link_all,
-						isRuZone: this.util.config.isRuZone,
-						calendar: this,
-					});
+					if (!this.util.isExtranetUser())
+					{
+						this.syncInterface = new BX.Calendar.Sync.Manager.Manager({
+							wrapper: document.getElementById(this.id + '-sync-container'),
+							syncInfo: this.util.config.syncInfo,
+							payAttentionToNewSharingFeature: this.payAttentionToNewSharingFeature,
+							userId: this.currentUser.id,
+							syncLinks: this.util.config.syncLinks,
+							isSetSyncGoogleSettings: this.util.config.isSetSyncGoogleSettings,
+							isSetSyncOffice365Settings: this.util.config.isSetSyncOffice365Settings,
+							sections: this.sectionManager.getSections(),
+							portalAddress: this.util.config.caldav_link_all,
+							isRuZone: this.util.config.isRuZone,
+							calendar: this,
+						});
 
-					this.syncInterface.showSyncButton();
+						this.syncInterface.showSyncButton();
+					}
+				}
 
+				if (this.util.userIsOwner() && !this.isCollabUser || this.isCollabCalendar)
+				{
 					this.sharingInterface = new BX.Calendar.Sharing.Interface({
 						buttonWrap: document.querySelector(`#${this.id}-sharing-container`),
 						userInfo: {
 							id: this.currentUser.id,
 							name: this.currentUser.name,
 							avatar: this.currentUser.avatar,
+							isCollabUser: this.isCollabUser,
 						},
 						payAttentionToNewFeature: this.payAttentionToNewSharingFeature,
 						sharingFeatureLimit: !this.sharingFeatureLimitEnable,
 						sharingSettingsCollapsed: this.sharingSettingsCollapsed,
 						sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
+						calendarContext: {
+							sharingObjectType: this.util.config.type,
+							sharingObjectId: this.util.config.ownerId,
+						},
 					});
 
 					if (BX.Calendar.Util.checkSharingFeatureEnabled())
 					{
-						this.sharingInterface.showSharingButton();
+						this.util.config.type === 'group'
+							? this.sharingInterface.showGroupSharingButton()
+							: this.sharingInterface.showSharingButton()
+						;
 					}
 				}
 
@@ -262,8 +281,8 @@
 				{
 					if (event instanceof BX.Event.BaseEvent)
 					{
-						var data = event.getData();
-						if (BX.Type.isObjectLike(data.counters) && this.counters && this.util.getCounters())
+						const data = event.getData();
+						if (BX.Type.isObjectLike(data.counters) && this.counters && this.getCountersByCalendarContext())
 						{
 							this.counters.setCountersValue(data.counters);
 						}
@@ -278,10 +297,10 @@
 					}
 				}.bind(this));
 
-				BX.Event.EventEmitter.subscribe('BX.Calendar.CompactEventForm:doRefresh', function(event)
-				{
-					this.refreshDebounce();
-				}.bind(this));
+				BX.Event.EventEmitter.subscribe(
+					'BX.Calendar.CompactEventForm:doRefresh',
+					() => this.refreshDebounce(),
+				);
 
 				if (this.isLocationViewDisabled())
 				{
@@ -923,8 +942,8 @@
 			this.counters = new BX.Calendar.Counters({
 				search: this.search,
 				countersWrap: this.countersCont,
-				counters: this.util.getCounters(),
-				userId: this.currentUser.id
+				counters: this.getCountersByCalendarContext(),
+				userId: this.currentUser.id,
 			});
 
 			this.counters.init();
@@ -964,6 +983,7 @@
 										calendarContext: this,
 										readonly: this.util.readOnlyMode(),
 										sectionManager: this.sectionManager,
+										isCollabFeatureEnabled: this.isCollabFeatureEnabled,
 									},
 								);
 							}
@@ -993,8 +1013,9 @@
 										{
 											calendarContext: this,
 											showPersonalSettings: this.util.userIsOwner(),
-											showGeneralSettings: !!(this.util.config.perm && this.util.config.perm.access),
+											showGeneralSettings: Boolean(this.util.config.perm && this.util.config.perm.access),
 											settings: this.util.config.settings,
+											isExtranet: this.util.isExtranetUser(),
 										},
 									);
 								}
@@ -1086,6 +1107,7 @@
 											showGeneralSettings: false,
 											showAccessControll: true,
 											settings: this.util.config.settings,
+											isExtranet: this.util.isExtranetUser(),
 										},
 									);
 								}
@@ -1124,6 +1146,7 @@
 		{
 			if (BX.Calendar.Util.documentIsDisplayingNow())
 			{
+				this.needForReload = false;
 				this.entryController.clearLoadIndexCache();
 				this.refresh();
 			}
@@ -1144,18 +1167,26 @@
 			{
 				this.pullEventList.forEach((value, valueAgain, set) =>
 				{
-					if (this.entryManager
-						&& ['edit_event', 'delete_event', 'set_meeting_status',
-						'task_remove', 'task_add', 'task_update',
-					].includes(value.command))
+					if (
+						this.entryManager
+						&& [
+							'edit_event',
+							'delete_event',
+							'set_meeting_status',
+							'task_remove',
+							'task_add',
+							'task_update',
+						].includes(value.command)
+					)
 					{
 						this.entryManager.handlePullChanges(value);
 						this.reloadDebounce();
 					}
 
-					if (this.sectionManager
-						&& ['edit_section', 'delete_section', 'change_section_subscription']
-						.includes(value.command))
+					if (
+						this.sectionManager
+						&& ['edit_section', 'delete_section', 'change_section_subscription'].includes(value.command)
+					)
 					{
 						this.sectionManager.reloadDataDebounce();
 						if (this.sectionInterface)
@@ -1164,9 +1195,9 @@
 						}
 					}
 
-					if (this.syncInterface
-						&& ['refresh_sync_status', 'refresh_sync_status', 'delete_sync_connection']
-							.includes(value.command)
+					if (
+						this.syncInterface
+						&& ['refresh_sync_status', 'refresh_sync_status', 'delete_sync_connection'].includes(value.command)
 					)
 					{
 						// TODO: refresh whole sync interface
@@ -1427,31 +1458,30 @@
 			}.bind(this));
 		},
 
-		updateCounters: function()
+		updateCounters()
 		{
 			return new Promise(
-				function(resolve)
-				{
+				(resolve) => {
 					BX.ajax.runAction('calendar.api.calendarajax.updateCounters', {
-						data: {},
-					}).then(function(response)
-						{
+						data: { type: this.getCalendarType(), ownerId: this.util.ownerId },
+					}).then(
+						(response) => {
 							if (
 								BX.Type.isObjectLike(response.data.counters)
 								&& this.counters
-								&& this.util.getCounters()
+								&& this.getCountersByCalendarContext()
 							)
 							{
 								this.counters.setCountersValue(response.data.counters);
 							}
 							resolve();
-						}.bind(this),
-						function(response)
-						{
+						},
+						(response) => {
 							BX.Calendar.Util.displayError(response.errors);
 							resolve(response);
-						}.bind(this));
-				}.bind(this),
+						},
+					);
+				},
 			);
 		},
 
@@ -1470,6 +1500,42 @@
 		{
 			return !this.util.config.locationFeatureEnabled
 				&& this.util.config.type === 'location';
+		},
+
+		getCountersByCalendarContext()
+		{
+			const counters = this.util.getCounters();
+
+			if (!counters)
+			{
+				return null;
+			}
+
+			const counterNameByContext = this.getCountersNameByContext();
+
+			if (!counterNameByContext)
+			{
+				return null;
+			}
+
+			const neededCounter = counters[counterNameByContext];
+
+			return neededCounter ? { [counterNameByContext]: neededCounter } : null;
+		},
+
+		getCountersNameByContext()
+		{
+			if (this.getCalendarType() === 'user')
+			{
+				return BX.Calendar.Counters.TYPE_INVITATION;
+			}
+
+			if (this.getCalendarType() === 'group')
+			{
+				return BX.Calendar.Counters.getCounterNameByGroupId(this.util.ownerId);
+			}
+
+			return null;
 		},
 	};
 

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Chat\Update;
 
+use Bitrix\Im\V2\Entity\File\ChatAvatar;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
 
 class UpdateFields
@@ -9,7 +10,7 @@ class UpdateFields
 	protected function __construct(
 		protected ?string $title,
 		protected ?string $description,
-		protected mixed $avatar,
+		protected ?int $avatar,
 		protected ?int $ownerId,
 		protected ?string $searchable,
 		protected ?string $manageUI,
@@ -17,6 +18,7 @@ class UpdateFields
 		protected ?string $manageUsersDelete,
 		protected ?string $manageMessages,
 		protected array $addedUsers,
+		protected ?bool $hideHistory,
 		protected array $deletedUsers,
 		protected array $addedDepartments,
 		protected array $deletedDepartments,
@@ -40,6 +42,7 @@ class UpdateFields
 			$fields['MANAGE_USERS_DELETE'] ?? null,
 			$fields['MANAGE_MESSAGES'] ?? null,
 			$addedUsers ?? [],
+			self::prepareBool($fields['HIDE_HISTORY'] ?? null),
 			$deletedUsers ?? [],
 			$addedDepartments ?? [],
 			$deletedDepartments ?? [],
@@ -61,6 +64,11 @@ class UpdateFields
 	public function getDeletedUsers(): array
 	{
 		return $this->deletedUsers;
+	}
+
+	public function shouldHideHistory(): ?bool
+	{
+		return $this->hideHistory;
 	}
 
 	public function getDeletedDepartments(): array
@@ -88,7 +96,7 @@ class UpdateFields
 		return $this->ownerId;
 	}
 
-	public function getAvatar(): mixed
+	public function getAvatar(): ?int
 	{
 		return $this->avatar;
 	}
@@ -107,36 +115,33 @@ class UpdateFields
 		return $result;
 	}
 
-	protected static function prepareAvatar(mixed $avatar): mixed
+	protected static function prepareAvatar(mixed $avatar): ?int
 	{
 		if (!isset($avatar))
 		{
 			return null;
 		}
-
 		if (is_numeric($avatar))
 		{
 			return (int)$avatar;
 		}
 
-		$avatarArray = \CRestUtil::saveFile($avatar);
-		$imageCheck = (new \Bitrix\Main\File\Image($avatarArray["tmp_name"]))->getInfo();
+		return (ChatAvatar::saveAvatarByString((string)$avatar));
+	}
 
-		if (
-			!$imageCheck
-			|| !$imageCheck->getWidth() || $imageCheck->getWidth() > 5000
-			|| !$imageCheck->getHeight() || $imageCheck->getHeight() > 5000
-			|| mb_strpos($avatarArray['type'], "image/") !== 0
-		)
+	protected static function prepareBool(?string $value, ?bool $default = null): ?bool
+	{
+		if ($value === 'Y')
 		{
-			$avatar = null;
-		}
-		else
-		{
-			$avatar = \CFile::saveFile($avatarArray, 'im');
+			return true;
 		}
 
-		return $avatar;
+		if ($value === 'N')
+		{
+			return false;
+		}
+
+		return $default;
 	}
 
 	public function getArrayToSave(): array

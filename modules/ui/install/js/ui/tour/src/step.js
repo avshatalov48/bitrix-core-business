@@ -24,6 +24,7 @@ export class Step extends Event.EventEmitter
 		this.title = options.title || null;
 		this.iconSrc = options.iconSrc || null;
 		this.article = options.article || null;
+		this.articleAnchor = options.articleAnchor || null;
 		this.infoHelperCode = options.infoHelperCode || null;
 		this.position = options.position || null;
 		this.cursorMode = options.cursorMode || false;
@@ -123,9 +124,14 @@ export class Step extends Event.EventEmitter
 		return this.position;
 	}
 
-	getArticle()
+	getArticle(): string
 	{
 		return this.article;
+	}
+
+	getArticleAnchor(): string
+	{
+		return this.articleAnchor;
 	}
 
 	getInfoHelperCode(): ?string

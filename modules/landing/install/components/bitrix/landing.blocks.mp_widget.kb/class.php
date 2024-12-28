@@ -5,7 +5,7 @@ use Bitrix\Landing\Landing as LandingCore;
 use Bitrix\Landing\Site\Type;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Landing;
-use Bitrix\Main\Config\Option;
+use Bitrix\Landing\Mainpage;
 use Bitrix\Main\Localization\Loc;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -45,7 +45,7 @@ class LandingBlocksMainpageWidgetKb extends LandingBlocksMainpageWidgetBase
 	protected function getData(): void
 	{
 		$useDemoData = false;
-		if (Option::get('landing', 'use_demo_data_in_block_widgets') === 'Y')
+		if (Mainpage\Manager::isUseDemoData())
 		{
 			$data = $this->getDemoData();
 		}

@@ -69,51 +69,46 @@ export class AttendeesList
 		[
 			{
 				code: 'accepted', // Accepted
-				title: Loc.getMessage('EC_ATTENDEES_Y_NUM')
+				title: Loc.getMessage('EC_ATTENDEES_Y_NUM'),
 			},
 			{
 				code: 'requested', // Still thinking about
-				title: Loc.getMessage('EC_ATTENDEES_Q_NUM')
+				title: Loc.getMessage('EC_ATTENDEES_Q_NUM'),
 			},
 			{
 				code: 'declined', // Declined
-				title: Loc.getMessage('EC_ATTENDEES_N_NUM')
+				title: Loc.getMessage('EC_ATTENDEES_N_NUM'),
 			},
-		].forEach((group) =>
+		].forEach((group: { code: string, title: string }): void =>
 		{
-			let groupUsers = this.attendeesList[group.code];
+			const groupUsers = this.attendeesList[group.code];
 			if (groupUsers.length > 0)
 			{
 				menuItems.push(new MenuItem({
 					text: group.title.replace('#COUNT#', groupUsers.length),
-					delimiter: true
-				}))
+					delimiter: true,
+				}));
 
-				groupUsers.forEach((user) =>
+				groupUsers.forEach((user): void =>
 				{
-					user.toString = () =>
-					{
-						return user.ID
-					};
+					user.toString = () => user.ID;
 					menuItems.push(
 						{
 							text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
-							dataset: {user: user},
-							className: 'calendar-add-popup-user-menu-item',
-							onclick: () =>
-							{
+							dataset: { user },
+							className: `calendar-add-popup-user-menu-item ${user.COLLAB_USER ? 'calendar-collab-user' : ''}`,
+							onclick: (): void =>
 								BX.SidePanel.Instance.open(
 									user.URL,
 									{
-										loader: "intranet:profile",
+										loader: 'intranet:profile',
 										cacheable: false,
 										allowChangeHistory: false,
-										contentClassName: "bitrix24-profile-slider-content",
-										width: 1100
-									}
-								);
-							}
-						}
+										contentClassName: 'bitrix24-profile-slider-content',
+										width: 1100,
+									},
+								),
+						},
 					);
 				});
 			}
@@ -125,9 +120,9 @@ export class AttendeesList
 	static sortAttendees(attendees)
 	{
 		return {
-			accepted : attendees.filter((user) => {return ['H', 'Y'].includes(user.STATUS);}),
-			requested : attendees.filter((user) => {return user.STATUS === 'Q' || user.STATUS === ''}),
-			declined : attendees.filter((user) => {return user.STATUS === 'N'}),
+			accepted: attendees.filter((user) => ['H', 'Y'].includes(user.STATUS)),
+			requested: attendees.filter((user) => user.STATUS === 'Q' || user.STATUS === ''),
+			declined: attendees.filter((user) => user.STATUS === 'N'),
 		};
 	}
 }

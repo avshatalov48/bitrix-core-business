@@ -10,6 +10,7 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'im.v2.lib.feature',
 		'main.core.events',
 		'im.v2.const',
 		'im.v2.lib.call',

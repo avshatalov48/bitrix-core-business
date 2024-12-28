@@ -14,7 +14,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  if (!main_core.Type.isDomNode(data.target)) {
 	    return false;
 	  }
-	  if (!main_core.Type.isInteger(data.targetUserId) || data.targetUserId <= 0) {
+	  if (!main_core.Type.isNil(data.targetUserId) && (!main_core.Type.isInteger(data.targetUserId) || data.targetUserId <= 0)) {
 	    return false;
 	  }
 	  return validateFacesData(data.data);
@@ -23,29 +23,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  if (!main_core.Type.isPlainObject(data)) {
 	    return false;
 	  }
-
-	  // avatars
-	  const avatars = data.avatars;
-	  if (!main_core.Type.isPlainObject(avatars) || !main_core.Type.isArrayFilled(avatars.author) || !main_core.Type.isArray(avatars.running) || !main_core.Type.isArray(avatars.completed) || !main_core.Type.isArray(avatars.done)) {
+	  if (!main_core.Type.isArrayFilled(data.steps)) {
 	    return false;
 	  }
-
-	  // statuses
-	  const statuses = data.statuses;
-	  if (!main_core.Type.isPlainObject(statuses)) {
-	    return false;
-	  }
-
-	  // time
-	  const time = data.time;
-	  if (!main_core.Type.isPlainObject(time) || !timeValidator(time.author) || !timeValidator(time.running) || !timeValidator(time.completed) || !timeValidator(time.done) || !timeValidator(time.total)) {
-	    return false;
+	  for (const step of data.steps) {
+	    if (!main_core.Type.isStringFilled(step.id) || !main_core.Type.isString(step.name) || !main_core.Type.isArray(step.avatars)) {
+	      return false;
+	    }
+	    const duration = step.duration;
+	    if (!main_core.Type.isString(duration) && (!main_core.Type.isNumber(duration) || duration < 0)) {
+	      return false;
+	    }
 	  }
 	  return true;
 	}
-	const timeValidator = time => {
-	  return main_core.Type.isNull(time) || time === 0 || main_core.Text.toInteger(time) > 0;
-	};
 
 	let _ = t => t,
 	  _t,
@@ -54,7 +45,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _target = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("target");
 	var _data = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("data");
 	var _showArrow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showArrow");
-	var _showTimeline = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showTimeline");
+	var _showTimeStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showTimeStep");
 	var _workflowId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("workflowId");
 	var _targetUserId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("targetUserId");
 	var _stack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("stack");
@@ -64,17 +55,17 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	var _errorNode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("errorNode");
 	var _initStack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initStack");
 	var _getStackSteps = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStackSteps");
-	var _getAuthorStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAuthorStep");
-	var _getHiddenTaskCount = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getHiddenTaskCount");
-	var _getRunningStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRunningStep");
-	var _getCompletedStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCompletedStep");
-	var _getDoneStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDoneStep");
-	var _getStubStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStubStep");
+	var _createStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createStep");
+	var _getStack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStack");
+	var _getUserStack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUserStack");
 	var _getStackUserImages = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStackUserImages");
-	var _getFooterDuration = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFooterDuration");
+	var _getIconStack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getIconStack");
+	var _getFooter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFooter");
+	var _getStubStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStubStep");
 	var _subscribeToPushes = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeToPushes");
 	var _onWorkflowPush = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onWorkflowPush");
 	var _loadWorkflowFaces = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadWorkflowFaces");
+	var _getRunningTaskId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRunningTaskId");
 	var _unsubscribeToPushes = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("unsubscribeToPushes");
 	var _renderTimeline = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTimeline");
 	var _renderError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderError");
@@ -89,6 +80,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _unsubscribeToPushes, {
 	      value: _unsubscribeToPushes2
 	    });
+	    Object.defineProperty(this, _getRunningTaskId, {
+	      value: _getRunningTaskId2
+	    });
 	    Object.defineProperty(this, _loadWorkflowFaces, {
 	      value: _loadWorkflowFaces2
 	    });
@@ -98,29 +92,26 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _subscribeToPushes, {
 	      value: _subscribeToPushes2
 	    });
-	    Object.defineProperty(this, _getFooterDuration, {
-	      value: _getFooterDuration2
+	    Object.defineProperty(this, _getStubStep, {
+	      value: _getStubStep2
+	    });
+	    Object.defineProperty(this, _getFooter, {
+	      value: _getFooter2
+	    });
+	    Object.defineProperty(this, _getIconStack, {
+	      value: _getIconStack2
 	    });
 	    Object.defineProperty(this, _getStackUserImages, {
 	      value: _getStackUserImages2
 	    });
-	    Object.defineProperty(this, _getStubStep, {
-	      value: _getStubStep2
+	    Object.defineProperty(this, _getUserStack, {
+	      value: _getUserStack2
 	    });
-	    Object.defineProperty(this, _getDoneStep, {
-	      value: _getDoneStep2
+	    Object.defineProperty(this, _getStack, {
+	      value: _getStack2
 	    });
-	    Object.defineProperty(this, _getCompletedStep, {
-	      value: _getCompletedStep2
-	    });
-	    Object.defineProperty(this, _getRunningStep, {
-	      value: _getRunningStep2
-	    });
-	    Object.defineProperty(this, _getHiddenTaskCount, {
-	      value: _getHiddenTaskCount2
-	    });
-	    Object.defineProperty(this, _getAuthorStep, {
-	      value: _getAuthorStep2
+	    Object.defineProperty(this, _createStep, {
+	      value: _createStep2
 	    });
 	    Object.defineProperty(this, _getStackSteps, {
 	      value: _getStackSteps2
@@ -140,7 +131,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      writable: true,
 	      value: false
 	    });
-	    Object.defineProperty(this, _showTimeline, {
+	    Object.defineProperty(this, _showTimeStep, {
 	      writable: true,
 	      value: false
 	    });
@@ -173,20 +164,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      value: void 0
 	    });
 	    if (!workflowFacesDataValidator(_data2)) {
-	      throw new TypeError('Bizproc.Workflow.Faces: data must be correct plain object', _data2);
+	      throw new TypeError('Bizproc.Workflow.Faces: data must be correct plain object');
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _workflowId)[_workflowId] = _data2.workflowId;
 	    babelHelpers.classPrivateFieldLooseBase(this, _target)[_target] = _data2.target;
-	    babelHelpers.classPrivateFieldLooseBase(this, _targetUserId)[_targetUserId] = _data2.targetUserId;
+	    babelHelpers.classPrivateFieldLooseBase(this, _targetUserId)[_targetUserId] = _data2.targetUserId || 0;
 	    babelHelpers.classPrivateFieldLooseBase(this, _data)[_data] = _data2.data;
 	    if (main_core.Type.isBoolean(_data2.showArrow)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _showArrow)[_showArrow] = _data2.showArrow;
 	    }
-	    if (main_core.Type.isBoolean(_data2.showTimeline)) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _showTimeline)[_showTimeline] = _data2.showTimeline;
+	    if (main_core.Type.isBoolean(_data2.showTimeStep)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _showTimeStep)[_showTimeStep] = _data2.showTimeStep;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _initStack)[_initStack]();
-	    if (_data2.subscribeToPushes) {
+	    if (_data2.subscribeToPushes && !_data2.isWorkflowFinished) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _subscribeToPushes)[_subscribeToPushes]();
 	    }
 	  }
@@ -200,21 +191,26 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _showArrow)[_showArrow]) {
 	      main_core.Dom.append(main_core.Tag.render(_t2 || (_t2 = _`<div class="bp-workflow-faces-arrow"></div>`)), babelHelpers.classPrivateFieldLooseBase(this, _node)[_node]);
 	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _showTimeline)[_showTimeline]) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _showTimeStep)[_showTimeStep] && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].timeStep) {
 	      main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderTimeline)[_renderTimeline](), babelHelpers.classPrivateFieldLooseBase(this, _node)[_node]);
 	    }
 	  }
 	  updateData(data) {
-	    if (!validateFacesData(data)) {
+	    const facesData = {
+	      steps: data.steps,
+	      progressBox: data.progressBox,
+	      timeStep: data.timeStep
+	    };
+	    if (!validateFacesData(facesData)) {
 	      return;
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _data)[_data] = data;
+	    babelHelpers.classPrivateFieldLooseBase(this, _data)[_data] = facesData;
 	    babelHelpers.classPrivateFieldLooseBase(this, _getStackSteps)[_getStackSteps]().forEach(step => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _stack)[_stack].updateStep(step, step.id);
 	    });
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowIsCompleted) {
+	    if (data.isWorkflowFinished) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _unsubscribeToPushes)[_unsubscribeToPushes]();
-	      if (babelHelpers.classPrivateFieldLooseBase(this, _showTimeline)[_showTimeline]) {
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _showTimeStep)[_showTimeStep]) {
 	        main_core.Dom.replace(babelHelpers.classPrivateFieldLooseBase(this, _timelineNode)[_timelineNode], babelHelpers.classPrivateFieldLooseBase(this, _renderTimeline)[_renderTimeline]());
 	      }
 	    }
@@ -236,182 +232,76 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  });
 	}
 	function _getStackSteps2() {
-	  const steps = [babelHelpers.classPrivateFieldLooseBase(this, _getAuthorStep)[_getAuthorStep]()];
-	  if (main_core.Type.isArrayFilled(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].avatars.completed)) {
-	    steps.push(babelHelpers.classPrivateFieldLooseBase(this, _getCompletedStep)[_getCompletedStep]());
+	  const steps = [];
+	  babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].steps.forEach(stepData => {
+	    steps.push(babelHelpers.classPrivateFieldLooseBase(this, _createStep)[_createStep](stepData));
+	  });
+	  if (steps.length < 3) {
+	    for (let i = steps.length; i < 3; i++) {
+	      steps.push(babelHelpers.classPrivateFieldLooseBase(this, _getStubStep)[_getStubStep]());
+	    }
 	  }
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowIsCompleted) {
-	    steps.push(babelHelpers.classPrivateFieldLooseBase(this, _getDoneStep)[_getDoneStep]());
-	  } else {
-	    steps.push(babelHelpers.classPrivateFieldLooseBase(this, _getRunningStep)[_getRunningStep]());
-	  }
-	  if (steps.length === 2) {
-	    steps.push(babelHelpers.classPrivateFieldLooseBase(this, _getStubStep)[_getStubStep]());
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].progressBox && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].progressBox.progressTasksCount > 0) {
+	    steps[0].progressBox = {
+	      title: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].progressBox.text
+	    };
 	  }
 	  return steps.map((step, index) => ({
 	    ...step,
 	    id: `step-${index}`
 	  }));
 	}
-	function _getAuthorStep2() {
-	  const stack = {
-	    images: [{
-	      type: ui_imageStackSteps.imageTypeEnum.ICON,
-	      data: {
-	        icon: 'bp',
-	        color: 'var(--ui-color-palette-gray-20)'
-	      }
-	    }]
-	  };
-	  const avatar = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].avatars.author[0];
-	  const authorId = main_core.Text.toInteger(avatar.id);
-	  if (authorId > 0) {
-	    stack.images = [{
-	      type: ui_imageStackSteps.imageTypeEnum.USER,
-	      data: {
-	        src: String(avatar.avatarUrl || ''),
-	        userId: authorId
-	      }
-	    }];
-	  }
-	  const step = {
-	    id: 'author',
-	    header: {
-	      type: ui_imageStackSteps.headerTypeEnum.TEXT,
-	      data: {
-	        text: main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_COLUMN_AUTHOR')
-	      }
-	    },
-	    stack,
-	    footer: babelHelpers.classPrivateFieldLooseBase(this, _getFooterDuration)[_getFooterDuration](babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].time.author)
-	  };
-	  const hiddenTaskCount = babelHelpers.classPrivateFieldLooseBase(this, _getHiddenTaskCount)[_getHiddenTaskCount]();
-	  if (hiddenTaskCount > 0) {
-	    step.progressBox = {
-	      title: main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_COMPLETED_TASK_COUNT', {
-	        '#COUNT#': hiddenTaskCount
-	      })
-	    };
-	  }
-	  return step;
-	}
-	function _getHiddenTaskCount2() {
-	  const completedTaskCount = main_core.Text.toInteger(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].completedTaskCount);
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowIsCompleted) {
-	    return completedTaskCount > 2 ? completedTaskCount - 2 : 0;
-	  }
-	  return completedTaskCount > 1 ? completedTaskCount - 1 : 0;
-	}
-	function _getRunningStep2() {
-	  const stack = {
-	    images: [{
-	      type: ui_imageStackSteps.imageTypeEnum.ICON,
-	      data: {
-	        icon: 'black-clock',
-	        color: 'var(--ui-color-palette-blue-60)'
-	      }
-	    }]
-	  };
-	  const images = babelHelpers.classPrivateFieldLooseBase(this, _getStackUserImages)[_getStackUserImages](babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].avatars.running);
-	  if (main_core.Type.isArrayFilled(images)) {
-	    stack.images = images;
-	    stack.status = {
-	      type: ui_imageStackSteps.stackStatusEnum.WAIT
-	    };
-	  }
+	function _createStep2(data) {
 	  return {
-	    id: 'running',
+	    id: data.id,
 	    header: {
 	      type: ui_imageStackSteps.headerTypeEnum.TEXT,
 	      data: {
-	        text: main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_COLUMN_RUNNING')
+	        text: data.name
 	      }
 	    },
-	    stack,
-	    footer: {
-	      type: ui_imageStackSteps.footerTypeEnum.DURATION,
-	      data: {
-	        duration: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].time.running,
-	        realtime: true
-	      }
+	    stack: babelHelpers.classPrivateFieldLooseBase(this, _getStack)[_getStack](data),
+	    footer: babelHelpers.classPrivateFieldLooseBase(this, _getFooter)[_getFooter](data),
+	    styles: {
+	      minWidth: 75
 	    }
 	  };
 	}
-	function _getCompletedStep2() {
-	  const isSuccess = main_core.Text.toBoolean(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].statuses.completedSuccess);
-	  const stack = {
-	    images: [{
-	      type: ui_imageStackSteps.imageTypeEnum.ICON,
-	      data: {
-	        icon: isSuccess ? 'circle-check' : 'cross-circle-60',
-	        color: isSuccess ? 'var(--ui-color-primary-alt)' : 'var(--ui-color-base-35)'
-	      }
-	    }]
-	  };
-	  const images = babelHelpers.classPrivateFieldLooseBase(this, _getStackUserImages)[_getStackUserImages](babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].avatars.completed);
-	  if (main_core.Type.isArrayFilled(images)) {
-	    stack.images = images;
-	    stack.status = {
-	      type: isSuccess ? ui_imageStackSteps.stackStatusEnum.OK : ui_imageStackSteps.stackStatusEnum.CANCEL
-	    };
+	function _getStack2(data) {
+	  const userStack = babelHelpers.classPrivateFieldLooseBase(this, _getUserStack)[_getUserStack](data);
+	  if (userStack) {
+	    return userStack;
 	  }
-	  return {
-	    id: 'completed',
-	    header: {
-	      type: ui_imageStackSteps.headerTypeEnum.TEXT,
-	      data: {
-	        text: main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_COLUMN_COMPLETED')
-	      }
-	    },
-	    stack,
-	    footer: babelHelpers.classPrivateFieldLooseBase(this, _getFooterDuration)[_getFooterDuration](babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].time.completed)
-	  };
+	  return babelHelpers.classPrivateFieldLooseBase(this, _getIconStack)[_getIconStack](data);
 	}
-	function _getDoneStep2() {
-	  const stack = {
-	    images: [{
-	      type: ui_imageStackSteps.imageTypeEnum.ICON,
-	      data: {
-	        icon: 'circle-check',
-	        color: 'var(--ui-color-primary-alt)'
-	      }
-	    }]
-	  };
-	  const images = babelHelpers.classPrivateFieldLooseBase(this, _getStackUserImages)[_getStackUserImages](babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].avatars.done);
+	function _getUserStack2(data) {
+	  const images = babelHelpers.classPrivateFieldLooseBase(this, _getStackUserImages)[_getStackUserImages](data.avatarsData);
 	  if (main_core.Type.isArrayFilled(images)) {
-	    const isSuccess = main_core.Text.toBoolean(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].statuses.doneSuccess);
-	    stack.images = images;
-	    stack.status = {
-	      type: isSuccess ? ui_imageStackSteps.stackStatusEnum.OK : ui_imageStackSteps.stackStatusEnum.CANCEL
+	    const stack = {
+	      images
 	    };
-	  }
-	  return {
-	    id: 'done',
-	    header: {
-	      type: ui_imageStackSteps.headerTypeEnum.TEXT,
-	      data: {
-	        text: main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_COLUMN_DONE')
-	      }
-	    },
-	    stack,
-	    footer: babelHelpers.classPrivateFieldLooseBase(this, _getFooterDuration)[_getFooterDuration](babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].time.done)
-	  };
-	}
-	function _getStubStep2() {
-	  return {
-	    id: 'stub',
-	    header: {
-	      type: ui_imageStackSteps.headerTypeEnum.STUB
-	    },
-	    stack: {
-	      images: [{
-	        type: ui_imageStackSteps.imageTypeEnum.USER_STUB
-	      }]
-	    },
-	    footer: {
-	      type: ui_imageStackSteps.footerTypeEnum.STUB
+	    let status = null;
+	    switch (data.status) {
+	      case 'wait':
+	        status = ui_imageStackSteps.stackStatusEnum.WAIT;
+	        break;
+	      case 'success':
+	        status = ui_imageStackSteps.stackStatusEnum.OK;
+	        break;
+	      case 'not-success':
+	        status = ui_imageStackSteps.stackStatusEnum.CANCEL;
+	        break;
+	      default:
+	        status = null;
 	    }
-	  };
+	    if (status) {
+	      stack.status = {
+	        type: status
+	      };
+	    }
+	    return stack;
+	  }
+	  return null;
 	}
 	function _getStackUserImages2(avatars) {
 	  const images = [];
@@ -431,25 +321,74 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	  return images;
 	}
-	function _getFooterDuration2(time) {
-	  if (main_core.Type.isNumber(time) && time > 0) {
+	function _getIconStack2(data) {
+	  let icon = null;
+	  let color = null;
+	  switch (data.id) {
+	    case 'completed':
+	      icon = data.success ? 'circle-check' : 'cross-circle-60';
+	      color = data.success ? 'var(--ui-color-primary-alt)' : 'var(--ui-color-base-35)';
+	      break;
+	    case 'running':
+	      icon = 'black-clock';
+	      color = 'var(--ui-color-palette-blue-60)';
+	      break;
+	    case 'done':
+	      icon = 'circle-check';
+	      color = 'var(--ui-color-primary-alt)';
+	      break;
+	    default:
+	      icon = 'bp';
+	      color = 'var(--ui-color-palette-gray-20)';
+	  }
+	  return {
+	    images: [{
+	      type: ui_imageStackSteps.imageTypeEnum.ICON,
+	      data: {
+	        icon,
+	        color
+	      }
+	    }]
+	  };
+	}
+	function _getFooter2(data) {
+	  if (main_core.Type.isNumber(data.duration) && data.duration > 0 || data.id === 'running') {
 	    return {
 	      type: ui_imageStackSteps.footerTypeEnum.DURATION,
 	      data: {
-	        duration: time,
-	        realtime: false
+	        duration: main_core.Text.toInteger(data.duration),
+	        realtime: data.id === 'running'
 	      }
 	    };
 	  }
 	  return {
 	    type: ui_imageStackSteps.footerTypeEnum.TEXT,
 	    data: {
-	      text: main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_EMPTY_TIME')
+	      text: String(data.duration)
+	    }
+	  };
+	}
+	function _getStubStep2() {
+	  return {
+	    id: 'stub',
+	    header: {
+	      type: ui_imageStackSteps.headerTypeEnum.STUB
+	    },
+	    stack: {
+	      images: [{
+	        type: ui_imageStackSteps.imageTypeEnum.USER_STUB
+	      }]
+	    },
+	    footer: {
+	      type: ui_imageStackSteps.footerTypeEnum.STUB
+	    },
+	    styles: {
+	      minWidth: 75
 	    }
 	  };
 	}
 	function _subscribeToPushes2() {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowIsCompleted && BX.PULL) {
+	  if (BX.PULL) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _unsubscribePushCallback)[_unsubscribePushCallback] = BX.PULL.subscribe({
 	      moduleId: 'bizproc',
 	      command: 'workflow',
@@ -472,7 +411,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    main_core.ajax.runAction('bizproc.workflow.faces.load', {
 	      data: {
 	        workflowId: babelHelpers.classPrivateFieldLooseBase(this, _workflowId)[_workflowId],
-	        runningTaskId: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].runningTaskId || 0,
+	        runningTaskId: babelHelpers.classPrivateFieldLooseBase(this, _getRunningTaskId)[_getRunningTaskId](),
 	        userId: babelHelpers.classPrivateFieldLooseBase(this, _targetUserId)[_targetUserId]
 	      }
 	    }).then(({
@@ -496,6 +435,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 	  }
 	}
+	function _getRunningTaskId2() {
+	  const runningStep = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].steps.find(step => step.id === 'running');
+	  if (runningStep) {
+	    return runningStep.taskId;
+	  }
+	  return 0;
+	}
 	function _unsubscribeToPushes2() {
 	  if (main_core.Type.isFunction(babelHelpers.classPrivateFieldLooseBase(this, _unsubscribePushCallback)[_unsubscribePushCallback])) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _unsubscribePushCallback)[_unsubscribePushCallback]();
@@ -505,9 +451,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	function _renderTimeline2() {
 	  const timeline = new bizproc_workflow_faces_summary.Summary({
 	    workflowId: babelHelpers.classPrivateFieldLooseBase(this, _workflowId)[_workflowId],
-	    time: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].time.total,
-	    workflowIsCompleted: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowIsCompleted,
-	    showArrow: false
+	    data: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].timeStep
 	  });
 	  babelHelpers.classPrivateFieldLooseBase(this, _timelineNode)[_timelineNode] = timeline.render();
 	  return babelHelpers.classPrivateFieldLooseBase(this, _timelineNode)[_timelineNode];

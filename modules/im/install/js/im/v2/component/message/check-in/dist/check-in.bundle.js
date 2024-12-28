@@ -60,7 +60,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onClick() {
 	      this.showQrPopup();
-	      im_v2_lib_analytics.Analytics.getInstance().onOpenCheckInPopup();
+	      im_v2_lib_analytics.Analytics.getInstance().checkIn.onOpenCheckInPopup();
 	    },
 	    showQrPopup() {
 	      if (!stafftrack_userStatisticsLink.UserStatisticsLink) {

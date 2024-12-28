@@ -1,0 +1,21 @@
+.ui-rich-menu__container {
+	--ui-rich-menu__background-color: var(--ui-color-palette-white-base);
+
+	box-sizing: border-box;
+}
+
+.ui-rich-menu__container * {
+	box-sizing: border-box;
+}
+
+.ui-rich-menu__container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 6px 8px;
+	background-color: var(--ui-rich-menu__background-color);
+	border-radius: var(--popup-window-border-radius);
+	user-select: none;
+}

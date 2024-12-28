@@ -1,8 +1,6 @@
 import { DefaultMessageContent, MessageHeader, ReactionSelector, MessageKeyboard, MessageFooter } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
 
-import { Reply } from './components/reply';
-
 import './css/default.css';
 
 import type { ImModelMessage } from 'im.v2.model';
@@ -16,7 +14,6 @@ export const DefaultMessage = {
 		BaseMessage,
 		DefaultMessageContent,
 		ReactionSelector,
-		Reply,
 		MessageKeyboard,
 	},
 	props: {
@@ -39,14 +36,6 @@ export const DefaultMessage = {
 		{
 			return this.item;
 		},
-		isReply(): boolean
-		{
-			return this.message.replyId !== 0;
-		},
-		isForward(): boolean
-		{
-			return this.$store.getters['messages/isForward'](this.message.id);
-		},
 		hasKeyboard(): boolean
 		{
 			return this.message.keyboard.length > 0;
@@ -59,7 +48,6 @@ export const DefaultMessage = {
 			</template>
 			<div class="bx-im-message-default__container">
 				<MessageHeader :withTitle="withTitle" :item="item" />
-				<Reply v-if="isReply" :dialogId="dialogId" :replyId="message.replyId" :isForward="isForward" />
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
 			</div>
 			<MessageFooter :item="item" :dialogId="dialogId" />

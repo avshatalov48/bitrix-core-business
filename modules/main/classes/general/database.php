@@ -68,6 +68,13 @@ abstract class CAllDatabase
 		Main\Application::getInstance()->getConnectionPool()->useMasterOnly(false);
 	}
 
+	public function getConnection()
+	{
+		$this->Doconnect();
+
+		return $this->connection;
+	}
+
 	/**
 	 * @param string $node_id
 	 * @param boolean $bIgnoreErrors
@@ -649,38 +656,18 @@ abstract class CAllDatabase
 			$this->db_ErrorSQL = $strSql;
 			if (!$bIgnoreErrors)
 			{
-				$application = Main\Application::getInstance();
-
-				$ex = new Main\DB\SqlQueryException('Query error', $this->db_Error, $strSql);
-				$application->getExceptionHandler()->writeToLog($ex);
-
-				(new Main\HttpResponse())
-					->setStatus('500 Internal Server Error')
-					->writeHeaders()
-				;
-
 				if ($this->DebugToFile)
 				{
 					$this->startSqlTracker()->writeFileLog("ERROR: " . $this->db_Error, 0, "CONN: " . $this->getThreadId());
 				}
 
-				if ($this->debug)
+				if (defined('ERROR_EMAIL') && ERROR_EMAIL != '')
 				{
-					echo $error_position . "<br><font color=#ff0000>Query Error: " . htmlspecialcharsbx($strSql) . "</font>[" . htmlspecialcharsbx($this->db_Error) . "]<br>";
+					$error_position = preg_replace("#<br[^>]*>#i", "\n", $error_position);
+					SendError($error_position . "\nQuery Error:\n" . $strSql . " \n [" . $this->db_Error . "]\n---------------\n\n");
 				}
 
-				$error_position = preg_replace("#<br[^>]*>#i", "\n", $error_position);
-				SendError($error_position . "\nQuery Error:\n" . $strSql . " \n [" . $this->db_Error . "]\n---------------\n\n");
-
-				if (file_exists($_SERVER["DOCUMENT_ROOT"] . BX_PERSONAL_ROOT . "/php_interface/dbquery_error.php"))
-				{
-					include($_SERVER["DOCUMENT_ROOT"] . BX_PERSONAL_ROOT . "/php_interface/dbquery_error.php");
-					die();
-				}
-				else
-				{
-					die("Query Error!");
-				}
+				throw $this->connection->createQueryException($this->GetErrorCode(), $this->db_Error, $strSql);
 			}
 			return false;
 		}
@@ -822,7 +809,7 @@ abstract class CAllDatabase
 	 */
 	public function ParseSqlBatch($strSql)
 	{
-		$this->Doconnect();
+		$this->DoConnect();
 		return $this->connection->parseSqlBatch($strSql);
 	}
 
@@ -836,7 +823,7 @@ abstract class CAllDatabase
 		$arErr = [];
 		$contents = file_get_contents($filepath);
 
-		$this->Doconnect();
+		$this->DoConnect();
 		foreach ($this->connection->parseSqlBatch($contents) as $strSql)
 		{
 			if (!$this->Query($strSql, true))
@@ -977,5 +964,23 @@ abstract class CAllDatabase
 				'CDBResult' => 'classes/' . $connectionType . '/dbresult.php',
 			]
 		);
+	}
+
+	/**
+	 * @abstract
+	 * @return string
+	 */
+	protected function getError()
+	{
+		return '';
+	}
+
+	/**
+	 * @abstract
+	 * @return int
+	 */
+	protected function getErrorCode()
+	{
+		return 0;
 	}
 }

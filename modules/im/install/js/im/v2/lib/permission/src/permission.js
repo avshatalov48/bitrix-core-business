@@ -2,22 +2,24 @@ import { Type } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
-import { ChatType, ChatActionType, ChatActionGroup, UserRole } from 'im.v2.const';
+import { ChatType, ActionByRole, ChatActionGroup, UserRole, UserType, ActionByUserType } from 'im.v2.const';
 
 import { MinimalRoleForAction } from './const/action-config';
 
 import type { ImModelChat } from 'im.v2.model';
 
 type ChatTypeItem = $Keys<typeof ChatType>;
-type ActionTypeItem = $Keys<typeof ChatActionType>;
+type ActionTypeItem = $Keys<typeof ActionByRole>;
+type ActionByUserTypeItem = $Keys<typeof ActionByUserType>;
 type ActionGroupItem = $Keys<typeof ChatActionGroup>;
-type ActionGroup = ActionTypeItem[];
 type RoleItem = $Keys<typeof UserRole>;
+type UserTypeItem = $Keys<typeof UserType>;
 
 type RawPermissions = {
 	byChatType: PermissionsByChatType,
-	actionGroups: {},
-	actionGroupsDefaults: {},
+	byUserType: PermissionsByUserType,
+	actionGroups: PermissionsActionGroups,
+	actionGroupsDefaults: PermissionsGroupDefaults,
 };
 
 type PermissionsByRole = {
@@ -30,10 +32,20 @@ type PermissionsByChatType = {
 	}
 };
 
+type PermissionsByUserType = {
+	[userType: UserTypeItem]: {
+		[operation: ActionByUserTypeItem]: boolean,
+	}
+};
+
 type PermissionsGroupDefaults = {
 	[chatType: ChatTypeItem]: {
 		[group: ActionGroupItem]: RoleItem,
 	}
+};
+
+type PermissionsActionGroups = {
+	[group: ActionGroupItem]: RoleItem,
 };
 
 const DEFAULT_TYPE = 'default';
@@ -44,7 +56,8 @@ export class PermissionManager
 
 	#rolePermissions: PermissionsByRole = {};
 	#chatTypePermissions: PermissionsByChatType = {};
-	#actionGroups: Object<ActionGroupItem, ActionGroup> = {};
+	#userTypePermissions: PermissionsByUserType = {};
+	#actionGroups: PermissionsActionGroups = {};
 	#actionGroupsDefaultRoles: PermissionsGroupDefaults = {};
 
 	static getInstance(): PermissionManager
@@ -69,11 +82,25 @@ export class PermissionManager
 		this.#init(permissions);
 	}
 
-	canPerformAction(actionType: ActionTypeItem, dialogId: string): boolean
+	canPerformActionByRole(actionType: ActionTypeItem, dialogId: string): boolean
 	{
 		return this.#canPerformActionByRole(actionType, dialogId)
 			&& this.#canPerformActionByChatType(actionType, dialogId)
 			&& this.#canPerformActionByChatSettings(actionType, dialogId);
+	}
+
+	canPerformActionByUserType(actionType: ActionByUserTypeItem): boolean
+	{
+		const externalUserType = this.#getUserType(Core.getUserId());
+		const userPermissions = this.#userTypePermissions[externalUserType];
+		if (!actionType || !userPermissions)
+		{
+			return true;
+		}
+
+		const action = ActionByUserType[actionType];
+
+		return userPermissions[action] ?? true;
 	}
 
 	getDefaultRolesForActionGroups(chatType?: ChatTypeItem): Object<ActionGroupItem, RoleItem>
@@ -93,8 +120,9 @@ export class PermissionManager
 		{
 			return;
 		}
-		const { byChatType, actionGroups, actionGroupsDefaults } = rawPermissions;
+		const { byChatType, byUserType, actionGroups, actionGroupsDefaults } = rawPermissions;
 		this.#chatTypePermissions = this.#prepareChatTypePermissions(byChatType);
+		this.#userTypePermissions = byUserType;
 		this.#actionGroups = actionGroups;
 		this.#actionGroupsDefaultRoles = actionGroupsDefaults;
 	}
@@ -116,7 +144,7 @@ export class PermissionManager
 	{
 		let actionType = rawActionType;
 		const dialog: ImModelChat = this.#getDialog(dialogId);
-		const { role: userRole, owner: chatOwner } = dialog;
+		const { role: userRole, ownerId } = dialog;
 		let { type: chatType } = dialog;
 
 		if (Type.isUndefined(this.#chatTypePermissions[chatType]))
@@ -124,17 +152,7 @@ export class PermissionManager
 			chatType = DEFAULT_TYPE;
 		}
 
-		// for kick check if users can leave this type of chat
-		if (actionType === ChatActionType.kick)
-		{
-			actionType = ChatActionType.leave;
-		}
-
-		const isOwner = chatOwner === Core.getUserId();
-		if (actionType === ChatActionType.leave && isOwner)
-		{
-			actionType = ChatActionType.leaveOwner;
-		}
+		actionType = this.#handleKickAndLeaveActionType(actionType, ownerId);
 
 		if (Type.isUndefined(this.#chatTypePermissions[chatType]?.[actionType]))
 		{
@@ -213,5 +231,27 @@ export class PermissionManager
 	#getDialog(dialogId: string): ImModelChat
 	{
 		return Core.getStore().getters['chats/get'](dialogId, true);
+	}
+
+	#getUserType(userId: number): $Values<typeof UserType>
+	{
+		return Core.getStore().getters['users/get'](userId, true).type;
+	}
+
+	#handleKickAndLeaveActionType(actionType, ownerId): ActionTypeItem
+	{
+		const isOwner = ownerId === Core.getUserId();
+		// for kick check if users can leave this type of chat
+		if (actionType === ActionByRole.kick)
+		{
+			return ActionByRole.leave;
+		}
+
+		if (actionType === ActionByRole.leave && isOwner)
+		{
+			return ActionByRole.leaveOwner;
+		}
+
+		return actionType;
 	}
 }

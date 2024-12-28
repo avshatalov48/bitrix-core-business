@@ -1,6 +1,6 @@
 import { hint } from 'ui.vue3.directives.hint';
 
-import { ChatActionType, Layout } from 'im.v2.const';
+import { ActionByRole, Layout } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
 import { ChatService } from 'im.v2.provider.service';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -35,7 +35,7 @@ export const MuteChat = {
 		},
 		canBeMuted(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.mute, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.mute, this.dialogId);
 		},
 		isChatMuted(): boolean
 		{

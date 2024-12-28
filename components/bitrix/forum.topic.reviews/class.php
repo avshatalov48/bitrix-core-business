@@ -446,27 +446,16 @@ final class ForumTopicReviewsComponent extends CBitrixComponent implements Main\
 	{
 		if (mb_strlen($captchaCode) > 0)
 		{
-			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-			$captchaPass = Main\Config\Option::get("main", "captcha_password", "");
-
 			$cpt = new CCaptcha();
-			return $cpt->CheckCodeCrypt($captchaWord, $captchaCode, $captchaPass);
+			return $cpt->CheckCodeCrypt($captchaWord, $captchaCode);
 		}
 		return false;
 	}
 
 	private function getCaptchaCode()
 	{
-		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-
 		$cpt = new CCaptcha();
-		$captchaPass = Main\Config\Option::get("main", "captcha_password", "");
-		if ($captchaPass == "")
-		{
-			$captchaPass = Main\Security\Random::getString(10);
-			Main\Config\Option::set("main", "captcha_password", $captchaPass);
-		}
-		$cpt->SetCodeCrypt($captchaPass);
+		$cpt->SetCodeCrypt();
 		return $cpt->GetCodeCrypt();
 	}
 

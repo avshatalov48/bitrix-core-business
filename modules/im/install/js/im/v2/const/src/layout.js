@@ -29,6 +29,11 @@ export const Layout = Object.freeze({
 		list: '',
 		content: 'OpenlineContent',
 	},
+	openlinesV2: {
+		name: 'openlinesV2',
+		list: 'OpenlineListContainer',
+		content: 'OpenlinesV2Content',
+	},
 	conference: {
 		name: 'conference',
 		list: 'RecentListContainer',
@@ -48,6 +53,11 @@ export const Layout = Object.freeze({
 		name: 'copilot',
 		list: 'CopilotListContainer',
 		content: 'CopilotContent',
+	},
+	collab: {
+		name: 'collab',
+		list: 'CollabListContainer',
+		content: 'ChatContent',
 	},
 	market: {
 		name: 'market',

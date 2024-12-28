@@ -5,6 +5,7 @@ import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 import { BaseMessage } from 'im.v2.component.message.base';
 import { ReactionList, MessageStatus, AuthorTitle } from 'im.v2.component.message.elements';
+import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
 
 import './css/copilot-answer.css';
 
@@ -79,7 +80,7 @@ export const CopilotMessage = {
 			}
 
 			const ARTICLE_CODE = '20412666';
-			BX.Helper?.show(`redirect=detail&code=${ARTICLE_CODE}`);
+			openHelpdeskArticle(ARTICLE_CODE);
 		},
 		loc(phraseCode: string, replacements: {[p: string]: string} = {}): string
 		{

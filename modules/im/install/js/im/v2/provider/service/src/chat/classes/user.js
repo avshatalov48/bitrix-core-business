@@ -1,11 +1,12 @@
 import 'ui.notification';
+import { LayoutManager } from 'im.v2.lib.layout';
 import { Loc } from 'main.core';
 import { Store } from 'ui.vue3.vuex';
 import { RestClient } from 'rest.client';
 
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
-import { ChatType, RestMethod, UserRole } from 'im.v2.const';
+import { RestMethod, UserRole } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { runAction } from 'im.v2.lib.rest';
 
@@ -59,6 +60,26 @@ export class UserService
 		}
 	}
 
+	async kickUserFromCollab(dialogId: string, userId: number)
+	{
+		const USER_ENTITY_ID = 'user';
+		const members = [[USER_ENTITY_ID, userId]];
+
+		const payload = {
+			data: { dialogId, members },
+		};
+
+		try
+		{
+			await runAction(RestMethod.socialnetworkMemberDelete, payload);
+		}
+		catch (errors)
+		{
+			console.error('UserService: error kicking from collab', errors);
+			this.#showNotification(Loc.getMessage('IM_MESSAGE_SERVICE_KICK_COLLAB_DEFAULT_ERROR'));
+		}
+	}
+
 	async leaveChat(dialogId: string)
 	{
 		const queryParams = { dialogId, userId: Core.getUserId() };
@@ -70,6 +91,25 @@ export class UserService
 		catch (error)
 		{
 			this.#onChatLeaveError(error);
+		}
+	}
+
+	async leaveCollab(dialogId: string)
+	{
+		const payload = {
+			data: { dialogId },
+		};
+
+		try
+		{
+			await runAction(RestMethod.socialnetworkMemberLeave, payload);
+
+			this.#onChatLeave(dialogId);
+		}
+		catch (errors)
+		{
+			console.error('UserService: leave collab error', errors);
+			this.#showNotification(Loc.getMessage('IM_MESSAGE_SERVICE_LEAVE_COLLAB_DEFAULT_ERROR'));
 		}
 	}
 
@@ -158,7 +198,8 @@ export class UserService
 		const chatIsOpened = this.#store.getters['application/isChatOpen'](dialogId);
 		if (chatIsOpened)
 		{
-			void Messenger.openChat();
+			LayoutManager.getInstance().clearCurrentLayoutEntityId();
+			void LayoutManager.getInstance().deleteLastOpenedElementById(dialogId);
 		}
 	}
 

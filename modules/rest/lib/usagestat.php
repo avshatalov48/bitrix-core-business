@@ -199,7 +199,10 @@ class UsageStatTable extends Main\Entity\DataManager
 
 	public static function log(\CRestServer $server)
 	{
-		if (Main\ModuleManager::isModuleInstalled('oauth'))
+		if (
+			Main\ModuleManager::isModuleInstalled('oauth')
+			&& !defined('REST_FORCE_USAGE_STAT')
+		)
 		{
 			return;
 		}
@@ -370,7 +373,10 @@ class UsageStatTable extends Main\Entity\DataManager
 
 	public static function finalize()
 	{
-		if (Main\ModuleManager::isModuleInstalled('oauth'))
+		if (
+			Main\ModuleManager::isModuleInstalled('oauth')
+			&& !defined('REST_FORCE_USAGE_STAT')
+		)
 		{
 			return;
 		}

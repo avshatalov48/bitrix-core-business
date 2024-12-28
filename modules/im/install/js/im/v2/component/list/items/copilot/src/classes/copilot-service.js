@@ -1,6 +1,6 @@
-import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { RestMethod } from 'im.v2.const';
+import { LayoutManager } from 'im.v2.lib.layout';
 import { Logger } from 'im.v2.lib.logger';
 import { RecentService } from 'im.v2.provider.service';
 
@@ -51,7 +51,8 @@ export class CopilotRecentService extends RecentService
 		const chatIsOpened = Core.getStore().getters['application/isChatOpen'](dialogId);
 		if (chatIsOpened)
 		{
-			Messenger.openCopilot();
+			LayoutManager.getInstance().clearCurrentLayoutEntityId();
+			void LayoutManager.getInstance().deleteLastOpenedElementById(dialogId);
 		}
 
 		Core.getRestClient().callMethod(RestMethod.imRecentHide, { DIALOG_ID: dialogId }).catch((error) => {

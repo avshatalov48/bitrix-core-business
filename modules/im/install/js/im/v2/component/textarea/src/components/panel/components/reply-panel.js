@@ -109,7 +109,7 @@ export const ReplyPanel = {
 					v-if="this.messageFile.urlPreview" 
 					class="bx-im-message-panel__image_img" 
 					:src="this.messageFile.urlPreview"
-                    :alt="this.messageFile.name"
+		                  :alt="this.messageFile.name"
 				>
 			</div>
 			<div class="bx-im-message-panel__content">

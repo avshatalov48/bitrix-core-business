@@ -2,7 +2,8 @@
 
 namespace Bitrix\Im\V2\Controller\Filter;
 
-use Bitrix\Main\Application;
+use Bitrix\Im\V2\Controller\Chat;
+use Bitrix\Im\V2\Controller\UpdateState;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\ActionFilter\Base;
 use Bitrix\Main\Engine\CurrentUser;
@@ -11,18 +12,40 @@ use Bitrix\Main\Loader;
 
 class UpdateStatus extends Base
 {
-	public function onAfterAction(Event $event): void
+	/**
+	 * The names of the methods are listed in lowercase
+	 * because REST, unlike AJAX actions, converts method names to lowercase.
+	 */
+	private const METHODS_REQUIRING_PREFILTER = [
+		Chat::class => [
+			'load' => true, /** @see Chat::loadAction() */
+			'loadincontext' => true, /** @see Chat::loadInContextAction() */
+			'read' => true, /** @see Chat::readAction() */
+			'readall' => true, /** @see Chat::readAllAction() */
+		],
+		UpdateState::class => [
+			'getstatedata' => true, /** @see UpdateState::getStateDataAction() */
+		],
+		Chat\Message::class => [
+			'read' => true, /** @see Chat\Message::readAction() */
+			'list' => true, /** @see Chat\Message::listAction() */
+			'getcontext' => true, /** @see Chat\Message::getContextAction() */
+			'tail' => true, /** @see Chat\Message::tailAction() */
+		],
+	];
+
+	public function onBeforeAction(Event $event)
 	{
 		$this->updateStatus();
 	}
 
-	public function onBeforeAction(Event $event)
+	private function updateStatus(): void
 	{
-		$this->updateStatus(false);
-	}
+		if (!$this->shouldUpdateByAction())
+		{
+			return;
+		}
 
-	private function updateStatus(bool $desktopCache = true): void
-	{
 		$userId = (int)CurrentUser::get()->getId();
 		if (!$userId)
 		{
@@ -43,7 +66,7 @@ class UpdateStatus extends Base
 
 		if ($this->isDesktop())
 		{
-			\CIMMessenger::SetDesktopStatusOnline($userId, $desktopCache);
+			\CIMMessenger::SetDesktopStatusOnline($userId);
 		}
 	}
 
@@ -67,5 +90,13 @@ class UpdateStatus extends Base
 		}
 
 		return false !== stripos($context->getRequest()->getUserAgent(), $userAgent);
+	}
+
+	private function shouldUpdateByAction(): bool
+	{
+		$className = $this->getAction()->getController()::class;
+		$methodName = mb_strtolower($this->getAction()->getName());
+
+		return isset(self::METHODS_REQUIRING_PREFILTER[$className][$methodName]);
 	}
 }

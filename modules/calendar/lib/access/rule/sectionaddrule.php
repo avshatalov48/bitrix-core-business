@@ -7,6 +7,7 @@ use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\Rule\Traits\CurrentUserTrait;
 use Bitrix\Calendar\Access\Rule\Traits\ExtranetUserTrait;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Rule\Traits\SectionTrait;
@@ -25,6 +26,11 @@ class SectionAddRule extends \Bitrix\Main\Access\Rule\AbstractRule
 		if (!$this->hasCurrentUser())
 		{
 			return true;
+		}
+
+		if (Util::isCollabUser($this->user->getUserId()))
+		{
+			return false;
 		}
 
 		if (!$this->canSeeOwnerIfExtranetUser($item, $this->user))

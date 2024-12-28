@@ -13,6 +13,10 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\ObjectException;
+use Bitrix\Socialnetwork\Collab\Integration\IM\ActionMessageSender;
+use Bitrix\Socialnetwork\Collab\Integration\IM\ActionType;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Integration;
@@ -215,7 +219,8 @@ class UserToGroup
 	public static function onAfterUserAdd(&$fields): void
 	{
 		if (
-			$fields['ID'] <= 0
+			!isset($fields['ID'])
+			|| $fields['ID'] <= 0
 			|| (
 				isset($fields['ACTIVE'])
 				&& $fields['ACTIVE'] !== 'Y'
@@ -508,9 +513,7 @@ class UserToGroup
 			|| !isset($params['group_id'], $params['user_id'], $params['action'])
 			|| (int)$params['group_id'] <= 0
 			|| (int)$params['user_id'] <= 0
-			|| !Integration\Im\Chat\Workgroup::getUseChat()
 			|| !Loader::includeModule('im')
-			|| !in_array($params['action'], self::getChatActionList(), true)
 		)
 		{
 			return false;
@@ -518,6 +521,38 @@ class UserToGroup
 
 		$groupId = (int)$params['group_id'];
 		$userId = (int)$params['user_id'];
+		$action = (string)$params['action'];
+
+		$group = GroupRegistry::getInstance()->get($groupId);
+
+		if ($group === null)
+		{
+			return false;
+		}
+
+		if (!$group->isCollab() && !Integration\Im\Chat\Workgroup::getUseChat())
+		{
+			return false;
+		}
+
+		if ($group->isCollab() && ActionType::isValid($action))
+		{
+			try
+			{
+				$sender = new ActionMessageSender($groupId, $userId);
+			}
+			catch (ObjectException)
+			{
+				return false;
+			}
+
+			return $sender->sendActionMessage(ActionType::tryFrom($action), $params);
+		}
+		if (!in_array($action, self::getChatActionList(), true))
+		{
+			return false;
+		}
+
 		$role = ($params['role'] ?? false);
 
 		$sendMessage = (
@@ -553,8 +588,7 @@ class UserToGroup
 			return false;
 		}
 
-		$groupItem = Workgroup::getById($groupId);
-		$projectSuffix = ($groupItem->isProject() ? '_PROJECT' : '');
+		$projectSuffix = ($group->isProject() ? '_PROJECT' : '');
 
 		$userName = \CUser::formatName(\CSite::getNameFormat(), $user, true, false);
 		switch($user['PERSONAL_GENDER'])
@@ -581,6 +615,7 @@ class UserToGroup
 					{
 						\Bitrix\Im\Chat::mute($chatId, true, $userId);
 					}
+
 					$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage('SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_ADD' . $projectSuffix . $genderSuffix));
 				}
 				else
@@ -598,6 +633,7 @@ class UserToGroup
 					$sendMessage = false;
 				}
 				break;
+
 			default:
 				$chatMessage = '';
 				$sendMessage = false;
@@ -639,7 +675,7 @@ class UserToGroup
 
 	private static function getChatActionList(): array
 	{
-		return [ self::CHAT_ACTION_IN, self::CHAT_ACTION_OUT ];
+		return [self::CHAT_ACTION_IN, self::CHAT_ACTION_OUT];
 	}
 
 	public static function addModerators($params = []): bool

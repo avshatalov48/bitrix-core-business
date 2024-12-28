@@ -29,6 +29,8 @@ class BizprocUserProcesses
 	private ErrorCollection $errorCollection;
 	private \Bitrix\Main\UI\Filter\Options $filterOptions;
 
+	private int $targetUserId;
+
 	private const WORKFLOW_FIELDS_TO_LOAD = [
 		'STARTED_BY',
 		'STATE_TITLE',
@@ -83,6 +85,10 @@ class BizprocUserProcesses
 	public function loadWorkflowsAction(array $ids): ?array
 	{
 		$this->init();
+		if (!$this->hasErrors())
+		{
+			$this->checkRights();
+		}
 
 		if ($this->hasErrors())
 		{
@@ -129,6 +135,10 @@ class BizprocUserProcesses
 	public function delegateTasksAction(array $taskIds, int $toUserId): ?array
 	{
 		$this->init();
+		if (!$this->hasErrors())
+		{
+			$this->checkRights();
+		}
 
 		if (!$this->hasErrors() && $toUserId > 0)
 		{
@@ -178,14 +188,20 @@ class BizprocUserProcesses
 
 		if (!$this->hasErrors())
 		{
+			$this->checkRights();
+
 			$this->addToolbar();
 			$this->fillCounters();
 			$this->fillGridData();
 			$this->fillGridActions();
 			$this->subscribeToPushes();
+
+			$this->includeComponentTemplate();
+
+			return;
 		}
 
-		$this->includeComponentTemplate($this->hasErrors() ? 'error' : '');
+		$this->includeComponentTemplate('error');
 	}
 
 	private function subscribeToPushes(): void
@@ -202,11 +218,6 @@ class BizprocUserProcesses
 	private function init(): void
 	{
 		$this->checkModules();
-		if (!$this->hasErrors())
-		{
-			$this->checkRights();
-		}
-
 		$this->arResult['viewData'] = [];
 	}
 
@@ -226,6 +237,7 @@ class BizprocUserProcesses
 		$taskViewAccessResult = $accessService->checkViewTasks($this->getTargetUserId());
 		if (!$taskViewAccessResult->isSuccess())
 		{
+			$this->targetUserId = $this->getCurrentUserId();
 			$this->addErrors($taskViewAccessResult->getErrors());
 		}
 	}
@@ -504,6 +516,10 @@ class BizprocUserProcesses
 				'overdueDate' => $this->formatDate($workflowView->getOverdueDate()),
 				'commentCnt' => $workflowView->getCommentCounter(),
 				'isCompleted' => $workflowView->getIsCompleted(),
+				'workflowResult' => $workflowView->getIsCompleted()
+					? ($workflowView->getWorkflowResult() ?? $this->getFakeResult($workflowView->getStartedBy()))
+					: null
+				,
 			];
 		}
 
@@ -512,20 +528,7 @@ class BizprocUserProcesses
 
 	private function formatDate(?DateTime $date): string
 	{
-		if (!$date)
-		{
-			return '';
-		}
-
-		$thisYear = $date->format('Y') === date('Y');
-		$culture = \Bitrix\Main\Application::getInstance()->getContext()->getCulture();
-		$df = $thisYear
-			? $culture?->getDayMonthFormat() ?? 'j F'
-			: $culture?->getLongDateFormat() ?? 'j F Y'
-		;
-		$tf = $culture?->getShortTimeFormat() ?? 'H:i';
-
-		return \FormatDate("$df, $tf", $date->toUserTime());
+		return \CBPViewHelper::formatDateTime($date);
 	}
 
 	private function formatName($user): string
@@ -624,7 +627,10 @@ class BizprocUserProcesses
 
 	private function getTargetUserId(): int
 	{
-		return (int)($this->filterOptions->getFilter()['TARGET_USER'] ?? $this->getCurrentUserId());
+		return $this->targetUserId
+			?? (int)($this->filterOptions->getFilter()['TARGET_USER']
+			?? $this->getCurrentUserId())
+		;
 	}
 
 	private function getCurrentUserId(): int
@@ -851,5 +857,21 @@ class BizprocUserProcesses
 		}
 
 		return $userPresets;
+	}
+
+	private function getFakeResult(?\Bitrix\Main\EO_User $startedBy): ?array
+	{
+		if (!$startedBy)
+		{
+			return null;
+		}
+		$userName = $this->formatName($startedBy);
+
+		return [
+			'text' => \CBPHelper::convertBBtoText(
+				'[URL=/company/personal/user/' . $startedBy['ID'] . '/]' . $userName . '[/URL]',
+			),
+			'status' => \Bitrix\Bizproc\Result\RenderedResult::USER_RESULT,
+		];
 	}
 }

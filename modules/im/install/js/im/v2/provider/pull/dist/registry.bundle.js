@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
-(function (exports,main_core_events,im_v2_lib_uuid,im_v2_provider_service,im_v2_lib_layout,im_public,im_v2_lib_copilot,im_v2_lib_writing,im_v2_lib_roleManager,im_v2_lib_analytics,ui_vue3_vuex,im_v2_lib_counter,im_v2_lib_utils,im_v2_model,im_v2_lib_channel,im_v2_lib_user,im_v2_lib_desktopApi,im_v2_const,im_v2_lib_notifier,im_v2_lib_desktop,im_v2_lib_call,im_v2_lib_localStorage,im_v2_lib_soundNotification,im_v2_lib_logger,main_core,im_v2_application_core) {
+(function (exports,main_core_events,im_v2_lib_uuid,im_v2_provider_service,im_v2_lib_layout,im_v2_lib_copilot,im_v2_lib_writing,im_v2_lib_roleManager,im_v2_lib_analytics,ui_vue3_vuex,im_v2_lib_counter,im_public,im_v2_lib_slider,im_v2_lib_utils,im_v2_model,im_v2_lib_channel,im_v2_lib_user,im_v2_lib_desktopApi,im_v2_lib_notifier,im_v2_lib_desktop,im_v2_lib_call,im_v2_lib_localStorage,im_v2_lib_soundNotification,main_core,im_v2_lib_logger,im_v2_provider_pull,im_v2_application_core,im_v2_const) {
 	'use strict';
 
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
@@ -24,8 +24,12 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	var _getDialog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialog");
 	var _setCopilotRole = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setCopilotRole");
 	var _showNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showNotification");
+	var _deleteSelectedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deleteSelectedMessage");
 	class MessagePullHandler {
 	  constructor() {
+	    Object.defineProperty(this, _deleteSelectedMessage, {
+	      value: _deleteSelectedMessage2
+	    });
 	    Object.defineProperty(this, _showNotification, {
 	      value: _showNotification2
 	    });
@@ -102,7 +106,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    // update message with parsed link info
 	    if (messageWithRealId) {
 	      im_v2_lib_logger.Logger.warn('New message pull handler: we already have this message', params.message);
-	      babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/update', {
+	      void babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/update', {
 	        id: params.message.id,
 	        fields: {
 	          ...params.message,
@@ -112,7 +116,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _sendScrollEvent)[_sendScrollEvent](params.chatId);
 	    } else if (!messageWithRealId && messageWithTemplateId) {
 	      im_v2_lib_logger.Logger.warn('New message pull handler: we already have the TEMPORARY message', params.message);
-	      babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/updateWithId', {
+	      void babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/updateWithId', {
 	        id: params.message.templateId,
 	        fields: {
 	          ...params.message,
@@ -122,6 +126,12 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    }
 	    // it's an opponent message or our own message from somewhere else
 	    else if (!messageWithRealId && !messageWithTemplateId) {
+	      const hasLoadingMessage = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['messages/hasLoadingMessageByMessageId'](params.message.templateId);
+	      if (hasLoadingMessage) {
+	        void babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/deleteLoadingMessageByMessageId', {
+	          messageId: params.message.templateId
+	        });
+	      }
 	      im_v2_lib_logger.Logger.warn('New message pull handler: we dont have this message', params.message);
 	      babelHelpers.classPrivateFieldLooseBase(this, _handleAddingMessageToModel)[_handleAddingMessageToModel](params);
 	    }
@@ -152,6 +162,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      dialogId: params.dialogId,
 	      userId: params.senderId
 	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _deleteSelectedMessage)[_deleteSelectedMessage](params.id);
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/update', {
 	      id: params.id,
 	      fields: {
@@ -169,6 +180,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      dialogId: params.dialogId,
 	      userId: params.senderId
 	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _deleteSelectedMessage)[_deleteSelectedMessage](params.id);
 	    const areChannelCommentsOpened = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['messages/comments/areOpenedForChannelPost'](params.id);
 	    if (areChannelCommentsOpened) {
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.closeComments);
@@ -466,6 +478,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    content: text
 	  });
 	}
+	function _deleteSelectedMessage2(messageId) {
+	  void babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/select/deleteByMessageId', messageId);
+	}
 
 	var _store$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _updateChatUsers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateChatUsers");
@@ -548,6 +563,12 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      });
 	      babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('messages/clearChatCollection', {
 	        chatId: params.chatId
+	      });
+	    }
+	    const isChannel = im_v2_lib_channel.ChannelManager.isChannel(params.dialogId);
+	    if (isChannel) {
+	      void babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('counters/deleteForChannel', {
+	        channelChatId: params.chatId
 	      });
 	    }
 	    const chatIsOpened = babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].getters['application/isChatOpen'](params.dialogId);
@@ -683,9 +704,15 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    });
 	    const isCommentChat = params.type === im_v2_const.ChatType.comment;
 	    if (isCommentChat) {
-	      void babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('counters/delete', {
+	      void babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('counters/deleteForChannel', {
 	        channelChatId: params.parentChatId,
 	        commentChatId: params.chatId
+	      });
+	    }
+	    const isChannel = im_v2_lib_channel.ChannelManager.isChannel(params.dialogId);
+	    if (isChannel) {
+	      void babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('counters/deleteForChannel', {
+	        channelChatId: params.chatId
 	      });
 	    }
 	    void babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('messages/clearChatCollection', {
@@ -695,7 +722,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    if (chatIsOpened) {
 	      im_v2_lib_analytics.Analytics.getInstance().chatDelete.onChatDeletedNotification(params.dialogId);
 	      babelHelpers.classPrivateFieldLooseBase(this, _showNotification$1)[_showNotification$1](main_core.Loc.getMessage('IM_CONTENT_CHAT_ACCESS_ERROR_MSGVER_1'));
-	      void im_v2_lib_layout.LayoutManager.getInstance().clearLayoutEntityId();
+	      void im_v2_lib_layout.LayoutManager.getInstance().clearCurrentLayoutEntityId();
+	      void im_v2_lib_layout.LayoutManager.getInstance().deleteLastOpenedElementById(params.dialogId);
 	    }
 	    const chatHasCall = im_v2_lib_call.CallManager.getInstance().getCurrentCallDialogId() === params.dialogId;
 	    if (chatHasCall) {
@@ -758,6 +786,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      fields: params.user
 	    });
 	  }
+	  handleUserShowInRecent(params) {
+	    const usersToStore = params.items.map(item => item.user);
+	    const userManager = new im_v2_lib_user.UserManager();
+	    userManager.setUsersToModel(usersToStore);
+	  }
 	}
 
 	class DesktopPullHandler {
@@ -804,6 +837,54 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	}
 
+	class ApplicationPullHandler {
+	  handleApplicationOpenChat(params) {
+	    im_v2_lib_logger.Logger.warn('ApplicationPullHandler: handleOpenChat', params);
+	    const hasFocus = document.hasFocus();
+	    if (!hasFocus) {
+	      return;
+	    }
+	    if (im_v2_lib_desktop.DesktopManager.isDesktop()) {
+	      if (!im_v2_lib_desktop.DesktopManager.isChatWindow()) {
+	        return;
+	      }
+	      void im_public.Messenger.openChat(params.dialogId);
+	      return;
+	    }
+	    if (!im_v2_lib_slider.MessengerSlider.getInstance().isFocused()) {
+	      return;
+	    }
+	    void im_public.Messenger.openChat(params.dialogId);
+	  }
+	}
+
+	class CollabPullHandler {
+	  handleUpdateCollabEntityCounter(params) {
+	    im_v2_lib_logger.Logger.warn('CollabPullHandler: handleUpdateCollabEntityCounter', params);
+	    const {
+	      chatId,
+	      counter,
+	      entity
+	    } = params;
+	    void im_v2_application_core.Core.getStore().dispatch('chats/collabs/setCounter', {
+	      chatId,
+	      entity,
+	      counter
+	    });
+	  }
+	  handleUpdateCollabGuestCount(params) {
+	    im_v2_lib_logger.Logger.warn('CollabPullHandler: handleUpdateCollabGuestCount', params);
+	    const {
+	      chatId,
+	      guestCount
+	    } = params;
+	    void im_v2_application_core.Core.getStore().dispatch('chats/collabs/setGuestCount', {
+	      chatId,
+	      guestCount
+	    });
+	  }
+	}
+
 	var _messageHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("messageHandler");
 	var _chatHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatHandler");
 	var _userHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userHandler");
@@ -811,6 +892,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	var _settingsHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settingsHandler");
 	var _commentsHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("commentsHandler");
 	var _tariffPullHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tariffPullHandler");
+	var _applicationPullHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applicationPullHandler");
+	var _collabPullHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("collabPullHandler");
 	class BasePullHandler {
 	  constructor() {
 	    Object.defineProperty(this, _messageHandler, {
@@ -841,6 +924,14 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _applicationPullHandler, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _collabPullHandler, {
+	      writable: true,
+	      value: void 0
+	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _messageHandler)[_messageHandler] = new MessagePullHandler();
 	    babelHelpers.classPrivateFieldLooseBase(this, _chatHandler)[_chatHandler] = new ChatPullHandler();
 	    babelHelpers.classPrivateFieldLooseBase(this, _userHandler)[_userHandler] = new UserPullHandler();
@@ -848,6 +939,8 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _settingsHandler)[_settingsHandler] = new SettingsPullHandler();
 	    babelHelpers.classPrivateFieldLooseBase(this, _commentsHandler)[_commentsHandler] = new CommentsPullHandler();
 	    babelHelpers.classPrivateFieldLooseBase(this, _tariffPullHandler)[_tariffPullHandler] = new TariffPullHandler();
+	    babelHelpers.classPrivateFieldLooseBase(this, _applicationPullHandler)[_applicationPullHandler] = new ApplicationPullHandler();
+	    babelHelpers.classPrivateFieldLooseBase(this, _collabPullHandler)[_collabPullHandler] = new CollabPullHandler();
 	  }
 	  getModuleId() {
 	    return 'im';
@@ -947,6 +1040,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  handleUserInvite(params) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _userHandler)[_userHandler].handleUserInvite(params);
 	  }
+	  handleUserShowInRecent(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _userHandler)[_userHandler].handleUserShowInRecent(params);
+	  }
 	  // endregion 'user'
 
 	  // region 'desktop'
@@ -978,6 +1074,21 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _tariffPullHandler)[_tariffPullHandler].handleChangeTariff(params);
 	  }
 	  // endregion 'tariff'
+
+	  // region 'collab'
+	  handleUpdateCollabEntityCounter(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _collabPullHandler)[_collabPullHandler].handleUpdateCollabEntityCounter(params);
+	  }
+	  handleUpdateCollabGuestCount(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _collabPullHandler)[_collabPullHandler].handleUpdateCollabGuestCount(params);
+	  }
+	  // endregion 'collab'
+
+	  // region 'application'
+	  handleApplicationOpenChat(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _applicationPullHandler)[_applicationPullHandler].handleApplicationOpenChat(params);
+	  }
+	  // endregion 'application'
 	}
 
 	const ActionNameByChatType = {
@@ -985,6 +1096,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  [im_v2_const.ChatType.channel]: 'recent/setChannel',
 	  [im_v2_const.ChatType.openChannel]: 'recent/setChannel',
 	  [im_v2_const.ChatType.generalChannel]: 'recent/setChannel',
+	  [im_v2_const.ChatType.collab]: 'recent/setCollab',
 	  default: 'recent/setRecent'
 	};
 	var _params = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("params");
@@ -1025,6 +1137,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  isCommentChat() {
 	    return this.getChatType() === im_v2_const.ChatType.comment;
 	  }
+	  isCollabChat() {
+	    return this.getChatType() === im_v2_const.ChatType.collab;
+	  }
 	  isChannelChat() {
 	    return im_v2_lib_channel.ChannelManager.channelTypes.has(this.getChatType());
 	  }
@@ -1041,14 +1156,20 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  needToSkipMessageEvent() {
 	    return this.isLinesChat() || this.isCommentChat() || !this.isUserInChat();
 	  }
-	  getActionName() {
+	  getAddActions() {
 	    var _ActionNameByChatType;
-	    // need to handle that case as a common chat
+	    // for open channels there are two similar P&P events
+	    // one adds data to default recent, another adds data to channel recent
+	    // close channels are added only to default recent
 	    if (this.isChannelChat() && !this.isChannelListEvent()) {
-	      return ActionNameByChatType.default;
+	      return [ActionNameByChatType.default];
+	    }
+	    if (this.isCollabChat()) {
+	      return [ActionNameByChatType.default, ActionNameByChatType[im_v2_const.ChatType.collab]];
 	    }
 	    const newMessageChatType = this.getChatType();
-	    return (_ActionNameByChatType = ActionNameByChatType[newMessageChatType]) != null ? _ActionNameByChatType : ActionNameByChatType.default;
+	    const actionName = (_ActionNameByChatType = ActionNameByChatType[newMessageChatType]) != null ? _ActionNameByChatType : ActionNameByChatType.default;
+	    return [actionName];
 	  }
 	}
 
@@ -1111,16 +1232,12 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  im_v2_application_core.Core.getStore().dispatch('messages/store', lastChannelPost);
 	}
 
-	var _updateUnloadedChatCounter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateUnloadedChatCounter");
-	var _updateCommentCounter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateCommentCounter");
+	var _updateRecentForMessageDelete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateRecentForMessageDelete");
 	// noinspection JSUnusedGlobalSymbols
 	class RecentPullHandler {
 	  constructor() {
-	    Object.defineProperty(this, _updateCommentCounter, {
-	      value: _updateCommentCounter2
-	    });
-	    Object.defineProperty(this, _updateUnloadedChatCounter, {
-	      value: _updateUnloadedChatCounter2
+	    Object.defineProperty(this, _updateRecentForMessageDelete, {
+	      value: _updateRecentForMessageDelete2
 	    });
 	  }
 	  getModuleId() {
@@ -1134,19 +1251,13 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	  handleMessageAdd(params, extra) {
 	    const manager = new NewMessageManager(params, extra);
-	    if (manager.isCommentChat()) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _updateCommentCounter)[_updateCommentCounter]({
-	        channelChatId: manager.getParentChatId(),
-	        commentChatId: manager.getChatId(),
-	        commentCounter: params.counter
-	      });
-	    }
 	    if (manager.needToSkipMessageEvent(params)) {
 	      return;
 	    }
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleMessageAdd', params);
 	    const newRecentItem = {
 	      id: params.dialogId,
+	      chatId: params.chatId,
 	      messageId: params.message.id
 	    };
 	    const recentItem = im_v2_application_core.Core.getStore().getters['recent/get'](params.dialogId);
@@ -1155,57 +1266,24 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      newRecentItem.isBirthdayPlaceholder = false;
 	      newRecentItem.liked = false;
 	    }
-	    const addMethod = manager.getActionName();
-	    im_v2_application_core.Core.getStore().dispatch(addMethod, newRecentItem);
+	    const addActions = manager.getAddActions();
+	    addActions.forEach(actionName => {
+	      im_v2_application_core.Core.getStore().dispatch(actionName, newRecentItem);
+	    });
 	  }
 	  handleMessageDeleteComplete(params) {
 	    const lastMessageWasDeleted = Boolean(params.newLastMessage);
 	    if (lastMessageWasDeleted) {
-	      this.updateRecentForMessageDelete(params.dialogId, params.newLastMessage.id);
+	      babelHelpers.classPrivateFieldLooseBase(this, _updateRecentForMessageDelete)[_updateRecentForMessageDelete](params.dialogId, params.newLastMessage.id);
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedChatCounter)[_updateUnloadedChatCounter](params);
-	  }
-
-	  /* region Counters handling */
-	  handleReadMessage(params) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedChatCounter)[_updateUnloadedChatCounter](params);
-	  }
-	  handleReadMessageChat(params) {
-	    if (params.type === im_v2_const.ChatType.comment) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _updateCommentCounter)[_updateCommentCounter]({
-	        channelChatId: params.parentChatId,
-	        commentChatId: params.chatId,
-	        commentCounter: params.counter
-	      });
-	      return;
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedChatCounter)[_updateUnloadedChatCounter](params);
-	  }
-	  handleUnreadMessage(params) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedChatCounter)[_updateUnloadedChatCounter](params);
-	  }
-	  handleUnreadMessageChat(params) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedChatCounter)[_updateUnloadedChatCounter](params);
-	  }
-	  handleChatMuteNotify(params) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedChatCounter)[_updateUnloadedChatCounter](params);
 	  }
 	  handleChatUnread(params) {
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleChatUnread', params);
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedChatCounter)[_updateUnloadedChatCounter]({
-	      dialogId: params.dialogId,
-	      chatId: params.chatId,
-	      counter: params.counter,
-	      muted: params.muted,
-	      unread: params.active
-	    });
 	    im_v2_application_core.Core.getStore().dispatch('recent/unread', {
 	      id: params.dialogId,
 	      action: params.active
 	    });
 	  }
-	  /* endregion Counters handling */
-
 	  handleAddReaction(params) {
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleAddReaction', params);
 	    const recentItem = im_v2_application_core.Core.getStore().getters['recent/get'](params.dialogId);
@@ -1274,6 +1352,23 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      messageId
 	    });
 	  }
+	  handleUserShowInRecent(params) {
+	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleUserShowInRecent', params);
+	    const {
+	      items
+	    } = params;
+	    items.forEach(item => {
+	      const messageId = im_v2_lib_utils.Utils.text.getUuidV4();
+	      im_v2_application_core.Core.getStore().dispatch('messages/store', {
+	        id: messageId,
+	        date: item.date
+	      });
+	      im_v2_application_core.Core.getStore().dispatch('recent/setRecent', {
+	        id: item.user.id,
+	        messageId
+	      });
+	    });
+	  }
 	  handleRecentUpdate(params) {
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleRecentUpdate', params);
 	    const manager = new RecentUpdateManager(params);
@@ -1285,73 +1380,20 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    };
 	    im_v2_application_core.Core.getStore().dispatch('recent/setRecent', newRecentItem);
 	  }
-	  updateRecentForMessageDelete(dialogId, newLastMessageId) {
-	    if (!newLastMessageId) {
-	      im_v2_application_core.Core.getStore().dispatch('recent/delete', {
-	        id: dialogId
-	      });
-	      return;
-	    }
-	    im_v2_application_core.Core.getStore().dispatch('recent/update', {
-	      id: dialogId,
-	      fields: {
-	        messageId: newLastMessageId
-	      }
+	}
+	function _updateRecentForMessageDelete2(dialogId, newLastMessageId) {
+	  if (!newLastMessageId) {
+	    im_v2_application_core.Core.getStore().dispatch('recent/delete', {
+	      id: dialogId
 	    });
-	  }
-	}
-	function _updateUnloadedChatCounter2(params) {
-	  const {
-	    dialogId,
-	    chatId,
-	    counter,
-	    muted,
-	    unread,
-	    lines = false
-	  } = params;
-	  if (lines) {
 	    return;
 	  }
-	  const recentItem = im_v2_application_core.Core.getStore().getters['recent/get'](dialogId);
-	  if (recentItem) {
-	    return;
-	  }
-	  im_v2_lib_logger.Logger.warn('RecentPullHandler: updateUnloadedChatCounter:', {
-	    dialogId,
-	    chatId,
-	    counter,
-	    muted,
-	    unread
-	  });
-	  let newCounter = 0;
-	  if (muted) {
-	    newCounter = 0;
-	  } else if (unread && counter === 0) {
-	    newCounter = 1;
-	  } else if (unread && counter > 0) {
-	    newCounter = counter;
-	  } else if (!unread) {
-	    newCounter = counter;
-	  }
-	  im_v2_application_core.Core.getStore().dispatch('counters/setUnloadedChatCounters', {
-	    [chatId]: newCounter
-	  });
-	}
-	function _updateCommentCounter2(payload) {
-	  const {
-	    channelChatId,
-	    commentChatId,
-	    commentCounter
-	  } = payload;
-	  if (main_core.Type.isUndefined(commentCounter)) {
-	    return;
-	  }
-	  const counters = {
-	    [channelChatId]: {
-	      [commentChatId]: commentCounter
+	  im_v2_application_core.Core.getStore().dispatch('recent/update', {
+	    id: dialogId,
+	    fields: {
+	      messageId: newLastMessageId
 	    }
-	  };
-	  im_v2_application_core.Core.getStore().dispatch('counters/setCommentCounters', counters);
+	  });
 	}
 
 	class NotificationPullHandler {
@@ -1849,7 +1891,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    return false;
 	  }
 	  const authorId = params.message.senderId;
-	  if (authorId > 0 && params.users[authorId].extranet === false) {
+	  if (authorId > 0 && params.users[authorId].type !== im_v2_const.UserType.extranet) {
 	    return true;
 	  }
 	  const counter = this.store.getters['counters/getSpecificLinesCounter'](params.chatId);
@@ -1928,51 +1970,6 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  });
 	}
 
-	class LinesPullHandler {
-	  constructor() {
-	    this.store = im_v2_application_core.Core.getStore();
-	  }
-	  getModuleId() {
-	    return 'im';
-	  }
-	  handleMessageChat(params) {
-	    this.updateUnloadedLinesCounter(params);
-	  }
-	  handleReadMessageChat(params) {
-	    this.updateUnloadedLinesCounter(params);
-	  }
-	  handleUnreadMessageChat(params) {
-	    this.updateUnloadedLinesCounter(params);
-	  }
-	  handleChatHide(params) {
-	    this.updateUnloadedLinesCounter({
-	      dialogId: params.dialogId,
-	      chatId: params.chatId,
-	      lines: params.lines,
-	      counter: 0
-	    });
-	  }
-	  updateUnloadedLinesCounter(params) {
-	    const {
-	      dialogId,
-	      chatId,
-	      counter,
-	      lines
-	    } = params;
-	    if (!lines || main_core.Type.isUndefined(counter)) {
-	      return;
-	    }
-	    im_v2_lib_logger.Logger.warn('LinesPullHandler: updateUnloadedLinesCounter:', {
-	      dialogId,
-	      chatId,
-	      counter
-	    });
-	    this.store.dispatch('counters/setUnloadedLinesCounters', {
-	      [chatId]: counter
-	    });
-	  }
-	}
-
 	class OnlinePullHandler {
 	  constructor() {
 	    this.store = im_v2_application_core.Core.getStore();
@@ -2004,13 +2001,147 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  }
 	}
 
+	var _handleCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleCounters");
+	var _getNewCounter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getNewCounter");
+	var _updateCommentCounter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateCommentCounter");
+	class CounterPullHandler {
+	  constructor() {
+	    Object.defineProperty(this, _updateCommentCounter, {
+	      value: _updateCommentCounter2
+	    });
+	    Object.defineProperty(this, _getNewCounter, {
+	      value: _getNewCounter2
+	    });
+	    Object.defineProperty(this, _handleCounters, {
+	      value: _handleCounters2
+	    });
+	    this.store = im_v2_application_core.Core.getStore();
+	  }
+	  getModuleId() {
+	    return 'im';
+	  }
+	  handleMessage(params, extra) {
+	    this.handleMessageAdd(params, extra);
+	  }
+	  handleMessageChat(params, extra) {
+	    this.handleMessageAdd(params, extra);
+	  }
+	  handleMessageAdd(params, extra) {
+	    const manager = new im_v2_provider_pull.NewMessageManager(params, extra);
+	    if (!manager.isCommentChat()) {
+	      return;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateCommentCounter)[_updateCommentCounter]({
+	      channelChatId: manager.getParentChatId(),
+	      commentChatId: manager.getChatId(),
+	      commentCounter: params.counter
+	    });
+	  }
+	  handleMessageDeleteComplete(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleCounters)[_handleCounters](params);
+	  }
+	  handleReadMessage(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleCounters)[_handleCounters](params);
+	  }
+	  handleReadMessageChat(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleCounters)[_handleCounters](params);
+	  }
+	  handleUnreadMessage(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleCounters)[_handleCounters](params);
+	  }
+	  handleUnreadMessageChat(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleCounters)[_handleCounters](params);
+	  }
+	  handleChatUnread(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleCounters)[_handleCounters]({
+	      ...params,
+	      unread: params.active
+	    });
+	  }
+	  handleChatMuteNotify(params) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleCounters)[_handleCounters](params);
+	  }
+	}
+	function _handleCounters2(params) {
+	  const {
+	    chatId,
+	    dialogId,
+	    counter,
+	    counterType = im_v2_const.CounterType.chat,
+	    parentChatId = 0
+	  } = params;
+	  if (counterType === im_v2_const.CounterType.openline) {
+	    return;
+	  }
+	  im_v2_lib_logger.Logger.warn('CounterPullHandler: handleCounters:', params);
+	  if (counterType === im_v2_const.CounterType.comment) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateCommentCounter)[_updateCommentCounter]({
+	      channelChatId: parentChatId,
+	      commentChatId: chatId,
+	      commentCounter: counter
+	    });
+	    return;
+	  }
+	  const recentItem = im_v2_application_core.Core.getStore().getters['recent/get'](dialogId);
+	  // for now existing common chats counters are stored in corresponding chat model objects
+	  if (recentItem) {
+	    return;
+	  }
+	  const newCounter = babelHelpers.classPrivateFieldLooseBase(this, _getNewCounter)[_getNewCounter](params);
+	  // collab counters are stored in two structures - for common chats and collabs
+	  // because collab counters are included in both total chat counter and total collab counter
+	  if (counterType === im_v2_const.CounterType.collab) {
+	    im_v2_application_core.Core.getStore().dispatch('counters/setUnloadedCollabCounters', {
+	      [chatId]: newCounter
+	    });
+	  }
+	  im_v2_application_core.Core.getStore().dispatch('counters/setUnloadedChatCounters', {
+	    [chatId]: newCounter
+	  });
+	}
+	function _getNewCounter2(params) {
+	  const {
+	    counter,
+	    muted,
+	    unread
+	  } = params;
+	  let newCounter = 0;
+	  if (muted) {
+	    newCounter = 0;
+	  } else if (unread && counter === 0) {
+	    newCounter = 1;
+	  } else if (unread && counter > 0) {
+	    newCounter = counter;
+	  } else if (!unread) {
+	    newCounter = counter;
+	  }
+	  return newCounter;
+	}
+	function _updateCommentCounter2(payload) {
+	  const {
+	    channelChatId,
+	    commentChatId,
+	    commentCounter
+	  } = payload;
+	  if (main_core.Type.isUndefined(commentCounter)) {
+	    return;
+	  }
+	  const counters = {
+	    [channelChatId]: {
+	      [commentChatId]: commentCounter
+	    }
+	  };
+	  im_v2_application_core.Core.getStore().dispatch('counters/setCommentCounters', counters);
+	}
+
 	exports.BasePullHandler = BasePullHandler;
 	exports.RecentPullHandler = RecentPullHandler;
 	exports.NotificationPullHandler = NotificationPullHandler;
 	exports.SidebarPullHandler = SidebarPullHandler;
 	exports.NotifierPullHandler = NotifierPullHandler;
-	exports.LinesPullHandler = LinesPullHandler;
 	exports.OnlinePullHandler = OnlinePullHandler;
+	exports.CounterPullHandler = CounterPullHandler;
+	exports.NewMessageManager = NewMessageManager;
 
-}((this.BX.Messenger.v2.Provider.Pull = this.BX.Messenger.v2.Provider.Pull || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Model,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application));
+}((this.BX.Messenger.v2.Provider.Pull = this.BX.Messenger.v2.Provider.Pull || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Model,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
 //# sourceMappingURL=registry.bundle.js.map

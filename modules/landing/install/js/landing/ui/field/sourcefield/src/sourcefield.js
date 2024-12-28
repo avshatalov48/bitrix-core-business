@@ -283,13 +283,13 @@ export class SourceField extends BaseField
 
 		if (options.url)
 		{
-			const removeButton = Tag.render`
-				<span class="landing-ui-field-source-placeholder-remove"></span>
-			`;
-
-			Dom.append(removeButton, placeholder);
+			if (options.useLink)
+			{
+				const removeButton = Tag.render`<span class="landing-ui-field-source-placeholder-remove"></span>`;
+				Dom.append(removeButton, placeholder);
+				Event.bind(removeButton, 'click', this.onPlaceholderRemoveClick.bind(this, options));
+			}
 			Event.bind(placeholder, 'click', this.onPlaceholderClick.bind(this, options));
-			Event.bind(removeButton, 'click', this.onPlaceholderRemoveClick.bind(this, options));
 		}
 
 		Dom.append(placeholder, this.input);

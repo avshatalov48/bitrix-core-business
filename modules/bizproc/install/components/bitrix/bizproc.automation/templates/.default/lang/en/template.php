@@ -59,6 +59,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_HELP_3"] = "Customer side activity that wi
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_LIST"] = "Triggers";
 $MESS["BIZPROC_AUTOMATION_NOT_SELECTED"] = "[not set]";
 $MESS["BIZPROC_AUTOMATION_RIGHTS_ERROR"] = "You do not have permission to edit automation rules. Please contact your Bitrix24 administrator or employee in charge of the CRM.";
+$MESS["BIZPROC_AUTOMATION_RIGHTS_ERROR_1"] = "Insufficient permission to add or edit automation rules. Please contact your supervisor or Bitrix24 administrator.";
 $MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_ALERT_TITLE"] = "Attention!";
 $MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_MAIN_ALERT"] = "You can use up to <strong>#LIMIT#</strong> automation rules and triggers on your current plan.";
 $MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_SAVE_ALERT"] = "You can use up to <strong>#LIMIT#</strong> automation rules and triggers on your current plan.<br><br> You are currently using <b>#SUM#</b> of them.<br><br>Please delete one or more rules and/or triggers and try saving the changes again.";

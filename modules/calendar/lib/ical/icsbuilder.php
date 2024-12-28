@@ -2,6 +2,7 @@
 namespace Bitrix\Calendar\ICal;
 
 use Bitrix\Calendar\Core\Base\DateTimeZone;
+use Bitrix\Calendar\Core\Event\Properties\ExcludedDatesCollection;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 
 class IcsBuilder {
@@ -9,7 +10,11 @@ class IcsBuilder {
 	const
 		PRODID = '-//Bitrix//Bitrix Calendar//EN',
 		DATE_FORMAT = 'Ymd',
-		DATETIME_FORMAT = 'Ymd\THis';
+		DATETIME_FORMAT = 'Ymd\THis',
+		TIME_FORMAT = 'His',
+		UTC_DATETIME_FORMAT = 'Ymd\\THis\\Z',
+		DEFAULT_DATETIME_FORMAT = 'd.m.Y H:i:s'
+	;
 
 	protected const DAY_LENGTH = 86400;
 
@@ -22,6 +27,7 @@ class IcsBuilder {
 		$properties = [];
 
 	protected ?RecurringEventRules $rrule = null;
+	protected ?ExcludedDatesCollection $excludeDates = null;
 
 	private
 		$availableProperties = [
@@ -42,7 +48,7 @@ class IcsBuilder {
 		'sequence',
 		'transp',
 		'rrule',
-		'location',
+		'priority',
 	];
 	private static
 		$METHOD = 'REQUEST';
@@ -114,6 +120,11 @@ class IcsBuilder {
 		$this->rrule = $rrule;
 	}
 
+	public function setExclude(ExcludedDatesCollection $excludeDates): void
+	{
+		$this->excludeDates = $excludeDates;
+	}
+
 	public function render()
 	{
 		return implode("\r\n", $this->buildBody());
@@ -155,30 +166,41 @@ class IcsBuilder {
 		// Build ICS properties - add header
 		foreach($this->properties as $k => $v)
 		{
-			if ($k === 'dtstamp')
+			switch ($k)
 			{
-				$props['DTSTAMP'] = self::formatDateTimeValue($v);
-				continue;
-			}
-			if ($k === 'url' )
-			{
-				$props['URL;VALUE=URI'] = $v;
-			}
-			else if ($k === 'dtstart' || $k === 'dtend')
-			{
-				if ($this->fullDayMode)
-				{
-					$props[mb_strtoupper($k).';VALUE=DATE'] = self::formatDateValue($v);
-				}
-				else
-				{
-					$tzid = ($k === 'dtstart') ? $this->timezoneFrom : $this->timezoneTo;
-					$props[mb_strtoupper($k).';TZID='.$tzid] = self::formatDateTimeValue($v);
-				}
-			}
-			else
-			{
-				$props[mb_strtoupper($k)] = $v;
+				case 'dtstamp':
+					$props['DTSTAMP'] = self::formatDateTimeValue($v);
+					break;
+				case 'url':
+					$props['URL;VALUE=URI'] = $v;
+					break;
+				case 'dtstart':
+				case 'dtend':
+					if ($this->fullDayMode)
+					{
+						$props[mb_strtoupper($k).';VALUE=DATE'] = self::formatDateValue($v);
+					}
+					else
+					{
+						$tzid = ($k === 'dtstart') ? $this->timezoneFrom : $this->timezoneTo;
+						$props[mb_strtoupper($k).';TZID='.$tzid] = self::formatDateTimeValue($v);
+					}
+
+					break;
+				case 'last-modified':
+					$props[mb_strtoupper($k)] = self::formatDateTimeValue($v);
+					break;
+				case 'priority':
+					$priority = match ($v)
+					{
+						'low' => 9,
+						'high' => 1,
+						default => 5,
+					};
+					$props[mb_strtoupper($k)] = $priority;
+					break;
+				default:
+					$props[mb_strtoupper($k)] = $v;
 			}
 		}
 
@@ -187,19 +209,27 @@ class IcsBuilder {
 			$props['RRULE'] = self::prepareRecurrenceRule($this->rrule, $this->timezoneTo);
 		}
 
+		if ($this->excludeDates && $this->rrule)
+		{
+			$props['EXDATE'] = $this->formatExcludedDates($this->prepareExcludedDates());
+		}
+
 		// Append properties
 		foreach ($props as $k => $v)
 		{
-			if ($k !== 'ALARM')
+			switch ($k)
 			{
-				$ics_props[] = "$k:$v";
-			}
-			else
-			{
-				$ics_props[] = 'BEGIN:VALARM';
-				$ics_props[] = 'TRIGGER:-PT' . $props['ALARM'];
-				$ics_props[] = 'ACTION:DISPLAY';
-				$ics_props[] = 'END:VALARM';
+				case 'ALARM':
+					$ics_props[] = 'BEGIN:VALARM';
+					$ics_props[] = 'TRIGGER:-PT' . $props['ALARM'];
+					$ics_props[] = 'ACTION:DISPLAY';
+					$ics_props[] = 'END:VALARM';
+					break;
+				case 'EXDATE':
+					$ics_props[] = $k . $v;
+					break;
+				default:
+					$ics_props[] = "$k:$v";
 			}
 		}
 
@@ -208,6 +238,63 @@ class IcsBuilder {
 		$ics_props[] = 'END:VCALENDAR';
 
 		return $ics_props;
+	}
+
+	private function prepareExcludedDates(): array
+	{
+		$result = [];
+		$exDate = $this->excludeDates->getCollection();
+
+		foreach ($exDate as $date)
+		{
+			$formattedDate = date('Ymd', MakeTimeStamp($date->getFields()['date']));
+			if ($this->fullDayMode)
+			{
+				$result[] = [
+					'VALUE' => $formattedDate,
+					'PARAMETERS' => ['VALUE' => 'DATE'],
+				];
+			}
+			else
+			{
+				$result[] = [
+					'VALUE' => sprintf(
+						'%sT%s',
+						$formattedDate,
+						$this->formatDateTimeValue($this->properties['dtstart'], self::TIME_FORMAT)
+					),
+					'PARAMETERS' => ['TZID' => $this->prepareTimeZone($this->timezoneFrom)],
+				];
+			}
+		}
+
+		return $result;
+	}
+
+	private function prepareTimeZone(?DateTimeZone $timeZone): string
+	{
+		if ($timeZone)
+		{
+			return $timeZone->getTimeZone()->getName();
+		}
+
+		return 'UTC';
+	}
+
+	private function formatExcludedDates(array $preparedExDate): string
+	{
+		$timezone = null;
+		$dates = [];
+
+		foreach ($preparedExDate as $date)
+		{
+			$timezone = $date['PARAMETERS']['TZID'] ?? null;
+			$dates[] = $date['VALUE'];
+		}
+
+		$timezone = $timezone ? ';TZID=' . $timezone : ';VALUE=DATE';
+
+		return $timezone . ':' . implode(',', $dates);
 	}
 
 	private function prepareValue($val, $key = false)
@@ -232,14 +319,14 @@ class IcsBuilder {
 		return $dt->format(self::DATE_FORMAT);
 	}
 
-	private static function formatDateTimeValue($timestamp)
+	private static function formatDateTimeValue($timestamp, string $format = self::DATETIME_FORMAT)
 	{
 		$dt = new \DateTime();
 		if ($timestamp)
 		{
 			$dt->setTimestamp($timestamp);
 		}
-		return $dt->format(self::DATETIME_FORMAT);
+		return $dt->format($format);
 	}
 
 	private static function formatEmailValue($email)

@@ -316,16 +316,40 @@ class CheckboxList implements PopupInterface
 		this.popup.hide();
 	}
 
+	prepareOrderedColumnsList(newColumns: Array<string>): Array<string>
+	{
+		if (Type.isArray(newColumns))
+		{
+			const currentOptions: { [key: string]: any } = this.grid.getUserOptions().getCurrentOptions();
+			const currentColumns: Array<string> = currentOptions?.columns?.split?.(',');
+			if (Type.isArray(currentColumns))
+			{
+				const filteredColumns: Array<string> = currentColumns.filter((column: string) => {
+					return newColumns.includes(column);
+				});
+
+				const newAddedColumns: Array<string> = newColumns.filter((column: string) => {
+					return !filteredColumns.includes(column);
+				});
+
+				return [...filteredColumns, ...newAddedColumns];
+			}
+		}
+
+		return newColumns;
+	}
+
 	saveColumns(columns, data): void
 	{
 		const options = this.grid.getUserOptions();
 		const columnNames = this.getColumnNames(data);
 		const stickyColumns = this.getStickedColumns();
+		const orderedColumns: Array<string> = this.prepareOrderedColumnsList(columns);
 
 		const batch = [
 			{
 				action: options.getAction('GRID_SET_COLUMNS'),
-				columns: columns.join(','),
+				columns: orderedColumns.join(','),
 			},
 			{
 				action: options.getAction('SET_CUSTOM_NAMES'),

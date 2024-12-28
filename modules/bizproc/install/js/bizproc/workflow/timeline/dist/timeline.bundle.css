@@ -446,6 +446,11 @@ a.bizproc-timeline-popup-text {
 	margin-bottom: 18px;
 }
 
+.popup-window.--bizproc-timeline-popup.--bi .bizproc-timeline-popup-info {
+	height: 3lh;
+	overflow: hidden;
+}
+
 .popup-window.--bizproc-timeline-popup.--bi:after {
 	content: '';
 	position: absolute;

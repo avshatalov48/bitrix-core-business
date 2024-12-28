@@ -1,0 +1,78 @@
+.bx-im-sidebar-collab-helpdesk__container {
+	--im-sidebar-collab-helpdesk__background_container: linear-gradient(290deg, #17db47 0%, #20c749 100%);
+	--im-sidebar-collab-helpdesk__background-color_overlay: rgba(var(--im-color-palette-black-solid-rgb), 0);
+	--im-sidebar-collab-helpdesk__background-color_overlay-hover: rgba(var(--im-color-palette-black-solid-rgb), 0.06);
+	--im-sidebar-collab-helpdesk__color_title: var(--im-color-palette-white-base);
+	--im-sidebar-collab-helpdesk__color_description: rgba(var(--im-color-palette-white-base-rgb), 0.90);
+	--im-sidebar-collab-helpdesk__color_description-hover: var(--im-color-palette-white-base);
+
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	min-height: 68px;
+	padding: 7px 6px 7px 8px;
+	background: var(--im-sidebar-collab-helpdesk__background_container);
+	cursor: pointer;
+	position: relative;
+}
+
+.bx-im-sidebar-collab-helpdesk__container::before {
+	position: absolute;
+	content: "";
+	inset: 0;
+	background-color: var(--im-sidebar-collab-helpdesk__background-color_overlay);
+	transition: background-color 0.3s ease-out;
+}
+
+.bx-im-sidebar-collab-helpdesk__container:hover::before {
+	background-color: var(--im-sidebar-collab-helpdesk__background-color_overlay-hover);
+}
+
+.bx-im-sidebar-collab-helpdesk__icon {
+	width: 42px;
+	height: 45px;
+	background: url("../css/images/collab-helpdesk.svg") no-repeat center;
+	flex-shrink: 0;
+	z-index: 1;
+}
+
+.bx-im-sidebar-collab-helpdesk__content {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	z-index: 1;
+}
+
+.bx-im-sidebar-collab-helpdesk__title {
+	font-size: var(--im-font-size-xl);
+	line-height: var(--im-font-line-height-2xs);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-collab-helpdesk__color_title);
+	user-select: none;
+}
+
+.bx-im-sidebar-collab-helpdesk__description {
+	font-size: var(--im-font-size-md);
+	line-height: var(--im-font-line-height-3xs);
+	color: var(--im-sidebar-collab-helpdesk__color_description);
+	user-select: none;
+}
+
+.bx-im-sidebar-collab-helpdesk__container:hover .bx-im-sidebar-collab-helpdesk__description {
+	color: var(--im-sidebar-collab-helpdesk__color_description-hover);
+}
+
+.bx-im-sidebar-collab-helpdesk__close {
+	align-self: flex-start;
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	background: url("../css/images/close.svg") no-repeat center;
+	opacity: 0.6;
+	z-index: 1;
+	transition: opacity 0.3s ease-out;
+}
+
+.bx-im-sidebar-collab-helpdesk__close:hover {
+	opacity: 1;
+}

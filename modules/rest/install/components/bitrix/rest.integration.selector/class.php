@@ -175,10 +175,22 @@ class RestIntegrationSelectComponent extends CBitrixComponent implements Control
 	{
 		$result = [];
 		$items = Placement::getList();
+
+		$dataPlacement = Rest::getBasePlacement();
+		$dataGlobal = $dataPlacement[\CRestUtil::GLOBAL_SCOPE];
+		$data = [];
+		foreach ($items as $item)
+		{
+			if (!in_array($item['id'], $dataGlobal))
+			{
+				$data[] = $item;
+			}
+		}
+
 		$result['list'][] = [
 			'id' => 'all',
 			'name' => Loc::getMessage('REST_INTEGRATION_SELECTOR_SECTION_ALL'),
-			'items' => $items
+			'items' => $data
 		];
 		return $result;
 	}

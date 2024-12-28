@@ -3,10 +3,50 @@
 namespace Bitrix\Socialnetwork\Integration\Intranet;
 
 use Bitrix\Intranet\Integration\Templates\Bitrix24;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 
 class ThemePicker
 {
+	public static function getDefaultPortalThemeId(): ?string
+	{
+		if (!self::isAvaliable())
+		{
+			return null;
+		}
+
+		return Bitrix24\ThemePicker::getInstance()?->getDefaultThemeId();
+	}
+
+	public static function getThemePicker(
+		int $groupId,
+		int $userId,
+		string $siteId = SITE_ID,
+		string $templateId = SITE_TEMPLATE_ID,
+
+	): ?Bitrix24\ThemePicker
+	{
+		if (!self::isAvaliable())
+		{
+			return null;
+		}
+
+		try
+		{
+			return new Bitrix24\ThemePicker(
+				$templateId,
+				$siteId,
+				$userId,
+				Bitrix24\ThemePicker::ENTITY_TYPE_SONET_GROUP,
+				$groupId
+			);
+		}
+		catch (ArgumentException)
+		{
+			return null;
+		}
+	}
+
 	public static function applyUserTheme(): void
 	{
 		if (!self::isAvaliable())

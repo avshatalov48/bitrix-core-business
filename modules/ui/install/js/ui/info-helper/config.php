@@ -25,6 +25,7 @@ return [
 	'settings' => [
 		'popupProviderEnabled' => (new FeaturePromoter\PopupProviderAvailabilityChecker())->isAvailable(),
 		'licenseType' => $isCloud ? strtoupper(\CBitrix24::getLicenseType()) : null,
+		'region' => \Bitrix\Main\Application::getInstance()->getLicense()->getRegion() ?? 'en',
 		'licenseNeverPayed' => $isCloud && \CBitrix24::isLicenseNeverPayed(),
 		'marketUrl' => $isCP ? \Bitrix\Intranet\Binding\Marketplace::getMainDirectory() : false,
 		'settingsUrl' => $isCP ? \Bitrix\Intranet\PortalSettings::getInstance()->getSettingsUrl() : '/settings/configs/',

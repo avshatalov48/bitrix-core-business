@@ -43,7 +43,7 @@ class CSocServBoxAuth extends CSocServAuth
 
 	public function GetFormHtml($arParams)
 	{
-		$url = static::getUrl('opener', null, $arParams);
+		$url = $this->getUrl('opener', null, $arParams);
 
 		$phrase = ($arParams["FOR_INTRANET"]) ? GetMessage("socserv_box_form_note_intranet") : GetMessage("socserv_box_form_note");
 
@@ -59,7 +59,7 @@ class CSocServBoxAuth extends CSocServAuth
 
 	public function GetOnClickJs($arParams)
 	{
-		$url = static::getUrl('opener', null, $arParams);
+		$url = $this->getUrl('opener', null, $arParams);
 		return "BX.util.popup('".CUtil::JSEscape($url)."', 680, 600)";
 	}
 
@@ -281,7 +281,7 @@ class CSocServBoxAuth extends CSocServAuth
 		}
 
 		$JSScript = '
-		<script type="text/javascript">
+		<script>
 		'.$location.'
 		</script>
 		';

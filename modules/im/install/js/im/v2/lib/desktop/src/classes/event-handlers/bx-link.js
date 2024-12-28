@@ -27,7 +27,10 @@ export class BxLinkHandler
 				params[key] = decodeURIComponent(value);
 			});
 
-			DesktopApi.activateWindow();
+			if (command !== DesktopBxLink.openPage)
+			{
+				DesktopApi.activateWindow();
+			}
 
 			if (command === DesktopBxLink.chat)
 			{
@@ -69,9 +72,17 @@ export class BxLinkHandler
 			{
 				void Messenger.openCopilot(params.dialogId);
 			}
+			else if (command === DesktopBxLink.collab)
+			{
+				void Messenger.openCollab(params.dialogId);
+			}
 			else if (command === DesktopBxLink.settings)
 			{
 				void Messenger.openSettings({ onlyPanel: params.section });
+			}
+			else if (command === DesktopBxLink.chatCreation)
+			{
+				void Messenger.openChatCreation(params.chatType);
 			}
 			else if (command === DesktopBxLink.timeManager)
 			{

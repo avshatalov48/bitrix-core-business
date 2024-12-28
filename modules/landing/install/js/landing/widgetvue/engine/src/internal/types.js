@@ -3,6 +3,5 @@ export type EngineOptions = {
 	origin?: string,
 	data?: {},
 	error?: string,
-	fetchable?: boolean,
 	clickable?: boolean,
 }

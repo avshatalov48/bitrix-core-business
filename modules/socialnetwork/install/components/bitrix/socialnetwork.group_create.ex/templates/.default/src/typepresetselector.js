@@ -1,16 +1,21 @@
 import {Type} from 'main.core';
 import {Util} from './util';
+import {Buttons} from './buttons';
 
 import {WorkgroupForm} from './index';
 
 export class TypePresetSelector
 {
-	constructor()
+	buttonsInstance: ?Buttons;
+
+	constructor(buttonsInstance = null)
 	{
 		this.cssClass = {
 			container: 'socialnetwork-group-create-ex__type-preset-wrapper',
 			selector: 'socialnetwork-group-create-ex__type-preset-selector',
 		};
+
+		this.buttonsInstance = buttonsInstance;
 
 		this.container = document.querySelector(`.${this.cssClass.container}`);
 		if (!this.container)
@@ -38,6 +43,8 @@ export class TypePresetSelector
 				WorkgroupForm.getInstance().recalcForm({
 					selectedProjectType: projectType,
 				});
+
+				this.buttonsInstance?.updateButtonsByProject(projectType);
 
 				WorkgroupForm.getInstance().wizardManager.setProjectType(projectType);
 			});

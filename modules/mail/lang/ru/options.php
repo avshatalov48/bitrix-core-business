@@ -1,4 +1,5 @@
 <?
+$MESS ['MAIL_OPTIONS_EMBED_LOCAL_ID_IN_OUTGOING_MESSAGE_HEADER'] = "Встраивать локальный идентификатор в заголовок исходящего письма:<br>(оптимизирует синхронизацию писем)";
 $MESS ['MAIL_OPTIONS_SAVE_SRC'] = "Сохранять исходный текст письма:";
 $MESS ['MAIL_OPTIONS_SAVE_ATTACHMENTS'] = "Сохранять вложенные файлы:";
 $MESS ['MAIL_OPTIONS_TIMEOUT'] = "Таймаут соединения:";

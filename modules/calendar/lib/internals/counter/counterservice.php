@@ -52,6 +52,7 @@ class CounterService
 
 		(new Processor\OpenEvent())->process();
 		(new Processor\Invite())->process();
+		(new Processor\GroupInvite())->process();
 		(new Processor\Sync())->process();
 		(new Processor\Total())->process();
 	}

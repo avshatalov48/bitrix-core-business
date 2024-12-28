@@ -86,6 +86,7 @@ export class TeamManager
 							inviteExtranetLink: true,
 							groupId: this.groupId,
 							checkWorkgroupWhenInvite: true,
+							footerInviteIntranetOnly: !this.allowExtranet,
 						},
 					},
 					{
@@ -133,6 +134,7 @@ export class TeamManager
 						options: {
 							intranetUsersOnly: !this.allowExtranet,
 							inviteEmployeeLink: true,
+							footerInviteIntranetOnly: !this.allowExtranet,
 						},
 					},
 					{
@@ -182,6 +184,7 @@ export class TeamManager
 							inviteEmployeeLink: true,
 							groupId: this.groupId,
 							checkWorkgroupWhenInvite: true,
+							footerInviteIntranetOnly: !this.allowExtranet,
 						},
 					},
 					{
@@ -232,6 +235,7 @@ export class TeamManager
 							intranetUsersOnly: !this.allowExtranet,
 							groupId: this.groupId,
 							checkWorkgroupWhenInvite: true,
+							footerInviteIntranetOnly: !this.allowExtranet,
 						}
 					},
 					{

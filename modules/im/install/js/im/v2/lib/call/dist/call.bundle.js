@@ -203,6 +203,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    im_v2_lib_logger.Logger.warn('CallManager: leaveCurrentCall');
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].leaveCurrentCall();
 	  }
+	  onJoinFromRecentItem() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].closeCallNotification();
+	  }
 	  foldCurrentCall() {
 	    if (!this.isAvailable() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasVisibleCall()) {
 	      return;
@@ -342,6 +345,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function _subscribeToEvents2() {
 	  main_core_events.EventEmitter.subscribe(im_v2_const.EventType.layout.onOpenChat, babelHelpers.classPrivateFieldLooseBase(this, _onOpenChat)[_onOpenChat].bind(this));
 	  main_core_events.EventEmitter.subscribe(im_v2_const.EventType.layout.onOpenNotifications, this.foldCurrentCall.bind(this));
+	  main_core_events.EventEmitter.subscribe(im_v2_const.EventType.call.onJoinFromRecentItem, this.onJoinFromRecentItem.bind(this));
 	  main_core_events.EventEmitter.subscribe('CallEvents::callCreated', babelHelpers.classPrivateFieldLooseBase(this, _onCallCreated)[_onCallCreated].bind(this));
 	}
 	function _onCallCreated2(event) {
@@ -401,7 +405,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _checkUserCallSupport2(userId) {
 	  const user = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['users/get'](userId);
-	  return user && user.status !== 'guest' && !user.bot && !user.network && user.id !== im_v2_application_core.Core.getUserId() && Boolean(user.lastActivityDate);
+	  const isBot = user.type === im_v2_const.UserType.bot;
+	  return user && user.status !== 'guest' && !isBot && !user.network && user.id !== im_v2_application_core.Core.getUserId() && Boolean(user.lastActivityDate);
 	}
 	function _checkChatCallSupport2(dialogId) {
 	  const userCounter = babelHelpers.classPrivateFieldLooseBase(this, _getChatUserCounter)[_getChatUserCounter](dialogId);

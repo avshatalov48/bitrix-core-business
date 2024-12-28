@@ -1,0 +1,23 @@
+.bx-im-create-chat-menu-new-badge__container {
+	--im-create-chat-menu-new-badge__background-color_badge: var(--im-color-collab-60);
+	--im-create-chat-menu-new-badge__font-color: var(--im-color-palette-white-base);
+
+	display: flex;
+	align-items: flex-end;
+	height: 14px;
+	margin-left: 4px;
+}
+
+.bx-im-create-chat-menu-new-badge__content {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 12px;
+	padding: 1px 6px;
+	border-radius: var(--im-border-radius-md);
+	background-color: var(--im-create-chat-menu-new-badge__background-color_badge);
+	font: var(--im-font-size-6xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-bold);
+	color: var(--im-create-chat-menu-new-badge__font-color);
+	text-transform: uppercase;
+}

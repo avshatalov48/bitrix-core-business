@@ -447,6 +447,11 @@
 					continue;
 				}
 
+				if (!BX.Type.isStringFilled(nodeList[i].value))
+				{
+					continue;
+				}
+
 				if (fieldStack[field].FIELD.MULTIPLE === 'Y')
 				{
 					value.push(nodeList[i].value);

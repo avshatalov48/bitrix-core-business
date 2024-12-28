@@ -8,10 +8,9 @@ return [
 	'css' => 'dist/default.bundle.css',
 	'js' => 'dist/default.bundle.js',
 	'rel' => [
+		'main.polyfill.core',
 		'im.v2.component.message.elements',
 		'im.v2.component.message.base',
-		'main.core',
-		'im.v2.lib.parser',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

@@ -1,17 +1,15 @@
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
-
 import { Core } from 'im.v2.application.core';
-import { ChatTitle } from 'im.v2.component.elements';
+import { AvatarSize, MessageAvatar } from 'im.v2.component.elements';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 
-import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelRecentItem, ImModelMessage, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const MessageText = {
 	name: 'MessageText',
-	components: { ChatTitle },
+	components: { MessageAvatar },
 	props:
 	{
 		item: {
@@ -19,12 +17,9 @@ export const MessageText = {
 			required: true,
 		},
 	},
-	data(): JsonObject
-	{
-		return {};
-	},
 	computed:
 	{
+		AvatarSize: () => AvatarSize,
 		recentItem(): ImModelRecentItem
 		{
 			return this.item;
@@ -97,10 +92,13 @@ export const MessageText = {
 		<div class="bx-im-list-channel-item__message_container">
 			<span class="bx-im-list-channel-item__message_text">
 				<span v-if="isLastMessageAuthor" class="bx-im-list-channel-item__message_author-icon --self"></span>
-				<template v-else-if="message.authorId">
-					<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-list-channel-item__message_author-icon --user"></span>
-					<span v-else class="bx-im-list-channel-item__message_author-icon --user --default"></span>
-				</template>
+				<MessageAvatar
+					v-else-if="message.authorId"
+					:messageId="message.id"
+					:authorId="message.authorId"
+					:size="AvatarSize.XXS"
+					class="bx-im-list-channel-item__message_author-avatar"
+				/>
 				<span class="bx-im-list-channel-item__message_text_content">{{ formattedMessageText }}</span>
 			</span>
 		</div>

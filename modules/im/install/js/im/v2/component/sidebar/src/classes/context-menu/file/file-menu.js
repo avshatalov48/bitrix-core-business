@@ -82,7 +82,7 @@ export class FileMenu extends SidebarMenu
 			onclick: function() {
 				this.mediaManager.saveOnDisk(this.context.sidebarFile.fileId).then(() => {
 					BX.UI.Notification.Center.notify({
-						content: Loc.getMessage('IM_SIDEBAR_FILE_SAVE_ON_DISK_SUCCESS'),
+						content: Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS'),
 					});
 				});
 				this.menuInstance.close();

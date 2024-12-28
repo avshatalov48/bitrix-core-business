@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_access,im_v2_provider_service,im_v2_lib_layout,im_v2_lib_roleManager,im_v2_lib_uuid,im_public,im_v2_lib_copilot,ui_vue3_vuex,ui_notification,main_core,im_v2_lib_user,rest_client,im_v2_lib_utils,main_core_events,ui_uploader_core,im_v2_lib_logger,im_v2_lib_analytics,im_v2_application_core,im_v2_lib_rest,im_v2_const) {
+(function (exports,im_v2_lib_feature,im_v2_lib_access,im_v2_provider_service,imopenlines_v2_lib_openlines,im_v2_lib_roleManager,im_v2_lib_uuid,im_v2_lib_layout,im_public,im_v2_lib_copilot,ui_vue3_vuex,ui_notification,main_core,im_v2_lib_user,rest_client,im_v2_lib_utils,main_core_events,ui_uploader_core,im_v2_lib_logger,im_v2_lib_analytics,im_v2_application_core,im_v2_lib_rest,im_v2_const) {
 	'use strict';
 
 	var _restResult = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restResult");
@@ -312,7 +312,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    const chatIsOpened = im_v2_application_core.Core.getStore().getters['application/isChatOpen'](dialogId);
 	    if (chatIsOpened) {
-	      im_public.Messenger.openChat();
+	      im_v2_lib_layout.LayoutManager.getInstance().clearCurrentLayoutEntityId();
+	      void im_v2_lib_layout.LayoutManager.getInstance().deleteLastOpenedElementById(dialogId);
 	    }
 	    im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imRecentHide, {
 	      DIALOG_ID: dialogId
@@ -422,6 +423,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    await babelHelpers.classPrivateFieldLooseBase(this, _updateModels)[_updateModels](dialogId);
 	    return deleteResult;
 	  }
+	  async deleteCollab(dialogId) {
+	    im_v2_lib_logger.Logger.warn(`ChatService: deleteCollab, dialogId: ${dialogId}`);
+	    const deleteResult = await im_v2_lib_rest.runAction(im_v2_const.RestMethod.socialnetworkCollabDelete, {
+	      data: {
+	        dialogId
+	      }
+	    }).catch(error => {
+	      // eslint-disable-next-line no-console
+	      console.error('ChatService: deleteCollab error:', error);
+	      throw error;
+	    });
+	    await babelHelpers.classPrivateFieldLooseBase(this, _updateModels)[_updateModels](dialogId);
+	    return deleteResult;
+	  }
 	}
 	function _updateModels2(dialogId) {
 	  void babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('chats/update', {
@@ -502,25 +517,32 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    var _babelHelpers$classPr5;
 	    return (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].commentInfo) != null ? _babelHelpers$classPr5 : [];
 	  }
-	  getMessagesToStore() {
+	  getCollabInfo() {
 	    var _babelHelpers$classPr6;
-	    return (_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].additionalMessages) != null ? _babelHelpers$classPr6 : [];
+	    return (_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].collabInfo) != null ? _babelHelpers$classPr6 : null;
+	  }
+	  getMessagesToStore() {
+	    var _babelHelpers$classPr7;
+	    return (_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].additionalMessages) != null ? _babelHelpers$classPr7 : [];
 	  }
 	  getPinnedMessageIds() {
-	    var _babelHelpers$classPr7;
+	    var _babelHelpers$classPr8;
 	    const pinnedMessageIds = [];
-	    const pins = (_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].pins) != null ? _babelHelpers$classPr7 : [];
+	    const pins = (_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].pins) != null ? _babelHelpers$classPr8 : [];
 	    pins.forEach(pin => {
 	      pinnedMessageIds.push(pin.messageId);
 	    });
 	    return pinnedMessageIds;
 	  }
 	  getReactions() {
-	    var _babelHelpers$classPr8;
-	    return (_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].reactions) != null ? _babelHelpers$classPr8 : [];
+	    var _babelHelpers$classPr9;
+	    return (_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].reactions) != null ? _babelHelpers$classPr9 : [];
 	  }
 	  getCopilot() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].copilot;
+	  }
+	  getSession() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _restResult$1)[_restResult$1].session;
 	  }
 	}
 
@@ -737,7 +759,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }), babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('messages/reactions/set', extractor.getReactions()), babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('messages/comments/set', extractor.getCommentInfo())]);
 	  const copilotManager = new im_v2_lib_copilot.CopilotManager();
 	  const copilotPromise = copilotManager.handleChatLoadResponse(extractor.getCopilot());
-	  await Promise.all([chatsPromise, filesPromise, usersPromise, messagesPromise, copilotPromise]);
+	  const openLinesPromise = imopenlines_v2_lib_openlines.OpenLinesManager.handleChatLoadResponse(extractor.getSession());
+	  const collabPromise = babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('chats/collabs/set', {
+	    chatId: extractor.getChatId(),
+	    collabInfo: extractor.getCollabInfo()
+	  });
+	  await Promise.all([chatsPromise, filesPromise, usersPromise, messagesPromise, copilotPromise, openLinesPromise, collabPromise]);
 	  return {
 	    dialogId: extractor.getDialogId(),
 	    chatId: extractor.getChatId()
@@ -763,6 +790,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return extractor.isCopilotChat() && currentLayoutName !== im_v2_const.Layout.copilot.name;
 	}
 	function _needRedirectToOpenLinesLayout2(actionResult) {
+	  const optionOpenLinesV2Activated = im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.openLinesV2);
+	  if (optionOpenLinesV2Activated) {
+	    return false;
+	  }
 	  const extractor = new ChatDataExtractor(actionResult);
 	  return extractor.isOpenlinesChat() && main_core.Type.isStringFilled(extractor.getDialogId());
 	}
@@ -783,6 +814,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _restClient = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
 	var _store$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _prepareFields = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareFields");
+	var _addCollabToModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addCollabToModel");
 	var _addChatToModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addChatToModel");
 	var _sendAnalytics = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendAnalytics");
 	class CreateService {
@@ -792,6 +824,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _addChatToModel, {
 	      value: _addChatToModel2
+	    });
+	    Object.defineProperty(this, _addCollabToModel, {
+	      value: _addCollabToModel2
 	    });
 	    Object.defineProperty(this, _prepareFields, {
 	      value: _prepareFields2
@@ -832,23 +867,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  async createCollab(collabConfig) {
 	    im_v2_lib_logger.Logger.warn('ChatService: createCollab', collabConfig);
 	    const preparedFields = await babelHelpers.classPrivateFieldLooseBase(this, _prepareFields)[_prepareFields](collabConfig);
-	    //
-	    // const createResult: RestResult = await this.#restClient.callMethod(RestMethod.imV2ChatAdd, {
-	    // 	fields: preparedFields,
-	    // }).catch((error) => {
-	    // 	// eslint-disable-next-line no-console
-	    // 	console.error('ChatService: createCollab error:', error);
-	    // 	throw new Error(error);
-	    // });
-	    //
-	    // const { chatId: newChatId } = createResult.data();
-	    //
-	    // Logger.warn('ChatService: createCollab result', newChatId);
-	    // const newDialogId = `chat${newChatId}`;
-	    // this.#addChatToModel(newDialogId, preparedFields);
-	    // this.#sendAnalytics(newDialogId);
-	    //
-	    // return { newDialogId, newChatId };
+	    const params = {
+	      ownerId: preparedFields.ownerId,
+	      name: preparedFields.title,
+	      description: preparedFields.description,
+	      avatarId: preparedFields.avatar,
+	      moderatorMembers: im_v2_lib_utils.Utils.user.prepareSelectorIds(collabConfig.moderatorMembers),
+	      permissions: collabConfig.permissions,
+	      options: collabConfig.options
+	    };
+	    const createResult = await im_v2_lib_rest.runAction(im_v2_const.RestMethod.socialnetworkCollabCreate, {
+	      data: params
+	    }).catch(([error]) => {
+	      // eslint-disable-next-line no-console
+	      console.error('ChatService: createCollab error:', error);
+	      throw error;
+	    });
+	    const {
+	      chatId: newChatId
+	    } = createResult;
+	    im_v2_lib_logger.Logger.warn('ChatService: createCollab result', newChatId);
+	    const newDialogId = `chat${newChatId}`;
+	    babelHelpers.classPrivateFieldLooseBase(this, _addCollabToModel)[_addCollabToModel](newDialogId, preparedFields);
+	    babelHelpers.classPrivateFieldLooseBase(this, _sendAnalytics)[_sendAnalytics](newDialogId);
+	    return {
+	      newDialogId,
+	      newChatId
+	    };
 	  }
 	}
 	async function _prepareFields2(chatConfig) {
@@ -892,6 +937,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	  return result;
 	}
+	function _addCollabToModel2(newDialogId, collabConfig) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _store$2)[_store$2].dispatch('chats/set', {
+	    dialogId: newDialogId,
+	    type: im_v2_const.ChatType.collab,
+	    name: collabConfig.title
+	  });
+	}
 	function _addChatToModel2(newDialogId, chatConfig) {
 	  let chatType = chatConfig.searchable === 'Y' ? OPEN_CHAT : PRIVATE_CHAT;
 	  if (main_core.Type.isStringFilled(chatConfig.entityType)) {
@@ -916,7 +968,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	}
 	function _sendAnalytics2(dialogId) {
-	  im_v2_lib_analytics.Analytics.getInstance().onCreateChat(dialogId);
+	  im_v2_lib_analytics.Analytics.getInstance().ignoreNextChatOpen(dialogId);
 	}
 
 	var _store$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
@@ -981,6 +1033,36 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    im_v2_lib_logger.Logger.warn('ChatService: updateChat result', updateResult);
 	    const dialogId = `chat${chatId}`;
 	    await babelHelpers.classPrivateFieldLooseBase(this, _updateChatInModel)[_updateChatInModel](dialogId, chatConfig);
+	    return updateResult;
+	  }
+	  async updateCollab(dialogId, collabConfig) {
+	    im_v2_lib_logger.Logger.warn(`ChatService: updateCollab, dialogId: ${dialogId}`, collabConfig);
+	    const preparedFields = await babelHelpers.classPrivateFieldLooseBase(this, _prepareFields$1)[_prepareFields$1](collabConfig);
+	    let payload = {
+	      dialogId,
+	      name: preparedFields.title,
+	      description: preparedFields.description,
+	      avatarId: preparedFields.avatar
+	    };
+	    if (collabConfig.groupSettings) {
+	      const groupSettings = collabConfig.groupSettings;
+	      payload = {
+	        ...payload,
+	        ownerId: groupSettings.ownerId,
+	        addModeratorMembers: im_v2_lib_utils.Utils.user.prepareSelectorIds(groupSettings.addModeratorMembers),
+	        deleteModeratorMembers: im_v2_lib_utils.Utils.user.prepareSelectorIds(groupSettings.deleteModeratorMembers),
+	        permissions: groupSettings.permissions,
+	        options: groupSettings.options
+	      };
+	    }
+	    const updateResult = await im_v2_lib_rest.runAction(im_v2_const.RestMethod.socialnetworkCollabUpdate, {
+	      data: payload
+	    }).catch(([error]) => {
+	      // eslint-disable-next-line no-console
+	      console.error('ChatService: updateCollab error:', error);
+	      throw error;
+	    });
+	    im_v2_lib_logger.Logger.warn('ChatService: updateCollab result', updateResult);
 	    return updateResult;
 	  }
 	  async getMemberEntities(chatId) {
@@ -1414,6 +1496,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	}
 	function _checkChatCounter2(readResult) {
+	  if (!readResult) {
+	    return;
+	  }
 	  const {
 	    chatId,
 	    counter
@@ -1498,6 +1583,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _onChatKickError)[_onChatKickError](error);
 	    }
 	  }
+	  async kickUserFromCollab(dialogId, userId) {
+	    const USER_ENTITY_ID = 'user';
+	    const members = [[USER_ENTITY_ID, userId]];
+	    const payload = {
+	      data: {
+	        dialogId,
+	        members
+	      }
+	    };
+	    try {
+	      await im_v2_lib_rest.runAction(im_v2_const.RestMethod.socialnetworkMemberDelete, payload);
+	    } catch (errors) {
+	      console.error('UserService: error kicking from collab', errors);
+	      babelHelpers.classPrivateFieldLooseBase(this, _showNotification$1)[_showNotification$1](main_core.Loc.getMessage('IM_MESSAGE_SERVICE_KICK_COLLAB_DEFAULT_ERROR'));
+	    }
+	  }
 	  async leaveChat(dialogId) {
 	    const queryParams = {
 	      dialogId,
@@ -1508,6 +1609,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _onChatLeave)[_onChatLeave](dialogId);
 	    } catch (error) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _onChatLeaveError)[_onChatLeaveError](error);
+	    }
+	  }
+	  async leaveCollab(dialogId) {
+	    const payload = {
+	      data: {
+	        dialogId
+	      }
+	    };
+	    try {
+	      await im_v2_lib_rest.runAction(im_v2_const.RestMethod.socialnetworkMemberLeave, payload);
+	      babelHelpers.classPrivateFieldLooseBase(this, _onChatLeave)[_onChatLeave](dialogId);
+	    } catch (errors) {
+	      console.error('UserService: leave collab error', errors);
+	      babelHelpers.classPrivateFieldLooseBase(this, _showNotification$1)[_showNotification$1](main_core.Loc.getMessage('IM_MESSAGE_SERVICE_LEAVE_COLLAB_DEFAULT_ERROR'));
 	    }
 	  }
 	  joinChat(dialogId) {
@@ -1590,7 +1705,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	  const chatIsOpened = babelHelpers.classPrivateFieldLooseBase(this, _store$8)[_store$8].getters['application/isChatOpen'](dialogId);
 	  if (chatIsOpened) {
-	    void im_public.Messenger.openChat();
+	    im_v2_lib_layout.LayoutManager.getInstance().clearCurrentLayoutEntityId();
+	    void im_v2_lib_layout.LayoutManager.getInstance().deleteLastOpenedElementById(dialogId);
 	  }
 	}
 	function _onChatKickError2(error) {
@@ -1729,6 +1845,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  updateChat(chatId, chatConfig) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _updateService)[_updateService].updateChat(chatId, chatConfig);
 	  }
+	  updateCollab(dialogId, collabConfig) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _updateService)[_updateService].updateCollab(dialogId, collabConfig);
+	  }
 	  getMemberEntities(chatId) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _updateService)[_updateService].getMemberEntities(chatId);
 	  }
@@ -1737,6 +1856,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  // region 'delete'
 	  deleteChat(dialogId) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _deleteService)[_deleteService].deleteChat(dialogId);
+	  }
+	  deleteCollab(dialogId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _deleteService)[_deleteService].deleteCollab(dialogId);
 	  }
 	  // endregion 'delete'
 
@@ -1786,8 +1908,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  leaveChat(dialogId) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _userService)[_userService].leaveChat(dialogId);
 	  }
+	  leaveCollab(dialogId) {
+	    void babelHelpers.classPrivateFieldLooseBase(this, _userService)[_userService].leaveCollab(dialogId);
+	  }
 	  kickUserFromChat(dialogId, userId) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _userService)[_userService].kickUserFromChat(dialogId, userId);
+	  }
+	  kickUserFromCollab(dialogId, userId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _userService)[_userService].kickUserFromCollab(dialogId, userId);
 	  }
 	  addToChat(addConfig) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _userService)[_userService].addToChat(addConfig);
@@ -2418,7 +2546,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _canDeleteCompletely2(message) {
 	  const alwaysCompleteDeleteChats = [im_v2_const.ChatType.channel, im_v2_const.ChatType.openChannel, im_v2_const.ChatType.generalChannel];
-	  const neverCompleteDeleteChats = [im_v2_const.ChatType.comment];
+	  const neverCompleteDeleteChats = [im_v2_const.ChatType.comment, im_v2_const.ChatType.lines];
 	  const chat = babelHelpers.classPrivateFieldLooseBase(this, _getChat)[_getChat]();
 	  if (alwaysCompleteDeleteChats.includes(chat.type)) {
 	    return true;
@@ -2740,6 +2868,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 
 	var _store$e = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _addLoadingMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addLoadingMessage");
 	var _processMessageSending = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("processMessageSending");
 	var _handleAddingMessageToModels = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleAddingMessageToModels");
 	var _sendAndProcessMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendAndProcessMessage");
@@ -2766,6 +2895,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _getForwardUuidMap = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getForwardUuidMap");
 	var _buildForwardContextId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("buildForwardContextId");
 	var _logSendErrors = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("logSendErrors");
+	var _clearLastMessageViews = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clearLastMessageViews");
 	class SendingService$$1 {
 	  static getInstance() {
 	    if (!this.instance) {
@@ -2774,6 +2904,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return this.instance;
 	  }
 	  constructor() {
+	    Object.defineProperty(this, _clearLastMessageViews, {
+	      value: _clearLastMessageViews2
+	    });
 	    Object.defineProperty(this, _logSendErrors, {
 	      value: _logSendErrors2
 	    });
@@ -2852,6 +2985,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _processMessageSending, {
 	      value: _processMessageSending2
 	    });
+	    Object.defineProperty(this, _addLoadingMessage, {
+	      value: _addLoadingMessage2
+	    });
 	    Object.defineProperty(this, _store$e, {
 	      writable: true,
 	      value: void 0
@@ -2875,12 +3011,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      fileIds = []
 	    } = params;
 	    if (!main_core.Type.isStringFilled(text) && !main_core.Type.isArrayFilled(fileIds)) {
-	      return Promise.resolve();
+	      return;
 	    }
 	    im_v2_lib_logger.Logger.warn('SendingService: sendMessage with files', params);
 	    const message = babelHelpers.classPrivateFieldLooseBase(this, _prepareMessageWithFiles)[_prepareMessageWithFiles](params);
-	    await babelHelpers.classPrivateFieldLooseBase(this, _handleAddingMessageToModels)[_handleAddingMessageToModels](message);
-	    return Promise.resolve();
+	    await babelHelpers.classPrivateFieldLooseBase(this, _handlePagination)[_handlePagination](message.dialogId);
+	    await babelHelpers.classPrivateFieldLooseBase(this, _addLoadingMessage)[_addLoadingMessage](message);
+	    await babelHelpers.classPrivateFieldLooseBase(this, _addMessageToRecent)[_addMessageToRecent](message);
+	    await babelHelpers.classPrivateFieldLooseBase(this, _clearLastMessageViews)[_clearLastMessageViews](message.dialogId);
+	    babelHelpers.classPrivateFieldLooseBase(this, _sendScrollEvent)[_sendScrollEvent]({
+	      force: true,
+	      dialogId: message.dialogId
+	    });
 	  }
 	  async forwardMessages(params) {
 	    const {
@@ -2898,7 +3040,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      commentMessage = babelHelpers.classPrivateFieldLooseBase(this, _prepareMessage)[_prepareMessage](params);
 	      await babelHelpers.classPrivateFieldLooseBase(this, _addMessageToModels)[_addMessageToModels](commentMessage);
 	    }
-	    const forwardUuidMap = babelHelpers.classPrivateFieldLooseBase(this, _getForwardUuidMap)[_getForwardUuidMap](forwardIds);
+	    const sortForwardIds = [...forwardIds].sort();
+	    const forwardUuidMap = babelHelpers.classPrivateFieldLooseBase(this, _getForwardUuidMap)[_getForwardUuidMap](sortForwardIds);
 	    const forwardedMessages = babelHelpers.classPrivateFieldLooseBase(this, _prepareForwardMessages)[_prepareForwardMessages](params, forwardUuidMap);
 	    await babelHelpers.classPrivateFieldLooseBase(this, _addForwardsToModels)[_addForwardsToModels](forwardedMessages);
 	    babelHelpers.classPrivateFieldLooseBase(this, _sendScrollEvent)[_sendScrollEvent]({
@@ -2956,6 +3099,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const message = babelHelpers.classPrivateFieldLooseBase(this, _preparePrompt)[_preparePrompt](params);
 	    return babelHelpers.classPrivateFieldLooseBase(this, _processMessageSending)[_processMessageSending](message);
 	  }
+	}
+	async function _addLoadingMessage2(message) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('messages/addLoadingMessage', {
+	    message
+	  });
 	}
 	async function _processMessageSending2(message) {
 	  await babelHelpers.classPrivateFieldLooseBase(this, _handleAddingMessageToModels)[_handleAddingMessageToModels](message);
@@ -3057,22 +3205,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _addMessageToModels2(message) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _addMessageToRecent)[_addMessageToRecent](message);
-	  void babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('chats/clearLastMessageViews', {
-	    dialogId: message.dialogId
-	  });
+	  void babelHelpers.classPrivateFieldLooseBase(this, _clearLastMessageViews)[_clearLastMessageViews](message.dialogId);
 	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('messages/add', message);
 	}
 	function _addMessageToRecent2(message) {
-	  const recentItem = babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].getters['recent/get'](message.dialogId);
-	  if (!recentItem || message.text === '') {
-	    return;
+	  var _message$params;
+	  const hasMessageText = main_core.Type.isStringFilled(message.text);
+	  const hasMessageFile = main_core.Type.isArrayFilled((_message$params = message.params) == null ? void 0 : _message$params.FILE_ID);
+	  if (hasMessageText || hasMessageFile) {
+	    void babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('recent/update', {
+	      id: message.dialogId,
+	      fields: {
+	        messageId: message.temporaryId
+	      }
+	    });
 	  }
-	  void babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('recent/update', {
-	    id: message.dialogId,
-	    fields: {
-	      messageId: message.temporaryId
-	    }
-	  });
 	}
 	function _sendMessageToServer2(message) {
 	  const fields = {};
@@ -3295,6 +3442,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    console.error(`SendingService: ${methodName} error: code: ${error.code} message: ${error.message}`);
 	  });
 	}
+	function _clearLastMessageViews2(dialogId) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].dispatch('chats/clearLastMessageViews', {
+	    dialogId
+	  });
+	}
 	SendingService$$1.instance = null;
 
 	class NotificationService {
@@ -3508,14 +3660,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const {
 	      diskFolderId,
 	      uploaderId,
-	      autoUpload
+	      autoUpload = false,
+	      chatId,
+	      dialogId
 	    } = options;
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderRegistry)[_uploaderRegistry][uploaderId] = new ui_uploader_core.Uploader({
 	      autoUpload,
 	      controller: 'disk.uf.integration.diskUploaderController',
 	      multiple: true,
 	      controllerOptions: {
-	        folderId: diskFolderId
+	        folderId: diskFolderId,
+	        chat: {
+	          chatId,
+	          dialogId
+	        }
 	      },
 	      imageResizeWidth: 1280,
 	      imageResizeHeight: 1280,
@@ -3664,6 +3822,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _addFiles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFiles");
 	var _addFileFromDiskToModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFileFromDiskToModel");
 	var _initUploader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initUploader");
+	var _setFileMapping = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setFileMapping");
 	var _requestDiskFolderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestDiskFolderId");
 	var _tryCommit = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tryCommit");
 	var _uploadPreview = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadPreview");
@@ -3791,6 +3950,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _requestDiskFolderId, {
 	      value: _requestDiskFolderId2
+	    });
+	    Object.defineProperty(this, _setFileMapping, {
+	      value: _setFileMapping2
 	    });
 	    Object.defineProperty(this, _initUploader, {
 	      value: _initUploader2
@@ -4032,11 +4194,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    autoUpload
 	  } = params;
 	  const uploaderId = im_v2_lib_utils.Utils.text.getUuidV4();
+	  const chatId = babelHelpers.classPrivateFieldLooseBase(this, _getChatId)[_getChatId](dialogId);
 	  return this.checkDiskFolderId(dialogId).then(diskFolderId => {
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].createUploader({
 	      diskFolderId,
 	      uploaderId,
-	      autoUpload
+	      autoUpload,
+	      chatId,
+	      dialogId
 	    });
 	    return uploaderId;
 	  });
@@ -4113,9 +4278,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      file,
 	      uploaderId
 	    } = event.getData();
-	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](file.getId(), file.getProgress(), im_v2_const.FileStatus.wait);
+	    const serverFileId = file.getServerFileId().toString().slice(1);
+	    const temporaryFileId = file.getId();
+	    babelHelpers.classPrivateFieldLooseBase(this, _setFileMapping)[_setFileMapping]({
+	      serverFileId,
+	      temporaryFileId
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](temporaryFileId, file.getProgress(), im_v2_const.FileStatus.wait);
 	    await babelHelpers.classPrivateFieldLooseBase(this, _uploadPreview)[_uploadPreview](file);
-	    babelHelpers.classPrivateFieldLooseBase(this, _setPreviewSentStatus)[_setPreviewSentStatus](uploaderId, file.getId());
+	    babelHelpers.classPrivateFieldLooseBase(this, _setPreviewSentStatus)[_setPreviewSentStatus](uploaderId, temporaryFileId);
 	    void babelHelpers.classPrivateFieldLooseBase(this, _tryCommit)[_tryCommit](uploaderId);
 	  });
 	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].subscribe(UploaderWrapper.events.onFileUploadError, event => {
@@ -4135,6 +4306,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } = event.getData();
 	    babelHelpers.classPrivateFieldLooseBase(this, _cancelUpload)[_cancelUpload](tempMessageId, tempFileId);
 	  });
+	}
+	function _setFileMapping2(options) {
+	  void babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('files/setTemporaryFileMapping', options);
 	}
 	function _requestDiskFolderId2(dialogId) {
 	  return new Promise((resolve, reject) => {
@@ -4210,12 +4384,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	}
 	function _cancelUpload2(tempMessageId, tempFileId) {
-	  void babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('messages/delete', {
-	    id: tempMessageId
-	  });
-	  void babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('files/delete', {
-	    id: tempFileId
-	  });
+	  const message = babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].getters['messages/getById'](tempMessageId);
+	  if (message) {
+	    void babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('messages/delete', {
+	      id: tempMessageId
+	    });
+	    void babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('files/delete', {
+	      id: tempFileId
+	    });
+	    const chat = babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].getters['chats/getByChatId'](message.chatId);
+	    const lastMessageId = babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].getters['messages/findLastChatMessageId'](message.chatId);
+	    if (lastMessageId > -1) {
+	      void babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('recent/update', {
+	        id: chat.dialogId,
+	        fields: {
+	          messageId: lastMessageId
+	        }
+	      });
+	    } else {
+	      void babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('recent/delete', {
+	        id: chat.dialogId
+	      });
+	    }
+	  }
 	}
 	function _addFileToStore2(file) {
 	  const taskId = file.getId();
@@ -4537,10 +4728,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  chatId,
 	  dialogId
 	}) {
-	  im_v2_lib_analytics.Analytics.getInstance().onCreateCopilotChat({
-	    chatId,
-	    dialogId
-	  });
+	  im_v2_lib_analytics.Analytics.getInstance().copilot.onCreateChat(chatId);
+	  im_v2_lib_analytics.Analytics.getInstance().ignoreNextChatOpen(dialogId);
 	}
 
 	const CommentsService = {
@@ -4600,5 +4789,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.CopilotService = CopilotService$$1;
 	exports.CommentsService = CommentsService;
 
-}((this.BX.Messenger.v2.Service = this.BX.Messenger.v2.Service || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Event,BX.UI.Uploader,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Service = this.BX.Messenger.v2.Service || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.OpenLines.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Event,BX.UI.Uploader,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=registry.bundle.js.map

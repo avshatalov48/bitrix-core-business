@@ -6,6 +6,7 @@ use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Role\User;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Connection\Connection;
@@ -79,7 +80,7 @@ class StartSyncController implements StartSynchronization
 		$pusher = static function ($result) use ($owner)
 		{
 			Util::addPullEvent(
-				'process_sync_connection',
+				PushCommand::ProcessSyncConnection,
 				$owner->getId(),
 				(array) $result
 			);

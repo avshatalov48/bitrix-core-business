@@ -19,9 +19,10 @@ $groupId = (int) ($arResult['VARIABLES']['group_id'] ?? null);
 $group = Workgroup::getById($groupId);
 
 $isScrumProject = ($group && $group->isScrumProject());
+$isProject = ($group && !$group->isScrumProject());
 if (
 	($isScrumProject && Feature::isFeatureEnabled(Feature::SCRUM_CREATE))
-	|| (!$isScrumProject && Feature::isFeatureEnabled(Feature::PROJECTS_GROUPS))
+	|| ($isProject && Feature::isFeatureEnabled(Feature::PROJECTS_GROUPS, $groupId))
 )
 {
 	return;

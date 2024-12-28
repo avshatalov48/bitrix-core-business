@@ -1,7 +1,8 @@
-import {Type, Tag, Loc, Dom, bind, onCustomEvent} from 'main.core';
+import { bind, Dom, Loc, onCustomEvent, Tag, Type } from 'main.core';
 import 'ui.design-tokens';
 
 import './css/style.css';
+import { BaseEvent } from 'main.core.events';
 
 export const SwitcherSize = Object.freeze({
 	medium: 'medium',
@@ -200,7 +201,7 @@ export class Switcher {
 		bind(this.node, 'click', this.toggle.bind(this));
 	}
 
-	disable(disabled: boolean, fireEvents: boolean): void
+	disable(disabled: boolean, fireEvents: boolean = true, event: BaseEvent = {}): void
 	{
 		if (this.isLoading())
 		{
@@ -214,16 +215,16 @@ export class Switcher {
 		if (disabled)
 		{
 			Dom.addClass(this.node, this.#classNameLock);
-			fireEvents ? this.#fireEvent(this.events.lock) : null;
+			fireEvents ? this.#fireEvent(this.events.lock, event) : null;
 		}
 		else
 		{
 			Dom.removeClass(this.node, this.#classNameLock);
-			fireEvents ? this.#fireEvent(this.events.unlock) : null;
+			fireEvents ? this.#fireEvent(this.events.unlock, event) : null;
 		}
 	}
 
-	check(checked: boolean, fireEvents: boolean): void
+	check(checked: boolean, fireEvents: boolean = true, event: BaseEvent = {}): void
 	{
 		if (this.isLoading())
 		{
@@ -241,17 +242,17 @@ export class Switcher {
 		if (this.checked)
 		{
 			Dom.removeClass(this.node, this.#classNameOff);
-			fireEvents ? this.#fireEvent(this.events.unchecked) : null;
+			fireEvents ? this.#fireEvent(this.events.unchecked, event) : null;
 		}
 		else
 		{
 			Dom.addClass(this.node, this.#classNameOff);
-			fireEvents ? this.#fireEvent(this.events.checked) : null;
+			fireEvents ? this.#fireEvent(this.events.checked, event) : null;
 		}
 
 		if (fireEvents)
 		{
-			this.#fireEvent(this.events.toggled)
+			this.#fireEvent(this.events.toggled, event)
 		}
 	}
 
@@ -265,14 +266,14 @@ export class Switcher {
 		return this.checked;
 	}
 
-	toggle(): void
+	toggle(event: BaseEvent): void
 	{
 		if (this.isDisabled())
 		{
 			return;
 		}
 
-		this.check(!this.isChecked());
+		this.check(!this.isChecked(), true, event);
 	}
 
 	setLoading(mode: boolean): void
@@ -310,12 +311,12 @@ export class Switcher {
 		return this.#loading;
 	}
 
-	#fireEvent(eventName: string): void
+	#fireEvent(eventName: string, event: BaseEvent): void
 	{
 		onCustomEvent(this, eventName);
 		if (this.handlers[eventName])
 		{
-			this.handlers[eventName].call(this);
+			this.handlers[eventName].call(this, event);
 		}
 	}
 

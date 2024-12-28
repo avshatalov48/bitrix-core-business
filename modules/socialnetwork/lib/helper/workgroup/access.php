@@ -10,7 +10,7 @@ namespace Bitrix\Socialnetwork\Helper\Workgroup;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Socialnetwork\Permission\GroupAccessController;
-use Bitrix\Socialnetwork\Permission\GroupAction;
+use Bitrix\Socialnetwork\Permission\GroupDictionary;
 use Bitrix\Socialnetwork\Permission\Model\GroupModel;
 use Bitrix\Socialnetwork\Helper;
 use Bitrix\Socialnetwork\Item\Workgroup\AccessManager;
@@ -34,10 +34,10 @@ class Access
 		$siteId = (string)($params['siteId'] ?? SITE_ID);
 		$userId = (int)($params['userId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::CREATE))
+		if (static::isRuleEnabled(GroupDictionary::CREATE))
 		{
 			return GroupAccessController::getInstance($userId)
-				->check(GroupAction::CREATE, GroupModel::createFromArray(['siteId' => $siteId]));
+				->check(GroupDictionary::CREATE, GroupModel::createFromArray(['siteIds' => [$siteId]]));
 		}
 
 		$checkAdminSession = (bool)($params['checkAdminSession'] ?? true);
@@ -53,9 +53,9 @@ class Access
 		$groupId = (int)($params['groupId'] ?? 0);
 		$currentUserId = (int)($params['userId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::VIEW))
+		if (static::isRuleEnabled(GroupDictionary::VIEW))
 		{
-			return GroupAccessController::can($currentUserId, GroupAction::VIEW, $groupId);
+			return GroupAccessController::can($currentUserId, GroupDictionary::VIEW, $groupId);
 		}
 
 		if ($groupId <= 0)
@@ -107,9 +107,9 @@ class Access
 		$groupId = (int)($params['groupId'] ?? 0);
 		$currentUserId = (int)($params['userId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::UPDATE))
+		if (static::isRuleEnabled(GroupDictionary::UPDATE))
 		{
-			return GroupAccessController::can($currentUserId, GroupAction::UPDATE, $groupId);
+			return GroupAccessController::can($currentUserId, GroupDictionary::UPDATE, $groupId);
 		}
 
 		$checkAdminSession = (bool)($params['checkAdminSession'] ?? true);
@@ -172,11 +172,11 @@ class Access
 		$userId = (int)($params['userId'] ?? 0);
 		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::SET_OWNER))
+		if (static::isRuleEnabled(GroupDictionary::SET_OWNER))
 		{
 			return GroupAccessController::can(
 				$currentUserId,
-				GroupAction::SET_OWNER,
+				GroupDictionary::SET_OWNER,
 				$groupId,
 				['userId' => $userId]
 			);
@@ -233,11 +233,11 @@ class Access
 		$userId = ($params['userId'] ?? null);
 		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::SET_SCRUM_MASTER))
+		if (static::isRuleEnabled(GroupDictionary::SET_SCRUM_MASTER))
 		{
 			return GroupAccessController::can(
 				$currentUserId,
-				GroupAction::SET_SCRUM_MASTER,
+				GroupDictionary::SET_SCRUM_MASTER,
 				$groupId,
 				['userId' => $userId]
 			);
@@ -294,11 +294,11 @@ class Access
 		$userId = ($params['userId'] ?? null);
 		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::DELETE_OUTGOING_REQUEST))
+		if (static::isRuleEnabled(GroupDictionary::DELETE_OUTGOING_REQUEST))
 		{
 			return GroupAccessController::can(
 				$currentUserId,
-				GroupAction::DELETE_OUTGOING_REQUEST,
+				GroupDictionary::DELETE_OUTGOING_REQUEST,
 				$groupId,
 				['userId' => $userId]
 			);
@@ -355,11 +355,11 @@ class Access
 		$userId = ($params['userId'] ?? null);
 		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::DELETE_INCOMING_REQUEST))
+		if (static::isRuleEnabled(GroupDictionary::DELETE_INCOMING_REQUEST))
 		{
 			return GroupAccessController::can(
 				$currentUserId,
-				GroupAction::DELETE_INCOMING_REQUEST,
+				GroupDictionary::DELETE_INCOMING_REQUEST,
 				$groupId,
 				['userId' => $userId]
 			);
@@ -416,11 +416,11 @@ class Access
 		$userId = ($params['userId'] ?? null);
 		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::PROCESS_INCOMING_REQUEST))
+		if (static::isRuleEnabled(GroupDictionary::PROCESS_INCOMING_REQUEST))
 		{
 			return GroupAccessController::can(
 				$currentUserId,
-				GroupAction::PROCESS_INCOMING_REQUEST,
+				GroupDictionary::PROCESS_INCOMING_REQUEST,
 				$groupId,
 				['userId' => $userId]
 			);
@@ -477,11 +477,11 @@ class Access
 		$userId = ($params['userId'] ?? null);
 		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::EXCLUDE))
+		if (static::isRuleEnabled(GroupDictionary::EXCLUDE))
 		{
 			return GroupAccessController::can(
 				$currentUserId,
-				GroupAction::EXCLUDE,
+				GroupDictionary::EXCLUDE,
 				$groupId,
 				['userId' => $userId]
 			);
@@ -528,9 +528,9 @@ class Access
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::JOIN))
+		if (static::isRuleEnabled(GroupDictionary::JOIN))
 		{
-			return GroupAccessController::can($userId, GroupAction::JOIN, $groupId);
+			return GroupAccessController::can($userId, GroupDictionary::JOIN, $groupId);
 		}
 
 		if (
@@ -574,9 +574,9 @@ class Access
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::LEAVE))
+		if (static::isRuleEnabled(GroupDictionary::LEAVE))
 		{
-			return GroupAccessController::can($userId, GroupAction::LEAVE, $groupId);
+			return GroupAccessController::can($userId, GroupDictionary::LEAVE, $groupId);
 		}
 
 		if (
@@ -621,11 +621,11 @@ class Access
 		$userId = ($params['userId'] ?? null);
 		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::SET_MODERATOR))
+		if (static::isRuleEnabled(GroupDictionary::SET_MODERATOR))
 		{
 			return GroupAccessController::can(
 				$currentUserId,
-				GroupAction::SET_MODERATOR,
+				GroupDictionary::SET_MODERATOR,
 				$groupId,
 				['userId' => $userId]
 			);
@@ -682,11 +682,11 @@ class Access
 		$userId = ($params['userId'] ?? null);
 		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
 
-		if (static::isRuleEnabled(GroupAction::REMOVE_MODERATOR))
+		if (static::isRuleEnabled(GroupDictionary::REMOVE_MODERATOR))
 		{
 			return GroupAccessController::can(
 				$currentUserId,
-				GroupAction::REMOVE_MODERATOR,
+				GroupDictionary::REMOVE_MODERATOR,
 				$groupId,
 				['userId' => $userId]
 			);

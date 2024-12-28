@@ -170,33 +170,40 @@ class MailboxSyncManager
 
 	public function getMailboxesSyncInfo(): array
 	{
-		$mailboxesSyncInfo = [];
-		$userMailboxIds = array_keys(MailboxTable::getUserMailboxes());
+		static $mailboxesSyncInfo = null;
 
-		$datesLastOpening = MailEntityOptionsTable::getList(
-			[
-				'select' => [
-					'ENTITY_ID',
-					'VALUE',
-					'DATE_INSERT',
-				],
-				'filter' => [
-					'=ENTITY_TYPE' => 'MAILBOX',
-					'=ENTITY_ID' => $userMailboxIds,
-					'=PROPERTY_NAME' => 'SYNC_STATUS',
-				],
-			]
-		)->fetchAll();
-
-		foreach ($datesLastOpening as $date)
+		if (is_null($mailboxesSyncInfo))
 		{
-			if (isset($date['VALUE']))
+			$mailboxesSyncInfo = [];
+
+			$userMailboxIds = array_keys(MailboxTable::getUserMailboxes(onlyIds: true));
+
+			$datesLastOpening = MailEntityOptionsTable::getList(
+				[
+					'select' => [
+						'ENTITY_ID',
+						'VALUE',
+						'DATE_INSERT',
+					],
+					'filter' => [
+						'=ENTITY_TYPE' => 'MAILBOX',
+						'=ENTITY_ID' => $userMailboxIds,
+						'=PROPERTY_NAME' => 'SYNC_STATUS',
+					],
+				]
+			)->fetchAll();
+
+			foreach ($datesLastOpening as $date)
 			{
-				$mailboxesSyncInfo[(int)$date['ENTITY_ID']] = [
-					'isSuccess' => (bool)$date['VALUE'],
-					'timeStarted' => $date['DATE_INSERT']->getTimestamp(),
-				];
+				if (isset($date['VALUE']))
+				{
+					$mailboxesSyncInfo[(int)$date['ENTITY_ID']] = [
+						'isSuccess' => (bool)$date['VALUE'],
+						'timeStarted' => $date['DATE_INSERT']->getTimestamp(),
+					];
+				}
 			}
+
 		}
 
 		return $mailboxesSyncInfo;

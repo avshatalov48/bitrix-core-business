@@ -135,7 +135,7 @@ class CIMMessenger
 				return false;
 			}
 
-			if (!$config->skipUserCheck() && $messageObject->getAuthorId() && !$chat->canDo(\Bitrix\Im\V2\Chat\Permission::ACTION_SEND))
+			if (!$config->skipUserCheck() && $messageObject->getAuthorId() && !$chat->canDo(\Bitrix\Im\V2\Permission\Action::Send))
 			{
 				return false;
 			}
@@ -212,14 +212,6 @@ class CIMMessenger
 			{
 				$arFields['MESSAGE'] = mb_substr($arFields['MESSAGE'], 0, self::MESSAGE_LIMIT).' (...)';
 			}
-		}
-
-		if (
-			isset($arFields['FROM_USER_ID'])
-			&& (int)$arFields['FROM_USER_ID'] > 0
-			&& \Bitrix\Im\User::getInstance($arFields['FROM_USER_ID'])->isExtranet())
-		{
-			$arFields['SYSTEM'] = 'N';
 		}
 
 		$isImportant = isset($arFields['IS_IMPORTANT']) && $arFields['IS_IMPORTANT'] === 'Y' ? 'Y' : 'N';
@@ -334,6 +326,10 @@ class CIMMessenger
 		if ($arFields['SILENT_CONNECTOR'] == 'Y')
 		{
 			$arFields['PARAMS']['CLASS'] = "bx-messenger-content-item-system";
+			if ($arFields['MESSAGE_TYPE'] === IM_MESSAGE_OPEN_LINE)
+			{
+				$arFields['PARAMS']['COMPONENT_ID'] = 'HiddenMessage';
+			}
 		}
 
 		$fakeRelation = (isset($arFields['FAKE_RELATION']) && $arFields['FAKE_RELATION'] > 0) ? (int)$arFields['FAKE_RELATION'] : false;
@@ -828,7 +824,7 @@ class CIMMessenger
 				}
 
 				\Bitrix\Im\Model\MessageTable::indexRecord($messageID);
-				(new MessageAnalytics())->addSendMessage($messageID);
+				(new MessageAnalytics($message))->addSendMessage();
 
 				return $messageID;
 			}
@@ -838,7 +834,7 @@ class CIMMessenger
 				return false;
 			}
 		}
-		else if ($arFields['MESSAGE_TYPE'] == IM_MESSAGE_CHAT || $arFields['MESSAGE_TYPE'] == IM_MESSAGE_OPEN || $arFields['MESSAGE_TYPE'] == IM_MESSAGE_OPEN_LINE || $arFields['MESSAGE_TYPE'] === \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT || $arFields['MESSAGE_TYPE'] === \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL || $arFields['MESSAGE_TYPE'] === \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL || $arFields['MESSAGE_TYPE'] === \Bitrix\Im\V2\Chat::IM_TYPE_COMMENT)
+		else if (in_array($arFields['MESSAGE_TYPE'], CIMChat::getGroupTypesExtra()))
 		{
 			$arFields['SKIP_USER_CHECK'] = isset($arFields['SKIP_USER_CHECK']) && $arFields['SKIP_USER_CHECK'] == 'Y'? 'Y': 'N';
 			$arFields['FROM_USER_ID'] = isset($arFields['FROM_USER_ID']) ? (int)$arFields['FROM_USER_ID'] : 0;
@@ -928,7 +924,7 @@ class CIMMessenger
 						{
 							$userRole = Bitrix\Im\V2\Chat::ROLE_OWNER;
 						}
-						if (!\Bitrix\Im\V2\Chat\Permission::compareRole($userRole, $arRes['CHAT_CAN_POST'] ?? ''))
+						if (!\Bitrix\Im\V2\Permission::compareRole($userRole, $arRes['CHAT_CAN_POST'] ?? ''))
 						{
 							$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_GROUP_CANCELED"), "CANCELED");
 							return false;
@@ -1345,7 +1341,9 @@ class CIMMessenger
 						foreach ($fakeRelation as $fakeId)
 						{
 							$counters[$fakeId] = 1;
-							if (!in_array($fakeId, $pullMessage['params']['userInChat'][$arParams['TO_CHAT_ID']]))
+							if (
+								isset($pullMessage['params']['userInChat'][$arParams['TO_CHAT_ID']])
+								&& !in_array($fakeId, $pullMessage['params']['userInChat'][$arParams['TO_CHAT_ID']]))
 							{
 								$pullMessage['params']['userInChat'][$arParams['TO_CHAT_ID']][] = $fakeId;
 							}
@@ -1472,7 +1470,7 @@ class CIMMessenger
 				}
 
 				\Bitrix\Im\Model\MessageTable::indexRecord($messageID);
-				(new MessageAnalytics())->addSendMessage($messageID);
+				(new MessageAnalytics($message))->addSendMessage();
 
 				return $messageID;
 			}
@@ -2746,7 +2744,7 @@ class CIMMessenger
 		$aMsg = array();
 		if (
 			!$messageType
-			|| !in_array($messageType, [IM_MESSAGE_PRIVATE, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN, IM_MESSAGE_SYSTEM, IM_MESSAGE_OPEN_LINE, \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT, \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL, \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL, \Bitrix\Im\V2\Chat::IM_TYPE_COMMENT], true)
+			|| !in_array($messageType, \Bitrix\Im\V2\Chat::IM_TYPES, true)
 		)
 		{
 			$aMsg[] = array("id"=>"MESSAGE_TYPE", "text"=> GetMessage("IM_ERROR_MESSAGE_TYPE"));
@@ -2754,7 +2752,7 @@ class CIMMessenger
 		else
 		{
 			if (
-				in_array($messageType, [IM_MESSAGE_CHAT, IM_MESSAGE_OPEN, IM_MESSAGE_OPEN_LINE, \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT, \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL, \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL, \Bitrix\Im\V2\Chat::IM_TYPE_COMMENT], true)
+				in_array($messageType, CIMChat::getGroupTypesExtra(), true)
 				&& !$system
 				&& (int)$toChatId <= 0
 				&& (int)$fromUserId <= 0
@@ -4152,7 +4150,7 @@ class CIMMessenger
 		$params['CHAT_ENTITY_TYPE'] = trim($chat->getEntityType() ?? '');
 		$params['CHAT_AVATAR'] = intval($chat->getAvatarId());
 
-		if (!in_array($params['CHAT_TYPE'], Array(IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE, \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL, \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL)))
+		if (!in_array($params['CHAT_TYPE'], CIMChat::getGroupTypes()))
 		{
 			return false;
 		}
@@ -5329,6 +5327,7 @@ class CIMMessenger
 	protected static function getMessageObject(array $fields): ?\Bitrix\Im\V2\Message
 	{
 		$fields['FROM_USER_ID'] ??= 0;
+		$fields['AUTHOR_ID'] ??= (int)$fields['FROM_USER_ID'];
 
 		if (isset($fields['SYSTEM']))
 		{
@@ -5342,20 +5341,17 @@ class CIMMessenger
 
 		$message = new \Bitrix\Im\V2\Message($fields);
 
-		$message->setAuthorId((int)$fields['FROM_USER_ID']);
+		$message->setContextUser((int)$fields['FROM_USER_ID']);
 
-		if (isset($fields['TO_USER_ID']))
-		{
-			$chat = \Bitrix\Im\V2\Entity\User\User::getInstance((int)$fields['FROM_USER_ID'])
-				->getChatWith((int)$fields['TO_USER_ID'])
-			;
-			$message->setChat($chat)->setChatId($chat->getId());
-		}
+		$dialogId = $fields['DIALOG_ID'] ?? $fields['TO_USER_ID'] ?? null;
 
-		if (isset($fields['DIALOG_ID']))
+		if ($dialogId)
 		{
-			$chatId = \Bitrix\Im\Dialog::getChatId($fields['DIALOG_ID'], (int)$fields['FROM_USER_ID']);
-			$message->setChatId($chatId);
+			$chatId = \Bitrix\Im\Dialog::getChatId($fields['DIALOG_ID']);
+			if ($chatId)
+			{
+				$message->setChatId($chatId);
+			}
 		}
 
 		if (isset($fields['FILE_MODELS']))

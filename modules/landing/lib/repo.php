@@ -242,7 +242,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 	 * @param array|int $id Repo block id(s).
 	 * @return array
 	 */
-	public static function getAppInfo($id)
+	public static function getAppInfo(array|int $id): ?array
 	{
 		$isArray = is_array($id);
 		if (!$isArray)
@@ -291,7 +291,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 			return $isArray ? $id : array_pop($id);
 		}
 
-		return $apps;
+		return $apps ?? null;
 	}
 
 	/**

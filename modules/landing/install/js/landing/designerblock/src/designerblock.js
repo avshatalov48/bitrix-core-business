@@ -117,7 +117,9 @@ export class DesignerBlock
 			.replace(/\s*data-(landingwrapper)="[^"]+"\s*/g, ' ')
 			.replace(/\s*[\w-_]+--type-wrapper\s*/g, ' ')
 			.replace(/<div[\s]*>[\s]*<\/div>/g, '')
-			.replace(/\s*style=""/g, '');
+			.replace(/\s*style=""/g, '')
+			.replace(/cursor: pointer;/g, '')
+			.replace(/user-select: none;/g, '');
 	}
 
 	preventEvents()

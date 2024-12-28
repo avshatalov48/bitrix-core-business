@@ -82,7 +82,7 @@ export class ChannelService
 	{
 		const { users, chats, messages, files, recentItems } = restResult;
 
-		const usersPromise = Core.getStore().dispatch('users/set', users);
+		const usersPromise = (new UserManager()).setUsersToModel(users);
 		const dialoguesPromise = Core.getStore().dispatch('chats/set', chats);
 		const messagesPromise = Core.getStore().dispatch('messages/store', messages);
 		const filesPromise = Core.getStore().dispatch('files/set', files);

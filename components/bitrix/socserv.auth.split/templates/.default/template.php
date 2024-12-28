@@ -7,7 +7,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Localization\Loc;
 \Bitrix\Main\UI\Extension::load(['ui.common', 'ui.buttons']);
 
-if($arResult['ERROR_MESSAGE'])
+if(!empty($arResult['ERROR_MESSAGE']))
 {
 	ShowMessage($arResult['ERROR_MESSAGE']);
 }
@@ -31,7 +31,7 @@ if(isset($arResult['DB_SOCSERV_USER']) && $arParams['SHOW_PROFILES'] !== 'N')
 	}
 }
 
-if (!$zoomConnected && $arServices['zoom'])
+if (!$zoomConnected && isset($arServices['zoom']) && $arServices['zoom'])
 {
 	?>
 	<div class="socserv-auth-split-box socserv-auth-split-color-connect">
@@ -46,7 +46,7 @@ if (!$zoomConnected && $arServices['zoom'])
 	</div>
 	<?php
 }
-elseif ($zoomConnected && $arServices['zoom'])
+elseif ($zoomConnected && isset($arServices['zoom']) && $arServices['zoom'])
 {?>
 	<div class="socserv-auth-split-box socserv-auth-split-color-disconnect">
 		<div class="socserv-auth-split-left">
@@ -76,9 +76,9 @@ if(!empty($arResult["AUTH_SERVICES"]))
 	$APPLICATION->IncludeComponent("bitrix:socserv.auth.form", "",
 		array(
 			"AUTH_SERVICES"=>$arResult["AUTH_SERVICES"],
-			"CURRENT_SERVICE"=>$arResult["CURRENT_SERVICE"],
+			"CURRENT_SERVICE"=> $arResult["CURRENT_SERVICE"] ?? null,
 			"AUTH_URL"=>$arResult['CURRENTURL'],
-			"POST"=>$arResult["POST"],
+			"POST"=>$arResult["POST"] ?? null,
 			"SHOW_TITLES"=>'N',
 			"FOR_SPLIT"=>'Y',
 			"AUTH_LINE"=>'N',

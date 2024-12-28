@@ -59,3 +59,18 @@ export type Chat = {
 	},
 	parentChatId: number,
 };
+
+export type CollabInfo = {
+	collabId: number,
+	guestCount: number,
+	entities: {
+		tasks: CollabEntityInfo,
+		files: CollabEntityInfo,
+		calendar: CollabEntityInfo,
+	};
+};
+
+export type CollabEntityInfo = {
+	counter: number,
+	url: string,
+};

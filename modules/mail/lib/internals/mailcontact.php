@@ -5,6 +5,7 @@ namespace Bitrix\Mail\Internals;
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization;
+use Bitrix\Main;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -78,34 +79,51 @@ class MailContactTable extends Entity\DataManager
 	 * @param $contactsData
 	 * @throws \Bitrix\Main\Db\SqlQueryException
 	 */
-	public static function addContactsBatch($contactsData)
+	public static function addContactsBatch($contactsData): Main\Result
 	{
+		$result = new Main\Result();
+
 		if (empty($contactsData))
 		{
-			return true;
+			return $result;
 		}
 
+		static $checkedUserEmails = [];
+
 		$contactsToCheck = [];
-		foreach ($contactsData as $index => $item)
+
+		foreach ($contactsData as $item)
 		{
 			$item['EMAIL'] = trim($item['EMAIL']);
 			$contactsToCheck[$item['USER_ID']][] = $item;
 		}
 
 		$alreadyAdded = [];
+		$contactsToAdd = [];
 
 		foreach ($contactsToCheck as $userId => $items)
 		{
-			$alreadyAdded = static::query()
-				->addSelect('EMAIL', 'EMAIL')
-				->addSelect('ID', 'ID')
-				->addSelect('NAME', 'NAME')
-				->where('USER_ID', $userId)
-				->whereIn('EMAIL', array_column($items, 'EMAIL'))
-				->exec()
-				->fetchAll();
+			if (!isset($checkedUserEmails[$userId]))
+			{
+				$checkedUserEmails[$userId] = [];
+			}
 
-			$alreadyAddedEmail = array_column($alreadyAdded, 'EMAIL');
+			$emailsToCheck = array_diff(array_column($items, 'EMAIL'), $checkedUserEmails[$userId]);
+
+			if (!empty($emailsToCheck))
+			{
+				$alreadyAdded = static::query()
+					->addSelect('EMAIL', 'EMAIL')
+					->addSelect('ID', 'ID')
+					->addSelect('NAME', 'NAME')
+					->where('USER_ID', $userId)
+					->whereIn('EMAIL', $emailsToCheck)
+					->exec()
+					->fetchAll();
+			}
+
+			$alreadyAddedEmail = array_merge(array_column($alreadyAdded, 'EMAIL'), $checkedUserEmails[$userId]);
+			$checkedUserEmails[$userId] = array_merge($checkedUserEmails[$userId], $emailsToCheck);
 
 			foreach ($items as $item)
 			{
@@ -118,29 +136,38 @@ class MailContactTable extends Entity\DataManager
 
 		if (empty($contactsToAdd))
 		{
-			return $alreadyAdded;
+			$result->addError(new Main\Error(
+				'All contacts have already been added to the database',
+				'ALL_CONTACTS_ALREADY_ADDED',
+				[
+					'lastFound' => $alreadyAdded,
+				]
+			));
+
+			return $result;
 		}
 
 		$sqlHelper = Application::getConnection()->getSqlHelper();
 		$values = [];
+
 		foreach ($contactsToAdd as $item)
 		{
 			$item = [
 				'USER_ID' => intval($item['USER_ID']),
 				'NAME' => "'" . $sqlHelper->forSql(trim($item['NAME'])) . "'",
-				'ICON' => "'" . $sqlHelper->forSql(serialize($item['ICON'])) . "'",
+				'ICON' => $item['ICON'] !== null ? "'" . $sqlHelper->forSql(serialize($item['ICON'])) . "'" : "''",
 				'EMAIL' => "'" . $sqlHelper->forSql(trim($item['EMAIL'])) . "'",
 				'ADDED_FROM' => "'" . $sqlHelper->forSql($item['ADDED_FROM']) . "'",
 			];
 			$values[] = implode(", ", $item);
 		}
-		$keys = implode(', ', array_keys(reset($contactsToAdd)));
+
 		$values = implode('), (', $values);
 
 		$tableName = static::getTableName();
-		$sql = $sqlHelper->getInsertIgnore($tableName, "($keys)", " VALUES($values)");
-		Application::getConnection()->query($sql);
 
-		return true;
+		Application::getConnection()->query($sqlHelper->getInsertIgnore($tableName, "(USER_ID, NAME, ICON, EMAIL, ADDED_FROM)", " VALUES($values)"));
+
+		return $result;
 	}
 }

@@ -1,6 +1,10 @@
 import type { reactionType as Reaction } from 'ui.reactions-select';
 
-import type { RawChat, RawFile, RawUser, RawMessage, RawMultidialog } from './common';
+import { CounterType } from 'im.v2.const';
+
+import type { RawChat, RawFile, RawUser, RawMessage, RawMultidialog, RawLines } from './common';
+
+type CounterTypeItem = $Values<typeof CounterType>;
 
 export type MessageAddParams = {
 	chat?: {[chatId: string]: RawChat} | [],
@@ -8,7 +12,7 @@ export type MessageAddParams = {
 	counter: number,
 	dialogId: string,
 	files: {[fileId: string]: RawFile} | [],
-	lines: null,
+	lines: RawLines | null,
 	message: RawMessage,
 	notify: boolean,
 	userBlockChat: {[chatId: string]: {[userId: string]: boolean}} | [],
@@ -61,7 +65,8 @@ export type MessageDeleteCompleteParams = {
 	params: Object<string, any>,
 	senderId: number,
 	text: string,
-	type: string
+	type: string,
+	counterType: CounterTypeItem
 };
 
 export type ReadMessageParams = {
@@ -75,6 +80,7 @@ export type ReadMessageParams = {
 	viewedMessages: number[],
 	type: string,
 	parentChatId: number,
+	counterType: CounterTypeItem
 };
 
 export type MessageParams = {
@@ -91,6 +97,7 @@ export type MessageParams = {
 	userBlockChat: {[chatId: string]: {[userId: string]: boolean}} | [],
 	userInChat: {[chatId: string]: number[]} | [],
 	users: {[userId: string]: RawUser} | null,
+	counterType: CounterTypeItem
 };
 
 export type MessageChatParams = {
@@ -107,6 +114,7 @@ export type MessageChatParams = {
 	userBlockChat: {[chatId: string]: {[userId: string]: boolean}} | [],
 	userInChat: {[chatId: string]: number[]} | [],
 	users: {[userId: string]: RawUser} | null,
+	counterType: CounterTypeItem
 };
 
 export type ReadMessageChatParams = {
@@ -120,6 +128,7 @@ export type ReadMessageChatParams = {
 	viewedMessages: number[],
 	type: string,
 	parentChatId: number,
+	counterType: CounterTypeItem
 };
 
 export type UnreadMessageParams = {
@@ -127,6 +136,7 @@ export type UnreadMessageParams = {
 	counter: number,
 	dialogId: string,
 	lines: boolean,
+	counterType: CounterTypeItem
 };
 
 export type ReadMessageOpponentParams = {

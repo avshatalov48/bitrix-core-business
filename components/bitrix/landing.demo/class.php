@@ -75,11 +75,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	protected const FILTER_ID = 'LANDING_FLT_DEMO';
 
 	/**
-	 * Remote repository url.
-	 */
-	const REMOTE_REPOSITORY_URL = 'https://preview.bitrix24.site/rest/1/gvsn3ngrn7vb4t1m/';
-
-	/**
 	 * Steps constant for catalog import.
 	 */
 	const STEP_STATUS_ERROR = 'ERROR';
@@ -365,7 +360,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		{
 			$http = new HttpClient;
 			$res = $http->get(
-				$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.getAppItemManifest?'
+				Manager::getPreviewWebhook() . 'landing_cloud.cloud.getAppItemManifest?'
 				. 'user_lang=' . LANGUAGE_ID
 				. '&id=' . (-1 * $id)
 			);
@@ -977,7 +972,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			{
 				$previewSubDir = '/pub/site/';
 			}
-			$url = 'https://preview.bitrix24.site' . $previewSubDir . $code;
+			$url = Manager::getPreviewHost() . $previewSubDir . $code;
 		}
 
 		$availableLangs = ['ru', 'de', 'en', 'br', 'fr', 'la', 'pl', 'ua'];

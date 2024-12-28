@@ -85,7 +85,7 @@ class MysqliConnection extends MysqlCommonConnection
 		{
 			throw new ConnectionException(
 				'Mysql connect error [' . $this->host . ']',
-				sprintf('(%s) %s', $connection->connect_errno, $connection->connect_error)
+				"({$connection->connect_errno}) {$connection->connect_error}"
 			);
 		}
 
@@ -146,7 +146,7 @@ class MysqliConnection extends MysqlCommonConnection
 
 		if (!$result)
 		{
-			throw new SqlQueryException('Mysql query error', $this->getErrorMessage(), $sql);
+			throw $this->createQueryException($this->getErrorCode(), $this->getErrorMessage(), $sql);
 		}
 
 		return $result;
@@ -201,7 +201,15 @@ class MysqliConnection extends MysqlCommonConnection
 	 */
 	public function getErrorMessage()
 	{
-		return sprintf("(%s) %s", $this->resource->errno, $this->resource->error);
+		return "({$this->getErrorCode()}) {$this->resource->error}";
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getErrorCode()
+	{
+		return $this->resource->errno;
 	}
 
 	/**

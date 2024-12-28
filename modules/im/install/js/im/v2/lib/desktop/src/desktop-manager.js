@@ -12,6 +12,8 @@ import { Desktop } from './classes/desktop';
 import { Browser } from './classes/browser';
 import { Encoder } from './classes/encoder';
 
+import type { CreatableChatType } from 'im.v2.component.content.chat-forms.forms';
+
 const DESKTOP_PROTOCOL_VERSION = 2;
 const LOCATION_RESET_TIMEOUT = 1000;
 
@@ -125,6 +127,14 @@ export class DesktopManager
 		return Promise.resolve();
 	}
 
+	redirectToCollab(dialogId: string = ''): Promise
+	{
+		Logger.warn('Desktop: redirectToCollab', dialogId);
+		this.openBxLink(`bx://${DesktopBxLink.collab}/dialogId/${dialogId}`);
+
+		return Promise.resolve();
+	}
+
 	redirectToNotifications(): Promise
 	{
 		Logger.warn('Desktop: redirectToNotifications');
@@ -177,6 +187,14 @@ export class DesktopManager
 		Logger.warn('Desktop: toggleConference');
 
 		Conference.toggleConference();
+	}
+
+	redirectToChatCreation(chatType: CreatableChatType): Promise
+	{
+		Logger.warn('Desktop: redirectToChatCreation', chatType);
+		this.openBxLink(`bx://${DesktopBxLink.chatCreation}/chatType/${chatType}/`);
+
+		return Promise.resolve();
 	}
 
 	redirectToVideoCall(dialogId: string = '', withVideo: boolean = true): Promise

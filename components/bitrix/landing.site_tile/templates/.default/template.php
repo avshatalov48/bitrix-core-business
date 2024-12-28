@@ -141,7 +141,7 @@ $isAjax = $component->isAjax();
 				</div>
 			</div>
 			<div class="landing-sites__grid-empty--info-image-block">
-				<img src="<?= $templateFolder?>/images/empty_<?= strtolower($arParams['TYPE'])?>_<?= $langImg?>.svg" alt="" class="landing-sites__grid-empty--info-image"/>
+				<img src="<?= $templateFolder?>/images/empty_<?= strtolower($arParams['TYPE'])?>_<?= $langImg?>.png" alt="" class="landing-sites__grid-empty--info-image"/>
 			</div>
 		</div>
 	</div>

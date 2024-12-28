@@ -32,14 +32,14 @@
 	display: grid;
 	gap: 30px;
 	grid-template-columns: repeat(auto-fill, minmax(214px, 1fr));
-	max-height: 203px;
+	max-height: 211px;
 	transition: max-height .3s;
 	overflow: hidden;
 }
 
 .landing-widget-bp-v2-content.extended {
 	padding-bottom: 8px;
-	max-height: 675px;
+	max-height: 677px;
 }
 
 .landing-widget-bp-v2-content-item {
@@ -112,7 +112,7 @@
 
 .landing-widget-bp-v2-content-item-button a,
 .landing-widget-bp-v2-content-item-button div {
-	color: var(--widget-bp-v2-color-bg-button-text, var(--widget-bp-v2-color-bg-button-text-main-default));
+	color: var(--widget-bp-v2-color-bg-button-text, var(--widget-bp-v2-color-bg-button-text-main-default)) !important;
 }
 
 .landing-widget-bp-v2-content-item-button div {
@@ -121,7 +121,7 @@
 
 .landing-widget-bp-v2-content-item-button a:hover,
 .landing-widget-bp-v2-content-item-button div:hover {
-	color: var(--widget-bp-v2-color-bg-button-text, var(--widget-bp-v2-color-bg-button-text-main-default));
+	color: var(--widget-bp-v2-color-bg-button-text, var(--widget-bp-v2-color-bg-button-text-main-default)) !important;;
 }
 
 .landing-widget-bp-v2-content-item-time-box {

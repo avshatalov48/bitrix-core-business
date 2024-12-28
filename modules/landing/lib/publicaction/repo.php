@@ -1,15 +1,16 @@
 <?php
 namespace Bitrix\Landing\PublicAction;
 
-use \Bitrix\Landing\Manager;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Rest\Marketplace\Client;
-use \Bitrix\Rest\PlacementTable;
-use \Bitrix\Landing\Placement;
-use \Bitrix\Landing\Block as BlockCore;
-use \Bitrix\Landing\Repo as RepoCore;
-use \Bitrix\Landing\PublicActionResult;
-use \Bitrix\Landing\Node\StyleImg;
+use Bitrix\Landing;
+use Bitrix\Landing\Error;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Site;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Rest\Marketplace\Client;
+use Bitrix\Rest\PlacementTable;
+use Bitrix\Landing\Placement;
+use Bitrix\Landing\PublicActionResult;
+use Bitrix\Landing\Node\StyleImg;
 
 Loc::loadMessages(__FILE__);
 
@@ -49,7 +50,14 @@ class Repo
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
 
-		[$fields, $manifest] = static::onRegisterBefore($fields, $manifest);
+		static::onRegisterCheckFields($fields, $error);
+		static::onRegisterBefore($fields, $manifest, $error);
+		if (!empty($error->getErrors()))
+		{
+			$result->setError($error);
+
+			return $result;
+		}
 
 		$fields['XML_ID'] = trim($code);
 
@@ -78,6 +86,7 @@ class Repo
 							Loc::getMessage('LANDING_APP_MANIFEST_INTERSECT_IMG', ['#selector#' => $selector])
 						);
 						$result->setError($error);
+
 						return $result;
 					}
 				}
@@ -98,6 +107,7 @@ class Repo
 					Loc::getMessage('LANDING_APP_CONTENT_IS_BAD')
 				);
 				$result->setError($error);
+
 				return $result;
 			}
 			// sanitize card's content
@@ -135,6 +145,7 @@ class Repo
 												))
 										);
 										$result->setError($error);
+
 										return $result;
 									}
 								}
@@ -147,7 +158,6 @@ class Repo
 			}
 		}
 
-		[$fields, $manifest] = static::onRegisterBeforeSave($fields, $manifest);
 		$fields['MANIFEST'] = serialize($manifest);
 
 		// set app code
@@ -160,7 +170,7 @@ class Repo
 		$exists = false;
 		if ($fields['XML_ID'])
 		{
-			$exists = RepoCore::getList([
+			$exists = Landing\Repo::getList([
 				'select' => ['ID'],
 				'filter' =>
 					isset($fields['APP_CODE'])
@@ -177,11 +187,11 @@ class Repo
 		// register (add / update)
 		if ($exists)
 		{
-			$res = RepoCore::update($exists['ID'], $fields);
+			$res = Landing\Repo::update($exists['ID'], $fields);
 		}
 		else
 		{
-			$res = RepoCore::add($fields);
+			$res = Landing\Repo::add($fields);
 		}
 		if ($res->isSuccess())
 		{
@@ -206,13 +216,43 @@ class Repo
 	}
 
 	/**
+	 * Check required fields
+	 * @param $fields
+	 * @param Error $error - object for set errors
+	 * @return void
+	 */
+	protected static function onRegisterCheckFields($fields, Error $error): void
+	{
+		$requiredFields = [
+			'NAME',
+			'CONTENT',
+			'SECTIONS',
+			'PREVIEW',
+		];
+
+		foreach ($requiredFields as $field)
+		{
+			if (!isset($fields[$field]))
+			{
+				$error->addError(
+					'REQUIRED_FIELD_NO_EXISTS',
+					Loc::getMessage('LANDING_FIELD_NO_EXISTS', ['#field#' => $field])
+				);
+			}
+		}
+	}
+
+	/**
 	 * Some fixes in fields and manifest, specific by scope (mainpage widget or any)
 	 * @param array $fields
 	 * @param array $manifest
+	 * @param Error $error - object for set errors
 	 * @return array
 	 */
-	protected static function onRegisterBefore(array $fields, array $manifest = []): array
+	protected static function onRegisterBefore(array &$fields, array &$manifest, Error $error): void
 	{
+		// todo: test err
+
 		// unset not allowed keys
 		$notAllowedManifestKey = ['callbacks'];
 		foreach ($notAllowedManifestKey as $key)
@@ -224,39 +264,50 @@ class Repo
 		}
 
 		// unset not allowed site types
-		$notAllowedSiteTypes = [
-			'mainpage',
-		];
 		if (isset($manifest['block']['type']))
 		{
 			$manifest['block']['type'] = array_filter(
 				(array)$manifest['block']['type'],
-				function ($item) use ($notAllowedSiteTypes){
-					return !in_array(mb_strtolower($item), $notAllowedSiteTypes);
+				function ($type) use ($error) {
+					$notAllowedBlockTypes = [
+						Site\Type::SCOPE_CODE_MAINPAGE,
+					];
+					if (in_array(mb_strtolower($type), $notAllowedBlockTypes))
+					{
+						$error->addError(
+							'UNSUPPORTED_BLOCK_TYPE',
+							Loc::getMessage('LANDING_UNSUPPORTED_BLOCK_TYPE', ['#type#' => $type])
+						);
+
+						return false;
+					}
+					return true;
 				}
 			);
 		}
 
 		// unset not allowed subtypes
-		$notAllowedSubtypes = [
-			'widget',
-		];
 		if (isset($manifest['block']['subtype']))
 		{
 			$manifest['block']['subtype'] = array_filter(
 				(array)$manifest['block']['subtype'],
-				function ($item) use ($notAllowedSubtypes){
-					return !in_array(mb_strtolower($item), $notAllowedSubtypes);
+				function ($type) use ($error) {
+					$notAllowedSubtypes = [
+						'widget',
+					];
+					if (in_array(mb_strtolower($type), $notAllowedSubtypes))
+					{
+						$error->addError(
+							'UNSUPPORTED_BLOCK_SUBTYPE',
+							Loc::getMessage('LANDING_UNSUPPORTED_BLOCK_SUBTYPE', ['#type#' => $type])
+						);
+
+						return false;
+					}
+					return true;
 				}
 			);
 		}
-
-		return [$fields, $manifest];
-	}
-
-	protected static function onRegisterBeforeSave(array $fields, array $manifest = []): array
-	{
-		return [$fields, $manifest];
 	}
 
 	/**
@@ -282,7 +333,7 @@ class Repo
 			// set app code
 			$app = \Bitrix\Landing\PublicAction::restApplication();
 
-			$row = RepoCore::getList(array(
+			$row = Landing\Repo::getList(array(
 				'select' => array(
 					'ID',
 				),
@@ -300,7 +351,7 @@ class Repo
 			{
 				// delete all sush blocks from landings
 				$codeToDelete = array();
-				$res = RepoCore::getList(array(
+				$res = Landing\Repo::getList(array(
 					'select' => array(
 						'ID',
 					),
@@ -320,10 +371,10 @@ class Repo
 				}
 				if (!empty($codeToDelete))
 				{
-					BlockCore::deleteByCode($codeToDelete);
+					Landing\Block::deleteByCode($codeToDelete);
 				}
 				// delete block from repo
-				$res = RepoCore::delete($row['ID']);
+				$res = Landing\Repo::delete($row['ID']);
 				if ($res->isSuccess())
 				{
 					$result->setResult(true);
@@ -356,7 +407,7 @@ class Repo
 			return $result;
 		}
 
-		if ($appLocal = RepoCore::getAppByCode($code))
+		if ($appLocal = Landing\Repo::getAppByCode($code))
 		{
 			$app = array(
 				'CODE' => $appLocal['CODE'],
@@ -571,14 +622,14 @@ class Repo
 	 * @param array $params Params ORM array.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function getList(array $params = array())
+	public static function getList(array $params = array()): PublicActionResult
 	{
 		$result = new PublicActionResult();
 		$params = $result->sanitizeKeys($params);
 
 		if (!is_array($params))
 		{
-			$params = array();
+			$params = [];
 		}
 		if (
 			!isset($params['filter']) ||
@@ -597,8 +648,15 @@ class Repo
 			$params['filter']['APP_CODE'] = false;
 		}
 
+		// manifest always needed
+		if (isset($params['select']))
+		{
+			$params['select'][] = 'MANIFEST';
+		}
+
 		$data = [];
-		$res = RepoCore::getList($params);
+		$res = Landing\Repo::getList($params);
+
 		while ($row = $res->fetch())
 		{
 			if (isset($row['DATE_CREATE']))

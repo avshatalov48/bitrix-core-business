@@ -46,3 +46,5 @@ DROP TABLE if exists b_sonet_space_user_recent_activity;
 DROP TABLE if exists b_sonet_space_user_latest_activity;
 DROP TABLE if exists b_sonet_space_live_watch;
 DROP TABLE if exists b_sonet_event_queue;
+DROP TABLE if exists b_sonet_collab_option;
+DROP TABLE if exists b_sonet_collab_log;

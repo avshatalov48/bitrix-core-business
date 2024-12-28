@@ -14,6 +14,8 @@ use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
+use Bitrix\Im\V2\Relation\Reason;
 use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Result;
@@ -213,7 +215,7 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		);
 	}
 
-	public function addUsers(array $userIds, array $managerIds = [], ?bool $hideHistory = null, bool $withMessage = true, bool $skipRecent = false, Relation\Reason $reason = Relation\Reason::DEFAULT): Chat
+	public function addUsers(array $userIds, AddUsersConfig $config = new AddUsersConfig()): Chat
 	{
 		return $this;
 	}

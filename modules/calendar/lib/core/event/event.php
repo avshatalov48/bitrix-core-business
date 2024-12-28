@@ -17,8 +17,9 @@ use Bitrix\Calendar\Core\eventoption\EventOption;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Main\Type\Contract\Arrayable;
 
-class Event implements EntityInterface
+class Event implements EntityInterface, Arrayable
 {
 	private const MIN_MEETING_PARTICIPANT = 2;
 
@@ -165,6 +166,10 @@ class Event implements EntityInterface
 	 */
 	private bool $isMeeting = false;
 	/**
+	 * @var int|null
+	 */
+	private ?int $dtLength = 0;
+	/**
 	 * @var string|null
 	 */
 	private ?string $meetingStatus = null;
@@ -174,6 +179,8 @@ class Event implements EntityInterface
 	private ?Relations $relations = null;
 
 	private ?EventOption $eventOption = null;
+
+	private ?int $collabId = null;
 
 	/**
 	 * @param Builder $builder
@@ -1027,5 +1034,65 @@ class Event implements EntityInterface
 	public function isOpenEvent(): bool
 	{
 		return $this->getSection()?->getType() === Dictionary::CALENDAR_TYPE['open_event'];
+	}
+
+	public function setDtLength(?int $dtLength): self
+	{
+		$this->dtLength = $dtLength;
+
+		return $this;
+	}
+
+	public function getDtLength(): ?int
+	{
+		return $this->dtLength;
+	}
+
+	public function setCollabId(?int $collabId): self
+	{
+		$this->collabId = $collabId;
+
+		return $this;
+	}
+
+	public function getCollabId(): ?int
+	{
+		return $this->collabId;
+	}
+
+	public function toArray(): array
+	{
+		return [
+			'ID' => $this->id,
+			'PARENT_ID' => $this->parentId,
+			'ACTIVE' => $this->isActive ? 'Y' : 'N',
+			'DELETED' => $this->isDeleted ? 'Y' : 'N',
+			'CAL_TYPE' => $this->calType,
+			'OWNER' => $this->owner?->getId(),
+			'NAME' => $this->name,
+			'DATE_FROM' => $this->start,
+			'DATE_TO' => $this->end,
+			'TZ_FROM' => $this->startTimeZone,
+			'TZ_TO' => $this->endTimeZone,
+			'DT_SKIP_TIME' => $this->isFullDay ? 'Y' : 'N',
+			'DT_LENGTH' => $this->dtLength,
+			'EVENT_TYPE' => $this->eventType,
+			'CREATED_BY' => $this->creator?->getId(),
+			'DATE_CREATE' => $this->dateCreate,
+			'DESCRIPTION' => $this->description,
+			'ACCESSIBILITY' => $this->accessibility,
+			'IMPORTANCE' => $this->importance,
+			'IS_MEETING' => $this->isMeeting,
+			'MEETING_STATUS' => $this->meetingStatus,
+			'MEETING_HOST' => $this->eventHost?->getId(),
+			'MEETING' => $this->getMeetingDescription(),
+			'LOCATION' => $this->location?->toString(),
+			'REMIND' => $this->remindCollection->getCollection(),
+			'COLOR' => $this->color,
+			'RRULE' => $this->recurringRule->toArray(),
+			'VERSION' => $this->version,
+			'ATTENDEES_CODE' => implode(',', $this->attendeeCollection->getAttendeesCodes()),
+			'SECTION_ID' => $this->section?->getId(),
+		];
 	}
 }

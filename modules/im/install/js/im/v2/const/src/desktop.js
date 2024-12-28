@@ -9,9 +9,11 @@ export const DesktopBxLink = {
 	recentSearch: 'recentSearch',
 	timeManager: 'timemanpwt',
 	copilot: 'copilot',
+	collab: 'collab',
 	settings: 'settings',
 	openTab: 'openTab',
 	openPage: 'openPage',
+	chatCreation: 'chatCreation',
 };
 
 export const LegacyDesktopBxLink = {

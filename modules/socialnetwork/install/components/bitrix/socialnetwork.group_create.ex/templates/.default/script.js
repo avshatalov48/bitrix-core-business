@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_popup,ui_buttons,ui_alerts,main_core_events,ui_entitySelector,main_core,ui_lottie) {
+(function (exports,main_popup,ui_buttons,im_public_iframe,ui_alerts,main_core_events,ui_entitySelector,main_core,ui_lottie) {
 	'use strict';
 
 	var _templateObject;
@@ -1018,150 +1018,253 @@ this.BX = this.BX || {};
 	  return Tags;
 	}();
 
-	var TypePresetSelector = /*#__PURE__*/function () {
-	  function TypePresetSelector() {
-	    var _this = this;
-	    babelHelpers.classCallCheck(this, TypePresetSelector);
-	    this.cssClass = {
-	      container: 'socialnetwork-group-create-ex__type-preset-wrapper',
-	      selector: 'socialnetwork-group-create-ex__type-preset-selector'
-	    };
-	    this.container = document.querySelector(".".concat(this.cssClass.container));
-	    if (!this.container) {
-	      return;
-	    }
-	    var firstItemSelected = false;
-	    var selectors = this.container.querySelectorAll(".".concat(this.cssClass.selector));
-	    selectors.forEach(function (selector) {
-	      selector.addEventListener('click', function (e) {
-	        var selector = e.currentTarget;
-	        if (selector.classList.contains(Util.cssClass.selectorDisabled)) {
-	          return;
-	        }
-	        Util.unselectAllSelectorItems(_this.container, _this.cssClass.selector);
-	        Util.selectSelectorItem(selector);
-	        var projectType = selector.getAttribute('data-bx-project-type');
-	        WorkgroupForm.getInstance().recalcForm({
-	          selectedProjectType: projectType
-	        });
-	        WorkgroupForm.getInstance().wizardManager.setProjectType(projectType);
-	      });
-	      var projectType = selector.getAttribute('data-bx-project-type');
-	      if (main_core.Type.isStringFilled(WorkgroupForm.getInstance().selectedProjectType)) {
-	        if (WorkgroupForm.getInstance().selectedProjectType === projectType) {
-	          _this.selectItem(selector);
-	        }
-	      } else if (!firstItemSelected) {
-	        _this.selectItem(selector);
-	        firstItemSelected = true;
-	      }
-	    });
-	  }
-	  babelHelpers.createClass(TypePresetSelector, [{
-	    key: "selectItem",
-	    value: function selectItem(selector) {
-	      var projectType = selector.getAttribute('data-bx-project-type');
-	      Util.selectSelectorItem(selector);
-	      WorkgroupForm.getInstance().recalcForm({
-	        selectedProjectType: projectType
-	      });
-	      WorkgroupForm.getInstance().wizardManager.setProjectType(projectType);
-	    }
-	  }]);
-	  return TypePresetSelector;
-	}();
-
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+	function _regeneratorRuntime() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == babelHelpers["typeof"](value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
 	var FieldsManager = /*#__PURE__*/function () {
 	  function FieldsManager() {
 	    babelHelpers.classCallCheck(this, FieldsManager);
 	  }
 	  babelHelpers.createClass(FieldsManager, null, [{
 	    key: "check",
-	    value: function check() {
-	      if (WorkgroupForm.getInstance().wizardManager.stepsCount === 1) {
-	        return this.checkAll();
-	      } else {
-	        return this.checkStep(WorkgroupForm.getInstance().wizardManager.currentStep);
+	    value: function () {
+	      var _check = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+	        return _regeneratorRuntime().wrap(function _callee$(_context) {
+	          while (1) switch (_context.prev = _context.next) {
+	            case 0:
+	              if (!(WorkgroupForm.getInstance().wizardManager.stepsCount === 1)) {
+	                _context.next = 4;
+	                break;
+	              }
+	              _context.next = 3;
+	              return this.checkAll();
+	            case 3:
+	              return _context.abrupt("return", _context.sent);
+	            case 4:
+	              _context.next = 6;
+	              return this.checkStep(WorkgroupForm.getInstance().wizardManager.currentStep);
+	            case 6:
+	              return _context.abrupt("return", _context.sent);
+	            case 7:
+	            case "end":
+	              return _context.stop();
+	          }
+	        }, _callee, this);
+	      }));
+	      function check() {
+	        return _check.apply(this, arguments);
 	      }
-	    }
+	      return check;
+	    }()
 	  }, {
 	    key: "checkStep",
-	    value: function checkStep(step) {
-	      var _this = this;
-	      step = parseInt(step);
-	      var errorDataList = [];
-	      if (main_core.Type.isArray(this.mandatoryFieldsByStep[step])) {
-	        this.mandatoryFieldsByStep[step].forEach(function (fieldData) {
-	          var fieldNode = document.getElementById(fieldData.id);
-	          if (!main_core.Type.isDomNode(fieldNode)) {
-	            return;
-	          }
-	          if (fieldNode.tagName.toLowerCase() !== 'input') {
-	            if (fieldData.type === 'string') {
-	              fieldNode = fieldNode.querySelector('input[type="text"]');
-	              if (!main_core.Type.isDomNode(fieldNode)) {
-	                return;
+	    value: function () {
+	      var _checkStep = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(step) {
+	        var errorDataList, _iterator, _step, fieldData, fieldNode, errorText, bindNode;
+	        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+	          while (1) switch (_context2.prev = _context2.next) {
+	            case 0:
+	              step = parseInt(step);
+	              errorDataList = [];
+	              if (!main_core.Type.isArray(this.mandatoryFieldsByStep[step])) {
+	                _context2.next = 31;
+	                break;
 	              }
-	            }
+	              _iterator = _createForOfIteratorHelper(this.mandatoryFieldsByStep[step]);
+	              _context2.prev = 4;
+	              _iterator.s();
+	            case 6:
+	              if ((_step = _iterator.n()).done) {
+	                _context2.next = 23;
+	                break;
+	              }
+	              fieldData = _step.value;
+	              fieldNode = document.getElementById(fieldData.id);
+	              if (main_core.Type.isDomNode(fieldNode)) {
+	                _context2.next = 11;
+	                break;
+	              }
+	              return _context2.abrupt("continue", 21);
+	            case 11:
+	              if (!(fieldNode.tagName.toLowerCase() !== 'input')) {
+	                _context2.next = 16;
+	                break;
+	              }
+	              if (!(fieldData.type === 'string')) {
+	                _context2.next = 16;
+	                break;
+	              }
+	              fieldNode = fieldNode.querySelector('input[type="text"]');
+	              if (main_core.Type.isDomNode(fieldNode)) {
+	                _context2.next = 16;
+	                break;
+	              }
+	              return _context2.abrupt("continue", 21);
+	            case 16:
+	              fieldData.fieldNode = fieldNode;
+	              // eslint-disable-next-line no-await-in-loop
+	              _context2.next = 19;
+	              return this.checkField(fieldData);
+	            case 19:
+	              errorText = _context2.sent;
+	              if (main_core.Type.isStringFilled(errorText)) {
+	                bindNode = document.getElementById(fieldData.bindNodeId);
+	                errorDataList.push({
+	                  bindNode: main_core.Type.isDomNode(bindNode) ? bindNode : fieldNode,
+	                  message: errorText
+	                });
+	              }
+	            case 21:
+	              _context2.next = 6;
+	              break;
+	            case 23:
+	              _context2.next = 28;
+	              break;
+	            case 25:
+	              _context2.prev = 25;
+	              _context2.t0 = _context2["catch"](4);
+	              _iterator.e(_context2.t0);
+	            case 28:
+	              _context2.prev = 28;
+	              _iterator.f();
+	              return _context2.finish(28);
+	            case 31:
+	              return _context2.abrupt("return", errorDataList);
+	            case 32:
+	            case "end":
+	              return _context2.stop();
 	          }
-	          fieldData.fieldNode = fieldNode;
-	          var errorText = _this.checkField(fieldData);
-	          if (main_core.Type.isStringFilled(errorText)) {
-	            var bindNode = document.getElementById(fieldData.bindNodeId);
-	            errorDataList.push({
-	              bindNode: main_core.Type.isDomNode(bindNode) ? bindNode : fieldNode,
-	              message: errorText
-	            });
-	          }
-	        });
+	        }, _callee2, this, [[4, 25, 28, 31]]);
+	      }));
+	      function checkStep(_x) {
+	        return _checkStep.apply(this, arguments);
 	      }
-	      return errorDataList;
-	    }
+	      return checkStep;
+	    }()
 	  }, {
 	    key: "checkAll",
-	    value: function checkAll() {
-	      var _this2 = this;
-	      var errorDataList = [];
-	      Object.entries(this.mandatoryFieldsByStep).forEach(function (stepData) {
-	        errorDataList = errorDataList.concat(_this2.checkStep(parseInt(stepData[0])));
-	      });
-	      return errorDataList;
-	    }
+	    value: function () {
+	      var _checkAll = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+	        var errorDataList, _i, _Object$entries, stepData;
+	        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+	          while (1) switch (_context3.prev = _context3.next) {
+	            case 0:
+	              errorDataList = [];
+	              _i = 0, _Object$entries = Object.entries(this.mandatoryFieldsByStep);
+	            case 2:
+	              if (!(_i < _Object$entries.length)) {
+	                _context3.next = 12;
+	                break;
+	              }
+	              stepData = _Object$entries[_i];
+	              _context3.t0 = errorDataList;
+	              _context3.next = 7;
+	              return this.checkStep(parseInt(stepData[0]));
+	            case 7:
+	              _context3.t1 = _context3.sent;
+	              errorDataList = _context3.t0.concat.call(_context3.t0, _context3.t1);
+	            case 9:
+	              _i++;
+	              _context3.next = 2;
+	              break;
+	            case 12:
+	              return _context3.abrupt("return", errorDataList);
+	            case 13:
+	            case "end":
+	              return _context3.stop();
+	          }
+	        }, _callee3, this);
+	      }));
+	      function checkAll() {
+	        return _checkAll.apply(this, arguments);
+	      }
+	      return checkAll;
+	    }()
 	  }, {
 	    key: "checkField",
-	    value: function checkField(fieldData) {
-	      var errorText = '';
-	      if (!main_core.Type.isPlainObject(fieldData) && !main_core.Type.isDomNode(fieldData.fieldNode)) {
-	        return errorText;
+	    value: function () {
+	      var _checkField = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(fieldData) {
+	        var _WorkgroupForm$getIns, _WorkgroupForm$getIns2;
+	        var errorText, fieldNode, fieldType, fieldId, groupId, type, exists, empty;
+	        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+	          while (1) switch (_context4.prev = _context4.next) {
+	            case 0:
+	              errorText = '';
+	              if (!(!main_core.Type.isPlainObject(fieldData) && !main_core.Type.isDomNode(fieldData.fieldNode))) {
+	                _context4.next = 3;
+	                break;
+	              }
+	              return _context4.abrupt("return", errorText);
+	            case 3:
+	              if (!main_core.Type.isFunction(fieldData.condition)) {
+	                _context4.next = 6;
+	                break;
+	              }
+	              if (fieldData.condition()) {
+	                _context4.next = 6;
+	                break;
+	              }
+	              return _context4.abrupt("return", errorText);
+	            case 6:
+	              fieldNode = fieldData.fieldNode;
+	              fieldType = main_core.Type.isStringFilled(fieldData.type) ? fieldData.type : 'string';
+	              fieldId = fieldData.id;
+	              groupId = (_WorkgroupForm$getIns = WorkgroupForm.getInstance()) === null || _WorkgroupForm$getIns === void 0 ? void 0 : _WorkgroupForm$getIns.groupId;
+	              type = (_WorkgroupForm$getIns2 = WorkgroupForm.getInstance()) === null || _WorkgroupForm$getIns2 === void 0 ? void 0 : _WorkgroupForm$getIns2.selectedProjectType;
+	              _context4.t0 = fieldType;
+	              _context4.next = _context4.t0 === 'string' ? 14 : _context4.t0 === 'input_hidden_container' ? 25 : 29;
+	              break;
+	            case 14:
+	              if (!(fieldNode.value.trim() === '')) {
+	                _context4.next = 17;
+	                break;
+	              }
+	              errorText = main_core.Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR');
+	              return _context4.abrupt("break", 30);
+	            case 17:
+	              if (!(groupId <= 0 && fieldId === 'GROUP_NAME_input')) {
+	                _context4.next = 23;
+	                break;
+	              }
+	              _context4.next = 20;
+	              return FieldsManager.checkSameGroupExists(fieldNode.value);
+	            case 20:
+	              exists = _context4.sent;
+	              if (exists) {
+	                errorText = type === 'project' ? main_core.Loc.getMessage('SONET_GCE_T_GROUP_NAME_EXISTS_PROJECT') : main_core.Loc.getMessage('SONET_GCE_T_GROUP_NAME_EXISTS');
+	              }
+	              return _context4.abrupt("break", 30);
+	            case 23:
+	              errorText = '';
+	              return _context4.abrupt("break", 30);
+	            case 25:
+	              empty = true;
+	              fieldNode.querySelectorAll('input[type="hidden"]').forEach(function (hiddenNode) {
+	                if (!empty) {
+	                  return;
+	                }
+	                if (main_core.Type.isStringFilled(hiddenNode.value)) {
+	                  empty = false;
+	                }
+	              });
+	              errorText = empty ? main_core.Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR') : '';
+	              return _context4.abrupt("break", 30);
+	            case 29:
+	              errorText = '';
+	            case 30:
+	              return _context4.abrupt("return", errorText);
+	            case 31:
+	            case "end":
+	              return _context4.stop();
+	          }
+	        }, _callee4);
+	      }));
+	      function checkField(_x2) {
+	        return _checkField.apply(this, arguments);
 	      }
-	      if (main_core.Type.isFunction(fieldData.condition)) {
-	        if (!fieldData.condition()) {
-	          return errorText;
-	        }
-	      }
-	      var fieldNode = fieldData.fieldNode;
-	      var fieldType = main_core.Type.isStringFilled(fieldData.type) ? fieldData.type : 'string';
-	      switch (fieldType) {
-	        case 'string':
-	          errorText = fieldNode.value.trim() === '' ? main_core.Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR') : '';
-	          break;
-	        case 'input_hidden_container':
-	          var empty = true;
-	          fieldNode.querySelectorAll('input[type="hidden"]').forEach(function (hiddenNode) {
-	            if (!empty) {
-	              return;
-	            }
-	            if (main_core.Type.isStringFilled(hiddenNode.value)) {
-	              empty = false;
-	            }
-	          });
-	          errorText = empty ? main_core.Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR') : '';
-	          break;
-	        default:
-	          errorText = '';
-	      }
-	      return errorText;
-	    }
+	      return checkField;
+	    }()
 	  }, {
 	    key: "showError",
 	    value: function showError(errorData) {
@@ -1170,6 +1273,35 @@ this.BX = this.BX || {};
 	      }
 	      WorkgroupForm.getInstance().alertManager.showAlert(errorData.message, errorData.bindNode.parentNode);
 	    }
+	  }, {
+	    key: "checkSameGroupExists",
+	    value: function () {
+	      var _checkSameGroupExists = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(groupName) {
+	        var _response$data;
+	        var response;
+	        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+	          while (1) switch (_context5.prev = _context5.next) {
+	            case 0:
+	              _context5.next = 2;
+	              return main_core.ajax.runAction('socialnetwork.api.workgroup.isExistingGroup', {
+	                data: {
+	                  name: groupName
+	                }
+	              });
+	            case 2:
+	              response = _context5.sent;
+	              return _context5.abrupt("return", response === null || response === void 0 ? void 0 : (_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.exists);
+	            case 4:
+	            case "end":
+	              return _context5.stop();
+	          }
+	        }, _callee5);
+	      }));
+	      function checkSameGroupExists(_x3) {
+	        return _checkSameGroupExists.apply(this, arguments);
+	      }
+	      return checkSameGroupExists;
+	    }()
 	  }]);
 	  return FieldsManager;
 	}();
@@ -1189,13 +1321,20 @@ this.BX = this.BX || {};
 	  }]
 	});
 
+	function _regeneratorRuntime$1() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime$1 = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == babelHelpers["typeof"](value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _sendCollabCreateButtonAnalytics = /*#__PURE__*/new WeakSet();
 	var Buttons = /*#__PURE__*/function () {
 	  function Buttons() {
 	    babelHelpers.classCallCheck(this, Buttons);
+	    _classPrivateMethodInitSpec$1(this, _sendCollabCreateButtonAnalytics);
 	    this.submitButton = document.getElementById('sonet_group_create_popup_form_button_submit');
 	    if (!this.submitButton) {
 	      return;
 	    }
+	    this.initCollabCreateButton();
 	    this.submitButtonClickHandler = this.submitButtonClickHandler.bind(this);
 	    this.submitButton.addEventListener('click', this.submitButtonClickHandler);
 	    this.backButton = document.getElementById('sonet_group_create_popup_form_button_step_2_back');
@@ -1249,34 +1388,81 @@ this.BX = this.BX || {};
 	  }
 	  babelHelpers.createClass(Buttons, [{
 	    key: "submitButtonClickHandler",
-	    value: function submitButtonClickHandler(e) {
-	      var button = ui_buttons.ButtonManager.createFromNode(e.currentTarget);
-	      if (button && button.isDisabled()) {
+	    value: function () {
+	      var _submitButtonClickHandler = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime$1().mark(function _callee(e) {
+	        var button, errorDataList, submitFunction;
+	        return _regeneratorRuntime$1().wrap(function _callee$(_context) {
+	          while (1) switch (_context.prev = _context.next) {
+	            case 0:
+	              e.preventDefault();
+	              button = ui_buttons.ButtonManager.createFromNode(e.currentTarget);
+	              if (!(button && button.isDisabled())) {
+	                _context.next = 4;
+	                break;
+	              }
+	              return _context.abrupt("return");
+	            case 4:
+	              WorkgroupForm.getInstance().alertManager.hideAllAlerts();
+	              _context.next = 7;
+	              return FieldsManager.check();
+	            case 7:
+	              errorDataList = _context.sent.filter(function (errorData) {
+	                return main_core.Type.isPlainObject(errorData) && main_core.Type.isStringFilled(errorData.message) && main_core.Type.isDomNode(errorData.bindNode);
+	              });
+	              if (errorDataList.length > 0) {
+	                errorDataList.forEach(function (errorData) {
+	                  FieldsManager.showError(errorData);
+	                });
+	              } else if (WorkgroupForm.getInstance().wizardManager.currentStep < WorkgroupForm.getInstance().wizardManager.stepsCount) {
+	                WorkgroupForm.getInstance().wizardManager.currentStep++;
+	                if (WorkgroupForm.getInstance().wizardManager.currentStep === 3 && Object.entries(WorkgroupForm.getInstance().confidentialityTypes) <= 1)
+	                  // skip confidentiality step
+	                  {
+	                    WorkgroupForm.getInstance().wizardManager.currentStep++;
+	                  }
+	                WorkgroupForm.getInstance().wizardManager.showCurrentStep();
+	              } else {
+	                submitFunction = function (event) {
+	                  WorkgroupForm.getInstance().submitForm(event);
+	                }.bind(WorkgroupForm.getInstance());
+	                submitFunction(e);
+	              }
+	              return _context.abrupt("return", e.preventDefault());
+	            case 10:
+	            case "end":
+	              return _context.stop();
+	          }
+	        }, _callee);
+	      }));
+	      function submitButtonClickHandler(_x) {
+	        return _submitButtonClickHandler.apply(this, arguments);
+	      }
+	      return submitButtonClickHandler;
+	    }()
+	  }, {
+	    key: "initCollabCreateButton",
+	    value: function initCollabCreateButton() {
+	      var _this = this;
+	      this.collabCreateButton = document.getElementById('sonet_group_create_popup_form_button_collab');
+	      if (!this.collabCreateButton) {
 	        return;
 	      }
-	      WorkgroupForm.getInstance().alertManager.hideAllAlerts();
-	      var errorDataList = FieldsManager.check().filter(function (errorData) {
-	        return main_core.Type.isPlainObject(errorData) && main_core.Type.isStringFilled(errorData.message) && main_core.Type.isDomNode(errorData.bindNode);
-	      });
-	      if (errorDataList.length > 0) {
-	        errorDataList.forEach(function (errorData) {
-	          FieldsManager.showError(errorData);
-	        });
-	      } else if (WorkgroupForm.getInstance().wizardManager.currentStep < WorkgroupForm.getInstance().wizardManager.stepsCount) {
-	        WorkgroupForm.getInstance().wizardManager.currentStep++;
-	        if (WorkgroupForm.getInstance().wizardManager.currentStep === 3 && Object.entries(WorkgroupForm.getInstance().confidentialityTypes) <= 1)
-	          // skip confidentiality step
-	          {
-	            WorkgroupForm.getInstance().wizardManager.currentStep++;
-	          }
-	        WorkgroupForm.getInstance().wizardManager.showCurrentStep();
+	      this.collabCreateButton.onclick = function (e) {
+	        e.preventDefault();
+	        _classPrivateMethodGet$1(_this, _sendCollabCreateButtonAnalytics, _sendCollabCreateButtonAnalytics2).call(_this);
+	        im_public_iframe.Messenger.openChatCreation('collab');
+	      };
+	    }
+	  }, {
+	    key: "updateButtonsByProject",
+	    value: function updateButtonsByProject(projectType) {
+	      if (projectType === 'collab') {
+	        Buttons.hideButton(this.submitButton);
+	        Buttons.showButton(this.collabCreateButton);
 	      } else {
-	        var submitFunction = function (event) {
-	          WorkgroupForm.getInstance().submitForm(event);
-	        }.bind(WorkgroupForm.getInstance());
-	        submitFunction(e);
+	        Buttons.hideButton(this.collabCreateButton);
+	        Buttons.showButton(this.submitButton);
 	      }
-	      return e.preventDefault();
 	    }
 	  }], [{
 	    key: "showWaitSubmitButton",
@@ -1330,9 +1516,83 @@ this.BX = this.BX || {};
 	  }]);
 	  return Buttons;
 	}();
+	function _sendCollabCreateButtonAnalytics2() {
+	  var analyticsData = {
+	    event: 'click_create_new',
+	    category: 'collab',
+	    c_section: 'project',
+	    tool: 'im',
+	    p2: "user_".concat(WorkgroupForm.getInstance().currentUserType)
+	  };
+	  if (BX.UI.Analytics) {
+	    BX.UI.Analytics.sendData(analyticsData);
+	  } else {
+	    // eslint-disable-next-line promise/catch-or-return
+	    BX.Runtime.loadExtension('ui.analytics').then(function () {
+	      BX.UI.Analytics.sendData(analyticsData);
+	    });
+	  }
+	}
 	babelHelpers.defineProperty(Buttons, "cssClass", {
 	  hidden: 'socialnetwork-group-create-ex__button-invisible'
 	});
+
+	var TypePresetSelector = /*#__PURE__*/function () {
+	  function TypePresetSelector() {
+	    var _this = this;
+	    var buttonsInstance = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	    babelHelpers.classCallCheck(this, TypePresetSelector);
+	    this.cssClass = {
+	      container: 'socialnetwork-group-create-ex__type-preset-wrapper',
+	      selector: 'socialnetwork-group-create-ex__type-preset-selector'
+	    };
+	    this.buttonsInstance = buttonsInstance;
+	    this.container = document.querySelector(".".concat(this.cssClass.container));
+	    if (!this.container) {
+	      return;
+	    }
+	    var firstItemSelected = false;
+	    var selectors = this.container.querySelectorAll(".".concat(this.cssClass.selector));
+	    selectors.forEach(function (selector) {
+	      selector.addEventListener('click', function (e) {
+	        var _this$buttonsInstance;
+	        var selector = e.currentTarget;
+	        if (selector.classList.contains(Util.cssClass.selectorDisabled)) {
+	          return;
+	        }
+	        Util.unselectAllSelectorItems(_this.container, _this.cssClass.selector);
+	        Util.selectSelectorItem(selector);
+	        var projectType = selector.getAttribute('data-bx-project-type');
+	        WorkgroupForm.getInstance().recalcForm({
+	          selectedProjectType: projectType
+	        });
+	        (_this$buttonsInstance = _this.buttonsInstance) === null || _this$buttonsInstance === void 0 ? void 0 : _this$buttonsInstance.updateButtonsByProject(projectType);
+	        WorkgroupForm.getInstance().wizardManager.setProjectType(projectType);
+	      });
+	      var projectType = selector.getAttribute('data-bx-project-type');
+	      if (main_core.Type.isStringFilled(WorkgroupForm.getInstance().selectedProjectType)) {
+	        if (WorkgroupForm.getInstance().selectedProjectType === projectType) {
+	          _this.selectItem(selector);
+	        }
+	      } else if (!firstItemSelected) {
+	        _this.selectItem(selector);
+	        firstItemSelected = true;
+	      }
+	    });
+	  }
+	  babelHelpers.createClass(TypePresetSelector, [{
+	    key: "selectItem",
+	    value: function selectItem(selector) {
+	      var projectType = selector.getAttribute('data-bx-project-type');
+	      Util.selectSelectorItem(selector);
+	      WorkgroupForm.getInstance().recalcForm({
+	        selectedProjectType: projectType
+	      });
+	      WorkgroupForm.getInstance().wizardManager.setProjectType(projectType);
+	    }
+	  }]);
+	  return TypePresetSelector;
+	}();
 
 	var Wizard = /*#__PURE__*/function () {
 	  babelHelpers.createClass(Wizard, null, [{
@@ -1386,7 +1646,7 @@ this.BX = this.BX || {};
 	    value: function setProjectType(projectType) {
 	      var _this2 = this;
 	      if (main_core.Type.isDomNode(this.step1BackgroudNode)) {
-	        ['project', 'scrum', 'group'].forEach(function (projectType) {
+	        ['project', 'scrum', 'group', 'collab'].forEach(function (projectType) {
 	          _this2.step1BackgroudNode.classList.remove("--".concat(projectType));
 	        });
 	        this.step1BackgroudNode.classList.remove('--stop');
@@ -1534,7 +1794,8 @@ this.BX = this.BX || {};
 	              inviteEmployeeLink: true,
 	              inviteExtranetLink: true,
 	              groupId: this.groupId,
-	              checkWorkgroupWhenInvite: true
+	              checkWorkgroupWhenInvite: true,
+	              footerInviteIntranetOnly: !this.allowExtranet
 	            }
 	          }, {
 	            id: 'department',
@@ -1572,7 +1833,8 @@ this.BX = this.BX || {};
 	            id: 'user',
 	            options: {
 	              intranetUsersOnly: !this.allowExtranet,
-	              inviteEmployeeLink: true
+	              inviteEmployeeLink: true,
+	              footerInviteIntranetOnly: !this.allowExtranet
 	            }
 	          }, {
 	            id: 'department',
@@ -1613,7 +1875,8 @@ this.BX = this.BX || {};
 	              intranetUsersOnly: !this.allowExtranet,
 	              inviteEmployeeLink: true,
 	              groupId: this.groupId,
-	              checkWorkgroupWhenInvite: true
+	              checkWorkgroupWhenInvite: true,
+	              footerInviteIntranetOnly: !this.allowExtranet
 	            }
 	          }, {
 	            id: 'department',
@@ -1655,7 +1918,8 @@ this.BX = this.BX || {};
 	              '!userId': this.isCurrentUserAdmin ? [parseInt(main_core.Loc.getMessage('USER_ID'))] : [],
 	              intranetUsersOnly: !this.allowExtranet,
 	              groupId: this.groupId,
-	              checkWorkgroupWhenInvite: true
+	              checkWorkgroupWhenInvite: true,
+	              footerInviteIntranetOnly: !this.allowExtranet
 	            }
 	          }, {
 	            id: 'department',
@@ -6215,10 +6479,10 @@ this.BX = this.BX || {};
 	};
 
 	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4;
-	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
-	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
-	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _projectLottieAnimation = /*#__PURE__*/new WeakMap();
 	var _projectLottieIconContainer = /*#__PURE__*/new WeakMap();
 	var _scrumLottieAnimation = /*#__PURE__*/new WeakMap();
@@ -6240,11 +6504,11 @@ this.BX = this.BX || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, WorkgroupForm);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(WorkgroupForm).call(this));
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _bindStartWorkBtn);
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _getLottieProject);
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _getLottieScrum);
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _renderProjectDemoInfoContent);
-	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _renderScrumDemoInfoContent);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _bindStartWorkBtn);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _getLottieProject);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _getLottieScrum);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderProjectDemoInfoContent);
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderScrumDemoInfoContent);
 	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _projectLottieAnimation, {
 	      writable: true,
 	      value: null
@@ -6284,6 +6548,7 @@ this.BX = this.BX || {};
 	    _this.selectedConfidentialityType = params.selectedConfidentialityType;
 	    _this.initialFocus = main_core.Type.isStringFilled(params.focus) ? params.focus : '';
 	    _this.culture = params.culture ? params.culture : {};
+	    _this.currentUserType = params.currentUserType;
 	    _this.demoInfoAlreadyBeenShown = false;
 	    _this.scrumManager = new Scrum({
 	      isScrumProject: _this.isScrumProject
@@ -6296,8 +6561,8 @@ this.BX = this.BX || {};
 	      errorContainerId: 'sonet_group_create_error_block'
 	    });
 	    WorkgroupForm.instance = babelHelpers.assertThisInitialized(_this);
-	    _this.init(params);
 	    _this.buttonsInstance = new Buttons();
+	    _this.init(params);
 	    return _this;
 	  }
 	  babelHelpers.createClass(WorkgroupForm, [{
@@ -6328,7 +6593,7 @@ this.BX = this.BX || {};
 	          hiddenFieldId: 'GROUP_KEYWORDS'
 	        });
 	      }
-	      new TypePresetSelector();
+	      new TypePresetSelector(this.buttonsInstance);
 	      new ConfidentialitySelector();
 	      new FeaturesManager();
 	      if (main_core.Type.isStringFilled(this.initialFocus)) {
@@ -6750,11 +7015,11 @@ this.BX = this.BX || {};
 	        overlay: true,
 	        padding: 48,
 	        closeIcon: true,
-	        content: _classPrivateMethodGet$1(this, _renderScrumDemoInfoContent, _renderScrumDemoInfoContent2).call(this),
+	        content: _classPrivateMethodGet$2(this, _renderScrumDemoInfoContent, _renderScrumDemoInfoContent2).call(this),
 	        events: {
 	          onFirstShow: function onFirstShow(baseEvent) {
 	            top.BX.loadCSS(WorkgroupForm.PATH_TO_CSS);
-	            _classPrivateMethodGet$1(_this5, _bindStartWorkBtn, _bindStartWorkBtn2).call(_this5, baseEvent.getTarget());
+	            _classPrivateMethodGet$2(_this5, _bindStartWorkBtn, _bindStartWorkBtn2).call(_this5, baseEvent.getTarget());
 	          }
 	        }
 	      });
@@ -6771,11 +7036,11 @@ this.BX = this.BX || {};
 	        overlay: true,
 	        padding: 48,
 	        closeIcon: true,
-	        content: _classPrivateMethodGet$1(this, _renderProjectDemoInfoContent, _renderProjectDemoInfoContent2).call(this),
+	        content: _classPrivateMethodGet$2(this, _renderProjectDemoInfoContent, _renderProjectDemoInfoContent2).call(this),
 	        events: {
 	          onFirstShow: function onFirstShow(baseEvent) {
 	            top.BX.loadCSS(WorkgroupForm.PATH_TO_CSS);
-	            _classPrivateMethodGet$1(_this6, _bindStartWorkBtn, _bindStartWorkBtn2).call(_this6, baseEvent.getTarget());
+	            _classPrivateMethodGet$2(_this6, _bindStartWorkBtn, _bindStartWorkBtn2).call(_this6, baseEvent.getTarget());
 	          }
 	        }
 	      });
@@ -6785,10 +7050,10 @@ this.BX = this.BX || {};
 	  return WorkgroupForm;
 	}(main_core_events.EventEmitter);
 	function _renderScrumDemoInfoContent2() {
-	  return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"socialnetwork__demo-info_wrapper\">\n\t\t\t\t<div class=\"socialnetwork__demo-info_content\">\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text-trial\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_SCRUM'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_SCRUM'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN'), _classPrivateMethodGet$1(this, _getLottieScrum, _getLottieScrum2).call(this));
+	  return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"socialnetwork__demo-info_wrapper\">\n\t\t\t\t<div class=\"socialnetwork__demo-info_content\">\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text-trial\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_SCRUM_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_SCRUM_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1'), _classPrivateMethodGet$2(this, _getLottieScrum, _getLottieScrum2).call(this));
 	}
 	function _renderProjectDemoInfoContent2() {
-	  return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"socialnetwork__demo-info_wrapper\">\n\t\t\t\t<div class=\"socialnetwork__demo-info_content\">\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text-trial\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_PROJECT'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_PROJECT'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN'), _classPrivateMethodGet$1(this, _getLottieProject, _getLottieProject2).call(this));
+	  return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"socialnetwork__demo-info_wrapper\">\n\t\t\t\t<div class=\"socialnetwork__demo-info_content\">\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"socialnetwork__demo-info_text-trial\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_PROJECT_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_PROJECT_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1'), main_core.Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1'), _classPrivateMethodGet$2(this, _getLottieProject, _getLottieProject2).call(this));
 	}
 	function _getLottieScrum2() {
 	  if (!babelHelpers.classPrivateFieldGet(this, _scrumLottieIconContainer)) {
@@ -6832,5 +7097,5 @@ this.BX = this.BX || {};
 	exports.WorkgroupFormTeamManager = TeamManager$$1;
 	exports.WorkgroupFormUFManager = UFManager;
 
-}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.Main,BX.UI,BX.UI,BX.Event,BX.UI.EntitySelector,BX,BX.UI));
+}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.Main,BX.UI,BX.Messenger.v2.Lib,BX.UI,BX.Event,BX.UI.EntitySelector,BX,BX.UI));
 //# sourceMappingURL=script.js.map

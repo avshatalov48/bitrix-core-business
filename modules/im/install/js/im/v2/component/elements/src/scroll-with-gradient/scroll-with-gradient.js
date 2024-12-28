@@ -56,7 +56,8 @@ export const ScrollWithGradient = {
 		onScroll(event: Event)
 		{
 			this.$emit('scroll', event);
-			const scrollPosition = Math.ceil(event.target.scrollTop + event.target.clientHeight);
+			const scrollPosition = Math.floor(event.target.scrollTop + event.target.clientHeight);
+
 			this.showBottomGradient = scrollPosition !== event.target.scrollHeight;
 
 			if (event.target.scrollTop === 0)

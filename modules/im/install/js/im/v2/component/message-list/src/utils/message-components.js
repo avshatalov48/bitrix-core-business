@@ -22,6 +22,9 @@ import { ZoomInviteMessage } from 'im.v2.component.message.zoom-invite';
 import { GeneralChatCreationMessage } from 'im.v2.component.message.general-chat-creation';
 import { GeneralChannelCreationMessage } from 'im.v2.component.message.general-channel-creation';
 import { ChannelCreationMessage } from 'im.v2.component.message.channel-creation';
+import { StartDialogMessage } from 'imopenlines.v2.component.message.start-dialog';
+import { HiddenMessage } from 'imopenlines.v2.component.message.hidden';
+import { FeedbackFormMessage } from 'imopenlines.v2.component.message.feedback-form';
 import { CallMessage } from 'im.v2.component.message.call';
 
 export const MessageComponents = {
@@ -50,4 +53,7 @@ export const MessageComponents = {
 	GeneralChannelCreationMessage,
 	ChannelCreationMessage,
 	CallMessage,
+	StartDialogMessage,
+	FeedbackFormMessage,
+	HiddenMessage,
 };

@@ -685,6 +685,16 @@
 			}
 
 			repo["list"][this.ENTITY_XML_ID] = this;
+
+			if (Array.isArray(window?.UIAvatars))
+			{
+				window?.UIAvatars.forEach((avatarParams) => {
+					BX.MPL.UIAvatar(avatarParams);
+				});
+
+				window.UIAvatars = null;
+			}
+
 			return this;
 		};
 		BX.extend(BX.MPL, window["FCList"]);
@@ -707,6 +717,10 @@
 								FULL_ID: id,
 								POST_MESSAGE_TEXT: text,
 								POST_TIMESTAMP: (new Date().getTime() / 1000),
+								AUTHOR: {
+									ID: this.author.AUTHOR_ID,
+									TYPE: this.author.AUTHOR_TYPE,
+								},
 							},
 						},
 						{ DATE_TIME_FORMAT: this.params.DATE_TIME_FORMAT, RIGHTS: this.rights },
@@ -754,6 +768,15 @@
 				{
 					window.scrollTo(0, top - iosPatchDelta);
 				}
+
+				BX.MPL.UIAvatar({
+					node,
+					user: {
+						name: this.author.AUTHOR_NAME,
+						image: this.author.AUTHOR_AVATAR,
+						type: this.author.AUTHOR_TYPE,
+					},
+				});
 
 				(new BX["easing"]({
 					duration : 500,
@@ -1022,6 +1045,59 @@
 					});
 				}
 			}
+		};
+
+		BX.MPL.UIAvatar = ({ messageId, node, user = {} }) => {
+			const { name, image, type } = user;
+			const ui = BX?.UI;
+			const avatarEntityMap = {
+				base: ui?.AvatarRound,
+				extranet: ui?.AvatarRoundExtranet,
+				collaber: ui?.AvatarRoundGuest,
+			};
+
+			const Avatar = avatarEntityMap[type?.toLowerCase?.()] ?? avatarEntityMap.base;
+
+			if (!Avatar)
+			{
+				return;
+			}
+
+			const selector = messageId > 0 ? `[bx-mpl-comment-id="${messageId}"]` : 'post-comment-block';
+			const parentNode = node || document.querySelector(selector);
+
+			if (!parentNode)
+			{
+				return;
+			}
+
+			const avatarSelector = parentNode.querySelector('.ui-post-avatar');
+			const hasUIAvatar = parentNode.querySelector('.ui-avatar');
+
+			if (hasUIAvatar || !avatarSelector)
+			{
+				return;
+			}
+
+			if (avatarSelector.nextSibling && avatarSelector.nextSibling.nodeName === 'I')
+			{
+				avatarSelector.nextSibling.remove();
+			}
+
+			const UIAvatar = new Avatar({
+				size: 40,
+				userName: name,
+				userpicPath: image,
+			});
+			const classList = document.documentElement.classList;
+			if (classList.contains('bx-ios') || classList.contains('bx-android'))
+			{
+				const computedStyle = window.getComputedStyle(document.body);
+				const backgroundColor = computedStyle.backgroundColor;
+				UIAvatar.setBorderInnerColor(backgroundColor);
+			}
+
+			UIAvatar.renderTo(avatarSelector);
 		};
 
 		BX.MPL.getMenuItems = function(event) {

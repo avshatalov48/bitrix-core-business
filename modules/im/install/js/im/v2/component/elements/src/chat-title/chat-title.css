@@ -4,6 +4,7 @@
 
 	--im-chat-title-bot-color: #9d56a9;
 	--im-chat-title-extranet-color: #ca7b00;
+	--im-chat-title-collab-color: var(--im-color-collab-70);
 	--im-chat-title-network-color: #0a962f;
 	--im-chat-title-support24-color: #005390;
 }
@@ -56,6 +57,10 @@
 
 .bx-im-chat-title__text.--extranet {
 	color: var(--im-chat-title-extranet-color);
+}
+
+.bx-im-chat-title__text.--collaber {
+	color: var(--im-chat-title-collab-color);
 }
 
 .bx-im-chat-title__text.--network {

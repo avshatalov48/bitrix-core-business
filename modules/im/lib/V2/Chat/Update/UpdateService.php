@@ -5,7 +5,9 @@ namespace Bitrix\Im\V2\Chat\Update;
 use Bitrix\Im\V2\Analytics\ChatAnalytics;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\Converter;
+use Bitrix\Im\V2\Entity\File\ChatAvatar;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Result;
 
 class UpdateService
@@ -18,47 +20,6 @@ class UpdateService
 	{
 		$this->chat = $chat;
 		$this->updateFields  = $updateFields;
-	}
-
-	protected function getAnalyticsData(): array
-	{
-		return [
-			'description' => $this->chat->getDescription(),
-			'type' => $this->chat->getType(),
-			'owner' => $this->chat->getAuthorId(),
-			'manageUI' => $this->chat->getManageUI(),
-			'manageUsersAdd' => $this->chat->getManageUsersAdd(),
-			'manageUsersDelete' => $this->chat->getManageUsersDelete(),
-			'manageMessages' => $this->chat->getManageMessages(),
-		];
-	}
-
-	protected function compareAnalyticsData(array $prevData): void
-	{
-		$currentData = $this->getAnalyticsData();
-		$analytics = new ChatAnalytics();
-		$diff = fn(string $key) => $currentData[$key] !== $prevData[$key];
-
-		if ($diff('description'))
-		{
-			$analytics->addEditDescription($this->chat);
-		}
-
-		if ($diff('type'))
-		{
-			$analytics->addSetType($this->chat);
-		}
-
-		if (
-			$diff('owner') ||
-			$diff('manageUI') ||
-			$diff('manageUsersAdd') ||
-			$diff('manageUsersDelete') ||
-			$diff('manageMessages')
-		)
-		{
-			$analytics->addEditPermissions($this->chat);
-		}
 	}
 
 	public function updateChat(): Result
@@ -86,7 +47,7 @@ class UpdateService
 			->addManagers()
 		;
 
-		(new ChatAnalytics())->blockSingleUserEvents($this->chat);
+		ChatAnalytics::blockSingleUserEvents($this->chat);
 
 		$svc
 			->deleteDepartments()
@@ -95,6 +56,8 @@ class UpdateService
 
 		$this->sendPushUpdateChat();
 		$this->compareAnalyticsData($prevAnalyticsData);
+
+		ChatAnalytics::unblockSingleUserEventsByChat($this->chat);
 
 		return $result->setResult($this->chat);
 	}
@@ -140,7 +103,7 @@ class UpdateService
 			[$updateFields->getOwnerId()]
 		));
 
-		$this->chat->addUsers($addedUsers, $updateFields->getAddedManagers());
+		$this->chat->addUsers($addedUsers, new AddUsersConfig($updateFields->getAddedManagers(), $updateFields->shouldHideHistory()));
 
 		return $this;
 	}
@@ -198,7 +161,7 @@ class UpdateService
 
 		foreach ($addNodes as $node)
 		{
-			(new ChatAnalytics())->addAddDepartment($this->chat);
+			(new ChatAnalytics($this->chat))->addAddDepartment();
 		}
 
 		return $this;
@@ -227,7 +190,7 @@ class UpdateService
 
 		foreach ($deleteNodes as $node)
 		{
-			(new ChatAnalytics())->addDeleteDepartment($this->chat);
+			(new ChatAnalytics($this->chat))->addDeleteDepartment();
 		}
 
 		return $this;
@@ -236,16 +199,12 @@ class UpdateService
 	protected function updateAvatarBeforeSave(): self
 	{
 		$avatarId = $this->updateFields->getAvatar();
-		if (!is_numeric($avatarId))
+		if (!isset($avatarId))
 		{
 			return $this;
 		}
 
-		$this->chat->updateAvatarId(
-			$avatarId,
-			withMessage: false,
-			withoutSaveInChat: true
-		);
+		(new ChatAvatar($this->chat))->update($avatarId, false, false, true);
 
 		return $this;
 	}
@@ -253,7 +212,7 @@ class UpdateService
 	protected function sendMessageAfterUpdateAvatar(): self
 	{
 		$avatarId = $this->updateFields->getAvatar();
-		if (!is_numeric($avatarId))
+		if (!isset($avatarId))
 		{
 			return $this;
 		}
@@ -289,7 +248,7 @@ class UpdateService
 
 	protected function getArrayToSave(): array
 	{
-		$fields = $this->updateFields->getArrayToSave();
+		$fields = $this->filterFieldsByDifference($this->updateFields->getArrayToSave());
 
 		if (isset($this->newChatType))
 		{
@@ -297,5 +256,56 @@ class UpdateService
 		}
 
 		return $fields;
+	}
+
+	protected function filterFieldsByDifference(array $fields): array
+	{
+		if ($this->chat->getDescription() === $fields['DESCRIPTION'])
+		{
+			unset($fields['DESCRIPTION']);
+		}
+
+		return $fields;
+	}
+
+	protected function compareAnalyticsData(array $prevData): void
+	{
+		$currentData = $this->getAnalyticsData();
+		$analytics = new ChatAnalytics($this->chat);
+		$diff = fn(string $key) => $currentData[$key] !== $prevData[$key];
+
+		if ($diff('description'))
+		{
+			$analytics->addEditDescription();
+		}
+
+		if ($diff('type'))
+		{
+			$analytics->addSetType();
+		}
+
+		if (
+			$diff('owner') ||
+			$diff('manageUI') ||
+			$diff('manageUsersAdd') ||
+			$diff('manageUsersDelete') ||
+			$diff('manageMessages')
+		)
+		{
+			$analytics->addEditPermissions();
+		}
+	}
+
+	protected function getAnalyticsData(): array
+	{
+		return [
+			'description' => $this->chat->getDescription(),
+			'type' => $this->chat->getType(),
+			'owner' => $this->chat->getAuthorId(),
+			'manageUI' => $this->chat->getManageUI(),
+			'manageUsersAdd' => $this->chat->getManageUsersAdd(),
+			'manageUsersDelete' => $this->chat->getManageUsersDelete(),
+			'manageMessages' => $this->chat->getManageMessages(),
+		];
 	}
 }

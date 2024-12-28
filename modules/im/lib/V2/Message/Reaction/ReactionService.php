@@ -67,7 +67,7 @@ class ReactionService
 
 		(new PushService())->add($reactionItem);
 
-		(new MessageAnalytics())->addAddReaction($this->message->getChatId(), $reaction);
+		(new MessageAnalytics($this->message))->addAddReaction($reaction);
 
 		return $result;
 	}

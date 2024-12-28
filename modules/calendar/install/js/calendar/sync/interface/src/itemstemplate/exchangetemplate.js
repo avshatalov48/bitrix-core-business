@@ -10,7 +10,7 @@ export default class ExchangeTemplate extends InterfaceTemplate
 	constructor(provider, connection = null)
 	{
 		super({
-			title: Loc.getMessage("CALENDAR_TITLE_EXCHANGE"),
+			title: Loc.getMessage('CALENDAR_TITLE_EXCHANGE'),
 			helpDeskCode: '9860971',
 			titleInfoHeader: Loc.getMessage('CAL_CONNECT_EXCHANGE_CALENDAR'),
 			descriptionInfoHeader: Loc.getMessage('CAL_EXCHANGE_CONNECT_DESCRIPTION'),
@@ -35,9 +35,26 @@ export default class ExchangeTemplate extends InterfaceTemplate
 		`;
 	}
 
+	getActiveConnectionContent()
+	{
+		return Tag.render`
+			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
+				<div class="calendar-sync-header">
+					<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
+				</div>
+				<div class="calendar-sync__scope">
+					<div class="calendar-sync__content --border-radius">
+						<div class="calendar-sync__content-block --space-bottom">
+							${this.getContentActiveBody()}
+						</div>
+					</div>
+				</div>
+			</div>
+		`;
+	}
+
 	getContentActiveBodyHeader()
 	{
-
 		const timestamp = this.connection.getSyncDate().getTime() / 1000;
 		const syncTime = timestamp
 			? Util.formatDateUsable(timestamp) + ' ' + BX.date.format(Util.getTimeFormatShort(), timestamp)
@@ -55,8 +72,16 @@ export default class ExchangeTemplate extends InterfaceTemplate
 						${syncTime}
 					</div>
 				</div>
+				${this.getActionButton()}
 			</div>
-			`;
+		`;
+	}
+
+	getActionButton()
+	{
+		this.getRefreshActionButton();
+
+		return this.actionButton;
 	}
 
 	getContentBody()

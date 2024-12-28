@@ -29,7 +29,7 @@ export const TabPanel = {
 				tabs.push({
 					id: TabId.mask,
 					loc: 'BX_IM_CALL_BG_TAB_MASK',
-					isNew: true
+					isNew: false
 				});
 			}
 

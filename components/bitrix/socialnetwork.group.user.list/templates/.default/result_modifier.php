@@ -451,7 +451,7 @@ $arResult['TOOLBAR_BUTTONS'] = [];
 if (
 	$arResult['GROUP_PERMS']['UserCanInitiate']
 	|| $arResult['GROUP_PERMS']['UserCanModifyGroup']
-	|| \Bitrix\Socialnetwork\Helper\Workgroup::isCurrentUserModuleAdmin()
+	|| CAllSocNetUser::isCurrentUserModuleAdmin()
 )
 {
 	$arResult['TOOLBAR_BUTTONS'][] = [

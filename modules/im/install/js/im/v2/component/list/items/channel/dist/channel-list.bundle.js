@@ -10,7 +10,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const MessageText = {
 	  name: 'MessageText',
 	  components: {
-	    ChatTitle: im_v2_component_elements.ChatTitle
+	    MessageAvatar: im_v2_component_elements.MessageAvatar
 	  },
 	  props: {
 	    item: {
@@ -18,10 +18,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      required: true
 	    }
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
+	    AvatarSize: () => im_v2_component_elements.AvatarSize,
 	    recentItem() {
 	      return this.item;
 	    },
@@ -76,10 +74,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div class="bx-im-list-channel-item__message_container">
 			<span class="bx-im-list-channel-item__message_text">
 				<span v-if="isLastMessageAuthor" class="bx-im-list-channel-item__message_author-icon --self"></span>
-				<template v-else-if="message.authorId">
-					<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-list-channel-item__message_author-icon --user"></span>
-					<span v-else class="bx-im-list-channel-item__message_author-icon --user --default"></span>
-				</template>
+				<MessageAvatar
+					v-else-if="message.authorId"
+					:messageId="message.id"
+					:authorId="message.authorId"
+					:size="AvatarSize.XXS"
+					class="bx-im-list-channel-item__message_author-avatar"
+				/>
 				<span class="bx-im-list-channel-item__message_text_content">{{ formattedMessageText }}</span>
 			</span>
 		</div>
@@ -319,7 +320,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    files,
 	    recentItems
 	  } = restResult;
-	  const usersPromise = im_v2_application_core.Core.getStore().dispatch('users/set', users);
+	  const usersPromise = new im_v2_lib_user.UserManager().setUsersToModel(users);
 	  const dialoguesPromise = im_v2_application_core.Core.getStore().dispatch('chats/set', chats);
 	  const messagesPromise = im_v2_application_core.Core.getStore().dispatch('messages/store', messages);
 	  const filesPromise = im_v2_application_core.Core.getStore().dispatch('files/set', files);

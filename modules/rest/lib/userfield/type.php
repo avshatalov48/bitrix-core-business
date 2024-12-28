@@ -74,6 +74,23 @@ class Type extends TypeBase
 			}
 		}
 
+		$placementOptions = [
+			'MODE' => $mode,
+			'ENTITY_ID' => $arUserField['ENTITY_ID'],
+			'FIELD_NAME' => $arUserField['FIELD_NAME'],
+			'ENTITY_VALUE_ID' => $arUserField['ENTITY_VALUE_ID'],
+			'VALUE' => $arUserField['MULTIPLE'] === 'N' ? $value[0] : $value,
+			'MULTIPLE' => $arUserField['MULTIPLE'],
+			'MANDATORY' => $arUserField['MANDATORY'],
+			'XML_ID' => $arUserField['XML_ID'],
+		];
+
+		$event = new \Bitrix\Main\Event('rest', 'OnUserFieldPlacementPrepareParams', [
+			$arUserField,
+			&$placementOptions,
+		]);
+		$event->send();
+
 		$html = '';
 		if($currentPlacementHandler !== null)
 		{
@@ -101,16 +118,7 @@ class Type extends TypeBase
 					'PLACEMENT' => UserFieldType::PLACEMENT_UF_TYPE,
 					'SHOW_LOADER' => 'N',
 					'SET_TITLE' => 'N',
-					'PLACEMENT_OPTIONS' => array(
-						'MODE' => $mode,
-						'ENTITY_ID' => $arUserField['ENTITY_ID'],
-						'FIELD_NAME' => $arUserField['FIELD_NAME'],
-						'ENTITY_VALUE_ID' => $arUserField['ENTITY_VALUE_ID'],
-						'VALUE' => $arUserField['MULTIPLE'] === 'N' ? $value[0] : $value,
-						'MULTIPLE' => $arUserField['MULTIPLE'],
-						'MANDATORY' => $arUserField['MANDATORY'],
-						'XML_ID' => $arUserField['XML_ID'],
-					),
+					'PLACEMENT_OPTIONS' => $placementOptions,
 					'PARAM' => array(
 						'FRAME_HEIGHT' => '200px',
 					)

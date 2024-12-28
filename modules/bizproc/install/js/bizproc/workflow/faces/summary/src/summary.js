@@ -10,14 +10,23 @@ import './css/style.css';
 
 export type SummaryData = {
 	workflowId: string,
-	time: ?number,
-	workflowIsCompleted: boolean,
+	data: {
+		name: string,
+		duration: number,
+		status: 'success' | 'wait',
+	},
 };
 
 export class Summary
 {
+	#name: string;
 	#isFinal: boolean = false;
 	#workflowId: string;
+	#durationTexts: {} = {
+		nameBefore: '',
+		value: '',
+		nameAfter: '',
+	};
 
 	constructor(props: SummaryData = {})
 	{
@@ -27,16 +36,19 @@ export class Summary
 		}
 		this.#workflowId = props.workflowId;
 
-		if (Type.isBoolean(props.workflowIsCompleted))
-		{
-			this.#isFinal = props.workflowIsCompleted;
-		}
+		this.#isFinal = props.data?.status === 'success';
+		this.#name = Type.isStringFilled(props.data?.name) ? props.data.name : '';
 
-		this.#calculateDurationTexts(props.time);
+		this.#calculateDurationTexts(props.data?.duration);
 	}
 
 	#calculateDurationTexts(time)
 	{
+		if (!this.#isFinal)
+		{
+			return;
+		}
+
 		const duration = (
 			Type.isNumber(time)
 				? DateTimeFormat.format(
@@ -47,38 +59,31 @@ export class Summary
 				: null
 		);
 
-		this.durationTexts = { nameBefore: '', value: '', nameAfter: '' };
-
 		if (duration)
 		{
 			const pattern = /\d+/;
 			const match = duration.match(pattern);
 			if (match)
 			{
-				this.durationTexts.value = String(match[0]);
+				this.#durationTexts.value = String(match[0]);
 
-				const index = duration.indexOf(this.durationTexts.value);
+				const index = duration.indexOf(this.#durationTexts.value);
 				if (index !== -1)
 				{
-					this.durationTexts.nameBefore = duration.slice(0, index).trim();
-					this.durationTexts.nameAfter = duration.slice(index + this.durationTexts.value.length).trim();
+					this.#durationTexts.nameBefore = duration.slice(0, index).trim();
+					this.#durationTexts.nameAfter = duration.slice(index + this.#durationTexts.value.length).trim();
 				}
 			}
 			else
 			{
-				this.durationTexts.nameAfter = duration;
+				this.#durationTexts.nameAfter = duration;
 			}
 		}
 	}
 
 	render(): HTMLElement
 	{
-		const title = Text.encode(Loc.getMessage(
-			this.#isFinal
-				? 'BIZPROC_JS_WORKFLOW_FACES_SUMMARY_TITLE_FINAL'
-				: 'BIZPROC_JS_WORKFLOW_FACES_SUMMARY_TITLE'
-			,
-		));
+		const title = Text.encode(this.#name);
 		const footerTitle = Text.encode(Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_SUMMARY_TIMELINE_MSGVER_1'));
 
 		return Tag.render`
@@ -100,9 +105,9 @@ export class Summary
 		{
 			return Tag.render`
 				<div class="bp-workflow-faces-summary__summary">
-					<div class="bp-workflow-faces-summary__summary-name">${Text.encode(this.durationTexts.nameBefore)}</div>
-					<div class="bp-workflow-faces-summary__summary-value">${Text.encode(this.durationTexts.value)}</div>
-					<div class="bp-workflow-faces-summary__summary-name">${Text.encode(this.durationTexts.nameAfter)}</div>
+					<div class="bp-workflow-faces-summary__summary-name">${Text.encode(this.#durationTexts.nameBefore)}</div>
+					<div class="bp-workflow-faces-summary__summary-value">${Text.encode(this.#durationTexts.value)}</div>
+					<div class="bp-workflow-faces-summary__summary-name">${Text.encode(this.#durationTexts.nameAfter)}</div>
 				</div>
 			`;
 		}

@@ -10,6 +10,7 @@ use Bitrix\Main\Type\DateTime;
 
 class TaskItem extends BaseLinkItem
 {
+	protected static array $cache = [];
 
 	/**
 	 * @param int|array|EO_LinkTask|null $source
@@ -57,6 +58,24 @@ class TaskItem extends BaseLinkItem
 
 	public static function getByEntity(\Bitrix\Im\V2\Entity\Task\TaskItem $entity): ?self
 	{
+		$taskItem = self::getByEntityInternal($entity);
+		if ($taskItem === null)
+		{
+			return null;
+		}
+
+		$taskItem->setEntity($entity);
+
+		return $taskItem;
+	}
+
+	protected static function getByEntityInternal(\Bitrix\Im\V2\Entity\Task\TaskItem $entity): ?self
+	{
+		if (array_key_exists($entity->getTaskId(), self::$cache))
+		{
+			return self::$cache[$entity->getTaskId()];
+		}
+
 		$chatTask = LinkTaskTable::query()
 			->setSelect(['ID', 'MESSAGE_ID', 'CHAT_ID', 'TASK_ID', 'AUTHOR_ID', 'DATE_CREATE'])
 			->where('TASK_ID', $entity->getTaskId())
@@ -66,13 +85,14 @@ class TaskItem extends BaseLinkItem
 
 		if ($chatTask === null)
 		{
+			self::$cache[$entity->getTaskId()] = null;
+
 			return null;
 		}
 
-		$taskItem = new static($chatTask);
-		$taskItem->setEntity($entity);
+		self::$cache[$entity->getTaskId()] = new static($chatTask);
 
-		return $taskItem;
+		return self::$cache[$entity->getTaskId()];
 	}
 
 	public static function getByMessageId(int $messageId): ?self
@@ -117,5 +137,10 @@ class TaskItem extends BaseLinkItem
 		}
 
 		return $this->entity;
+	}
+
+	public static function cleanCache(int $taskId): void
+	{
+		unset(self::$cache[$taskId]);
 	}
 }

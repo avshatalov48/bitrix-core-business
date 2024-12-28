@@ -34,6 +34,14 @@ export const Step = {
 		{
 			return Type.isPlainObject(this.step.progressBox);
 		},
+		hasHeader(): boolean
+		{
+			return !Type.isNil(this.step.header);
+		},
+		hasFooter(): boolean
+		{
+			return !Type.isNil(this.step.footer);
+		},
 		getCustomStyles(): {}
 		{
 			const styles = {};
@@ -46,11 +54,15 @@ export const Step = {
 		},
 	},
 	template: `
-		<div class="ui-image-stack-steps-step" :style="getCustomStyles">
+		<div 
+			class="ui-image-stack-steps-step"
+			:class="{'--with-header': hasHeader, '--with-footer': hasFooter}"
+			:style="getCustomStyles"
+		>
 			<ProgressBox v-if="hasProgressBox" :title="step.progressBox.title"/>
-			<Header :header="step.header"/>
+			<Header v-if="hasHeader" :header="step.header"/>
 			<Stack :stack="step.stack"/>
-			<Footer :footer="step.footer"/>
+			<Footer v-if="hasFooter" :footer="step.footer"/>
 		</div>
 	`,
 };

@@ -2,21 +2,23 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_application_core,im_v2_lib_analytics,im_v2_lib_localStorage,im_v2_const,im_v2_lib_logger,im_v2_lib_channel,im_v2_lib_access,im_v2_lib_feature) {
+(function (exports,main_core_events,im_v2_application_core,im_v2_lib_analytics,im_v2_lib_localStorage,im_v2_const,im_v2_lib_logger,im_v2_lib_channel,im_v2_lib_access,im_v2_lib_feature,im_v2_lib_bulkActions) {
 	'use strict';
 
 	const TypesWithoutContext = new Set([im_v2_const.ChatType.comment]);
 	const LayoutsWithoutLastOpenedElement = new Set([im_v2_const.Layout.channel.name, im_v2_const.Layout.market.name]);
 	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
 	var _lastOpenedElement = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("lastOpenedElement");
-	var _deleteLastOpenedElement = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deleteLastOpenedElement");
 	var _onGoToMessageContext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onGoToMessageContext");
 	var _onDesktopReload = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onDesktopReload");
 	var _sendAnalytics = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendAnalytics");
 	var _isSameChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isSameChat");
+	var _handleLayoutChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleLayoutChange");
+	var _handleChatChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleChatChange");
 	var _handleSameChatReopen = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleSameChatReopen");
+	var _closeBulkActionsMode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("closeBulkActionsMode");
+	var _closeChannelComments = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("closeChannelComments");
 	var _handleContextAccess = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleContextAccess");
-	var _handleLayoutLeave = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleLayoutLeave");
 	var _getChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getChat");
 	class LayoutManager {
 	  static getInstance() {
@@ -32,14 +34,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _getChat, {
 	      value: _getChat2
 	    });
-	    Object.defineProperty(this, _handleLayoutLeave, {
-	      value: _handleLayoutLeave2
-	    });
 	    Object.defineProperty(this, _handleContextAccess, {
 	      value: _handleContextAccess2
 	    });
+	    Object.defineProperty(this, _closeChannelComments, {
+	      value: _closeChannelComments2
+	    });
+	    Object.defineProperty(this, _closeBulkActionsMode, {
+	      value: _closeBulkActionsMode2
+	    });
 	    Object.defineProperty(this, _handleSameChatReopen, {
 	      value: _handleSameChatReopen2
+	    });
+	    Object.defineProperty(this, _handleChatChange, {
+	      value: _handleChatChange2
+	    });
+	    Object.defineProperty(this, _handleLayoutChange, {
+	      value: _handleLayoutChange2
 	    });
 	    Object.defineProperty(this, _isSameChat, {
 	      value: _isSameChat2
@@ -52,9 +63,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _onGoToMessageContext, {
 	      value: _onGoToMessageContext2
-	    });
-	    Object.defineProperty(this, _deleteLastOpenedElement, {
-	      value: _deleteLastOpenedElement2
 	    });
 	    Object.defineProperty(this, _lastOpenedElement, {
 	      writable: true,
@@ -73,9 +81,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (config.entityId) {
 	      this.setLastOpenedElement(config.name, config.entityId);
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _handleLayoutLeave)[_handleLayoutLeave]();
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _isSameChat)[_isSameChat](config)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _handleSameChatReopen)[_handleSameChatReopen](config);
+	    } else {
+	      babelHelpers.classPrivateFieldLooseBase(this, _handleLayoutChange)[_handleLayoutChange]();
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _sendAnalytics)[_sendAnalytics](config);
 	    return im_v2_application_core.Core.getStore().dispatch('application/setLayout', config);
@@ -109,12 +118,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _lastOpenedElement)[_lastOpenedElement][layoutName] = entityId;
 	  }
-	  clearLayoutEntityId() {
+	  clearCurrentLayoutEntityId() {
 	    const currentLayoutName = this.getLayout().name;
 	    void this.setLayout({
 	      name: currentLayoutName
 	    });
-	    void babelHelpers.classPrivateFieldLooseBase(this, _deleteLastOpenedElement)[_deleteLastOpenedElement](currentLayoutName);
+	    void this.deleteLastOpenedElement(currentLayoutName);
 	  }
 	  isChatContextAvailable(dialogId) {
 	    if (!this.getLayout().contextId) {
@@ -129,12 +138,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.goToMessageContext, babelHelpers.classPrivateFieldLooseBase(this, _onGoToMessageContext)[_onGoToMessageContext]);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.desktop.onReload, babelHelpers.classPrivateFieldLooseBase(this, _onDesktopReload)[_onDesktopReload].bind(this));
 	  }
-	}
-	function _deleteLastOpenedElement2(layoutName) {
-	  if (LayoutsWithoutLastOpenedElement.has(layoutName)) {
-	    return;
+	  deleteLastOpenedElement(layoutName) {
+	    if (LayoutsWithoutLastOpenedElement.has(layoutName)) {
+	      return;
+	    }
+	    delete babelHelpers.classPrivateFieldLooseBase(this, _lastOpenedElement)[_lastOpenedElement][layoutName];
 	  }
-	  delete babelHelpers.classPrivateFieldLooseBase(this, _lastOpenedElement)[_lastOpenedElement][layoutName];
+	  deleteLastOpenedElementById(entityId) {
+	    Object.entries(babelHelpers.classPrivateFieldLooseBase(this, _lastOpenedElement)[_lastOpenedElement]).forEach(([layoutName, lastOpenedId]) => {
+	      if (lastOpenedId === entityId) {
+	        delete babelHelpers.classPrivateFieldLooseBase(this, _lastOpenedElement)[_lastOpenedElement][layoutName];
+	      }
+	    });
+	  }
 	}
 	async function _onGoToMessageContext2(event) {
 	  const {
@@ -166,7 +182,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return;
 	  }
 	  if (config.name === im_v2_const.Layout.copilot.name) {
-	    im_v2_lib_analytics.Analytics.getInstance().onOpenCopilotTab();
+	    im_v2_lib_analytics.Analytics.getInstance().copilot.onOpenTab();
 	  }
 	  im_v2_lib_analytics.Analytics.getInstance().onOpenTab(config.name);
 	}
@@ -179,16 +195,43 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  const sameEntityId = entityId && entityId === config.entityId;
 	  return sameLayout && sameEntityId;
 	}
+	function _handleLayoutChange2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _closeChannelComments)[_closeChannelComments]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _handleChatChange)[_handleChatChange]();
+	}
+	function _handleChatChange2() {
+	  const {
+	    name,
+	    entityId
+	  } = this.getLayout();
+	  const CHAT_LAYOUTS = new Set([im_v2_const.ChatType.chat, im_v2_const.ChatType.channel, im_v2_const.ChatType.copilot, im_v2_const.ChatType.lines, im_v2_const.ChatType.openlinesV2, im_v2_const.ChatType.collab]);
+	  if (CHAT_LAYOUTS.has(name) && entityId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _closeBulkActionsMode)[_closeBulkActionsMode]();
+	  }
+	}
 	function _handleSameChatReopen2(config) {
 	  const {
 	    entityId: dialogId,
 	    contextId
 	  } = config;
+	  babelHelpers.classPrivateFieldLooseBase(this, _closeChannelComments)[_closeChannelComments]();
 	  if (contextId) {
 	    main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.goToMessageContext, {
 	      messageId: contextId,
 	      dialogId
 	    });
+	  }
+	}
+	function _closeBulkActionsMode2() {
+	  im_v2_lib_bulkActions.BulkActionsManager.getInstance().disableBulkMode();
+	}
+	function _closeChannelComments2() {
+	  const {
+	    entityId: dialogId = ''
+	  } = this.getLayout();
+	  const isChannelOpened = im_v2_lib_channel.ChannelManager.isChannel(dialogId);
+	  if (isChannelOpened) {
+	    main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.closeComments);
 	  }
 	}
 	async function _handleContextAccess2(config) {
@@ -212,15 +255,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  return Promise.resolve(true);
 	}
-	function _handleLayoutLeave2() {
-	  const {
-	    entityId: dialogId = ''
-	  } = this.getLayout();
-	  const isChannelOpened = im_v2_lib_channel.ChannelManager.isChannel(dialogId);
-	  if (isChannelOpened) {
-	    main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.closeComments);
-	  }
-	}
 	function _getChat2(dialogId) {
 	  return im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
 	}
@@ -231,5 +265,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.LayoutManager = LayoutManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=layout.bundle.js.map

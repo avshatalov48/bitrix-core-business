@@ -5,6 +5,7 @@ import { Analytics } from 'calendar.sharing.analytics';
 import { Context } from './context';
 import { RuleModel, RuleParams } from './rule';
 import { User } from './user';
+import { CalendarContext } from './calendar-context';
 
 export type CalendarSettings = {
 	weekStart: string,
@@ -23,6 +24,7 @@ export type SettingsParams = {
 	calendarSettings: CalendarSettings,
 	collapsed: boolean,
 	sortJointLinksByFrequentUse: boolean,
+	calendarContext: CalendarContext | null,
 };
 
 export class SettingsModel
@@ -146,6 +148,11 @@ export class SettingsModel
 		return this.#params.sortJointLinksByFrequentUse;
 	}
 
+	getCalendarContext(): CalendarContext | null
+	{
+		return this.#params.calendarContext;
+	}
+
 	changeSortJointLinksByFrequentUse()
 	{
 		this.#params.sortJointLinksByFrequentUse = !this.#params.sortJointLinksByFrequentUse;
@@ -164,9 +171,14 @@ export class SettingsModel
 
 	async saveJointLink(): Promise
 	{
-		const response = await BX.ajax.runAction('calendar.api.sharingajax.generateUserJointSharingLink', {
+		const action = this.#params.calendarContext?.sharingObjectType === 'group'
+			? 'calendar.api.sharinggroupajax.generateJointSharingLink'
+			: 'calendar.api.sharingajax.generateUserJointSharingLink'
+		;
+		const response = await BX.ajax.runAction(action, {
 			data: {
 				memberIds: this.getMemberIds(),
+				groupId: this.#params.calendarContext?.sharingObjectId,
 			},
 		});
 
@@ -177,7 +189,7 @@ export class SettingsModel
 	{
 		if (!this.isDifferentFrom(this.#createRuleModel(this.#params.rule, this.#params.calendarSettings)))
 		{
-			return;
+			return null;
 		}
 
 		const changes = this.getChanges();

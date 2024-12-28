@@ -380,15 +380,8 @@ if ($arResult["SHOW_PANEL_ATTACH_IMG"] == "Y")
 $arResult["MESSAGE"]["CAPTCHA_CODE"] = "";
 if (!$USER->IsAuthorized() && $arParams["FORUM"]["USE_CAPTCHA"]=="Y")
 {
-	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 	$cpt = new CCaptcha();
-	$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-	if ($captchaPass == '')
-	{
-		$captchaPass = randString(10);
-		COption::SetOptionString("main", "captcha_password", $captchaPass);
-	}
-	$cpt->SetCodeCrypt($captchaPass);
+	$cpt->SetCodeCrypt();
 	$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 }
 /*******************************************************************/

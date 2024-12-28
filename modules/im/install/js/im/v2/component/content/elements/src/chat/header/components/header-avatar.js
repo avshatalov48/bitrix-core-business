@@ -1,5 +1,5 @@
 import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
-import { ChatActionType, ChatType } from 'im.v2.const';
+import { ActionByRole, ChatType } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Utils } from 'im.v2.lib.utils';
 import { ChatService } from 'im.v2.provider.service';
@@ -31,7 +31,7 @@ export const HeaderAvatar = {
 		},
 		canChangeAvatar(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.avatar, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.avatar, this.dialogId);
 		},
 		userLink(): string
 		{

@@ -655,9 +655,14 @@
 				entryClassName += ' calendar-event-line-past';
 			}
 
-			if (entry.isSharingEvent())
+			if (this.shouldEntryLookLikeSharing(entry))
 			{
 				entryClassName += ' calendar-event-line-wrap-sharing';
+				entryClassName += ' calendar-event-wrap-icon';
+			}
+			else if (this.shouldEntryLookLikeCollab(entry))
+			{
+				entryClassName += ' calendar-event-line-wrap-collab';
 				entryClassName += ' calendar-event-wrap-icon';
 			}
 
@@ -748,9 +753,18 @@
 				innerNode.appendChild(dotNode);
 			}
 
-			if (entry.isSharingEvent())
+			let appendClassName = null;
+			if (this.shouldEntryLookLikeSharing(entry))
 			{
-				innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-sharing'}}));
+				appendClassName = 'calendar-event-block-icon-sharing';
+			}
+			else if (this.shouldEntryLookLikeCollab(entry))
+			{
+				appendClassName = 'calendar-event-block-icon-collab';
+			}
+			if (appendClassName)
+			{
+				innerNode.appendChild(BX.Tag.render`<span class="${appendClassName}"></span>`);
 			}
 
 			if (entry.isFullDay())

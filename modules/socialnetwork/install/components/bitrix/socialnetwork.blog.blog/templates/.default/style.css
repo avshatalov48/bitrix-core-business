@@ -65,6 +65,15 @@ div.blog-post-quote table.blogquote, div.blog-post-code table.blogcode {margin: 
 	color: #d9930a !important;
 }
 
+.blog-p-user-name-collab {
+	color: #00a94e !important;
+}
+
+.blog-p-user-name-collaber,
+.blog-p-user-name-collaber:hover {
+	color: #19CC45;
+}
+
 .blog-p-user-name:hover {
 	border-bottom: 1px solid;
 }

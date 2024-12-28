@@ -8,6 +8,7 @@ import { Logger } from 'im.v2.lib.logger';
 import { ChannelManager } from 'im.v2.lib.channel';
 import { AccessErrorCode, AccessManager } from 'im.v2.lib.access';
 import { FeatureManager } from 'im.v2.lib.feature';
+import { BulkActionsManager } from 'im.v2.lib.bulk-actions';
 
 import type { ImModelLayout, ImModelChat } from 'im.v2.model';
 
@@ -59,11 +60,13 @@ export class LayoutManager
 			this.setLastOpenedElement(config.name, config.entityId);
 		}
 
-		this.#handleLayoutLeave();
-
 		if (this.#isSameChat(config))
 		{
 			this.#handleSameChatReopen(config);
+		}
+		else
+		{
+			this.#handleLayoutChange();
 		}
 
 		this.#sendAnalytics(config);
@@ -116,11 +119,11 @@ export class LayoutManager
 		this.#lastOpenedElement[layoutName] = entityId;
 	}
 
-	clearLayoutEntityId(): void
+	clearCurrentLayoutEntityId(): void
 	{
 		const currentLayoutName = this.getLayout().name;
 		void this.setLayout({ name: currentLayoutName });
-		void this.#deleteLastOpenedElement(currentLayoutName);
+		void this.deleteLastOpenedElement(currentLayoutName);
 	}
 
 	isChatContextAvailable(dialogId: string): boolean
@@ -141,7 +144,7 @@ export class LayoutManager
 		EventEmitter.unsubscribe(EventType.desktop.onReload, this.#onDesktopReload.bind(this));
 	}
 
-	#deleteLastOpenedElement(layoutName: string): void
+	deleteLastOpenedElement(layoutName: string): void
 	{
 		if (LayoutsWithoutLastOpenedElement.has(layoutName))
 		{
@@ -149,6 +152,16 @@ export class LayoutManager
 		}
 
 		delete this.#lastOpenedElement[layoutName];
+	}
+
+	deleteLastOpenedElementById(entityId: string): void
+	{
+		Object.entries(this.#lastOpenedElement).forEach(([layoutName, lastOpenedId]) => {
+			if (lastOpenedId === entityId)
+			{
+				delete this.#lastOpenedElement[layoutName];
+			}
+		});
 	}
 
 	async #onGoToMessageContext(event: BaseEvent<{dialogId: string, messageId: number}>): void
@@ -189,7 +202,7 @@ export class LayoutManager
 
 		if (config.name === Layout.copilot.name)
 		{
-			Analytics.getInstance().onOpenCopilotTab();
+			Analytics.getInstance().copilot.onOpenTab();
 		}
 
 		Analytics.getInstance().onOpenTab(config.name);
@@ -204,9 +217,35 @@ export class LayoutManager
 		return sameLayout && sameEntityId;
 	}
 
+	#handleLayoutChange()
+	{
+		this.#closeChannelComments();
+		this.#handleChatChange();
+	}
+
+	#handleChatChange()
+	{
+		const { name, entityId } = this.getLayout();
+		const CHAT_LAYOUTS = new Set([
+			ChatType.chat,
+			ChatType.channel,
+			ChatType.copilot,
+			ChatType.lines,
+			ChatType.openlinesV2,
+			ChatType.collab,
+		]);
+
+		if (CHAT_LAYOUTS.has(name) && entityId)
+		{
+			this.#closeBulkActionsMode();
+		}
+	}
+
 	#handleSameChatReopen(config: ImModelLayout): void
 	{
 		const { entityId: dialogId, contextId } = config;
+
+		this.#closeChannelComments();
 
 		if (contextId)
 		{
@@ -214,6 +253,21 @@ export class LayoutManager
 				messageId: contextId,
 				dialogId,
 			});
+		}
+	}
+
+	#closeBulkActionsMode()
+	{
+		BulkActionsManager.getInstance().disableBulkMode();
+	}
+
+	#closeChannelComments()
+	{
+		const { entityId: dialogId = '' } = this.getLayout();
+		const isChannelOpened = ChannelManager.isChannel(dialogId);
+		if (isChannelOpened)
+		{
+			EventEmitter.emit(EventType.dialog.closeComments);
 		}
 	}
 
@@ -235,16 +289,6 @@ export class LayoutManager
 		}
 
 		return Promise.resolve(true);
-	}
-
-	#handleLayoutLeave()
-	{
-		const { entityId: dialogId = '' } = this.getLayout();
-		const isChannelOpened = ChannelManager.isChannel(dialogId);
-		if (isChannelOpened)
-		{
-			EventEmitter.emit(EventType.dialog.closeComments);
-		}
 	}
 
 	#getChat(dialogId: string): ImModelChat

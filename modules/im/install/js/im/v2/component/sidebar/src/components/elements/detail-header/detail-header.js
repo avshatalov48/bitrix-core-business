@@ -1,7 +1,9 @@
 import { SearchInput, Button as ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { ChatType, Layout } from 'im.v2.const';
 
 import './detail-header.css';
-import { Layout } from 'im.v2.const';
+
+import type { ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const DetailHeader = {
@@ -9,6 +11,10 @@ export const DetailHeader = {
 	components: { ChatButton, SearchInput },
 	props:
 	{
+		dialogId: {
+			type: String,
+			required: true,
+		},
 		title: {
 			type: String,
 			required: true,
@@ -45,11 +51,24 @@ export const DetailHeader = {
 
 			return currentLayoutName === Layout.copilot.name;
 		},
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		isCollab(): boolean
+		{
+			return this.dialog.type === ChatType.collab;
+		},
 		addButtonColor(): ButtonColor
 		{
 			if (this.isCopilotLayout)
 			{
 				return this.ButtonColor.Copilot;
+			}
+
+			if (this.isCollab)
+			{
+				return this.ButtonColor.Collab;
 			}
 
 			return this.ButtonColor.PrimaryLight;

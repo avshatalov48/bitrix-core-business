@@ -9,6 +9,7 @@ use Bitrix\Main\Entity\DataManager;
 use Bitrix\Main\Entity\StringField;
 use Bitrix\Main\Entity\IntegerField;
 use Bitrix\Main\Entity\DatetimeField;
+use Bitrix\Main\Entity\BooleanField;
 
 /**
  * Class CallTable
@@ -17,9 +18,9 @@ use Bitrix\Main\Entity\DatetimeField;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Call_Query query()
- * @method static EO_Call_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Call_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Call_Result getById($id)
- * @method static EO_Call_Result getList(array $parameters = array())
+ * @method static EO_Call_Result getList(array $parameters = [])
  * @method static EO_Call_Entity getEntity()
  * @method static \Bitrix\Im\Model\EO_Call createObject($setDefaultValues = true)
  * @method static \Bitrix\Im\Model\EO_Call_Collection createCollection()
@@ -39,26 +40,50 @@ class CallTable extends DataManager
 			(new IntegerField('ID'))
 				->configurePrimary()
 				->configureAutocomplete(),
+
 			new IntegerField('TYPE'),
+
 			new IntegerField('INITIATOR_ID'),
+
 			(new StringField('IS_PUBLIC'))
 				->configureDefaultValue('N'),
+
 			new StringField('PUBLIC_ID'),
+
 			new StringField('PROVIDER'),
+
 			new StringField('ENTITY_TYPE'),
+
 			new StringField('ENTITY_ID'),
+
 			new IntegerField('PARENT_ID'),
+
 			new StringField('STATE'),
+
 			(new DatetimeField('START_DATE'))
 				->configureDefaultValue(fn() => new DateTime()),
+
 			new DatetimeField('END_DATE'),
+
 			new IntegerField('CHAT_ID'),
+
 			new StringField('LOG_URL'),
+
 			(new StringField('UUID'))
 				->configureSize(36),
+
 			(new StringField('SECRET_KEY'))
 				->configureSize(10),
+
 			new StringField('ENDPOINT'),
+
+			(new BooleanField('RECORD_AUDIO'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('N'),
+
+			(new BooleanField('AI_ANALYZE'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('N'),
 		];
 	}
 

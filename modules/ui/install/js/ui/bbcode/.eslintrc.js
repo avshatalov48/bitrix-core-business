@@ -4,5 +4,9 @@ module.exports = {
 		'sonarjs/cognitive-complexity': 'off',
 		'max-lines-per-function': 'off',
 		'unicorn/prefer-string-replace-all': 'off',
+		'unicorn/newline-per-chained-call': 'off',
+		'newline-per-chained-call': 'off',
+		'no-implicit-coercion': 'off',
+		'unicorn/template-indent': 'off',
 	},
 };

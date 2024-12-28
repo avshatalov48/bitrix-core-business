@@ -55,6 +55,9 @@ class CalendarEventViewForm extends Controller
 			return [];
 		}
 
+		$isExternalUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser();
+		$isCollabUser = Util::isCollabUser($userId);
+
 		$responseParams['userId'] = $userId;
 		$responseParams['userTimezone'] = \CCalendar::GetUserTimezoneName($userId);
 		$responseParams['entry'] = $entry;
@@ -200,12 +203,13 @@ class CalendarEventViewForm extends Controller
 		$meetingCreator = $this->getMeetingCreator($event);
 		$params['meetingCreatorUrl'] = $meetingCreator['URL'] ?? null;
 		$params['meetingCreatorDisplayName'] = $meetingCreator['DISPLAY_NAME'] ?? null;
+		$params['meetingCreatorCollabUser'] = $meetingCreator['COLLAB_USER'] ?? false;
 
 		$params['isHighImportance'] = $event['IMPORTANCE'] === 'high';
 		$params['description'] = $event['~DESCRIPTION'] ?? null;
 
 		$params['isWebdavEvent'] = $event['UF_WEBDAV_CAL_EVENT'] ?? null;
-		$params['isCrmEvent'] = $event['UF_CRM_CAL_EVENT'] ?? null;
+		$params['isCrmEvent'] = ($event['UF_CRM_CAL_EVENT'] ?? null) && !$isExternalUser;
 
 		$params['accessibility'] = $event['ACCESSIBILITY'];
 		$params['isIntranetEnabled'] = \CCalendar::IsIntranetEnabled();
@@ -252,6 +256,9 @@ class CalendarEventViewForm extends Controller
 		}
 
 		$params['signedEvent'] = (new Signer())->sign(Json::encode($signedEvent));
+
+		$params['isCollabUser'] = $isCollabUser;
+		$params['downloadIcsEnabled'] = ($event['permissions']['view_full'] ?? null) && $isCollabUser;
 
 		return $params;
 	}
@@ -335,6 +342,7 @@ class CalendarEventViewForm extends Controller
 				$meetingCreator["ID"],
 				$meetingCreator["PATH_TO_USER"] ?? null
 			);
+			$meetingCreator['COLLAB_USER'] = $meetingCreator['COLLAB_USER'] ?? null;
 		}
 		return $meetingCreator;
 	}

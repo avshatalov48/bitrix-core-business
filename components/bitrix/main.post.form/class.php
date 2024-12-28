@@ -47,8 +47,13 @@ final class MainPostForm extends CBitrixComponent
 		}
 		$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? \CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), "", $arParams["NAME_TEMPLATE"]);
 		$arParams['COPILOT_AVAILABLE'] = $this->isCopilotEnabled();
+		$arParams['isAiImageEnabled'] ??= true;
+		$arParams['isDnDEnabled'] ??= true;
 
-		if ($this->iaAIAvailable())
+		if (
+			$arParams['isAiImageEnabled']
+			&& $this->iaAIAvailable()
+		)
 		{
 			$arParams["PARSER"][] = 'AIImage';
 		}

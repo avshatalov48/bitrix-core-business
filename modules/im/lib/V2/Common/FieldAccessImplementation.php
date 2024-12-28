@@ -13,7 +13,7 @@ trait FieldAccessImplementation
 		return isset(static::mirrorDataEntityFields()[$offset]);
 	}
 
-	public function offsetGet($offset)
+	public function offsetGet($offset): mixed
 	{
 		if ($field = static::mirrorDataEntityFields()[$offset])
 		{

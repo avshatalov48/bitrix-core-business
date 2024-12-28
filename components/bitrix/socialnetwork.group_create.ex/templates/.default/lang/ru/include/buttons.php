@@ -6,3 +6,4 @@ $MESS["SONET_GCE_T_DO_INVITE"] = "Отправить приглашение";
 $MESS["SONET_GCE_T_T_CANCEL"] = "Отмена";
 $MESS["SONET_GCE_T_T_BACK"] = "Назад";
 $MESS["SONET_GCE_T_DO_NEXT"] = "Продолжить";
+$MESS["SONET_GCE_T_DO_CREATE_COLLAB"] = "Создать коллабу";

@@ -1,4 +1,5 @@
 import { Core } from 'im.v2.application.core';
+import { UserType } from 'im.v2.const';
 
 import { MyNotes } from './my-notes';
 import { CarouselUser } from './carousel-user';
@@ -41,7 +42,8 @@ export const RecentUsersCarousel = {
 					return;
 				}
 				const user: ImModelUser = this.$store.getters['users/get'](recentItem.dialogId, true);
-				if (user.bot || user.id === Core.getUserId())
+				const isBot = user.type === UserType.bot;
+				if (isBot || user.id === Core.getUserId())
 				{
 					return;
 				}

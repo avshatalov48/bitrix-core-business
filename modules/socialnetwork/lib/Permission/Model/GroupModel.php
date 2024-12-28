@@ -5,20 +5,28 @@ declare(strict_types=1);
 namespace Bitrix\Socialnetwork\Permission\Model;
 
 use Bitrix\Main\Access\AccessibleItem;
+use Bitrix\Main\Type\Contract\Arrayable;
+use Bitrix\Socialnetwork\Permission\AccessModelInterface;
 use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 use Bitrix\Socialnetwork\Item\Workgroup;
+use Bitrix\Socialnetwork\Site\Site;
 use ReflectionClass;
 
-class GroupModel implements AccessibleItem
+class GroupModel implements AccessModelInterface
 {
 	protected ?Workgroup $group = null;
 
 	protected int $id = 0;
-	protected int $ownerId = 0;
-	protected string $siteId = '';
+	protected ?int $ownerId = null;
+	protected ?array $siteIds = null;
 
-	public static function createFromArray(array $data): AccessibleItem
+	public static function createFromArray(array|Arrayable $data): static
 	{
+		if ($data instanceof Arrayable)
+		{
+			$data = $data->toArray();
+		}
+
 		$model = new static();
 
 		$reflection = new ReflectionClass($model);
@@ -34,7 +42,7 @@ class GroupModel implements AccessibleItem
 		return $model;
 	}
 
-	public static function createFromId(int $itemId): AccessibleItem
+	public static function createFromId(int $itemId): static
 	{
 		$model = new static();
 		$model->id = $itemId;
@@ -54,20 +62,42 @@ class GroupModel implements AccessibleItem
 		return $this->ownerId;
 	}
 
-	public function getSiteId(): string
+	public function getSiteIds(): array
 	{
-		$this->siteId ??= (string)$this->getDomainObject()?->getSiteId();
+		if ($this->siteIds !== null)
+		{
+			return $this->siteIds;
+		}
 
-		return $this->siteId;
+		if ($this->id <= 0)
+		{
+			$this->siteIds = $this->getDefaultSiteIds();
+		}
+		else
+		{
+			$this->siteIds = $this->getDomainObject()?->getSiteIds();
+		}
+
+		return $this->siteIds;
 	}
 
 	public function getDomainObject(): ?Workgroup
 	{
 		if ($this->group === null)
 		{
-			$this->group = GroupRegistry::getInstance()->get($this->id);
+			$this->group = $this->getRegistry()->get($this->id);
 		}
 
 		return $this->group;
+	}
+
+	protected function getRegistry(): GroupRegistry
+	{
+		return GroupRegistry::getInstance();
+	}
+
+	protected function getDefaultSiteIds(): array
+	{
+		return [Site::getInstance()->getMainSiteId()];
 	}
 }

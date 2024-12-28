@@ -133,7 +133,7 @@ export const ChatSidebar = {
 			}
 			const { panel = '', standalone = false, dialogId, entityId = '' } = event.getData();
 
-			const needToCloseSecondLevelPanel = panel && this.secondLevelPanelType === panel;
+			const needToCloseSecondLevelPanel = !standalone && panel && this.secondLevelPanelType === panel;
 			if (needToCloseSecondLevelPanel)
 			{
 				this.closeSecondLevelPanel();

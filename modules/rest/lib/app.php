@@ -1026,7 +1026,7 @@ class AppTable extends Main\Entity\DataManager
 			}
 		}
 
-		return static::$applicationCache[$clientId];
+		return static::$applicationCache[$clientId] ?? null;
 	}
 
 	protected static function clearClientCache($clientId)

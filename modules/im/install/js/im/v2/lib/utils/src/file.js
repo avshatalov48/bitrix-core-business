@@ -133,13 +133,14 @@ export const FileUtil = {
 			case '3gp':
 			case 'flv':
 			case 'm4v':
-			case 'ogg':
+			case 'ogv':
 			case 'wmv':
 			case 'mov':
 				type = FileType.video;
 				break;
 
 			case 'mp3':
+			case 'ogg':
 				type = FileType.audio;
 				break;
 			default:

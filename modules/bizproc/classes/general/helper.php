@@ -83,7 +83,7 @@ class CBPHelper
 							'EMAIL',
 							'NAME',
 							'LAST_NAME',
-							'SECOND_NAME'
+							'SECOND_NAME',
 						],
 					]
 				);
@@ -297,7 +297,7 @@ class CBPHelper
 				$arFilter,
 				[
 					'FIELDS' => ['ID'],
-					'NAV_PARAMS' => false
+					'NAV_PARAMS' => false,
 				]
 			);
 		}
@@ -853,7 +853,7 @@ class CBPHelper
 			"FROM" => $strSqlFrom,
 			"WHERE" => $strSqlWhere,
 			"GROUPBY" => $strSqlGroupBy,
-			"ORDERBY" => $strSqlOrderBy
+			"ORDERBY" => $strSqlOrderBy,
 		);
 	}
 
@@ -1039,8 +1039,8 @@ class CBPHelper
 					'EMAIL',
 					'NAME',
 					'LAST_NAME',
-					'SECOND_NAME'
-				]
+					'SECOND_NAME',
+				],
 			]
 		);
 
@@ -1686,7 +1686,7 @@ class CBPHelper
 			'VIDEO' => 'N',
 			'TABLE' => 'N',
 			'CUT_ANCHOR' => 'N',
-			'ALIGN' => 'N'
+			'ALIGN' => 'N',
 		];
 
 		return $textParser->convertText($text);
@@ -1879,7 +1879,7 @@ class CBPHelper
 			$iterator = CUser::GetList("id", "asc",
 				array(COption::GetOptionString("extranet", "extranet_public_uf_code", "UF_PUBLIC") => "1",
 					"!UF_DEPARTMENT" => false,
-					"GROUPS_ID" => array(CExtranet::GetExtranetUserGroupID())
+					"GROUPS_ID" => array(CExtranet::GetExtranetUserGroupID()),
 				),
 				array('FIELDS' => array('ID'))
 			);
@@ -1901,7 +1901,7 @@ class CBPHelper
 				array(
 					"=GROUP_ID" => $groupId,
 					"<=ROLE" => $role,
-					"USER_ACTIVE" => "Y"
+					"USER_ACTIVE" => "Y",
 				),
 				false,
 				false,
@@ -2107,7 +2107,7 @@ class CBPHelper
 			||
 			$value === false
 			||
-			is_array($value) && count(array_filter($value, $filter)) === 0
+			(is_array($value) && count(array_filter($value, $filter)) === 0)
 		);
 	}
 
@@ -2272,7 +2272,7 @@ class CBPHelper
 				'XML_ID' => 'bizproc_workflow',
 				'SITES' => array($defaultSiteId => '/'),
 				'ACTIVE' => 'Y',
-				'DEDUPLICATION' => 'N'
+				'DEDUPLICATION' => 'N',
 			));
 			COption::SetOptionString("bizproc", "forum_id", $forumId);
 		}
@@ -2314,7 +2314,7 @@ class CBPHelper
 	{
 		$selectorProps = \Bitrix\Main\Web\Json::encode(array(
 			'controlId' => $controlId,
-			'baseType' => $baseType
+			'baseType' => $baseType,
 		));
 
 		$mode = isset($options['mode']) ? $options['mode'] : '';
@@ -2335,7 +2335,17 @@ class CBPHelper
 
 	public static function decodeTemplatePostData(&$data)
 	{
-		$jsonParams = ['arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowGlobalVariables', 'arWorkflowVariables', 'arWorkflowGlobalConstants', 'arWorkflowConstants', 'USER_PARAMS'];
+		$jsonParams = [
+			'arWorkflowTemplate',
+			'arWorkflowParameters',
+			'arWorkflowGlobalVariables',
+			'arWorkflowVariables',
+			'arWorkflowGlobalConstants',
+			'arWorkflowConstants',
+			'USER_PARAMS',
+			'documentCategories',
+			'workflowTemplateSettings'
+		];
 
 		foreach ($jsonParams as $k)
 		{
@@ -2425,5 +2435,24 @@ class CBPHelper
 			&& (string)$documentA[1] === (string)$documentB[1]
 			&& (string)$documentA[2] === (string)$documentB[2]
 		);
+	}
+
+	/**
+	 * @throws CBPArgumentNullException
+	 */
+	public static function isWorkflowFinished(string $workflowId): bool
+	{
+		if (!$workflowId)
+		{
+			throw new CBPArgumentNullException('workflowId');
+		}
+
+		$runtime = CBPRuntime::getRuntime();
+		if ($runtime->hasWorkflow($workflowId))
+		{
+			return $runtime->getWorkflow($workflowId)->isFinished();
+		}
+
+		return !Bizproc\WorkflowInstanceTable::exists($workflowId);
 	}
 }

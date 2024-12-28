@@ -22,6 +22,11 @@ $pageId = "user_files";
 include("util_menu.php");
 include("util_profile.php");
 
+if (!($arResult['VARIABLES']['STORAGE'] ?? null))
+{
+	$storage = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId($arResult['VARIABLES']['user_id']);
+	$arResult['VARIABLES']['STORAGE'] = $storage;
+}
 
 if (($_REQUEST['IFRAME'] ?? null) === 'Y')
 {
@@ -89,7 +94,7 @@ else
 
 							'FOLDER' => $folder,
 							'RELATIVE_PATH' => $arResult['VARIABLES']['RELATIVE_PATH'],
-							'RELATIVE_ITEMS' => $arResult['VARIABLES']['RELATIVE_ITEMS'],
+							'RELATIVE_ITEMS' => $arResult['VARIABLES']['RELATIVE_ITEMS'] ?? null,
 						)),
 						$component
 					);?>

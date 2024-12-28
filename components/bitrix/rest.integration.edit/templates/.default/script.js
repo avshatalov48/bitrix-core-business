@@ -1124,6 +1124,7 @@
 							className: "popup-window-button-cancel",
 							events: {
 								click: function() {
+									BX.removeClass(BX('ui-button-panel-close'), 'ui-btn-wait');
 									this.popupWindow.close();
 								}
 							}

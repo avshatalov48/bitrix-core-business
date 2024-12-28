@@ -37,7 +37,7 @@ export const ChannelListContainer = {
 		},
 		onCreateClick(): void
 		{
-			Analytics.getInstance().onStartCreateNewChat(ChatType.channel);
+			Analytics.getInstance().chatCreate.onStartClick(ChatType.channel);
 			const promoBannerIsNeeded = PromoManager.getInstance().needToShow(PromoId.createChannel);
 			if (promoBannerIsNeeded)
 			{

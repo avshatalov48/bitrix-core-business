@@ -3,15 +3,15 @@ import { EventEmitter } from 'main.core.events';
 import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
 
 import { Core } from 'im.v2.application.core';
-import { ChatActionType, EventType, SidebarDetailBlock, ChatType } from 'im.v2.const';
+import { ActionByRole, EventType, SidebarDetailBlock, ChatType, UserType, ActionByUserType } from 'im.v2.const';
 import { CallManager } from 'im.v2.lib.call';
 import { ChatService, RecentService } from 'im.v2.provider.service';
 import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { showLeaveFromChatConfirm } from 'im.v2.lib.confirm';
+import { showLeaveChatConfirm } from 'im.v2.lib.confirm';
 import { ChannelManager } from 'im.v2.lib.channel';
 import { Messenger } from 'im.public';
-import { Analytics } from 'im.v2.lib.analytics';
+import { Analytics as CallAnalytics } from 'call.lib.analytics';
 
 import { BaseMenu } from '../base/base';
 import { InviteManager } from './invite-manager';
@@ -134,7 +134,7 @@ export class RecentMenu extends BaseMenu
 
 	getMuteItem(): ?MenuItem
 	{
-		const canMute = this.permissionManager.canPerformAction(ChatActionType.mute, this.context.dialogId);
+		const canMute = this.permissionManager.canPerformActionByRole(ActionByRole.mute, this.context.dialogId);
 		if (!canMute)
 		{
 			return null;
@@ -162,7 +162,7 @@ export class RecentMenu extends BaseMenu
 	getCallItem(): ?MenuItem
 	{
 		const chatCanBeCalled = this.callManager.chatCanBeCalled(this.context.dialogId);
-		const chatIsAllowedToCall = this.permissionManager.canPerformAction(ChatActionType.call, this.context.dialogId);
+		const chatIsAllowedToCall = this.permissionManager.canPerformActionByRole(ActionByRole.call, this.context.dialogId);
 		if (!chatCanBeCalled || !chatIsAllowedToCall)
 		{
 			return null;
@@ -171,13 +171,8 @@ export class RecentMenu extends BaseMenu
 		return {
 			text: Loc.getMessage('IM_LIB_MENU_CALL_2'),
 			onclick: () => {
-				Analytics.getInstance().onStartCallClick({
-					type: this.context.dialogId.includes('chat')
-						? Analytics.AnalyticsType.groupCall
-						: Analytics.AnalyticsType.privateCall,
-					section: Analytics.AnalyticsSection.chatList,
-					subSection: Analytics.AnalyticsSubSection.contextMenu,
-					element: Analytics.AnalyticsElement.videocall,
+				CallAnalytics.getInstance().onRecentStartCallClick({
+					isGroupChat: this.context.dialogId.includes('chat'),
 					chatId: this.context.chatId,
 				});
 
@@ -224,28 +219,12 @@ export class RecentMenu extends BaseMenu
 
 	getLeaveItem(): ?MenuItem
 	{
-		const canLeaveChat = this.permissionManager.canPerformAction(ChatActionType.leave, this.context.dialogId);
-		if (!canLeaveChat)
+		if (this.isCollabChat())
 		{
-			return null;
+			return this.#leaveCollab();
 		}
 
-		const text = this.isChannel()
-			? Loc.getMessage('IM_LIB_MENU_LEAVE_CHANNEL')
-			: Loc.getMessage('IM_LIB_MENU_LEAVE_MSGVER_1')
-		;
-
-		return {
-			text,
-			onclick: async () => {
-				this.menuInstance.close();
-				const userChoice = await showLeaveFromChatConfirm();
-				if (userChoice === true)
-				{
-					this.chatService.leaveChat(this.context.dialogId);
-				}
-			},
-		};
+		return this.#leaveChat();
 	}
 
 	getChatsWithUserItem(): ?MenuItem
@@ -275,7 +254,7 @@ export class RecentMenu extends BaseMenu
 		};
 	}
 
-	// invitation
+	// region invitation
 	getInviteItems(): Array
 	{
 		const items = [
@@ -339,11 +318,16 @@ export class RecentMenu extends BaseMenu
 			},
 		};
 	}
-	// invitation end
+	// endregion
 
 	getDelimiter(): Object
 	{
 		return { delimiter: true };
+	}
+
+	getChat(): ImModelChat
+	{
+		return this.store.getters['chats/get'](this.context.dialogId, true);
 	}
 
 	isUser(): boolean
@@ -360,7 +344,7 @@ export class RecentMenu extends BaseMenu
 
 		const user: ImModelUser = this.store.getters['users/get'](this.context.dialogId);
 
-		return user.bot === true;
+		return user.type === UserType.bot;
 	}
 
 	isChannel(): boolean
@@ -373,5 +357,62 @@ export class RecentMenu extends BaseMenu
 		const { type }: ImModelChat = this.store.getters['chats/get'](this.context.dialogId, true);
 
 		return type === ChatType.comment;
+	}
+
+	isCollabChat(): boolean
+	{
+		const { type }: ImModelChat = this.store.getters['chats/get'](this.context.dialogId, true);
+
+		return type === ChatType.collab;
+	}
+
+	#leaveChat(): ?MenuItem
+	{
+		const canLeaveChat = this.permissionManager.canPerformActionByRole(ActionByRole.leave, this.context.dialogId);
+		if (!canLeaveChat)
+		{
+			return null;
+		}
+
+		const text = this.isChannel()
+			? Loc.getMessage('IM_LIB_MENU_LEAVE_CHANNEL')
+			: Loc.getMessage('IM_LIB_MENU_LEAVE_MSGVER_1')
+		;
+
+		return {
+			text,
+			onclick: async () => {
+				this.menuInstance.close();
+				const userChoice = await showLeaveChatConfirm(this.context.dialogId);
+				if (userChoice === true)
+				{
+					this.chatService.leaveChat(this.context.dialogId);
+				}
+			},
+		};
+	}
+
+	#leaveCollab(): ?MenuItem
+	{
+		const canLeaveChat = this.permissionManager.canPerformActionByRole(ActionByRole.leave, this.context.dialogId);
+		const canLeaveCollab = this.permissionManager.canPerformActionByUserType(ActionByUserType.leaveCollab);
+		if (!canLeaveChat || !canLeaveCollab)
+		{
+			return null;
+		}
+
+		return {
+			text: Loc.getMessage('IM_LIB_MENU_LEAVE_MSGVER_1'),
+			onclick: async () => {
+				this.menuInstance.close();
+				const userChoice = await showLeaveChatConfirm(this.context.dialogId);
+				if (!userChoice)
+				{
+					return;
+				}
+
+				this.chatService.leaveCollab(this.context.dialogId);
+			},
+		};
 	}
 }

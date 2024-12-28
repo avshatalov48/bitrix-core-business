@@ -335,7 +335,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return {
 	        'bx-im-content-notification-item-header__title-text': true,
 	        'bx-im-content-notification-item-header__title-user-text': !this.isSystem,
-	        '--extranet': this.user.extranet,
+	        '--extranet': this.user.type === im_v2_const.UserType.extranet,
 	        '--short': !this.hasMoreUsers
 	      };
 	    },

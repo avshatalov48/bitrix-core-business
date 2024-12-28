@@ -9,10 +9,7 @@ return [
 	'js' => 'dist/openline-container.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
-		'im.v2.component.list.items.openline',
-		'im.v2.component.search2.search-input',
-		'im.v2.component.search2.search-result',
-		'im.v2.lib.logger',
+		'imopenlines.v2.component.list.container.recent',
 	],
 	'skip_core' => true,
 ];

@@ -81,6 +81,9 @@ class IcsManager
 				'dtstamp' => Util::getTimestamp($event->getDateCreate()),
 				'location' => $this->prepareLocationField($event),
 				'uid' => $event->getUid() ?? uniqid('', true),
+				'sequence' => $event->getVersion(),
+				'last-modified' => $event->getDateModified()->getTimestamp(),
+				'priority' => $event->getImportance(),
 			],
 		);
 		$icsBuilder->setFullDayMode($event->isFullDayEvent());
@@ -108,6 +111,11 @@ class IcsManager
 		if ($event->isRecurrence() && $event->getRecurringRule() !== null)
 		{
 			$icsBuilder->setRrule($event->getRecurringRule());
+		}
+
+		if ($event->isRecurrence() && $event->getExcludedDateCollection()->count() > 0)
+		{
+			$icsBuilder->setExclude($event->getExcludedDateCollection());
 		}
 
 		return $icsBuilder->render();

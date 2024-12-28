@@ -131,4 +131,8 @@
 	max-width: 190px;
 }
 
+.bx-contentview-popup span.bx-contentview-popup-name-new.bx-contentview-popup-name-collaber {
+	color: #19CC45;
+}
+
 .bx-contentview-wait { margin-top: 10px; }

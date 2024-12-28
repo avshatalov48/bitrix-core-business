@@ -1,8 +1,12 @@
 <?php
 $MESS['IM_LIB_CONFIRM_USER_KICK'] = "Вы уверены, что хотите исключить пользователя?";
 $MESS['IM_LIB_CONFIRM_USER_KICK_YES'] = "Да, исключить";
-$MESS['IM_LIB_CONFIRM_LEAVE_CHAT'] = "Вы уверены, что хотите покинуть чат?";
-$MESS['IM_LIB_CONFIRM_LEAVE_CHAT_YES'] = "Да, покинуть";
+$MESS['IM_LIB_CONFIRM_LEAVE_CHAT_MSGVER_1'] = "Выйти из чата?";
+$MESS['IM_LIB_CONFIRM_LEAVE_CHAT_YES_MSGVER_1'] = "Да, выйти";
+$MESS['IM_LIB_CONFIRM_LEAVE_COLLAB_TITLE'] = "Выйти из коллабы?";
+$MESS['IM_LIB_CONFIRM_LEAVE_COLLAB_TEXT'] = "У вас не будет доступа к чату, задачам, файлам и встречам коллабы";
+$MESS['IM_LIB_CONFIRM_LEAVE_CHANNEL_TEXT'] = "Отписаться от канала?";
+$MESS['IM_LIB_CONFIRM_LEAVE_CHANNEL_YES'] = "Да, отписаться";
 $MESS['IM_LIB_CONFIRM_RESTART_DESKTOP'] = "Изменения вступят в силу после перезагрузки приложения";
 $MESS['IM_LIB_CONFIRM_RESTART_DESKTOP_OK'] = "Хорошо";
 $MESS['IM_LIB_CONFIRM_RESTART_DESKTOP_RESTART'] = "Перезагрузить";
@@ -23,3 +27,7 @@ $MESS['IM_LIB_EXIT_DELETE_CHANNEL_TEXT_CONFIRM'] = "Да, удалить";
 $MESS['IM_LIB_EXIT_DELETE_CHANNEL_POST_TITLE'] = "Удалить публикацию?";
 $MESS['IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT'] = "Комментарии и реакции тоже удалятся";
 $MESS['IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT_CONFIRM'] = "Да, удалить";
+$MESS['IM_LIB_CONFIRM_USER_KICK_FROM_COLLAB_TITLE'] = "Исключить участника из коллабы?";
+$MESS['IM_LIB_CONFIRM_USER_KICK_FROM_COLLAB_TEXT'] = "Участнику будет закрыт доступ к чату, задачам, файлам и встречам коллабы";
+$MESS['IM_LIB_CONFIRM_DELETE_COLLAB_TITLE'] = "Удалить коллабу?";
+$MESS['IM_LIB_CONFIRM_DELETE_COLLAB_TEXT'] = "Коллаба удалится со всей историей общения. Восстановить коллабу будет нельзя";

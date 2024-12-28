@@ -4,6 +4,7 @@ import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Planner} from "calendar.planner";
 import {Dialog as EntitySelectorDialog} from 'ui.entity-selector';
 import { AttendeesList, IntranetButton } from 'calendar.controls';
+import { AvatarRoundGuest } from 'ui.avatar';
 
 export class UserPlannerSelector extends EventEmitter
 {
@@ -225,8 +226,14 @@ export class UserPlannerSelector extends EventEmitter
 			Dom.clean(this.DOM.videocallWrap);
 			Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
 
+			const items = Util.getCalendarContext().isCollabUser
+				? ['chat', 'videocall', 'task']
+				: ['chat', 'videocall', 'blog_post', 'task']
+			;
+
 			this.intranetControllButton = new IntranetButton({
 				intranetControlButtonParams: {
+					items,
 					container: this.DOM.videocallWrap,
 					entityType: 'calendar_event',
 					entityId: this.entry.parentId,
@@ -588,7 +595,20 @@ export class UserPlannerSelector extends EventEmitter
 		let
 			imageNode,
 			img = user.AVATAR || user.SMALL_AVATAR;
-		if (!img || img === "/bitrix/images/1.gif")
+		if (user.COLLAB_USER)
+		{
+			imageNode = new AvatarRoundGuest(
+				{
+					size: 22,
+					userName: user.DISPLAY_NAME,
+					userpicPath: user.AVATAR && user.AVATAR !== '/bitrix/images/1.gif'
+						? user.AVATAR
+						: null,
+					baseColor: '#19cc45',
+				},
+			).getContainer();
+		}
+		else if (!img || img === "/bitrix/images/1.gif")
 		{
 			let defaultAvatarClass = 'ui-icon-common-user';
 			if (user.EMAIL_USER)

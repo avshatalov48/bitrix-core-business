@@ -83,6 +83,8 @@ abstract class EventBuilder implements Builder
 			->setOriginalDateFrom($this->getOriginalDate())
 			->setRelations($this->getRelations())
 			->setEventOption($this->getEventOption())
+			->setDtLength($this->getDtLength())
+			->setCollabId($this->getCollabId())
 		;
 	}
 
@@ -430,6 +432,10 @@ abstract class EventBuilder implements Builder
 	abstract protected function getRelations(): ?Relations;
 
 	abstract protected function getEventOption(): ?EventOption;
+
+	abstract protected function getDtLength(): ?int;
+
+	abstract protected function getCollabId(): ?int;
 
 	/**
 	 * @param $meeting

@@ -4,7 +4,7 @@ import { BuilderModel, type ActionTree, type GetterTree, type MutationTree } fro
 import { Core } from 'im.v2.application.core';
 import { Utils } from 'im.v2.lib.utils';
 import { UserStatusManager } from 'im.v2.lib.user-status';
-import { Color } from 'im.v2.const';
+import { Color, UserType } from 'im.v2.const';
 import { formatFieldsWithConfig } from 'im.v2.model';
 
 import { BotsModel } from './nested-modules/bots';
@@ -15,6 +15,12 @@ import type { User as ImModelUser } from '../type/user';
 type UsersState = {
 	collection: {[userId: string]: ImModelUser},
 	absentList: string[],
+};
+
+const UserPositionByType = {
+	[UserType.bot]: Loc.getMessage('IM_MODEL_USERS_CHAT_BOT'),
+	[UserType.collaber]: Loc.getMessage('IM_MODEL_USERS_COLLABER'),
+	default: Loc.getMessage('IM_MODEL_USERS_DEFAULT_NAME'),
 };
 
 export class UsersModel extends BuilderModel
@@ -54,9 +60,8 @@ export class UsersModel extends BuilderModel
 			workPosition: '',
 			gender: 'M',
 			isAdmin: false,
-			extranet: false,
+			type: UserType.user,
 			network: false,
-			bot: false,
 			connector: false,
 			externalAuthId: 'default',
 			status: '',
@@ -175,12 +180,7 @@ export class UsersModel extends BuilderModel
 					return user.workPosition;
 				}
 
-				if (user.bot === true)
-				{
-					return Loc.getMessage('IM_MODEL_USERS_CHAT_BOT');
-				}
-
-				return Loc.getMessage('IM_MODEL_USERS_DEFAULT_NAME');
+				return UserPositionByType[user.type] ?? UserPositionByType.default;
 			},
 		};
 	}
@@ -294,7 +294,7 @@ export class UsersModel extends BuilderModel
 	formatFields(fields: JsonObject): JsonObject
 	{
 		const preparedFields: ImModelUser = formatFieldsWithConfig(fields, userFieldsConfig);
-		const isBot = preparedFields.bot === true;
+		const isBot = preparedFields.type === UserType.bot;
 		if (isBot)
 		{
 			Core.getStore().dispatch('users/bots/set', {

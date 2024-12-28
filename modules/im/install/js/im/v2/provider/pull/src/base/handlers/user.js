@@ -4,6 +4,7 @@ import { Core } from 'im.v2.application.core';
 import { UserManager } from 'im.v2.lib.user';
 
 import type { UserInviteParams } from '../../types/user';
+import type { UserShowInRecentParams } from '../../types/recent';
 
 export class UserPullHandler
 {
@@ -28,5 +29,13 @@ export class UserPullHandler
 			id: params.userId,
 			fields: params.user,
 		});
+	}
+
+	handleUserShowInRecent(params: UserShowInRecentParams)
+	{
+		const usersToStore = params.items.map((item) => item.user);
+
+		const userManager = new UserManager();
+		userManager.setUsersToModel(usersToStore);
 	}
 }

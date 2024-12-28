@@ -1,17 +1,17 @@
-import {Type} from 'main.core';
-import {BuilderModel} from 'ui.vue3.vuex';
+import { Type, type JsonObject } from 'main.core';
+import { BuilderModel } from 'ui.vue3.vuex';
+import { Logger } from 'im.v2.lib.logger';
+import { Core } from 'im.v2.application.core';
+import { FileStatus } from 'im.v2.const';
+import { Utils } from 'im.v2.lib.utils';
 
-import {Core} from 'im.v2.application.core';
-import {FileStatus} from 'im.v2.const';
-import {Utils} from 'im.v2.lib.utils';
-
-import type {ImModelFile} from 'im.v2.model';
-import {Logger} from 'im.v2.lib.logger';
+import type { ImModelFile } from 'im.v2.model';
 
 type FilesState = {
 	collection: {
 		[fileId: string]: ImModelFile
-	}
+	},
+	temporaryFilesMap: Map<number, string>,
 };
 
 export class FilesModel extends BuilderModel
@@ -21,14 +21,15 @@ export class FilesModel extends BuilderModel
 		return 'files';
 	}
 
-	getState(): Object
+	getState(): FilesState
 	{
 		return {
 			collection: {},
+			temporaryFilesMap: new Map(),
 		};
 	}
 
-	getElementState()
+	getElementState(): ImModelFile
 	{
 		return {
 			id: 0,
@@ -47,16 +48,15 @@ export class FilesModel extends BuilderModel
 			urlPreview: '',
 			urlShow: '',
 			urlDownload: '',
-			viewerAttrs: null
+			viewerAttrs: null,
 		};
 	}
 
-	getGetters()
+	getGetters(): JsonObject
 	{
 		return {
 			/** @function files/get */
-			get: (state: FilesState) => (fileId: number, getTemporary = false): ?ImModelFile =>
-			{
+			get: (state: FilesState, getters) => (fileId: number, getTemporary = false): ?ImModelFile => {
 				if (!fileId)
 				{
 					return null;
@@ -67,46 +67,74 @@ export class FilesModel extends BuilderModel
 					return null;
 				}
 
-				return state.collection[fileId];
+				const file: ?ImModelFile = state.collection[fileId];
+				const hasMappedTemporaryFile: boolean = getters.hasMappedTemporaryFile({ serverFileId: fileId });
+				if (file && hasMappedTemporaryFile)
+				{
+					const temporaryFile: ImModelFile = getters.getMappedTemporaryFile({ serverFileId: fileId });
+
+					return {
+						...file,
+						urlPreview: temporaryFile.urlPreview,
+						urlShow: temporaryFile.urlShow,
+					};
+				}
+
+				return file;
 			},
 			/** @function files/isInCollection */
-			isInCollection: (state: FilesState) => (payload: {fileId: number | string}): boolean =>
-			{
-				const {fileId} = payload;
+			isInCollection: (state: FilesState) => (payload: {fileId: number | string}): boolean => {
+				const { fileId } = payload;
 
-				return !!state.collection[fileId];
-			}
+				return Boolean(state.collection[fileId]);
+			},
+			/** @function files/hasMappedTemporaryFile */
+			hasMappedTemporaryFile: (state: FilesState) => (payload: {serverFileId: number | string}): boolean => {
+				if (state.temporaryFilesMap.has(payload.serverFileId))
+				{
+					const temporaryFileId: string = state.temporaryFilesMap.get(payload.serverFileId);
+
+					return Object.hasOwn(state.collection, temporaryFileId);
+				}
+
+				return false;
+			},
+			/** @function files/getMappedTemporaryFile */
+			getMappedTemporaryFile: (state: FilesState) => (payload: {serverFileId: number}): ?ImModelFile => {
+				const { serverFileId } = payload;
+
+				if (state.temporaryFilesMap.has(serverFileId))
+				{
+					const temporaryFileId: string = state.temporaryFilesMap.get(serverFileId);
+
+					return state.collection[temporaryFileId];
+				}
+
+				return null;
+			},
 		};
 	}
 
-	getActions()
+	getActions(): JsonObject
 	{
 		return {
 			/** @function files/add */
-			add: (store, payload: Object) =>
-			{
-				const preparedFile = {...this.getElementState(), ...this.validate(payload)};
+			add: (store, payload: Object) => {
+				const preparedFile = { ...this.getElementState(), ...this.validate(payload) };
 
-				store.commit('add', {files: [preparedFile]});
+				store.commit('add', { files: [preparedFile] });
 			},
 			/** @function files/set */
-			set: (store, payload: Object[]) =>
-			{
-				if (!Array.isArray(payload) && Type.isPlainObject(payload))
-				{
-					payload = [payload];
-				}
-
-				payload = payload.map(file => {
-					return {...this.getElementState(), ...this.validate(file)};
+			set: (store, ...payload: Array<JsonObject>) => {
+				const files: Array<ImModelFile> = payload.flat().map((file) => {
+					return { ...this.getElementState(), ...this.validate(file) };
 				});
 
-				store.commit('add', {files: payload});
+				store.commit('add', { files });
 			},
 			/** @function files/update */
-			update: (store, payload) =>
-			{
-				const {id, fields} = payload;
+			update: (store, payload) => {
+				const { id, fields } = payload;
 				const existingItem = store.state.collection[id];
 				if (!existingItem)
 				{
@@ -114,16 +142,15 @@ export class FilesModel extends BuilderModel
 				}
 
 				store.commit('update', {
-					id: id,
-					fields: this.validate(fields)
+					id,
+					fields: this.validate(fields),
 				});
 
 				return true;
 			},
 			/** @function files/updateWithId */
-			updateWithId: (store, payload: {id: string | number, fields: Object}) =>
-			{
-				const {id, fields} = payload;
+			updateWithId: (store, payload: {id: string | number, fields: Object}) => {
+				const { id, fields } = payload;
 				if (!store.state.collection[id])
 				{
 					return;
@@ -131,56 +158,60 @@ export class FilesModel extends BuilderModel
 
 				store.commit('updateWithId', {
 					id,
-					fields: this.validate(fields)
+					fields: this.validate(fields),
 				});
 			},
 			/** @function files/delete */
-			delete: (store, payload: {id: string | number}) =>
-			{
-				const {id} = payload;
+			delete: (store, payload: {id: string | number}) => {
+				const { id } = payload;
 				if (!store.state.collection[id])
 				{
 					return;
 				}
 
-				store.commit('delete', {id});
+				store.commit('delete', { id });
+			},
+			/** @function files/setTemporaryFileMapping */
+			setTemporaryFileMapping: (store, payload: {serverFileId: number, temporaryFileId: string}) => {
+				store.commit('setTemporaryFileMapping', payload);
 			},
 		};
 	}
 
-	getMutations()
+	/* eslint-disable no-param-reassign */
+	getMutations(): JsonObject
 	{
 		return {
-			add: (state: FilesState, payload: {files: ImModelFile[]}) =>
-			{
-				payload.files.forEach(file => {
+			add: (state: FilesState, payload: {files: ImModelFile[]}) => {
+				payload.files.forEach((file) => {
 					state.collection[file.id] = file;
 				});
 			},
-			update: (state: FilesState, payload) =>
-			{
+			update: (state: FilesState, payload) => {
 				Object.entries(payload.fields).forEach(([key, value]) => {
 					state.collection[payload.id][key] = value;
 				});
 			},
-			updateWithId: (state: FilesState, payload: {id: number | string, fields: Object}) =>
-			{
-				const {id, fields} = payload;
-				const currentFile = {...state.collection[id]};
+			updateWithId: (state: FilesState, payload: {id: number | string, fields: Object}) => {
+				const { id, fields } = payload;
+				const currentFile = { ...state.collection[id] };
 
 				delete state.collection[id];
-				state.collection[fields.id] = {...currentFile, ...fields};
+				state.collection[fields.id] = { ...currentFile, ...fields };
 			},
-			delete: (state: FilesState, payload: {id: number | string}) =>
-			{
+			delete: (state: FilesState, payload: {id: number | string}) => {
 				Logger.warn('Files model: delete mutation', payload);
-				const {id} = payload;
+				const { id } = payload;
 				delete state.collection[id];
+			},
+			setTemporaryFileMapping: (state: FilesState, payload: {serverFileId: number, temporaryFileId: string}) => {
+				state.temporaryFilesMap.set(payload.serverFileId, payload.temporaryFileId);
 			},
 		};
 	}
 
-	validate(file: Object): ImModelFile
+	// eslint-disable-next-line max-lines-per-function,sonarjs/cognitive-complexity
+	validate(file: Object, options = {}): ImModelFile
 	{
 		const result = {};
 
@@ -247,6 +278,7 @@ export class FilesModel extends BuilderModel
 			{
 				result.image.width = Number.parseInt(file.image.width, 10);
 			}
+
 			if (Type.isString(file.image.height) || Type.isNumber(file.image.height))
 			{
 				result.image.height = Number.parseInt(file.image.height, 10);
@@ -339,7 +371,7 @@ export class FilesModel extends BuilderModel
 		return result;
 	}
 
-	validateViewerAttributes(viewerAttrs)
+	validateViewerAttributes(viewerAttrs): ImModelFile['ViewerAttrs']
 	{
 		const result = {
 			viewer: true,
@@ -373,6 +405,11 @@ export class FilesModel extends BuilderModel
 		if (Type.isString(viewerAttrs.viewerType))
 		{
 			result.viewerType = viewerAttrs.viewerType;
+		}
+
+		if (Type.isString(viewerAttrs.viewerPreview))
+		{
+			result.viewerPreview = viewerAttrs.viewerPreview;
 		}
 
 		if (Type.isString(viewerAttrs.viewerTypeClass))

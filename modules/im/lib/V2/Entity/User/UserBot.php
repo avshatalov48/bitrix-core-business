@@ -103,4 +103,9 @@ class UserBot extends User
 
 		return BotData::getInstance($this->getId());
 	}
+
+	public function getType(): UserType
+	{
+		return UserType::BOT;
+	}
 }

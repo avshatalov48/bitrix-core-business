@@ -22,6 +22,7 @@ this.BX = this.BX || {};
 	    this.showPersonalSettings = options.showPersonalSettings;
 	    this.showGeneralSettings = options.showGeneralSettings;
 	    this.showAccessControl = options.showAccessControl !== false && main_core.Type.isObjectLike(this.calendarContext.util.config.TYPE_ACCESS);
+	    this.isExtranet = options.isExtranet;
 	    this.settings = options.settings;
 	    this.BX = calendar_util.Util.getBX();
 	    this.hideMessageBinded = this.hideMessage.bind(this);
@@ -112,14 +113,16 @@ this.BX = this.BX || {};
 	    if (this.showPersonalSettings) {
 	      this.DOM.denyBusyInvitation = this.DOM.content.querySelector('[data-role="deny_busy_invitation"]');
 	      this.DOM.showWeekNumbers = this.DOM.content.querySelector('[data-role="show_week_numbers"]');
-	      this.DOM.meetSectionSelect = this.DOM.content.querySelector('[data-role="meet_section"]');
-	      this.DOM.crmSelect = this.DOM.content.querySelector('[data-role="crm_section"]');
 	      this.DOM.showDeclined = this.DOM.content.querySelector('[data-role="show_declined"]');
 	      this.DOM.showTasks = this.DOM.content.querySelector('[data-role="show_tasks"]');
-	      this.DOM.syncTasks = this.DOM.content.querySelector('[data-role="sync_tasks"]');
 	      this.DOM.showCompletedTasks = this.DOM.content.querySelector('[data-role="show_completed_tasks"]');
 	      this.DOM.timezoneSelect = this.DOM.content.querySelector('[data-role="set_tz_sel"]');
-	      this.DOM.sendFromEmailSelect = this.DOM.content.querySelector('[data-role="send_from_email"]');
+	      if (!this.isExtranet) {
+	        this.DOM.meetSectionSelect = this.DOM.content.querySelector('[data-role="meet_section"]');
+	        this.DOM.crmSelect = this.DOM.content.querySelector('[data-role="crm_section"]');
+	        this.DOM.syncTasks = this.DOM.content.querySelector('[data-role="sync_tasks"]');
+	        this.DOM.sendFromEmailSelect = this.DOM.content.querySelector('[data-role="send_from_email"]');
+	      }
 
 	      // this.DOM.enableLunchTime = this.DOM.content.querySelector('[data-role="enable_lunch_time"]');
 	      // this.DOM.lunchTimeSettingContainer = this.DOM.content.querySelector('#ec_lunch_time');
@@ -305,11 +308,11 @@ this.BX = this.BX || {};
 	  }
 	  setControlsValue() {
 	    // Set personal user settings
-	    if (this.showPersonalSettings) {
+	    if (this.showPersonalSettings && !this.isExtranet) {
 	      this.DOM.meetSectionSelect.options.length = 0;
 	      const sections = this.calendarContext.sectionManager.getSectionListForEdit();
-	      let crmSection = parseInt(this.calendarContext.util.getUserOption('crmSection'));
-	      let meetSection = parseInt(this.calendarContext.util.getUserOption('meetSection'));
+	      let crmSection = parseInt(this.calendarContext.util.getUserOption('crmSection'), 10);
+	      let meetSection = parseInt(this.calendarContext.util.getUserOption('meetSection'), 10);
 	      let section;
 	      let selected;
 	      for (let i = 0; i < sections.length; i++) {
@@ -318,12 +321,12 @@ this.BX = this.BX || {};
 	          if (!meetSection) {
 	            meetSection = section.id;
 	          }
-	          selected = meetSection === parseInt(section.id);
+	          selected = meetSection === parseInt(section.id, 10);
 	          this.DOM.meetSectionSelect.options.add(new Option(section.name, section.id, selected, selected));
 	          if (!crmSection) {
 	            crmSection = section.id;
 	          }
-	          selected = crmSection === parseInt(section.id);
+	          selected = crmSection === parseInt(section.id, 10);
 	          this.DOM.crmSelect.options.add(new Option(section.name, section.id, selected, selected));
 	        }
 	      }

@@ -1,33 +1,14 @@
-import { Loc } from 'main.core';
-import { EventEmitter } from 'main.core.events';
+import { UserMenu } from 'im.v2.lib.menu';
 
-import { Messenger } from 'im.public';
-import { BaseMenu } from 'im.v2.lib.menu';
-import { PermissionManager } from 'im.v2.lib.permission';
-import { EventType, ChatActionType, ChatType } from 'im.v2.const';
-import { Utils } from 'im.v2.lib.utils';
-import { showKickUserConfirm } from 'im.v2.lib.confirm';
-import { ChatService } from 'im.v2.provider.service';
-
-import type { ImModelUser, ImModelChat } from 'im.v2.model';
 import type { MenuItem } from 'im.v2.lib.menu';
 
-type AvatarMenuContext = {
-	user: ImModelUser,
-	dialog: ImModelChat
-};
-
-export class AvatarMenu extends BaseMenu
+export class AvatarMenu extends UserMenu
 {
-	context: AvatarMenuContext;
-	permissionManager: PermissionManager;
-
 	constructor()
 	{
 		super();
 
 		this.id = 'bx-im-avatar-context-menu';
-		this.permissionManager = PermissionManager.getInstance();
 	}
 
 	getMenuOptions(): Object
@@ -48,92 +29,5 @@ export class AvatarMenu extends BaseMenu
 			this.getProfileItem(),
 			this.getKickItem(),
 		];
-	}
-
-	getMentionItem(): MenuItem
-	{
-		return {
-			text: Loc.getMessage('IM_DIALOG_AVATAR_MENU_MENTION_2'),
-			onclick: () => {
-				EventEmitter.emit(EventType.textarea.insertMention, {
-					mentionText: this.context.user.name,
-					mentionReplacement: Utils.text.getMentionBbCode(this.context.user.id, this.context.user.name),
-					dialogId: this.context.dialog.dialogId,
-					isMentionSymbol: false,
-				});
-				this.menuInstance.close();
-			},
-		};
-	}
-
-	getSendItem(): ?MenuItem
-	{
-		if (this.context.dialog.type === ChatType.user)
-		{
-			return null;
-		}
-
-		return {
-			text: Loc.getMessage('IM_DIALOG_AVATAR_MENU_SEND_MESSAGE'),
-			onclick: () => {
-				Messenger.openChat(this.context.user.id);
-				this.menuInstance.close();
-			},
-		};
-	}
-
-	getProfileItem(): ?MenuItem
-	{
-		if (this.isBot())
-		{
-			return null;
-		}
-
-		return {
-			text: Loc.getMessage('IM_DIALOG_AVATAR_MENU_OPEN_PROFILE'),
-			href: Utils.user.getProfileLink(this.context.user.id),
-			onclick: () => {
-				this.menuInstance.close();
-			},
-		};
-	}
-
-	getKickItem(): ?MenuItem
-	{
-		const canKick = this.permissionManager.canPerformAction(ChatActionType.kick, this.context.dialog.dialogId);
-		if (!canKick)
-		{
-			return null;
-		}
-
-		return {
-			text: Loc.getMessage('IM_DIALOG_AVATAR_MENU_KICK'),
-			onclick: async () => {
-				this.menuInstance.close();
-				const userChoice = await showKickUserConfirm();
-				if (userChoice === true)
-				{
-					const chatService = new ChatService();
-					chatService.kickUserFromChat(this.context.dialog.dialogId, this.context.user.id);
-				}
-			},
-		};
-	}
-
-	isUser(): boolean
-	{
-		return this.store.getters['chats/isUser'](this.context.user.id);
-	}
-
-	isBot(): boolean
-	{
-		if (!this.isUser())
-		{
-			return false;
-		}
-
-		const user: ImModelUser = this.store.getters['users/get'](this.context.user.id);
-
-		return user.bot === true;
 	}
 }

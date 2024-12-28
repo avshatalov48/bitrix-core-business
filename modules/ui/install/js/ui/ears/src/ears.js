@@ -1,6 +1,6 @@
-import { Tag, Dom, Cache, Type } from 'main.core';
+import { Cache, Dom, Tag, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
-import { TouchController } from	'./touch-controller';
+import { TouchController } from './touch-controller';
 import './style.css';
 
 export class Ears extends EventEmitter
@@ -21,6 +21,7 @@ export class Ears extends EventEmitter
 		{
 			this.noScrollbar = true;
 		}
+		this.immediateInit = Type.isBoolean(options.immediateInit) ? options.immediateInit : false;
 
 		this.itemSize = null;
 
@@ -34,35 +35,46 @@ export class Ears extends EventEmitter
 		this.delay = 12;
 		this.scrollTimeout = null;
 		this.cache = new Cache.MemoryCache();
+		this.touchController = null;
 	}
 
 	bindEvents()
 	{
-		this.container.addEventListener('scroll', this.toggleEars.bind(this));
+		this.toggleEars = this.toggleEars.bind(this);
+		this.onWheel = this.onWheel.bind(this);
+		this.scrollToNext = this.scrollToNext.bind(this);
+		this.scrollToPrev = this.scrollToPrev.bind(this);
+		this.scrollBottom = this.scrollBottom.bind(this);
+		this.stopScroll = this.stopScroll.bind(this);
+		this.scrollTop = this.scrollTop.bind(this);
+		this.scrollLeft = this.scrollLeft.bind(this);
+		this.scrollRight = this.scrollRight.bind(this);
+
+		this.container.addEventListener('scroll', this.toggleEars);
 
 		if (this.mousewheel)
 		{
-			this.container.addEventListener('wheel', this.onWheel.bind(this));
+			this.container.addEventListener('wheel', this.onWheel);
 		}
 
 		if (this.vertical)
 		{
 			if (this.itemsInShow)
 			{
-				this.getBottomEar().addEventListener('click', this.scrollToNext.bind(this));
-				this.getTopEar().addEventListener('click', this.scrollToPrev.bind(this));
+				this.getBottomEar().addEventListener('click', this.scrollToNext);
+				this.getTopEar().addEventListener('click', this.scrollToPrev);
 			}
 			else
 			{
-				this.getBottomEar().addEventListener('mouseenter', this.scrollBottom.bind(this));
-				this.getBottomEar().addEventListener('mouseleave', this.stopScroll.bind(this));
-				this.getBottomEar().addEventListener('mousedown', this.stopScroll.bind(this));
-				this.getBottomEar().addEventListener('mouseup', this.scrollBottom.bind(this));
+				this.getBottomEar().addEventListener('mouseenter', this.scrollBottom);
+				this.getBottomEar().addEventListener('mouseleave', this.stopScroll);
+				this.getBottomEar().addEventListener('mousedown', this.stopScroll);
+				this.getBottomEar().addEventListener('mouseup', this.scrollBottom);
 
-				this.getTopEar().addEventListener('mouseenter', this.scrollTop.bind(this));
-				this.getTopEar().addEventListener('mouseleave', this.stopScroll.bind(this));
-				this.getTopEar().addEventListener('mousedown', this.stopScroll.bind(this));
-				this.getTopEar().addEventListener('mouseup', this.scrollTop.bind(this));
+				this.getTopEar().addEventListener('mouseenter', this.scrollTop);
+				this.getTopEar().addEventListener('mouseleave', this.stopScroll);
+				this.getTopEar().addEventListener('mousedown', this.stopScroll);
+				this.getTopEar().addEventListener('mouseup', this.scrollTop);
 			}
 
 		}
@@ -71,22 +83,55 @@ export class Ears extends EventEmitter
 		{
 			if (this.itemsInShow)
 			{
-				this.getRightEar().addEventListener('click', this.scrollToNext.bind(this));
-				this.getLeftEar().addEventListener('click', this.scrollToPrev.bind(this));
+				this.getRightEar().addEventListener('click', this.scrollToNext);
+				this.getLeftEar().addEventListener('click', this.scrollToPrev);
 			}
 			else
 			{
-				this.getLeftEar().addEventListener('mouseenter', this.scrollLeft.bind(this));
-				this.getLeftEar().addEventListener('mouseleave', this.stopScroll.bind(this));
-				this.getLeftEar().addEventListener('mousedown', this.stopScroll.bind(this));
-				this.getLeftEar().addEventListener('mouseup', this.scrollLeft.bind(this));
+				this.getLeftEar().addEventListener('mouseenter', this.scrollLeft);
+				this.getLeftEar().addEventListener('mouseleave', this.stopScroll);
+				this.getLeftEar().addEventListener('mousedown', this.stopScroll);
+				this.getLeftEar().addEventListener('mouseup', this.scrollLeft);
 
-				this.getRightEar().addEventListener('mouseenter', this.scrollRight.bind(this));
-				this.getRightEar().addEventListener('mouseleave', this.stopScroll.bind(this));
-				this.getRightEar().addEventListener('mousedown', this.stopScroll.bind(this));
-				this.getRightEar().addEventListener('mouseup', this.scrollRight.bind(this));
+				this.getRightEar().addEventListener('mouseenter', this.scrollRight);
+				this.getRightEar().addEventListener('mouseleave', this.stopScroll);
+				this.getRightEar().addEventListener('mousedown', this.stopScroll);
+				this.getRightEar().addEventListener('mouseup', this.scrollRight);
 			}
 		}
+	}
+
+	#unbindEvents(): void
+	{
+		this.container.removeEventListener('scroll', this.toggleEars);
+
+		this.container.removeEventListener('wheel', this.onWheel);
+
+		this.getBottomEar().removeEventListener('click', this.scrollToNext);
+		this.getTopEar().removeEventListener('click', this.scrollToPrev);
+
+		this.getBottomEar().removeEventListener('mouseenter', this.scrollBottom);
+		this.getBottomEar().removeEventListener('mouseleave', this.stopScroll);
+		this.getBottomEar().removeEventListener('mousedown', this.stopScroll);
+		this.getBottomEar().removeEventListener('mouseup', this.scrollBottom);
+
+		this.getTopEar().removeEventListener('mouseenter', this.scrollTop);
+		this.getTopEar().removeEventListener('mouseleave', this.stopScroll);
+		this.getTopEar().removeEventListener('mousedown', this.stopScroll);
+		this.getTopEar().removeEventListener('mouseup', this.scrollTop);
+
+		this.getRightEar().removeEventListener('click', this.scrollToNext);
+		this.getLeftEar().removeEventListener('click', this.scrollToPrev);
+
+		this.getLeftEar().removeEventListener('mouseenter', this.scrollLeft);
+		this.getLeftEar().removeEventListener('mouseleave', this.stopScroll);
+		this.getLeftEar().removeEventListener('mousedown', this.stopScroll);
+		this.getLeftEar().removeEventListener('mouseup', this.scrollLeft);
+
+		this.getRightEar().removeEventListener('mouseenter', this.scrollRight);
+		this.getRightEar().removeEventListener('mouseleave', this.stopScroll);
+		this.getRightEar().removeEventListener('mousedown', this.stopScroll);
+		this.getRightEar().removeEventListener('mouseup', this.scrollRight);
 	}
 
 	init(): this
@@ -105,7 +150,7 @@ export class Ears extends EventEmitter
 			this.initTouchScroll();
 		}
 
-		setTimeout(() => {
+		const init = () => {
 			if (this.container.scrollWidth > this.container.offsetWidth)
 			{
 				this.toggleRightEar();
@@ -116,8 +161,40 @@ export class Ears extends EventEmitter
 			}
 
 			this.toggleEars();
-		}, 600);
+		};
+
+		if (this.immediateInit)
+		{
+			init();
+		}
+		else
+		{
+			setTimeout(init, 600);
+		}
+
 		return this;
+	}
+
+	destroy(): void
+	{
+		clearTimeout(this.scrollTimeout);
+		clearInterval(this.scrollInterval);
+
+		this.unsubscribeAll();
+
+		this.#unbindEvents();
+		this.touchController?.destroy();
+		this.touchController = null;
+
+		this.container.classList.remove('ui-ear-container');
+		this.container.classList.remove('--vertical');
+		this.container.classList.remove('--horizontal');
+		this.container.classList.remove('ui-ear-container-no-scrollbar');
+
+		Dom.replace(this.getWrapper(), this.container);
+		this.cache = null;
+		this.container = null;
+		this.parentContainer = null;
 	}
 
 	scrollToPrev()
@@ -284,7 +361,7 @@ export class Ears extends EventEmitter
 		});
 	}
 
-	toggleEars() 
+	toggleEars()
 	{
 		if (this.vertical)
 		{
@@ -384,7 +461,6 @@ export class Ears extends EventEmitter
 			this.delay);
 
 		this.bottom = true;
-		
 	}
 
 	scrollLeft()
@@ -493,8 +569,8 @@ export class Ears extends EventEmitter
 
 	initTouchScroll()
 	{
-		new TouchController({
-			target: this.container
+		this.touchController = new TouchController({
+			target: this.container,
 		});
 	}
 }

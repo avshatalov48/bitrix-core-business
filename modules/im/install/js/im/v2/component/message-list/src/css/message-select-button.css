@@ -1,0 +1,58 @@
+.bx-im-message-list-select-button__container {
+	--im-message-list-select-button__extra-height: 8px;
+
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	grid-column: 1;
+	height: 100%;
+	z-index: 90;
+}
+
+.bx-im-message-list-select-button__container::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100vw;
+	right: -100vw;
+	height: calc(100% + var(--im-message-list-select-button__extra-height));
+}
+
+.bx-im-message-list-select-button__checkbox-circle {
+	position: relative;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+}
+
+.bx-im-message-list-select-button__checkbox-circle::before {
+	content: '';
+	position: absolute;
+	border-radius: 50%;
+	border: 1px solid var(--im-message-list-author-group__border-color);
+	background-color: var(--im-messagee-list-author-group__background-color);
+	width: 100%;
+	height: 100%;
+}
+
+.bx-im-message-list-select-button__checkbox-circle:hover::before {
+	background-color: var(--im-messagee-list-author-group__background-color_hover);
+}
+
+.bx-im-message-list-select-button__checkbox-circle.--selected::before {
+	background-color: var(--im-messagee-list-author-group__background-color_active);
+	background-image: url("./images/tick-selected-icon.svg");
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
+.bx-im-select-button-transition-enter-active {
+	transition: opacity 0.2s ease-in-out;
+}
+
+.bx-im-select-button-transition-enter-from,
+.bx-im-select-button-transition-leave-to {
+	opacity: 0;
+}

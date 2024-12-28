@@ -1,11 +1,19 @@
 <?php
 $MESS["SONET_GCE_T_AJAX_ERROR"] = "Fehler bei Verarbeitung der Formulardaten. Versuchen Sie bitte erneut.";
 $MESS["SONET_GCE_T_DEMO_INFO_BTN"] = "Starten";
+$MESS["SONET_GCE_T_DEMO_INFO_BTN_1"] = "OK";
 $MESS["SONET_GCE_T_DEMO_INFO_TEXT_PROJECT"] = "Verteilen Sie Aufgaben innerhalb von Projekten und verfolgen Sie den Projektfortschritt.";
+$MESS["SONET_GCE_T_DEMO_INFO_TEXT_PROJECT_1"] = " ";
 $MESS["SONET_GCE_T_DEMO_INFO_TEXT_SCRUM"] = "Fügen Sie Aufgaben zum Backlog hinzu, setzen Sie Prioritätslevel, planen Sie Sprints und kommunizieren Sie mit dem Team.";
+$MESS["SONET_GCE_T_DEMO_INFO_TEXT_SCRUM_1"] = " ";
 $MESS["SONET_GCE_T_DEMO_INFO_TEXT_TRIAL"] = "Diese voll funktionsfähige Testversion ist für <span>15 Tage</span> verfügbar.";
+$MESS["SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1"] = "Bitte laden Sie jetzt Ihre Teammitglieder ein. Wir gewähren Ihnen kostenlos den Zugriff auf Premium-Funktionen des Projektmanagements für 15 Tage, damit Sie alle Möglichkeiten von Bitrix24 entdecken können.";
 $MESS["SONET_GCE_T_DEMO_INFO_TITLE_PROJECT"] = "<span>Projekte</span> aktiviert";
+$MESS["SONET_GCE_T_DEMO_INFO_TITLE_PROJECT_1"] = "<span>Danke dafür, dass Sie Bitrix24 testen!</span>";
 $MESS["SONET_GCE_T_DEMO_INFO_TITLE_SCRUM"] = "<span>Scrum</span> aktiviert";
+$MESS["SONET_GCE_T_DEMO_INFO_TITLE_SCRUM_1"] = "<span>Danke dafür, dass Sie Bitrix24 testen!</span>";
+$MESS["SONET_GCE_T_GROUP_NAME_EXISTS"] = "Arbeitsgruppe mit diesem Namen existiert bereits.";
+$MESS["SONET_GCE_T_GROUP_NAME_EXISTS_PROJECT"] = "Projekt mit diesem Namen existiert bereits.";
 $MESS["SONET_GCE_T_STRING_FIELD_ERROR"] = "Feld ist erforderlich.";
 $MESS["SONET_GCE_T_SUCCESS_CREATE"] = "Die Gruppe wurde erstellt.";
 $MESS["SONET_GCE_T_SUCCESS_EDIT"] = "Gruppenparameter wurden erfolgreich geändert.";

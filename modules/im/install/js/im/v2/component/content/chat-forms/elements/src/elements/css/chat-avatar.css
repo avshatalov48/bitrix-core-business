@@ -1,0 +1,7 @@
+.bx-im-chat-forms-chat-avatar__container {
+	cursor: pointer;
+}
+
+.bx-im-chat-forms-chat-avatar__input {
+	display: none;
+}

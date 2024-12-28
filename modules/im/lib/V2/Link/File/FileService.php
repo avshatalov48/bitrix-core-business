@@ -89,14 +89,14 @@ class FileService
 	{
 		$result = new Result();
 
-		$link = FileItem::getByDiskFileId($diskFileId);
+		$links = FileCollection::getByDiskFileId($diskFileId);
 
-		if ($link === null)
+		if ($links->count() === 0)
 		{
 			return $result;
 		}
 
-		$deleteResult = $link->delete();
+		$deleteResult = $links->delete();
 
 		if (!$deleteResult->isSuccess())
 		{
@@ -108,10 +108,13 @@ class FileService
 			return $result;
 		}
 
-		Push::getInstance()
-			->setContext($this->context)
-			->sendIdOnly($link, self::DELETE_FILE_EVENT, ['CHAT_ID' => $link->getChatId()])
-		;
+		foreach ($links as $link)
+		{
+			Push::getInstance()
+				->setContext($this->context)
+				->sendIdOnly($link, self::DELETE_FILE_EVENT, ['CHAT_ID' => $link->getChatId()])
+			;
+		}
 
 		return $result;
 	}

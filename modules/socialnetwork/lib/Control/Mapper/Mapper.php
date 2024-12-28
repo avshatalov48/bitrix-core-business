@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Bitrix\Socialnetwork\Control\Mapper;
 
+use BackedEnum;
 use Bitrix\Socialnetwork\Control\Command\AbstractCommand;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\MapInterface;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\MapMany;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\MapOne;
+use Bitrix\Socialnetwork\Control\Mapper\Attribute\Map;
+use Bitrix\Socialnetwork\ValueObjectInterface;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -28,17 +28,40 @@ class Mapper
 
 			$value = $property->getValue($command);
 
-			$fieldMapper = $this->getFieldMapper($property);
+			if ($value instanceof ValueObjectInterface)
+			{
+				$value = $value->getValue();
+			}
+			elseif ($value instanceof BackedEnum)
+			{
+				$value = $value->value;
+			}
 
-			$fieldMapper?->map($data, $value);
+			$mappers = $this->getFieldMappers($property);
+
+			foreach ($mappers as $mapper)
+			{
+				[$fieldName, $fieldValue] = $mapper->getNameAndValue($value);
+
+				if ($fieldValue === null)
+				{
+					continue;
+				}
+
+				if (!isset($data[$fieldName]))
+				{
+					$data[$fieldName] = $fieldValue;
+				}
+			}
 		}
 
 		return $data;
 	}
 
-	protected function getFieldMapper(ReflectionProperty $property): ?MapInterface
+	/** @return Map[] */
+	protected function getFieldMappers(ReflectionProperty $property): array
 	{
-		$mapOne = null;
+		$result = [];
 
 		$attributes = $property->getAttributes();
 
@@ -46,17 +69,12 @@ class Mapper
 		{
 			$attribute = $attributeReflection->newInstance();
 
-			if ($attribute instanceof MapMany)
+			if ($attribute instanceof Map)
 			{
-				return $attribute;
-			}
-
-			if ($attribute instanceof MapOne)
-			{
-				$mapOne = $attribute;
+				$result[] = $attribute;
 			}
 		}
 
-		return $mapOne;
+		return $result;
 	}
 }

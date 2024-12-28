@@ -79,6 +79,8 @@ abstract class Provider
 
 	protected static $logTable = LogTable::class;
 
+	private static array $logIdCache = [];
+
 	/**
 	 * @return string the fully qualified name of this class.
 	 */
@@ -335,6 +337,13 @@ abstract class Provider
 	{
 		$result = false;
 
+		$cacheKey = $this->generateLogIdCacheKey($params);
+
+		if (isset(self::$logIdCache[$cacheKey]))
+		{
+			return self::$logIdCache[$cacheKey];
+		}
+
 		if ($this->logId > 0)
 		{
 			$result = $this->logId;
@@ -348,7 +357,7 @@ abstract class Provider
 				|| $this->entityId <= 0
 			)
 			{
-				return $result;
+				return false;
 			}
 
 			if ($this->getType() === Provider::TYPE_POST)
@@ -458,6 +467,8 @@ abstract class Provider
 				}
 			}
 		}
+
+		self::$logIdCache[$cacheKey] = $result;
 
 		return $result;
 	}
@@ -1548,5 +1559,10 @@ abstract class Provider
 		return $contentTypeId === LogComment::CONTENT_TYPE_ID
 			|| $contentTypeId === BlogComment::CONTENT_TYPE_ID
 			|| $contentTypeId === ForumPost::CONTENT_TYPE_ID;
+	}
+
+	private function generateLogIdCacheKey(array $params): string
+	{
+		return md5(serialize($params));
 	}
 }

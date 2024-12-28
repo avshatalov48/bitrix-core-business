@@ -1,8 +1,6 @@
 <?php
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-use Bitrix\Main\UI\Extension;
-
 /** @var $this \CBitrixComponentTemplate */
 /** @var CMain $APPLICATION */
 /** @var array $arResult*/
@@ -30,7 +28,7 @@ $urlToRedirect = array_key_exists('~PAGE_MODE_OFF_BACK_URL', $arParams) && $arPa
 <?php if ($urlToRedirect !== null): ?>
 		BX.addCustomEvent(
 			BX.SidePanel.Instance.getTopSlider(),
-			"SidePanel.Slider:onClose",
+			"SidePanel.Slider:onCloseComplete",
 			function ()
 			{
 				if (loader)

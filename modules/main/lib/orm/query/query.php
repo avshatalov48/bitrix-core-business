@@ -2015,8 +2015,9 @@ class Query
 					$prev_alias = $tmpChain->getLastElement()->getParameter('talias');
 					$element->setParameter('talias', $prev_alias);
 
-					// skip any standard actions, continue with next element
-					continue;
+					// save mapping for next elements and skip later
+					$ref_field = $element->getValue();
+					$dst_entity = $element->getValue()->getRefEntity();
 				}
 				else
 				{
@@ -2043,6 +2044,16 @@ class Query
 				$map_key .= '/' . $ref_field->getName() . '/' . $dst_entity->getName();
 
 				$currentDefinition[] = $element->getDefinitionFragment();
+
+				//  skip any further actions for ManyToMany as long as it has its own buildJoinMap call
+				if ($element->getValue() instanceof ManyToMany)
+				{
+					// also replace definition from mediator.ref to mtm
+					$lastKey = array_key_last($this->join_map);
+					$this->join_map[$lastKey]['definition'] = join('.', $currentDefinition);
+
+					continue;
+				}
 
 				if (isset($this->join_registry[$map_key]))
 				{

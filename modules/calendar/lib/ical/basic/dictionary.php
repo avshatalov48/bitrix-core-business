@@ -63,4 +63,10 @@ class Dictionary
 		'exdate' => 'EXDATE',
 		'rdate' => 'RDATE'
 	];
+
+	const PRIORITY_MAP = [
+		'low' => 9,
+		'high' => 1,
+		'default' => 5,
+	];
 }

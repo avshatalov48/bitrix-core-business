@@ -17,6 +17,7 @@ return [
 		'ui.buttons',
 		'calendar.planner',
 		'ui.entity-selector',
+		'ui.avatar',
 		'main.core.events',
 		'ui.info-helper',
 		'main.popup',

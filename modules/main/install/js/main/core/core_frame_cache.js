@@ -13,11 +13,7 @@
 	{
 	};
 
-	if (BX.browser.IsIE8())
-	{
-		BX.frameCache.localStorage = new BX.localStorageIE8();
-	}
-	else if (typeof(localStorage) !== "undefined")
+	if (typeof(localStorage) !== "undefined")
 	{
 		BX.frameCache.localStorage = new BX.localStorage();
 	}

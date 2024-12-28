@@ -20,6 +20,7 @@ export { InlineSelector } from './selectors/inline-selector';
 export { InlineSelectorCondition } from './selectors/inline-selector-condition';
 export { InlineSelectorHtml } from './selectors/inline-selector-html';
 export { SaveStateCheckbox } from './selectors/save-state-checkbox';
+export { MenuSelector } from './selectors/menu-selector';
 export { UserSelector } from './selectors/user-selector';
 export { FileSelector } from './selectors/file-selector';
 export { TimeSelector } from './selectors/time-selector';

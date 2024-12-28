@@ -69,7 +69,7 @@ export const CheckInMessage = {
 		onClick()
 		{
 			this.showQrPopup();
-			Analytics.getInstance().onOpenCheckInPopup();
+			Analytics.getInstance().checkIn.onOpenCheckInPopup();
 		},
 		showQrPopup()
 		{

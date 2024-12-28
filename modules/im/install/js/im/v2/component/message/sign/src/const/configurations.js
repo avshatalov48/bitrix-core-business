@@ -28,7 +28,7 @@ export const metaData = {
 	},
 	[Await.inviteEmployeeSes]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_TITLE'),
-		description: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_DESCRIPTION_MSGVER_1'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_DESCRIPTION_MSGVER_2'),
 		button: {
 			text: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_BUTTON_TEXT'),
 			callback: ({ user, document }) => {
@@ -39,7 +39,7 @@ export const metaData = {
 	},
 	[Await.inviteEmployeeSesWithInitiator]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_TITLE'),
-		description: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_DESCRIPTION_INITIATOR'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_DESCRIPTION_INITIATOR_MSGVER_1'),
 		button: {
 			text: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_BUTTON_TEXT'),
 			callback: ({ user, document }) => {
@@ -119,6 +119,55 @@ export const metaData = {
 			color: ButtonColor.Primary,
 		},
 	},
+	[Await.byEmployeeInviteCompany]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_COMPANY_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_COMPANY_DESCRIPTION'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_COMPANY_BUTTON_TEXT'),
+			callback: ({ initiator, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.Primary,
+		},
+	},
+	[Await.byEmployeeInviteReviewer]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_REVIEWER_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_REVIEWER_DESCRIPTION'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_REVIEWER_BUTTON_TEXT'),
+			callback: ({ initiator, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.Primary,
+		},
+	},
+	[Await.byEmployeeInviteEmployee]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_EMPLOYEE_DESCRIPTION'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ initiator, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.Primary,
+		},
+	},
+	[Await.byEmployeeSignedByEmployee]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_SIGNED_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_SIGNED_EMPLOYEE_DESCRIPTION'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_SIGNED_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ initiator, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.PrimaryBorder,
+		},
+	},
+	[Await.inviteB2bDocumentSigning]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_B2B_DOCUMENT_SIGNING_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_INVITE_B2B_DOCUMENT_SIGNING_DESCRIPTION'),
+		button: null,
+	},
 	[Success.doneCompany]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_DONE_COMPANY_TITLE_MSGVER_1'),
 		description: Loc.getMessage('IM_MESSAGE_SIGN_DONE_COMPANY_DESCRIPTION'),
@@ -132,7 +181,7 @@ export const metaData = {
 	},
 	[Success.doneEmployee]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_TITLE'),
-		description: Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_DESCRIPTION'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_DESCRIPTION_MSGVER_1'),
 		button: {
 			text: Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_BUTTON_TEXT'),
 			callback: ({ user, document }) => {
@@ -143,7 +192,7 @@ export const metaData = {
 	},
 	[Success.doneEmployeeGosKey]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_GOS_KEY_TITLE'),
-		description: Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_GOS_KEY_DESCRIPTION'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_GOS_KEY_DESCRIPTION_MSGVER_1'),
 		button: {
 			text: Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_GOS_KEY_BUTTON_TEXT'),
 			callback: ({ user, document }) => {
@@ -166,6 +215,48 @@ export const metaData = {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_DONE_FROM_REVIEWER_TITLE'),
 		description: Loc.getMessage('IM_MESSAGE_SIGN_DONE_FROM_REVIEWER_DESCRIPTION_MSGVER_1'),
 		button: null,
+	},
+	[Success.doneB2bDocumentSigning]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_DONE_B2B_DOCUMENT_SIGNING_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_DONE_B2B_DOCUMENT_SIGNING_DESCRIPTION'),
+		button: null,
+	},
+	[Success.byEmployeeDoneEmployee]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_DESCRIPTION'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ user, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.PrimaryBorder,
+		},
+	},
+	[Success.byEmployeeDoneEmployeeM]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_DESCRIPTIONM'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ user, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.PrimaryBorder,
+		},
+	},
+	[Success.byEmployeeDoneEmployeeF]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_DESCRIPTIONF'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ user, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.PrimaryBorder,
+		},
+	},
+	[Success.byEmployeeDoneCompany]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_COMPANY_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_COMPANY_DESCRIPTION'),
 	},
 	[Failure.refusedCompanyV2]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_REFUSED_COMPANY_TITLE'),
@@ -211,6 +302,39 @@ export const metaData = {
 	[Failure.stoppedToEmployeeF]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE'),
 		description: Loc.getMessage('IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONF'),
+	},
+	[Failure.byEmployeeStoppedToEmployee]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTION'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ user, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.LightBorder,
+		},
+	},
+	[Failure.byEmployeeStoppedToEmployeeM]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONM'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ user, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.LightBorder,
+		},
+	},
+	[Failure.byEmployeeStoppedToEmployeeF]: {
+		title: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONF'),
+		button: {
+			text: Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_BUTTON_TEXT'),
+			callback: ({ user, document }) => {
+				goToPrimaryLink(document, true);
+			},
+			color: ButtonColor.LightBorder,
+		},
 	},
 	[Failure.employeeStoppedToCompanyV2]: {
 		title: Loc.getMessage('IM_MESSAGE_SIGN_EMPLOYEE_STOPPED_TO_COMPANY_TITLE'),

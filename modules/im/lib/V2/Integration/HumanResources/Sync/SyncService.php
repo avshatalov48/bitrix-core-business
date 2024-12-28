@@ -9,6 +9,7 @@ use Bitrix\HumanResources\Item\NodeRelation;
 use Bitrix\HumanResources\Service\Container;
 use Bitrix\HumanResources\Service\NodeRelationService;
 use Bitrix\HumanResources\Type\RelationEntityType;
+use Bitrix\Im\V2\Common\PeriodAgentTrait;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\EntityType;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\SyncDirection;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\SyncProcessor\Base;
@@ -19,9 +20,10 @@ use Bitrix\Main\Loader;
 
 class SyncService
 {
+	use PeriodAgentTrait;
+
 	protected const AGENT_SHORT_PERIOD = 5;
 	protected const AGENT_LONG_PERIOD = 300;
-	protected static array $wasPeriodUpdated = [];
 
 	protected NodeMemberService $memberService;
 	protected NodeRelationService $relationService;
@@ -72,6 +74,31 @@ class SyncService
 
 		(new static(EntityType::USER))
 			->startSync(Item\SyncInfo::createFromNodeMember($member, Item\SyncDirection::DELETE))
+		;
+	}
+
+	public static function onMemberUpdated(Event $event): void
+	{
+		/** @var NodeMember $member */
+		$member = $event->getParameter('member');
+		/** @var NodeMember|null $previousMember */
+		$previousMember = $event->getParameter('previousMember');
+
+		if ($previousMember === null)
+		{
+			return;
+		}
+
+		if ($member->nodeId === $previousMember->nodeId)
+		{
+			return;
+		}
+
+		(new static(EntityType::USER))
+			->startSync(Item\SyncInfo::createFromNodeMember($member, Item\SyncDirection::ADD))
+		;
+		(new static(EntityType::USER))
+			->startSync(Item\SyncInfo::createFromNodeMember($previousMember, Item\SyncDirection::DELETE))
 		;
 	}
 
@@ -205,54 +232,18 @@ class SyncService
 		return $result;
 	}
 
-	protected function wasPeriodUpdated(): bool
+	protected static function isAgentPeriodShort(int $newPeriod): bool
 	{
-		return static::$wasPeriodUpdated[$this->entityType->value] ?? false;
+		return $newPeriod === self::AGENT_SHORT_PERIOD;
+	}
+
+	protected function getPeriodGetter(): callable
+	{
+		return fn () => $this->syncProcessor->hasItemsInQueue() ? self::AGENT_SHORT_PERIOD : self::AGENT_LONG_PERIOD;
 	}
 
 	protected function determinePeriod(bool $fromAgent): void
 	{
-		if ($this->wasPeriodUpdated())
-		{
-			return;
-		}
-
-		$period = $this->syncProcessor->hasItemsInQueue() ? self::AGENT_SHORT_PERIOD : self::AGENT_LONG_PERIOD;
-		$this->setPeriod($period, $fromAgent);
-		static::$wasPeriodUpdated[$this->entityType->value] = true;
-	}
-
-	protected function setPeriod(int $period, bool $fromAgent): void
-	{
-		if ($fromAgent)
-		{
-			global $pPERIOD;
-			$pPERIOD = $period;
-
-			return;
-		}
-
-		if ($period !== self::AGENT_SHORT_PERIOD)
-		{
-			return;
-		}
-
-		$agent = \CAgent::GetList(
-			[],
-			[
-				"MODULE_ID" => "im",
-				"NAME" => self::getAgentNameByEntityType($this->entityType),
-			]
-		)->Fetch();
-
-		if ($agent === false)
-		{
-			return;
-		}
-
-		\CAgent::Update(
-			(int)$agent['ID'],
-			['NEXT_EXEC' => \ConvertTimeStamp(time() + \CTimeZone::GetOffset() + $period, 'FULL')]
-		);
+		self::setPeriodByName($fromAgent, self::getAgentNameByEntityType($this->entityType), $this->getPeriodGetter());
 	}
 }

@@ -196,7 +196,7 @@ class CSocServOdnoklassniki extends CSocServAuth
 		$location = ($mode == "opener") ? 'if(window.opener) window.opener.location = \''.$url.'\'; window.close();' : ' window.location = \''.$url.'\';';
 
 		$JSScript = '
-		<script type="text/javascript">
+		<script>
 		'.$location.'
 		</script>
 		';
@@ -307,8 +307,6 @@ class COdnoklassnikiInterface
 			return false;
 
 		$result = CHTTP::sGetHeader(self::CONTACTS_URL."?method=users.getCurrentUser&application_key=".$this->appKey."&access_token=".$this->access_token."&sig=".$this->sign, array(), $this->httpTimeout);
-		if(!defined("BX_UTF"))
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 
 		return CUtil::JsObjectToPhp($result);
 	}
@@ -317,13 +315,10 @@ class COdnoklassnikiInterface
 	{
 		if(!$this->access_token || intval($this->userId) < 1)
 			self::SetOauthKeys($socServUserId);
-		if(!defined("BX_UTF"))
-			$message = CharsetConverter::ConvertCharset($message, LANG_CHARSET, "utf-8");
+
 		$this->sign = mb_strtolower(md5('application_key='.$this->appKey.'method=users.setStatusstatus='.$message.md5($this->access_token.$this->appSecret)));
 		$result = CHTTP::sGetHeader(self::CONTACTS_URL."?method=users.setStatus&application_key=".$this->appKey."&access_token=".$this->access_token."&sig=".$this->sign."&status=".urlencode($message), array(), $this->httpTimeout);
 
-		if(!defined("BX_UTF"))
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 		$arResult = CUtil::JsObjectToPhp($result);
 		if($getNewToken === true && isset($arResult["error_code"]) && $arResult["error_code"] == "102")
 			{

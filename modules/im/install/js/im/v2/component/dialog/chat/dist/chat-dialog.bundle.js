@@ -339,7 +339,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.messages.slice(-1);
 	    },
 	    canUnpin() {
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.pinMessage, this.dialogId);
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.pinMessage, this.dialogId);
 	    },
 	    showUnpin() {
 	      return !this.isCommentChat && this.canUnpin;
@@ -548,7 +548,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {
 	      forwardPopup: {
 	        show: false,
-	        messageId: 0
+	        messagesIds: []
 	      },
 	      contextMode: {
 	        active: false,
@@ -816,7 +816,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return false;
 	      }
 	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	      return permissionManager.canPerformAction(im_v2_const.ChatActionType.readMessage, this.dialogId);
+	      return permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.readMessage, this.dialogId);
 	    },
 	    /* endregion Reading */
 	    /* region Event handlers */
@@ -981,7 +981,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        event: $event
 	      } = event.getData();
 	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.send, this.dialogId)) {
+	      if (!permissionManager.canPerformActionByRole(im_v2_const.ActionByRole.send, this.dialogId)) {
 	        return;
 	      }
 	      this.showQuoteButton = true;
@@ -1007,13 +1007,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onShowForwardPopup(event) {
 	      const {
-	        messageId
+	        messagesIds
 	      } = event.getData();
-	      this.forwardPopup.messageId = messageId;
+	      this.forwardPopup.messagesIds = messagesIds;
 	      this.forwardPopup.show = true;
 	    },
 	    onCloseForwardPopup() {
-	      this.forwardPopup.messageId = 0;
+	      this.forwardPopup.messagesIds = [];
 	      this.forwardPopup.show = false;
 	    },
 	    onMessageIsVisible(event) {
@@ -1148,7 +1148,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<!-- Message list -->
 			<div @scroll="onScroll" class="bx-im-dialog-chat__scroll-container" ref="container">
 				<slot name="message-list">
-					<component :is="messageListComponent" :dialogId="dialogId" />
+					<component :is="messageListComponent" :dialogId="dialogId"/>
 				</slot>
 			</div>
 			<!-- Float buttons -->
@@ -1158,8 +1158,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			</Transition>
 			<!-- Absolute elements -->
 			<ForwardPopup
-				:showPopup="forwardPopup.show"
-				:messageId="forwardPopup.messageId"
+				v-if="forwardPopup.show"
+				:messagesIds="forwardPopup.messagesIds"
 				@close="onCloseForwardPopup"
 			/>
 			<Transition name="fade-up">

@@ -1499,6 +1499,8 @@ class CAllGroup
 		$permission_letter = '';
 		if (intval($permission) > 0 || $permission === false)
 		{
+			$DB->StartTransaction();
+
 			$strSql = "SELECT T.ID FROM b_task T WHERE T.MODULE_ID='" . $DB->ForSql($module_id) . "'";
 			$dbr_tasks = $DB->Query($strSql);
 			$arIds = [];
@@ -1524,6 +1526,8 @@ class CAllGroup
 
 				$permission_letter = CTask::GetLetter($permission);
 			}
+
+			$DB->Commit();
 		}
 		else
 		{

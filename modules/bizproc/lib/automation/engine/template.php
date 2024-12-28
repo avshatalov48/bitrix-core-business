@@ -35,6 +35,7 @@ class Template
 	protected $robots;
 	protected $isExternalModified;
 	protected $isConverted = false;
+	private static array $cache = [];
 
 	/**
 	 * Template constructor.
@@ -46,7 +47,27 @@ class Template
 	 */
 	public function __construct(array $documentType, $documentStatus = null)
 	{
-		$this->template = array(
+		$this->template = $this->getDefaultTemplate($documentType, $documentStatus);
+
+		if ($documentStatus)
+		{
+			$cacheKey = $this->getCacheKey($documentType, $documentStatus);
+			if (!isset(self::$cache[$cacheKey]))
+			{
+				self::$cache[$cacheKey] = $this->loadTemplate($documentType, $documentStatus);
+			}
+
+			if (self::$cache[$cacheKey])
+			{
+				$this->template = self::$cache[$cacheKey];
+				$this->autoExecuteType = (int)$this->template['AUTO_EXECUTE'];
+			}
+		}
+	}
+
+	private function getDefaultTemplate(array $documentType, $documentStatus): array
+	{
+		return [
 			'ID' => 0,
 			'MODULE_ID' => $documentType[0],
 			'ENTITY' => $documentType[1],
@@ -57,25 +78,24 @@ class Template
 			'PARAMETERS' => [],
 			'CONSTANTS' => [],
 			'VARIABLES' => [],
-		);
+		];
+	}
 
-		if ($documentStatus)
-		{
-			$row = WorkflowTemplateTable::getList([
-				'filter' => [
-					'=MODULE_ID' => $documentType[0],
-					'=ENTITY' => $documentType[1],
-					'=DOCUMENT_TYPE' => $documentType[2],
-					'=DOCUMENT_STATUS' => $documentStatus,
-					//'=AUTO_EXECUTE' => $this->autoExecuteType
-				],
-			])->fetch();
-			if ($row)
-			{
-				$this->template = $row;
-				$this->autoExecuteType = (int) $this->template['AUTO_EXECUTE'];
-			}
-		}
+	private function loadTemplate(array $documentType, $documentStatus)
+	{
+		return WorkflowTemplateTable::getRow([
+			'filter' => [
+				'=MODULE_ID' => $documentType[0],
+				'=ENTITY' => $documentType[1],
+				'=DOCUMENT_TYPE' => $documentType[2],
+				'=DOCUMENT_STATUS' => $documentStatus,
+			],
+		]);
+	}
+
+	private function getCacheKey(array $documentType, $documentStatus)
+	{
+		return \CBPHelper::stringify([...$documentType, $documentStatus]);
 	}
 
 	public static function createByTpl(Tpl $tpl)
@@ -106,6 +126,18 @@ class Template
 	public function setDocumentStatus($status)
 	{
 		$this->template['DOCUMENT_STATUS'] = (string) $status;
+		return $this;
+	}
+
+	public function getTemplate(): ?array
+	{
+		return $this->template['TEMPLATE'] ?? null;
+	}
+
+	public function setTemplate(array $template): static
+	{
+		$this->template['TEMPLATE'] = $template;
+
 		return $this;
 	}
 
@@ -402,6 +434,8 @@ class Template
 
 		$this->setRobots($robots);
 		$updateFields = [
+			'AUTO_EXECUTE' => $this->template['AUTO_EXECUTE'],
+			'TYPE' => $this->isExternalModified(),
 			'TEMPLATE' => $this->template['TEMPLATE'],
 			'PARAMETERS' => $this->template['PARAMETERS'],
 			'VARIABLES' => [],
@@ -413,6 +447,19 @@ class Template
 		if (isset($this->template['NAME']))
 		{
 			$updateFields['NAME'] = $this->template['NAME'];
+		}
+
+		if (
+			isset($this->template['MODULE_ID'])
+			&& isset($this->template['ENTITY'])
+			&& isset($this->template['DOCUMENT_TYPE'])
+		)
+		{
+			$updateFields['DOCUMENT_TYPE'] = [
+				$this->template['MODULE_ID'],
+				$this->template['ENTITY'],
+				$this->template['DOCUMENT_TYPE']
+			];
 		}
 
 		try

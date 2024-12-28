@@ -3,7 +3,7 @@ import { EventEmitter } from 'main.core.events';
 import { Loader } from 'im.v2.component.elements';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { EventType, SidebarDetailBlock, ChatActionType } from 'im.v2.const';
+import { EventType, SidebarDetailBlock, ActionByRole } from 'im.v2.const';
 import { concatAndSortSearchResult } from '../../../classes/panels/helpers/concat-and-sort-search-result';
 import { Runtime, Extension } from 'main.core';
 import { TariffLimit } from '../../elements/tariff-limit/tariff-limit';
@@ -81,7 +81,7 @@ export const TaskPanel = {
 		},
 		showAddButton(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.createTask, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.createTask, this.dialogId);
 		},
 		dialog(): ImModelChat
 		{
@@ -249,6 +249,7 @@ export const TaskPanel = {
 	template: `
 		<div class="bx-im-sidebar-task-detail__scope">
 			<DetailHeader
+				:dialogId="dialogId"
 				:title="loc('IM_SIDEBAR_TASK_DETAIL_TITLE')"
 				:secondLevel="secondLevel"
 				:withAddButton="showAddButton"

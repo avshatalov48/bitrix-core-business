@@ -68,6 +68,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    isChannelPost() {
 	      return im_v2_lib_channel.ChannelManager.isChannel(this.dialogId);
 	    },
+	    isBulkActionsMode() {
+	      return this.$store.getters['messages/select/getBulkActionsMode'];
+	    },
+	    isMessageSelected() {
+	      return this.$store.getters['messages/select/isMessageSelected'](this.message.id);
+	    },
 	    showMessageAngle() {
 	      const hasAfterContent = Boolean(this.$slots['after-message']);
 	      return !this.withBackground || this.isChannelPost || hasAfterContent;
@@ -77,7 +83,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        '--self': this.isSelfMessage,
 	        '--opponent': this.isOpponentMessage,
 	        '--has-error': this.hasError,
-	        '--has-after-content': Boolean(this.$slots['after-message'])
+	        '--has-after-content': Boolean(this.$slots['after-message']),
+	        '--selected': this.isMessageSelected,
+	        '--is-bulk-actions-mode': this.isBulkActionsMode
 	      };
 	    },
 	    bodyClasses() {
@@ -93,7 +101,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.withContextMenu && !this.hasError && this.canOpenContextMenu;
 	    },
 	    canOpenContextMenu() {
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.openMessageMenu, this.dialogId);
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.openMessageMenu, this.dialogId);
 	    },
 	    hasError() {
 	      return this.message.error;
@@ -120,12 +128,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					</div>
 					<RetryButton v-if="showRetryButton" :message="message" :dialogId="dialogId"/>
 					<ContextMenu
-						v-else-if="showContextMenu"
+						v-else
+						:showContextMenu="showContextMenu"
 						:dialogId="dialogId"
 						:message="message" 
 						:menuIsActiveForId="menuIsActiveForId" 
 					/>
-					<div v-else class="bx-im-message-base__context-menu-placeholder"></div>
 				</div>
 				<!-- After content -->
 				<div

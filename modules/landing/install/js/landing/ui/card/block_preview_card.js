@@ -9,7 +9,6 @@
 	var append = BX.Landing.Utils.append;
 	var create = BX.Landing.Utils.create;
 
-
 	/**
 	 * Implements interface for works with block preview card
 	 *
@@ -58,16 +57,18 @@
 		// market label
 		if (this.repoId || this.appExpired)
 		{
-			var marketLabel = BX.create("div", {
-				props: {className: "landing-ui-card-label landing-ui-card-label-repo"},
-				text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_LIST_PREVIEW_MARKET"),
+			const marketLabel = BX.create('div', {
+				props: {
+					className: 'landing-ui-card-label landing-ui-card-label-repo'
+				},
+				text: BX.Landing.Loc.getMessage('LANDING_BLOCKS_LIST_PREVIEW_MARKET'),
 				dataset: {
-					hint: BX.Landing.Loc.getMessage("LANDING_BLOCKS_LIST_PREVIEW_MARKET_HINT"),
-					hintNoIcon: 'Y'
-				}
+					hint: BX.Landing.Loc.getMessage('LANDING_BLOCKS_LIST_PREVIEW_MARKET_HINT'),
+					hintNoIcon: 'Y',
+				},
 			});
+
 			BX.append(marketLabel, this.labels);
-			BX.UI.Hint.init(this.labels);
 		}
 
 		// my labels
@@ -152,16 +153,20 @@
 
 		if (this.requiresUpdates)
 		{
-			addClass(this.layout, "landing-ui-requires-update");
+			addClass(this.layout, 'landing-ui-requires-update');
 
-			var overlay = create("div", {
-				props: {className: "landing-ui-requires-update-overlay"},
+			const overlay = create('div', {
+				props: {
+					className: 'landing-ui-requires-update-overlay',
+				},
 				children: [
-					create("div", {
-						props: {className: "landing-ui-requires-update-overlay-footer"},
-						html: BX.Landing.Loc.getMessage("LANDING_BLOCK_REQUIRES_UPDATE_MESSAGE")
-					})
-				]
+					create('div', {
+						props: {
+							className: 'landing-ui-requires-update-overlay-footer',
+						},
+						html: BX.Landing.Loc.getMessage('LANDING_BLOCK_REQUIRES_UPDATE_MESSAGE'),
+					}),
+				],
 			});
 
 			append(overlay, this.imageContainer);
@@ -170,9 +175,25 @@
 		}
 	};
 
-
 	BX.Landing.UI.Card.BlockPreviewCard.prototype = {
 		constructor: BX.Landing.UI.Card.BlockPreviewCard,
-		__proto__: BX.Landing.UI.Card.BaseCard.prototype
+		__proto__: BX.Landing.UI.Card.BaseCard.prototype,
+
+		onAppend: function()
+		{
+			if (this.labels !== undefined)
+			{
+				let hint = BX.UI.Hint;
+				if (
+					this.labels.ownerDocument.defaultView.BX
+					&& this.labels.ownerDocument.defaultView.BX.UI
+					&& this.labels.ownerDocument.defaultView.BX.UI.Hint
+				)
+				{
+					hint = this.labels.ownerDocument.defaultView.BX.UI.Hint;
+				}
+				hint.init(this.labels);
+			}
+		},
 	};
 })();

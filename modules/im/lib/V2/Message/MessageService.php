@@ -13,6 +13,7 @@ class MessageService
 {
 	use ContextCustomer;
 
+	protected const MAX_MESSAGES_COUNT_FOR_MULTIPLE_ACTIONS = 20;
 	private Message $message;
 
 	public function __construct(Message $message)
@@ -113,5 +114,14 @@ class MessageService
 	private function getLastSelectedId(MessageCollection $messages): int
 	{
 		return max($messages->getIds() ?: [0]);
+	}
+
+	/**
+	 * Return max messages count for multiple actions like deletion or forwarding
+	 * @return int
+	 */
+	public static function getMultipleActionMessageLimit(): int
+	{
+		return self::MAX_MESSAGES_COUNT_FOR_MULTIPLE_ACTIONS;
 	}
 }

@@ -5,11 +5,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Mail\BlacklistTable;
+use Bitrix\Mail\MailboxTable;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Mail\Blacklist\ItemType;
+use Bitrix\Main\UI\PageNavigation;
 
 Loc::loadMessages(__FILE__);
 
@@ -21,12 +23,18 @@ class MailBlacklistListComponent extends CBitrixComponent implements Controllera
 	protected $filterId = 'MAIL_BLACKLIST_LIST';
 	private $userId = 0;
 	private $errorCollection;
+	protected $rowsCount = 20;
 
 	/** @inheritdoc */
 	public function __construct(CBitrixComponent $component = null)
 	{
 		$this->errorCollection = new \Bitrix\Main\ErrorCollection();
 		parent::__construct($component);
+	}
+
+	private function getRowsCount(): int
+	{
+		return $this->rowsCount;
 	}
 
 	/** @inheritdoc */
@@ -74,8 +82,7 @@ class MailBlacklistListComponent extends CBitrixComponent implements Controllera
 				],
 			];
 
-		$blacklistMails = $this->getBlacklistMails();
-		$this->makeRows($blacklistMails);
+		$this->makeRows();
 
 		if ($this->request->getPost('hasAjaxDeleteError'))
 		{
@@ -86,19 +93,65 @@ class MailBlacklistListComponent extends CBitrixComponent implements Controllera
 		$this->includeComponentTemplate();
 	}
 
-
-	/**
-	 * @param \Bitrix\Mail\EO_Blacklist_Collection $mails
-	 */
-	private function makeRows($mails)
+	private function makeRows(): void
 	{
-		$count = 0;
+		$mails = [];
+
+		$pageNavigationObject = new PageNavigation("page");
+		$pageNavigationObject->setPageSize($this->getRowsCount())->initFromUri();
+
+		if ($this->userId)
+		{
+			$filterOptions = new Main\UI\Filter\Options($this->filterId);
+			$gridFilter = $filterOptions->getFilter($this->arResult['FILTER']);
+
+			$mailsQuery = BlacklistTable::getUserAddressesListQuery($this->userId);
+			if (isset($gridFilter['FIND']) && $gridFilter['FIND'])
+			{
+				$mailsQuery = $mailsQuery
+					->where([['ITEM_VALUE', 'like', "%{$gridFilter['FIND']}%",]]);
+			}
+			if (isset($gridFilter['TYPE']) && in_array($gridFilter['TYPE'], [ItemType::EMAIL, ItemType::DOMAIN]))
+			{
+				$mailsQuery = $mailsQuery
+					->where('ITEM_TYPE', $gridFilter['TYPE']);
+			}
+
+			if (!empty($this->arResult['SORT']))
+			{
+				if (isset($this->arResult['SORT']['EMAIL']))
+				{
+					$mailsQuery = $mailsQuery
+						->addOrder('ITEM_VALUE', $this->arResult['SORT']['EMAIL'] == 'desc' ? 'DESC' : 'ASC');
+				}
+				if (isset($this->arResult['SORT']['IS_FOR_ALL_USERS']))
+				{
+					$mailsQuery = $mailsQuery
+						->addOrder('USER_ID', $this->arResult['SORT']['IS_FOR_ALL_USERS'] == 'desc' ? 'DESC' : 'ASC');
+				}
+			}
+
+			$mailsQuery->setLimit($pageNavigationObject->getLimit() + 1);
+			$mailsQuery->setOffset($pageNavigationObject->getOffset());
+			$result = $mailsQuery->exec();
+
+			$mails = $result->fetchCollection();
+
+			$pageNavigationObject->setRecordCount($pageNavigationObject->getOffset() + $mails->count());
+
+			if ($mails->count() > $pageNavigationObject->getLimit())
+			{
+				$mails->remove(end($mails->getAll()));
+			}
+		}
+
 		$items = [];
-		$userMailboxes = array_keys(\Bitrix\Mail\MailboxTable::getUserMailboxes());
+		$userMailboxes = array_keys(MailboxTable::getUserMailboxes());
+
 		foreach ($mails as $blacklistMail)
 		{
 			$fields['~ID'] = $blacklistMail->getId();
-			$fields['ID'] = intval($blacklistMail->getId());
+			$fields['ID'] = $blacklistMail->getId();
 
 			$fields['~EMAIL'] = $blacklistMail->getItemValue();
 			$fields['EMAIL'] = htmlspecialcharsbx($blacklistMail->getItemValue());
@@ -117,11 +170,10 @@ class MailBlacklistListComponent extends CBitrixComponent implements Controllera
 				$fields['CAN_DELETE'] = $canDeleteAddressByUser || $canDeleteAddressByMailbox;
 			}
 			$items[] = $fields;
-			$count++;
 		}
-		$this->arResult['ROWS_COUNT'] = $count;
 
 		$this->arResult['ITEMS'] = &$items;
+		$this->arResult['NAV_OBJECT'] = $pageNavigationObject;
 	}
 
 	/**
@@ -137,55 +189,6 @@ class MailBlacklistListComponent extends CBitrixComponent implements Controllera
 		}
 
 		return (bool)($USER->isAdmin() || $USER->canDoOperation('bitrix24_config'));
-	}
-
-	/**
-	 * @return \Bitrix\Mail\EO_Blacklist_Collection|null
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	private function getBlacklistMails()
-	{
-		if (!$this->userId)
-		{
-			return null;
-		}
-
-		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filterId);
-		$gridFilter = $filterOptions->getFilter($this->arResult['FILTER']);
-
-		$mailsQuery = \Bitrix\Mail\BlacklistTable::getUserAddressesListQuery($this->userId);
-		if (isset($gridFilter['FIND']) && $gridFilter['FIND'])
-		{
-			$mailsQuery = $mailsQuery
-				->where([['ITEM_VALUE', 'like', "%{$gridFilter['FIND']}%",]]);
-		}
-		if (isset($gridFilter['TYPE']) && in_array($gridFilter['TYPE'], [ItemType::EMAIL, ItemType::DOMAIN]))
-		{
-			$mailsQuery = $mailsQuery
-				->where('ITEM_TYPE', $gridFilter['TYPE']);
-		}
-
-		if (!empty($this->arResult['SORT']))
-		{
-			if (isset($this->arResult['SORT']['EMAIL']))
-			{
-				$mailsQuery = $mailsQuery
-					->addOrder('ITEM_VALUE', $this->arResult['SORT']['EMAIL'] == 'desc' ? 'DESC' : 'ASC');
-			}
-			if (isset($this->arResult['SORT']['IS_FOR_ALL_USERS']))
-			{
-				$mailsQuery = $mailsQuery
-					->addOrder('USER_ID', $this->arResult['SORT']['IS_FOR_ALL_USERS'] == 'desc' ? 'DESC' : 'ASC');
-			}
-		}
-
-		$mails = $mailsQuery
-			->exec()
-			->fetchCollection();
-
-		return $mails;
 	}
 
 	private function processDelete()
@@ -311,7 +314,7 @@ class MailBlacklistListComponent extends CBitrixComponent implements Controllera
 	private function deleteEmailAddressById($id)
 	{
 		$result = new Main\Result();
-		$email = \Bitrix\Mail\BlacklistTable::getById($id)->fetchObject();
+		$email = BlacklistTable::getById($id)->fetchObject();
 		if (!$email)
 		{
 			return $result->addError(new Main\Error(''));
@@ -327,13 +330,13 @@ class MailBlacklistListComponent extends CBitrixComponent implements Controllera
 		}
 		if ($email->getMailboxId() > 0)
 		{
-			$mailbox = \Bitrix\Mail\MailboxTable::getUserMailbox($email->getMailboxId());
+			$mailbox = MailboxTable::getUserMailbox($email->getMailboxId());
 			if (!$mailbox)
 			{
 				return $result->addError(new Main\Error(''));
 			}
 		}
-		$deleteResult = \Bitrix\Mail\BlacklistTable::delete($id);
+		$deleteResult = BlacklistTable::delete($id);
 		if (!$deleteResult->isSuccess())
 		{
 			return $result->addErrors($deleteResult->getErrors());

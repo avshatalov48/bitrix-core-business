@@ -11,6 +11,7 @@ this.BX.UI = this.BX.UI || {};
 	GuideConditionColor.WARNING = '--condition-warning';
 	GuideConditionColor.ALERT = '--condition-alert';
 	GuideConditionColor.PRIMARY = '--condition-primary';
+	GuideConditionColor.COPILOT = '--condition-copilot';
 
 	class Step extends main_core.Event.EventEmitter {
 	  constructor(options) {
@@ -28,6 +29,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.title = options.title || null;
 	    this.iconSrc = options.iconSrc || null;
 	    this.article = options.article || null;
+	    this.articleAnchor = options.articleAnchor || null;
 	    this.infoHelperCode = options.infoHelperCode || null;
 	    this.position = options.position || null;
 	    this.cursorMode = options.cursorMode || false;
@@ -93,6 +95,9 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getArticle() {
 	    return this.article;
+	  }
+	  getArticleAnchor() {
+	    return this.articleAnchor;
 	  }
 	  getInfoHelperCode() {
 	    return this.infoHelperCode;
@@ -674,7 +679,7 @@ this.BX.UI = this.BX.UI || {};
 				`), encodeURI(this.getCurrentStep().getIconSrc()));
 	      }
 	      let linkNode = '';
-	      if (this.getCurrentStep().getLink() || this.getCurrentStep().getArticle() || this.getCurrentStep().getInfoHelperCode()) {
+	      if (this.steps.some(step => step.getLink()) || this.steps.some(step => step.getArticle()) || this.steps.some(step => step.getInfoHelperCode())) {
 	        linkNode = this.getLink();
 	      }
 	      this.layout.content = main_core.Tag.render(_t5 || (_t5 = _`
@@ -747,27 +752,30 @@ this.BX.UI = this.BX.UI || {};
 	    if (!this.helper) {
 	      this.helper = top.BX.Helper;
 	    }
-	    this.helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
-	    if (this.onEvent) {
-	      if (this.helper.isOpen()) this.getPopup().setAutoHide(false);
-	      main_core_events.EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
-	        this.getPopup().setAutoHide(true);
-	      });
+	    const article = this.getCurrentStep().getArticle();
+	    const anchor = this.getCurrentStep().getArticleAnchor();
+
+	    // eslint-disable-next-line sonarjs/no-nested-template-literals
+	    const url = `redirect=detail&code=${article}${anchor ? `&anchor=${anchor}` : ''}`;
+	    this.helper.show(url);
+	    if (this.helper.isOpen()) {
+	      this.getPopup().setAutoHide(false);
 	    }
+	    main_core_events.EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+	      this.getPopup().setAutoHide(true);
+	    });
 	  }
 	  handleInfoHelperCodeClickLink() {
 	    event.preventDefault();
 	    if (main_core.Reflection.getClass('BX.UI.InfoHelper.show')) {
 	      const helper = top.BX.UI.InfoHelper;
 	      helper.show(this.getCurrentStep().getInfoHelperCode());
-	      if (this.onEvent) {
-	        if (helper.isOpen()) {
-	          this.getPopup().setAutoHide(false);
-	        }
-	        main_core_events.EventEmitter.subscribe(helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
-	          this.getPopup().setAutoHide(true);
-	        });
+	      if (helper.isOpen()) {
+	        this.getPopup().setAutoHide(false);
 	      }
+	      main_core_events.EventEmitter.subscribe(helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+	        this.getPopup().setAutoHide(true);
+	      });
 	    }
 	  }
 

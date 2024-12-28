@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/settings-content.bundle.js',
 	'rel' => [
 		'im.v2.lib.logger',
+		'im.v2.lib.helpdesk',
 		'ui.feedback.form',
 		'im.v2.component.dialog.chat',
 		'im.v2.lib.theme',

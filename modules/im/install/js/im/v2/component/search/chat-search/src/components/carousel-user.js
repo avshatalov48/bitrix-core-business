@@ -1,4 +1,5 @@
 import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { UserType } from 'im.v2.const';
 
 import { SearchContextMenu } from '../classes/search-context-menu';
 
@@ -38,7 +39,7 @@ export const CarouselUser = {
 		},
 		isExtranet(): boolean
 		{
-			return this.user.extranet;
+			return this.user.type === UserType.extranet;
 		},
 	},
 	created()

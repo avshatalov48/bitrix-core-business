@@ -357,4 +357,13 @@ class Manager
 	{
 		return $this->pageTitle;
 	}
+
+	/**
+	 * Check is widgets must use demo data instead real data
+	 * @return bool
+	 */
+	public static function isUseDemoData(): bool
+	{
+		return Landing\Manager::getOption('use_demo_data_in_block_widgets', 'N') === 'Y';
+	}
 }

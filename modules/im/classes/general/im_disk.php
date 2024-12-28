@@ -3,7 +3,9 @@
 use Bitrix\Disk;
 use Bitrix\Disk\Document\OnlyOffice\Templates\CreateDocumentByCallTemplateScenario;
 use \Bitrix\Im as IM;
+use Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Collab\Provider\CollabProvider;
 
 Loc::loadMessages(__FILE__);
 
@@ -23,7 +25,7 @@ class CIMDisk
 	 *
 	 * @return \Bitrix\Disk\Storage|false
 	 */
-	public static function GetStorage()
+	public static function GetStorage(?int $chatId = null)
 	{
 		if (!self::Enabled())
 		{
@@ -31,10 +33,10 @@ class CIMDisk
 		}
 
 		$storageModel = false;
-		if ($storageId = self::GetStorageId())
+		if ($storageId = self::GetStorageId($chatId))
 		{
 			$storageModel = \Bitrix\Disk\Storage::loadById($storageId);
-			if (!$storageModel || $storageModel->getModuleId() != self::MODULE_ID)
+			if (!$storageModel)
 			{
 				$storageModel = false;
 			}
@@ -177,9 +179,9 @@ class CIMDisk
 	public static function UploadFile($hash, &$file, &$package, &$upload, &$error)
 	{
 		$post = \Bitrix\Main\Context::getCurrent()->getRequest()->getPostList()->toArray();
-		$post['PARAMS'] = \CUtil::JsObjectToPhp($post['REG_PARAMS']);
-		$post['MESSAGE_HIDDEN'] = $post['REG_MESSAGE_HIDDEN'] == 'Y'? 'Y': 'N';
-		$post['PARAMS']['TEXT'] = $post['PARAMS']['TEXT']? trim($post['PARAMS']['TEXT']): '';
+		$post['PARAMS'] = IM\Text::convertSymbolsAfterJsonDecode(\CUtil::JsObjectToPhp($post['REG_PARAMS'], true));
+		$post['MESSAGE_HIDDEN'] = $post['REG_MESSAGE_HIDDEN'] == 'Y' ? 'Y' : 'N';
+		$post['PARAMS']['TEXT'] = $post['PARAMS']['TEXT'] ? trim($post['PARAMS']['TEXT']) : '';
 
 		$chatId = (int)$post['CHAT_ID'];
 		if ($chatId <= 0)
@@ -201,7 +203,7 @@ class CIMDisk
 			return false;
 		}
 
-		if (!$chat->canDo(IM\V2\Chat\Permission::ACTION_SEND))
+		if (!$chat->canDo(IM\V2\Permission\Action::Send))
 		{
 			$error = Loc::getMessage('IM_DISK_ERR_UPLOAD').' (E103)';
 			return false;
@@ -975,6 +977,11 @@ class CIMDisk
 			return false;
 		}
 
+		if ($fileModel->getParentId() === $folderModel->getId())
+		{
+			return $fileModel;
+		}
+
 		if ($symlink)
 		{
 			$accessProvider = new \Bitrix\Im\Access\ChatAuthProvider;
@@ -1732,7 +1739,7 @@ class CIMDisk
 		if (
 			!$folderModel
 			|| !($folderModel instanceof \Bitrix\Disk\Folder)
-			|| ($folderModel->getStorageId() != self::GetStorageId())
+			|| ($folderModel->getStorageId() != self::GetStorageId($chatId))
 		)
 		{
 			return false;
@@ -1822,7 +1829,7 @@ class CIMDisk
 			if (
 				!$folderModel
 				|| !($folderModel instanceof \Bitrix\Disk\Folder)
-				|| ($folderModel->getStorageId() != self::GetStorageId())
+				|| ($folderModel->getStorageId() != self::GetStorageId($chatId))
 			)
 			{
 				$folderId = 0;
@@ -1897,7 +1904,7 @@ class CIMDisk
 	protected static function createFolder(int $chatId, string $chatType)
 	{
 		$driver = \Bitrix\Disk\Driver::getInstance();
-		$storageModel = self::GetStorage();
+		$storageModel = self::GetStorage($chatId);
 		if (!$storageModel)
 		{
 			return false;
@@ -1912,6 +1919,20 @@ class CIMDisk
 			'ACCESS_CODE' => $accessProvider->generateAccessCode($chatId),
 			'TASK_ID' => $rightsManager->getTaskIdByName($rightsManager::TASK_EDIT)
 		];
+
+		if ($chatType === IM\V2\Chat::IM_TYPE_COLLAB)
+		{
+			$folder = $storageModel->getFolderForUploadedFiles();
+			if (!$folder)
+			{
+				return false;
+			}
+
+			$driver->getRightsManager()->append($folder, $accessCodes);
+
+			return $folder;
+		}
+
 		if ($chatType === IM\V2\Chat::IM_TYPE_OPEN || $chatType === IM\V2\Chat::IM_TYPE_OPEN_CHANNEL)
 		{
 			// allow reading for top department, access code `DRxxx`
@@ -2178,9 +2199,14 @@ class CIMDisk
 	/**
 	 * @return int
 	 */
-	public static function GetStorageId()
+	public static function GetStorageId(?int $chatId = null)
 	{
-		return (int)\Bitrix\Main\Config\Option::get('im', 'disk_storage_id', 0);
+		if ($chatId === null)
+		{
+			return (int)\Bitrix\Main\Config\Option::get('im', 'disk_storage_id', 0);
+		}
+
+		return IM\V2\Chat::getInstance($chatId)->getStorageId();
 	}
 
 	/**
@@ -2479,7 +2505,10 @@ class CIMDisk
 	 */
 	public static function OnAfterDeleteFile($fileId, $userId, $fileParams = Array())
 	{
-		if (!isset($fileParams['STORAGE_ID']) || $fileParams['STORAGE_ID'] != self::GetStorageId())
+		if (
+			!isset($fileParams['STORAGE_ID'])
+			|| !self::isStorageAssociatedWithChat((int)$fileParams['STORAGE_ID'])
+		)
 		{
 			return true;
 		}
@@ -2493,5 +2522,44 @@ class CIMDisk
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks if the given storage is associated with a chat.
+	 *
+	 * A storage is considered associated with a chat if it is either the default messenger storage
+	 * or if it belongs to a collab, as the collab and its chat share the same storage.
+	 * @param int $storageId
+	 * @return bool
+	 */
+	protected static function isStorageAssociatedWithChat(int $storageId): bool
+	{
+		if ($storageId === self::GetStorageId())
+		{
+			return true;
+		}
+
+		if (
+			!Loader::includeModule('disk')
+			|| !Loader::includeModule('socialnetwork')
+		)
+		{
+			return false;
+		}
+
+		$storage = Disk\Storage::loadById($storageId);
+		if ($storage === null)
+		{
+			return false;
+		}
+
+		if (!($storage->getProxyType() instanceof Disk\ProxyType\Group))
+		{
+			return false;
+		}
+
+		$groupId = (int)$storage->getEntityId();
+
+		return CollabProvider::getInstance()->isCollab($groupId);
 	}
 }

@@ -4,6 +4,7 @@ namespace Bitrix\Calendar\Controller;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\TypeAccessController;
+use Bitrix\Calendar\Controller\Filter\RestrictExternalUser;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\User;
 use Bitrix\Calendar\Internals\Counter\CounterService;
@@ -33,6 +34,11 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'-prefilters' => [
 					ActionFilter\Authentication::class,
 					ActionFilter\Csrf::class,
+				],
+			],
+			'getOutlookLink' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
 				],
 			],
 		];

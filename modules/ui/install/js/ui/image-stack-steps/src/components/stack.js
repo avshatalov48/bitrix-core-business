@@ -12,6 +12,7 @@ import { ImageStub } from './types/image-stub';
 import { User } from './types/user';
 import { UserStub } from './types/user-stub';
 import { Icon } from './types/icon';
+import { Counter } from './types/counter';
 
 import '../css/stack.css';
 
@@ -49,6 +50,8 @@ export const Stack = {
 					return Icon;
 				case imageTypeEnum.USER_STUB:
 					return UserStub;
+				case imageTypeEnum.COUNTER:
+					return Counter;
 				default:
 					return ImageStub;
 			}
@@ -71,6 +74,9 @@ export const Stack = {
 					break;
 				case imageTypeEnum.USER_STUB:
 					key = 'user-stub';
+					break;
+				case imageTypeEnum.COUNTER:
+					key = 'counter';
 					break;
 			}
 

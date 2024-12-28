@@ -23,7 +23,7 @@ $isEmpty = true;
 foreach($arResult['value'] as $res)
 {
 	$res = (int)$res;
-	if (!array_key_exists($res, $arResult['userField']['USER_TYPE']['FIELDS']))
+	if (!isset($arResult['userField']['USER_TYPE']['FIELDS'][$res]))
 	{
 		continue;
 	}

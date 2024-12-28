@@ -10,6 +10,8 @@ namespace Bitrix\Socialnetwork\Internals\EventService\Event;
 
 class WorkgroupEvent extends \Bitrix\Socialnetwork\Internals\EventService\Event
 {
+	private static array $fields = [];
+
 	private array $oldFields = [];
 	private array $newFields = [];
 
@@ -59,9 +61,15 @@ class WorkgroupEvent extends \Bitrix\Socialnetwork\Internals\EventService\Event
 
 	private function getGroupFields(int $groupId): array
 	{
+		if (isset(self::$fields[$groupId]))
+		{
+			return self::$fields[$groupId];
+		}
+
 		$fields = \CSocNetGroup::getById($groupId);
-		return is_array($fields)
-			? $fields
-			: [];
+
+		self::$fields[$groupId] = is_array($fields) ? $fields : [];
+
+		return self::$fields[$groupId];
 	}
 }

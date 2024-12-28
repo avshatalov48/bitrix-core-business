@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,main_core,tasks_commentRenderer) {
 	'use strict';
 
@@ -5,35 +6,28 @@
 	  function RenderParts() {
 	    babelHelpers.classCallCheck(this, RenderParts);
 	  }
-
 	  babelHelpers.createClass(RenderParts, null, [{
 	    key: "init",
 	    value: function init(params) {
 	      if (!main_core.Type.isUndefined(params.currentUserSonetGroupIdList)) {
 	        this.currentUserSonetGroupIdList = params.currentUserSonetGroupIdList;
 	      }
-
 	      if (!main_core.Type.isUndefined(params.publicSection)) {
 	        this.publicSection = !!params.publicSection;
 	      }
-
 	      this.mobile = !!params.mobile;
-
 	      if (!main_core.Type.isUndefined(params.currentExtranetUser)) {
 	        this.currentExtranetUser = !!params.currentExtranetUser;
 	      }
-
 	      if (this.currentExtranetUser) {
 	        if (main_core.Type.isPlainObject(params.availableUsersList)) {
 	          params.availableUsersList = Object.entries(params.availableUsersList).map(function (_ref) {
 	            var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	                key = _ref2[0],
-	                value = _ref2[1];
-
+	              key = _ref2[0],
+	              value = _ref2[1];
 	            return value;
 	          });
 	        }
-
 	        if (main_core.Type.isArray(params.availableUsersList)) {
 	          this.availableUsersList = params.availableUsersList.map(function (value) {
 	            return parseInt(value);
@@ -47,7 +41,6 @@
 	    key: "getNodeSG",
 	    value: function getNodeSG(entity) {
 	      var hidden = main_core.Type.isStringFilled(entity.VISIBILITY) && entity.VISIBILITY === 'group_members' && !this.currentUserSonetGroupIdList.includes(entity.ENTITY_ID);
-
 	      if (hidden) {
 	        return this.getNodeHiddenDestination();
 	      } else {
@@ -66,16 +59,13 @@
 	    key: "getNodeU",
 	    value: function getNodeU(entity) {
 	      var hidden = this.currentExtranetUser && !this.availableUsersList.includes(entity.ENTITY_ID);
-
 	      if (hidden) {
 	        return this.getNodeHiddenDestination();
 	      } else {
 	        var classesList = ['blog-p-user-name'];
-
 	        if (entity.VISIBILITY === 'extranet') {
 	          classesList.push('blog-p-user-name-extranet');
 	        }
-
 	        return !this.mobile ? main_core.Dom.create('a', {
 	          attrs: {
 	            href: entity.LINK

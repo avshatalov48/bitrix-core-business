@@ -1,8 +1,8 @@
 import { Messenger } from 'im.public';
 import { ImModelUser } from 'im.v2.model';
 
-import { ChatAvatar } from '../avatar/chat-avatar/chat-avatar';
-import { AvatarSize } from '../avatar/base-avatar/avatar';
+import { ChatAvatar } from '../avatar/chat-avatar';
+import { AvatarSize } from '../avatar/components/base/avatar';
 import { ChatTitle } from '../chat-title/chat-title';
 
 import './user-list-content.css';

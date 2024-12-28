@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Rooms\Categories;
 
 use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Internals\LocationTable;
 use Bitrix\Calendar\Internals\RoomCategoryTable;
 use Bitrix\Calendar\UserSettings;
@@ -196,23 +197,31 @@ class Manager
 		return $this;
 	}
 
-	public static function getCategoryList()
+	/**
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getCategoryList(): array
 	{
-		$categories = RoomCategoryTable::getList([
-				'select' => [
-					'ID',
-					'NAME',
-				]
-			])
-			->fetchAll()
+		$result = [];
+
+		$categories = RoomCategoryTable::query()
+			->setSelect(['ID', 'NAME'])
+			->setOrder(['ID' => 'ASC'])
+			->setCacheTtl(86400)
+			->exec()
 		;
 
-		foreach ($categories as &$category)
+		while ($category = $categories->fetch())
 		{
 			$category['NAME'] = Emoji::decode($category['NAME']);
+
+			$result[] = $category;
 		}
 
-		return $categories;
+		return $result;
 	}
 
 	/**
@@ -233,7 +242,7 @@ class Manager
 		return $name;
 	}
 
-	public function addPullEvent($event): Manager
+	public function addPullEvent(PushCommand $event): Manager
 	{
 		if ($this->getError())
 		{
@@ -254,6 +263,7 @@ class Manager
 	public function clearCache(): Manager
 	{
 		\Bitrix\Calendar\Rooms\Manager::createInstance()->clearCache();
+		RoomCategoryTable::cleanCache();
 
 		return $this;
 	}

@@ -21,10 +21,11 @@ import {
 import BasePlugin from '../base-plugin';
 import { type TextEditor } from '../../text-editor';
 
+import type { BBCodeExportConversion, BBCodeExportOutput } from '../../bbcode';
 import type { SchemeValidationOptions } from '../../types/scheme-validation-options';
 
 const URL_REGEX = (
-	/((https?:\/\/(www\.)?)|(www\.))[\w#%+.:=@~-]{1,256}\.[\d()A-Za-z]{1,6}\b([\w#%&()+./:=?@~-]*)(?<![-.+():%])/
+	/((https?:\/\/(www\.)?)|(www\.))[\w#%+.:=@~-]{1,256}\.[\d()A-Za-z]{1,6}\b([\w#%&()+./:=?@[\]~-]*)(?<![%()+.:\]-])/
 );
 
 const EMAIL_REGEX = (
@@ -69,6 +70,19 @@ export class AutoLinkPlugin extends BasePlugin
 	static getNodes(editor: TextEditor): Array<Class<LexicalNode>>
 	{
 		return [AutoLinkNode];
+	}
+
+	exportBBCode(): BBCodeExportConversion
+	{
+		return {
+			autolink: (): BBCodeExportOutput => {
+				const scheme = this.getEditor().getBBCodeScheme();
+
+				return {
+					node: scheme.createElement({ name: 'url' }),
+				};
+			},
+		};
 	}
 
 	validateScheme(): SchemeValidationOptions | null
@@ -166,7 +180,7 @@ function startsWithSeparator(textContent: string): boolean
 
 function startsWithFullStop(textContent: string): boolean
 {
-	return /^\.[a-zA-Z0-9]{1,}/.test(textContent);
+	return /^\.[\dA-Za-z]+/.test(textContent);
 }
 
 function isPreviousNodeValid(node: LexicalNode): boolean

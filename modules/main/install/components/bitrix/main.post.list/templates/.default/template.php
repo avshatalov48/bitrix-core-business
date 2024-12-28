@@ -27,7 +27,9 @@ UI\Extension::load([
 	'ui.urlpreview',
 	'socialnetwork.livefeed',
 	'popup',
-	'ui.icon-set.main'
+	'ui.icon-set.main',
+	'main.core',
+	'ui.avatar'
 ]);
 
 $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css");
@@ -72,7 +74,7 @@ ob_start();
 		#BEFORE_RECORD#
 		<div class="feed-com-block blog-comment-user-#AUTHOR_ID# sonet-log-comment-createdby-#AUTHOR_ID# feed-com-block-#APPROVED##CLASSNAME#">
 			#BEFORE_HEADER#
-			<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-#AUTHOR_AVATAR_IS#"><i></i><img src="#AUTHOR_AVATAR#" width="<?=$arParams["AVATAR_SIZE"]?>" height="<?=$arParams["AVATAR_SIZE"]?>" alt="" /></div>
+			<div class="ui-icon ui-icon-common-user feed-com-avatar #AUTHOR_AVATAR_STYLE# feed-com-avatar-#AUTHOR_AVATAR_IS#"><i></i><img src="#AUTHOR_AVATAR#" width="<?=$arParams["AVATAR_SIZE"]?>" height="<?=$arParams["AVATAR_SIZE"]?>" alt="" /></div>
 			<!--/noindex-->
 			<div class="feed-com-main-content feed-com-block-#NEW#">
 				<span class="feed-com-name #AUTHOR_EXTRANET_STYLE# feed-author-name feed-author-name-#AUTHOR_ID#">#AUTHOR_NAME#</span>
@@ -119,7 +121,7 @@ ob_start();
 			{
 				?><a href="javascript:void(0);" class="feed-com-reply feed-com-reply-#SHOW_POST_FORM#" <?php
 				?>id="record-#FULL_ID#-actions-reply" <?php
-				?>onclick="BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'onReply', [this]);" <?php
+				?>onclick="BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'onReply', [this, 'reply_button']);" <?php
 				?>bx-mpl-author-id="#AUTHOR_ID#" <?php
 				?>bx-mpl-author-gender="#AUTHOR_PERSONAL_GENDER#" <?php
 				?>bx-mpl-author-name="#AUTHOR_NAME#" <?php
@@ -487,8 +489,15 @@ if ($arParams["SHOW_POST_FORM"] == "Y")
 
 	?><div class="feed-com-add-box-outer" id="record-<?= $prefixNode ?>-form-holder">
 
-		<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-<?= ($AUTHOR_AVATAR === '/bitrix/images/1.gif' ? "N" : "Y") ?>"><?php
-			?>
+		<div
+			class="
+				ui-icon
+				ui-icon-common-user
+				feed-com-avatar
+				<?= ($arResult['AUTHOR']['IS_COLLABER'] ?? false) ? 'feed-com-avatar-collaber' : '' ?>
+				feed-com-avatar-<?= ($AUTHOR_AVATAR === '/bitrix/images/1.gif' ? "N" : "Y") ?>
+			"
+		>
 			<i></i>
 			<img width="37" height="37" src="<?= \Bitrix\Main\Web\Uri::urnEncode($AUTHOR_AVATAR) ?>" alt="">
 			<?php

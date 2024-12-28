@@ -25,13 +25,14 @@ class SharingEventManager
 {
 	public const SHARED_EVENT_TYPE = Dictionary::EVENT_TYPE['shared'];
 	public const SHARED_EVENT_CRM_TYPE = Dictionary::EVENT_TYPE['shared_crm'];
+	public const SHARED_EVENT_COLLAB_TYPE = Dictionary::EVENT_TYPE['shared_collab'];
 	/** @var Event  */
 	private Event $event;
 	/** @var int|null  */
 	private ?int $hostId;
 	/** @var int|null  */
 	private ?int $ownerId;
-	/** @var Sharing\Link\CrmDealLink|Sharing\Link\UserLink|null $link */
+	/** @var Sharing\Link\CrmDealLink|Sharing\Link\UserLink|Sharing\Link\GroupLink|null $link */
 	private ?Sharing\Link\Link $link;
 
 	/**
@@ -84,9 +85,15 @@ class SharingEventManager
 		}
 
 		$members = $this->link->getMembers();
-		$users = array_merge([$this->link->getOwnerId()], array_map(static function ($member){
-			return $member->getId();
-		}, $members));
+		$users = array_map(static fn ($member) => $member->getId(), $members);
+		if ($this->link->getObjectType() === Sharing\Link\Helper::GROUP_SHARING_TYPE)
+		{
+			$users[] = $this->link->getHostId();
+		}
+		else
+		{
+			$users[] = $this->link->getOwnerId();
+		}
 
 		if (!$this->checkUserAccessibility($users))
 		{
@@ -97,7 +104,7 @@ class SharingEventManager
 
 		$eventId = (new Mappers\Event())->create($this->event, [
 			'sendInvitations' => $sendInvitations
-		])->getId();
+		])?->getId();
 
 		$this->event->setId($eventId);
 
@@ -204,16 +211,6 @@ class SharingEventManager
 	 */
 	public static function prepareEventForSave($data, $userId, Sharing\Link\Joint\JointLink $link): Event
 	{
-		$ownerId = (int)($data['ownerId'] ?? null);
-		$sectionId = self::getSectionId($userId);
-
-		$attendeesCodes = ['U' . $userId, 'U' . $ownerId];
-		$members = $link->getMembers();
-		foreach ($members as $member)
-		{
-			$attendeesCodes[] = 'U' . $member->getId();
-		}
-
 		$meeting = [
 			'HOST_NAME' => \CCalendar::GetUserName($userId),
 			'NOTIFY' => true,
@@ -224,23 +221,21 @@ class SharingEventManager
 		];
 
 		$eventData = [
-			'OWNER_ID' => $userId,
 			'NAME' => (string)($data['eventName'] ?? ''),
 			'DATE_FROM' => (string)($data['dateFrom'] ?? ''),
 			'DATE_TO' => (string)($data['dateTo'] ?? ''),
 			'TZ_FROM' => (string)($data['timezone'] ?? ''),
 			'TZ_TO' => (string)($data['timezone'] ?? ''),
 			'SKIP_TIME' => 'N',
-			'SECTIONS' => [$sectionId],
-			'EVENT_TYPE' => $data['eventType'],
 			'ACCESSIBILITY' => 'busy',
 			'IMPORTANCE' => 'normal',
-			'ATTENDEES_CODES' => $attendeesCodes,
 			'MEETING_HOST' => $userId,
 			'IS_MEETING' => true,
 			'MEETING' => $meeting,
 			'DESCRIPTION' => (string)($data['description'] ?? ''),
 		];
+
+		$eventData = array_merge($eventData, self::prepareTypeDependedEventFields($link, (int)$userId));
 
 		return (new EventBuilderFromArray($eventData))->build();
 	}
@@ -253,7 +248,6 @@ class SharingEventManager
 			'dateTo' => (string)($request['dateTo'] ?? ''),
 			'timezone' => (string)($request['timezone'] ?? ''),
 			'description' => (string)($request['description'] ?? ''),
-			'eventType' => Dictionary::EVENT_TYPE['shared'],
 		];
 	}
 
@@ -318,6 +312,7 @@ class SharingEventManager
 		return [
 			self::SHARED_EVENT_CRM_TYPE,
 			self::SHARED_EVENT_TYPE,
+			self::SHARED_EVENT_COLLAB_TYPE,
 		];
 	}
 
@@ -668,7 +663,7 @@ class SharingEventManager
 		$start = new DateTime($this->event->getStart()->toString());
 		$end = new DateTime($this->event->getEnd()->toString());
 
-		$offset = Util::getTimezoneOffsetUTC(\CCalendar::GetUserTimezoneName($this->ownerId));
+		$offset = $this->getOffset();
 		$fromTs = Util::getDateTimestampUtc($start, $this->event->getStartTimeZone());
 		$toTs = Util::getDateTimestampUtc($end, $this->event->getEndTimeZone());
 
@@ -743,7 +738,7 @@ class SharingEventManager
 			}
 		}
 
-		$offset = Util::getTimezoneOffsetUTC(\CCalendar::GetUserTimezoneName($this->ownerId)) / 60;
+		$offset = $this->getOffset() / 60;
 		$minutesFrom = ($fromTs % 86400) / 60;
 		$minutesTo = ($toTs % 86400) / 60;
 		$weekday = (int)gmdate('N', $fromTs) % 7;
@@ -852,5 +847,79 @@ class SharingEventManager
 				]);
 			}
 		}
+	}
+
+	private static function prepareTypeDependedEventFields(
+		Sharing\Link\Link $link,
+		int $userId
+	): array
+	{
+		return match ($link->getObjectType())
+		{
+			Sharing\Link\Helper::GROUP_SHARING_TYPE => self::prepareGroupSharingEventFields($link, $userId),
+			default => self::prepareUserSharingEventFields($link, $userId),
+		};
+	}
+
+	private static function prepareGroupSharingEventFields(Sharing\Link\Link $link, int $userId): array
+	{
+		$groupId = $link->getOwnerId();
+		$section = \CCalendarSect::GetList([
+			'arFilter' => [
+				'OWNER_ID' => $groupId,
+				'CAL_TYPE' => Dictionary::CALENDAR_TYPE['group'],
+				'ACTIVE' => 'Y'
+			],
+			'checkPermissions' => false,
+			'getPermissions' => false,
+		]);
+
+		$attendeesCodes = ['U' . $userId];
+		$members = $link->getMembers();
+
+		if (!$members)
+		{
+			$attendeesCodes[] = 'U' . $link->getHostId();
+		}
+		else
+		{
+			foreach ($members as $member)
+			{
+				$attendeesCodes[] = 'U' . $member->getId();
+			}
+		}
+
+		return [
+			'OWNER_ID' => $link->getHostId(),
+			'SECTIONS' => [$section[0]['ID']],
+			'ATTENDEES_CODES' => $attendeesCodes,
+			'EVENT_TYPE' => Dictionary::EVENT_TYPE['shared_collab'],
+		];
+	}
+
+	private static function prepareUserSharingEventFields(Sharing\Link\Link $link, int $userId): array
+	{
+		$sectionId = self::getSectionId($userId);
+
+		$ownerId = $link->getOwnerId();
+		$attendeesCodes = ['U' . $userId, 'U' . $ownerId];
+		$members = $link->getMembers();
+
+		foreach ($members as $member)
+		{
+			$attendeesCodes[] = 'U' . $member->getId();
+		}
+
+		return [
+			'OWNER_ID' => $userId,
+			'SECTIONS' => [$sectionId],
+			'ATTENDEES_CODES' => $attendeesCodes,
+			'EVENT_TYPE' => Dictionary::EVENT_TYPE['shared'],
+		];
+	}
+
+	private function getOffset(): int
+	{
+		return Util::getTimezoneOffsetUTC(\CCalendar::GetUserTimezoneName($this->ownerId));
 	}
 }

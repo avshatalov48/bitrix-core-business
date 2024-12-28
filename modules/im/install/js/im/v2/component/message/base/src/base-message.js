@@ -1,7 +1,7 @@
 import { Core } from 'im.v2.application.core';
 import { Parser } from 'im.v2.lib.parser';
 import { ContextMenu, RetryButton, MessageKeyboard, ReactionSelector } from 'im.v2.component.message.elements';
-import { ChatActionType, ChatType } from 'im.v2.const';
+import { ActionByRole } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { ChannelManager } from 'im.v2.lib.channel';
 
@@ -74,6 +74,14 @@ export const BaseMessage = {
 		{
 			return ChannelManager.isChannel(this.dialogId);
 		},
+		isBulkActionsMode(): boolean
+		{
+			return this.$store.getters['messages/select/getBulkActionsMode'];
+		},
+		isMessageSelected(): boolean
+		{
+			return this.$store.getters['messages/select/isMessageSelected'](this.message.id);
+		},
 		showMessageAngle(): boolean
 		{
 			const hasAfterContent = Boolean(this.$slots['after-message']);
@@ -87,6 +95,8 @@ export const BaseMessage = {
 				'--opponent': this.isOpponentMessage,
 				'--has-error': this.hasError,
 				'--has-after-content': Boolean(this.$slots['after-message']),
+				'--selected': this.isMessageSelected,
+				'--is-bulk-actions-mode': this.isBulkActionsMode,
 			};
 		},
 		bodyClasses(): {[className: string]: boolean}
@@ -106,7 +116,7 @@ export const BaseMessage = {
 		},
 		canOpenContextMenu(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.openMessageMenu, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.openMessageMenu, this.dialogId);
 		},
 		hasError(): boolean
 		{
@@ -136,12 +146,12 @@ export const BaseMessage = {
 					</div>
 					<RetryButton v-if="showRetryButton" :message="message" :dialogId="dialogId"/>
 					<ContextMenu
-						v-else-if="showContextMenu"
+						v-else
+						:showContextMenu="showContextMenu"
 						:dialogId="dialogId"
 						:message="message" 
 						:menuIsActiveForId="menuIsActiveForId" 
 					/>
-					<div v-else class="bx-im-message-base__context-menu-placeholder"></div>
 				</div>
 				<!-- After content -->
 				<div

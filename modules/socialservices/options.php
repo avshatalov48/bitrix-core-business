@@ -116,7 +116,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"].$_POST["Apply"].$_PO
 }
 
 ?>
-<script type="text/javascript">
+<script>
 function MoveRowUp(a)
 {
 	var table = BX.findParent(a, {'tag':'table'});

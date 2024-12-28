@@ -8,6 +8,7 @@ use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Message\CounterService;
+use Bitrix\Im\V2\Permission;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
 
@@ -252,11 +253,10 @@ class Converter
 
 	protected function setChatPermissionToDefaultValues(): void
 	{
-		$permissionNames = array_keys(Permission::GROUP_ACTIONS);
 		$emptyPermissions = [];
-		foreach ($permissionNames as $permissionName)
+		foreach (Permission\ActionGroup::cases() as $permission)
 		{
-			$emptyPermissions[$permissionName] = '';
+			$emptyPermissions[$permission->value] = '';
 		}
 		$this->getChat()->fill($emptyPermissions);
 		$this->getChat()->save();

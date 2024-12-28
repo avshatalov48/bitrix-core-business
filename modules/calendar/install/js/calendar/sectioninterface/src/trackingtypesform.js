@@ -1,7 +1,8 @@
-import { Dom, Event, Loc, Tag, Text, Type } from 'main.core';
+import { Dom, Loc, Tag, Type } from 'main.core';
 import { Util } from 'calendar.util';
-import {TrackingUsersForm} from "./trackingusersform"
+import { TrackingUsersForm } from './trackingusersform';
 
+/* eslint-disable @bitrix24/bitrix24-rules/no-native-dom-methods */
 export class TrackingTypesForm extends TrackingUsersForm
 {
 	constructor(options = {})
@@ -14,7 +15,7 @@ export class TrackingTypesForm extends TrackingUsersForm
 		this.addLinkMessage = Loc.getMessage('EC_SEC_SLIDER_SELECT_GROUPS');
 	}
 
-	show ()
+	show()
 	{
 		if (!this.isCreated)
 		{
@@ -35,7 +36,7 @@ export class TrackingTypesForm extends TrackingUsersForm
 
 		// List of sections
 		this.sectionsWrap = this.DOM.innerWrap.appendChild(
-			Tag.render`<div class="calendar-list-slider-sections-wrap"></div>`
+			Tag.render`<div class="calendar-list-slider-sections-wrap"></div>`,
 		);
 
 		this.createButtons();
@@ -50,48 +51,49 @@ export class TrackingTypesForm extends TrackingUsersForm
 			Dom.remove(this.updateSectionLoader);
 		}
 		this.updateSectionLoader = this.sectionsWrap.appendChild(
-			Dom.adjust(Util.getLoader(), {style: {height: '140px'}})
+			Dom.adjust(Util.getLoader(), { style: { height: '140px' } }),
 		);
 
 		if (this.updateSectionTimeout)
 		{
-			this.updateSectionTimeout = clearTimeout(this.updateSectionTimeout);
+			clearTimeout(this.updateSectionTimeout);
+			this.updateSectionTimeout = null;
 		}
 
 		BX.ajax.runAction('calendar.api.calendarajax.getTrackingSections', {
-				data: {
-					type: 'company'
-				}
-			})
-			.then(
-				(response) => {
-					Dom.clean(this.sectionsWrap);
-					this.sectionIndex = {};
-					this.checkInnerWrapHeight();
+			data: {
+				type: 'company',
+			},
+		}).then(
+			(response) => {
+				Dom.clean(this.sectionsWrap);
+				this.sectionIndex = {};
+				this.checkInnerWrapHeight();
 
-					if (Type.isArray(response.data.sections)
-						&& response.data.sections.length)
-					{
-						this.createSectionBlock({
-							sectionList: response.data.sections,
-							wrap: this.sectionsWrap
-						});
-					}
-					else
-					{
-						this.sectionsWrap.appendChild(Tag.render`
-								<div>
-									<span class="calendar-list-slider-card-section-title-text">
-										${Loc.getMessage('EC_SEC_SLIDER_NO_SECTIONS')}
-									</span>
-								</div>
-							`);
-					}
-				},
-				(response) => {
-					Util.displayError(response.errors);
+				if (
+					Type.isArray(response.data.sections)
+					&& response.data.sections.length)
+				{
+					this.createSectionBlock({
+						sectionList: response.data.sections,
+						wrap: this.sectionsWrap,
+					});
 				}
-			);
+				else
+				{
+					this.sectionsWrap.appendChild(Tag.render`
+						<div>
+							<span class="calendar-list-slider-card-section-title-text">
+								${Loc.getMessage('EC_SEC_SLIDER_NO_SECTIONS')}
+							</span>
+						</div>
+					`);
+				}
+			},
+			(response) => {
+				Util.displayError(response.errors);
+			},
+		);
 
 		this.checkInnerWrapHeight();
 	}
@@ -99,37 +101,22 @@ export class TrackingTypesForm extends TrackingUsersForm
 	save()
 	{
 		BX.ajax.runAction('calendar.api.calendarajax.setTrackingSections', {
-				data: {
-					sections: this.prepareTrackingSections(),
-				}
-			})
-			.then(
-				(response) => {
-					location.reload();
-				},
-				(response) => {
-					Util.displayError(response.errors);
-				}
-			);
+			data: {
+				sections: this.prepareTrackingSections(),
+			},
+		}).then(
+			() => location.reload(),
+			(response) => Util.displayError(response.errors),
+		);
 
 		this.close();
 	}
 
-	getSelectedSections()
+	getSelectedSections(): Array<number>
 	{
 		const sections = [];
-		this.superposedSections.forEach((section) => {
-			sections.push(parseInt(section.id));
-		}, this);
+		this.superposedSections.forEach((section) => sections.push(parseInt(section.id, 10)));
 
 		return sections;
 	}
 }
-
-
-
-
-
-
-
-

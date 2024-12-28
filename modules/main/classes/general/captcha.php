@@ -1,10 +1,4 @@
 <?php
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2006 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
 
 //Some marketplace modules define the same class
 if (!class_exists("CCaptcha")):
@@ -188,7 +182,7 @@ class CCaptcha
 
 	function SetTextTransparent($bTransparentText, $transparentTextPercent = 10)
 	{
-		$this->bTransparentText = ($bTransparentText ? true : false);
+		$this->bTransparentText = (bool)$bTransparentText;
 		$this->transparentTextPercent = intval($transparentTextPercent);
 	}
 
@@ -352,7 +346,7 @@ class CCaptcha
 
 	function SetLinesOverText($bLinesOverText)
 	{
-		$this->bLinesOverText = ($bLinesOverText ? true : false);
+		$this->bLinesOverText = (bool)$bLinesOverText;
 	}
 
 	function SetCodeChars($arChars)
@@ -363,12 +357,12 @@ class CCaptcha
 
 	function SetWaveTransformation($bWaveTransformation)
 	{
-		$this->bWaveTransformation = ($bWaveTransformation ? true : false);
+		$this->bWaveTransformation = (bool)$bWaveTransformation;
 	}
 
 	function SetEmptyText($bEmptyText)
 	{
-		$this->bEmptyText = ($bEmptyText? true: false);
+		$this->bEmptyText = (bool)$bEmptyText;
 	}
 
 	/* UTIL */
@@ -407,17 +401,7 @@ class CCaptcha
 		if (!$this->bLinesOverText)
 			$this->DrawLines();
 
-		$right_border = $this->DrawText();
-//			if($right_border < ($this->imageWidth - $this->textStartX))
-//			{
-//				$img2 = $this->InitImage();
-//				imagecopy($img2, $this->image,
-//					$this->textStartX + rand(0, $this->imageWidth - $right_border - $this->textStartX), 0,
-//					$this->textStartX, 0,
-//					$right_border - $this->textStartX, $this->imageHeight
-//				);
-//				$this->image = $img2;
-//			}
+		$this->DrawText();
 
 		if ($this->bLinesOverText)
 			$this->DrawLines();
@@ -438,7 +422,6 @@ class CCaptcha
 	function CreateImageError($arMsg)
 	{
 		$this->image = imagecreate($this->imageWidth, $this->imageHeight);
-		$bgColor = imagecolorallocate($this->image, 0, 0, 0);
 		$textColor = imagecolorallocate($this->image, 255, 255, 255);
 
 		if (!is_array($arMsg))
@@ -496,13 +479,13 @@ class CCaptcha
 				$sx = $x + ( sin($x * $rand1 + $rand5) + sin($y * $rand3 + $rand6) ) * $rand9;
 				$sy = $y + ( sin($x * $rand2 + $rand7) + sin($y * $rand4 + $rand8) ) * $rand10;
 
-				// первообраз за пределами изображения
 				if($sx < 0 || $sy < 0 || $sx >= $width_1 || $sy >= $height_1)
 				{
-					$color_xy = $color_y = $color_x = $color = $this->arRealBGColor;
+					// первообраз за пределами изображения
 				}
 				else
-				{ // цвета основного пикселя и его 3-х соседей для лучшего антиалиасинга
+				{
+					// цвета основного пикселя и его 3-х соседей для лучшего антиалиасинга
 					$rgb = imagecolorat($img, $sx, $sy);
 					$color_r = ($rgb >> 16) & 0xFF;
 					$color_g = ($rgb >> 8) & 0xFF;
@@ -612,11 +595,7 @@ class CCaptcha
 
 	function DrawText()
 	{
-		if ($this->bTransparentText)
-			$alpha = floor($this->transparentTextPercent / 100 * 127);
-
-		$yMin = ($this->imageHeight / 2) + ($this->textFontSize / 2) - 2;
-		$yMax = ($this->imageHeight / 2) + ($this->textFontSize / 2) + 2;
+		$alpha = ($this->bTransparentText ? floor($this->transparentTextPercent / 100 * 127) : 0);
 
 		$bPrecise = $this->textDistanceFrom < 0 && $this->textDistanceTo < 0;
 
@@ -649,15 +628,18 @@ class CCaptcha
 
 			$y = $height + rand(0, ($this->imageHeight-$height)*0.9);
 
+			$arLeftBounds = array();
+			$arRightBounds = array();
+			$dx = 0;
+
 			if($bPrecise)
 			{
-				//Now for precise positioning we need to draw characred and define it's borders
+				//Now for precise positioning we need to draw characred and define its borders
 				$img = $this->InitImage($width, $this->imageHeight);
 				$tmp = imagecolorallocate($img, $not_bg_color[0], $not_bg_color[1], $not_bg_color[2]);
 				$dx = -min($bounds[0], $bounds[2], $bounds[4], $bounds[6]);
 				imagettftext($img, $this->textFontSize, $angle, $dx, $y, $tmp, $ttfFile, $utf);
 
-				$arLeftBounds = array();
 				for($yy=0; $yy < $this->imageHeight; $yy++)
 				{
 					$arLeftBounds[$yy] = 0;
@@ -687,12 +669,6 @@ class CCaptcha
 				}
 
 				imagedestroy($img);
-			}
-			else
-			{
-				$arLeftBounds = array();
-				$arRightBounds = array();
-				$dx = 0;
 			}
 
 			if($i > 0)
@@ -733,6 +709,7 @@ class CCaptcha
 
 		}
 
+		$x2 = 0;
 		foreach($arPos as $pos)
 		{
 			$arTextColor = $this->GetColor($this->arTextColor);
@@ -831,13 +808,11 @@ class CCaptcha
 
 		$this->sid = time();
 
-		if (!is_array(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]))
-			\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"] = array();
-
-		\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$this->sid] = $this->code;
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		$session["CAPTCHA_CODE"][$this->sid] = $this->code;
 	}
 
-	function SetCodeCrypt($password = "")
+	function SetCodeCrypt()
 	{
 		if (!defined("CAPTCHA_COMPATIBILITY"))
 		{
@@ -851,10 +826,11 @@ class CCaptcha
 		for ($i = 0; $i < $this->codeLength; $i++)
 			$this->code .= $this->arChars[rand(1, $max) - 1];
 
-		if (!\Bitrix\Main\Application::getInstance()->getSession()->get("CAPTCHA_PASSWORD"))
-			\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"] = randString(10);
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		if (!$session->get("CAPTCHA_PASSWORD"))
+			$session["CAPTCHA_PASSWORD"] = randString(10);
 
-		$this->codeCrypt = $this->CryptData($this->code, "E", \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"]);
+		$this->codeCrypt = $this->CryptData($this->code, "E", $session["CAPTCHA_PASSWORD"]);
 	}
 
 	function SetCaptchaCode($sid = false)
@@ -905,20 +881,21 @@ class CCaptcha
 		if (!defined("CAPTCHA_COMPATIBILITY"))
 			return CCaptcha::InitCaptchaCode($sid);
 
-		if (!is_array(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]) || empty(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]))
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		if (!is_array($session["CAPTCHA_CODE"]) || empty($session["CAPTCHA_CODE"]))
 			return false;
 
-		if (!array_key_exists($sid, \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]))
+		if (!array_key_exists($sid, $session["CAPTCHA_CODE"]))
 			return false;
 
-		$this->code = \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$sid];
+		$this->code = $session["CAPTCHA_CODE"][$sid];
 		$this->sid = $sid;
 		$this->codeLength = mb_strlen($this->code);
 
 		return true;
 	}
 
-	function InitCodeCrypt($codeCrypt, $password = "")
+	function InitCodeCrypt($codeCrypt)
 	{
 		if (!defined("CAPTCHA_COMPATIBILITY"))
 			return CCaptcha::InitCaptchaCode($codeCrypt);
@@ -926,11 +903,12 @@ class CCaptcha
 		if ($codeCrypt == '')
 			return false;
 
-		if (!\Bitrix\Main\Application::getInstance()->getSession()->get("CAPTCHA_PASSWORD"))
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		if (!$session->get("CAPTCHA_PASSWORD"))
 			return false;
 
 		$this->codeCrypt = $codeCrypt;
-		$this->code = $this->CryptData($codeCrypt, "D", \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"]);
+		$this->code = $this->CryptData($codeCrypt, "D", $session["CAPTCHA_PASSWORD"]);
 		$this->codeLength = mb_strlen($this->code);
 
 		return true;
@@ -976,19 +954,20 @@ class CCaptcha
 		if (!defined("CAPTCHA_COMPATIBILITY"))
 			return CCaptcha::CheckCaptchaCode($userCode, $sid, $bUpperCode);
 
-		if (!is_array(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]) || empty(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]))
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		if (!is_array($session["CAPTCHA_CODE"]) || empty($session["CAPTCHA_CODE"]))
 			return false;
 
-		if (!array_key_exists($sid, \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]))
+		if (!array_key_exists($sid, $session["CAPTCHA_CODE"]))
 			return false;
 
 		if ($bUpperCode)
 			$userCode = mb_strtoupper($userCode);
 
-		if (\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$sid] != $userCode)
+		if ($session["CAPTCHA_CODE"][$sid] != $userCode)
 			return false;
 
-		unset(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$sid]);
+		unset($session["CAPTCHA_CODE"][$sid]);
 
 		return true;
 	}
@@ -1001,13 +980,14 @@ class CCaptcha
 		if ($codeCrypt == '')
 			return false;
 
-		if (!\Bitrix\Main\Application::getInstance()->getSession()->get("CAPTCHA_PASSWORD"))
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		if (!$session->get("CAPTCHA_PASSWORD"))
 			return false;
 
 		if ($bUpperCode)
 			$userCode = mb_strtoupper($userCode);
 
-		$code = $this->CryptData($codeCrypt, "D", \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"]);
+		$code = $this->CryptData($codeCrypt, "D", $session["CAPTCHA_PASSWORD"]);
 
 		if ($code != $userCode)
 			return false;
@@ -1021,14 +1001,11 @@ class CCaptcha
 		if ($type != "D")
 			$type = "E";
 
-		$res_data = "";
-
 		if ($type == 'D')
 			$data = base64_decode(urldecode($data));
 
 		$key[] = "";
 		$box[] = "";
-		$temp_swap = "";
 		$pwdLength = mb_strlen($pwdString);
 
 		for ($i = 0; $i <= 255; $i++)

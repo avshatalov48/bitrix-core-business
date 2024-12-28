@@ -1,24 +1,25 @@
-import { Type, Loc, Text, Dom, Tag, ajax } from 'main.core';
 import { Summary } from 'bizproc.workflow.faces.summary';
-import { ImageStackSteps, headerTypeEnum, footerTypeEnum, imageTypeEnum, stackStatusEnum } from 'ui.image-stack-steps';
-import type { StepType, FooterType } from 'ui.image-stack-steps';
-
-import type { FacesData, WorkflowFacesData, Avatar } from './types/workflow-faces';
-export type { FacesData, WorkflowFacesData, Avatar };
-import { workflowFacesDataValidator, validateFacesData } from './helpers/validators';
+import { ajax, Dom, Tag, Text, Type } from 'main.core';
+import type { FooterType, StackType, StepType } from 'ui.image-stack-steps';
+import { footerTypeEnum, headerTypeEnum, ImageStackSteps, imageTypeEnum, stackStatusEnum } from 'ui.image-stack-steps';
+import { validateFacesData, workflowFacesDataValidator } from './helpers/validators';
 
 import 'ui.design-tokens';
 import 'ui.icons';
 import 'ui.icon-set.main';
 
+import type { Avatar, FacesData, StepData, WorkflowFacesData } from './types/workflow-faces';
+
 import './css/style.css';
+
+export type { FacesData, WorkflowFacesData, Avatar };
 
 export class WorkflowFaces
 {
 	#target: HTMLElement;
 	#data: FacesData = {};
 	#showArrow: boolean = false;
-	#showTimeline: boolean = false;
+	#showTimeStep: boolean = false;
 	#workflowId: string;
 	#targetUserId: number;
 
@@ -32,12 +33,12 @@ export class WorkflowFaces
 	{
 		if (!workflowFacesDataValidator(data))
 		{
-			throw new TypeError('Bizproc.Workflow.Faces: data must be correct plain object', data);
+			throw new TypeError('Bizproc.Workflow.Faces: data must be correct plain object');
 		}
 
 		this.#workflowId = data.workflowId;
 		this.#target = data.target;
-		this.#targetUserId = data.targetUserId;
+		this.#targetUserId = data.targetUserId || 0;
 		this.#data = data.data;
 
 		if (Type.isBoolean(data.showArrow))
@@ -45,13 +46,13 @@ export class WorkflowFaces
 			this.#showArrow = data.showArrow;
 		}
 
-		if (Type.isBoolean(data.showTimeline))
+		if (Type.isBoolean(data.showTimeStep))
 		{
-			this.#showTimeline = data.showTimeline;
+			this.#showTimeStep = data.showTimeStep;
 		}
 
 		this.#initStack();
-		if (data.subscribeToPushes)
+		if (data.subscribeToPushes && !data.isWorkflowFinished)
 		{
 			this.#subscribeToPushes();
 		}
@@ -64,187 +65,81 @@ export class WorkflowFaces
 
 	#getStackSteps(): []
 	{
-		const steps = [this.#getAuthorStep()];
+		const steps = [];
+		this.#data.steps.forEach((stepData) => {
+			steps.push(this.#createStep(stepData));
+		});
 
-		if (Type.isArrayFilled(this.#data.avatars.completed))
+		if (steps.length < 3)
 		{
-			steps.push(this.#getCompletedStep());
+			for (let i = steps.length; i < 3; i++)
+			{
+				steps.push(this.#getStubStep());
+			}
 		}
 
-		if (this.#data.workflowIsCompleted)
+		if (this.#data.progressBox && this.#data.progressBox.progressTasksCount > 0)
 		{
-			steps.push(this.#getDoneStep());
-		}
-		else
-		{
-			steps.push(this.#getRunningStep());
-		}
-
-		if (steps.length === 2)
-		{
-			steps.push(this.#getStubStep());
+			steps[0].progressBox = { title: this.#data.progressBox.text };
 		}
 
 		return steps.map((step, index) => ({ ...step, id: `step-${index}` }));
 	}
 
-	#getAuthorStep(): StepType
+	#createStep(data: StepData): StepType
 	{
-		const stack = {
-			images: [{
-				type: imageTypeEnum.ICON,
-				data: { icon: 'bp', color: 'var(--ui-color-palette-gray-20)' },
-			}],
+		return {
+			id: data.id,
+			header: { type: headerTypeEnum.TEXT, data: { text: data.name } },
+			stack: this.#getStack(data),
+			footer: this.#getFooter(data),
+			styles: { minWidth: 75 },
 		};
-
-		const avatar = this.#data.avatars.author[0];
-		const authorId = Text.toInteger(avatar.id);
-		if (authorId > 0)
-		{
-			stack.images = [{
-				type: imageTypeEnum.USER,
-				data: { src: String(avatar.avatarUrl || ''), userId: authorId },
-			}];
-		}
-
-		const step = {
-			id: 'author',
-			header: {
-				type: headerTypeEnum.TEXT,
-				data: { text: Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_COLUMN_AUTHOR') },
-			},
-			stack,
-			footer: this.#getFooterDuration(this.#data.time.author),
-		};
-
-		const hiddenTaskCount = this.#getHiddenTaskCount();
-		if (hiddenTaskCount > 0)
-		{
-			step.progressBox = {
-				title: Loc.getMessage('BIZPROC_JS_WORKFLOW_COMPLETED_TASK_COUNT', { '#COUNT#': hiddenTaskCount }),
-			};
-		}
-
-		return step;
 	}
 
-	#getHiddenTaskCount(): number
+	#getStack(data: StepData): StackType
 	{
-		const completedTaskCount = Text.toInteger(this.#data.completedTaskCount);
-
-		if (this.#data.workflowIsCompleted)
+		const userStack = this.#getUserStack(data);
+		if (userStack)
 		{
-			return completedTaskCount > 2 ? completedTaskCount - 2 : 0;
+			return userStack;
 		}
 
-		return completedTaskCount > 1 ? completedTaskCount - 1 : 0;
+		return this.#getIconStack(data);
 	}
 
-	#getRunningStep(): StepType
+	#getUserStack(data: StepData): ?StackType
 	{
-		const stack = {
-			images: [{
-				type: imageTypeEnum.ICON,
-				data: {
-					icon: 'black-clock',
-					color: 'var(--ui-color-palette-blue-60)',
-				},
-			}],
-		};
-
-		const images = this.#getStackUserImages(this.#data.avatars.running);
+		const images = this.#getStackUserImages(data.avatarsData);
 		if (Type.isArrayFilled(images))
 		{
-			stack.images = images;
-			stack.status = { type: stackStatusEnum.WAIT };
+			const stack = { images };
+
+			let status = null;
+			switch (data.status)
+			{
+				case 'wait':
+					status = stackStatusEnum.WAIT;
+					break;
+				case 'success':
+					status = stackStatusEnum.OK;
+					break;
+				case 'not-success':
+					status = stackStatusEnum.CANCEL;
+					break;
+				default:
+					status = null;
+			}
+
+			if (status)
+			{
+				stack.status = { type: status };
+			}
+
+			return stack;
 		}
 
-		return {
-			id: 'running',
-			header: {
-				type: headerTypeEnum.TEXT,
-				data: { text: Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_COLUMN_RUNNING') },
-			},
-			stack,
-			footer: {
-				type: footerTypeEnum.DURATION,
-				data: {
-					duration: this.#data.time.running,
-					realtime: true,
-				},
-			},
-		};
-	}
-
-	#getCompletedStep(): StepType
-	{
-		const isSuccess = Text.toBoolean(this.#data.statuses.completedSuccess);
-
-		const stack = {
-			images: [{
-				type: imageTypeEnum.ICON,
-				data: {
-					icon: isSuccess ? 'circle-check' : 'cross-circle-60',
-					color: isSuccess ? 'var(--ui-color-primary-alt)' : 'var(--ui-color-base-35)',
-				},
-			}],
-		};
-
-		const images = this.#getStackUserImages(this.#data.avatars.completed);
-		if (Type.isArrayFilled(images))
-		{
-			stack.images = images;
-			stack.status = { type: isSuccess ? stackStatusEnum.OK : stackStatusEnum.CANCEL };
-		}
-
-		return {
-			id: 'completed',
-			header: {
-				type: headerTypeEnum.TEXT,
-				data: { text: Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_COLUMN_COMPLETED') },
-			},
-			stack,
-			footer: this.#getFooterDuration(this.#data.time.completed),
-		};
-	}
-
-	#getDoneStep(): StepType
-	{
-		const stack = {
-			images: [{
-				type: imageTypeEnum.ICON,
-				data: { icon: 'circle-check', color: 'var(--ui-color-primary-alt)' },
-			}],
-		};
-
-		const images = this.#getStackUserImages(this.#data.avatars.done);
-		if (Type.isArrayFilled(images))
-		{
-			const isSuccess = Text.toBoolean(this.#data.statuses.doneSuccess);
-
-			stack.images = images;
-			stack.status = { type: isSuccess ? stackStatusEnum.OK : stackStatusEnum.CANCEL };
-		}
-
-		return {
-			id: 'done',
-			header: {
-				type: headerTypeEnum.TEXT,
-				data: { text: Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_COLUMN_DONE') },
-			},
-			stack,
-			footer: this.#getFooterDuration(this.#data.time.done),
-		};
-	}
-
-	#getStubStep(): StepType
-	{
-		return {
-			id: 'stub',
-			header: { type: headerTypeEnum.STUB },
-			stack: { images: [{ type: imageTypeEnum.USER_STUB }] },
-			footer: { type: footerTypeEnum.STUB },
-		};
+		return null;
 	}
 
 	#getStackUserImages(avatars): []
@@ -267,25 +162,65 @@ export class WorkflowFaces
 		return images;
 	}
 
-	#getFooterDuration(time): FooterType
+	#getIconStack(data: StepData): StackType
 	{
-		if (Type.isNumber(time) && time > 0)
+		let icon = null;
+		let color = null;
+		switch (data.id)
+		{
+			case 'completed':
+				icon = data.success ? 'circle-check' : 'cross-circle-60';
+				color = data.success ? 'var(--ui-color-primary-alt)' : 'var(--ui-color-base-35)';
+				break;
+			case 'running':
+				icon = 'black-clock';
+				color = 'var(--ui-color-palette-blue-60)';
+				break;
+			case 'done':
+				icon = 'circle-check';
+				color = 'var(--ui-color-primary-alt)';
+				break;
+			default:
+				icon = 'bp';
+				color = 'var(--ui-color-palette-gray-20)';
+		}
+
+		return { images: [{ type: imageTypeEnum.ICON, data: { icon, color } }] };
+	}
+
+	#getFooter(data: StepData): FooterType
+	{
+		if (
+			(Type.isNumber(data.duration) && data.duration > 0)
+			|| (data.id === 'running')
+		)
 		{
 			return {
 				type: footerTypeEnum.DURATION,
-				data: { duration: time, realtime: false },
+				data: { duration: Text.toInteger(data.duration), realtime: data.id === 'running' },
 			};
 		}
 
 		return {
 			type: footerTypeEnum.TEXT,
-			data: { text: Loc.getMessage('BIZPROC_JS_WORKFLOW_FACES_EMPTY_TIME') },
+			data: { text: String(data.duration) },
+		};
+	}
+
+	#getStubStep(): StepType
+	{
+		return {
+			id: 'stub',
+			header: { type: headerTypeEnum.STUB },
+			stack: { images: [{ type: imageTypeEnum.USER_STUB }] },
+			footer: { type: footerTypeEnum.STUB },
+			styles: { minWidth: 75 },
 		};
 	}
 
 	#subscribeToPushes()
 	{
-		if (!this.#data.workflowIsCompleted && BX.PULL)
+		if (BX.PULL)
 		{
 			this.#unsubscribePushCallback = BX.PULL.subscribe({
 				moduleId: 'bizproc',
@@ -318,7 +253,7 @@ export class WorkflowFaces
 			ajax.runAction('bizproc.workflow.faces.load', {
 				data: {
 					workflowId: this.#workflowId,
-					runningTaskId: this.#data.runningTaskId || 0,
+					runningTaskId: this.#getRunningTaskId(),
 					userId: this.#targetUserId,
 				},
 			}).then(({ data }) => {
@@ -347,6 +282,17 @@ export class WorkflowFaces
 		}
 	}
 
+	#getRunningTaskId(): number
+	{
+		const runningStep = this.#data.steps.find((step) => step.id === 'running');
+		if (runningStep)
+		{
+			return runningStep.taskId;
+		}
+
+		return 0;
+	}
+
 	#unsubscribeToPushes()
 	{
 		if (Type.isFunction(this.#unsubscribePushCallback))
@@ -372,29 +318,35 @@ export class WorkflowFaces
 			Dom.append(Tag.render`<div class="bp-workflow-faces-arrow"></div>`, this.#node);
 		}
 
-		if (this.#showTimeline)
+		if (this.#showTimeStep && this.#data.timeStep)
 		{
 			Dom.append(this.#renderTimeline(), this.#node);
 		}
 	}
 
-	updateData(data: FacesData)
+	updateData(data)
 	{
-		if (!validateFacesData(data))
+		const facesData = {
+			steps: data.steps,
+			progressBox: data.progressBox,
+			timeStep: data.timeStep,
+		};
+
+		if (!validateFacesData(facesData))
 		{
 			return;
 		}
 
-		this.#data = data;
+		this.#data = facesData;
 
 		this.#getStackSteps().forEach((step) => {
 			this.#stack.updateStep(step, step.id);
 		});
 
-		if (this.#data.workflowIsCompleted)
+		if (data.isWorkflowFinished)
 		{
 			this.#unsubscribeToPushes();
-			if (this.#showTimeline)
+			if (this.#showTimeStep)
 			{
 				Dom.replace(this.#timelineNode, this.#renderTimeline());
 			}
@@ -405,9 +357,7 @@ export class WorkflowFaces
 	{
 		const timeline = new Summary({
 			workflowId: this.#workflowId,
-			time: this.#data.time.total,
-			workflowIsCompleted: this.#data.workflowIsCompleted,
-			showArrow: false,
+			data: this.#data.timeStep,
 		});
 		this.#timelineNode = timeline.render();
 

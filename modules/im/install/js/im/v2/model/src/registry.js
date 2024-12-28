@@ -13,10 +13,20 @@ export { CopilotModel } from './copilot/copilot';
 export { formatFieldsWithConfig } from './utils/validate';
 export type { FieldsConfig } from './utils/validate';
 
-export type { Chat as ImModelChat } from './type/chat';
+export { convertToNumber, convertToString, isNumberOrString, convertObjectKeysToCamelCase } from './utils/format';
+export { prepareDraft, prepareInvitation } from './recent/format/format-functions';
+
+export type {
+	Chat as ImModelChat,
+	CollabInfo as ImModelCollabInfo,
+	CollabEntityInfo as ImModelCollabEntityInfo,
+} from './type/chat';
 export type { User as ImModelUser, Bot as ImModelBot } from './type/user';
 export type { File as ImModelFile } from './type/file';
-export type { Message as ImModelMessage, CommentInfo as ImModelCommentInfo } from './type/message';
+export type {
+	Message as ImModelMessage,
+	CommentInfo as ImModelCommentInfo,
+} from './type/message';
 export type { CallItem as ImModelCallItem } from './type/call-item';
 export type {
 	Notification as ImModelNotification,

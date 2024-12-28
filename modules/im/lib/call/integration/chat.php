@@ -228,7 +228,7 @@ class Chat extends AbstractEntity
 		{
 			return false;
 		}
-		if($this->chatFields['message_type'] == IM_MESSAGE_PRIVATE)
+		if ($this->chatFields['message_type'] == IM_MESSAGE_PRIVATE)
 		{
 			$chat = new \CIMChat();
 
@@ -241,7 +241,7 @@ class Chat extends AbstractEntity
 				return false;
 			}
 
-			if($this->call)
+			if ($this->call)
 			{
 				$this->call->setAssociatedEntity(static::getEntityType(), 'chat'.$chatId);
 				// todo: remove when the calls are supported in the mobile
@@ -255,7 +255,7 @@ class Chat extends AbstractEntity
 		{
 			$chat = new \CIMChat();
 			$chatId = \Bitrix\Im\Dialog::getChatId($this->getEntityId());
-			$result = $chat->addUser($chatId, $userId);
+			$chat->addUser($chatId, $userId);
 		}
 
 		return true;
@@ -357,7 +357,7 @@ class Chat extends AbstractEntity
 			"#ID#" => $this->call->getId()
 		]);
 		$componentParams = [
-			'MESSAGE_TYPE' => 'START',
+			'MESSAGE_TYPE' => 'START', /** @see \Bitrix\Call\NotifyService::MESSAGE_TYPE_START */
 			'CALL_ID' => $this->call->getId(),
 			'MESSAGE_TEXT' => $message,
 		];
@@ -388,6 +388,7 @@ class Chat extends AbstractEntity
 		$chatId = $this->call->getChatId();
 		if (!empty($this->call->getParentId()))
 		{
+			//todo: Remove it
 			$chatId = \Bitrix\Im\Dialog::getChatId($this->getEntityId());
 		}
 
@@ -400,7 +401,7 @@ class Chat extends AbstractEntity
 			'SKIP_COUNTER_INCREMENTS' => $skipCounterInc ? 'Y' : 'N',
 			'PARAMS' => [
 				'NOTIFY' => $muted ? 'N': 'Y',
-				'COMPONENT_ID' => 'CallMessage',
+				'COMPONENT_ID' => 'CallMessage', /** @see \Bitrix\Call\NotifyService::MESSAGE_COMPONENT_ID */
 				'COMPONENT_PARAMS' => $componentParams,
 			]
 		]);

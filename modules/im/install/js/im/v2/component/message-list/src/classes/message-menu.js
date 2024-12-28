@@ -8,7 +8,7 @@ import { BaseMenu } from 'im.v2.lib.menu';
 import { Parser } from 'im.v2.lib.parser';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { MessageService, DiskService } from 'im.v2.provider.service';
-import { EventType, PlacementType, ChatActionType } from 'im.v2.const';
+import { EventType, PlacementType, ActionByRole } from 'im.v2.const';
 import { MarketManager } from 'im.v2.lib.market';
 import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -65,7 +65,27 @@ export class MessageMenu extends BaseMenu
 			this.getDelimiter(),
 			this.getEditItem(),
 			this.getDeleteItem(),
+			this.getDelimiter(),
+			this.getSelectItem(),
 		];
+	}
+
+	getSelectItem(): ?MenuItem
+	{
+		if (this.#isDeletedMessage() || !this.#isRealMessage())
+		{
+			return null;
+		}
+
+		return {
+			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_SELECT'),
+			onclick: () => {
+				EventEmitter.emit(EventType.dialog.openBulkActionsMode, {
+					messageId: this.context.id,
+				});
+				this.menuInstance.close();
+			},
+		};
 	}
 
 	getReplyItem(): MenuItem
@@ -84,7 +104,7 @@ export class MessageMenu extends BaseMenu
 
 	getForwardItem(): ?MenuItem
 	{
-		if (this.#isDeletedMessage() || Type.isString(this.context.id))
+		if (this.#isDeletedMessage() || !this.#isRealMessage())
 		{
 			return null;
 		}
@@ -93,7 +113,7 @@ export class MessageMenu extends BaseMenu
 			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_FORWARD'),
 			onclick: () => {
 				EventEmitter.emit(EventType.dialog.showForwardPopup, {
-					messageId: this.context.id,
+					messagesIds: [this.context.id],
 				});
 				this.menuInstance.close();
 			},
@@ -163,7 +183,7 @@ export class MessageMenu extends BaseMenu
 
 	getPinItem(): ?MenuItem
 	{
-		const canPin = PermissionManager.getInstance().canPerformAction(ChatActionType.pinMessage, this.context.dialogId);
+		const canPin = PermissionManager.getInstance().canPerformActionByRole(ActionByRole.pinMessage, this.context.dialogId);
 		if (this.#isDeletedMessage() || !canPin)
 		{
 			return null;
@@ -312,8 +332,8 @@ export class MessageMenu extends BaseMenu
 		}
 
 		const permissionManager = PermissionManager.getInstance();
-		const canDeleteOthersMessage = permissionManager.canPerformAction(
-			ChatActionType.deleteOthersMessage,
+		const canDeleteOthersMessage = permissionManager.canPerformActionByRole(
+			ActionByRole.deleteOthersMessage,
 			this.context.dialogId,
 		);
 		if (!this.#isOwnMessage() && !canDeleteOthersMessage)
@@ -389,7 +409,7 @@ export class MessageMenu extends BaseMenu
 			onclick: function() {
 				void this.diskService.save(file.id).then(() => {
 					BX.UI.Notification.Center.notify({
-						content: Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS'),
+						content: Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS'),
 					});
 				});
 				this.menuInstance.close();
@@ -428,6 +448,11 @@ export class MessageMenu extends BaseMenu
 	#isForwardedMessage(): boolean
 	{
 		return Type.isStringFilled(this.context.forward.id);
+	}
+
+	#isRealMessage(): boolean
+	{
+		return this.store.getters['messages/isRealMessage'](this.context.id);
 	}
 
 	async #onDelete()

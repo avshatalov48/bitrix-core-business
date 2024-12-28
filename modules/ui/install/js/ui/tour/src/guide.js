@@ -724,9 +724,9 @@ export class Guide extends Event.EventEmitter
 
 			let linkNode = '';
 			if (
-				this.getCurrentStep().getLink()
-				|| this.getCurrentStep().getArticle()
-				|| this.getCurrentStep().getInfoHelperCode()
+				this.steps.some((step): Step => step.getLink())
+				|| this.steps.some((step): Step => step.getArticle())
+				|| this.steps.some((step): Step => step.getInfoHelperCode())
 			)
 			{
 				linkNode = this.getLink();
@@ -828,22 +828,27 @@ export class Guide extends Event.EventEmitter
 	{
 		event.preventDefault();
 
-		if(!this.helper)
+		if (!this.helper)
 		{
 			this.helper = top.BX.Helper;
 		}
 
-		this.helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
+		const article = this.getCurrentStep().getArticle();
+		const anchor = this.getCurrentStep().getArticleAnchor();
 
-		if(this.onEvent)
+		// eslint-disable-next-line sonarjs/no-nested-template-literals
+		const url = `redirect=detail&code=${article}${anchor ? `&anchor=${anchor}` : ''}`;
+
+		this.helper.show(url);
+
+		if (this.helper.isOpen())
 		{
-			if(this.helper.isOpen())
-				this.getPopup().setAutoHide(false);
-
-			EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
-				this.getPopup().setAutoHide(true);
-			});
+			this.getPopup().setAutoHide(false);
 		}
+
+		EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+			this.getPopup().setAutoHide(true);
+		});
 	}
 
 	handleInfoHelperCodeClickLink(): void
@@ -855,17 +860,14 @@ export class Guide extends Event.EventEmitter
 			const helper = top.BX.UI.InfoHelper;
 			helper.show(this.getCurrentStep().getInfoHelperCode());
 
-			if (this.onEvent)
+			if (helper.isOpen())
 			{
-				if (helper.isOpen())
-				{
-					this.getPopup().setAutoHide(false);
-				}
-
-				EventEmitter.subscribe(helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
-					this.getPopup().setAutoHide(true);
-				});
+				this.getPopup().setAutoHide(false);
 			}
+
+			EventEmitter.subscribe(helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+				this.getPopup().setAutoHide(true);
+			});
 		}
 	}
 

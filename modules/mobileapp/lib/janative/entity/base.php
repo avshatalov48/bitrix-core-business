@@ -114,12 +114,13 @@ abstract class Base
 
 	public function getDependencies()
 	{
-		if (!isset(static::$dependencies[$this->name]))
+		$fullyQualifiedName = $this->getFullyQualifiedName();
+		if (!isset(static::$dependencies[$fullyQualifiedName]))
 		{
-			static::$dependencies[$this->name] = array_values($this->resolveDependencies());
+			static::$dependencies[$fullyQualifiedName] = array_values($this->resolveDependencies());
 		}
 
-		return static::$dependencies[$this->name];
+		return static::$dependencies[$fullyQualifiedName];
 	}
 
 	public function getPath()

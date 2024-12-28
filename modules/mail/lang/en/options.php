@@ -17,6 +17,7 @@ $MESS["EMAL_OPT_STATUS"] = "Status:";
 $MESS["EMAL_OPT_STATUS_UNK"] = "unknown";
 $MESS["EMAL_OPT_STOP_SMTP"] = "Stop SMTP server";
 $MESS["MAIL_OPTIONS_CHECKSPAM"] = "Check incoming messages for spam";
+$MESS["MAIL_OPTIONS_EMBED_LOCAL_ID_IN_OUTGOING_MESSAGE_HEADER"] = "Add local ID to outgoing message header:<br>(improves email sync performance)";
 $MESS["MAIL_OPTIONS_LOG_SAVE"] = "Purge e-mail log after (days):";
 $MESS["MAIL_OPTIONS_RESET"] = "Reset";
 $MESS["MAIL_OPTIONS_SAVE"] = "Save";

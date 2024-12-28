@@ -1,4 +1,4 @@
-import { ChatType, ChatActionType } from 'im.v2.const';
+import { ChatType, ActionByRole } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 
 import { PinnedMessage } from './pinned-message';
@@ -44,7 +44,7 @@ export const PinnedMessages = {
 		},
 		canUnpin(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.pinMessage, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.pinMessage, this.dialogId);
 		},
 		showUnpin(): boolean
 		{

@@ -2,7 +2,9 @@
 
 namespace Bitrix\Im\V2\Link\Task;
 
+use Bitrix\Im\Model\LinkTaskTable;
 use Bitrix\Im\V2\Link\BaseLinkCollection;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Tasks\Internals\SearchIndex;

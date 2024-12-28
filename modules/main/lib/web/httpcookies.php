@@ -59,10 +59,10 @@ class HttpCookies extends \Bitrix\Main\Type\Dictionary
 		{
 			$cookie = trim($str);
 		}
-		$arCookie = explode('=', $cookie, 2);
+		$cookies = explode('=', $cookie, 2);
 
-		$name = rawurldecode($arCookie[0]);
-		$value = rawurldecode($arCookie[1]);
+		$name = rawurldecode($cookies[0]);
+		$value = rawurldecode($cookies[1]);
 
 		// TODO: a cookie has more attributes
 		$this[$name] = new Http\Cookie($name, $value);

@@ -45,7 +45,7 @@
 
 					<div class="g-pa-30">
 						<h3 class="landing-block-node-left-title js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
-							Present <?= date("Y") ?></h3>
+							Present #YEAR#</h3>
 						<div class="landing-block-node-left-text js-animation fadeIn g-color-gray-light-v2">
 							<p>Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque
 								pulvinar at.</p>

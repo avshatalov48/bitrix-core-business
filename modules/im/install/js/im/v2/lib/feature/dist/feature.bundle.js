@@ -52,6 +52,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	const Feature = {
 	  chatV2: 'chatV2',
+	  openLinesV2: 'openLinesV2',
 	  chatDepartments: 'chatDepartments',
 	  copilotActive: 'copilotActive',
 	  copilotAvailable: 'copilotAvailable',
@@ -61,7 +62,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  zoomActive: 'zoomActive',
 	  zoomAvailable: 'zoomAvailable',
 	  giphyAvailable: 'giphyAvailable',
-	  collabAvailable: 'collabAvailable'
+	  collabAvailable: 'collabAvailable',
+	  collabCreationAvailable: 'collabCreationAvailable',
+	  inviteByLinkAvailable: 'inviteByLinkAvailable',
+	  inviteByPhoneAvailable: 'inviteByPhoneAvailable',
+	  documentSignAvailable: 'documentSignAvailable'
 	};
 	const FeatureManager = {
 	  chatHistory: ChatHistoryManager,

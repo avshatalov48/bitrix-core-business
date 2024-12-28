@@ -3,13 +3,15 @@ import { Util } from 'calendar.util';
 import { TagSelector } from 'ui.entity-selector';
 import { TrackingUsersForm } from './trackingusersform';
 
+/* eslint-disable @bitrix24/bitrix24-rules/no-native-dom-methods */
 export class TrackingGroupsForm extends TrackingUsersForm
 {
 	constructor(options = {})
 	{
 		super(options);
 		this.interfaceType = 'groups';
-		this.trackingGroupIdList = options.trackingGroups || [];
+		this.trackingIdList = options.trackingGroups || [];
+		this.collabs = options.collabs || [];
 	}
 
 	create()
@@ -27,22 +29,12 @@ export class TrackingGroupsForm extends TrackingUsersForm
 			dialogOptions: {
 				width: 320,
 				context: 'CALENDAR',
-				preselectedItems: this.trackingGroupIdList.map((id) => {
-					return ['project', id];
-				}),
+				preselectedItems: this.trackingIdList.map((id) => ['project', id]),
 				events: {
 					'Item:onSelect': this.handleGroupSelectorChanges.bind(this),
 					'Item:onDeselect': this.handleGroupSelectorChanges.bind(this),
 				},
-				entities: [
-					{
-						id: 'project',
-						options: {
-							lockProjectLink: !Util.isProjectFeatureEnabled(),
-							lockProjectLinkFeatureId: 'socialnetwork_projects_groups',
-						},
-					},
-				],
+				entities: this.getSelectorEntities(),
 			},
 		});
 
@@ -60,11 +52,11 @@ export class TrackingGroupsForm extends TrackingUsersForm
 	handleGroupSelectorChanges()
 	{
 		const selectedItems = this.groupTagSelector.getDialog().getSelectedItems();
-		this.trackingGroupIdList = [];
+		this.trackingIdList = [];
 		selectedItems.forEach((item) => {
-			if (item.entityId === 'project')
+			if (item.entityType === 'project')
 			{
-				this.trackingGroupIdList.push(item.id);
+				this.trackingIdList.push(item.id);
 			}
 		});
 		this.updateSectionList();
@@ -82,50 +74,64 @@ export class TrackingGroupsForm extends TrackingUsersForm
 
 		if (this.updateSectionTimeout)
 		{
-			this.updateSectionTimeout = clearTimeout(this.updateSectionTimeout);
+			clearTimeout(this.updateSectionTimeout);
+			this.updateSectionTimeout = null;
 		}
 
 		this.checkInnerWrapHeight();
 		BX.ajax.runAction('calendar.api.calendarajax.getTrackingSections', {
 			data: {
-				groupIdList: this.trackingGroupIdList,
-				type: 'groups',
+				groupIdList: this.trackingIdList,
+				type: this.interfaceType,
 			},
-		})
-			.then(
-				(response) => {
-					Dom.clean(this.sectionsWrap);
-					this.sectionIndex = {};
-					this.checkInnerWrapHeight();
+		}).then(
+			(response) => {
+				Dom.clean(this.sectionsWrap);
+				this.sectionIndex = {};
+				this.checkInnerWrapHeight();
 
-					// Groups calendars
-					this.createSectionBlock({
-						sectionList: response.data.sections,
-						wrap: this.sectionsWrap,
-					});
-				},
-				(response) => {
-					Util.displayError(response.errors);
-				},
-			);
+				// Groups calendars
+				this.createSectionBlock({
+					sectionList: response.data.sections,
+					wrap: this.sectionsWrap,
+				});
+			},
+			(response) => {
+				Util.displayError(response.errors);
+			},
+		);
 	}
 
-	getSelectedSections()
+	getSelectedSections(): Array<number>
 	{
 		const sections = [];
 		this.superposedSections.forEach((section) => {
 			if (
 				this.interfaceType === 'groups'
 				&& section.type === 'group'
-				&& this.trackingGroupIdList
-				&& !this.trackingGroupIdList.includes(section.ownerId)
+				&& !this.trackingIdList?.includes(section.ownerId)
+				&& !this.collabs?.includes(section.ownerId)
 			)
 			{
 				return;
 			}
-			sections.push(parseInt(section.id));
+			sections.push(parseInt(section.id, 10));
 		});
 
 		return sections;
+	}
+
+	getSelectorEntities(): Array
+	{
+		return [
+			{
+				id: 'project',
+				options: {
+					lockProjectLink: !Util.isProjectFeatureEnabled(),
+					lockProjectLinkFeatureId: 'socialnetwork_projects_groups',
+					'!type': ['collab'],
+				},
+			},
+		];
 	}
 }

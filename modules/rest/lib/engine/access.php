@@ -2,6 +2,7 @@
 
 namespace Bitrix\Rest\Engine;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
@@ -297,9 +298,19 @@ class Access
 
 		if ($action === static::ACTION_BUY)
 		{
-			if ($isB24 && $isSubscriptionDemoAvailable && \CBitrix24::isLicenseNeverPayed())
+			if (
+				$isB24
+				&& $isSubscriptionDemoAvailable
+				&& \CBitrix24::isLicenseNeverPayed()
+				&& Application::getInstance()->getLicense()->getRegion() === 'ru'
+			)
 			{
 				return 'limit_market_trial_demo';
+			}
+
+			if ($isB24 && Client::isSubscriptionDemo() && !Client::canBuySubscription())
+			{
+				return 'limit_subscription_market_bundle';
 			}
 
 			return 'limit_subscription_market_trial_access';
@@ -533,7 +544,14 @@ class Access
 			if (!$isFreeEntity)
 			{
 				// activate demo subscription
-				$code = 'limit_subscription_market_access_buy_marketplus';
+				if (\Bitrix\Main\Application::getInstance()->getLicense()->getRegion() === 'ru')
+				{
+					$code = 'limit_market_trial_demo';
+				}
+				else
+				{
+					$code = 'limit_subscription_market_access_buy_marketplus';
+				}
 			}
 			elseif ($isB24 && $isDemo)
 			{

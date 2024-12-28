@@ -1,9 +1,11 @@
+import { EventEmitter } from 'main.core.events';
+
+import { Analytics } from 'im.v2.lib.analytics';
 import { ImModelSidebarMeetingItem, ImModelChat } from 'im.v2.model';
 import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
-import { EventType, SidebarDetailBlock, ChatActionType, Layout } from 'im.v2.const';
+import { EventType, SidebarDetailBlock, ActionByRole, Layout } from 'im.v2.const';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { EventEmitter } from 'main.core.events';
 
 import { MeetingMenu } from '../../../../classes/context-menu/meeting/meeting-menu';
 import { DetailEmptyState } from '../../../elements/detail-empty-state/detail-empty-state';
@@ -33,7 +35,7 @@ export const MeetingPreview = {
 		},
 		showAddButton(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.createMeeting, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.createMeeting, this.dialogId);
 		},
 		dialog(): ImModelChat
 		{
@@ -75,6 +77,8 @@ export const MeetingPreview = {
 		},
 		onAddClick()
 		{
+			Analytics.getInstance().chatEntities.onCreateEventFromSidebarClick(this.dialogId);
+
 			void this.getEntityCreator().createMeetingForChat();
 		},
 		onOpenDetail()

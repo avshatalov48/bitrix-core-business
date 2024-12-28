@@ -486,7 +486,7 @@ class Network
 		if($result)
 		{
 			$option = static::getShowOptions();
-			$result = $option["dontshow"] !== "Y";
+			$result = !isset($option["dontshow"]) || $option["dontshow"] !== "Y";
 			if(!$result)
 			{
 				static::setAdminPopupSession();
@@ -495,6 +495,8 @@ class Network
 
 		return $result;
 	}
+
+	// TODO: вынести три следующие метода в модуль bitrix24
 
 	public static function setRegisterSettings($settings = array())
 	{
@@ -510,7 +512,7 @@ class Network
 
 		if(isset($settings["REGISTER_WHITELIST"]))
 		{
-			$value = preg_split("/[^a-z0-9\-\.]+/", ToLower($settings["REGISTER_WHITELIST"]));
+			$value = preg_split("/[^a-z0-9\-\.]+/", mb_strtolower($settings["REGISTER_WHITELIST"]));
 			Option::set("socialservices", "new_user_registration_whitelist", serialize($value));
 		}
 
@@ -524,6 +526,11 @@ class Network
 			Option::set("socialservices", "new_user_registration_secret", trim($settings["REGISTER_SECRET"]));
 		}
 
+		if (isset($settings["INVITE_TOKEN_SECRET"]))
+		{
+			Option::set("socialservices", "new_user_registration_invite_token_secret", trim($settings["INVITE_TOKEN_SECRET"]));
+		}
+
 		static::updateRegisterSettings();
 	}
 
@@ -535,6 +542,7 @@ class Network
 			"REGISTER_WHITELIST" => implode(';', unserialize(Option::get("socialservices", "new_user_registration_whitelist", serialize(array())))),
 			"REGISTER_TEXT" => Option::get("socialservices", "new_user_registration_text", ""),
 			"REGISTER_SECRET" => Option::get("socialservices", "new_user_registration_secret", ""),
+			"INVITE_TOKEN_SECRET" => Option::get("socialservices", "new_user_registration_invite_token_secret", ""),
 		);
 	}
 
@@ -549,6 +557,8 @@ class Network
 				'REGISTER' => $options["REGISTER"] === "Y",
 				'REGISTER_TEXT' => $options["REGISTER_TEXT"],
 				"REGISTER_SECRET" => $options["REGISTER_SECRET"],
+				'INVITE_TOKEN_SECRET' => $options['INVITE_TOKEN_SECRET'],
+				"ADMIN_CONFIRM_INVITE" => $options["REGISTER_CONFIRM"] === "Y",
 			)));
 		}
 	}

@@ -29,6 +29,7 @@ export class Location
 		this.roomsManager = params.roomsManager || null;
 		this.locationAccess = params.locationAccess || false;
 		this.disabled = !params.richLocationEnabled;
+		this.hideLocationLock = params.hideLocationLock;
 		this.value = { type: '', text: '', value: '' };
 		this.isLoading = false;
 		this.inlineEditModeEnabled = params.inlineEditModeEnabled;
@@ -101,7 +102,16 @@ export class Location
 			},
 		}));
 
-		if (this.disabled)
+		if (!this.disabled)
+		{
+			return;
+		}
+
+		if (this.hideLocationLock)
+		{
+			Dom.addClass(this.DOM.wrapNode, 'hidden-locked');
+		}
+		else
 		{
 			Dom.addClass(this.DOM.wrapNode, 'locked');
 

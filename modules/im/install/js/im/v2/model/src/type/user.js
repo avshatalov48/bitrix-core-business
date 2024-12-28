@@ -1,4 +1,4 @@
-import { BotType } from 'im.v2.const';
+import { BotType, UserType } from 'im.v2.const';
 
 export type User = {
 	id: number,
@@ -10,9 +10,8 @@ export type User = {
 	workPosition: string,
 	gender: 'M' | 'F',
 	isAdmin: boolean,
-	extranet: boolean,
+	type: $Values<typeof UserType>,
 	network: boolean,
-	bot: boolean,
 	connector: boolean,
 	externalAuthId: string,
 	status: string,

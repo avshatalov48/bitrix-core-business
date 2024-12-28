@@ -16,4 +16,9 @@ interface IDepartment
 	 * @return Entity[]
 	 */
 	public function getListByXml(string $xmlId): array;
+
+	/**
+	 * @return int[]
+	 */
+	public function getColleagues(): array;
 }

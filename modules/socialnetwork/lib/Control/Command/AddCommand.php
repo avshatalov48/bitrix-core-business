@@ -4,67 +4,113 @@ declare(strict_types=1);
 
 namespace Bitrix\Socialnetwork\Control\Command;
 
+use Bitrix\Main\Validation\Rule\NotEmpty;
+use Bitrix\Main\Validation\Rule\PositiveNumber;
+use Bitrix\Main\Validation\Rule\Recursive\Validatable;
+use Bitrix\Socialnetwork\Permission\GroupAccessController;
+use Bitrix\Socialnetwork\Control\Command\Attribute\AccessController;
+use Bitrix\Socialnetwork\Control\Command\ValueObject\Features;
+use Bitrix\Socialnetwork\Control\Command\ValueObject\FeaturesPermissions;
+use Bitrix\Socialnetwork\Control\Command\ValueObject\SiteIds;
+use Bitrix\Socialnetwork\Control\Command\ValueObject\SubjectId;
+use Bitrix\Socialnetwork\Control\Command\Attribute\AccessCode;
 use Bitrix\Socialnetwork\Control\Enum\ViewMode;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\Field\AvatarField;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\Field\EnumField;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\Field\Field;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\Field\YesNoField;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\Field\SubjectIdField;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\MapMany;
-use Bitrix\Socialnetwork\Control\Mapper\Attribute\MapOne;
+use Bitrix\Socialnetwork\Control\Mapper\Field\AvatarMapper;
+use Bitrix\Socialnetwork\Control\Mapper\Field\ViewModeMapper;
+use Bitrix\Socialnetwork\Control\Mapper\Attribute\Map;
+use Bitrix\Socialnetwork\Control\Mapper\Field\DepartmentMapper;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
 
 /**
- * @method self setInitiatorId(int $initiatorId)
  * @method self setOwnerId(int $ownerId)
+ * @method int getOwnerId()
  * @method self setName(string $name)
+ * @method string getName()
+ * @method self setDescription(string $description)
+ * @method string getDescription()
  * @method self setViewMode(ViewMode $viewMode)
+ * @method ViewMode getViewMode()
  * @method self setAvatarId(int $avatarId)
+ * @method null|int getAvatarId()
  * @method self setAvatarColor(string $avatarColor)
- * @method self setFeatures(array $features)
- * @method self setSiteId(string $siteId)
+ * @method null|string getAvatarColor()
+ * @method self setFeatures(Features $features)
+ * @method Features getFeatures()
+ * @method self setPermissions(array $permissions)
+ * @method FeaturesPermissions getPermissions()
+ * @method self setSiteIds(SiteIds $siteIds)
+ * @method SiteIds getSiteIds()
  * @method self setInitiatePermissions(string $initiatePermissions)
+ * @method string getInitiatePermissions()
  * @method self setSpamPermissions(string $spamPermissions)
+ * @method string getSpamPermissions()
  * @method self setType(Type $type)
- * @method self setSubjectId(int $subjectId)
+ * @method Type getType()
+ * @method self setSubjectId(SubjectId $subjectId)
+ * @method SubjectId getSubjectId()
  * @method self setMembers(array $members)
+ * @method null|array getMembers()
+ * @method self setInvitedMembers(?array $members)
+ * @method null|array getInvitedMembers()
+ * @method self setModeratorMembers(?array $members)
+ * @method null|array getModeratorMembers()
  */
-class AddCommand extends AbstractCommand
+
+#[AccessController(GroupAccessController::class)]
+class AddCommand extends InitiatedCommand implements DefaultValueCommandInterface
 {
-	public int $initiatorId;
+	#[PositiveNumber]
+	protected int $ownerId;
 
-	public int $ownerId;
+	#[NotEmpty]
+	#[Map('NAME')]
+	protected string $name;
 
-	#[MapOne(new Field('NAME'))]
-	public string $name;
+	#[Map('DESCRIPTION')]
+	protected ?string $description;
 
-	#[MapMany(
-		new YesNoField('VISIBLE', ViewMode::SECRET),
-		new YesNoField('OPENED', ViewMode::OPEN),
-	)]
-	public ViewMode $viewMode = ViewMode::OPEN;
+	#[Map('VISIBLE', ViewModeMapper::class)]
+	#[Map('OPENED', ViewModeMapper::class)]
+	protected ViewMode $viewMode = ViewMode::OPEN;
 
-	#[MapOne(new AvatarField('IMAGE_ID'))]
-	public ?int $avatarId = null;
+	#[Map('IMAGE_ID', AvatarMapper::class)]
+	protected ?string $avatarId;
 
-	public ?string $avatarColor = null;
+	#[NotEmpty]
+	protected ?string $avatarColor;
 
-	public ?array $features = null;
+	#[Validatable]
+	protected Features $features;
 
-	#[MapOne(new Field('SITE_ID'))]
-	public string $siteId = SITE_ID;
+	protected FeaturesPermissions $permissions;
 
-	#[MapOne(new Field('INITIATE_PERMS'))]
-	public string $initiatePermissions = SONET_ROLES_USER;
+	#[Validatable]
+	#[Map('SITE_ID')]
+	protected SiteIds $siteIds;
 
-	#[MapOne(new Field('SPAM_PERMS'))]
-	public string $spamPermissions = SONET_ROLES_USER;
+	#[NotEmpty]
+	#[Map('INITIATE_PERMS')]
+	protected string $initiatePermissions = SONET_ROLES_USER;
 
-	#[MapOne(new EnumField('TYPE'))]
-	public Type $type = Type::GROUP;
+	#[NotEmpty]
+	#[Map('SPAM_PERMS')]
+	protected string $spamPermissions = SONET_ROLES_USER;
 
-	#[MapOne(new SubjectIdField('SUBJECT_ID'))]
-	public ?int $subjectId = null;
+	#[Map('TYPE')]
+	protected Type $type = Type::Group;
 
-	public ?array $members = null;
+	#[Validatable]
+	#[Map('SUBJECT_ID')]
+	protected SubjectId $subjectId;
+
+	#[AccessCode]
+	// #[Map('MEMBERS', MemberMapper::class)]
+	#[Map('UF_SG_DEPT', DepartmentMapper::class)]
+	protected ?array $members;
+
+	#[AccessCode]
+	protected ?array $invitedMembers;
+
+	#[AccessCode]
+	protected ?array $moderatorMembers;
 }

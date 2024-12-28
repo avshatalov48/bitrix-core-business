@@ -1,6 +1,6 @@
 import { EventEmitter } from 'main.core.events';
 
-import { EventType, ChatActionType } from 'im.v2.const';
+import { EventType, ActionByRole } from 'im.v2.const';
 import { AvatarSize, ChatAvatar } from 'im.v2.component.elements';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { ChatHeader } from 'im.v2.component.content.elements';
@@ -35,7 +35,7 @@ export const CommentsHeader = {
 		},
 		showSubscribeToggle(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.subscribeToComments, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.subscribeToComments, this.dialogId);
 		},
 	},
 	methods:

@@ -89,10 +89,13 @@ class Iblock
 		if ($siteId)
 		{
 			$filter = ['=LID' => $siteId];
-			$dbSite = SiteTable::getList(array(
+			$dbSite = SiteTable::getList([
 				'filter' => $filter,
-				'select' => array('LID', 'DIR', 'SERVER_NAME'),
-			));
+				'select' => ['LID', 'DIR', 'SERVER_NAME'],
+				'cache' => [
+					'ttl' => 60,
+				],
+			]);
 			$currentSite = $dbSite->fetch();
 			$serverName = $currentSite['SERVER_NAME'];
 			$url = str_replace('#SERVER_NAME#', $serverName, $url);

@@ -801,7 +801,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 			$this->markAsSystem(true);
 		}
 
-		if ($this->context)
+		if ($this->context && $authorId)
 		{
 			$this->context->setUserId($authorId);
 		}
@@ -1290,9 +1290,6 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 				'set' => 'setAuthorId', /** @see Message::setAuthorId */
 				'get' => 'getAuthorId', /** @see Message::getAuthorId */
 				'loadFilter' => 'processChangeAuthorId', /** @see Message::processChangeAuthorId */
-			],
-			'FROM_USER_ID' => [
-				'alias' => 'AUTHOR_ID',
 			],
 			'MESSAGE' => [
 				'field' => 'message', /** @see Message::$message */
@@ -1920,6 +1917,10 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		if ($config->keepConnectorSilence())
 		{
 			$this->getParams()->get(Params::STYLE_CLASS)->setValue('bx-messenger-content-item-system');
+			if ($this->chat instanceof Im\V2\Chat\OpenLineChat)
+			{
+				$this->getParams()->get(Params::COMPONENT_ID)->setValue('HiddenMessage');
+			}
 		}
 		$this->getParams()->get(Params::DATE_TEXT)->setValue($dateText);
 		$this->getParams()->get(Params::DATE_TS)->setValue($dateTs);

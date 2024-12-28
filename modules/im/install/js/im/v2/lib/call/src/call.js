@@ -6,7 +6,7 @@ import { Controller, State as CallState } from 'call.core';
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { MessengerSlider } from 'im.v2.lib.slider';
-import { ChatType, RecentCallStatus, Layout, EventType } from 'im.v2.const';
+import { ChatType, RecentCallStatus, Layout, EventType, UserType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { PromoManager } from 'im.v2.lib.promo';
 import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
@@ -104,6 +104,11 @@ export class CallManager
 
 		Logger.warn('CallManager: leaveCurrentCall');
 		this.#controller.leaveCurrentCall();
+	}
+
+	onJoinFromRecentItem()
+	{
+		this.#controller.closeCallNotification();
 	}
 
 	foldCurrentCall()
@@ -285,6 +290,7 @@ export class CallManager
 	{
 		EventEmitter.subscribe(EventType.layout.onOpenChat, this.#onOpenChat.bind(this));
 		EventEmitter.subscribe(EventType.layout.onOpenNotifications, this.foldCurrentCall.bind(this));
+		EventEmitter.subscribe(EventType.call.onJoinFromRecentItem, this.onJoinFromRecentItem.bind(this));
 
 		EventEmitter.subscribe('CallEvents::callCreated', this.#onCallCreated.bind(this));
 	}
@@ -377,11 +383,12 @@ export class CallManager
 	#checkUserCallSupport(userId: number): boolean
 	{
 		const user = this.#store.getters['users/get'](userId);
+		const isBot = user.type === UserType.bot;
 
 		return (
 			user
 			&& user.status !== 'guest'
-			&& !user.bot
+			&& !isBot
 			&& !user.network
 			&& user.id !== Core.getUserId()
 			&& Boolean(user.lastActivityDate)

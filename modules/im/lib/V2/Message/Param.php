@@ -316,6 +316,17 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 		return $this->name;
 	}
 
+	public function saveNameFilter($name): string
+	{
+		$name = $name ?? '';
+		if (is_string($name) && mb_strlen($name) > 100)
+		{
+			$name = mb_substr($name, 0, 100);
+		}
+
+		return $name;
+	}
+
 	public function setType(string $type): self
 	{
 		switch ($type)
@@ -394,6 +405,7 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 				'field' => 'name',
 				'set' => 'setName', /** @see Param::setName */
 				'get' => 'getName', /** @see Param::getName */
+				'saveFilter' => 'saveNameFilter', /** @see Param::saveNameFilter */
 			],
 			'PARAM_VALUE' => [
 				'field' => 'value',
@@ -467,6 +479,11 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 		elseif ($type['type'] == Param::TYPE_BOOL)
 		{
 			$value = $value ? 'Y' : 'N';
+		}
+
+		if (is_string($value) && mb_strlen($value) > 100)
+		{
+			$value = mb_substr($value, 0, 97) . '...';
 		}
 
 		return $value;

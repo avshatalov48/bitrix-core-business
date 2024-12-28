@@ -23,5 +23,4 @@ if (empty($_SERVER["DOCUMENT_ROOT"]))
 $DOCUMENT_ROOT = $_SERVER["DOCUMENT_ROOT"];
 
 require_once(__DIR__."/../include/prolog_before.php");
-
 @session_destroy();

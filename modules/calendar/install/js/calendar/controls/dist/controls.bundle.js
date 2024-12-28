@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,calendar_roomsmanager,calendar_categorymanager,ui_icons_b24,main_loader,calendar_entry,ui_dialogs_messagebox,ui_buttons,calendar_planner,ui_entitySelector,main_core_events,ui_infoHelper,main_popup,calendar_controls,intranet_controlButton,main_core,calendar_util) {
+(function (exports,calendar_roomsmanager,calendar_categorymanager,ui_icons_b24,main_loader,calendar_entry,ui_dialogs_messagebox,ui_buttons,calendar_planner,ui_entitySelector,ui_avatar,main_core_events,ui_infoHelper,main_popup,calendar_controls,intranet_controlButton,main_core,calendar_util) {
 	'use strict';
 
 	class TimeSelector {
@@ -701,6 +701,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.roomsManager = params.roomsManager || null;
 	    this.locationAccess = params.locationAccess || false;
 	    this.disabled = !params.richLocationEnabled;
+	    this.hideLocationLock = params.hideLocationLock;
 	    this.value = {
 	      type: '',
 	      text: '',
@@ -765,7 +766,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        maxWidth: `${300}px`
 	      }
 	    }));
-	    if (this.disabled) {
+	    if (!this.disabled) {
+	      return;
+	    }
+	    if (this.hideLocationLock) {
+	      main_core.Dom.addClass(this.DOM.wrapNode, 'hidden-locked');
+	    } else {
 	      main_core.Dom.addClass(this.DOM.wrapNode, 'locked');
 	      this.DOM.lockIcon = main_core.Tag.render(_t6$1 || (_t6$1 = _$1`
 				<div class="calendar-lock-icon"></div>
@@ -2032,9 +2038,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          filteredList = sectionList.filter(section => {
 	            return SectionSelector.getSectionType(section) === 'company_calendar' || SectionSelector.getSectionType(section) === 'calendar_company' || SectionSelector.getSectionType(section) === sectionGroup.type;
 	          });
+	        } else if (sectionGroup.type === 'collab') {
+	          filteredList = sectionList.filter(section => {
+	            return main_core.Type.isFunction(section.isCollab) && section.isCollab() || section['IS_COLLAB'];
+	          });
 	        } else {
 	          filteredList = sectionList.filter(section => {
-	            return SectionSelector.getSectionType(section) === sectionGroup.type;
+	            return SectionSelector.getSectionType(section) === sectionGroup.type && !(main_core.Type.isFunction(section.isCollab) && section.isCollab() || section['IS_COLLAB']);
 	          });
 	        }
 	        filteredList = filteredList.filter(section => {
@@ -4254,8 +4264,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    } else if ((_BX = BX) != null && (_BX$Intranet = _BX.Intranet) != null && _BX$Intranet.ControlButton && this.DOM.videocallWrap && this.entryId && this.entry.getCurrentStatus() !== false) {
 	      main_core.Dom.clean(this.DOM.videocallWrap);
 	      main_core.Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
+	      const items = calendar_util.Util.getCalendarContext().isCollabUser ? ['chat', 'videocall', 'task'] : ['chat', 'videocall', 'blog_post', 'task'];
 	      this.intranetControllButton = new calendar_controls.IntranetButton({
 	        intranetControlButtonParams: {
+	          items,
 	          container: this.DOM.videocallWrap,
 	          entityType: 'calendar_event',
 	          entityId: this.entry.parentId,
@@ -4518,7 +4530,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  static getUserAvatarNode(user) {
 	    let imageNode,
 	      img = user.AVATAR || user.SMALL_AVATAR;
-	    if (!img || img === "/bitrix/images/1.gif") {
+	    if (user.COLLAB_USER) {
+	      imageNode = new ui_avatar.AvatarRoundGuest({
+	        size: 22,
+	        userName: user.DISPLAY_NAME,
+	        userpicPath: user.AVATAR && user.AVATAR !== '/bitrix/images/1.gif' ? user.AVATAR : null,
+	        baseColor: '#19cc45'
+	      }).getContainer();
+	    } else if (!img || img === "/bitrix/images/1.gif") {
 	      let defaultAvatarClass = 'ui-icon-common-user';
 	      if (user.EMAIL_USER) {
 	        defaultAvatarClass = 'ui-icon-common-user-mail';
@@ -5125,31 +5144,27 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      // Declined
 	      title: main_core.Loc.getMessage('EC_ATTENDEES_N_NUM')
 	    }].forEach(group => {
-	      let groupUsers = this.attendeesList[group.code];
+	      const groupUsers = this.attendeesList[group.code];
 	      if (groupUsers.length > 0) {
 	        menuItems.push(new main_popup.MenuItem({
 	          text: group.title.replace('#COUNT#', groupUsers.length),
 	          delimiter: true
 	        }));
 	        groupUsers.forEach(user => {
-	          user.toString = () => {
-	            return user.ID;
-	          };
+	          user.toString = () => user.ID;
 	          menuItems.push({
 	            text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
 	            dataset: {
-	              user: user
+	              user
 	            },
-	            className: 'calendar-add-popup-user-menu-item',
-	            onclick: () => {
-	              BX.SidePanel.Instance.open(user.URL, {
-	                loader: "intranet:profile",
-	                cacheable: false,
-	                allowChangeHistory: false,
-	                contentClassName: "bitrix24-profile-slider-content",
-	                width: 1100
-	              });
-	            }
+	            className: `calendar-add-popup-user-menu-item ${user.COLLAB_USER ? 'calendar-collab-user' : ''}`,
+	            onclick: () => BX.SidePanel.Instance.open(user.URL, {
+	              loader: 'intranet:profile',
+	              cacheable: false,
+	              allowChangeHistory: false,
+	              contentClassName: 'bitrix24-profile-slider-content',
+	              width: 1100
+	            })
 	          });
 	        });
 	      }
@@ -5158,15 +5173,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  static sortAttendees(attendees) {
 	    return {
-	      accepted: attendees.filter(user => {
-	        return ['H', 'Y'].includes(user.STATUS);
-	      }),
-	      requested: attendees.filter(user => {
-	        return user.STATUS === 'Q' || user.STATUS === '';
-	      }),
-	      declined: attendees.filter(user => {
-	        return user.STATUS === 'N';
-	      })
+	      accepted: attendees.filter(user => ['H', 'Y'].includes(user.STATUS)),
+	      requested: attendees.filter(user => user.STATUS === 'Q' || user.STATUS === ''),
+	      declined: attendees.filter(user => user.STATUS === 'N')
 	    };
 	  }
 	}
@@ -5259,5 +5268,5 @@ this.BX.Calendar = this.BX.Calendar || {};
 	exports.AttendeesList = AttendeesList;
 	exports.IntranetButton = IntranetButton;
 
-}((this.BX.Calendar.Controls = this.BX.Calendar.Controls || {}),BX.Calendar,BX.Calendar,BX,BX,BX.Calendar,BX.UI.Dialogs,BX.UI,BX.Calendar,BX.UI.EntitySelector,BX.Event,BX.UI,BX.Main,BX.Calendar.Controls,BX.Intranet,BX,BX.Calendar));
+}((this.BX.Calendar.Controls = this.BX.Calendar.Controls || {}),BX.Calendar,BX.Calendar,BX,BX,BX.Calendar,BX.UI.Dialogs,BX.UI,BX.Calendar,BX.UI.EntitySelector,BX.UI,BX.Event,BX.UI,BX.Main,BX.Calendar.Controls,BX.Intranet,BX,BX.Calendar));
 //# sourceMappingURL=controls.bundle.js.map

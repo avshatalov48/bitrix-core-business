@@ -1,16 +1,17 @@
-import { Loc } from 'main.core';
+import { Loc, Type } from 'main.core';
 
-import { ChannelManager } from 'im.v2.lib.channel';
 import { ChatService } from 'im.v2.provider.service';
 import { Utils } from 'im.v2.lib.utils';
 import { RecentMenu } from 'im.v2.lib.menu';
 import { LayoutManager } from 'im.v2.lib.layout';
-import { ChatActionType, Layout } from 'im.v2.const';
+import { ActionByRole, ActionByUserType, ChatType, Layout } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Analytics } from 'im.v2.lib.analytics';
-import { showDeleteChatConfirm, showDeleteChannelConfirm } from 'im.v2.lib.confirm';
+import { showDeleteChatConfirm } from 'im.v2.lib.confirm';
 
 import type { MenuItem } from 'im.v2.lib.menu';
+
+const NotEmptyCollabErrorCodes = new Set(['TASKS_NOT_EMPTY', 'DISK_NOT_EMPTY', 'CALENDAR_NOT_EMPTY']);
 
 export class MainMenu extends RecentMenu
 {
@@ -53,7 +54,7 @@ export class MainMenu extends RecentMenu
 
 	getEditItem(): ?MenuItem
 	{
-		if (!this.permissionManager.canPerformAction(ChatActionType.update, this.context.dialogId))
+		if (!this.permissionManager.canPerformActionByRole(ActionByRole.update, this.context.dialogId))
 		{
 			return null;
 		}
@@ -61,7 +62,7 @@ export class MainMenu extends RecentMenu
 		return {
 			text: Loc.getMessage('IM_SIDEBAR_MENU_UPDATE_CHAT'),
 			onclick: () => {
-				Analytics.getInstance().onOpenChatEditForm(this.context.dialogId);
+				Analytics.getInstance().chatEdit.onOpenForm(this.context.dialogId);
 
 				void LayoutManager.getInstance().setLayout({
 					name: Layout.updateChat.name,
@@ -73,7 +74,7 @@ export class MainMenu extends RecentMenu
 
 	getDeleteItem(): ?MenuItem
 	{
-		if (!this.permissionManager.canPerformAction(ChatActionType.delete, this.context.dialogId))
+		if (!this.permissionManager.canPerformActionByRole(ActionByRole.delete, this.context.dialogId))
 		{
 			return null;
 		}
@@ -89,24 +90,16 @@ export class MainMenu extends RecentMenu
 				}
 				Analytics.getInstance().chatDelete.onConfirm(this.context.dialogId);
 
-				try
+				if (this.isCollabChat())
 				{
-					await (new ChatService()).deleteChat(this.context.dialogId);
-					void LayoutManager.getInstance().clearLayoutEntityId();
+					this.#deleteCollab();
+
+					return;
 				}
-				catch
-				{
-					this.#showDeleteChatError();
-				}
+
+				this.#deleteChat();
 			},
 		};
-	}
-
-	#getDeleteConfirmFunction(dialogId: string): Promise<boolean>
-	{
-		const isChannel = ChannelManager.isChannel(dialogId);
-
-		return isChannel ? showDeleteChannelConfirm() : showDeleteChatConfirm();
 	}
 
 	getOpenUserCalendarItem(): ?MenuItem
@@ -138,8 +131,15 @@ export class MainMenu extends RecentMenu
 		{
 			return null;
 		}
-		const canExtend = this.permissionManager.canPerformAction(ChatActionType.extend, this.context.dialogId);
-		if (!canExtend)
+
+		const hasCreateChatAccess = this.permissionManager.canPerformActionByUserType(ActionByUserType.createChat);
+		if (this.#isPersonalChat() && !hasCreateChatAccess)
+		{
+			return null;
+		}
+
+		const hasAccessByRole = this.permissionManager.canPerformActionByRole(ActionByRole.extend, this.context.dialogId);
+		if (!hasAccessByRole)
 		{
 			return null;
 		}
@@ -151,17 +151,46 @@ export class MainMenu extends RecentMenu
 		return {
 			text,
 			onclick: () => {
+				Analytics.getInstance().userAdd.onChatSidebarClick(this.dialogId);
 				this.emit(MainMenu.events.onAddToChatShow);
 				this.menuInstance.close();
 			},
 		};
 	}
 
+	async #deleteChat(): ?MenuItem
+	{
+		try
+		{
+			await (new ChatService()).deleteChat(this.context.dialogId);
+			void LayoutManager.getInstance().clearCurrentLayoutEntityId();
+		}
+		catch
+		{
+			this.#showNotification(Loc.getMessage('IM_SIDEBAR_MENU_DELETE_CHAT_ERROR'));
+		}
+	}
+
+	async #deleteCollab(): ?MenuItem
+	{
+		try
+		{
+			this.#showNotification(Loc.getMessage('IM_SIDEBAR_MENU_DELETE_COLLAB_NOTIFICATION'));
+			await (new ChatService()).deleteCollab(this.context.dialogId);
+			void LayoutManager.getInstance().clearCurrentLayoutEntityId();
+			void LayoutManager.getInstance().deleteLastOpenedElementById(this.context.dialogId);
+		}
+		catch (errors)
+		{
+			this.#handleDeleteCollabError(errors);
+		}
+	}
+
 	async #isDeletionCancelled(): Promise<boolean>
 	{
 		const { dialogId } = this.context;
 
-		const confirmResult = await this.#getDeleteConfirmFunction(dialogId);
+		const confirmResult = await showDeleteChatConfirm(dialogId);
 		if (!confirmResult)
 		{
 			Analytics.getInstance().chatDelete.onCancel(dialogId);
@@ -172,10 +201,33 @@ export class MainMenu extends RecentMenu
 		return false;
 	}
 
-	#showDeleteChatError(): void
+	#handleDeleteCollabError(errors): void
 	{
-		BX.UI.Notification.Center.notify({
-			content: Loc.getMessage('IM_SIDEBAR_MENU_DELETE_CHAT_ERROR'),
-		});
+		if (!Type.isArrayFilled(errors))
+		{
+			return;
+		}
+
+		const [firstError] = errors;
+		if (NotEmptyCollabErrorCodes.has(firstError.code))
+		{
+			this.#showNotification(Loc.getMessage('IM_SIDEBAR_MENU_DELETE_COLLAB_WITH_ENTITIES_ERROR'));
+
+			return;
+		}
+
+		this.#showNotification(Loc.getMessage('IM_SIDEBAR_MENU_DELETE_COLLAB_ERROR'));
+	}
+
+	#showNotification(content: string): void
+	{
+		BX.UI.Notification.Center.notify({ content });
+	}
+
+	#isPersonalChat(): boolean
+	{
+		const chat = this.getChat(this.context.dialogId);
+
+		return chat.type === ChatType.user;
 	}
 }

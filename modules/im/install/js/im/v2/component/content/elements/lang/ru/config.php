@@ -1,16 +1,7 @@
 <?php
 $MESS["IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS"] = "Кликните для открытия списка пользователей";
 $MESS["IM_CONTENT_CHAT_HEADER_RENAME_ERROR"] = "При переименовании чата произошла ошибка, повторите попытку позже";
-$MESS["IM_CONTENT_CHAT_HEADER_VIDEOCALL"] = "Видеозвонок";
-$MESS["IM_CONTENT_CHAT_HEADER_CALL_MENU_AUDIO"] = "Аудиозвонок";
 $MESS["IM_CONTENT_CHAT_HEADER_SUPPORT_SUBTITLE"] = "Готовы ответить на ваши вопросы";
-$MESS["IM_CONTENT_CHAT_HEADER_CALL_MENU_BETA_2"] = "Видеозвонок (beta)";
-$MESS["IM_CONTENT_CHAT_HEADER_CALL_MENU_PERSONAL_PHONE"] = "Мобильный телефон";
-$MESS["IM_CONTENT_CHAT_HEADER_CALL_MENU_WORK_PHONE"] = "Рабочий телефон";
-$MESS["IM_CONTENT_CHAT_HEADER_CALL_MENU_INNER_PHONE_MSGVER_1"] = "Добавочный";
-$MESS["IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM"] = "Конференция Zoom";
-$MESS["IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM_CREATE_ERROR"] = "Не удалось создать конференцию Zoom";
-$MESS["IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM_CONNECT_ERROR"] = "Не удалось создать конференцию. Попробуйте переподключить ZOOM в #HREF_START#своём профиле#HREF_END#";
 $MESS["IM_CONTENT_CHAT_HEADER_START_CONFERENCE"] = "Начать конференцию";
 $MESS["IM_CONTENT_CHAT_HEADER_USER_COUNT_PLURAL_0"] = "#COUNT# участник";
 $MESS["IM_CONTENT_CHAT_HEADER_USER_COUNT_PLURAL_1"] = "#COUNT# участника";
@@ -36,3 +27,12 @@ $MESS["IM_CONTENT_DROP_AREA"] = "Переместите файлы в эту о�
 $MESS["IM_CONTENT_BLOCKED_TEXTAREA_ENABLE_NOTIFICATIONS"] = "Включить звук";
 $MESS["IM_CONTENT_BLOCKED_TEXTAREA_DISABLE_NOTIFICATIONS"] = "Выключить звук";
 $MESS["IM_CONTENT_BLOCKED_TEXTAREA_JOIN_CHAT"] = "Вступить в чат";
+
+$MESS["IM_CONTENT_BULK_ACTIONS_PANEL_FORWARD"] = "Переслать";
+$MESS["IM_CONTENT_BULK_ACTIONS_PANEL_DELETE"] = "Удалить";
+$MESS["IM_CONTENT_BULK_ACTIONS_COUNT_MESSAGES"] = "Сообщений";
+$MESS["IM_CONTENT_BULK_ACTIONS_SELECT_MESSAGES"] = "Выберите сообщения";
+
+$MESS['IM_CONTENT_BULK_ACTIONS_PANEL_DELETE_COMING_SOON'] = "Скоро появится";
+$MESS["IM_CONTENT_MULTIPLE_ACTIONS_PROMPT_DELETE"] = "Удалить все сообщения";
+$MESS["IM_CONTENT_MULTIPLE_ACTIONS_DELETE_POPUP_CANCEL"] = "Отмена";

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'main.core.events';
 import { Runtime, Extension } from 'main.core';
 
-import { EventType, SidebarDetailBlock, ChatActionType } from 'im.v2.const';
+import { EventType, SidebarDetailBlock, ActionByRole } from 'im.v2.const';
 import { Loader } from 'im.v2.component.elements';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -81,7 +81,7 @@ export const MeetingPanel = {
 		},
 		showAddButton(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.createMeeting, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.createMeeting, this.dialogId);
 		},
 		dialog(): ImModelChat
 		{
@@ -249,6 +249,7 @@ export const MeetingPanel = {
 	template: `
 		<div class="bx-im-sidebar-meeting-detail__scope">
 			<DetailHeader
+				:dialogId="dialogId"
 				:title="loc('IM_SIDEBAR_MEETING_DETAIL_TITLE')"
 				:secondLevel="secondLevel"
 				:withAddButton="showAddButton"

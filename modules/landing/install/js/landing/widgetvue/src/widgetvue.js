@@ -1,6 +1,7 @@
-import {WidgetOptions} from './internal/types';
-import {Backend} from 'landing.backend';
-import {Loc, Text, Type, Dom, Event} from 'main.core';
+import { WidgetOptions } from './internal/types';
+import { Logger } from './logger';
+import { Backend } from 'landing.backend';
+import { Loc, Text, Type, Dom, Event } from 'main.core';
 
 import './css/style.css';
 
@@ -10,6 +11,7 @@ export class WidgetVue
 
 	#rootNode: ?HTMLElement = null;
 	#template: string;
+	#style: ?string;
 	#lang: {[key: string]: string} = {};
 	#appId: number = 0;
 	#appAllowedByTariff: boolean = true;
@@ -21,20 +23,17 @@ export class WidgetVue
 	 * @type {string}
 	 */
 	#uniqueId: string;
-	// #rootContent: ?string = null;
-	#frame: ?Window = null;
+	#frame: ?HTMLIFrameElement = null;
+	#logger: Logger;
 
-	#defaultData: ?{} = null;
+	#demoData: ?{} = null;
+	#useDemoData: boolean = false;
 	#blockId: number = 0;
-
-	// #application: VueCreateAppResult;
-	// #contentComponent: Object;
-
-	// #widgetOptions: {};
 
 	constructor(options: WidgetOptions): void
 	{
-		this.#uniqueId = 'widget' + Text.getRandom(8);
+		this.#uniqueId = `widget_${Text.getRandom(8)}`;
+		this.#logger = new Logger(options.debug || false);
 
 		this.#rootNode = Type.isString(options.rootNode)
 			? document.querySelector(options.rootNode)
@@ -43,14 +42,13 @@ export class WidgetVue
 
 		this.#template = Type.isString(options.template) ? options.template : '';
 
-		// this.#rootContent = this.#rootNode ? this.#rootNode.innerHTML : null;
+		this.#style = Type.isString(options.style) ? options.style : null;
 
-		this.#defaultData = Type.isObject(options.data) ? options.data : null;
+		this.#demoData = Type.isObject(options.demoData) ? options.demoData : null;
+		this.#useDemoData = Type.isBoolean(options.useDemoData) ? options.useDemoData : false;
+
 		this.#lang = options.lang || {};
 		this.#blockId = options.blockId ? Text.toNumber(options.blockId) : 0;
-
-		// const isEditMode = Type.isFunction(BX.Landing.getMode) && BX.Landing.getMode() === 'edit';
-		// this.#widgetOptions.clickable = !isEditMode;
 
 		this.#appId = options.appId ? Text.toNumber(options.appId) : 0;
 		this.#appAllowedByTariff = (this.#appId && Type.isBoolean(options.appAllowedByTariff))
@@ -67,14 +65,18 @@ export class WidgetVue
 	 * Create frame with widget content
 	 * @returns {Promise|*}
 	 */
-	mount()
+	mount(): Promise
 	{
 		return this.#getFrameContent()
-			.then(srcDoc => {
+			.then((srcDoc) => {
 				this.#frame = document.createElement('iframe');
 				this.#frame.className = 'landing-widgetvue-iframe';
 				this.#frame.sandbox = 'allow-scripts';
 				this.#frame.srcdoc = srcDoc;
+
+				this.#frame.onload = () => {
+					this.#message('getSize', {}, this.#frame.contentWindow);
+				};
 
 				if (
 					this.#blockId > 0
@@ -85,6 +87,8 @@ export class WidgetVue
 					const blockWrapper = this.#rootNode.parentElement;
 					Dom.clean(blockWrapper);
 					Dom.append(this.#frame, blockWrapper);
+
+					WidgetVue.runningAppNodes.add(this.#rootNode);
 
 					this.#bindEvents();
 				}
@@ -104,16 +108,21 @@ export class WidgetVue
 		};
 
 		return this.#getCoreConfigs()
-			.then(core => {
+			.then((core) => {
 				content += this.#parseExtensionConfig(core);
 				content += this.#parseExtensionConfig({
 					lang_additional: this.#lang,
 				});
 
+				if (this.#style)
+				{
+					content += `<link rel="stylesheet" href="${this.#style}">`;
+				}
+
 				return this.#getAssetsConfigs();
 			})
 
-			.then(assets => {
+			.then((assets) => {
 				content += this.#parseExtensionConfig(assets);
 
 				if (!this.#appAllowedByTariff)
@@ -121,19 +130,24 @@ export class WidgetVue
 					throw new Error(Loc.getMessage('LANDING_WIDGETVUE_ERROR_PAYMENT'));
 				}
 
-				if (this.#defaultData)
+				if (this.#useDemoData)
 				{
-					return this.#defaultData;
+					if (!this.#demoData)
+					{
+						this.#logger.log('Widget haven\'t demo data and can be render correctly');
+					}
+
+					return this.#demoData || {};
 				}
 
 				return this.#fetchData();
 			})
 
-			.then(data => {
+			.then((data) => {
 				engineParams.data = data;
 			})
 
-			.catch(error => {
+			.catch((error) => {
 				engineParams.error = error.message || 'error';
 			})
 
@@ -146,7 +160,7 @@ export class WidgetVue
 							)).render();
 						});
 					</script>
-					
+
 					<div id="${this.#uniqueId}">${this.#template}</div>
 				`;
 
@@ -202,11 +216,11 @@ export class WidgetVue
 			html += `<script>BX.message(${JSON.stringify(ext.lang_additional)})</script>`;
 		}
 
-		(ext.js || []).forEach(js => {
+		(ext.js || []).forEach((js) => {
 			html += `<script src="${domain}${js}"></script>`;
 		});
 
-		(ext.css || []).forEach(css => {
+		(ext.css || []).forEach((css) => {
 			html += `<link href="${domain}${css}" type="text/css" rel="stylesheet" />`;
 		});
 
@@ -217,9 +231,14 @@ export class WidgetVue
 	{
 		if (!this.#fetchable)
 		{
-			console.info('Fetch data is impossible now (haven`t handler)');
+			this.#logger.log('Fetch data is impossible now (haven`t handler)');
 
 			return Promise.resolve({});
+		}
+
+		if (this.#useDemoData)
+		{
+			return Promise.resolve(this.#demoData || {});
 		}
 
 		return Backend.getInstance()
@@ -228,24 +247,59 @@ export class WidgetVue
 				params,
 			})
 
-			.then(jsonData => {
+			.then((jsonData) => {
 				let data = {};
-				try
+				data = JSON.parse(jsonData);
+				if (data.error)
 				{
-					data = JSON.parse(jsonData);
-					if (data.error)
-					{
-						throw new Error(Loc.getMessage('LANDING_WIDGETVUE_ERROR_FETCH'), data.error);
-					}
-				}
-				catch (error)
-				{
-					throw new Error(Loc.getMessage('LANDING_WIDGETVUE_ERROR_FETCH'), error);
+					throw new Error(data.error);
 				}
 
 				return data;
 			})
-		;
+
+			.catch((error) => {
+				const logMessages = [`Fetch data error!\nWidget ID: ${this.#blockId}`];
+				if (Object.keys(params) > 0)
+				{
+					logMessages.push('\nFetch request params:', params);
+				}
+
+				if (Type.isString(error))
+				{
+					logMessages.push(`\nError in JSON data: ${error}`);
+				}
+
+				else if (Type.isObject(error))
+				{
+					if (error instanceof Error && error.message)
+					{
+						logMessages.push(`\nJavaScript error: ${error.message}`);
+					}
+					else if (error.result && Type.isArray(error.result) && error.result.length > 0)
+					{
+						logMessages.push('\nError from backend:');
+						error.result.forEach((e) => {
+							logMessages.push(e);
+						});
+					}
+				}
+
+				this.#logger.log(...logMessages);
+				throw new Error(Loc.getMessage('LANDING_WIDGETVUE_ERROR_FETCH'));
+			});
+	}
+
+	#message(name: string, params: {} = {}, target: Window = window)
+	{
+		target.postMessage(
+			{
+				name,
+				params,
+				origin: this.#uniqueId,
+			},
+			'*',
+		);
 	}
 
 	#bindEvents()
@@ -255,33 +309,30 @@ export class WidgetVue
 
 	#onMessage(event)
 	{
-		if (event.data && event.data.name && event.data.params)
+		// todo: need check origin manually?
+
+		if (
+			event.data
+			&& event.data.origin
+			&& event.data.name
+			&& event.data.params
+			&& Type.isObject(event.data.params)
+		)
 		{
+			if (event.data.origin !== this.#uniqueId)
+			{
+				return;
+			}
+
 			if (event.data.name === 'fetchData')
 			{
 				this.#fetchData(event.data.params)
-					.then(data => {
-						event.source.postMessage(
-							{
-								name: 'setData',
-								params: {
-									data,
-								},
-							},
-							'*',
-						);
+					.then((data) => {
+						this.#message('setData', { data }, event.source);
 					})
 
-					.catch(error => {
-						event.source.postMessage(
-							{
-								name: 'setError',
-								params: {
-									error,
-								},
-							},
-							'*',
-						);
+					.catch((error) => {
+						this.#message('setError', { error }, event.source);
 					})
 				;
 			}
@@ -291,7 +342,7 @@ export class WidgetVue
 				&& event.data.params.size !== undefined
 			)
 			{
-				this.#frame.height = parseInt(event.data.params.size);
+				this.#frame.height = parseInt(event.data.params.size, 10);
 			}
 
 			if (
@@ -308,15 +359,15 @@ export class WidgetVue
 
 			if (
 				event.data.name === 'openPath'
-				&& Type.isString(event.data.path)
+				&& Type.isString(event.data.params.path)
 			)
 			{
-				// todo: change open function
-				const url = new URL(event.data.path, window.location.origin);
-				if (url.origin === window.location.origin)
-				{
-					window.open(url.href, '_blank');
-				}
+				BX.rest.AppLayout.openPath(
+					this.#appId,
+					{
+						path: event.data.params.path,
+					},
+				);
 			}
 		}
 	}

@@ -25,9 +25,11 @@ use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\ObjectException;
+use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use CCalendarEvent;
+use Psr\Container\NotFoundExceptionInterface;
 
 class EventBuilderFromEntityObject extends EventBuilder
 {
@@ -242,12 +244,12 @@ class EventBuilderFromEntityObject extends EventBuilder
 	}
 
 	/**
-	 * @return Section|null
+	 * @return Section
 	 *
 	 * @throws ArgumentException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
-	 * @throws ObjectException
+	 * @throws BuilderException
+	 * @throws ObjectNotFoundException
+	 * @throws NotFoundExceptionInterface
 	 */
 	protected function getSection(): Section
 	{
@@ -256,10 +258,14 @@ class EventBuilderFromEntityObject extends EventBuilder
 			/** @var Factory $mapper */
 			$mapper = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
 
-			return $mapper->getSection()->getById($this->event->getSectionId());
+			$section = $mapper->getSection()->getById($this->event->getSectionId());
+			if ($section)
+			{
+				return $section;
+			}
 		}
 
-		throw new ObjectException('Section ID not found');
+		throw new BuilderException('Section ID not found');
 	}
 
 	protected function getColor(): ?string
@@ -471,6 +477,16 @@ class EventBuilderFromEntityObject extends EventBuilder
 			return $mapperFactory->getEventOption()->getMap(['=EVENT_ID' => $eventId])->fetch();
 		}
 
+		return null;
+	}
+
+	protected function getDtLength(): ?int
+	{
+		return $this->event->getDtLength();
+	}
+
+	protected function getCollabId(): ?int
+	{
 		return null;
 	}
 }

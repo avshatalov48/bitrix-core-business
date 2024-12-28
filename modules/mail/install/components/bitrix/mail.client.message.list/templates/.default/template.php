@@ -58,7 +58,9 @@ $unseenCountInOtherMailboxes = 0;
 $mailboxMenu = array();
 foreach ($arResult['MAILBOXES'] as $mailboxId => $item)
 {
-	if ($mailboxId !== $arResult['MAILBOX']['ID'])
+	$mailboxId = (int)$mailboxId;
+
+	if ($mailboxId !== (int)$arResult['MAILBOX']['ID'])
 	{
 		$unseenCountInOtherMailboxes += $item['__unseen'];
 	}
@@ -69,7 +71,7 @@ foreach ($arResult['MAILBOXES'] as $mailboxId => $item)
 
 	$mailboxLockIconHtml = '';
 
-    if (!LicenseManager::checkTheMailboxForSyncAvailability($mailboxId))
+    if (!LicenseManager::checkTheMailboxForSyncAvailability($mailboxId, (int)$item['USER_ID']))
     {
 		$mailboxLockIconHtml = '<span class="mail-connect-lock-icon"></span>';
     }

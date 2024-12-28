@@ -1,5 +1,8 @@
-import {Dom} from 'main.core';
+import { Dom } from 'main.core';
+
 import './tabs.css';
+
+import type { JsonObject } from 'main.core';
 
 const ARROW_CONTROL_SIZE = 50;
 
@@ -20,10 +23,11 @@ export const MessengerTabs = {
 		},
 		tabs: {
 			type: Array,
-			default: () => []
+			default: () => [],
 		},
 	},
-	data() {
+	data(): JsonObject
+	{
 		return {
 			hasLeftControl: false,
 			hasRightControl: false,
@@ -45,7 +49,7 @@ export const MessengerTabs = {
 		colorSchemeClass(): string
 		{
 			return this.colorScheme === TabsColorScheme.white ? '--white' : '--gray';
-		}
+		},
 	},
 	watch:
 	{
@@ -54,7 +58,7 @@ export const MessengerTabs = {
 			this.updateHighlightPosition(newIndex);
 			this.$emit('tabSelect', this.tabs[newIndex]);
 			this.scrollToElement(newIndex);
-		}
+		},
 	},
 	mounted()
 	{
@@ -64,7 +68,7 @@ export const MessengerTabs = {
 			this.hasRightControl = true;
 		}
 
-		if (savedTabIndex)
+		if (savedTabIndex && this.tabs[savedTabIndex])
 		{
 			this.currentElementIndex = parseInt(savedTabIndex, 10);
 		}
@@ -74,7 +78,6 @@ export const MessengerTabs = {
 		setTimeout(() => {
 			this.isFirstCall = false;
 		}, 100);
-
 	},
 	beforeUnmount()
 	{
@@ -85,7 +88,7 @@ export const MessengerTabs = {
 		getElementNodeByIndex(index: number): HTMLElement
 		{
 			return [...this.$refs.tabs.children].filter(
-				(node) => !Dom.hasClass(node, 'bx-im-elements-tabs__highlight')
+				(node) => !Dom.hasClass(node, 'bx-im-elements-tabs__highlight'),
 			)[index];
 		},
 		updateHighlightPosition(index: number)
@@ -97,7 +100,7 @@ export const MessengerTabs = {
 		scrollToElement(elementIndex: number)
 		{
 			const element = this.getElementNodeByIndex(elementIndex);
-			this.$refs.tabs.scroll({left: element.offsetLeft - ARROW_CONTROL_SIZE, behavior: 'smooth'});
+			this.$refs.tabs.scroll({ left: element.offsetLeft - ARROW_CONTROL_SIZE, behavior: 'smooth' });
 		},
 		onTabClick(event): {index: number}
 		{
@@ -129,7 +132,7 @@ export const MessengerTabs = {
 		{
 			this.hasRightControl = this.$refs.tabs.scrollWidth > this.$refs.tabs.scrollLeft + this.$refs.tabs.clientWidth;
 			this.hasLeftControl = this.$refs.tabs.scrollLeft > 0;
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-elements-tabs__container bx-im-elements-tabs__scope" :class="colorSchemeClass">
@@ -153,5 +156,5 @@ export const MessengerTabs = {
 				</div>
 			</div>
 		</div>
-	`
+	`,
 };

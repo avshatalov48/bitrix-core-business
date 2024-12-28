@@ -10,6 +10,7 @@ return [
 	'js' => 'dist/automation.bundle.js',
 	'rel' => [
 		'ui.alerts',
+		'ui.notification',
 		'bizproc.condition',
 		'ui.icon-set.main',
 		'ui.draganddrop.draggable',

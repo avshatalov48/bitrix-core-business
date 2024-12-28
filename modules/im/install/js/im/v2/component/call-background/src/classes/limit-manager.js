@@ -2,6 +2,7 @@ import 'ui.info-helper';
 
 import { Utils } from 'im.v2.lib.utils';
 import { DesktopApi, DesktopFeature } from 'im.v2.lib.desktop-api';
+import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
 
 import { Action } from './items/action';
 
@@ -67,7 +68,7 @@ export class LimitManager
 
 	static showHelpArticle(articleCode: string)
 	{
-		window.BX.Helper?.show(`redirect=detail&code=${articleCode}`);
+		openHelpdeskArticle(articleCode);
 	}
 
 	#initLimits(limits: LimitRestResult[])

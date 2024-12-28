@@ -9,7 +9,12 @@ use Bitrix\Bizproc;
 
 class FieldType extends Base
 {
-	protected function inputAndAccessCheck(array &$documentType, array &$type): bool
+	protected function inputAndAccessCheck(
+		array &$documentType,
+		array &$type,
+		int $operation = \CBPCanUserOperateOperation::ViewWorkflow,
+		?array $documentId = null,
+	): bool
 	{
 		$operationParameters = [];
 
@@ -23,15 +28,32 @@ class FieldType extends Base
 
 		$user = $this->getCurrentUser();
 
-		if (
-			!$user->isAdmin()
-			&& !\CBPDocument::CanUserOperateDocumentType(
-				\CBPCanUserOperateOperation::ViewWorkflow,
+		if ($user->isAdmin())
+		{
+			return true;
+		}
+
+		if ($operation === \CBPCanUserOperateOperation::StartWorkflow && is_array($documentId))
+		{
+			$documentId = \CBPHelper::parseDocumentId($documentId);
+			$hasAccess = \CBPDocument::canUserOperateDocument(
+				$operation,
+				$user->getId(),
+				$documentId,
+				$operationParameters
+			);
+		}
+		else
+		{
+			$hasAccess = \CBPDocument::canUserOperateDocumentType(
+				$operation,
 				$user->getId(),
 				$documentType,
 				$operationParameters
-			)
-		)
+			);
+		}
+
+		if (!$hasAccess)
 		{
 			$this->addError(new Error(Loc::getMessage('BIZPROC_ACCESS_DENIED')));
 
@@ -90,6 +112,19 @@ class FieldType extends Base
 		$documentType = $this->request->getJsonList()->get('documentType');
 		$controlsData = $this->request->getJsonList()->get('controlsData');
 
+		$accessCheckOperation = \CBPCanUserOperateOperation::ViewWorkflow;
+
+		$context = $this->request->getJsonList()->get('context') ?? [];
+		$documentId = null;
+		if (isset($context['signedDocumentId']))
+		{
+			$documentId = \CBPDocument::unSignDocumentType($context['signedDocumentId']);
+			if ($documentId && isset($context['isStartWorkflow']) && $context['isStartWorkflow'] === true)
+			{
+				$accessCheckOperation = \CBPCanUserOperateOperation::StartWorkflow;
+			}
+		}
+
 		if (!is_array($documentType))
 		{
 			$this->addError(
@@ -109,7 +144,12 @@ class FieldType extends Base
 			if (
 				is_array($data['property'] ?? null)
 				&& is_array($data['params'] ?? null)
-				&& $this->inputAndAccessCheck($documentType, $data['property'])
+				&& $this->inputAndAccessCheck(
+					$documentType,
+					$data['property'],
+					$accessCheckOperation,
+					$documentId
+				)
 			)
 			{
 				$property = $this->normalizeProperty($data['property']);

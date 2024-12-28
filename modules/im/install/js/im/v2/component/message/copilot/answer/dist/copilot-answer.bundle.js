@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_notification,main_core,im_v2_lib_utils,im_v2_lib_parser,im_v2_component_message_base,im_v2_component_message_elements) {
+(function (exports,ui_notification,main_core,im_v2_lib_utils,im_v2_lib_parser,im_v2_component_message_base,im_v2_component_message_elements,im_v2_lib_helpdesk) {
 	'use strict';
 
 	// @vue/component
@@ -61,12 +61,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	    },
 	    onWarningDetailsClick(event) {
-	      var _BX$Helper;
 	      if (!main_core.Dom.hasClass(event.target, 'bx-im-message-copilot-answer__warning_more')) {
 	        return;
 	      }
 	      const ARTICLE_CODE = '20412666';
-	      (_BX$Helper = BX.Helper) == null ? void 0 : _BX$Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
+	      im_v2_lib_helpdesk.openHelpdeskArticle(ARTICLE_CODE);
 	    },
 	    loc(phraseCode, replacements = {}) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
@@ -114,5 +113,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.CopilotMessage = CopilotMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib));
 //# sourceMappingURL=copilot-answer.bundle.js.map

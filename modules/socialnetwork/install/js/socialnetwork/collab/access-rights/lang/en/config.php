@@ -1,0 +1,21 @@
+<?php
+$MESS["SN_COLLAB_ACCESS_RIGHTS"] = "Access permissions";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_BUTTON_CANCEL"] = "Cancel";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_BUTTON_SAVE"] = "Save";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_CHAT_LABEL"] = "Users allowed to post messages:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_CHAT_LABEL_HINT"] = "Collab members allowed to write and post new messages to the collab.";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_ERROR_REQUIRED_OWNER"] = "Collab owner is required.";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_INITIATE_LABEL"] = "Users allowed to invite new collab members:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_INITIATE_LABEL_HINT"] = "Collab members allowed to invite employees and guests to the collab.";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_MANAGEMENT_LABEL"] = "Collab management";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_MODERATORS_LABEL"] = "Moderators:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_MODERATORS_LABEL_HINT"] = "Moderators are users with elevated permissions assigned by collab owner.";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_OWNER_LABEL"] = "Owner:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_OWNER_LABEL_HINT"] = "Owner has full access to all information the collab contains, can edit any collab settings and assign moderators.";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_SHOW_HISTORY_LABEL"] = "Make chat history available to new members:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_TASKS_LABEL"] = "Collab tasks";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_TCT_LABEL"] = "Users allowed to create new tasks:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_TDT_LABEL"] = "Users allowed to delete collab tasks:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_TET_LABEL"] = "Users allowed to edit collab tasks:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_TST_LABEL"] = "Users allowed to sort and move collab tasks:";
+$MESS["SN_COLLAB_ACCESS_RIGHTS_TVU_LABEL"] = "Users allowed to view collab tasks:";

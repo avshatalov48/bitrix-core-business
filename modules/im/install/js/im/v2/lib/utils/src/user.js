@@ -2,15 +2,21 @@ import { Extension, Type, Loc } from 'main.core';
 import { DateTimeFormat } from 'main.date';
 
 import { DateFormatter, DateCode } from 'im.v2.lib.date-formatter';
-import { UserIdNetworkPrefix } from 'im.v2.const';
+import { UserIdNetworkPrefix, UserType } from 'im.v2.const';
+
+import type { ImModelUser } from 'im.v2.model';
 
 const settings = Extension.getSettings('im.v2.lib.utils');
 
+const USER_ENTITY_ID = 'user';
+type UserEntity = ['user', number];
+
 export const UserUtil = {
 
-	getLastDateText(params = {}): string
+	getLastDateText(params: ImModelUser = {}): string
 	{
-		if (params.bot || params.network || !params.lastActivityDate)
+		const isBot = params.type === UserType.bot;
+		if (isBot || params.network || !params.lastActivityDate)
 		{
 			return '';
 		}
@@ -161,5 +167,18 @@ export const UserUtil = {
 		}
 
 		return userId.startsWith(UserIdNetworkPrefix);
+	},
+
+	prepareSelectorIds(userId: number | number[]): UserEntity[]
+	{
+		let idList = userId;
+		if (Type.isNumber(userId))
+		{
+			idList = [idList];
+		}
+
+		return idList.map((id) => {
+			return [USER_ENTITY_ID, Number(id)];
+		});
 	},
 };

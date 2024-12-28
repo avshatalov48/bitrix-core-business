@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,landing_backend,landing_env,landing_metrika,landing_ui_highlight,landing_loc,landing_ui_panel_content,main_core) {
 	'use strict';
@@ -221,7 +222,7 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(DesignerBlock, [{
 	    key: "clearHtml",
 	    value: function clearHtml(content) {
-	      return content.replace(/<div class="[^"]*landing-designer-block-pseudo-last[^"]*"[^>]*>[\s]*<\/div>/g, '').replace(/<div class="[^"]*landing-highlight-border[^"]*"[^>]*>[\s]*<\/div>/g, '').replace(/url\(&quot;(.*?)&quot;\)/g, 'url($1)').replace(/\s*data-(landingwrapper)="[^"]+"\s*/g, ' ').replace(/\s*[\w-_]+--type-wrapper\s*/g, ' ').replace(/<div[\s]*>[\s]*<\/div>/g, '').replace(/\s*style=""/g, '');
+	      return content.replace(/<div class="[^"]*landing-designer-block-pseudo-last[^"]*"[^>]*>[\s]*<\/div>/g, '').replace(/<div class="[^"]*landing-highlight-border[^"]*"[^>]*>[\s]*<\/div>/g, '').replace(/url\(&quot;(.*?)&quot;\)/g, 'url($1)').replace(/\s*data-(landingwrapper)="[^"]+"\s*/g, ' ').replace(/\s*[\w-_]+--type-wrapper\s*/g, ' ').replace(/<div[\s]*>[\s]*<\/div>/g, '').replace(/\s*style=""/g, '').replace(/cursor: pointer;/g, '').replace(/user-select: none;/g, '');
 	    }
 	  }, {
 	    key: "preventEvents",

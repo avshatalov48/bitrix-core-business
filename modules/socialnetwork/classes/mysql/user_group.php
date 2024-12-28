@@ -12,7 +12,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	public static function Add($arFields)
+	public static function Add($arFields, bool $skipCheckFields = false, bool $skipStatistics = false, bool $delayEvents = false)
 	{
 		global $DB, $CACHE_MANAGER;
 		$connection = \Bitrix\Main\Application::getConnection();
@@ -20,7 +20,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 		$arFields1 = Util::getEqualityFields($arFields);
 
-		if (!self::CheckFields("ADD", $arFields))
+		if (!$skipCheckFields && !self::CheckFields("ADD", $arFields))
 		{
 			return false;
 		}
@@ -69,13 +69,24 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 		if ($ID)
 		{
-			CSocNetGroup::SetStat($arFields["GROUP_ID"]);
+			if (!$skipStatistics)
+			{
+				CSocNetGroup::SetStat($arFields["GROUP_ID"], $arFields['INITIATED_BY_USER_ID'] ?? 0);
+			}
+
 			CSocNetSearch::OnUserRelationsChange($arFields["USER_ID"]);
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetUserToGroupAdd");
 			while ($arEvent = $events->Fetch())
 			{
-				ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
+				if ($delayEvents)
+				{
+					static::delayJob(static fn () => ExecuteModuleEventEx($arEvent, array($ID, &$arFields)));
+				}
+				else
+				{
+					ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
+				}
 			}
 
 			EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_USER_ADD, [
@@ -92,7 +103,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 			if (
 				$arFields['INITIATED_BY_TYPE'] === SONET_INITIATED_BY_GROUP
-				&& $arFields['SEND_MAIL'] !== 'N'
+				&& ($arFields['SEND_MAIL'] ?? null) !== 'N'
 				&& !ModuleManager::isModuleInstalled('im')
 			)
 			{
@@ -292,6 +303,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			"INITIATED_BY_USER_GENDER" => Array("FIELD" => "U1.PERSONAL_GENDER", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U1 ON (UG.INITIATED_BY_USER_ID = U1.ID)"),
 			"SCRUM_OWNER_ID" => Array("FIELD" => "G.SCRUM_OWNER_ID", "TYPE" => "int"),
 			"GROUP_SCRUM_MASTER_ID" => [ 'FIELD' => 'G.SCRUM_MASTER_ID', 'TYPE' => 'int' ],
+			'GROUP_TYPE' => ['FIELD' => 'G.TYPE', 'TYPE' => 'string'],
 		);
 		$arFields1['RAND'] = Array("FIELD" => $helper->getRandomFunction(), "TYPE" => "string");
 		$arFields["USER_IS_ONLINE"] = Array("FIELD" => "CASE WHEN U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UG.USER_ID = U.ID)");

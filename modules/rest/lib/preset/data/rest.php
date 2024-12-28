@@ -132,6 +132,21 @@ class Rest
 	/**
 	 * @return array
 	 */
+	public static function getBasePlacement() : array
+	{
+		$result = [];
+		$data = static::getAllBasicDescription();
+		if (!empty($data[static::PLACEMENT]))
+		{
+			$result = $data[static::PLACEMENT];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return array
+	 */
 	public static function getScope() : array
 	{
 		return ScopeManager::getInstance()->listScope();

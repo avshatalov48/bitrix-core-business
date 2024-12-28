@@ -354,6 +354,16 @@ class CBPRuntime
 		return $workflow;
 	}
 
+	public function hasWorkflow(string $workflowId): bool
+	{
+		if (!$workflowId)
+		{
+			return false;
+		}
+
+		return array_key_exists($workflowId, $this->workflows);
+	}
+
 	protected function getWorkflowInstance(string $workflowId): CBPWorkflow
 	{
 		if (WorkflowInstanceTable::isDebugWorkflow($workflowId))
@@ -530,7 +540,7 @@ class CBPRuntime
 			$code = mb_substr($code, mb_strlen(static::REST_ACTIVITY_PREFIX));
 			$result = RestActivityTable::getList(array(
 				'select' => array('ID'),
-				'filter' => array('=INTERNAL_CODE' => $code)
+				'filter' => array('=INTERNAL_CODE' => $code),
 			));
 			$activity = $result->fetch();
 			eval('class CBP'.static::REST_ACTIVITY_PREFIX.$code.' extends CBPRestActivity {const REST_ACTIVITY_ID = '.($activity? $activity['ID'] : 0).';}');
@@ -583,7 +593,7 @@ class CBPRuntime
 		{
 			$code = mb_substr($code, mb_strlen(static::REST_ACTIVITY_PREFIX));
 			$result = RestActivityTable::getList(array(
-				'filter' => array('=INTERNAL_CODE' => $code)
+				'filter' => array('=INTERNAL_CODE' => $code),
 			));
 			$activity = $result->fetch();
 			if ($activity)
@@ -757,7 +767,7 @@ class CBPRuntime
 	{
 		$result = array();
 		$iterator = RestActivityTable::getList(array(
-			'filter' => array('=IS_ROBOT' => 'N')
+			'filter' => array('=IS_ROBOT' => 'N'),
 		));
 
 		while ($activity = $iterator->fetch())
@@ -851,7 +861,7 @@ class CBPRuntime
 			),
 			'RETURN' => array(),
 			//compatibility
-			'PATH_TO_ACTIVITY' => ''
+			'PATH_TO_ACTIVITY' => '',
 		);
 
 		if (
@@ -866,14 +876,14 @@ class CBPRuntime
 			{
 				$result['RETURN'][$name] = array(
 					'NAME' => RestActivityTable::getLocalization($property['NAME'], $lang),
-					'TYPE' => isset($property['TYPE']) ? $property['TYPE'] : \Bitrix\Bizproc\FieldType::STRING
+					'TYPE' => isset($property['TYPE']) ? $property['TYPE'] : \Bitrix\Bizproc\FieldType::STRING,
 				);
 			}
 		}
 		if ($activity['USE_SUBSCRIPTION'] != 'N')
 			$result['RETURN']['IsTimeout'] = array(
 				'NAME' => GetMessage('BPRA_IS_TIMEOUT'),
-				'TYPE' => \Bitrix\Bizproc\FieldType::INT
+				'TYPE' => \Bitrix\Bizproc\FieldType::INT,
 			);
 
 		return $result;
@@ -899,8 +909,8 @@ class CBPRuntime
 			//compatibility
 			'PATH_TO_ACTIVITY' => '',
 			'ROBOT_SETTINGS' => array(
-				'CATEGORY' => 'other'
-			)
+				'CATEGORY' => 'other',
+			),
 		);
 
 		if (
@@ -924,7 +934,7 @@ class CBPRuntime
 		{
 			$result['RETURN']['IsTimeout'] = array(
 				'NAME' => GetMessage('BPRA_IS_TIMEOUT'),
-				'TYPE' => \Bitrix\Bizproc\FieldType::INT
+				'TYPE' => \Bitrix\Bizproc\FieldType::INT,
 			);
 		}
 

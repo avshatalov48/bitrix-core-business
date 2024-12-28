@@ -15,6 +15,8 @@ class TemplateRef
 	 */
 	const ENTITY_TYPE_LANDING = 'L';
 
+	private const CACHE_DIR = '/landing/is_area/';
+
 	/**
 	 * Set new template refs for entity.
 	 * @param int $id Entity id.
@@ -43,12 +45,14 @@ class TemplateRef
 					TemplateRefTable::update($row['ID'], array(
 						'LANDING_ID' => $data[$row['AREA']]
 					));
+					BXClearCache(true, self::CACHE_DIR);
 				}
 				unset($data[$row['AREA']]);
 			}
 			else
 			{
 				TemplateRefTable::delete($row['ID']);
+				BXClearCache(true, self::CACHE_DIR);
 			}
 		}
 		foreach ($data as $area => $lid)
@@ -61,6 +65,7 @@ class TemplateRef
 					'LANDING_ID' => $lid,
 					'AREA' => $area
 				));
+				BXClearCache(true, self::CACHE_DIR);
 			}
 		}
 	}
@@ -152,33 +157,52 @@ class TemplateRef
 
 	/**
 	 * This landing id is used as a area?
+	 *
 	 * @param int|array $lid Landing id.
+	 *
 	 * @return boolean|array
 	 */
-	public static function landingIsArea($lid)
+	public static function landingIsArea(int|array $lid): bool|array
 	{
-		$res = TemplateRefTable::getList(array(
-			'filter' => array(
-				'LANDING_ID' => $lid
-			)
-		));
-		if (is_array($lid))
+		$cache = new \CPHPCache();
+		$cacheTime = 3600;
+		$cacheId = is_array($lid) ? md5(serialize($lid)) : (int)$lid;
+
+		if ($cache->InitCache($cacheTime, $cacheId, self::CACHE_DIR))
 		{
-			$return = array();
-			foreach ($lid as $id)
-			{
-				$return[(int)$id] = false;
-			}
-			while ($row = $res->fetch())
-			{
-				$return[$row['LANDING_ID']] = true;
-			}
-			return $return;
+			$result = $cache->GetVars();
 		}
 		else
 		{
-			return $res->fetch() ? true : false;
+			$cache->StartDataCache();
+
+			$res = TemplateRefTable::getList([
+				'filter' => [
+					'LANDING_ID' => $lid,
+				],
+			]);
+
+			if (is_array($lid))
+			{
+				$result = [];
+				foreach ($lid as $id)
+				{
+					$result[(int)$id] = false;
+				}
+				while ($row = $res->fetch())
+				{
+					$result[$row['LANDING_ID']] = true;
+				}
+			}
+			else
+			{
+				$result = (bool)$res->fetch();
+			}
+
+			$cache->EndDataCache($result);
 		}
+
+		return $result;
 	}
 
 	/**
@@ -198,6 +222,7 @@ class TemplateRef
 		while ($row = $res->fetch())
 		{
 			TemplateRefTable::delete($row['ID']);
+			BXClearCache(true, self::CACHE_DIR);
 		}
 	}
 

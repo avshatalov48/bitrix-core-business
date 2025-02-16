@@ -19,6 +19,7 @@ use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\Url\InventoryBuilder;
 use Bitrix\Catalog\v2\Sku\BaseSku;
+use Bitrix\Crm\ProductRowTable;
 use Bitrix\Main;
 use Bitrix\Main\Grid\Editor\Types;
 use Bitrix\Main\Grid\Panel\Snippet;
@@ -104,8 +105,8 @@ final class CatalogStoreDocumentProductListComponent
 	{
 		/**
 		 * GRID_ID - string - custom grid id
-		 * NAVIGATION_ID - string - custom navigation id (may be create from GRID_ID)
-		 * FORM_ID - string - custom form identifier (may be create from GRID_ID), default empty
+		 * NAVIGATION_ID - string - custom navigation id (maybe created from GRID_ID)
+		 * FORM_ID - string - custom form identifier (maybe created from GRID_ID), default empty
 		 * TAB_ID - string - custom product tab identifier, default empty
 		 *
 		 * AJAX_ID - string - ajax component identifier
@@ -117,7 +118,7 @@ final class CatalogStoreDocumentProductListComponent
 		 * SHOW_PAGINATION - bool or Y/N - show pagination block, default false
 		 * SHOW_TOTAL_COUNTER - bool or Y/N - show count of rows, default false
 		 * SHOW_PAGESIZE - bool or Y/N - show page size select, default false
-		 * PAGINATION - array - pagination info (pages size, offset, etc), default - empty array
+		 * PAGINATION - array - pagination info (pages size, offset, etc.), default - empty array
 		 *
 		 * PRODUCTS - array|null - product list
 		 * TOTAL_PRODUCTS_COUNT - int - full product rows quantity
@@ -125,7 +126,7 @@ final class CatalogStoreDocumentProductListComponent
 		 * CUSTOM_SITE_ID - string - entity site identifier, default SITE_ID
 		 * CUSTOM_LANGUAGE_ID - string - current lang identifier, default LANGUAGE_ID
 		 * SET_ITEMS - bool - set rows (Y/N), default N
-		 * ALLOW_EDIT - bool - allow modify data (Y/N), default N
+		 * ALLOW_EDIT - bool - allow to modify data (Y/N), default N
 		 * ALLOW_ADD_PRODUCT - bool - add product to entity button (Y/N), default N
 		 * ALLOW_CREATE_NEW_PRODUCT - bool - create fake products button (Y/N), default N
 		 * if ALLOW_EDIT off - ALLOW_ADD_PRODUCT and ALLOW_CREATE_NEW_PRODUCT already off
@@ -590,14 +591,14 @@ final class CatalogStoreDocumentProductListComponent
 	{
 		$this->stores = [];
 		$productStoreRaw = StoreTable::getList([
-			'select' => ['ID', 'TITLE', 'IS_DEFAULT']
+			'select' => ['ID', 'TITLE', 'IS_DEFAULT', 'ADDRESS']
 		]);
 
 		while ($store = $productStoreRaw->fetch())
 		{
 			if ($store['TITLE'] === '')
 			{
-				$store['TITLE'] = Loc::getMessage('CATALOG_DOCUMENT_EMPTY_STORE_TITLE');
+				$store['TITLE'] = $store['ADDRESS'];
 			}
 
 			$this->stores[$store['ID']] = $store;
@@ -1311,8 +1312,6 @@ final class CatalogStoreDocumentProductListComponent
 	 * @param array $list
 	 * @param string $title
 	 * @return array
-	 * @throws Main\ArgumentException
-	 * @throws Main\SystemException
 	 */
 	private function getDropdownActionField(Snippet $snippet, string $fieldId, array $list, string $title): array
 	{
@@ -1406,7 +1405,6 @@ final class CatalogStoreDocumentProductListComponent
 	/* Storage tools */
 
 	/**
-	 * @param string $node
 	 * @param array $nodeValues
 	 * @return void
 	 */
@@ -1421,7 +1419,6 @@ final class CatalogStoreDocumentProductListComponent
 	}
 
 	/**
-	 * @param string $node
 	 * @param string $item
 	 * @param mixed $value
 	 * @return void
@@ -1432,7 +1429,6 @@ final class CatalogStoreDocumentProductListComponent
 	}
 
 	/**
-	 * @param string $node
 	 * @param string $item
 	 * @return mixed|null
 	 */
@@ -1998,6 +1994,10 @@ final class CatalogStoreDocumentProductListComponent
 		];
 		$taxIncluded = $gridRows[0]['raw_data']['TAX_INCLUDED'] ?? null;
 		$taxIncludedFormatted = $gridRows[0]['data']['TAX_INCLUDED'] ?? null;
+		$taxIncludedFromFirstItem = $this->getTaxIncludedFromFirstItem();
+		$taxIncludedFromFirstItemFormatted = ($taxIncludedFromFirstItem === 'Y')
+			? Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_TAX_INCLUDED')
+			: Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_TAX_NOT_INCLUDED');
 
 		foreach ($gridRows as $row)
 		{
@@ -2041,6 +2041,8 @@ final class CatalogStoreDocumentProductListComponent
 			'totalCalculationSumTaxField' => 'TAX_SUM',
 			'taxIncludedFormatted' => $taxIncludedFormatted,
 			'taxIncluded' => $taxIncluded,
+			'taxIncludedFromFirstItem' => $taxIncludedFromFirstItem,
+			'taxIncludedFromFirstItemFormatted' => $taxIncludedFromFirstItemFormatted,
 
 			'popupSettings' => $this->getPopupSettings(),
 			'languageId' => $this->getLanguageId(),
@@ -2118,6 +2120,12 @@ final class CatalogStoreDocumentProductListComponent
 			$item = $this->prepareEditorRow($row);
 			$editable = !($row['ACCESS_DENIED'] ?? false);
 
+			$skuTree = '';
+			if (isset($row['SKU_TREE']) && $row['SKU_TREE'])
+			{
+				$skuTree = Json::decode($row['SKU_TREE']);
+			}
+
 			ob_start();
 			$APPLICATION->IncludeComponent(
 				'bitrix:catalog.grid.product.field',
@@ -2135,7 +2143,7 @@ final class CatalogStoreDocumentProductListComponent
 						'SKU_ID' => $row['SKU_ID'] ?? null,
 						'BASE_PRICE_ID' => $row['BASE_PRICE_ID'] ?? null,
 					],
-					'SKU_TREE' => $row['SKU_TREE'] ? Json::decode($row['SKU_TREE']) : '',
+					'SKU_TREE' => $skuTree,
 					'MODE' => 'view',
 					'VIEW_FORMAT' => 'short',
 					'ENABLE_SEARCH' => false,
@@ -2191,7 +2199,7 @@ final class CatalogStoreDocumentProductListComponent
 		);
 	}
 
-	private function formatTaxRate(null|int|float|string $rate): string
+	private static function formatTaxRate(null|int|float|string $rate): string
 	{
 		if ($rate === null || $rate === '')
 		{
@@ -2249,7 +2257,7 @@ final class CatalogStoreDocumentProductListComponent
 		$totalPriceFormatted = $this->formatPrices($row['TOTAL_PRICE']);
 
 		$row['TAX_RATE'] ??= null;
-		$taxRateFormatted = $this->formatTaxRate($row['TAX_RATE']);
+		$taxRateFormatted = self::formatTaxRate($row['TAX_RATE']);
 
 		$editorFields = [
 			'AMOUNT' => [
@@ -2368,9 +2376,7 @@ final class CatalogStoreDocumentProductListComponent
 			'TAX_INCLUDED' => 'N',
 		];
 
-		$row = $this->prepareRowsForAccessRights([ $row ])[0];
-
-		return $row;
+		return $this->prepareRowsForAccessRights([ $row ])[0];
 	}
 
 	protected function isReadOnly(): bool
@@ -2684,10 +2690,12 @@ final class CatalogStoreDocumentProductListComponent
 		return Bitrix\Main\Engine\Response\AjaxJson::createSuccess();
 	}
 
-	/** @noinspection PhpUnused
+	/**
+	 * Returns converted base and purchasing prices for product list.
 	 *
-	 * @param array $products
-	 * @param string currencyId
+	 * @param array $products Products information.
+	 * @param string $currencyId Currency identifier for result.
+	 * @param string $oldCurrencyId Old currency identifier.
 	 * @return null|array
 	 */
 	public function calculateProductPricesAction(array $products, string $currencyId, string $oldCurrencyId): ?array
@@ -2737,10 +2745,13 @@ final class CatalogStoreDocumentProductListComponent
 		return $response;
 	}
 
-	/** @noinspection PhpUnused
+	/**
+	 * Returns cost price for product.
 	 *
-	 * @param array $products
-	 * @param string currencyId
+	 * @param int $productId Product indentifier.
+	 * @param float $quantity Product quantity.
+	 * @param string $currency Currency identifier.
+	 * @param int $storeId Store identifier.
 	 * @return null|array
 	 */
 	public function calculateStoreCostPriceAction(int $productId, float $quantity, string $currency, int $storeId): ?float
@@ -2814,5 +2825,35 @@ final class CatalogStoreDocumentProductListComponent
 		$totalSumDetails['TOTAL_SUM_BEFORE_TAX'] = $totalSumDetails['TOTAL_SUM'] - $totalSumDetails['TOTAL_TAX'];
 
 		return $totalSumDetails;
+	}
+
+	/**
+	 * @return string|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private function getTaxIncludedFromFirstItem(): ?string
+	{
+		$context = \Bitrix\Main\Application::getInstance()->getContext()->getRequest()->get('context');
+		$ownerId = (int)($context['OWNER_ID'] ?? null);
+		$ownerTypeId = (int)($context['OWNER_TYPE_ID'] ?? null);
+		$taxIncludedFromFirstItem = null;
+
+		if ($ownerId && $ownerTypeId === CCrmOwnerType::Deal)
+		{
+			$productRow = ProductRowTable::getRow(
+				[
+					'select' => ['TAX_INCLUDED'],
+					'filter' => [
+						'=OWNER_ID' => $ownerId,
+						'=OWNER_TYPE' => CCrmOwnerTypeAbbr::ResolveByTypeID($ownerTypeId)
+					],
+				]
+			);
+			$taxIncludedFromFirstItem = $productRow['TAX_INCLUDED'] ?? null;
+		}
+
+		return $taxIncludedFromFirstItem;
 	}
 }

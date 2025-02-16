@@ -107,6 +107,10 @@
 	--ui-icon-set__path_download-double: url('/bitrix/js/ui/icon-set/actions/images/download-double.svg');
 	--ui-icon-set__path_refresh-closed: url('/bitrix/js/ui/icon-set/actions/images/refresh-closed.svg');
 	--ui-icon-set__path_refresh-10: url('/bitrix/js/ui/icon-set/actions/images/refresh-10.svg');
+	--ui-icon-set__path_image-rotate-left: url('/bitrix/js/ui/icon-set/actions/images/image-rotate-left.svg');
+	--ui-icon-set__path_image-rotate-right: url('/bitrix/js/ui/icon-set/actions/images/image-rotate-right.svg');
+	--ui-icon-set__path_zoom-in: url('/bitrix/js/ui/icon-set/actions/images/zoom-in.svg');
+	--ui-icon-set__path_zoom-out: url('/bitrix/js/ui/icon-set/actions/images/zoom-out.svg');
 }
 
 .ui-icon-set.--4-cubes-1 {
@@ -527,4 +531,20 @@
 
 .ui-icon-set.--pen {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_pen);
+}
+
+.ui-icon-set.--image-rotate-left {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_image-rotate-left);
+}
+
+.ui-icon-set.--image-rotate-right {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_image-rotate-right);
+}
+
+.ui-icon-set.--zoom-in {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_zoom-in);
+}
+
+.ui-icon-set.--zoom-out {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_zoom-out);
 }

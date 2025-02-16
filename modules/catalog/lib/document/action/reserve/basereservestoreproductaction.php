@@ -3,11 +3,11 @@
 namespace Bitrix\Catalog\Document\Action\Reserve;
 
 use Bitrix\Catalog\Document\Action\ProductAndStoreInfo;
+use Bitrix\Catalog\v2\Internal\ProductInternalService;
 use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
-use CCatalogProduct;
 use CCatalogStoreProduct;
 
 Loc::loadMessages(
@@ -91,12 +91,14 @@ trait BaseReserveStoreProductAction
 			return $result;
 		}
 
+		$productService = new ProductInternalService(true);
+
 		// update product info
-		$ret = CCatalogProduct::Update($this->productId, [
+		$ret = $productService->update($this->productId, [
 			'QUANTITY' => $this->getNewProductQuantity(),
 			'QUANTITY_RESERVED' => $this->getNewProductReservedQuantity(),
 		]);
-		if (!$ret)
+		if (!$ret->isSuccess())
 		{
 			$result->addError(
 				new Error(Loc::getMessage("CATALOG_STORE_DOCS_ERR_PURCHASING_INFO_ERROR"))

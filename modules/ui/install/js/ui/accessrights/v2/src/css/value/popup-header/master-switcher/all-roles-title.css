@@ -1,0 +1,9 @@
+.ui-access-rights-v2-cell-popup-header-all-role-container {
+	display: flex;
+	align-items: center;
+}
+
+.ui-access-rights-v2-cell-popup-header-all-roles-caption {
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
+}

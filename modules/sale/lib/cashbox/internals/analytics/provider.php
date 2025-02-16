@@ -66,7 +66,22 @@ final class Provider extends Sale\Internals\Analytics\Provider
 		return [
 			'cashbox' => $this->cashboxHandler::getCode(),
 			'date_time' => $checkData['date_time'],
+			'client_login' => $this->getClientLogin(),
 		];
+	}
+
+	private function getClientLogin(): ?string
+	{
+		$cashboxHandlerCode = $this->cashboxHandler::getCode();
+		if (
+			$cashboxHandlerCode === Sale\Cashbox\CashboxBusinessRu::getCode()
+			|| $cashboxHandlerCode === Sale\Cashbox\CashboxBusinessRuV5::getCode()
+		)
+		{
+			return $this->cashboxHandler->getValueFromSettings('AUTH', 'LOGIN');
+		}
+
+		return null;
 	}
 
 	/**

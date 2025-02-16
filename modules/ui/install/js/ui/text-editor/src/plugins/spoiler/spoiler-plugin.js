@@ -239,7 +239,7 @@ export class SpoilerPlugin extends BasePlugin
 			this.getEditor().registerCommand(
 				PASTE_COMMAND,
 				this.#handlePaste.bind(this),
-				COMMAND_PRIORITY_LOW,
+				COMMAND_PRIORITY_NORMAL,
 			),
 
 			this.getEditor().registerCommand(

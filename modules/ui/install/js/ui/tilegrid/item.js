@@ -272,7 +272,7 @@ BX.TileGrid.Item.prototype =
 
 		setTimeout(function()
 		{
-			itemContainer.parentNode.removeChild(itemContainer);
+			BX.Dom.remove(itemContainer);
 		}, 500);
 	},
 

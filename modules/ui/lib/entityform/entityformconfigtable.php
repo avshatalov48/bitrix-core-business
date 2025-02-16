@@ -3,6 +3,8 @@
 namespace Bitrix\Ui\EntityForm;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields\ArrayField;
+use Bitrix\Main\Text\Emoji;
 
 /**
  * Class EntityFormConfigTable
@@ -46,10 +48,13 @@ class EntityFormConfigTable extends Entity\DataManager
 				'required' => true,
 				'size' => 100
 			]),
-			new Entity\TextField('CONFIG', [
-				'serialized' => true,
-				'required' => true
-			]),
+			(new ArrayField('CONFIG'))
+				->configureSerializeCallback(function ($value){
+					return EntityFormConfigTable::serialize($value);
+				})
+				->configureUnserializeCallback(function ($value) {
+					return EntityFormConfigTable::unserialize($value);
+				}),
 			new Entity\BooleanField('COMMON', [
 				'values' => ['N', 'Y'],
 				'required' => true,
@@ -65,5 +70,49 @@ class EntityFormConfigTable extends Entity\DataManager
 				'size' => 50
 			])
 		];
+	}
+
+	private static function unserialize(string $fieldValue): array
+	{
+		$unserialized = unserialize($fieldValue, ['allowed_classes' => false]);
+
+		if ($unserialized === false)
+		{
+			return [];
+		}
+
+		if (is_array($unserialized))
+		{
+			array_walk_recursive(
+				$unserialized,
+				function (&$value) {
+					if (is_string($value))
+					{
+						$value = Emoji::decode($value);
+					}
+				}
+			);
+		}
+		elseif (is_string($unserialized))
+		{
+			$unserialized = Emoji::decode($unserialized);
+		}
+
+		return is_array($unserialized) ? $unserialized : [$unserialized];
+	}
+
+	private static function serialize(array $fieldValue): string
+	{
+		array_walk_recursive(
+			$fieldValue,
+			function (&$value) {
+				if (is_string($value))
+				{
+					$value = Emoji::encode($value);
+				}
+			}
+		);
+
+		return serialize($fieldValue);
 	}
 }

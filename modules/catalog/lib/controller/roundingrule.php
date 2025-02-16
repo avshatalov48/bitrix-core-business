@@ -159,4 +159,9 @@ final class RoundingRule extends Controller implements EventBindInterface
 
 		return $result;
 	}
+
+	protected function getErrorCodeEntityNotExists(): string
+	{
+		return ErrorCode::ROUNDING_RULE_ENTITY_NOT_EXISTS;
+	}
 }

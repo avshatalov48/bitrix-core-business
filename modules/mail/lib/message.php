@@ -2,9 +2,12 @@
 
 namespace Bitrix\Mail;
 
+use Bitrix\Mail\Integration\UI\EntitySelector\AddressBookProvider;
 use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI\EntitySelector\Dialog;
+use Bitrix\UI\EntitySelector\ItemCollection;
 use CTimeZone;
 
 Main\Localization\Loc::loadMessages(__FILE__);
@@ -72,6 +75,30 @@ class Message
 		}
 
 		return $string;
+	}
+
+	final public static function getSelectedRecipientsForDialog($recipients = [], $updateData = false): ItemCollection
+	{
+		$options = [
+			'entities' => [
+				[
+					'id' => AddressBookProvider::PROVIDER_ENTITY_ID,
+				],
+			],
+		];
+
+		$dialog = new Dialog($options);
+		$provider = $dialog->getEntity(AddressBookProvider::PROVIDER_ENTITY_ID)->getProvider();
+		$provider->setPreinstalledItems($recipients, $updateData);
+		$items = $provider->getItems([]);
+		$itemCollection = new ItemCollection();
+
+		foreach ($items as $item)
+		{
+			$itemCollection->add($item);
+		}
+
+		return $itemCollection;
 	}
 
 	final public static function wrapTheMessageWithAQuote($body, $subject, $timeString, $from = [], $to = [], $cc = [], bool $sanitized = false): string

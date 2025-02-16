@@ -1,5 +1,6 @@
 import { Loc, Runtime, Text, Type } from 'main.core';
 import { type ActionTree, BuilderModel, type GetterTree, type MutationTree, type Store } from 'ui.vue3.vuex';
+import { ServiceLocator } from '../../service/service-locator';
 import type { AccessRightItem, AccessRightSection } from './access-rights-model';
 
 export type UserGroupsState = {
@@ -38,8 +39,11 @@ export type Member = {
 	avatar: ?string,
 };
 
-type SetAccessRightValuesPayload = {
+type SetAccessRightValuesPayload = SetAccessRightValuesForShownPayload & {
 	userGroupId: string,
+};
+
+type SetAccessRightValuesForShownPayload = {
 	sectionCode: string,
 	valueId: string,
 	values: Set<string>,
@@ -172,11 +176,26 @@ export class UserGroupsModel extends BuilderModel
 			setAccessRightValues: (store, payload): void => {
 				this.#setAccessRightValuesAction(store, payload);
 			},
-			setMinAccessRightValuesForUserGroup: (store, payload): void => {
-				this.#setMinAccessRightValuesForUserGroupAction(store, payload);
+			setAccessRightValuesForShown: (store, payload): void => {
+				this.#setAccessRightValuesForShownAction(store, payload);
 			},
-			setMaxAccessRightValuesForUserGroup: (store, payload): void => {
-				this.#setMaxAccessRightValuesForUserGroupAction(store, payload);
+			setMinAccessRightValues: (store, payload): void => {
+				this.#setMinAccessRightValuesAction(store, payload);
+			},
+			setMaxAccessRightValues: (store, payload): void => {
+				this.#setMaxAccessRightValuesAction(store, payload);
+			},
+			setMinAccessRightValuesInSection: (store, payload): void => {
+				this.#setMinAccessRightValuesInSectionAction(store, payload);
+			},
+			setMaxAccessRightValuesInSection: (store, payload): void => {
+				this.#setMaxAccessRightValuesInSectionAction(store, payload);
+			},
+			setMinAccessRightValuesForRight: (store, payload): void => {
+				this.#setMinAccessRightValuesForRight(store, payload);
+			},
+			setMaxAccessRightValuesForRight: (store, payload): void => {
+				this.#setMaxAccessRightValuesForRight(store, payload);
 			},
 			setRoleTitle: (store, payload): void => {
 				this.#setRoleTitleAction(store, payload);
@@ -189,6 +208,9 @@ export class UserGroupsModel extends BuilderModel
 			},
 			copyUserGroup: (store, payload): void => {
 				this.#copyUserGroupAction(store, payload);
+			},
+			copySectionValues: (store, payload): void => {
+				this.#copySectionValuesAction(store, payload);
 			},
 			addUserGroup: (store): void => {
 				this.#addUserGroupAction(store);
@@ -241,90 +263,236 @@ export class UserGroupsModel extends BuilderModel
 		});
 	}
 
-	#setMinAccessRightValuesForUserGroupAction(store: UserGroupsStore, { userGroupId }): void
+	#setAccessRightValuesForShownAction(store: UserGroupsStore, payload: SetAccessRightValuesForShownPayload): void
 	{
-		for (const section: AccessRightSection of store.rootState.accessRights.collection.values())
+		for (const userGroupId of store.getters.shown.keys())
 		{
-			for (const item of section.rights.values())
-			{
-				const valueToSet = this.#getMinValueForGroupAction(
-					item,
-					store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, item.id),
-				);
-				if (Type.isNil(valueToSet))
-				{
-					continue;
-				}
+			void store.dispatch('setAccessRightValues', {
+				...payload,
+				userGroupId,
+			});
+		}
+	}
 
-				void store.dispatch('setAccessRightValues', {
-					userGroupId,
-					sectionCode: section.sectionCode,
-					valueId: item.id,
-					values: valueToSet,
-				});
-			}
+	#setMinAccessRightValuesAction(store: UserGroupsStore, { userGroupId }): void
+	{
+		for (const sectionCode: string of store.rootState.accessRights.collection.keys())
+		{
+			void store.dispatch('setMinAccessRightValuesInSection', { userGroupId, sectionCode });
 		}
 
 		void store.dispatch('accessRights/expandAllSections', null, { root: true });
 	}
 
-	#getMinValueForGroupAction(item: AccessRightItem, emptyValue: Set<string>): ?Set<string>
+	#setMinAccessRightValuesInSectionAction(store: UserGroupsStore, { userGroupId, sectionCode }): void
 	{
-		const setEmpty = Type.isBoolean(item.setEmptyOnGroupActions) && item.setEmptyOnGroupActions;
+		const section: ?AccessRightSection = store.rootState.accessRights.collection.get(sectionCode);
+		if (!section)
+		{
+			console.warn('ui.accessrights.v2: attempt to set min values in section that dont exists', { sectionCode });
+
+			return;
+		}
+
+		for (const item of section.rights.values())
+		{
+			const valueToSet = this.#getMinValueForColumnAction(
+				item,
+				store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, item.id),
+			);
+			if (Type.isNil(valueToSet))
+			{
+				continue;
+			}
+
+			void store.dispatch('setAccessRightValues', {
+				userGroupId,
+				sectionCode: section.sectionCode,
+				valueId: item.id,
+				values: valueToSet,
+			});
+		}
+	}
+
+	#setMinAccessRightValuesForRight(store: UserGroupsStore, { sectionCode, rightId }): void
+	{
+		const right: ?AccessRightItem = store.rootState.accessRights.collection.get(sectionCode)?.rights.get(rightId);
+		if (!right)
+		{
+			console.warn(
+				'ui.accessrights.v2: attempt to set min values for right that dont exists',
+				{ sectionCode, rightId },
+			);
+
+			return;
+		}
+
+		const valueToSet = this.#getMinValue(right);
+		if (Type.isNil(valueToSet))
+		{
+			console.warn(
+				'ui.accessrights.v2: attempt to set min values for right that dont have min value set',
+				{ sectionCode, rightId },
+			);
+
+			return;
+		}
+
+		void store.dispatch('setAccessRightValuesForShown', {
+			sectionCode,
+			valueId: rightId,
+			values: valueToSet,
+		});
+	}
+
+	#getMinValueForColumnAction(item: AccessRightItem, emptyValue: Set<string>): ?Set<string>
+	{
+		const setEmpty = Type.isBoolean(item.setEmptyOnSetMinMaxValueInColumn) && item.setEmptyOnSetMinMaxValueInColumn;
 		if (setEmpty)
 		{
 			return emptyValue;
 		}
 
-		if (!Type.isNil(item.minValue))
-		{
-			return item.minValue;
-		}
-
-		return null;
+		return this.#getMinValue(item);
 	}
 
-	#setMaxAccessRightValuesForUserGroupAction(store: UserGroupsStore, { userGroupId }): void
+	#getMinValue(item: AccessRightItem): ?Set<string>
 	{
-		for (const section: AccessRightSection of store.rootState.accessRights.collection.values())
-		{
-			for (const item of section.rights.values())
-			{
-				const valueToSet = this.#getMaxValueForGroupAction(
-					item,
-					store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, item.id),
-				);
-				if (Type.isNil(valueToSet))
-				{
-					continue;
-				}
+		return ServiceLocator.getValueTypeByRight(item)?.getMinValue(item);
+	}
 
-				void store.dispatch('setAccessRightValues', {
-					userGroupId,
-					sectionCode: section.sectionCode,
-					valueId: item.id,
-					values: valueToSet,
-				});
-			}
+	#setMaxAccessRightValuesAction(store: UserGroupsStore, { userGroupId }): void
+	{
+		for (const sectionCode: string of store.rootState.accessRights.collection.keys())
+		{
+			void store.dispatch('setMaxAccessRightValuesInSection', { userGroupId, sectionCode });
 		}
 
 		void store.dispatch('accessRights/expandAllSections', null, { root: true });
 	}
 
-	#getMaxValueForGroupAction(item: AccessRightItem, emptyValue: Set<string>): ?Set<string>
+	#setMaxAccessRightValuesInSectionAction(store: UserGroupsStore, { userGroupId, sectionCode }): void
 	{
-		const setEmpty = Type.isBoolean(item.setEmptyOnGroupActions) && item.setEmptyOnGroupActions;
+		const section: ?AccessRightSection = store.rootState.accessRights.collection.get(sectionCode);
+		if (!section)
+		{
+			console.warn('ui.accessrights.v2: attempt to set max values in section that dont exists', { sectionCode });
+
+			return;
+		}
+
+		for (const item of section.rights.values())
+		{
+			const valueToSet = this.#getMaxValueForColumnAction(
+				item,
+				store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, item.id),
+			);
+			if (Type.isNil(valueToSet))
+			{
+				continue;
+			}
+
+			void store.dispatch('setAccessRightValues', {
+				userGroupId,
+				sectionCode: section.sectionCode,
+				valueId: item.id,
+				values: valueToSet,
+			});
+		}
+	}
+
+	#setMaxAccessRightValuesForRight(store: UserGroupsStore, { sectionCode, rightId }): void
+	{
+		const right: ?AccessRightItem = store.rootState.accessRights.collection.get(sectionCode)?.rights.get(rightId);
+		if (!right)
+		{
+			console.warn(
+				'ui.accessrights.v2: attempt to set max values for right that dont exists',
+				{ sectionCode, rightId },
+			);
+
+			return;
+		}
+
+		const valueToSet = this.#getMaxValue(right);
+		if (Type.isNil(valueToSet))
+		{
+			console.warn(
+				'ui.accessrights.v2: attempt to set max values for right that dont have max value set',
+				{ sectionCode, rightId },
+			);
+
+			return;
+		}
+
+		void store.dispatch('setAccessRightValuesForShown', {
+			sectionCode,
+			valueId: rightId,
+			values: valueToSet,
+		});
+	}
+
+	#getMaxValueForColumnAction(item: AccessRightItem, emptyValue: Set<string>): ?Set<string>
+	{
+		const setEmpty = Type.isBoolean(item.setEmptyOnSetMinMaxValueInColumn) && item.setEmptyOnSetMinMaxValueInColumn;
 		if (setEmpty)
 		{
 			return emptyValue;
 		}
 
-		if (!Type.isNil(item.maxValue))
+		return this.#getMaxValue(item);
+	}
+
+	#getMaxValue(item: AccessRightItem): ?Set<string>
+	{
+		return ServiceLocator.getValueTypeByRight(item)?.getMaxValue(item);
+	}
+
+	#copySectionValuesAction(
+		store: UserGroupsStore,
+		payload: { srcUserGroupId: string, dstUserGroupId: string, sectionCode: string },
+	): void
+	{
+		const src = this.#getUserGroup(store.state, payload.srcUserGroupId);
+		if (!src)
 		{
-			return item.maxValue;
+			console.warn('ui.accessrights.v2: Attempt to copy values from user group that dont exists', payload);
+
+			return;
 		}
 
-		return null;
+		const section: ?AccessRightSection = store.rootState.accessRights.collection.get(payload.sectionCode);
+		if (!section)
+		{
+			console.warn('ui.accessrights.v2: Attempt to copy values for section that dont exists', payload);
+
+			return;
+		}
+
+		for (const rightId of section.rights.keys())
+		{
+			const value = src.accessRights.get(rightId);
+			if (value)
+			{
+				void store.dispatch('setAccessRightValues', {
+					userGroupId: payload.dstUserGroupId,
+					sectionCode: section.sectionCode,
+					valueId: value.id,
+					values: value.values,
+				});
+			}
+			else
+			{
+				const emptyValue = store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, rightId);
+
+				void store.dispatch('setAccessRightValues', {
+					userGroupId: payload.dstUserGroupId,
+					sectionCode: section.sectionCode,
+					valueId: rightId,
+					values: emptyValue,
+				});
+			}
+		}
 	}
 
 	#setRoleTitleAction(store: UserGroupsStore, payload: {userGroupId: string, title: string}): void

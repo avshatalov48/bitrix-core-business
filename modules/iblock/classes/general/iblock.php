@@ -6,8 +6,6 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 
-IncludeModuleLangFile(__FILE__);
-
 class CAllIBlock
 {
 	protected const TABLE_PREFIX_SINGLE_PROPERTY_VALUES = 'b_iblock_element_prop_s';
@@ -15,8 +13,8 @@ class CAllIBlock
 	protected const TABLE_COMMON_PROPERTY_VALUES = 'b_iblock_element_property';
 
 	public string $LAST_ERROR = '';
-	protected static $disabledCacheTag = array();
-	protected static $enableClearTagCache = 0;
+	protected static array $disabledCacheTag = [];
+	protected static int $enableClearTagCache = 0;
 
 	protected static ?bool $catalogIncluded = null;
 	protected static ?bool $workflowIncluded = null;
@@ -273,7 +271,7 @@ class CAllIBlock
 			}
 			else
 			{
-				$componentName = GetMessage("IBLOCK_PANEL_UNKNOWN_COMPONENT");
+				$componentName = Loc::getMessage("IBLOCK_PANEL_UNKNOWN_COMPONENT");
 			}
 
 			$arPanelButton = array(
@@ -301,8 +299,8 @@ class CAllIBlock
 			{
 				$arSubMenu = array(
 					"SRC" => "/bitrix/images/iblock/icons/iblock.gif",
-					"ALT" => GetMessage("IBLOCK_PANEL_CONTROL_PANEL_ALT"),
-					"TEXT" => GetMessage("IBLOCK_PANEL_CONTROL_PANEL"),
+					"ALT" => Loc::getMessage("IBLOCK_PANEL_CONTROL_PANEL_ALT"),
+					"TEXT" => Loc::getMessage("IBLOCK_PANEL_CONTROL_PANEL"),
 					"MENU" => array(),
 					"MODE" => $mode,
 				);
@@ -538,8 +536,8 @@ class CAllIBlock
 			{
 				$url = "/bitrix/admin/iblock_history_list.php?type=".$arIBlock["IBLOCK_TYPE_ID"]."&lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&ELEMENT_ID=".$ELEMENT_ID."&filter_section=".$SECTION_ID."&return_url=".UrlEncode($return_url["history_element"]);
 				$arButton = array(
-					"TEXT" => GetMessage("IBLOCK_PANEL_HISTORY_BUTTON"),
-					"TITLE" => GetMessage("IBLOCK_PANEL_HISTORY_BUTTON"),
+					"TEXT" => Loc::getMessage("IBLOCK_PANEL_HISTORY_BUTTON"),
+					"TITLE" => Loc::getMessage("IBLOCK_PANEL_HISTORY_BUTTON"),
 					"ACTION" => "javascript:jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 					"ONCLICK" => "jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 					"ID" => "bx-context-toolbar-history-element"
@@ -617,9 +615,9 @@ class CAllIBlock
 			$arButton = array(
 				"TEXT" => $arLabels["ELEMENT_DELETE_TEXT"],
 				"TITLE" => $arLabels["ELEMENT_DELETE_TITLE"],
-				"ACTION"=>"javascript:if(confirm('".GetMessageJS("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
+				"ACTION"=>"javascript:if(confirm('".CUtil::JSEscape(Loc::getMessage("IBLOCK_PANEL_ELEMENT_DEL_CONF"))."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 				"ACTION_URL" => $url,
-				"ONCLICK"=>"if(confirm('".GetMessageJS("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
+				"ONCLICK"=>"if(confirm('".CUtil::JSEscape(Loc::getMessage("IBLOCK_PANEL_ELEMENT_DEL_CONF"))."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 				"ICON" => "bx-context-toolbar-delete-icon",
 				"ID" => "bx-context-toolbar-delete-element"
 			);
@@ -725,9 +723,9 @@ class CAllIBlock
 					$arButton = array(
 						"TEXT" => $arLabels["SECTION_DELETE_TEXT"],
 						"TITLE" => $arLabels["SECTION_DELETE_TITLE"],
-						"ACTION" => "javascript:if(confirm('".GetMessageJS("IBLOCK_PANEL_SECTION_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
+						"ACTION" => "javascript:if(confirm('".CUtil::JSEscape(Loc::getMessage("IBLOCK_PANEL_SECTION_DEL_CONF"))."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 						"ACTION_URL" => $url,
-						"ONCLICK" => "if(confirm('".GetMessageJS("IBLOCK_PANEL_SECTION_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
+						"ONCLICK" => "if(confirm('".CUtil::JSEscape(Loc::getMessage("IBLOCK_PANEL_SECTION_DEL_CONF"))."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 						"ICON" => "bx-context-toolbar-delete-icon",
 						"ID" => "bx-context-toolbar-delete-section"
 					);
@@ -782,8 +780,8 @@ class CAllIBlock
 			{
 				$url = "/bitrix/admin/iblock_edit.php?type=".$arIBlock["IBLOCK_TYPE_ID"]."&lang=".LANGUAGE_ID."&ID=".$IBLOCK_ID."&return_url=".UrlEncode($return_url["edit_iblock"]);
 				$arButton = array(
-					"TEXT" => GetMessage("IBLOCK_PANEL_EDIT_IBLOCK_BUTTON", array("#IBLOCK_NAME#"=>$arIBlock["NAME"])),
-					"TITLE" => GetMessage("IBLOCK_PANEL_EDIT_IBLOCK_BUTTON", array("#IBLOCK_NAME#"=>$arIBlock["NAME"])),
+					"TEXT" => Loc::getMessage("IBLOCK_PANEL_EDIT_IBLOCK_BUTTON", array("#IBLOCK_NAME#"=>$arIBlock["NAME"])),
+					"TITLE" => Loc::getMessage("IBLOCK_PANEL_EDIT_IBLOCK_BUTTON", array("#IBLOCK_NAME#"=>$arIBlock["NAME"])),
 					"ACTION" => "javascript:jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 					"ACTION_URL" => $url,
 					"ONCLICK" => "jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
@@ -1109,7 +1107,7 @@ class CAllIBlock
 				}
 				else
 				{
-					$this->LAST_ERROR = GetMessage("IBLOCK_TABLE_CREATION_ERROR");
+					$this->LAST_ERROR = Loc::getMessage("IBLOCK_TABLE_CREATION_ERROR");
 					$Result = false;
 					$arFields["RESULT_MESSAGE"] = &$this->LAST_ERROR;
 				}
@@ -1371,7 +1369,7 @@ class CAllIBlock
 		{
 			if(ExecuteModuleEventEx($arEvent, array($ID)) === false)
 			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR").' '.$arEvent['TO_NAME'];
+				$err = Loc::getMessage("MAIN_BEFORE_DEL_ERR").' '.$arEvent['TO_NAME'];
 				$ex = $APPLICATION->GetException();
 				if(is_object($ex))
 					$err .= ': '.$ex->GetString();
@@ -1487,10 +1485,10 @@ class CAllIBlock
 			($ID===false || array_key_exists("NAME", $arFields))
 			&& (string)$NAME === ''
 		)
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_NAME")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_NAME")."<br>";
 
 		if($ID===false && !is_set($arFields, "IBLOCK_TYPE_ID"))
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_BLOCK_TYPE")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_BLOCK_TYPE")."<br>";
 
 		if($ID===false)
 		{
@@ -1504,7 +1502,7 @@ class CAllIBlock
 			$arIBlock = CIBlock::GetArrayByID($ID);
 			if (!is_array($arIBlock))
 			{
-				$this->LAST_ERROR .= GetMessage('IBLOCK_ERR_IBLOCK_IS_ABSENT') . '<br>';
+				$this->LAST_ERROR .= Loc::getMessage('IBLOCK_ERR_IBLOCK_IS_ABSENT') . '<br>';
 			}
 			$WORKFLOW = array_key_exists("WORKFLOW", $arFields)? $arFields["WORKFLOW"]: $arIBlock["WORKFLOW"];
 			$BIZPROC  = array_key_exists("BIZPROC",  $arFields)? $arFields["BIZPROC"]:  $arIBlock["BIZPROC"];
@@ -1512,13 +1510,13 @@ class CAllIBlock
 		}
 
 		if($WORKFLOW == "Y" && $BIZPROC == "Y")
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_WORKFLOW_AND_BIZPROC")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_WORKFLOW_AND_BIZPROC")."<br>";
 
 		if(is_set($arFields, "IBLOCK_TYPE_ID"))
 		{
 			$r = CIBlockType::GetByID($arFields["IBLOCK_TYPE_ID"]);
 			if(!$r->Fetch())
-				$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_BLOCK_TYPE_ID")."<br>";
+				$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_BLOCK_TYPE_ID")."<br>";
 		}
 
 		if(
@@ -1552,7 +1550,7 @@ class CAllIBlock
 			)
 		)
 		{
-			$this->LAST_ERROR .= GetMessage("IBLOCK_BAD_SITE_ID_NA")."<br>";
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_SITE_ID_NA")."<br>";
 		}
 		elseif(is_set($arFields, "LID"))
 		{
@@ -1563,7 +1561,7 @@ class CAllIBlock
 			{
 				$r = CSite::GetByID($v);
 				if(!$r->Fetch())
-					$this->LAST_ERROR .= "'".$v."' - ".GetMessage("IBLOCK_BAD_SITE_ID")."<br>";
+					$this->LAST_ERROR .= "'".$v."' - ".Loc::getMessage("IBLOCK_BAD_SITE_ID")."<br>";
 			}
 		}
 
@@ -1796,16 +1794,16 @@ class CAllIBlock
 		global $DB;
 		$ID = intval($ID);
 		$arMessages = array(
-			"ELEMENT_NAME" => GetMessage("IBLOCK_MESS_ELEMENT_NAME"),
+			"ELEMENT_NAME" => Loc::getMessage("IBLOCK_MESS_ELEMENT_NAME"),
 			"ELEMENTS_NAME" => "",
-			"ELEMENT_ADD" => GetMessage("IBLOCK_MESS_ELEMENT_ADD"),
-			"ELEMENT_EDIT" => GetMessage("IBLOCK_MESS_ELEMENT_EDIT"),
-			"ELEMENT_DELETE" => GetMessage("IBLOCK_MESS_ELEMENT_DELETE"),
-			"SECTION_NAME" => GetMessage("IBLOCK_MESS_SECTION_NAME"),
+			"ELEMENT_ADD" => Loc::getMessage("IBLOCK_MESS_ELEMENT_ADD"),
+			"ELEMENT_EDIT" => Loc::getMessage("IBLOCK_MESS_ELEMENT_EDIT"),
+			"ELEMENT_DELETE" => Loc::getMessage("IBLOCK_MESS_ELEMENT_DELETE"),
+			"SECTION_NAME" => Loc::getMessage("IBLOCK_MESS_SECTION_NAME"),
 			"SECTIONS_NAME" => "",
-			"SECTION_ADD" => GetMessage("IBLOCK_MESS_SECTION_ADD"),
-			"SECTION_EDIT" => GetMessage("IBLOCK_MESS_SECTION_EDIT"),
-			"SECTION_DELETE" => GetMessage("IBLOCK_MESS_SECTION_DELETE"),
+			"SECTION_ADD" => Loc::getMessage("IBLOCK_MESS_SECTION_ADD"),
+			"SECTION_EDIT" => Loc::getMessage("IBLOCK_MESS_SECTION_EDIT"),
+			"SECTION_DELETE" => Loc::getMessage("IBLOCK_MESS_SECTION_DELETE"),
 		);
 		$res = $DB->Query("
 			SELECT
@@ -1841,9 +1839,9 @@ class CAllIBlock
 			}
 		}
 		if($arMessages["ELEMENTS_NAME"] == '')
-			$arMessages["ELEMENTS_NAME"] = GetMessage("IBLOCK_MESS_ELEMENTS_NAME");
+			$arMessages["ELEMENTS_NAME"] = Loc::getMessage("IBLOCK_MESS_ELEMENTS_NAME");
 		if($arMessages["SECTIONS_NAME"] == '')
-			$arMessages["SECTIONS_NAME"] = GetMessage("IBLOCK_MESS_SECTIONS_NAME");
+			$arMessages["SECTIONS_NAME"] = Loc::getMessage("IBLOCK_MESS_SECTIONS_NAME");
 		return $arMessages;
 	}
 
@@ -1874,133 +1872,133 @@ REQ
 
 			$res = [
 				'IBLOCK_SECTION' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_SECTIONS'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_SECTIONS'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => serialize($defaultValues['IBLOCK_SECTION']),
 					'VISIBLE' => 'Y',
 				],
 				'ACTIVE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_ACTIVE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_ACTIVE'),
 					'IS_REQUIRED' => 'Y',
 					'DEFAULT_VALUE' => $defaultValues['ACTIVE'],
 					'VISIBLE' => 'Y',
 				],
 				'ACTIVE_FROM' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_ACTIVE_PERIOD_FROM'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_ACTIVE_PERIOD_FROM'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => $defaultValues['ACTIVE_FROM'],
 					'VISIBLE' => 'Y',
 				],
 				'ACTIVE_TO' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_ACTIVE_PERIOD_TO'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_ACTIVE_PERIOD_TO'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => $defaultValues['ACTIVE_TO'],
 					'VISIBLE' => 'Y',
 				],
 				'SORT' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_SORT'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_SORT'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => $defaultValues['SORT'],
 					'VISIBLE' => 'Y',
 				],
 				'NAME' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_NAME'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_NAME'),
 					'IS_REQUIRED' => 'Y',
 					'DEFAULT_VALUE' => $defaultValues['NAME'],
 					'VISIBLE' => 'Y',
 				],
 				'PREVIEW_PICTURE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_PREVIEW_PICTURE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_PREVIEW_PICTURE'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => serialize($defaultValues['PREVIEW_PICTURE']),
 					'VISIBLE' => 'Y',
 				],
 				'PREVIEW_TEXT_TYPE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_PREVIEW_TEXT_TYPE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_PREVIEW_TEXT_TYPE'),
 					'IS_REQUIRED' => 'Y',
 					'DEFAULT_VALUE' => $defaultValues['PREVIEW_TEXT_TYPE'],
 					'VISIBLE' => 'Y',
 				],
 				'PREVIEW_TEXT' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_PREVIEW_TEXT'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_PREVIEW_TEXT'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => $defaultValues['PREVIEW_TEXT'],
 					'VISIBLE' => 'Y',
 				],
 				'DETAIL_PICTURE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_DETAIL_PICTURE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_DETAIL_PICTURE'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => serialize($defaultValues['DETAIL_PICTURE']),
 					'VISIBLE' => 'Y',
 				],
 				'DETAIL_TEXT_TYPE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_DETAIL_TEXT_TYPE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_DETAIL_TEXT_TYPE'),
 					'IS_REQUIRED' => 'Y',
 					'DEFAULT_VALUE' => $defaultValues['DETAIL_TEXT_TYPE'],
 					'VISIBLE' => 'Y',
 				],
 				'DETAIL_TEXT' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_DETAIL_TEXT'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_DETAIL_TEXT'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => $defaultValues['DETAIL_TEXT'],
 					'VISIBLE' => 'Y',
 				],
 				'XML_ID' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_XML_ID'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_XML_ID'),
 					'IS_REQUIRED' => 'Y',
 					'DEFAULT_VALUE' => $defaultValues['XML_ID'],
 					'VISIBLE' => 'Y',
 				],
 				'CODE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_CODE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_CODE'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => serialize($defaultValues['CODE']),
 					'VISIBLE' => 'Y',
 				],
 				'TAGS' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_TAGS'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_TAGS'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => $defaultValues['TAGS'],
 					'VISIBLE' => 'Y',
 				],
 				'SECTION_NAME' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_NAME'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_NAME'),
 					'IS_REQUIRED' => 'Y',
 					'DEFAULT_VALUE' => $defaultValues['SECTION_NAME'],
 					'VISIBLE' => 'Y',
 				],
 				'SECTION_PICTURE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_PREVIEW_PICTURE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_PREVIEW_PICTURE'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => serialize($defaultValues['SECTION_PICTURE']),
 					'VISIBLE' => 'Y',
 				],
 				'SECTION_DESCRIPTION_TYPE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_SECTION_DESCRIPTION_TYPE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_SECTION_DESCRIPTION_TYPE'),
 					'IS_REQUIRED' => 'Y',
 					'DEFAULT_VALUE' => $defaultValues['SECTION_DESCRIPTION_TYPE'],
 					'VISIBLE' => 'Y',
 				],
 				'SECTION_DESCRIPTION' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_SECTION_DESCRIPTION'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_SECTION_DESCRIPTION'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => $defaultValues['SECTION_DESCRIPTION'],
 					'VISIBLE' => 'Y',
 				],
 				'SECTION_DETAIL_PICTURE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_DETAIL_PICTURE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_DETAIL_PICTURE'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => serialize($defaultValues['SECTION_DETAIL_PICTURE']),
 					'VISIBLE' => 'Y',
 				],
 				'SECTION_XML_ID' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_XML_ID'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_XML_ID'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => $defaultValues['SECTION_XML_ID'],
 					'VISIBLE' => 'Y',
 				],
 				'SECTION_CODE' => [
-					'NAME' => GetMessage('IBLOCK_FIELD_CODE'),
+					'NAME' => Loc::getMessage('IBLOCK_FIELD_CODE'),
 					'IS_REQUIRED' => false,
 					'DEFAULT_VALUE' => serialize($defaultValues['SECTION_CODE']),
 					'VISIBLE' => 'Y',
@@ -2459,7 +2457,7 @@ REQ
 			$arIBlocks[] = $a["IBLOCK_ID"];
 		if(count($arIBlocks) > 0)
 		{
-			$APPLICATION->ThrowException(GetMessage("IBLOCK_SITE_LINKS_EXISTS", array("#ID_LIST#" => implode(", ", $arIBlocks))));
+			$APPLICATION->ThrowException(Loc::getMessage("IBLOCK_SITE_LINKS_EXISTS", array("#ID_LIST#" => implode(", ", $arIBlocks))));
 			return false;
 		}
 		else
@@ -3566,12 +3564,12 @@ REQ
 			return $arFile;
 
 		if(array_key_exists("error", $arFile) && $arFile["error"] !== 0)
-			return GetMessage("IBLOCK_BAD_FILE_ERROR");
+			return Loc::getMessage("IBLOCK_BAD_FILE_ERROR");
 
 		$file = $arFile["tmp_name"];
 
 		if(!file_exists($file) && !is_file($file))
-			return GetMessage("IBLOCK_BAD_FILE_NOT_FOUND");
+			return Loc::getMessage("IBLOCK_BAD_FILE_NOT_FOUND");
 
 		$width = (int)$arResize["WIDTH"];
 		$height = (int)$arResize["HEIGHT"];
@@ -3583,7 +3581,7 @@ REQ
 		$imageInfo = $image->getInfo(false);
 		if (empty($imageInfo))
 		{
-			return GetMessage("IBLOCK_BAD_FILE_NOT_PICTURE");
+			return Loc::getMessage("IBLOCK_BAD_FILE_NOT_PICTURE");
 		}
 		$orig = [
 			0 => $imageInfo->getWidth(),
@@ -3624,7 +3622,7 @@ REQ
 				if(copy($file, $new_file))
 					$file = $new_file;
 				else
-					return GetMessage("IBLOCK_BAD_FILE_NOT_FOUND");
+					return Loc::getMessage("IBLOCK_BAD_FILE_NOT_FOUND");
 			}
 
 			if($width <= 0)
@@ -3686,7 +3684,7 @@ REQ
 			}
 			else
 			{
-				return GetMessage("IBLOCK_ERR_BAD_FILE_UNSUPPORTED");
+				return Loc::getMessage("IBLOCK_ERR_BAD_FILE_UNSUPPORTED");
 			}
 
 			$image_p = imagecreatetruecolor($width, $height);
@@ -4154,16 +4152,12 @@ REQ
 			$url = str_replace(".php", "/", $url);
 		}
 
-		$url = str_replace("&replace_script_name=1", "", $url);
-
-		return $url;
+		return str_replace("&replace_script_name=1", "", $url);
 	}
 
 	/**
 	 * @param int $IBLOCK_ID
 	 * @return string
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public static function GetAdminListMode($IBLOCK_ID): string
 	{
@@ -4178,11 +4172,11 @@ REQ
 		}
 		else
 		{
-			return (
-				(string)Main\Config\Option::get('iblock', 'combined_list_mode') == 'Y'
-				? Iblock\IblockTable::LIST_MODE_COMBINED
-				: Iblock\IblockTable::LIST_MODE_SEPARATE
-			);
+			return
+				Main\Config\Option::get('iblock', 'combined_list_mode') === 'Y'
+					? Iblock\IblockTable::LIST_MODE_COMBINED
+					: Iblock\IblockTable::LIST_MODE_SEPARATE
+			;
 		}
 	}
 
@@ -4211,15 +4205,15 @@ REQ
 	public static function GetAuditTypes()
 	{
 		return array(
-			"IBLOCK_SECTION_ADD" => "[IBLOCK_SECTION_ADD] ".GetMessage("IBLOCK_SECTION_ADD"),
-			"IBLOCK_SECTION_EDIT" => "[IBLOCK_SECTION_EDIT] ".GetMessage("IBLOCK_SECTION_EDIT"),
-			"IBLOCK_SECTION_DELETE" => "[IBLOCK_SECTION_DELETE] ".GetMessage("IBLOCK_SECTION_DELETE"),
-			"IBLOCK_ELEMENT_ADD" => "[IBLOCK_ELEMENT_ADD] ".GetMessage("IBLOCK_ELEMENT_ADD"),
-			"IBLOCK_ELEMENT_EDIT" => "[IBLOCK_ELEMENT_EDIT] ".GetMessage("IBLOCK_ELEMENT_EDIT"),
-			"IBLOCK_ELEMENT_DELETE" => "[IBLOCK_ELEMENT_DELETE] ".GetMessage("IBLOCK_ELEMENT_DELETE"),
-			"IBLOCK_ADD" => "[IBLOCK_ADD] ".GetMessage("IBLOCK_ADD"),
-			"IBLOCK_EDIT" => "[IBLOCK_EDIT] ".GetMessage("IBLOCK_EDIT"),
-			"IBLOCK_DELETE" => "[IBLOCK_DELETE] ".GetMessage("IBLOCK_DELETE"),
+			"IBLOCK_SECTION_ADD" => "[IBLOCK_SECTION_ADD] ".Loc::getMessage("IBLOCK_SECTION_ADD"),
+			"IBLOCK_SECTION_EDIT" => "[IBLOCK_SECTION_EDIT] ".Loc::getMessage("IBLOCK_SECTION_EDIT"),
+			"IBLOCK_SECTION_DELETE" => "[IBLOCK_SECTION_DELETE] ".Loc::getMessage("IBLOCK_SECTION_DELETE"),
+			"IBLOCK_ELEMENT_ADD" => "[IBLOCK_ELEMENT_ADD] ".Loc::getMessage("IBLOCK_ELEMENT_ADD"),
+			"IBLOCK_ELEMENT_EDIT" => "[IBLOCK_ELEMENT_EDIT] ".Loc::getMessage("IBLOCK_ELEMENT_EDIT"),
+			"IBLOCK_ELEMENT_DELETE" => "[IBLOCK_ELEMENT_DELETE] ".Loc::getMessage("IBLOCK_ELEMENT_DELETE"),
+			"IBLOCK_ADD" => "[IBLOCK_ADD] ".Loc::getMessage("IBLOCK_ADD"),
+			"IBLOCK_EDIT" => "[IBLOCK_EDIT] ".Loc::getMessage("IBLOCK_EDIT"),
+			"IBLOCK_DELETE" => "[IBLOCK_DELETE] ".Loc::getMessage("IBLOCK_DELETE"),
 		);
 	}
 

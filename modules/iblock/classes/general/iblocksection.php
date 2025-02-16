@@ -340,7 +340,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	// New section
 	///////////////////////////////////////////////////////////////////
-	function Add($arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
+	public function Add($arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
 	{
 		global $USER, $DB, $APPLICATION;
 
@@ -778,7 +778,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	// Update section properties
 	///////////////////////////////////////////////////////////////////
-	function Update($ID, $arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
+	public function Update($ID, $arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
 	{
 		global $USER, $DB, $APPLICATION;
 
@@ -1510,7 +1510,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	// Check function called from Add and Update
 	///////////////////////////////////////////////////////////////////
-	function CheckFields(&$arFields, $ID=false)
+	public function CheckFields(&$arFields, $ID=false)
 	{
 		global $DB, $APPLICATION;
 		$this->LAST_ERROR = "";
@@ -1637,7 +1637,7 @@ class CAllIBlockSection
 		{
 			if(
 				array_key_exists("CODE", $arFields)
-				&& mb_strlen($arFields["CODE"])
+				&& (string)$arFields['CODE'] !== ''
 				&& is_array($arIBlock["FIELDS"]["SECTION_CODE"]["DEFAULT_VALUE"])
 				&& $arIBlock["FIELDS"]["SECTION_CODE"]["DEFAULT_VALUE"]["UNIQUE"] == "Y"
 			)
@@ -1646,8 +1646,8 @@ class CAllIBlockSection
 					SELECT ID
 					FROM b_iblock_section
 					WHERE IBLOCK_ID = ".$arIBlock["ID"]."
-					AND CODE = '".$DB->ForSQL($arFields["CODE"])."'
-					AND ID <> ".intval($ID)
+					AND CODE = '".$DB->ForSQL((string)$arFields['CODE'])."'
+					AND ID <> ".(int)$ID
 				);
 				if($res->Fetch())
 					$this->LAST_ERROR .= GetMessage("IBLOCK_DUP_SECTION_CODE")."<br>";
@@ -1825,7 +1825,7 @@ class CAllIBlockSection
 		return $cnt;
 	}
 
-	function UpdateSearch($ID, $bOverWrite=false)
+	public function UpdateSearch($ID, $bOverWrite=false)
 	{
 		if(!CModule::IncludeModule("search")) return;
 
@@ -2402,15 +2402,16 @@ class CAllIBlockSection
 	{
 		if (!isset(self::$arSectionPathCache[$sectionId]))
 		{
-			self::$arSectionPathCache[$sectionId] = "";
-			$res = CIBlockSection::GetNavChain(0, $sectionId, array("ID", "CODE"), true);
+			self::$arSectionPathCache[$sectionId] = '';
+			$res = CIBlockSection::GetNavChain(0, $sectionId, ['ID', 'CODE'], true);
 			foreach ($res as $a)
 			{
-				self::$arSectionCodeCache[$a["ID"]] = rawurlencode($a["CODE"]);
-				self::$arSectionPathCache[$sectionId] .= rawurlencode($a["CODE"])."/";
+				$a['CODE'] = (string)$a['CODE'];
+				self::$arSectionCodeCache[$a['ID']] = rawurlencode($a['CODE']);
+				self::$arSectionPathCache[$sectionId] .= rawurlencode($a['CODE']) . '/';
 			}
 			unset($a, $res);
-			self::$arSectionPathCache[$sectionId] = rtrim(self::$arSectionPathCache[$sectionId], "/");
+			self::$arSectionPathCache[$sectionId] = rtrim(self::$arSectionPathCache[$sectionId], '/');
 		}
 		return self::$arSectionPathCache[$sectionId];
 	}
@@ -2428,7 +2429,7 @@ class CAllIBlockSection
 			unset($res);
 			if ($a)
 			{
-				self::$arSectionCodeCache[$sectionId] = rawurlencode($a['CODE']);
+				self::$arSectionCodeCache[$sectionId] = rawurlencode((string)$a['CODE']);
 			}
 		}
 

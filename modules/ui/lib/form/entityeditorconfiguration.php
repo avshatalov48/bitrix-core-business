@@ -61,10 +61,16 @@ class EntityEditorConfiguration
 
 	public function getScope($configID)
 	{
+		if (!$this->userId)
+		{
+			return EntityEditorConfigScope::UNDEFINED;
+		}
+
 		return \CUserOptions::GetOption(
 			$this->getCategoryName(),
 			$this->prepareScopeName($configID),
-			EntityEditorConfigScope::UNDEFINED
+			EntityEditorConfigScope::UNDEFINED,
+			$this->userId
 		);
 	}
 

@@ -375,7 +375,7 @@ final class Section extends Controller
 			&& !$this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 
 		return $r;

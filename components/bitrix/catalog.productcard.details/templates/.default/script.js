@@ -17,9 +17,38 @@
 	      value: false
 	    });
 	    _this.initDocumentTypeSelector();
+	    if (settings.isCopilotEnabled) {
+	      _this.initCopilot();
+	    }
 	    return _this;
 	  }
 	  babelHelpers.createClass(ProductCard, [{
+	    key: "initCopilot",
+	    value: function initCopilot() {
+	      var _this2 = this;
+	      this.extraMarkers = {};
+	      main_core_events.EventEmitter.subscribe('onHtmlEditorCopilotInit', function (event) {
+	        _this2.copilot = event.data.copilot;
+	      });
+	      main_core_events.EventEmitter.subscribe('onHtmlEditorCopilotShow', function (event) {
+	        _this2.collectExtraMarkers(event);
+	        _this2.copilot.setExtraMarkers(_this2.extraMarkers);
+	      });
+	    }
+	  }, {
+	    key: "collectExtraMarkers",
+	    value: function collectExtraMarkers(event) {
+	      var productNameEditNode = document.querySelector('#name_text');
+	      if (productNameEditNode) {
+	        this.extraMarkers.product_name = productNameEditNode.value;
+	      } else {
+	        var productNameNode = document.querySelector('div[data-cid="NAME-CODE"]').querySelector('p');
+	        if (productNameNode) {
+	          this.extraMarkers.product_name = productNameNode.innerHTML;
+	        }
+	      }
+	    }
+	  }, {
 	    key: "getEntityType",
 	    value: function getEntityType() {
 	      return 'Product';
@@ -27,7 +56,7 @@
 	  }, {
 	    key: "onSectionLayout",
 	    value: function onSectionLayout(event) {
-	      var _this2 = this;
+	      var _this3 = this;
 	      var _event$getCompatData = event.getCompatData(),
 	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
 	        section = _event$getCompatData2[0],
@@ -37,8 +66,8 @@
 	      }
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorList:onItemSelect', function (event) {
 	        var _event$getData$;
-	        var isQuantityTraceRestricted = !(_this2.isWithOrdersMode && !_this2.isInventoryManagementUsed);
-	        if (babelHelpers.classPrivateFieldGet(_this2, _isQuantityTraceNoticeShown) || !isQuantityTraceRestricted) {
+	        var isQuantityTraceRestricted = !(_this3.isWithOrdersMode && !_this3.isInventoryManagementUsed);
+	        if (babelHelpers.classPrivateFieldGet(_this3, _isQuantityTraceNoticeShown) || !isQuantityTraceRestricted) {
 	          return;
 	        }
 	        var field = (_event$getData$ = event.getData()[1]) === null || _event$getData$ === void 0 ? void 0 : _event$getData$.field;
@@ -54,22 +83,22 @@
 	          buttons: ui_dialogs_messagebox.MessageBoxButtons.OK,
 	          okCaption: main_core.Loc.getMessage('CPD_QUANTITY_TRACE_ACCEPT'),
 	          onOk: function onOk(messageBox) {
-	            babelHelpers.classPrivateFieldSet(_this2, _isQuantityTraceNoticeShown, false);
+	            babelHelpers.classPrivateFieldSet(_this3, _isQuantityTraceNoticeShown, false);
 	            messageBox.close();
 	          },
 	          popupOptions: {
 	            closeIcon: true,
 	            events: {
 	              onAfterClose: function onAfterClose() {
-	                return babelHelpers.classPrivateFieldSet(_this2, _isQuantityTraceNoticeShown, false);
+	                return babelHelpers.classPrivateFieldSet(_this3, _isQuantityTraceNoticeShown, false);
 	              }
 	            }
 	          }
 	        });
-	        babelHelpers.classPrivateFieldSet(_this2, _isQuantityTraceNoticeShown, true);
+	        babelHelpers.classPrivateFieldSet(_this3, _isQuantityTraceNoticeShown, true);
 	      });
 	      section === null || section === void 0 ? void 0 : section.getChildren().forEach(function (field) {
-	        if (_this2.hiddenFields.includes(field === null || field === void 0 ? void 0 : field.getId())) {
+	        if (_this3.hiddenFields.includes(field === null || field === void 0 ? void 0 : field.getId())) {
 	          field.setVisible(false);
 	        }
 	      });
@@ -80,7 +109,7 @@
 	          return;
 	        }
 	        var quantityTraceValue = editor._model.getField('QUANTITY_TRACE', 'D');
-	        var isQuantityTraceRestricted = !(_this2.isWithOrdersMode && !_this2.isInventoryManagementUsed);
+	        var isQuantityTraceRestricted = !(_this3.isWithOrdersMode && !_this3.isInventoryManagementUsed);
 	        if (quantityTraceValue !== 'N' && isQuantityTraceRestricted) {
 	          var _editor$getControlByI;
 	          (_editor$getControlByI = editor.getControlById('QUANTITY_TRACE')) === null || _editor$getControlByI === void 0 ? void 0 : _editor$getControlByI.setVisible(false);

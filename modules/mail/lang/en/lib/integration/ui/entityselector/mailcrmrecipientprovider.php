@@ -1,0 +1,3 @@
+<?php
+$MESS["MAIL_CRM_RECIPIENT_PROVIDER_TAB_HEADER"] = "CRM contacts, companies and leads";
+$MESS["MAIL_CRM_RECIPIENT_PROVIDER_TAB_TITLE"] = "CRM";

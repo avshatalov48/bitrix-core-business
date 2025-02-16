@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\v2\Property;
 
 use Bitrix\Catalog\v2\BaseCollection;
+use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Main\Result;
 
 /**
@@ -23,20 +24,6 @@ class PropertyCollection extends BaseCollection
 		$this->repository = $repository;
 	}
 
-	public function findBySetting(string $field, $value): ?Property
-	{
-		/** @var \Bitrix\Catalog\v2\Property\Property $item */
-		foreach ($this->getIterator() as $item)
-		{
-			if ($item->getSetting($field) == $value)
-			{
-				return $item;
-			}
-		}
-
-		return null;
-	}
-
 	public function findByCode(string $code): ?Property
 	{
 		/** @var \Bitrix\Catalog\v2\Property\Property $item */
@@ -46,6 +33,89 @@ class PropertyCollection extends BaseCollection
 			{
 				return $item;
 			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Used when you don't want to download the entire collection.
+	 *
+	 * @param string $code
+	 * @return Property|null
+	 */
+	public function findByCodeLazy(string $code): ?Property
+	{
+		/** @var \Bitrix\Catalog\v2\Property\Property $item */
+		foreach ($this->items as $item)
+		{
+			if ($item->getCode() === $code)
+			{
+				return $item;
+			}
+		}
+
+		$propertySettings = $this->repository->getPropertiesSettingsByFilter([
+			'=IBLOCK_ID' => $this->getParent()->getIblockId(),
+			'=CODE' => $code,
+		]);
+		$items = $this->repository->getEntitiesBy(
+			[
+				'filter' => [
+					'IBLOCK_ID' => $this->getParent()->getIblockId(),
+					'ID' => $this->getParent()->getId(),
+					'PROPERTY_CODE' => $code,
+				],
+			],
+			$propertySettings,
+		);
+		if ($items)
+		{
+			$item = reset($items) ?: null;
+			$this->addInternal($item);
+
+			return $item;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Used when you don't want to download the entire collection.
+	 *
+	 * @param int $id
+	 * @return Property|null
+	 */
+	public function findByIdLazy(int $id): ?Property
+	{
+		/** @var \Bitrix\Catalog\v2\Property\Property $item */
+		foreach ($this->items as $item)
+		{
+			if ($item->getId() === $id)
+			{
+				return $item;
+			}
+		}
+
+		$propertySettings = $this->repository->getPropertiesSettingsByFilter([
+			'=ID' => $id,
+		]);
+		$items = $this->repository->getEntitiesBy(
+			[
+				'filter' => [
+					'IBLOCK_ID' => $this->getParent()->getIblockId(),
+					'ID' => $this->getParent()->getId(),
+					'PROPERTY_ID' => $id,
+				],
+			],
+			$propertySettings,
+		);
+		if ($items)
+		{
+			$item = reset($items) ?: null;
+			$this->addInternal($item);
+
+			return $item;
 		}
 
 		return null;
@@ -121,5 +191,20 @@ class PropertyCollection extends BaseCollection
 	{
 		// properties deletes with iblock element entity by CIBlockElement api
 		return new Result();
+	}
+
+	protected function getAlreadyLoadedFilter(): array
+	{
+		$filter = parent::getAlreadyLoadedFilter();
+
+		foreach ($this->items as $item)
+		{
+			if (!$item->isNew())
+			{
+				$filter['!PROPERTY_ID'][] = $item->getId();
+			}
+		}
+
+		return $filter;
 	}
 }

@@ -1,0 +1,3 @@
+<?
+$MESS["MAIL_CRM_RECIPIENT_PROVIDER_TAB_TITLE"] = "Из CRM";
+$MESS["MAIL_CRM_RECIPIENT_PROVIDER_TAB_HEADER"] = "Контакты, компании, лиды из CRM";

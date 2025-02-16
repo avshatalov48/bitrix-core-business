@@ -429,15 +429,32 @@ class CAllIBlockProperty
 			}
 		}
 
-		if(isset($arFields["USER_TYPE"]))
+		if (isset($arFields['USER_TYPE']))
 		{
-			$arUserType = CIBlockProperty::GetUserType($arFields["USER_TYPE"]);
-			if(isset($arUserType["CheckFields"]))
+			if ($ID === false)
 			{
-				$value=array("VALUE"=>$arFields["DEFAULT_VALUE"]);
-				$arError = call_user_func_array($arUserType["CheckFields"],array($arFields,$value));
-				if(is_array($arError) && count($arError)>0)
-					$this->LAST_ERROR .= implode("<br>", $arError)."<br>";
+				$arFields['DEFAULT_VALUE'] ??= false;
+			}
+			$arUserType = CIBlockProperty::GetUserType($arFields['USER_TYPE']);
+			if (
+				isset($arUserType['CheckFields'])
+				&& ($ID === false || array_key_exists('DEFAULT_VALUE', $arFields))
+			)
+			{
+				$value = [
+					'VALUE' => $arFields['DEFAULT_VALUE'],
+				];
+				$arError = call_user_func_array(
+					$arUserType['CheckFields'],
+					[
+						$arFields,
+						$value
+					]
+				);
+				if (!empty($arError) && is_array($arError))
+				{
+					$this->LAST_ERROR .= implode('<br>', $arError) . '<br>';
+				}
 			}
 		}
 
@@ -515,18 +532,28 @@ class CAllIBlockProperty
 			}
 			if (!empty($arUserType))
 			{
-				if (isset($arUserType['ConvertToDB']))
+				if (array_key_exists('DEFAULT_VALUE', $arFields))
 				{
-					$arValue = [
-						'VALUE' => $arFields['DEFAULT_VALUE'],
-						'DEFAULT_VALUE' => true,
-					];
-					$arValue = call_user_func_array(
-						$arUserType['ConvertToDB'],
-						[$arFields, $arValue]
-					);
-					$arFields['DEFAULT_VALUE'] = $this->prepareDefaultValue($arValue);
-					unset($arValue);
+					if (isset($arUserType['ConvertToDB']))
+					{
+						$arValue = [
+							'VALUE' => $arFields['DEFAULT_VALUE'],
+							'DEFAULT_VALUE' => true,
+						];
+						$arValue = call_user_func_array(
+							$arUserType['ConvertToDB'],
+							[$arFields, $arValue]
+						);
+						$arFields['DEFAULT_VALUE'] = $this->prepareDefaultValue($arValue);
+						unset($arValue);
+					}
+					else
+					{
+						if (!is_scalar($arFields['DEFAULT_VALUE']))
+						{
+							$arFields['DEFAULT_VALUE'] = false;
+						}
+					}
 				}
 
 				if (isset($arUserType['PrepareSettings']))

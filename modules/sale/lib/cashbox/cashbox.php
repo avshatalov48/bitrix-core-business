@@ -203,15 +203,15 @@ abstract class Cashbox
 		$map = $this->fields['SETTINGS'];
 		if (isset($map[$name]))
 		{
-			if (is_array($map[$name]))
+			if (!is_array($map[$name]))
 			{
-				if (isset($map[$name][$code]))
-					return $map[$name][$code];
-
-				return null;
+				return $map[$name];
 			}
 
-			return $map[$name];
+			if (isset($map[$name][$code]))
+			{
+				return $map[$name][$code];
+			}
 		}
 
 		$settings = static::getSettings($this->getField('KKM_ID'));

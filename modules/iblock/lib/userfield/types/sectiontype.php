@@ -254,8 +254,10 @@ class SectionType extends ElementType
 	}
 
 	/**
-	 * @param array $userField
-	 * @param array|null $additionalParameters
+	 * Returns values for old format group action.
+	 *
+	 * @param array $userField User field description.
+	 * @param array|null $additionalParameters Optional parameters.
 	 * @return array
 	 */
 	public static function getGroupActionData(array $userField, ?array $additionalParameters): array
@@ -267,17 +269,23 @@ class SectionType extends ElementType
 			return $result;
 		}
 
-		while($item = $enum->GetNext())
+		while ($item = $enum->GetNext())
 		{
 			$result[] = ['NAME' => $item['VALUE'], 'VALUE' => $item['ID']];
 		}
+		unset(
+			$item,
+			$enum,
+		);
 
 		return $result;
 	}
 
 	/**
-	 * @param array $userField
-	 * @param array $additionalParameters
+	 * Returns default value, if exists.
+	 *
+	 * @param array $userField User field description.
+	 * @param array $additionalParameters Optional parameters.
 	 * @return array|string
 	 */
 	public static function getDefaultValue(array $userField, array $additionalParameters = [])

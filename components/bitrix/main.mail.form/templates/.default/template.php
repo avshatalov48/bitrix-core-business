@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Localization\Loc;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -17,6 +18,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.tour',
 	'ui.mail.sender-selector',
 ]);
+
+\CJSCore::Init("loader");
 
 $htmlFormId = htmlspecialcharsbx('main_mail_form_'.$arParams['FORM_ID']);
 $renderFieldOptions = [
@@ -133,109 +136,10 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version, $renderFi
 					<span class="main-mail-form-field-spacer"></span>
 					<span class="main-mail-form-field-title"><?=preg_replace('/[\r\n]+/', '<br>', htmlspecialcharsbx($field['title'])) ?>:</span>
 				</td>
-				<td class="main-mail-form-fields-table-cell <?=$valueSubClass ?>"><?
-
-					if ($version >= 2)
-					{
-						$enabledCrmContacts = (
-							!empty($field['selector'])
-							&& !empty($field['selector']['CrmTypes'])
-							&& is_array($field['selector']['CrmTypes'])
-							&& in_array('CRMCONTACT', $field['selector']['CrmTypes'])
-						);
-						$enabledCrmCompanies = (
-							!empty($field['selector'])
-							&& !empty($field['selector']['CrmTypes'])
-							&& is_array($field['selector']['CrmTypes'])
-							&& in_array('CRMCOMPANY', $field['selector']['CrmTypes'])
-						);
-						$enabledCrmLeads = (
-							!empty($field['selector'])
-							&& !empty($field['selector']['CrmTypes'])
-							&& is_array($field['selector']['CrmTypes'])
-							&& in_array('CRMLEAD', $field['selector']['CrmTypes'])
-						);
-
-						$selectedItemsData = [];
-						if (
-							!empty($field['selector']['itemsSelected'])
-							&& !empty($field['selector']['items'])
-							&& !empty($field['selector']['items']['mailcontacts'])
-						)
-						{
-							foreach($field['selector']['itemsSelected'] as $key => $value)
-							{
-								if (!empty($field['selector']['items']['mailcontacts'][$key]))
-								{
-									$selectedItemsData[$key] = [
-										'name' => $field['selector']['items']['mailcontacts'][$key]['name']
-									];
-								}
-							}
-						}
-
-						$APPLICATION->IncludeComponent(
-							"bitrix:main.user.selector",
-							"",
-							[
-								"ID" => $field['id'],
-								"LIST" => $field['selector']['itemsSelected'],
-								"LAZYLOAD" => "N",
-								"INPUT_NAME" => $field['name']."[]",
-								"API_VERSION" => 3,
-								"USE_SYMBOLIC_ID" => "Y",
-								"BUTTON_SELECT_CAPTION" => $field['placeholder'],
-								"SELECTOR_OPTIONS" => array(
-									'lazyLoad' => 'N',
-									'enableCrm' => (
-										!empty($field['selector'])
-										&& !empty($field['selector']['isCrmFeed'])
-											? 'Y'
-											: 'N'
-									),
-									'context' => 'MAIL_LAST_RCPT',
-									'contextCode' => '',
-									'enableDepartments' => 'N',
-									'enableUsers' => (!isset($field['selector']['enableUsers']) || $field['selector']['enableUsers'] ? 'Y' : 'N'),
-									'enableEmailUsers' => (isset($field['selector']['enableUsers']) && $field['selector']['enableUsers'] ? 'Y' : 'N'),
-									'allowSearchEmailUsers' => (isset($field['selector']['enableUsers']) && $field['selector']['enableUsers'] ? 'Y' : 'N'),
-									'enableMailContacts' => 'Y',
-									'addMailContactsTab' => 'Y',
-									'allowAddMailContact' => 'Y',
-									'enableCrmContacts' => ($enabledCrmContacts ? 'Y' : 'N'),
-									'addTabCrmContacts' => ($enabledCrmContacts ? 'Y' : 'N'),
-									'enableCrmCompanies' => ($enabledCrmCompanies ? 'Y' : 'N'),
-									'addTabCrmCompanies' => ($enabledCrmCompanies ? 'Y' : 'N'),
-									'enableCrmLeads' => ($enabledCrmLeads ? 'Y' : 'N'),
-									'addTabCrmLeads' => ($enabledCrmLeads ? 'Y' : 'N'),
-									'onlyWithEmail' => 'Y',
-									'returnMultiEmail' => 'Y',
-									'returnJsonValue' => 'Y',
-									'selectedItemsData' => $selectedItemsData,
-									'nameTemplate' => '#NAME# <#EMAIL#>'
-								)
-							]
-						);
-					}
-					else
-					{
-						?>
-						<div class="main-mail-form-field-value-wrapper">
-						<span class="main-mail-form-field-rcpt-more-wrapper" style="display: none; ">
-							<span class="feed-add-post-destination main-mail-form-field-rcpt-item-more"
-								title="<?=getMessage('MAIN_MAIL_FORM_RCPT_MORE_HINT', array('#NUM#' => 0)) ?>">...</span>
-						</span>
-							<span class="main-mail-form-field-rcpt-value-wrapper" style="display: none; ">
-							<input class="main-mail-form-field-value main-mail-form-field-rcpt-value"
-								type="text" id="<?=$htmlFieldId ?>_fvalue">
-						</span>
-							<a class="feed-add-destination-link main-mail-form-field-rcpt-add-link" href="javascript:void(0)"><?
-								echo htmlspecialcharsbx($field['placeholder']);
-								?></a>
-						</div>
-						<?
-					}
-					?>
+				<td class="main-mail-form-fields-table-cell <?=$valueSubClass ?>">
+					<div data-field-form-id="<?=$htmlFormId?>" data-form-field-type="<?=htmlspecialcharsbx($field['name'])?>">
+						<div type="hidden"></div>
+					</div>
 				</td>
 				<?
 				break;
@@ -375,6 +279,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version, $renderFi
 					<input style="display:none" id="mail-form-pseudo-field">
 				</td>
 			</tr>
+			<div id="main-mail-form-message-send-warning-empty"></div>
 			<?
 			foreach ($arParams['FIELDS'] as $field)
 				$renderField($htmlFormId, $field, false, $arParams['VERSION'], $renderFieldOptions);
@@ -574,17 +479,22 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version, $renderFi
 
 BX.ready(function()
 {
-	BX.message(<?= \Bitrix\Main\Web\Json::encode(\Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__)) ?>);
+	BX.message(<?= Json::encode(\Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__)) ?>);
 	var form = new BXMainMailForm(
 		'<?=\CUtil::jsEscape($arParams['FORM_ID']) ?>',
-		<?=\Bitrix\Main\Web\Json::encode(array_merge(
+		<?=Json::encode(array_merge(
 			array_values($arParams['FIELDS']),
 			array_values($arParams['FIELDS_EXT'])
 		)) ?>,
-		<?=\Bitrix\Main\Web\Json::encode(array(
+		<?=$arParams['~REPLY_FIELD_TO_JSON'] ?: Json::encode([])?>,
+		<?=$arParams['~REPLY_FIELD_CC_JSON'] ?: Json::encode([])?>,
+		<?=$arParams['~SELECTED_RECIPIENTS_JSON'] ?: Json::encode([])?>,
+		<?=Json::encode(array(
+			'oldRecipientsMode' => $arParams['OLD_RECIPIENTS_MODE'],
 			'submitAjax' => !empty($arParams['SUBMIT_AJAX']),
 			'foldQuote'  => !empty($arParams['FOLD_QUOTE']),
 			'foldFiles'  => !empty($arParams['FOLD_FILES']),
+			'contextName' => $arParams['CONTEXT_NAME'],
 			'version'  => $arParams['VERSION'],
 			'calendarSharingTourId' => $arParams['CALENDAR_SHARING_TOUR_ID'],
 			'userCalendarPath' => $arParams['USER_CALENDAR_PATH'],

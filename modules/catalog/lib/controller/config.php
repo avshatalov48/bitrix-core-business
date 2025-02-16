@@ -77,7 +77,7 @@ final class Config extends \Bitrix\Main\Engine\Controller
 		$r = new Result();
 		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
 		{
-			$r->addError(new Error('Access denied!', 200040300010));
+			$r->addError(new Error('Access denied!', ErrorCode::READ_PERMISSION_ACCESS_DENIED));
 		}
 		return $r;
 	}

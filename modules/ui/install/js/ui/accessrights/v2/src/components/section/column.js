@@ -3,6 +3,7 @@ import { AccessRightItem } from '../../store/model/access-rights-model';
 import type { UserGroup } from '../../store/model/user-groups-model';
 import { shouldRowBeRendered } from '../../utils';
 import { ColumnLayout } from '../layout/column-layout';
+import { MenuCell } from './column/menu-cell';
 import { ValueCell } from './column/value-cell';
 
 export const Column = {
@@ -10,6 +11,7 @@ export const Column = {
 	components: {
 		ColumnLayout,
 		ValueCell,
+		MenuCell,
 	},
 	props: {
 		userGroup: {
@@ -42,7 +44,8 @@ export const Column = {
 		},
 	},
 	template: `
-		<ColumnLayout>
+		<ColumnLayout ref="column">
+			<MenuCell/>
 			<ValueCell
 				v-for="[rightId, accessRightItem] in renderedRights"
 				:key="rightId"

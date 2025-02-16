@@ -220,7 +220,7 @@ class CCatalogMeasureAll
 			{
 				$measure['ID'] = (int)$measure['ID'];
 				$measure['CODE'] = (int)$measure['CODE'];
-				self::$defaultMeasure = $measure;
+				self::$defaultMeasure[$cacheId] = $measure;
 			}
 		}
 		if (!isset(self::$defaultMeasure[$cacheId]))
@@ -244,14 +244,14 @@ class CCatalogMeasureAll
 					);
 					if ($getExt)
 					{
-						self::$defaultMeasure['~ID'] = '0';
-						self::$defaultMeasure['~CODE'] = (string)self::DEFAULT_MEASURE_CODE;
-						self::$defaultMeasure['~MEASURE_TITLE'] = $defaultMeasureDescription['MEASURE_TITLE'];
-						self::$defaultMeasure['~SYMBOL_RUS'] = $defaultMeasureDescription['SYMBOL_RUS'];
-						self::$defaultMeasure['~SYMBOL'] = $defaultMeasureDescription['SYMBOL_RUS'];
-						self::$defaultMeasure['~SYMBOL_INTL'] = $defaultMeasureDescription['SYMBOL_INTL'];
-						self::$defaultMeasure['~SYMBOL_LETTER_INTL'] = $defaultMeasureDescription['SYMBOL_LETTER_INTL'];
-						self::$defaultMeasure['~IS_DEFAULT'] = 'Y';
+						self::$defaultMeasure[$cacheId]['~ID'] = '0';
+						self::$defaultMeasure[$cacheId]['~CODE'] = (string)self::DEFAULT_MEASURE_CODE;
+						self::$defaultMeasure[$cacheId]['~MEASURE_TITLE'] = $defaultMeasureDescription['MEASURE_TITLE'];
+						self::$defaultMeasure[$cacheId]['~SYMBOL_RUS'] = $defaultMeasureDescription['SYMBOL_RUS'];
+						self::$defaultMeasure[$cacheId]['~SYMBOL'] = $defaultMeasureDescription['SYMBOL_RUS'];
+						self::$defaultMeasure[$cacheId]['~SYMBOL_INTL'] = $defaultMeasureDescription['SYMBOL_INTL'];
+						self::$defaultMeasure[$cacheId]['~SYMBOL_LETTER_INTL'] = $defaultMeasureDescription['SYMBOL_LETTER_INTL'];
+						self::$defaultMeasure[$cacheId]['~IS_DEFAULT'] = 'Y';
 					}
 				}
 			}

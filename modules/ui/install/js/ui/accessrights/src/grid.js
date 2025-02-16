@@ -457,9 +457,9 @@ export default class Grid {
 		for (let i = 0; i < userGroup.accessRights.length; i++)
 		{
 			const item = userGroup.accessRights[i];
-			if (item && item.id === accessId)
+			if (item && String(item.id) === String(accessId))
 			{
-				item.value = (item.value === '0') ? '1' : '0';
+				item.value = (String(item.value) === '0') ? '1' : '0';
 
 				return;
 			}
@@ -483,7 +483,7 @@ export default class Grid {
 		for (let i = 0; i < userGroup.accessRights.length; i++)
 		{
 			const item = userGroup.accessRights[i];
-			if (item && item.id === accessId)
+			if (item && String(item.id) === String(accessId))
 			{
 				deleteIds.push(i);
 			}

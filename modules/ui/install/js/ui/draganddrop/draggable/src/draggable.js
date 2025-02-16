@@ -32,6 +32,7 @@ type DraggableOptions = {
 	dropzone: HTMLElement | Array<HTMLElement> | NodeList,
 	draggable?: string,
 	dragElement?: string,
+	elementsPreventingDrag?: string[],
 	delay?: number,
 	sensors?: Array<Sensor>,
 	transitionDuration: number,
@@ -219,10 +220,15 @@ export class Draggable extends EventEmitter
 		];
 	}
 
+	destroy(): void
+	{
+		this.removeSensor(...this.getSensors());
+	}
+
 	removeSensor(...sensors: Array<Sensor>)
 	{
 		const removedSensors = this.getSensors().filter((sensor) => {
-			return sensors.includes(sensor.constructor);
+			return sensors.includes(sensor);
 		});
 
 		removedSensors.forEach((sensor: Sensor) => {
@@ -230,7 +236,7 @@ export class Draggable extends EventEmitter
 			sensor.unsubscribe('drag:move', this.onDragMove);
 			sensor.unsubscribe('drag:end', this.onDragEnd);
 			sensor.unsubscribe('drag:drop', this.onDragDrop);
-			sensor.enable();
+			sensor.disable();
 		});
 
 		this[sensorsKey] = this.getSensors().filter((sensor) => {

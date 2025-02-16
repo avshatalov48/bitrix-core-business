@@ -60,4 +60,5 @@ export default class ButtonIcon
 	static FORWARD = 'ui-btn-icon-forward';
 	static COPY = 'ui-btn-icon-copy';
 	static AI = 'ui-btn-icon-ai ui-icon-set__scope';
+	static BUSINESS_NEW = 'ui-btn-icon-business-new';
 }

@@ -517,6 +517,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonColor, "AI", 'ui-btn-color-ai');
 	babelHelpers.defineProperty(ButtonColor, "BASE_LIGHT", 'ui-btn-base-light');
 	babelHelpers.defineProperty(ButtonColor, "COLLAB", 'ui-btn-collab');
+	babelHelpers.defineProperty(ButtonColor, "PRIMARY_BORDER", 'ui-btn-primary-border');
 
 	/**
 	 * @namespace {BX.UI}
@@ -592,6 +593,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "FORWARD", 'ui-btn-icon-forward');
 	babelHelpers.defineProperty(ButtonIcon, "COPY", 'ui-btn-icon-copy');
 	babelHelpers.defineProperty(ButtonIcon, "AI", 'ui-btn-icon-ai ui-icon-set__scope');
+	babelHelpers.defineProperty(ButtonIcon, "BUSINESS_NEW", 'ui-btn-icon-business-new');
 
 	/**
 	 * @namespace {BX.UI}

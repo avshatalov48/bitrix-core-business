@@ -403,8 +403,10 @@ class ProductSearchComponent extends \CBitrixComponent
 			if (!empty($elementInherentFilter))
 				$arElementFilter = $arElementFilter + $elementInherentFilter;
 
-			if ($arFilter["SECTION_ID"] == '')
+			if (isset($arFilter["SECTION_ID"]) && $arFilter["SECTION_ID"] == '')
+			{
 				unset($arElementFilter["SECTION_ID"]);
+			}
 
 			if (!is_array($arSelectedFields))
 				$arSelectedFields = array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "ACTIVE", "SORT", "NAME",

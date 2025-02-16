@@ -272,7 +272,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 				if (0 >= $arResult['MULTIPLE_CNT'])
 					$arResult['MULTIPLE_CNT'] = $arDefPropInfo['MULTIPLE_CNT'];
 				$arResult['LIST_TYPE'] = ('C' == $arResult['LIST_TYPE'] ? 'C' : 'L');
-				if ('Y' != COption::GetOptionString("iblock", "show_xml_id", "N") && isset($arResult["XML_ID"]))
+				if ('Y' != COption::GetOptionString("iblock", "show_xml_id") && isset($arResult["XML_ID"]))
 					unset($arResult["XML_ID"]);
 			}
 			else
@@ -2065,8 +2065,6 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
 
 $tabControl->BeginNextTab();
-?>
-	<?php
 	if ($ID > 0):
 		?>
 		<tr>
@@ -2087,7 +2085,7 @@ $tabControl->BeginNextTab();
 					echo GetMessage("IB_E_SEPARATE_STORAGE");
 				}
 				?>
-				<br><a href="/bitrix/admin/iblock_convert.php?lang=<?=LANGUAGE_ID; ?>&amp;IBLOCK_ID=<?= $str_ID ?>"><?=$str_LAST_CONV_ELEMENT>0?"<span class=\"required\">".GetMessage("IB_E_CONVERT_CONTINUE"):GetMessage("IB_E_CONVERT_START")."</span>"?></a>
+				<br><a href="/bitrix/admin/iblock_convert.php?lang=<?= LANGUAGE_ID ?>&amp;IBLOCK_ID=<?= $str_ID ?>"><?=$str_LAST_CONV_ELEMENT>0?"<span class=\"required\">".GetMessage("IB_E_CONVERT_CONTINUE"):GetMessage("IB_E_CONVERT_START")."</span>"?></a>
 			</td>
 		</tr>
 		<tr>
@@ -2181,7 +2179,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<?php
-	if(COption::GetOptionString("iblock", "show_xml_id", "N")=="Y"):
+	if(COption::GetOptionString("iblock", "show_xml_id") == "Y"):
 		?>
 		<tr>
 			<td ><?= GetMessage("IB_E_XML_ID")?>:</td>
@@ -2382,7 +2380,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<?php
-	if(COption::GetOptionString("iblock", "use_htmledit", "Y")=="Y" && Loader::includeModule("fileman")):?>
+	if(COption::GetOptionString("iblock", "use_htmledit") === "Y" && Loader::includeModule("fileman")):?>
 		<tr>
 			<td colspan="2" align="center">
 				<?php
@@ -3781,9 +3779,9 @@ $tabControl->BeginNextTab();
 					}
 				}
 				$intPropCount = 0;
-				if ($_SERVER["REQUEST_METHOD"] === "POST")
+				if ($request->isPost())
 				{
-					$intPropCount = (int)($_POST['IBLOCK_PROPERTY_COUNT'] ?? 0);
+					$intPropCount = (int)$request->getPost('IBLOCK_PROPERTY_COUNT');
 				}
 				if ($intPropCount <= 0)
 				{
@@ -5031,7 +5029,7 @@ if ($bCatalog)
 	$rsIBlocks = CIBlock::GetList(['IBLOCK_TYPE' => 'ASC','NAME' => 'ASC']);
 	while ($arIBlock = $rsIBlocks->Fetch())
 	{
-		if (false == array_key_exists($arIBlock['ID'],$arIBlockSitesList))
+		if (!isset($arIBlockSitesList[$arIBlock['ID']]))
 		{
 			$arLIDList = [];
 			$arWithoutLinks = [];
@@ -5135,9 +5133,7 @@ if ($bCatalog)
 	{
 		?><input type="hidden" id="IS_CONTENT_N" name="SUBSCRIPTION" value="N"><?php
 	}
-	?>
 
-	<?php
 	if ($canUseYandexMarket)
 	{
 		?>
@@ -5213,7 +5209,7 @@ if ($bCatalog)
 							$arDiffParent = array_diff($value['SITE_ID'],$str_LID);
 							$arDiffOffer = [];
 							$arDiffOffer = array_diff($str_LID,$value['SITE_ID']);
-							if ((false == empty($arDiffParent)) || (false == empty($arDiffOffer)))
+							if (!empty($arDiffParent) || !empty($arDiffOffer))
 							{
 								$boolAdd = false;
 							}
@@ -5296,9 +5292,9 @@ if ($bCatalog)
 				}
 
 				$intPropCount = 0;
-				if ($_SERVER["REQUEST_METHOD"] === "POST")
+				if ($request->isPost())
 				{
-					$intPropCount = (int)($_POST['OFFERS_PROPERTY_COUNT'] ?? 0);
+					$intPropCount = (int)$request->getPost('OFFERS_PROPERTY_COUNT');
 				}
 				if ($intPropCount <= 0)
 				{
@@ -5677,7 +5673,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?php
 if ($bBizprocTab):
-$tabControl->BeginNextTab();
+	$tabControl->BeginNextTab();
 
 	if (!isset($arWorkflowTemplates))
 		$arWorkflowTemplates = CBPDocument::GetWorkflowTemplatesForDocumentType(["iblock", "CIBlockDocument", "iblock_".$ID]);
@@ -5685,7 +5681,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td colspan="2">
 			<?php
-			if (count($arWorkflowTemplates) > 0):
+			if (!empty($arWorkflowTemplates)):
 				?>
 				<table border="0" cellspacing="0" cellpadding="0" class="internal">
 					<tr class="heading">
@@ -5783,7 +5779,8 @@ $tabControl->BeginNextTab();
 	$backUrl = $returnUrl;
 	if ($backUrl === '')
 	{
-		$backUrl = 'iblock_admin.php?lang=' . LANGUAGE_ID
+		$backUrl =
+			'iblock_admin.php?lang=' . LANGUAGE_ID
 			. '&type=' . urlencode($type)
 			. '&admin=' . urlencode($isAdminUrl)
 		;

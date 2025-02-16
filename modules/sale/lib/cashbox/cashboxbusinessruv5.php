@@ -16,7 +16,7 @@ class CashboxBusinessRuV5 extends CashboxAtolFarmV5
 	use CashboxBusinessRuTrait;
 
 	public const SERVICE_URL = 'https://check.class365.ru/api-bitrix24/v5';
-	public const SERVICE_TEST_URL = 'https://check-alpha.class365.ru/api-bitrix24/v5';
+	public const SERVICE_TEST_URL = 'https://check.business.ru/api-bitrix24/v5';
 
 	public static function getName()
 	{

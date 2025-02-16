@@ -8,6 +8,7 @@ export const RichMenuItemIcon = Object.freeze({
 	pencil: 'pencil',
 	'red-lock': 'red-lock',
 	role: 'role',
+	settings: 'settings',
 	'trash-bin': 'trash-bin',
 });
 

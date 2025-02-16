@@ -330,4 +330,25 @@ class MessageTable extends DataManager
 			new LengthValidator(null, 128),
 		];
 	}
+
+	public static function onAfterAdd(\Bitrix\Main\ORM\Event $event)
+	{
+		self::clearQueueCache();
+	}
+
+	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
+	{
+		self::clearQueueCache();
+	}
+
+	public static function onAfterDelete(\Bitrix\Main\ORM\Event $event)
+	{
+		self::clearQueueCache();
+	}
+
+	protected static function clearQueueCache(): void
+	{
+		$cache = \Bitrix\Main\Data\Cache::createInstance();
+		$cache->clean(\Bitrix\MessageService\Queue::CACHE_HAS_MESSAGES_ID, \Bitrix\MessageService\Queue::CACHE_HAS_MESSAGES_DIR);
+	}
 }

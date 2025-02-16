@@ -841,6 +841,8 @@ if ($ID > 0 || $isAjaxDocumentRequest)
 				{
 					$elementId = (int)$arAjaxElement['PRODUCT_ID'];
 					$arAjaxElement['ELEMENT_ID'] = $elementId;
+					$arAjaxElement['SELECTED_BARCODE'] ??= '';
+					$arAjaxElement['BARCODE'] ??= '';
 					if ($arAjaxElement['SELECTED_BARCODE'] == '')
 					{
 						$arAjaxElement['SELECTED_BARCODE'] = $arAjaxElement['BARCODE'];
@@ -1132,6 +1134,7 @@ if (!empty($arResult['ELEMENT']) && is_array($arResult['ELEMENT']))
 		if(is_array($arProductInfo))
 			$value = array_merge($value, $arProductInfo);
 
+		$value['BASE_PRICE'] ??= 0;
 		$value['PURCHASING_PRICE'] ??= 0;
 
 		$arRes['ID'] = (int)$code;

@@ -29,9 +29,14 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 		$convertedItem['~NAME'] = $item['NAME'] ?? '';
 		$convertedItem['NAME'] = isset($item['NAME_HTML']) ? $item['NAME_HTML'] : htmlspecialcharsbx($convertedItem['~NAME']);
 		$convertedItem['ACTIVE'] = isset($item['ACTIVE']) ? (bool)$item['ACTIVE'] : false;
+		$convertedItem['SUBMENU_OPEN'] = isset($item['SUBMENU_OPEN']) ? (bool)$item['SUBMENU_OPEN'] : false;
 		$convertedItem['NOTICE'] = isset($item['NOTICE']) ? (bool)$item['NOTICE'] : false;
 		$convertedItem['LABEL'] = isset($item['LABEL']) ? $item['LABEL'] : '';
 		$convertedItem['DISABLED'] = isset($item['DISABLED']) ? (bool)$item['DISABLED'] : false;
+		if (isset($item['CAN_BE_ACTIVE']))
+		{
+			$convertedItem['CAN_BE_ACTIVE'] = $item['CAN_BE_ACTIVE'] ? 'Y' : 'N';
+		}
 
 		if (!empty($item['ATTRIBUTES']) && is_array($item['ATTRIBUTES']))
 		{
@@ -108,6 +113,7 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 
 		$this->arResult['ITEMS'] = array();
 		$this->arResult['ID'] = !empty($this->arParams['ID']) ? $this->arParams['ID'] : '';
+		$this->arResult['AUTO_HIDE_SUBMENU'] = isset($this->arParams['AUTO_HIDE_SUBMENU']) ? (bool)$this->arParams['AUTO_HIDE_SUBMENU'] : false;
 		foreach ($this->arParams['ITEMS'] as $item)
 		{
 			$this->arResult['ITEMS'][] = $this->prepareItem($item);

@@ -1,61 +1,51 @@
 import { Dom, Event, Loc, Tag } from 'main.core';
 import { DefaultFooter, Dialog, Item } from 'ui.entity-selector';
 
-export default class Footer extends DefaultFooter
+export class Footer extends DefaultFooter
 {
 	constructor(dialog: Dialog, options: { [option: string]: any })
 	{
 		super(dialog, options);
 
-		this.selectAllButton = Tag.render`<div class="ui-selector-footer-link ui-selector-search-footer-label--hide">${
+		this.selectAllButton = Tag.render`<div class="ui-selector-footer-link">${
 			Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ALL_SELECT_LABEL')
 		}</div>`;
-		Event.bind(this.selectAllButton, 'click', this.selectAll.bind(this));
-		this.deselectAllButton = Tag.render`<div class="ui-selector-footer-link ui-selector-search-footer-label--hide">${
+		Dom.hide(this.selectAllButton);
+		Event.bind(this.selectAllButton, 'click', this.#selectAll.bind(this));
+
+		this.deselectAllButton = Tag.render`<div class="ui-selector-footer-link">${
 			Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ALL_DESELECT_LABEL')
 		}</div>`;
-		Event.bind(this.deselectAllButton, 'click', this.deselectAll.bind(this));
+		Dom.hide(this.deselectAllButton);
+		Event.bind(this.deselectAllButton, 'click', this.#deselectAll.bind(this));
 
-		this.getDialog().subscribe('Item:onSelect', this.onItemStatusChange.bind(this));
-		this.getDialog().subscribe('Item:onDeselect', this.onItemStatusChange.bind(this));
+		this.getDialog().subscribe('Item:onSelect', this.#onItemStatusChange.bind(this));
+		this.getDialog().subscribe('Item:onDeselect', this.#onItemStatusChange.bind(this));
 	}
 
-	getContent(): HTMLElement
+	getContent(): HTMLElement | HTMLElement[] | string | null
 	{
-		this.toggleSelectButtons();
+		this.#toggleSelectButtons();
 
-		return Tag.render`
-			<div class="ui-selector-search-footer-box">
-				${this.selectAllButton}
-				${this.deselectAllButton}
-			</div>
-		`;
+		return [this.selectAllButton, this.deselectAllButton];
 	}
 
-	toggleSelectButtons(): void
+	#toggleSelectButtons(): void
 	{
 		if (this.getDialog().getSelectedItems().length === this.getDialog().getItems().length)
 		{
-			if (Dom.hasClass(this.deselectAllButton, 'ui-selector-search-footer-label--hide'))
-			{
-				Dom.addClass(this.selectAllButton, 'ui-selector-search-footer-label--hide');
-				Dom.removeClass(this.deselectAllButton, 'ui-selector-search-footer-label--hide');
-			}
+			Dom.hide(this.selectAllButton);
+			Dom.show(this.deselectAllButton);
 		}
-		else if (Dom.hasClass(this.selectAllButton, 'ui-selector-search-footer-label--hide'))
+		else
 		{
-			Dom.addClass(this.deselectAllButton, 'ui-selector-search-footer-label--hide');
-			Dom.removeClass(this.selectAllButton, 'ui-selector-search-footer-label--hide');
+			Dom.show(this.selectAllButton);
+			Dom.hide(this.deselectAllButton);
 		}
 	}
 
-	selectAll(): void
+	#selectAll(): void
 	{
-		if (this.getDialog().getSelectedItems().length === this.getDialog().getItems().length)
-		{
-			return;
-		}
-
 		this
 			.getDialog()
 			.getItems()
@@ -65,7 +55,7 @@ export default class Footer extends DefaultFooter
 		;
 	}
 
-	deselectAll(): void
+	#deselectAll(): void
 	{
 		this
 			.getDialog()
@@ -76,8 +66,8 @@ export default class Footer extends DefaultFooter
 		;
 	}
 
-	onItemStatusChange(): void
+	#onItemStatusChange(): void
 	{
-		this.toggleSelectButtons();
+		this.#toggleSelectButtons();
 	}
 }

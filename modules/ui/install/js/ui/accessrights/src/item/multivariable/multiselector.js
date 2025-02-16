@@ -153,6 +153,8 @@ export default class MultiSelector extends Changer
 
 		BX.UI.Hint.init(this.getChanger());
 
+		this.selector.setTargetNode(this.getChanger());
+
 		return this.getChanger();
 	}
 
@@ -189,8 +191,7 @@ export default class MultiSelector extends Changer
 
 	includesSelected(itemId): boolean
 	{
-		// eslint-disable-next-line eqeqeq
-		return this.selectedValues.some((id) => id == itemId);
+		return this.selectedValues.some((id) => String(id) === String(itemId));
 	}
 
 	showSelector(event: Event): void
@@ -201,17 +202,21 @@ export default class MultiSelector extends Changer
 	#obSelectItem(event: BaseEvent): void
 	{
 		const addedItem = event.getData().item;
+		const addedId = String(addedItem.id);
 
 		if (this.changerOptions.useSelectedActions)
 		{
 			this.#useSelectedActionLogic(addedItem);
 		}
 
-		this.selectedValues.push(String(addedItem.id));
+		if (!this.selectedValues.includes(addedId))
+		{
+			this.selectedValues.push(addedId);
+		}
 
 		if (this.selectedValues.length === this.variables.length)
 		{
-			this.selectedValues.push(this.allSelectedCode);
+			this.selectedValues = [this.allSelectedCode];
 		}
 
 		this.#afterSetupItems();
@@ -220,18 +225,20 @@ export default class MultiSelector extends Changer
 	#onDeselectItem(event: BaseEvent): void
 	{
 		const removedItem = event.getData().item;
-		const idx = this.selectedValues.indexOf(removedItem.id);
+		const removedId = String(removedItem.id);
 
-		if (idx > -1)
+		if (this.selectedValues.includes(this.allSelectedCode))
 		{
-			this.selectedValues.splice(idx, 1);
+			const allWithoutRemoved = this.variables
+				.map((variable) => String(variable.id))
+				.filter((id) => id !== removedId)
+			;
+
+			this.selectedValues = allWithoutRemoved;
 		}
-
-		const allCodeIdx = this.selectedValues.indexOf(this.allSelectedCode);
-
-		if (allCodeIdx > -1)
+		else
 		{
-			this.selectedValues.splice(allCodeIdx, 1);
+			this.selectedValues = this.selectedValues.filter((id) => id !== removedId);
 		}
 
 		this.#afterSetupItems();

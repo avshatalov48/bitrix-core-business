@@ -45,7 +45,7 @@ export default class MapMobileService extends MapBase
 
 	#changeDelay = 700;
 	#tileUrlTemplate;
-	#attribution = '<a href="https://leafletjs.com" title="A JS library for interactive maps" target="_blank">Leaflet</a> | Map data &copy; <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors';
+	#attribution = 'Map data &copy; OpenStreetMap contributors';
 
 	#mapFactoryMethod;
 	#markerFactoryMethod;

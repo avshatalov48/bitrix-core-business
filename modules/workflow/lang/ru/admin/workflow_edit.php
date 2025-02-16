@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["FLOW_FORGOT_FILENAME"] = "Вы забыли ввести \"Полное имя файла\"";
 $MESS["FLOW_DOCUMENT_LOCKED"] = "Документ временно заблокирован пользователем # #ID# (#DATE#)";
 $MESS["FLOW_EDIT_RECORD"] = "Редактирование документа";
@@ -49,4 +50,3 @@ $MESS["FLOW_ACCESS_DENIED_FOR_FILE_WRITE"] = "У вас недостаточно
 $MESS["FLOW_DOCUMENT_NOT_FOUND"] = "Неверный ID документа, либо документ не найден в базе.";
 $MESS["FLOW_ERROR"] = "Ошибка! ";
 $MESS["FLOW_ERROR_WRONG_STATUS"] = "У вас недостаточно прав для сохранения документа в указанном статусе.";
-?>

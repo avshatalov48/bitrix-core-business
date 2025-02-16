@@ -1,222 +1,237 @@
-<?
+<?php
+
+if (class_exists('workflow'))
+{
+	return;
+}
+
 IncludeModuleLangFile(__FILE__);
 
-if(class_exists("workflow")) return;
-Class workflow extends CModule
+class workflow extends CModule
 {
-	var $MODULE_ID = "workflow";
-	var $MODULE_VERSION;
-	var $MODULE_VERSION_DATE;
-	var $MODULE_NAME;
-	var $MODULE_DESCRIPTION;
-	var $MODULE_CSS;
-	var $MODULE_GROUP_RIGHTS = "Y";
+	public $MODULE_ID = 'workflow';
+	public $MODULE_VERSION;
+	public $MODULE_VERSION_DATE;
+	public $MODULE_NAME;
+	public $MODULE_DESCRIPTION;
+	public $MODULE_CSS;
+	public $MODULE_GROUP_RIGHTS = 'Y';
+	public $errors;
 
 	public function __construct()
 	{
-		$arModuleVersion = array();
+		$arModuleVersion = [];
 
-		include(__DIR__.'/version.php');
+		include __DIR__ . '/version.php';
 
-		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
+		if (is_array($arModuleVersion) && array_key_exists('VERSION', $arModuleVersion))
 		{
-			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
-			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
+			$this->MODULE_VERSION = $arModuleVersion['VERSION'];
+			$this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
 		}
 
-		$this->MODULE_NAME = GetMessage("FLOW_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("FLOW_MODULE_DESCRIPTION");
-		$this->MODULE_CSS = "/bitrix/modules/workflow/workflow.css";
+		$this->MODULE_NAME = GetMessage('FLOW_MODULE_NAME');
+		$this->MODULE_DESCRIPTION = GetMessage('FLOW_MODULE_DESCRIPTION');
+		$this->MODULE_CSS = '/bitrix/modules/workflow/workflow.css';
 	}
 
-	function InstallDB($arParams = array())
+	public function InstallDB($arParams = [])
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		// Database tables creation
-		$bDBInstall = !$DB->Query("SELECT 'x' FROM b_workflow_document WHERE 1=0", true);
-		if($bDBInstall)
+		$bDBInstall = !$DB->TableExists('b_workflow_document');
+		if ($bDBInstall)
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/db/mysql/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/db/' . $connection->getType() . '/install.sql');
 		}
 
-		if($this->errors !== false)
+		if ($this->errors !== false)
 		{
-			$APPLICATION->ThrowException(implode("<br>", $this->errors));
+			$APPLICATION->ThrowException(implode('<br>', $this->errors));
+
 			return false;
 		}
 		else
 		{
-			RegisterModule("workflow");
-			CModule::IncludeModule("workflow");
+			RegisterModule('workflow');
+			CModule::IncludeModule('workflow');
 
-			if($bDBInstall)
+			if ($bDBInstall)
 			{
-				$obWorkflowStatus = new CWorkflowStatus;
-				$obWorkflowStatus->Add(array(
-					"~TIMESTAMP_X" => $DB->GetNowFunction(),
-					"C_SORT" => 300,
-					"ACTIVE" => "Y",
-					"TITLE" => GetMessage("FLOW_INSTALL_PUBLISHED"),
-					"IS_FINAL" => "Y",
-					"NOTIFY" => "N",
-				));
-				$obWorkflowStatus->Add(array(
-					"~TIMESTAMP_X" => $DB->GetNowFunction(),
-					"C_SORT" => 100,
-					"ACTIVE" => "Y",
-					"TITLE" => GetMessage("FLOW_INSTALL_DRAFT"),
-					"IS_FINAL" => "N",
-					"NOTIFY" => "N",
-				));
-				$obWorkflowStatus->Add(array(
-					"~TIMESTAMP_X" => $DB->GetNowFunction(),
-					"C_SORT" => 200,
-					"ACTIVE" => "Y",
-					"TITLE" => GetMessage("FLOW_INSTALL_READY"),
-					"IS_FINAL" => "N",
-					"NOTIFY" => "Y",
-				));
+				$obWorkflowStatus = new CWorkflowStatus();
+				$obWorkflowStatus->Add([
+					'~TIMESTAMP_X' => $DB->GetNowFunction(),
+					'C_SORT' => 300,
+					'ACTIVE' => 'Y',
+					'TITLE' => GetMessage('FLOW_INSTALL_PUBLISHED'),
+					'IS_FINAL' => 'Y',
+					'NOTIFY' => 'N',
+				]);
+				$obWorkflowStatus->Add([
+					'~TIMESTAMP_X' => $DB->GetNowFunction(),
+					'C_SORT' => 100,
+					'ACTIVE' => 'Y',
+					'TITLE' => GetMessage('FLOW_INSTALL_DRAFT'),
+					'IS_FINAL' => 'N',
+					'NOTIFY' => 'N',
+				]);
+				$obWorkflowStatus->Add([
+					'~TIMESTAMP_X' => $DB->GetNowFunction(),
+					'C_SORT' => 200,
+					'ACTIVE' => 'Y',
+					'TITLE' => GetMessage('FLOW_INSTALL_READY'),
+					'IS_FINAL' => 'N',
+					'NOTIFY' => 'Y',
+				]);
 			}
 
-			RegisterModuleDependences("main", "OnPanelCreate", "workflow", "CWorkflow", "OnPanelCreate", "200");
-			RegisterModuleDependences("main", "OnChangeFile", "workflow", "CWorkflow", "OnChangeFile");
+			RegisterModuleDependences('main', 'OnPanelCreate', 'workflow', 'CWorkflow', 'OnPanelCreate', '200');
+			RegisterModuleDependences('main', 'OnChangeFile', 'workflow', 'CWorkflow', 'OnChangeFile');
 
 			//agents
-			CAgent::RemoveAgent("CWorkflow::CleanUp();", "workflow");
-			CAgent::AddAgent("CWorkflow::CleanUp();", "workflow", "N");
+			CAgent::RemoveAgent('CWorkflow::CleanUp();', 'workflow');
+			CAgent::AddAgent('CWorkflow::CleanUp();', 'workflow');
 
 			return true;
 		}
 	}
 
-	function UnInstallDB($arParams = array())
+	public function UnInstallDB($arParams = [])
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
-		if(!array_key_exists("savedata", $arParams) || ($arParams["savedata"] != "Y"))
+		if (!array_key_exists('savedata', $arParams) || ($arParams['savedata'] != 'Y'))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/db/' . $connection->getType() . '/uninstall.sql');
 		}
 
-		UnRegisterModuleDependences("main", "OnPanelCreate", "workflow", "CWorkflow", "OnPanelCreate");
-		UnRegisterModuleDependences("main", "OnChangeFile", "workflow", "CWorkflow", "OnChangeFile");
+		UnRegisterModuleDependences('main', 'OnPanelCreate', 'workflow', 'CWorkflow', 'OnPanelCreate');
+		UnRegisterModuleDependences('main', 'OnChangeFile', 'workflow', 'CWorkflow', 'OnChangeFile');
 
-		UnRegisterModule("workflow");
+		UnRegisterModule('workflow');
 
-		if($this->errors !== false)
+		if ($this->errors !== false)
 		{
-			$APPLICATION->ThrowException(implode("<br>", $this->errors));
+			$APPLICATION->ThrowException(implode('<br>', $this->errors));
+
 			return false;
 		}
 
 		return true;
 	}
 
-	function InstallEvents()
+	protected static $events = "'WF_STATUS_CHANGE', 'WF_NEW_DOCUMENT', 'WF_IBLOCK_STATUS_CHANGE', 'WF_NEW_IBLOCK_ELEMENT'";
+
+	public function InstallEvents()
 	{
 		global $DB;
-		$sIn = "'WF_STATUS_CHANGE', 'WF_NEW_DOCUMENT', 'WF_IBLOCK_STATUS_CHANGE', 'WF_NEW_IBLOCK_ELEMENT'";
-		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
-		$ar = $rs->Fetch();
-		if($ar["C"] <= 0)
+
+		$rs = $DB->Query("SELECT 'x' FROM b_event_type WHERE EVENT_NAME IN (" . static::$events . ') LIMIT 1');
+		if (!$rs->Fetch())
 		{
-			include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/events/set_events.php");
+			include $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/events/set_events.php';
 		}
+
 		return true;
 	}
 
-	function UnInstallEvents()
+	public function UnInstallEvents()
 	{
 		global $DB;
-		$sIn = "'WF_STATUS_CHANGE', 'WF_NEW_DOCUMENT', 'WF_IBLOCK_STATUS_CHANGE', 'WF_NEW_IBLOCK_ELEMENT'";
-		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ");
-		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
+
+		$DB->Query('DELETE FROM b_event_message WHERE EVENT_NAME IN (' . static::$events . ') ');
+		$DB->Query('DELETE FROM b_event_type WHERE EVENT_NAME IN (' . static::$events . ') ');
+
 		return true;
 	}
 
-	function InstallFiles($arParams = array())
+	public function InstallFiles($arParams = [])
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/workflow", true, true);
-		}
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/images', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/images/workflow', true, true);
+
 		return true;
 	}
 
-	function UnInstallFiles()
+	public function UnInstallFiles()
 	{
-		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-		DeleteDirFilesEx("/bitrix/images/workflow/");
+		DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+		DeleteDirFilesEx('/bitrix/images/workflow/');
+
 		return true;
 	}
 
-	function DoInstall()
+	public function DoInstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
-		$WORKFLOW_RIGHT = $APPLICATION->GetGroupRight("workflow");
-		if($WORKFLOW_RIGHT == "W")
+		global $APPLICATION, $step;
+
+		$WORKFLOW_RIGHT = $APPLICATION->GetGroupRight('workflow');
+		if ($WORKFLOW_RIGHT == 'W')
 		{
 			$step = intval($step);
-			if($step < 2)
+			if ($step < 2)
 			{
-				$APPLICATION->IncludeAdminFile(GetMessage("FLOW_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/step1.php");
+				$APPLICATION->IncludeAdminFile(GetMessage('FLOW_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/step1.php');
 			}
-			elseif($step == 2)
+			elseif ($step == 2)
 			{
-				if($this->InstallDB())
+				if ($this->InstallDB())
 				{
 					$this->InstallEvents();
 					$this->InstallFiles();
 				}
-				$GLOBALS["errors"] = $this->errors;
-				$APPLICATION->IncludeAdminFile(GetMessage("FLOW_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/step2.php");
+				$GLOBALS['errors'] = $this->errors;
+				$APPLICATION->IncludeAdminFile(GetMessage('FLOW_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/step2.php');
 			}
 		}
 	}
 
-	function DoUninstall()
+	public function DoUninstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
-		$WORKFLOW_RIGHT = $APPLICATION->GetGroupRight("workflow");
-		if($WORKFLOW_RIGHT == "W")
+		global $APPLICATION, $step;
+
+		$WORKFLOW_RIGHT = $APPLICATION->GetGroupRight('workflow');
+		if ($WORKFLOW_RIGHT == 'W')
 		{
 			$step = intval($step);
-			if($step < 2)
+			if ($step < 2)
 			{
-				$APPLICATION->IncludeAdminFile(GetMessage("FLOW_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/unstep1.php");
+				$APPLICATION->IncludeAdminFile(GetMessage('FLOW_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/unstep1.php');
 			}
-			elseif($step == 2)
+			elseif ($step == 2)
 			{
-				$this->UnInstallDB(array(
-					"savedata" => $_REQUEST["savedata"],
-				));
+				$this->UnInstallDB([
+					'savedata' => $_REQUEST['savedata'],
+				]);
 				//message types and templates
-				if($_REQUEST["save_templates"] != "Y")
+				if ($_REQUEST['save_templates'] != 'Y')
 				{
 					$this->UnInstallEvents();
 				}
 				$this->UnInstallFiles();
-				$GLOBALS["errors"] = $this->errors;
-				$APPLICATION->IncludeAdminFile(GetMessage("FLOW_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/unstep2.php");
+				$GLOBALS['errors'] = $this->errors;
+				$APPLICATION->IncludeAdminFile(GetMessage('FLOW_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/install/unstep2.php');
 			}
 		}
 	}
 
-	function GetModuleRightList()
+	public function GetModuleRightList()
 	{
-		$arr = array(
-			"reference_id" => array("D","R","U","W"),
-			"reference" => array(
-				"[D] ".GetMessage("FLOW_DENIED"),
-				"[R] ".GetMessage("FLOW_READ"),
-				"[U] ".GetMessage("FLOW_MODIFY"),
-				"[W] ".GetMessage("FLOW_WRITE"))
-			);
+		$arr = [
+			'reference_id' => ['D', 'R', 'U', 'W'],
+			'reference' => [
+				'[D] ' . GetMessage('FLOW_DENIED'),
+				'[R] ' . GetMessage('FLOW_READ'),
+				'[U] ' . GetMessage('FLOW_MODIFY'),
+				'[W] ' . GetMessage('FLOW_WRITE')
+			],
+		];
+
 		return $arr;
 	}
 }
-?>

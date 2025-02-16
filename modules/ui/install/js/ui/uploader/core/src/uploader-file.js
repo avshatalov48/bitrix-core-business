@@ -34,6 +34,7 @@ export default class UploaderFile extends EventEmitter
 	#type: string = '';
 	#width: ?number = null;
 	#height: ?number = null;
+	#animated: boolean = false;
 	#treatImageAsFile: boolean = false;
 
 	#clientPreview: ?Blob = null;
@@ -656,6 +657,20 @@ export default class UploaderFile extends EventEmitter
 		}
 	}
 
+	isAnimated(): boolean
+	{
+		return this.#animated;
+	}
+
+	setAnimated(flag: boolean): void
+	{
+		if (Type.isBoolean(flag))
+		{
+			this.#animated = flag;
+			this.emit(FileEvent.STATE_CHANGE, { property: 'animated', value: flag });
+		}
+	}
+
 	setTreatImageAsFile(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
@@ -880,6 +895,7 @@ export default class UploaderFile extends EventEmitter
 			failed: this.isFailed(),
 			width: this.getWidth(),
 			height: this.getHeight(),
+			animated: this.isAnimated(),
 			progress: this.getProgress(),
 			error: this.getError(),
 			errors: this.getErrors(),

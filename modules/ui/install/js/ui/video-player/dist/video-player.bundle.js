@@ -4,9 +4,60 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,ui_videoJs,main_core,main_core_events) {
 	'use strict';
 
+	var _options = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("options");
+	var _localStorageKey = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("localStorageKey");
+	var _batchStarted = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("batchStarted");
+	var _init = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("init");
+	class GlobalSettings {
+	  constructor(localStorageKey) {
+	    Object.defineProperty(this, _init, {
+	      value: _init2
+	    });
+	    Object.defineProperty(this, _options, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _localStorageKey, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _batchStarted, {
+	      writable: true,
+	      value: false
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _localStorageKey)[_localStorageKey] = localStorageKey;
+	  }
+	  get(option, defaultValue) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _init)[_init]();
+	    if (!main_core.Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options][option])) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _options)[_options][option];
+	    }
+	    if (!main_core.Type.isUndefined(defaultValue)) {
+	      return defaultValue;
+	    }
+	    return null;
+	  }
+	  set(option, value) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _init)[_init]();
+	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options][option] = value;
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _batchStarted)[_batchStarted]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _batchStarted)[_batchStarted] = true;
+	      queueMicrotask(() => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _batchStarted)[_batchStarted] = false;
+	        window.localStorage.setItem(babelHelpers.classPrivateFieldLooseBase(this, _localStorageKey)[_localStorageKey], JSON.stringify(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options]));
+	      });
+	    }
+	  }
+	}
+	function _init2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _options)[_options] === null) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options] = JSON.parse(window.localStorage.getItem(babelHelpers.classPrivateFieldLooseBase(this, _localStorageKey)[_localStorageKey])) || {};
+	  }
+	}
+
 	var _isStarted = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isStarted");
 	var _players = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("players");
-	var _init = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("init");
+	var _init$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("init");
 	var _bindPlayerEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindPlayerEvents");
 	var _handleScroll = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleScroll");
 	class PlayerManager {
@@ -14,12 +65,15 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _players)[_players].push(player);
 	    babelHelpers.classPrivateFieldLooseBase(this, _bindPlayerEvents)[_bindPlayerEvents](player);
 	    if (player.autostart || player.lazyload) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _init)[_init]();
+	      babelHelpers.classPrivateFieldLooseBase(this, _init$1)[_init$1]();
 	    }
 	  }
-	  static getElementCoords(id) {
+	  static removePlayer(playerToRemove) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _players)[_players] = babelHelpers.classPrivateFieldLooseBase(this, _players)[_players].filter(player => player !== playerToRemove);
+	  }
+	  static getElementCoords(element) {
 	    const VISIBLE_OFFSET = 0.25;
-	    const box = document.getElementById(id).getBoundingClientRect();
+	    const box = element.getBoundingClientRect();
 	    const elementHeight = box.bottom - box.top;
 	    const top = box.top + VISIBLE_OFFSET * elementHeight;
 	    const bottom = box.bottom - VISIBLE_OFFSET * elementHeight;
@@ -39,7 +93,11 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  static isVisibleOnScreen(id, screens) {
 	    let visible = false;
-	    const coords = this.getElementCoords(id);
+	    const element = document.getElementById(id);
+	    if (element === null) {
+	      return false;
+	    }
+	    const coords = this.getElementCoords(element);
 	    const clientHeight = document.documentElement.clientHeight;
 	    let windowTop = window.pageYOffset || document.documentElement.scrollTop;
 	    let windowBottom = windowTop + clientHeight;
@@ -78,7 +136,7 @@ this.BX.UI = this.BX.UI || {};
 	    return null;
 	  }
 	}
-	function _init2() {
+	function _init2$1() {
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _isStarted)[_isStarted]) {
 	    return;
 	  }
@@ -118,50 +176,38 @@ this.BX.UI = this.BX.UI || {};
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _players)[_players].length === 0) {
 	    return;
 	  }
-	  let topVisiblePlayer = false;
-	  let isAnyPlaying = false;
+	  let topVisiblePlayer = null;
 	  const players = [...babelHelpers.classPrivateFieldLooseBase(this, _players)[_players]];
 	  for (const [index, player] of players.entries()) {
 	    if (!document.getElementById(player.id)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _players)[_players].splice(index, 1);
 	      continue;
 	    }
-	    if (player.lazyload && !player.inited && this.isVisibleOnScreen(player.id, 2)) {
+	    if (player.lazyload && !player.isInited() && this.isVisibleOnScreen(player.id, 2)) {
 	      player.init();
 	    }
 	    if (!player.autostart) {
 	      continue;
 	    }
-	    if (player.active) {
-	      continue;
-	    }
-	    if (player.isEnded()) {
-	      continue;
-	    }
 	    if (this.isVisibleOnScreen(player.id, 1)) {
-	      if (topVisiblePlayer === false) {
+	      if (topVisiblePlayer === null) {
 	        topVisiblePlayer = player;
 	      }
-	    } else if (player.isPlaying()) {
-	      player.pause();
-	    }
-	    if (player.isPlaying()) {
-	      isAnyPlaying = true;
 	    }
 	  }
-	  if (isAnyPlaying) {
-	    return;
-	  }
-	  if (topVisiblePlayer !== false) {
-	    if (!topVisiblePlayer.inited) {
+	  if (topVisiblePlayer !== null && !topVisiblePlayer.isPlayed() && !topVisiblePlayer.hasStarted) {
+	    if (!topVisiblePlayer.isInited()) {
 	      topVisiblePlayer.autostart = true;
 	    } else if (topVisiblePlayer.isReady() && !topVisiblePlayer.isEnded()) {
+	      for (const [, player] of players.entries()) {
+	        if (player === topVisiblePlayer || !player.autostart) {
+	          continue;
+	        }
+	        if (player.isPlaying()) {
+	          player.pause();
+	        }
+	      }
 	      topVisiblePlayer.mute(true);
-	      main_core.Event.EventEmitter.subscribeOnce(topVisiblePlayer, 'Player:onClick', event => {
-	        setTimeout(() => {
-	          topVisiblePlayer.mute(false);
-	        }, 100);
-	      });
 	      topVisiblePlayer.play();
 	    }
 	  }
@@ -172,8 +218,8 @@ this.BX.UI = this.BX.UI || {};
 	Object.defineProperty(PlayerManager, _bindPlayerEvents, {
 	  value: _bindPlayerEvents2
 	});
-	Object.defineProperty(PlayerManager, _init, {
-	  value: _init2
+	Object.defineProperty(PlayerManager, _init$1, {
+	  value: _init2$1
 	});
 	Object.defineProperty(PlayerManager, _isStarted, {
 	  writable: true,
@@ -185,44 +231,50 @@ this.BX.UI = this.BX.UI || {};
 	});
 
 	/* eslint-disable @bitrix24/bitrix24-rules/no-native-dom-methods */
+	let langSetup = false;
 	ui_videoJs.videojs.hook('beforesetup', (videoEl, options) => {
 	  main_core.Dom.addClass(videoEl, 'ui-video-player ui-icon-set__scope');
 	  if (videoEl.tagName.toLowerCase() === 'audio') {
 	    main_core.Dom.addClass(videoEl, 'vjs-audio-only-mode');
 	  }
+	  if (langSetup === false) {
+	    ui_videoJs.videojs.addLanguage('video-player', {
+	      Play: main_core.Loc.getMessage('VIDEO_PLAYER_PLAY'),
+	      Pause: main_core.Loc.getMessage('VIDEO_PLAYER_PAUSE'),
+	      Replay: main_core.Loc.getMessage('VIDEO_PLAYER_REPLAY'),
+	      'Current Time': main_core.Loc.getMessage('VIDEO_PLAYER_CURRENT_TIME'),
+	      Duration: main_core.Loc.getMessage('VIDEO_PLAYER_DURATION'),
+	      'Remaining Time': main_core.Loc.getMessage('VIDEO_PLAYER_REMAINING_TIME'),
+	      Loaded: main_core.Loc.getMessage('VIDEO_PLAYER_LOADED'),
+	      Progress: main_core.Loc.getMessage('VIDEO_PLAYER_PROGRESS'),
+	      'Progress Bar': main_core.Loc.getMessage('VIDEO_PLAYER_PROGRESS_BAR'),
+	      Fullscreen: main_core.Loc.getMessage('VIDEO_PLAYER_FULLSCREEN'),
+	      'Exit Fullscreen': main_core.Loc.getMessage('VIDEO_PLAYER_EXIT_FULLSCREEN'),
+	      Mute: main_core.Loc.getMessage('VIDEO_PLAYER_MUTE'),
+	      Unmute: main_core.Loc.getMessage('VIDEO_PLAYER_UNMUTE'),
+	      'Playback Rate': main_core.Loc.getMessage('VIDEO_PLAYER_PLAYBACK_RATE'),
+	      'Volume Level': main_core.Loc.getMessage('VIDEO_PLAYER_VOLUME_LEVEL'),
+	      'You aborted the media playback': main_core.Loc.getMessage('VIDEO_PLAYER_ABORTED_PLAYBACK'),
+	      'A network error caused the media download to fail part-way.': main_core.Loc.getMessage('VIDEO_PLAYER_NETWORK_ERROR'),
+	      'The media could not be loaded, either because the server or network failed or because the format is not supported.': main_core.Loc.getMessage('VIDEO_PLAYER_FORMAT_NOT_SUPPORTED'),
+	      'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.': main_core.Loc.getMessage('VIDEO_PLAYER_PLAYBACK_WAS_ABORTED'),
+	      'No compatible source was found for this media.': main_core.Loc.getMessage('VIDEO_PLAYER_NO_COMPATIBLE_SOURCE'),
+	      'The media is encrypted and we do not have the keys to decrypt it.': main_core.Loc.getMessage('VIDEO_PLAYER_MEDIA_IS_ENCRYPTED'),
+	      'Play Video': main_core.Loc.getMessage('VIDEO_PLAYER_PLAY_VIDEO'),
+	      'Exit Picture-in-Picture': main_core.Loc.getMessage('VIDEO_PLAYER_EXIT_PICTURE_IN_PICTURE'),
+	      'Picture-in-Picture': main_core.Loc.getMessage('VIDEO_PLAYER_PICTURE_IN_PICTURE')
+	    });
+	    langSetup = true;
+	  }
 	  return options;
 	});
-	ui_videoJs.videojs.addLanguage('video-player', {
-	  Play: main_core.Loc.getMessage('VIDEO_PLAYER_PLAY'),
-	  Pause: main_core.Loc.getMessage('VIDEO_PLAYER_PAUSE'),
-	  Replay: main_core.Loc.getMessage('VIDEO_PLAYER_REPLAY'),
-	  'Current Time': main_core.Loc.getMessage('VIDEO_PLAYER_CURRENT_TIME'),
-	  Duration: main_core.Loc.getMessage('VIDEO_PLAYER_DURATION'),
-	  'Remaining Time': main_core.Loc.getMessage('VIDEO_PLAYER_REMAINING_TIME'),
-	  Loaded: main_core.Loc.getMessage('VIDEO_PLAYER_LOADED'),
-	  Progress: main_core.Loc.getMessage('VIDEO_PLAYER_PROGRESS'),
-	  'Progress Bar': main_core.Loc.getMessage('VIDEO_PLAYER_PROGRESS_BAR'),
-	  Fullscreen: main_core.Loc.getMessage('VIDEO_PLAYER_FULLSCREEN'),
-	  'Exit Fullscreen': main_core.Loc.getMessage('VIDEO_PLAYER_EXIT_FULLSCREEN'),
-	  Mute: main_core.Loc.getMessage('VIDEO_PLAYER_MUTE'),
-	  Unmute: main_core.Loc.getMessage('VIDEO_PLAYER_UNMUTE'),
-	  'Playback Rate': main_core.Loc.getMessage('VIDEO_PLAYER_PLAYBACK_RATE'),
-	  'Volume Level': main_core.Loc.getMessage('VIDEO_PLAYER_VOLUME_LEVEL'),
-	  'You aborted the media playback': main_core.Loc.getMessage('VIDEO_PLAYER_ABORTED_PLAYBACK'),
-	  'A network error caused the media download to fail part-way.': main_core.Loc.getMessage('VIDEO_PLAYER_NETWORK_ERROR'),
-	  'The media could not be loaded, either because the server or network failed or because the format is not supported.': main_core.Loc.getMessage('VIDEO_PLAYER_FORMAT_NOT_SUPPORTED'),
-	  'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.': main_core.Loc.getMessage('VIDEO_PLAYER_PLAYBACK_WAS_ABORTED'),
-	  'No compatible source was found for this media.': main_core.Loc.getMessage('VIDEO_PLAYER_NO_COMPATIBLE_SOURCE'),
-	  'The media is encrypted and we do not have the keys to decrypt it.': main_core.Loc.getMessage('VIDEO_PLAYER_MEDIA_IS_ENCRYPTED'),
-	  'Play Video': main_core.Loc.getMessage('VIDEO_PLAYER_PLAY_VIDEO'),
-	  'Exit Picture-in-Picture': main_core.Loc.getMessage('VIDEO_PLAYER_EXIT_PICTURE_IN_PICTURE'),
-	  'Picture-in-Picture': main_core.Loc.getMessage('VIDEO_PLAYER_PICTURE_IN_PICTURE')
-	});
+	var _globalSettings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("globalSettings");
 	var _getStorageHash = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStorageHash");
 	var _fillParameters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fillParameters");
 	var _getDefaultOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDefaultOptions");
 	var _hideAudioControls = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hideAudioControls");
 	var _handlePlayOnce = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handlePlayOnce");
+	var _setInitialVolume = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setInitialVolume");
 	var _handleClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleClick");
 	var _handleKeyDown = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleKeyDown");
 	var _fireEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fireEvent");
@@ -241,6 +293,9 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _handleClick, {
 	      value: _handleClick2
 	    });
+	    Object.defineProperty(this, _setInitialVolume, {
+	      value: _setInitialVolume2
+	    });
 	    Object.defineProperty(this, _handlePlayOnce, {
 	      value: _handlePlayOnce2
 	    });
@@ -256,7 +311,6 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _getStorageHash, {
 	      value: _getStorageHash2
 	    });
-	    this.inited = false;
 	    this.id = null;
 	    this.muted = false;
 	    this.hasStarted = false;
@@ -389,21 +443,27 @@ this.BX.UI = this.BX.UI || {};
 	      return;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onBeforeInit');
-	    if (ui_videoJs.videojs.players[this.id]) {
-	      ui_videoJs.videojs.players[this.id].dispose();
-	    }
 	    this.vjsPlayer = ui_videoJs.videojs(this.id, this.params);
 	    if (this.isAudio) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _hideAudioControls)[_hideAudioControls]();
+	      babelHelpers.classPrivateFieldLooseBase(this, _setInitialVolume)[_setInitialVolume]();
 	    }
+	    this.vjsPlayer.one('loadedmetadata', event => {
+	      if (!this.isAudio && !(this.vjsPlayer.videoWidth() > 0 && this.vjsPlayer.videoHeight() > 0)) {
+	        // Throw an error if a video doesn't have dimensions
+	        event.stopPropagation();
+	        event.stopImmediatePropagation();
+	        setTimeout(() => {
+	          this.vjsPlayer.error(4);
+	        }, 0);
+	      } else if (this.duration > 0) {
+	        this.vjsPlayer.duration(this.duration);
+	      }
+	    });
 	    this.vjsPlayer.on('fullscreenchange', () => {
 	      this.vjsPlayer.focus();
 	    });
-	    if (this.duration > 0) {
-	      this.vjsPlayer.one('loadedmetadata', () => {
-	        this.vjsPlayer.duration(this.duration);
-	      });
-	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _proxyEvents)[_proxyEvents]();
 	    this.vjsPlayer.ready(() => {
 	      const controlBar = this.vjsPlayer.getChild('ControlBar');
 	      const playbackButton = controlBar.getChild('PlaybackRateMenuButton');
@@ -412,25 +472,25 @@ this.BX.UI = this.BX.UI || {};
 	        ui_videoJs.videojs.off(playbackButton.menuButton_.el(), 'mouseenter');
 	        ui_videoJs.videojs.off(playbackButton.el(), 'mouseleave');
 	      }
-	      this.vjsPlayer.volume(this.volume);
 	      this.vjsPlayer.one('play', babelHelpers.classPrivateFieldLooseBase(this, _handlePlayOnce)[_handlePlayOnce].bind(this));
-	      this.inited = true;
 	      if (main_core.Type.isFunction(this.onInit)) {
 	        this.onInit(this);
 	      }
 	      babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onAfterInit');
-	      babelHelpers.classPrivateFieldLooseBase(this, _proxyEvents)[_proxyEvents]();
-	      if (this.autostart && !this.lazyload) {
-	        setTimeout(() => {
-	          if (!this.hasStarted) {
-	            this.play();
-	          }
-	        }, 200);
-	      }
 	    });
+	    if (this.autostart && !this.lazyload) {
+	      this.vjsPlayer.one('canplay', () => {
+	        if (!this.hasStarted) {
+	          this.play();
+	        }
+	      });
+	    }
+	  }
+	  isInited() {
+	    return this.vjsPlayer !== null;
 	  }
 	  getEventList() {
-	    return ['Player:onBeforeInit', 'Player:onAfterInit', 'Player:onCreate', 'Player:onSetSource', 'Player:onKeyDown', 'Player:onPlay', 'Player:onPause', 'Player:onClick', 'Player:onError', 'Player:onEnded'];
+	    return ['Player:onBeforeInit', 'Player:onAfterInit', 'Player:onCreate', 'Player:onSetSource', 'Player:onKeyDown', 'Player:onPlay', 'Player:onPause', 'Player:onClick', 'Player:onError', 'Player:onEnded', 'Player:onEnterPictureInPicture', 'Player:onLeavePictureInPicture'];
 	  }
 	  mute(mute) {
 	    var _this$vjsPlayer;
@@ -486,6 +546,13 @@ this.BX.UI = this.BX.UI || {};
 	      this.vjsPlayer.playbackRate(prevPlayback);
 	    }
 	  }
+	  destroy() {
+	    PlayerManager.removePlayer(this);
+	    if (this.vjsPlayer !== null) {
+	      this.vjsPlayer.dispose();
+	    }
+	    this.vjsPlayer = null;
+	  }
 	}
 	function _getStorageHash2() {
 	  let storageHash = this.id;
@@ -519,7 +586,7 @@ this.BX.UI = this.BX.UI || {};
 	      this.playbackRate = params.playbackRate;
 	    }
 	  }
-	  this.volume = params.volume || 0.8;
+	  this.volume = BX.Type.isNumber(params.volume) ? params.volume : null;
 	  this.startTime = params.startTime || 0;
 	  this.onInit = params.onInit;
 	  this.lazyload = params.lazyload;
@@ -538,7 +605,6 @@ this.BX.UI = this.BX.UI || {};
 	  this.duration = params.duration || null;
 	  this.muted = params.muted || false;
 	  this.params = params;
-	  this.active = this.isPlayed();
 	}
 	function _getDefaultOptions2() {
 	  return {
@@ -570,9 +636,7 @@ this.BX.UI = this.BX.UI || {};
 	  if (this.playbackRate !== 1) {
 	    this.vjsPlayer.playbackRate(this.playbackRate);
 	  }
-	  if (this.volume) {
-	    this.vjsPlayer.volume(this.volume);
-	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _setInitialVolume)[_setInitialVolume]();
 	  if (this.startTime > 0) {
 	    try {
 	      this.vjsPlayer.currentTime(this.startTime);
@@ -581,8 +645,18 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }
 	  this.vjsPlayer.on('volumechange', () => {
-	    this.active = true;
+	    babelHelpers.classPrivateFieldLooseBase(this.constructor, _globalSettings)[_globalSettings].set('volume', this.vjsPlayer.volume());
 	  });
+	}
+	function _setInitialVolume2() {
+	  const hasVolumePanel = !BX.Type.isNil(this.vjsPlayer.controlBar.getChild('VolumePanel'));
+	  if (hasVolumePanel) {
+	    const volume = this.volume === null ? babelHelpers.classPrivateFieldLooseBase(this.constructor, _globalSettings)[_globalSettings].get('volume', 0.8) : this.volume;
+	    this.vjsPlayer.volume(volume);
+	  } else {
+	    const volume = this.volume === null ? 0.8 : this.volume;
+	    this.vjsPlayer.volume(volume);
+	  }
 	}
 	function _handleClick2(event) {
 	  this.toggle();
@@ -590,11 +664,20 @@ this.BX.UI = this.BX.UI || {};
 	  event.stopPropagation();
 	}
 	function _handleKeyDown2(event) {
+	  const beforeKeyDownEvent = new main_core_events.BaseEvent({
+	    event
+	  });
+	  babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onBeforeKeyDown', beforeKeyDownEvent);
+	  if (beforeKeyDownEvent.isDefaultPrevented()) {
+	    return;
+	  }
 	  switch (event.code) {
 	    case 'KeyK':
 	    case 'Space':
 	      {
 	        this.toggle();
+	        event.preventDefault();
+	        event.stopPropagation();
 	        break;
 	      }
 	    case 'KeyF':
@@ -605,27 +688,37 @@ this.BX.UI = this.BX.UI || {};
 	          } else {
 	            this.vjsPlayer.requestFullscreen();
 	          }
+	          event.preventDefault();
+	          event.stopPropagation();
 	        }
 	        break;
 	      }
 	    case 'KeyJ':
 	      {
 	        this.moveBackward(10);
+	        event.preventDefault();
+	        event.stopPropagation();
 	        break;
 	      }
 	    case 'KeyL':
 	      {
 	        this.moveForward(10);
+	        event.preventDefault();
+	        event.stopPropagation();
 	        break;
 	      }
 	    case 'ArrowLeft':
 	      {
 	        this.moveBackward(5);
+	        event.preventDefault();
+	        event.stopPropagation();
 	        break;
 	      }
 	    case 'ArrowRight':
 	      {
 	        this.moveForward(5);
+	        event.preventDefault();
+	        event.stopPropagation();
 	        break;
 	      }
 	    case 'KeyM':
@@ -635,31 +728,37 @@ this.BX.UI = this.BX.UI || {};
 	        } else {
 	          this.mute(true);
 	        }
+	        event.preventDefault();
+	        event.stopPropagation();
 	        break;
 	      }
 	    case 'Comma':
 	      {
 	        this.decreasePlaybackRate();
+	        event.preventDefault();
+	        event.stopPropagation();
 	        break;
 	      }
 	    case 'Period':
 	      {
 	        this.increasePlaybackRate();
+	        event.preventDefault();
+	        event.stopPropagation();
 	        break;
 	      }
 	    default:
 
 	  }
-	  event.preventDefault();
-	  event.stopPropagation();
-	  babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onKeyDown');
+	  babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onKeyDown', new main_core_events.BaseEvent({
+	    event
+	  }));
 	}
-	function _fireEvent2(eventName) {
+	function _fireEvent2(eventName, event) {
 	  if (main_core.Type.isStringFilled(eventName)) {
 	    const fullName = `Player:${eventName}`;
-	    main_core.Event.EventEmitter.emit(this, fullName, new main_core_events.BaseEvent({
-	      compatData: [this, fullName]
-	    }));
+	    const compatEvent = event || new main_core_events.BaseEvent();
+	    compatEvent.setCompatData([this, fullName]);
+	    main_core.Event.EventEmitter.emit(this, fullName, compatEvent);
 	  }
 	}
 	function _proxyEvents2() {
@@ -671,16 +770,35 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onPause');
 	  });
 	  this.vjsPlayer.on('click', () => {
-	    this.active = true;
 	    babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onClick');
 	  });
 	  this.vjsPlayer.on('ended', () => {
 	    babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onEnded');
 	  });
+	  this.vjsPlayer.on('loadedmetadata', () => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onLoadedMetadata');
+	  });
 	  this.vjsPlayer.on('error', () => {
 	    babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onError');
 	  });
+	  this.vjsPlayer.on('enterpictureinpicture', () => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onEnterPictureInPicture');
+	  });
+	  this.vjsPlayer.on('leavepictureinpicture', () => {
+	    const event = new main_core_events.BaseEvent();
+	    babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent]('onLeavePictureInPicture', event);
+	    if (!event.isDefaultPrevented()) {
+	      const visible = PlayerManager.isVisibleOnScreen(this.id, 1);
+	      if (!visible) {
+	        this.pause();
+	      }
+	    }
+	  });
 	}
+	Object.defineProperty(Player, _globalSettings, {
+	  writable: true,
+	  value: new GlobalSettings('bx-video-player-settings')
+	});
 
 	// compatibility
 	const filemanNS = main_core.Reflection.namespace('BX.Fileman');

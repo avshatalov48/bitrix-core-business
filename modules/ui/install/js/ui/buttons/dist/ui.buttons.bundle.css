@@ -579,6 +579,21 @@ a.ui-btn-split:focus,
 	--ui-btn-color-active: var(--ui-color-palette-white-base);
 }
 
+.ui-btn-primary-border {
+	--ui-btn-background: var(--ui-color-background-transparent);
+	--ui-btn-background-hover: #cfd4d8;
+	--ui-btn-background-active: #dde2e5;
+	--ui-btn-border-color: var(--ui-color-primary);
+	--ui-btn-border-color-hover: #c6cdd3;
+	--ui-btn-border-color-active: #9fa4ab;
+	--ui-btn-opacity-after: var(--ui-opacity-30);
+	--ui-btn-colors-after-bg: var(--ui-color-base-90);
+	--ui-btn-colors-before-bg: var(--ui-color-base-90);
+	--ui-btn-color: var(--ui-color-base-90);
+	--ui-btn-color-hover: var(--ui-color-base-90);
+	--ui-btn-color-active: var(--ui-color-base-90);
+}
+
 /* hack for preloading icon */
 .ui-btn-split.ui-btn-icon-ai .ui-btn-main::before:hover,
 .ui-btn.ui-btn-icon-ai::before:hover {

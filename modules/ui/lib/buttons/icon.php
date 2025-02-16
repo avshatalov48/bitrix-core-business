@@ -34,4 +34,5 @@ abstract class Icon
 	public const FUNNEL = "ui-btn-icon-funnel";
 	public const AI = 'ui-btn-icon-ai ui-icon-set__scope';
 	public const RELOAD = 'ui-btn-icon-reload';
+	public const BUSINESS_NEW = 'ui-btn-icon-business-new';
 }

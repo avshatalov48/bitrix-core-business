@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["FLOW_PAGE_TITLE"] = "Список документов";
 $MESS["FLOW_F_ID"] = "ID документа";
 $MESS["FLOW_UNLOCK_S"] = "освободить";
@@ -45,4 +46,3 @@ $MESS["MAIN_ADMIN_LIST_CHECKED"] = "Отмечено:";
 $MESS["MAIN_FIND_TITLE"] = "Введите строку для поиска";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "удалить";
 $MESS["MAIN_ALL"] = "(все)";
-?>

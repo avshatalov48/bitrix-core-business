@@ -12,5 +12,3 @@ $MESS["CATALOG_DOCUMENT_LIST_TITLE_SHIPMENT"] = "Sales orders";
 $MESS["DOCUMENT_CONDUCT_SUCCESSFUL"] = "Item processed";
 $MESS["DOCUMENT_CONDUCT_SUCCESSFUL_VIEW"] = "View";
 $MESS["DOC_CREATE_FIRST_TIME_GUIDE_TEXT"] = "Create your first stock adjustment";
-$MESS["PROFIT_TOUR_TEXT"] = "Keep track of the goods sold, amount of sales and the respective profit and margin.";
-$MESS["PROFIT_TOUR_TITLE"] = "New report";

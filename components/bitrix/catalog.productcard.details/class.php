@@ -11,6 +11,7 @@ use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\Model\StoreDocument;
 use Bitrix\Catalog\Config\Feature;
 use Bitrix\Catalog\Config\State;
+use Bitrix\Catalog\Integration\AI\Settings;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\Restriction\ToolAvailabilityManager;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
@@ -854,6 +855,9 @@ class CatalogProductDetailsComponent
 		$this->arResult['PRODUCT_TYPE_NAME'] = $this->getProductTypeName($product);
 		$this->arResult['DROPDOWN_TYPES'] = $this->getDropdownTypes($product);
 		$this->arResult['DISABLED_HTML_CONTROLS'] = $this->getDisabledHtmlControls();
+		$this->arResult['CHTML_EDITOR_PARAMS'] = $this->getChtmlEditorParams();
+
+		$this->arResult['IS_COPILOT_ENABLED'] = Settings::isTextProductCardAvailable();
 	}
 
 	/**
@@ -3013,6 +3017,13 @@ class CatalogProductDetailsComponent
 		return [
 			'Code',
 			'Quote',
+		];
+	}
+
+	private function getChtmlEditorParams(): array
+	{
+		return [
+			'normalBodyWidth' => 600,
 		];
 	}
 

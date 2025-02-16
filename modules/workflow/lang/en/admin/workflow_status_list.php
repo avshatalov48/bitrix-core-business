@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["FLOW_CANNOT_DELETE_STATUS"] = "The status you are trying to delete is currently assigned to some documents";
 $MESS["FLOW_CANNOT_DELETE_STATUS_IBLOCK"] = "The status you are trying to delete is currently assigned to some information block elements";
 $MESS["FLOW_PAGE_TITLE"] = "Document statuses";
@@ -27,4 +28,3 @@ $MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "activate";
 $MESS["MAIN_ALL"] = "(all)";
 $MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "deactivate";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "delete";
-?>

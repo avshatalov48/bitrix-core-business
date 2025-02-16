@@ -2,9 +2,11 @@
 
 namespace Bitrix\Mail\Controller;
 
+use Bitrix\Mail\Message;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Loader;
 use Bitrix\Mail\Internals\MailContactTable;
+use Bitrix\UI\EntitySelector\ItemCollection;
 
 /**
  * Class AddressBook
@@ -12,7 +14,7 @@ use Bitrix\Mail\Internals\MailContactTable;
  */
 class AddressBook extends Controller
 {
-	private function editContact($contactData)
+	private function editContact($contactData): ItemCollection
 	{
 		$id = $contactData['ID'];
 		$userID = MailContactTable::getRow(
@@ -28,7 +30,7 @@ class AddressBook extends Controller
 			$contactData['NAME'] <> "" &&
 			check_email($contactData['EMAIL'])))
 		{
-			return false;
+			return Message::getSelectedRecipientsForDialog();
 		}
 
 		MailContactTable::update(
@@ -43,7 +45,12 @@ class AddressBook extends Controller
 			]
 		);
 
-		return true;
+		return Message::getSelectedRecipientsForDialog([
+			[
+				'email' => $contactData['EMAIL'],
+				'name' => $contactData['NAME'],
+			],
+		]);
 	}
 
 	private function isUserAdmin()
@@ -95,23 +102,40 @@ class AddressBook extends Controller
 	}
 
 	/**
+	 * @param string $email
+	 * @return int
+	 */
+	public function getContactIdByEmailAction(string $email): int
+	{
+		$currentUserId = $this->getCurrentUser()?->getId();
+
+		if (is_null($currentUserId) || !Loader::includeModule('mail'))
+		{
+			return 0;
+		}
+
+		return MailContactTable::getContactByEmail($email, $currentUserId)['ID'];
+	}
+
+	/**
 	 * @param $contactData
 	 *
-	 * @return bool
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @return ItemCollection
 	 */
-	public function saveContactAction($contactData)
+	public function saveContactAction($contactData): ItemCollection
 	{
+		$selectedRecipientsForDialog = Message::getSelectedRecipientsForDialog();
+
 		if (!Loader::includeModule('mail'))
 		{
-			return false;
+			return $selectedRecipientsForDialog;
 		}
 
 		$contactData['EMAIL'] = mb_strtolower($contactData['EMAIL']);
 
 		if(!check_email($contactData['EMAIL']))
 		{
-			return false;
+			return $selectedRecipientsForDialog;
 		}
 
 		if ($contactData['ID'] !== 'new')
@@ -124,7 +148,7 @@ class AddressBook extends Controller
 
 			if (is_null($currentUserId))
 			{
-				return false;
+				return $selectedRecipientsForDialog;
 			}
 
 			$contactsData[] = [
@@ -144,10 +168,15 @@ class AddressBook extends Controller
 			{
 				$this->addErrors($result->getErrors());
 
-				return false;
+				return $selectedRecipientsForDialog;
 			}
 		}
 
-		return true;
+		return Message::getSelectedRecipientsForDialog([
+			[
+				'email' => $contactData['EMAIL'],
+				'name' => $contactData['NAME'],
+			],
+		]);
 	}
 }

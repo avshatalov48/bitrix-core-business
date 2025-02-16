@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["FLOW_PAGE_TITLE"] = "Change history";
 $MESS["FLOW_F_DOCUMENT"] = "Document ID";
 $MESS["FLOW_F_FILENAME"] = "File name";
@@ -30,4 +31,3 @@ $MESS["MAIN_ADMIN_LIST_CHECKED"] = "Checked:";
 $MESS["MAIN_FIND_TITLE"] = "Enter text to search for";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "delete";
 $MESS["MAIN_ALL"] = "(all)";
-?>

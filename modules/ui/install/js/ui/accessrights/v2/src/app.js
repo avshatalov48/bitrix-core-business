@@ -6,8 +6,8 @@ import { BitrixVue, type VueCreateAppResult } from 'ui.vue3';
 import type { Store } from 'ui.vue3.vuex';
 import { Grid } from './components/grid';
 import 'ui.notification';
+import { AnalyticsManager } from './integration/analytics-manager';
 import { createStore } from './store/index';
-import type { AccessRightsCollection, AccessRightsModel } from './store/model/access-rights-model';
 import type { Options } from './store/model/application-model';
 import { AllUserGroupsExporter } from './store/model/transformation/backend-exporter/user-groups/all-user-groups-exporter';
 import { OnlyChangedUserGroupsExporter } from './store/model/transformation/backend-exporter/user-groups/only-changed-user-groups-exporter';
@@ -25,7 +25,7 @@ export type AppConstructOptions = Options & {
 	accessRights: ExternalAccessRightSection[];
 };
 
-type SaveAjaxResponse = AjaxResponse<{ACCESS_RIGHTS: JsonObject, USER_GROUPS: JsonObject}>;
+type SaveAjaxResponse = AjaxResponse<{ USER_GROUPS: JsonObject }>;
 
 /**
  * @memberOf BX.UI.AccessRights.V2
@@ -42,11 +42,12 @@ export class App
 	#handleSliderClose: (BaseEvent<BX.SidePanel.Event[]>) => void;
 
 	#app: VueCreateAppResult;
+	#rootComponent: Element;
 	#store: Store;
 	#resetState: () => void;
 	#unwatch: () => void;
 	#userGroupsModel: UserGroupsModel;
-	#accessRightsModel: AccessRightsModel;
+	#analyticsManager: AnalyticsManager;
 
 	constructor(options: AppConstructOptions)
 	{
@@ -95,6 +96,7 @@ export class App
 					size: ButtonSize.SMALL,
 					text: Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_MODIFIED_CANCEL_YES_CANCEL'),
 					onclick: () => {
+						this.#analyticsManager.onCancelChanges();
 						this.#resetState();
 						box.close();
 					},
@@ -147,44 +149,57 @@ export class App
 		});
 	}
 
-	sendActionRequest(): void
+	sendActionRequest(): Promise
 	{
-		if (this.#store.state.application.isSaving || !this.#store.getters['userGroups/isModified'])
-		{
-			return;
-		}
+		return new Promise((resolve, reject) => {
+			if (this.#store.state.application.isSaving || !this.#store.getters['userGroups/isModified'])
+			{
+				resolve();
 
-		this.#store.commit('application/setSaving', true);
+				return;
+			}
 
-		this.#runSaveAjaxRequest()
-			.then(({ userGroups, accessRights }) => {
-				this.#userGroupsModel.setInitialUserGroups(userGroups);
-				this.#accessRightsModel.setInitialAccessRights(accessRights);
+			this.#store.commit('application/setSaving', true);
 
-				// reset modification flags and stuff
-				this.#resetState();
+			this.#analyticsManager.onSaveAttempt();
 
-				this.#showNotification(Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SETTINGS_HAVE_BEEN_SAVED'));
-			})
-			.catch((response: SaveAjaxResponse) => {
-				console.warn('ui.accessrights.v2: error during save', response);
+			this.#runSaveAjaxRequest()
+				.then(({ userGroups }) => {
+					this.#analyticsManager.onSaveSuccess();
+					this.#userGroupsModel.setInitialUserGroups(userGroups);
 
-				if (this.#tryShowFeaturePromoter(response))
-				{
-					return;
-				}
+					// reset modification flags and stuff
+					this.#resetState();
 
-				this.#showNotification(response?.errors?.[0]?.message || 'Something went wrong');
-			})
-			.finally(() => {
-				const waitContainer = this.#buttonPanel?.getContainer().querySelector('.ui-btn-wait');
-				Dom.removeClass(waitContainer, 'ui-btn-wait');
-				this.#store.commit('application/setSaving', false);
-			})
-		;
+					this.#showNotification(Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SETTINGS_HAVE_BEEN_SAVED'));
+				})
+				.catch((response: SaveAjaxResponse) => {
+					this.#analyticsManager.onSaveError(response);
+
+					console.warn('ui.accessrights.v2: error during save', response);
+
+					if (this.#tryShowFeaturePromoter(response))
+					{
+						reject(response);
+
+						return;
+					}
+
+					this.#showNotification(response?.errors?.[0]?.message || 'Something went wrong');
+
+					reject(response);
+				})
+				.finally(() => {
+					const waitContainer = this.#buttonPanel?.getContainer().querySelector('.ui-btn-wait');
+					Dom.removeClass(waitContainer, 'ui-btn-wait');
+					this.#store.commit('application/setSaving', false);
+
+					resolve();
+				});
+		});
 	}
 
-	#runSaveAjaxRequest(): Promise<{ userGroups: UserGroupsCollection, accessRights: AccessRightsCollection }>
+	#runSaveAjaxRequest(): Promise<{ userGroups: UserGroupsCollection }>
 	{
 		const internalUserGroups = this.#store.state.userGroups.collection;
 
@@ -225,7 +240,6 @@ export class App
 
 					resolve({
 						userGroups: newUserGroups,
-						accessRights: (new AccessRightsInternalizer()).transform(response.data.ACCESS_RIGHTS),
 					});
 				})
 				.catch(reject)
@@ -252,9 +266,13 @@ export class App
 					size: ButtonSize.SMALL,
 					text: Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_MODIFIED_CLOSE_YES_CLOSE'),
 					onclick: () => {
+						this.#analyticsManager.onCloseWithoutSave();
 						this.#isUserConfirmedClose = true;
 						box.close();
-						sliderEvent.getSlider().close();
+
+						setTimeout(() => {
+							sliderEvent.getSlider().close();
+						});
 					},
 				}),
 				new CancelButton({
@@ -273,7 +291,7 @@ export class App
 	{
 		const applicationOptions = (new ApplicationInternalizer()).transform(this.#options);
 
-		const { store, resetState, accessRightsModel, userGroupsModel } = createStore(
+		const { store, resetState, userGroupsModel } = createStore(
 			applicationOptions,
 			(new UserGroupsInternalizer(applicationOptions.maxVisibleUserGroups)).transform(this.#options.userGroups),
 			(new AccessRightsInternalizer()).transform(this.#options.accessRights),
@@ -283,7 +301,6 @@ export class App
 		this.#store = store;
 		this.#resetState = resetState;
 		this.#userGroupsModel = userGroupsModel;
-		this.#accessRightsModel = accessRightsModel;
 
 		this.#unwatch = this.#store.watch(
 			(state, getters) => getters['userGroups/isModified'],
@@ -303,11 +320,14 @@ export class App
 		this.#app.use(this.#store);
 
 		Dom.clean(this.#renderTo);
-		this.#app.mount(this.#renderTo);
+		this.#rootComponent = this.#app.mount(this.#renderTo);
+		this.#analyticsManager = new AnalyticsManager(this.#store, this.#options.analytics);
 	}
 
 	destroy(): void
 	{
+		this.#analyticsManager = null;
+
 		this.#app.unmount();
 		this.#app = null;
 
@@ -319,11 +339,20 @@ export class App
 		this.#store = null;
 		this.#resetState = null;
 		this.#userGroupsModel = null;
-		this.#accessRightsModel = null;
 		this.#options = null;
 		this.#buttonPanel = null;
 
 		Dom.clean(this.#renderTo);
 		this.#renderTo = null;
+	}
+
+	hasUnsavedChanges(): boolean
+	{
+		return !(!this.#store.getters['userGroups/isModified'] || this.#isUserConfirmedClose);
+	}
+
+	scrollToSection(sectionCode)
+	{
+		this.#rootComponent.scrollToSection(sectionCode);
 	}
 }

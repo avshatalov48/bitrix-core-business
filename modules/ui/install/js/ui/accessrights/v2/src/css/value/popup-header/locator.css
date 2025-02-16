@@ -1,0 +1,22 @@
+.ui-access-rights-v2-cell-popup-header-locator {
+	font-size: var(--ui-font-size-sm);
+	height: 22px;
+	margin-bottom: 9px;
+	overflow: hidden;
+
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.ui-access-rights-v2-cell-popup-header-locator .ui-access-rights-v2-text-ellipsis {
+	flex: 1;
+	max-width: fit-content;
+}
+
+.ui-access-rights-v2-cell-popup-header-chevron {
+	--ui-icon-set__icon-size: 10px;
+	--ui-icon-set__icon-color: var(--ui-color-palette-gray-50);
+	margin-left: 3px;
+	margin-right: 3px;
+}

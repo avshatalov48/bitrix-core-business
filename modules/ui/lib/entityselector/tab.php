@@ -120,7 +120,7 @@ class Tab implements \JsonSerializable
 					: []
 			;
 
-			$this->setFooter($options['header'], $headerOptions);
+			$this->setHeader($options['header'], $headerOptions);
 		}
 
 		if (isset($options['showDefaultHeader']) && is_bool($options['showDefaultHeader']))

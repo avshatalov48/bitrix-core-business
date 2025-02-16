@@ -2,6 +2,7 @@
 
 namespace Bitrix\Ui\EntityForm;
 
+use Bitrix\HumanResources\Enum\DepthLevel;
 use Bitrix\HumanResources\Service\Container;
 use Bitrix\Main\Access\AccessCode;
 use Bitrix\Main\Application;
@@ -54,19 +55,25 @@ class Scope
 	 * @param string|null $moduleId
 	 * @return array
 	 */
-	public function getUserScopes(string $entityTypeId, ?string $moduleId = null): array
+	public function getUserScopes(string $entityTypeId, ?string $moduleId = null, bool $loadMetadata = true): array
 	{
-		return $this->getScopes($entityTypeId, $moduleId);
+		return $this->getScopes($entityTypeId, $moduleId, $loadMetadata);
 	}
 
-	public function getAllUserScopes(string $entityTypeId, ?string $moduleId = null): array
+	public function getAllUserScopes(string $entityTypeId, ?string $moduleId = null, bool $loadMetadata = true): array
 	{
-		return $this->getScopes($entityTypeId, $moduleId, false);
+		return $this->getScopes($entityTypeId, $moduleId, false, $loadMetadata);
 	}
-	private function getScopes(string $entityTypeId, ?string $moduleId = null, bool $excludeEmptyAccessCode = true): array
+
+	private function getScopes(
+		string $entityTypeId,
+		?string $moduleId = null,
+		bool $excludeEmptyAccessCode = true,
+		bool $loadMetadata = true,
+	): array
 	{
 		static $results = [];
-		$key = $entityTypeId . '-' . $moduleId;
+		$key = $entityTypeId . '-' . $moduleId . '-' . ($loadMetadata ? 'Y' : 'N');
 
 		if (!isset($results[$key]))
 		{
@@ -76,10 +83,12 @@ class Scope
 					($scopeAccess = ScopeAccess::getInstance($moduleId))
 					&& $scopeAccess->isAdminForEntityTypeId($entityTypeId)
 				);
+
 			if (!$isAdminForEntity)
 			{
 				$filter['@ID'] = $this->getScopesIdByUser();
 			}
+
 			$filter['@ENTITY_TYPE_ID'] = ($this->getEntityTypeIdMap()[$entityTypeId] ?? [$entityTypeId]);
 
 			if ($excludeEmptyAccessCode)
@@ -98,15 +107,22 @@ class Scope
 					],
 					'filter' => $filter,
 				]);
+
 				foreach ($scopes as $scope)
 				{
 					$result[$scope['ID']]['NAME'] = HtmlFilter::encode($scope['NAME']);
 					$result[$scope['ID']]['AUTO_APPLY_SCOPE'] = $scope['AUTO_APPLY_SCOPE'];
-					if (!isset($result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']]) && isset($scope['ACCESS_CODE']))
+					if (
+						$loadMetadata
+						&& !isset($result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']])
+						&& isset($scope['ACCESS_CODE'])
+					)
 					{
 						$accessCode = new AccessCode($scope['ACCESS_CODE']);
-						$member = (new DataProvider())->getEntity($accessCode->getEntityType(),
-																  $accessCode->getEntityId());
+						$member = (new DataProvider())->getEntity(
+							$accessCode->getEntityType(),
+							$accessCode->getEntityId()
+						);
 						$result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']] = $scope['ACCESS_CODE'];
 						$result[$scope['ID']]['MEMBERS'][$scope['ACCESS_CODE']] = $member->getMetaData();
 					}
@@ -115,6 +131,7 @@ class Scope
 
 			$results[$key] = $result;
 		}
+
 		return $results[$key];
 	}
 
@@ -557,6 +574,12 @@ class Scope
 			if (empty($fields['USER_ID']) || empty($fields['GROUP_ID']))
 			{
 				$userToGroup = UserToGroupTable::getById($id)->fetchObject();
+
+				if (!$userToGroup)
+				{
+					return;
+				}
+
 				$memberId = $userToGroup->getUserId();
 				$socialGroupId = $userToGroup->getGroupId();
 			}
@@ -589,9 +612,22 @@ class Scope
 
 	private function getScopesByDepartment(int $departmentId, bool $onlyAutoApplyView = false): array
 	{
-		$accessCode = 'DR' . $departmentId;
+		$accessCodes = [];
+		$nodeRepository = Container::getNodeRepository();
+		$node = $nodeRepository->getById($departmentId);
+		if (!$node)
+		{
+			return $accessCodes;
+		}
 
-		return $this->getScopesByAccessCode($accessCode, $onlyAutoApplyView);
+		$parentNodes = $nodeRepository->getParentOf($node, DepthLevel::FULL);
+		foreach ($parentNodes as $node)
+		{
+			$accessCode = str_replace('D', 'DR', $node->accessCode);
+			$accessCodes = array_merge($accessCodes, $this->getScopesByAccessCode($accessCode, $onlyAutoApplyView));
+		}
+
+		return $accessCodes;
 	}
 
 	private function getScopesBySocialGroupId(int $socialGroupId, bool $onlyAutoApplyView = false): array
@@ -745,7 +781,7 @@ class Scope
 			return $userIds;
 		}
 
-		$allEmp = $hrServiceLocator::getNodeMemberService()->getAllEmployees($node->id);
+		$allEmp = $hrServiceLocator::getNodeMemberService()->getAllEmployees($node->id, true);
 		foreach ($allEmp->getIterator() as $emp)
 		{
 			$userIds[] = $emp->entityId;

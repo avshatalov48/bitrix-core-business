@@ -89,8 +89,8 @@ if (isset($arResult['ITEM']))
 	}
 	else
 	{
-		$price = $actualItem['ITEM_PRICES'][$actualItem['ITEM_PRICE_SELECTED']];
-		$measureRatio = $price['MIN_QUANTITY'];
+		$price = $actualItem['ITEM_PRICES'][$actualItem['ITEM_PRICE_SELECTED']] ?? null;
+		$measureRatio = $price['MIN_QUANTITY'] ?? null;
 		if (isset($actualItem['MORE_PHOTO']))
 		{
 			$morePhoto = $actualItem['MORE_PHOTO'];
@@ -116,7 +116,7 @@ if (isset($arResult['ITEM']))
 
 	<div class="product-item-container<?=(isset($arResult['SCALABLE']) && $arResult['SCALABLE'] === 'Y' ? ' product-item-scalable-card' : '')?>"
 		id="<?=$areaId?>" data-entity="item">
-		<?
+		<?php
 		$documentRoot = Main\Application::getDocumentRoot();
 		$templatePath = mb_strtolower($arResult['TYPE']).'/template.php';
 		$file = new Main\IO\File($documentRoot.$templateFolder.'/'.$templatePath);
@@ -312,6 +312,6 @@ if (isset($arResult['ITEM']))
 			var <?=$obName?> = new JCCatalogItem(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
 		</script>
 	</div>
-	<?
+	<?php
 	unset($item, $actualItem, $minOffer, $itemIds, $jsParams);
 }

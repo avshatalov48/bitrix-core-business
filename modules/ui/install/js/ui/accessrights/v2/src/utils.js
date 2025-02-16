@@ -11,6 +11,30 @@ export function shouldRowBeRendered(accessRightItem: AccessRightItem): boolean
 	return !accessRightItem.group || accessRightItem.isGroupExpanded;
 }
 
+export function getSelectedVariables(
+	variables: VariableCollection,
+	selected: Set<string>,
+	isAllSelected: boolean,
+): VariableCollection
+{
+	if (isAllSelected)
+	{
+		return variables;
+	}
+
+	const selectedVariables = new Map();
+
+	for (const [variableId, variable] of variables)
+	{
+		if (selected.has(variableId))
+		{
+			selectedVariables.set(variableId, variable);
+		}
+	}
+
+	return selectedVariables;
+}
+
 export function getMultipleSelectedVariablesTitle(selectedVariables: VariableCollection): string
 {
 	const lastVariable: Variable = [...selectedVariables.values()].pop();

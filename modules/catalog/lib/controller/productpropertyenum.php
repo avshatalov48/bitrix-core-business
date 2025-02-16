@@ -42,10 +42,18 @@ final class ProductPropertyEnum extends ProductPropertyBase
 		}
 
 		$property = $this->getPropertyById($fields['PROPERTY_ID']);
+		if (!$property)
+		{
+			$this->addError($this->getErrorEntityNotExists());
+
+			return null;
+		}
+
 		$propertyType = $property['PROPERTY_TYPE'];
 		if ($propertyType !== PropertyTable::TYPE_LIST)
 		{
 			$this->addError(new Error('Only list properties are supported'));
+
 			return null;
 		}
 
@@ -56,10 +64,13 @@ final class ProductPropertyEnum extends ProductPropertyBase
 		if (!$addResult->isSuccess())
 		{
 			$this->addErrors($addResult->getErrors());
+
 			return null;
 		}
 
-		return [$this->getServiceItemName() => $this->get($addResult->getId())];
+		return [
+			$this->getServiceItemName() => $this->get($addResult->getId()),
+		];
 	}
 
 	/**

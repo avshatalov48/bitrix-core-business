@@ -34,7 +34,7 @@ export const RichMenuPopup = {
 	},
 	template: `
 		<Popup @close="$emit('close')" :options="allOptions">
-			<RichMenu>
+			<RichMenu v-bind="$attrs">
 				<template #header>
 					<slot name="header"></slot>
 				</template>

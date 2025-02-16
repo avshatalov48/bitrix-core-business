@@ -4,10 +4,14 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
+	let _ = t => t,
+	  _t;
 	const Item = main_core.Reflection.namespace('BX.UI.Viewer.Item');
 	const Util = main_core.Reflection.namespace('BX.util');
 	const BXPromise = main_core.Reflection.namespace('BX.Promise');
 	const DEFAULT_SCALE = 1.4;
+	const SCALE_MIN = 0.5;
+	const SCALE_MAX = 3;
 	const PAGES_TO_PRELOAD = 3;
 
 	// noinspection JSClosureCompilerSyntax
@@ -37,13 +41,14 @@ this.BX.UI = this.BX.UI || {};
 	    this.scale = DEFAULT_SCALE;
 	    this.pdfRenderedPages = {};
 	    this.lastRenderedPdfPage = 0;
-	    this.disableAnnotationLayer = false;
+	    this.extraActions = null;
+	    this.disableAnnotationLayer = true;
 	    options = options || {};
 	    this.scale = options.scale || DEFAULT_SCALE;
 	  }
 	  setPropertiesByNode(node) {
 	    super.setPropertiesByNode(node);
-	    this.disableAnnotationLayer = node.dataset.hasOwnProperty('disableAnnotationLayer');
+	    this.disableAnnotationLayer = node.dataset.hasOwnProperty('disableAnnotationLayer') ? true : this.disableAnnotationLayer;
 	  }
 	  applyReloadOptions(options) {
 	    this.controller.unsetCachedData(this.src);
@@ -140,28 +145,47 @@ this.BX.UI = this.BX.UI || {};
 	    main_core.Event.bind(this.contentNode, 'scroll', main_core.Runtime.throttle(this.handleScrollDocument.bind(this), 100));
 	    return this.contentNode;
 	  }
-	  getNakedActions() {
-	    const nakedActions = super.getNakedActions();
-	    return this.insertPrintBeforeInfo(nakedActions);
+	  renderExtraActions() {
+	    if (this.extraActions === null) {
+	      this.extraActions = main_core.Tag.render(_t || (_t = _`
+				<div class="ui-viewer-extra-actions">
+					<div 
+						class="ui-viewer-action-btn" 
+						onclick="${0}"
+						title="${0}"
+					>
+						<div class="ui-icon-set --zoom-out ui-viewer-action-btn-icon"></div>
+					</div>
+					<div 
+						class="ui-viewer-action-btn" 
+						onclick="${0}" 
+						title="${0}"
+					>
+						<div class="ui-icon-set --zoom-in ui-viewer-action-btn-icon"></div>
+					</div>
+					<div 
+						class="ui-viewer-action-btn" 
+						onclick="${0}" 
+						title="${0}"
+					>
+						<div class="ui-icon-set --print-1 ui-viewer-action-btn-icon"></div>
+					</div>
+				</div>
+			`), this.zoomOut.bind(this), main_core.Text.encode(main_core.Loc.getMessage('JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_OUT')), this.zoomIn.bind(this), main_core.Text.encode(main_core.Loc.getMessage('JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_IN')), this.print.bind(this), main_core.Text.encode(main_core.Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_PRINT')));
+	    }
+	    return this.extraActions;
 	  }
-	  insertPrintBeforeInfo(actions) {
-	    actions = actions || [];
-	    let infoIndex = null;
-	    for (let i = 0; i < actions.length; i++) {
-	      if (actions[i].type === 'info') {
-	        infoIndex = i;
-	      }
-	    }
-	    const printAction = {
-	      type: 'print',
-	      action: this.print.bind(this)
-	    };
-	    if (infoIndex === null) {
-	      actions.push(printAction);
-	    } else {
-	      actions = Util.insertIntoArray(actions, infoIndex, printAction);
-	    }
-	    return actions;
+	  zoomIn() {
+	    const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, this.scale * 1.1));
+	    void this.updateScale(newScale).then(() => {
+	      this.controller.adjustControlsSize(this.getContentWidth());
+	    });
+	  }
+	  zoomOut() {
+	    const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, this.scale * 0.9));
+	    void this.updateScale(newScale).then(() => {
+	      this.controller.adjustControlsSize(this.getContentWidth());
+	    });
 	  }
 	  getFirstDocumentPageHeight() {
 	    if (this._height) {
@@ -303,13 +327,12 @@ this.BX.UI = this.BX.UI || {};
 	    return canvas;
 	  }
 	  getContentWidth() {
-	    if (this.firstWidthDocumentPage) {
-	      return Promise.resolve(this.firstWidthDocumentPage);
-	    }
 	    return new Promise(resolve => {
 	      this.loadDocument().then(() => {
 	        this.renderDocumentPage(this.pdfDocument, 1).then(page => {
-	          resolve(page.getViewport(this.scale).width);
+	          const contentWidth = page.getViewport(this.scale).width;
+	          const scrollWidth = this.contentNode.offsetWidth - this.contentNode.clientWidth;
+	          resolve(contentWidth + scrollWidth);
 	        });
 	      });
 	    });
@@ -320,10 +343,6 @@ this.BX.UI = this.BX.UI || {};
 	        if (i === 1) {
 	          this._handleControls = this.controller.handleVisibleControls.bind(this.controller);
 	          this.controller.enableReadingMode(true);
-	          const printAction = this.controller.actionPanel.getItemById('print');
-	          if (printAction) {
-	            printAction.layout.container.classList.remove('ui-btn-disabled');
-	          }
 	          main_core.Runtime.throttle(main_core.Event.bind(window, 'mousemove', this._handleControls), 20);
 	        }
 	        this.renderDocumentPage(pdf, i);
@@ -374,14 +393,26 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  }
 	  handleKeyPress(event) {
-	    switch (event.code) {
-	      case 'PageDown':
-	      case 'PageUp':
-	      case 'ArrowDown':
-	      case 'ArrowUp':
-	        BX.focus(this.contentNode);
-	        break;
+	    if (!this.isLoaded) {
+	      return false;
 	    }
+	    if (['PageDown', 'PageUp', 'ArrowDown', 'ArrowUp'].includes(event.code)) {
+	      BX.focus(this.contentNode);
+	      return false;
+	    }
+	    if (event.code === 'Equal') {
+	      event.preventDefault();
+	      event.stopPropagation();
+	      this.zoomIn();
+	      return true;
+	    }
+	    if (event.code === 'Minus') {
+	      event.preventDefault();
+	      event.stopPropagation();
+	      this.zoomOut();
+	      return true;
+	    }
+	    return false;
 	  }
 	  getScale() {
 	    return this.scale;
@@ -407,7 +438,7 @@ this.BX.UI = this.BX.UI || {};
 	        canvas.height = viewport.height;
 	        page.render({
 	          canvasContext: canvas.getContext('2d'),
-	          viewport: viewport
+	          viewport
 	        }).then(() => {
 	          const textLayer = textLayers[page.pageIndex];
 	          if (textLayer) {
@@ -421,9 +452,9 @@ this.BX.UI = this.BX.UI || {};
 	            });
 	            page.getTextContent().then(textContent => {
 	              pdfjsLib.renderTextLayer({
-	                textContent: textContent,
+	                textContent,
 	                container: textLayer,
-	                viewport: viewport,
+	                viewport,
 	                textDivs: []
 	              });
 	              resolve();
@@ -662,8 +693,8 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
-	let _ = t => t,
-	  _t,
+	let _$1 = t => t,
+	  _t$1,
 	  _t2,
 	  _t3,
 	  _t4,
@@ -696,17 +727,17 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getViewerContainer() {
 	    if (!this.layout.container) {
-	      this.layout.inner = main_core.Tag.render(_t || (_t = _`<div class="ui-viewer__single-document--container ">${0}</div>`), this.getItemContainer());
+	      this.layout.inner = main_core.Tag.render(_t$1 || (_t$1 = _$1`<div class="ui-viewer__single-document--container ">${0}</div>`), this.getItemContainer());
 	      if (this.stretch) {
 	        main_core.Dom.addClass(this.layout.inner, '--stretch');
 	      }
-	      this.layout.container = main_core.Tag.render(_t2 || (_t2 = _`<div class="">${0}${0}</div>`), this.layout.inner, this.getControlsContainer());
+	      this.layout.container = main_core.Tag.render(_t2 || (_t2 = _$1`<div class="">${0}${0}</div>`), this.layout.inner, this.getControlsContainer());
 	    }
 	    return this.layout.container;
 	  }
 	  getControlsContainer() {
 	    if (!this.layout.controlsContainer) {
-	      return main_core.Tag.render(_t3 || (_t3 = _`<div class="ui-viewer__single-document--controls">
+	      return main_core.Tag.render(_t3 || (_t3 = _$1`<div class="ui-viewer__single-document--controls">
 				${0}
 				${0}
 			</div>`), this.getListingControl().render(), this.getScaleControl().render());
@@ -796,10 +827,10 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  render() {
 	    if (!this.container) {
-	      this.pagesContainer = main_core.Tag.render(_t4 || (_t4 = _`<div class="ui-viewer__single-document--listing-info">
+	      this.pagesContainer = main_core.Tag.render(_t4 || (_t4 = _$1`<div class="ui-viewer__single-document--listing-info">
 				${0}
 			</div>`), this.renderPages());
-	      this.container = main_core.Tag.render(_t5 || (_t5 = _`<div class="ui-viewer__single-document--listing">
+	      this.container = main_core.Tag.render(_t5 || (_t5 = _$1`<div class="ui-viewer__single-document--listing">
 				<div class="ui-viewer__single-document--listing--btn --prev" onclick="${0}"></div>
 				${0}
 				<div class="ui-viewer__single-document--listing--btn --next" onclick="${0}"></div>
@@ -821,17 +852,17 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	// const SCALE_MIN = 0.92;
-	const SCALE_MIN = 0.5;
-	const SCALE_MAX = 3;
+	const SCALE_MIN$1 = 0.5;
+	const SCALE_MAX$1 = 3;
 	class ScaleControl extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
-	    this.scale = SCALE_MIN;
+	    this.scale = SCALE_MIN$1;
 	    this.container = null;
 	    this.zoomInContainer = null;
 	    this.zoomOutContainer = null;
 	    this.zoomValueNode = null;
-	    this.scale = SCALE_MIN;
+	    this.scale = SCALE_MIN$1;
 	    this.setEventNamespace('BX.UI.Viewer.SingleDocumentController.ScaleControl');
 	    this.scaleClickHandler = this.handleScaleClick.bind(this);
 	  }
@@ -839,15 +870,15 @@ this.BX.UI = this.BX.UI || {};
 	    return this.scale;
 	  }
 	  setDefaultScale() {
-	    this.update(SCALE_MIN);
+	    this.update(SCALE_MIN$1);
 	  }
 	  adjust() {
-	    if (this.scale <= SCALE_MIN) {
+	    if (this.scale <= SCALE_MIN$1) {
 	      main_core.Dom.hide(this.getZoomOutContainer());
 	    } else {
 	      main_core.Dom.show(this.getZoomOutContainer());
 	    }
-	    if (this.scale >= SCALE_MAX) {
+	    if (this.scale >= SCALE_MAX$1) {
 	      main_core.Dom.hide(this.getZoomInContainer());
 	    } else {
 	      main_core.Dom.show(this.getZoomInContainer());
@@ -856,11 +887,11 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  update(scale) {
 	    scale = main_core.Text.toNumber(scale);
-	    if (scale < SCALE_MIN) {
-	      scale = SCALE_MIN;
+	    if (scale < SCALE_MIN$1) {
+	      scale = SCALE_MIN$1;
 	    }
-	    if (scale > SCALE_MAX) {
-	      scale = SCALE_MAX;
+	    if (scale > SCALE_MAX$1) {
+	      scale = SCALE_MAX$1;
 	    }
 	    if (scale !== this.scale) {
 	      this.scale = scale;
@@ -870,7 +901,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  render() {
 	    if (!this.container) {
-	      this.container = main_core.Tag.render(_t6 || (_t6 = _`<div class="ui-viewer__single-document--zoom">
+	      this.container = main_core.Tag.render(_t6 || (_t6 = _$1`<div class="ui-viewer__single-document--zoom">
 				${0}
 				${0}
 				${0}
@@ -881,7 +912,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getZoomInContainer() {
 	    if (!this.zoomInContainer) {
-	      this.zoomInContainer = main_core.Tag.render(_t7 || (_t7 = _`<div
+	      this.zoomInContainer = main_core.Tag.render(_t7 || (_t7 = _$1`<div
 				class="ui-viewer__single-document--zoom-control --zoom-in"
 				onclick="${0}"
 			>
@@ -892,7 +923,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getZoomOutContainer() {
 	    if (!this.zoomOutContainer) {
-	      this.zoomOutContainer = main_core.Tag.render(_t8 || (_t8 = _`<div 
+	      this.zoomOutContainer = main_core.Tag.render(_t8 || (_t8 = _$1`<div 
 				class="ui-viewer__single-document--zoom-control --zoom-out"
 				onclick="${0}"
 			>
@@ -903,7 +934,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getZoomValueNode() {
 	    if (!this.zoomValueNode) {
-	      this.zoomValueNode = main_core.Tag.render(_t9 || (_t9 = _`<span class="ui-viewer__single-document--zoom-value">100</span>`));
+	      this.zoomValueNode = main_core.Tag.render(_t9 || (_t9 = _$1`<span class="ui-viewer__single-document--zoom-value">100</span>`));
 	    }
 	    return this.zoomValueNode;
 	  }

@@ -1418,3 +1418,25 @@
 	--ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-qr-dark.svg);
 }
 /*endregion*/
+
+/* region ui-btn-icon-business-new */
+.ui-btn-icon-business-new.ui-btn,
+.ui-btn-icon-business-new.ui-btn-split,
+.ui-btn-icon-business-new.ui-btn-danger,
+.ui-btn-icon-business-new.ui-btn-primary,
+.ui-btn-icon-business-new.ui-btn-default,
+.ui-btn-icon-business-new.ui-btn-danger-dark,
+.ui-btn-icon-business-new.ui-btn-success-dark,
+.ui-btn-icon-business-new.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-business-new.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-new-white.svg); }
+
+.ui-btn-icon-business-new.ui-btn-link,
+.ui-btn-icon-business-new.ui-btn-light,
+.ui-btn-icon-business-new.ui-btn-light-border,
+.ui-btn-icon-business-new.ui-btn-primary-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-new-primary.svg); }
+
+.ui-btn-icon-business-new.ui-btn-success,
+.ui-btn-icon-business-new.ui-btn-secondary,
+.bitrix24-dark-theme .ui-btn-icon-business-new.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-new-black.svg); }
+/* endregion */
+

@@ -1,7 +1,8 @@
-<?
-define("NO_KEEP_STATISTIC", true);
-define("NO_AGENT_STATISTIC", true);
-define("NOT_CHECK_PERMISSIONS", true);
+<?php
+const NO_KEEP_STATISTIC = true;
+const NO_AGENT_STATISTIC = true;
+const NOT_CHECK_PERMISSIONS = true;
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 if (CModule::IncludeModule('catalog'))

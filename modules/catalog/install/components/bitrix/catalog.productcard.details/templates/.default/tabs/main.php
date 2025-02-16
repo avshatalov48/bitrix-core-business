@@ -47,6 +47,7 @@ $APPLICATION->IncludeComponent(
 			'SIGNED_PARAMETERS' => $component->getSignedParameters(),
 		],
 		'DISABLED_HTML_CONTROLS' => $arResult['DISABLED_HTML_CONTROLS'],
+		'CHTML_EDITOR_PARAMS' => $arResult['CHTML_EDITOR_PARAMS'],
 	],
 	$component
 );

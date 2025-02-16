@@ -2,7 +2,8 @@ import { type BaseEvent } from 'main.core.event';
 import { Dialog, type ItemOptions } from 'ui.entity-selector';
 import { RichMenuItem, RichMenuItemIcon, RichMenuPopup } from 'ui.vue3.components.rich-menu';
 import { mapGetters, mapState } from 'ui.vue3.vuex';
-import type { UserGroup } from '../../store/model/user-groups-model';
+import { EntitySelectorContext } from '../../integration/entity-selector/dictionary';
+import { ItemsMapper } from '../../integration/entity-selector/items-mapper';
 import { CellLayout } from '../layout/cell-layout';
 import { ColumnLayout } from '../layout/column-layout';
 import '../../css/header/roles-control.css';
@@ -40,21 +41,7 @@ export const RolesControl = {
 			);
 		},
 		copyDialogItems(): ItemOptions[] {
-			const result: ItemOptions[] = [];
-
-			for (const userGroup: UserGroup of this.allUserGroups.values())
-			{
-				result.push({
-					id: userGroup.id,
-					entityId: 'accessrights-user-group',
-					title: userGroup.title || this.$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_NAME'),
-					tabs: [
-						'recents',
-					],
-				});
-			}
-
-			return result;
+			return ItemsMapper.mapUserGroups(this.allUserGroups);
 		},
 		viewDialogItems(): ItemOptions[] {
 			const result: ItemOptions[] = [];
@@ -103,13 +90,12 @@ export const RolesControl = {
 		},
 		showCopyDialog(): void {
 			const copyDialog = new Dialog({
-				context: 'ui.accessrights.v2~role-selector',
+				context: EntitySelectorContext.ROLE,
 				targetNode: this.$refs.configure,
 				multiple: false,
 				dropdownMode: true,
 				enableSearch: true,
 				cacheable: false,
-				showAvatars: false,
 				items: this.copyDialogItems,
 				events: {
 					'Item:onSelect': (dialogEvent: BaseEvent) => {
@@ -124,7 +110,7 @@ export const RolesControl = {
 		},
 		showViewDialog(target: HTMLElement): void {
 			this.viewDialog = new Dialog({
-				context: 'ui.accessrights.v2~role-selector',
+				context: EntitySelectorContext.ROLE,
 				footer: this.isMaxVisibleUserGroupsSet ? this.$Bitrix.Loc.getMessage(
 					'JS_UI_ACCESSRIGHTS_V2_ROLE_SELECTOR_MAX_VISIBLE_WARNING',
 					{
@@ -136,7 +122,6 @@ export const RolesControl = {
 				dropdownMode: true,
 				enableSearch: true,
 				cacheable: false,
-				showAvatars: false,
 				items: this.viewDialogItems,
 				events: {
 					'Item:onBeforeSelect': (dialogEvent: BaseEvent) => {
@@ -178,13 +163,13 @@ export const RolesControl = {
 		},
 	},
 	template: `
-		<ColumnLayout v-memo="[shownGroupsCounter]">
+		<ColumnLayout>
 			<CellLayout class="ui-access-rights-v2-header-roles-control">
 				<div class='ui-access-rights-v2-column-item-text ui-access-rights-v2-header-roles-control-header'>
 					<div>{{ $Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLES') }}</div>
 					<div
 						ref="configure"
-						class="ui-icon-set --more ui-access-rights-v2-role-menu"
+						class="ui-icon-set --more ui-access-rights-v2-icon-more"
 						@click="isPopupShown = true"
 					>
 						<RichMenuPopup v-if="isPopupShown" @close="isPopupShown = false" :popup-options="{bindElement: $refs.configure}">
@@ -219,7 +204,7 @@ export const RolesControl = {
 							<RichMenuItem
 								:icon="RichMenuItemIcon['opened-eye']"
 								:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_VIEW')"
-								:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_VIEW_SUBTITLE')"
+								:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_VIEW_SUBTITLE_MSGVER_1')"
 								@click="onRoleViewClick"
 							/>
 						</RichMenuPopup>

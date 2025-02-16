@@ -4,7 +4,8 @@ this.BX = this.BX || {};
 	'use strict';
 
 	let _ = t => t,
-	  _t;
+	  _t,
+	  _t2;
 	const AnglePosition = Object.freeze({
 	  TOP: 'top',
 	  LEFT: 'left',
@@ -17,10 +18,12 @@ this.BX = this.BX || {};
 	});
 	const PromoVideoPopupButtonPosition = Object.freeze({
 	  LEFT: 'left',
-	  RIGHT: 'right'
+	  RIGHT: 'right',
+	  CENTER: 'center'
 	});
 	var _videoSrc = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("videoSrc");
 	var _title = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("title");
+	var _width = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("width");
 	var _text = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("text");
 	var _icon = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("icon");
 	var _colors = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("colors");
@@ -35,6 +38,7 @@ this.BX = this.BX || {};
 	var _getPopupClassname = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupClassname");
 	var _getAnimationCloseClassName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAnimationCloseClassName");
 	var _renderPopupContent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderPopupContent");
+	var _renderVideo = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderVideo");
 	var _renderAcceptButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderAcceptButton");
 	var _renderIcon = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderIcon");
 	var _getPopupContentVariablesStyles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupContentVariablesStyles");
@@ -49,7 +53,7 @@ this.BX = this.BX || {};
 	var _getPopupFooterElementClassname = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupFooterElementClassname");
 	class PromoVideoPopup extends main_core_events.EventEmitter {
 	  constructor(_options) {
-	    var _options$button;
+	    var _options$width, _options$targetOption, _options$button;
 	    super(_options);
 	    Object.defineProperty(this, _getPopupFooterElementClassname, {
 	      value: _getPopupFooterElementClassname2
@@ -87,6 +91,9 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _renderAcceptButton, {
 	      value: _renderAcceptButton2
 	    });
+	    Object.defineProperty(this, _renderVideo, {
+	      value: _renderVideo2
+	    });
 	    Object.defineProperty(this, _renderPopupContent, {
 	      value: _renderPopupContent2
 	    });
@@ -104,6 +111,10 @@ this.BX = this.BX || {};
 	      value: void 0
 	    });
 	    Object.defineProperty(this, _title, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _width, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -151,16 +162,21 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _validateOptions)[_validateOptions](_options);
 	    babelHelpers.classPrivateFieldLooseBase(this, _videoSrc)[_videoSrc] = _options.videoSrc;
 	    babelHelpers.classPrivateFieldLooseBase(this, _title)[_title] = _options.title;
+	    babelHelpers.classPrivateFieldLooseBase(this, _width)[_width] = (_options$width = _options.width) != null ? _options$width : PromoVideoPopup.getWidth();
 	    babelHelpers.classPrivateFieldLooseBase(this, _text)[_text] = _options.text;
 	    babelHelpers.classPrivateFieldLooseBase(this, _icon)[_icon] = babelHelpers.classPrivateFieldLooseBase(this, _isIconExist)[_isIconExist](_options.icon) ? _options.icon : ui_iconSet_api_core.Main.B_24;
 	    babelHelpers.classPrivateFieldLooseBase(this, _colors)[_colors] = _options.colors;
-	    babelHelpers.classPrivateFieldLooseBase(this, _targetOptions)[_targetOptions] = _options.targetOptions;
+	    babelHelpers.classPrivateFieldLooseBase(this, _targetOptions)[_targetOptions] = (_options$targetOption = _options.targetOptions) != null ? _options$targetOption : null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _angleOptions)[_angleOptions] = _options.angleOptions || false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _offset)[_offset] = _options.offset;
 	    babelHelpers.classPrivateFieldLooseBase(this, _videoContainerMinHeight)[_videoContainerMinHeight] = _options.videoContainerMinHeight;
 	    babelHelpers.classPrivateFieldLooseBase(this, _buttonOptions)[_buttonOptions] = (_options$button = _options.button) != null ? _options$button : null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _useOverlay)[_useOverlay] = _options.useOverlay === true;
 	  }
+
+	  /**
+	   * @deprecated
+	   */
 	  static getWidth() {
 	    return 498;
 	  }
@@ -187,6 +203,16 @@ this.BX = this.BX || {};
 	      forceBindPosition: true
 	    });
 	  }
+	  getWidth() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _width)[_width];
+	  }
+	  setTargetOptions(targetOptions) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _targetOptions)[_targetOptions] = targetOptions;
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup].setBindElement(targetOptions);
+	    }
+	    return this;
+	  }
 	}
 	function _iniPopup2() {
 	  var _babelHelpers$classPr4, _babelHelpers$classPr5;
@@ -196,7 +222,7 @@ this.BX = this.BX || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup] = new main_popup.Popup({
 	    bindElement: babelHelpers.classPrivateFieldLooseBase(this, _targetOptions)[_targetOptions],
 	    cacheable: false,
-	    width: PromoVideoPopup.getWidth(),
+	    width: babelHelpers.classPrivateFieldLooseBase(this, _width)[_width],
 	    borderRadius: '16px',
 	    angle: babelHelpers.classPrivateFieldLooseBase(this, _angleOptions)[_angleOptions],
 	    content: babelHelpers.classPrivateFieldLooseBase(this, _renderPopupContent)[_renderPopupContent](),
@@ -278,19 +304,31 @@ this.BX = this.BX || {};
 					class="ui__promo-video-popup-content_promo-video-wrapper"
 					style="min-height: ${0}"
 				>
-					<video
-						src="${0}"
-						autoplay
-						preload
-						loop
-						class="ui__promo-video-popup-content_promo-video"
-					></video>
+					${0}
 				</div>
 				<div class="${0}">
 					${0}
 				</div>
 			</div>
-		`), babelHelpers.classPrivateFieldLooseBase(this, _getPopupContentVariablesStyles)[_getPopupContentVariablesStyles](), babelHelpers.classPrivateFieldLooseBase(this, _renderIcon)[_renderIcon](), babelHelpers.classPrivateFieldLooseBase(this, _title)[_title], babelHelpers.classPrivateFieldLooseBase(this, _text)[_text], `${babelHelpers.classPrivateFieldLooseBase(this, _videoContainerMinHeight)[_videoContainerMinHeight]}px`, babelHelpers.classPrivateFieldLooseBase(this, _videoSrc)[_videoSrc], babelHelpers.classPrivateFieldLooseBase(this, _getPopupFooterElementClassname)[_getPopupFooterElementClassname](), babelHelpers.classPrivateFieldLooseBase(this, _renderAcceptButton)[_renderAcceptButton]());
+		`), babelHelpers.classPrivateFieldLooseBase(this, _getPopupContentVariablesStyles)[_getPopupContentVariablesStyles](), babelHelpers.classPrivateFieldLooseBase(this, _renderIcon)[_renderIcon](), babelHelpers.classPrivateFieldLooseBase(this, _title)[_title], babelHelpers.classPrivateFieldLooseBase(this, _text)[_text], `${babelHelpers.classPrivateFieldLooseBase(this, _videoContainerMinHeight)[_videoContainerMinHeight]}px`, babelHelpers.classPrivateFieldLooseBase(this, _renderVideo)[_renderVideo](), babelHelpers.classPrivateFieldLooseBase(this, _getPopupFooterElementClassname)[_getPopupFooterElementClassname](), babelHelpers.classPrivateFieldLooseBase(this, _renderAcceptButton)[_renderAcceptButton]());
+	}
+	function _renderVideo2() {
+	  const videoElement = main_core.Tag.render(_t2 || (_t2 = _`
+			<video
+				src="${0}"
+				autoplay
+				preload
+				loop
+				class="ui__promo-video-popup-content_promo-video"
+			></video>
+		`), babelHelpers.classPrivateFieldLooseBase(this, _videoSrc)[_videoSrc]);
+
+	  // eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-events-binding
+	  videoElement.addEventListener('canplay', () => {
+	    videoElement.muted = true;
+	    videoElement.play();
+	  });
+	  return videoElement;
 	}
 	function _renderAcceptButton2() {
 	  const buttonOptions = babelHelpers.classPrivateFieldLooseBase(this, _getButtonOptions)[_getButtonOptions]();
@@ -416,7 +454,13 @@ this.BX = this.BX || {};
 	  } : false;
 	}
 	function _getPopupFooterElementClassname2() {
-	  const buttonAlignModifier = babelHelpers.classPrivateFieldLooseBase(this, _getButtonOptions)[_getButtonOptions]().position === PromoVideoPopupButtonPosition.RIGHT ? '--align-right' : '';
+	  let buttonAlignModifier = '';
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _getButtonOptions)[_getButtonOptions]().position === PromoVideoPopupButtonPosition.CENTER) {
+	    buttonAlignModifier = '--align-center';
+	  }
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _getButtonOptions)[_getButtonOptions]().position === PromoVideoPopupButtonPosition.RIGHT) {
+	    buttonAlignModifier = '--align-right';
+	  }
 	  return `ui__promo-video-popup-content_footer ${buttonAlignModifier}`;
 	}
 

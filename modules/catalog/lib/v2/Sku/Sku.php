@@ -125,7 +125,8 @@ class Sku extends BaseSku
 
 		if ($skuPropertyId)
 		{
-			return $this->getPropertyCollection()->findBySetting('ID', $skuPropertyId);
+			/** @var Property */
+			return $this->getPropertyCollection()->findById($skuPropertyId);
 		}
 
 		return null;
@@ -169,7 +170,7 @@ class Sku extends BaseSku
 				\CIBlockElement::SetPropertyValuesEx(
 					$this->getId(),
 					$this->iblockInfo->getSkuIblockId(),
- 					[$this->iblockInfo->getSkuPropertyId() => $product->getId()]
+					[$this->iblockInfo->getSkuPropertyId() => $product->getId()]
 				);
 			}
 

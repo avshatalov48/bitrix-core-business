@@ -28,7 +28,8 @@ export type ExternalAccessRightItem = {
 	minValue?: any | any[],
 	maxValue?: any | any[],
 	defaultValue?: any | any[],
-	setEmptyOnGroupActions: ?any,
+	nothingSelectedValue?: any | any[],
+	setEmptyOnSetMinMaxValueInColumn: ?any,
 
 	variables?: ExternalVariable[],
 
@@ -37,7 +38,6 @@ export type ExternalAccessRightItem = {
 	enableSearch?: any,
 	showAvatars?: any,
 	compactView?: any,
-	disableSelectAll?: any,
 	hintTitle: ?any,
 };
 
@@ -48,7 +48,6 @@ export type ExternalVariable = {
 	supertitle: ?any,
 	avatar: ?any,
 	avatarOptions: ?any,
-	selectionStrategy: ?any,
 	conflictsWith?: any[],
 	requires?: any[],
 	secondary: ?any,
@@ -127,9 +126,8 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 			maxValue: this.#internalizeValueSet(externalItem.maxValue),
 			defaultValue: this.#internalizeValueSet(externalItem.defaultValue),
 			emptyValue: this.#internalizeValueSet(externalItem.emptyValue),
-			setEmptyOnGroupActions: Type.isBoolean(externalItem.setEmptyOnGroupActions)
-				? externalItem.setEmptyOnGroupActions
-				: null,
+			nothingSelectedValue: this.#internalizeValueSet(externalItem.nothingSelectedValue),
+			setEmptyOnSetMinMaxValueInColumn: this.#internalizeSetEmptyOnSetMinMaxValueInColumn(externalItem),
 			variables: Type.isArray(externalItem.variables) ? new Map() : null,
 
 			allSelectedCode: Type.isStringFilled(externalItem.allSelectedCode) ? externalItem.allSelectedCode : null,
@@ -138,7 +136,6 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 			enableSearch: Type.isBoolean(externalItem.enableSearch) ? externalItem.enableSearch : null,
 			showAvatars: Type.isBoolean(externalItem.showAvatars) ? externalItem.showAvatars : null,
 			compactView: Type.isBoolean(externalItem.compactView) ? externalItem.compactView : null,
-			disableSelectAll: Type.isBoolean(externalItem.disableSelectAll) ? externalItem.disableSelectAll : null,
 			hintTitle: Type.isStringFilled(externalItem.hintTitle) ? externalItem.hintTitle : null,
 		};
 		if (normalizedItem.groupHead || normalizedItem.group)
@@ -197,6 +194,19 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 		return new Set([String(value)]);
 	}
 
+	#internalizeSetEmptyOnSetMinMaxValueInColumn(externalItem: ExternalAccessRightItem): ?boolean
+	{
+		const boolOrNull = (x: any) => (Type.isBoolean(x) ? x : null);
+
+		if (!Type.isUndefined(externalItem.setEmptyOnSetMinMaxValueInColumn))
+		{
+			return boolOrNull(externalItem.setEmptyOnSetMinMaxValueInColumn);
+		}
+
+		// todo compatibility, can be removed when crm update is out
+		return boolOrNull(externalItem.setEmptyOnGroupActions);
+	}
+
 	#internalizeExternalVariable(externalVariable: ExternalVariable): Variable
 	{
 		return {
@@ -206,9 +216,6 @@ export class AccessRightsInternalizer implements Transformer<ExternalAccessRight
 			supertitle: Type.isStringFilled(externalVariable.supertitle) ? externalVariable.supertitle : null,
 			avatar: Type.isStringFilled(externalVariable.avatar) ? externalVariable.avatar : null,
 			avatarOptions: Type.isPlainObject(externalVariable.avatarOptions) ? externalVariable.avatarOptions : null,
-			selectionStrategy: Type.isStringFilled(externalVariable.selectionStrategy)
-				? externalVariable.selectionStrategy
-				: null,
 			conflictsWith: Type.isArray(externalVariable.conflictsWith)
 				? new Set(externalVariable.conflictsWith.map((x) => String(x)))
 				: null,

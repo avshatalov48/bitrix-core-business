@@ -1046,7 +1046,7 @@ foreach(array_merge($_GET, $_POST) as $key => $value)
 
 if (
 	$arParams["XML_EXPORT"] === "Y"
-	&& $arResult["SECTION"]
+	&& isset($arResult["SECTION"])
 	&& ($arResult["SECTION"]["RIGHT_MARGIN"] - $arResult["SECTION"]["LEFT_MARGIN"]) === 1
 )
 {

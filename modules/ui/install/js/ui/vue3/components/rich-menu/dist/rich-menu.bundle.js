@@ -24,6 +24,7 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 	  pencil: 'pencil',
 	  'red-lock': 'red-lock',
 	  role: 'role',
+	  settings: 'settings',
 	  'trash-bin': 'trash-bin'
 	});
 
@@ -127,7 +128,7 @@ this.BX.UI.Vue3 = this.BX.UI.Vue3 || {};
 	  },
 	  template: `
 		<Popup @close="$emit('close')" :options="allOptions">
-			<RichMenu>
+			<RichMenu v-bind="$attrs">
 				<template #header>
 					<slot name="header"></slot>
 				</template>

@@ -1,6 +1,6 @@
 import { Type, Runtime } from 'main.core';
 import { EventEmitter, type BaseEvent } from 'main.core.events';
-import { COMMAND_PRIORITY_LOW, PASTE_COMMAND } from 'ui.lexical.core';
+import { COMMAND_PRIORITY_LOW, COMMAND_PRIORITY_NORMAL, PASTE_COMMAND } from 'ui.lexical.core';
 import { Plugins, TextEditor, Commands, type TextEditorOptions } from 'ui.text-editor';
 import { VueUploaderAdapter } from 'ui.uploader.vue';
 
@@ -234,7 +234,7 @@ export class RichTextArea extends EventEmitter
 
 				return true;
 			},
-			COMMAND_PRIORITY_LOW,
+			COMMAND_PRIORITY_NORMAL,
 		);
 
 		this.getEditor().registerCommand(

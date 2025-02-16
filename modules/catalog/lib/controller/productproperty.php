@@ -94,13 +94,15 @@ final class ProductProperty extends ProductPropertyBase
 			return null;
 		}
 
-		$typeCheckResult = $this->checkPropertyType($fields);
-		if (!$typeCheckResult->isSuccess())
+		$prepareResult = $this->prepareFieldsForAdd($fields);
+		if (!$prepareResult->isSuccess())
 		{
-			$this->addErrors($typeCheckResult->getErrors());
+			$this->addErrors($prepareResult->getErrors());
 
 			return null;
 		}
+		$fields = $prepareResult->getData();
+		unset($prepareResult);
 
 		$this->processCustomTypesBeforeAdd($fields);
 
@@ -121,7 +123,7 @@ final class ProductProperty extends ProductPropertyBase
 			return null;
 		}
 
-		$this->processCustomTypesAfterAdd((int)$addResult, $fields);
+		$this->processCustomTypesAfterAdd((int)$addResult);
 
 		return [
 			$this->getServiceItemName() => $this->get($addResult),
@@ -143,18 +145,15 @@ final class ProductProperty extends ProductPropertyBase
 			return null;
 		}
 
-		$property = $this->getPropertyById($id);
-		$type = [
-			'PROPERTY_TYPE' => $fields['PROPERTY_TYPE'] ?? $property['PROPERTY_TYPE'],
-			'USER_TYPE' => $fields['USER_TYPE'] ?? $property['USER_TYPE'],
-		];
-		$typeCheckResult = $this->checkPropertyType($type);
-		if (!$typeCheckResult->isSuccess())
+		$prepareResult = $this->prepareFieldsForUpdate($id, $fields);
+		if (!$prepareResult->isSuccess())
 		{
-			$this->addErrors($typeCheckResult->getErrors());
+			$this->addErrors($prepareResult->getErrors());
 
 			return null;
 		}
+		$fields = $prepareResult->getData();
+		unset($prepareResult);
 
 		$property = new \CIBlockProperty();
 		$updateResult = $property->Update($id, $fields);
@@ -227,45 +226,51 @@ final class ProductProperty extends ProductPropertyBase
 	/**
 	 * @inheritDoc
 	 */
-	protected function exists($id)
+	protected function exists($id): Result
 	{
 		$result = new Result();
-		$property = $this->get($id);
-		if (!$property || !$this->isIblockCatalog((int)$property['IBLOCK_ID']))
+		$id = (int)$id;
+		if ($id <= 0)
 		{
 			$result->addError($this->getErrorEntityNotExists());
+
+			return $result;
 		}
 
-		return $result;
-	}
+		$property = PropertyTable::getRow([
+			'select' => [
+				'ID',
+				'IBLOCK_ID',
+			],
+			'filter' => [
+				'=ID' => $id,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
 
-	/**
-	 * @param array $fields
-	 * @return Result
-	 */
-	private function checkPropertyType(array $fields): Result
-	{
-		$result = new Result();
-
-		$type = [
-			'PROPERTY_TYPE' => $fields['PROPERTY_TYPE'] ?? null,
-			'USER_TYPE' => $fields['USER_TYPE'] ?? null,
-		];
-
-		if (!in_array($type, Enum::getProductPropertyTypes(), false))
+		if (!$property)
 		{
-			$result->addError(new Error('Invalid property type specified'));
+			$result->addError($this->getErrorEntityNotExists());
+
+			return $result;
+		}
+
+		if (!$this->isIblockCatalog((int)$property['IBLOCK_ID']))
+		{
+			$result->addError($this->getErrorPropertyIblockIsNotCatalog());
+
+			return $result;
 		}
 
 		return $result;
 	}
 
-	private function processCustomTypesBeforeAdd(array &$fields)
+	private function processCustomTypesBeforeAdd(array &$fields): void
 	{
-		if (
-			$fields['PROPERTY_TYPE'] === \Bitrix\Iblock\PropertyTable::TYPE_LIST
-			&& $fields['USER_TYPE'] === Enum::PROPERTY_USER_TYPE_BOOL_ENUM
-		)
+		$this->customUserType = '';
+		if ($this->isPseudoCheckboxPropertyType($fields['PROPERTY_TYPE'], $fields['USER_TYPE']))
 		{
 			$fields['LIST_TYPE'] = \Bitrix\Iblock\PropertyTable::CHECKBOX;
 			$this->customUserType = Enum::PROPERTY_USER_TYPE_BOOL_ENUM;
@@ -273,7 +278,7 @@ final class ProductProperty extends ProductPropertyBase
 		}
 	}
 
-	private function processCustomTypesAfterAdd(int $id, array $fields)
+	private function processCustomTypesAfterAdd(int $id): void
 	{
 		if ($this->customUserType === Enum::PROPERTY_USER_TYPE_BOOL_ENUM)
 		{
@@ -282,5 +287,240 @@ final class ProductProperty extends ProductPropertyBase
 				'VALUE' => Catalog\RestView\Product::BOOLEAN_VALUE_YES,
 			]);
 		}
+		$this->customUserType = '';
+	}
+
+	private function isPseudoCheckboxPropertyType(string $baseType, ?string $userType): bool
+	{
+		return
+			$baseType === PropertyTable::TYPE_LIST
+			&& $userType === Enum::PROPERTY_USER_TYPE_BOOL_ENUM
+		;
+	}
+
+	protected function prepareFieldsForAdd(array $fields): Result
+	{
+		$result = new Result();
+
+		$propertyTypeDescr = $this->getPropertyTypeDescription($fields);
+		if ($propertyTypeDescr === null)
+		{
+			$result->addError($this->getErrorPropertyInvalidType());
+
+			return $result;
+		}
+
+		$property = $propertyTypeDescr['PROPERTY'];
+		$fields['PROPERTY_TYPE'] = $propertyTypeDescr['PROPERTY_TYPE'];
+		$fields['USER_TYPE'] = $propertyTypeDescr['USER_TYPE'];
+		if ($fields['USER_TYPE'] === null)
+		{
+			$fields['USER_TYPE'] = false; // for \CIBlockProperty - old api use false as null database field value
+			$fields['USER_TYPE_SETTINGS'] = false;
+		}
+		elseif ($property === null)
+		{
+			$fields['USER_TYPE_SETTINGS'] = false;
+		}
+		else
+		{
+			if (empty($fields['USER_TYPE_SETTINGS']))
+			{
+				$fields['USER_TYPE_SETTINGS'] = false;
+			}
+			elseif (!is_array($fields['USER_TYPE_SETTINGS']))
+			{
+				$result->addError($this->getErrorInvalidCustomTypeSettings());
+
+				return $result;
+			}
+			else
+			{
+				if (!$this->validateUserSettings($fields['USER_TYPE_SETTINGS']))
+				{
+					$result->addError($this->getErrorInvalidCustomTypeSettings());
+
+					return $result;
+				}
+			}
+		}
+
+		$result->setData($fields);
+
+		return $result;
+	}
+
+	protected function prepareFieldsForUpdate(int $id, array $fields): Result
+	{
+		$result = new Result();
+
+		$propertyTypeExists = array_key_exists('PROPERTY_TYPE', $fields);
+		$userTypeExists = array_key_exists('USER_TYPE', $fields);
+		$userTypeSettingsExists = array_key_exists('USER_TYPE_SETTINGS', $fields);
+
+		if (
+			$propertyTypeExists
+			|| $userTypeExists
+			|| $userTypeSettingsExists
+		)
+		{
+			$compiledPropertyType = $fields;
+			if (
+				!$propertyTypeExists
+				|| !$userTypeExists
+			)
+			{
+				$row = $this->getPropertyById($id);
+				if ($row === null)
+				{
+					$result->addError($this->getErrorEntityNotExists());
+
+					return $result;
+				}
+
+				$compiledPropertyType = [
+					'PROPERTY_TYPE' => $fields['PROPERTY_TYPE'] ?? $row['PROPERTY_TYPE'],
+					'USER_TYPE' => $fields['USER_TYPE'] ?? $row['USER_TYPE'],
+				];
+				unset($row);
+			}
+
+			$propertyTypeDescr = $this->getPropertyTypeDescription($compiledPropertyType);
+			if ($propertyTypeDescr === null)
+			{
+				$result->addError($this->getErrorPropertyInvalidType());
+
+				return $result;
+			}
+
+			$property = $propertyTypeDescr['PROPERTY'];
+			$fields['PROPERTY_TYPE'] = $propertyTypeDescr['PROPERTY_TYPE'];
+			$fields['USER_TYPE'] = $propertyTypeDescr['USER_TYPE'];
+
+			if ($fields['USER_TYPE'] === null)
+			{
+				$fields['USER_TYPE'] = false; // for \CIBlockProperty - old api use false as null database field value
+				$fields['USER_TYPE_SETTINGS'] = false;
+			}
+			elseif ($property === null)
+			{
+				$fields['USER_TYPE_SETTINGS'] = false;
+			}
+			elseif ($userTypeSettingsExists)
+			{
+				if (empty($fields['USER_TYPE_SETTINGS']))
+				{
+					$fields['USER_TYPE_SETTINGS'] = false;
+				}
+				elseif (!is_array($fields['USER_TYPE_SETTINGS']))
+				{
+					$result->addError($this->getErrorInvalidCustomTypeSettings());
+
+					return $result;
+				}
+				else
+				{
+					if (!$this->validateUserSettings($fields['USER_TYPE_SETTINGS']))
+					{
+						$result->addError($this->getErrorInvalidCustomTypeSettings());
+
+						return $result;
+					}
+				}
+			}
+		}
+
+		$result->setData($fields);
+
+		return $result;
+	}
+
+	protected function getPropertyTypeDescription(array $fields): ?array
+	{
+		$baseTypeList = [
+			PropertyTable::TYPE_NUMBER => true,
+			PropertyTable::TYPE_STRING => true,
+			PropertyTable::TYPE_LIST => true,
+			PropertyTable::TYPE_FILE => true,
+			PropertyTable::TYPE_ELEMENT => true,
+			PropertyTable::TYPE_SECTION => true,
+		];
+
+		$baseType = $fields['PROPERTY_TYPE'] ?? null;
+		if (!is_string($baseType))
+		{
+			return null;
+		}
+		if (!isset($baseTypeList[$baseType]))
+		{
+			return null;
+		}
+
+		$userType = $fields['USER_TYPE'] ?? null;
+		if ($userType === '' || $userType === false)
+		{
+			$userType = null;
+		}
+		if (!is_string($userType) && $userType !== null)
+		{
+			return null;
+		}
+
+		$property = null;
+		if (
+			$userType !== null
+			&& !$this->isPseudoCheckboxPropertyType($baseType, $userType)
+		)
+		{
+			$property = \CIBlockProperty::GetUserType($userType);
+			if (!$property)
+			{
+				return null;
+			}
+
+			if ($property['PROPERTY_TYPE'] !== $baseType)
+			{
+				return null;
+			}
+		}
+
+		return [
+			'PROPERTY_TYPE' => $baseType,
+			'USER_TYPE' => $userType,
+			'PROPERTY' => $property,
+		];
+	}
+
+	protected function validateUserSettings(array $row): bool
+	{
+		if (empty($row))
+		{
+			return true;
+		}
+
+		$result = true;
+		foreach ($row as $field)
+		{
+			if (is_array($field))
+			{
+				if (!$this->validateUserSettings($field))
+				{
+					$result = false;
+					break;
+				}
+			}
+			elseif (!is_scalar($field) && $field !== null)
+			{
+				$result = false;
+				break;
+			}
+		}
+
+		return $result;
+	}
+
+	protected function getErrorInvalidCustomTypeSettings(): Error
+	{
+		return new Error('Invalid custom property type settings specified');
 	}
 }

@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["WF_STATUS_CHANGE_NAME"] = "Изменен статус документа";
 $MESS["WF_STATUS_CHANGE_DESC"] = "#ID# - ID
 #ADMIN_EMAIL# - EMail'ы администраторов документооборота (через запятую)
@@ -208,4 +209,3 @@ http://#SERVER_NAME#/bitrix/admin/iblock_element_edit.php?lang=ru&WF=Y&PID=#ID#&
 
 Письмо сгенерировано автоматически.
 ";
-?>

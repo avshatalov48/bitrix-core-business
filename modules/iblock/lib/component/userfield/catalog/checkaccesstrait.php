@@ -30,8 +30,19 @@ trait CheckAccessTrait
 			return true;
 		}
 
-		$iblockIsCatalog = !empty(CatalogIblockTable::getByPrimary($iblockId)->fetch());
-		if (!$iblockIsCatalog)
+		$catalog = CatalogIblockTable::getRow([
+			'select' => [
+				'IBLOCK_ID',
+			],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+
+		if ($catalog === null)
 		{
 			return true;
 		}

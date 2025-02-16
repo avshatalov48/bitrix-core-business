@@ -11,7 +11,8 @@
 	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
-.bx-ui-info-error .workarea-content-paddings {
+.bx-ui-info-error .workarea-content-paddings,
+.bx-ui-info-error .ui-page-slider-workarea-content-padding {
 	height: 100%;
 	box-sizing: border-box;
 	display: flex

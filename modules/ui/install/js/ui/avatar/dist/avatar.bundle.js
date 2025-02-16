@@ -132,7 +132,7 @@ this.BX = this.BX || {};
 	          if (words.length > 0) {
 	            initials = words.length > 1 ? words[0].charAt(0) + words[1].charAt(0) : initials = words[0].charAt(0);
 	          }
-	          this.setInitials(initials);
+	          this.setInitials(initials.toUpperCase());
 	        }
 	      }
 	      return this;

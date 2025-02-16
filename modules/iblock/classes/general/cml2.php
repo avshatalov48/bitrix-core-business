@@ -423,7 +423,7 @@ class CIBlockCMLImport
 		elseif($secondaryField && ($fileId = $this->CheckFileByName($external_id, array($secondaryField))) > 0)
 		{
 			$storedFile = CFile::MakeFileArray($fileId);
-			if ($storedFile)
+			if (isset($storedFile['tmp_name']))
 			{
 				$tempFile = CTempFile::GetFileName(bx_basename($storedFile["tmp_name"]));
 				CheckDirPath($tempFile);

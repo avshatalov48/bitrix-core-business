@@ -1,5 +1,6 @@
-import { Loader } from 'main.loader';
+import { Dom } from 'main.core';
 import { mapGetters, mapState } from 'ui.vue3.vuex';
+import { ServiceLocator } from '../service/service-locator';
 import { Header } from './header';
 import { SearchBox } from './searchbox';
 import { Section } from './section';
@@ -11,6 +12,7 @@ export const Grid = {
 	computed: {
 		...mapState({
 			isSaving: (state) => state.application.isSaving,
+			guid: (state) => state.application.guid,
 			searchContainerSelector: (state) => state.application.options.searchContainerSelector,
 		}),
 		...mapGetters({
@@ -20,23 +22,17 @@ export const Grid = {
 	},
 	mounted()
 	{
-		this.loader = new Loader({
-			target: this.$refs.container,
-		});
+		ServiceLocator.getHint(this.guid).initOwnerDocument(this.$refs.container);
 	},
-	beforeUnmount()
-	{
-		this.loader.destroy();
-	},
-	watch: {
-		isSaving(newValue): void {
-			if (newValue)
+	methods: {
+		scrollToSection(sectionCode: string) {
+			const section = this.$refs.sections.find((item) => item.code === sectionCode);
+			if (section)
 			{
-				this.loader.show();
-			}
-			else
-			{
-				this.loader.hide();
+				scrollTo({
+					top: Dom.getPosition(section.$el).top - 155,
+					behavior: 'smooth',
+				});
 			}
 		},
 	},
@@ -59,6 +55,7 @@ export const Grid = {
 				:icon="accessRightSection.sectionIcon"
 				:rights="accessRightSection.rights"
 				:user-groups="shownUserGroups"
+				ref="sections"
 			/>
 		</div>
 	`,

@@ -159,7 +159,7 @@
 }
 
 .ui-sidepanel-menu-active .ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
-	margin: 0 0 0 -12px;
+	margin: 0 12px 0 -12px;
 }
 
 .ui-sidepanel-submenu-active .ui-sidepanel-submenu-link .ui-sidepanel-menu-link-text {

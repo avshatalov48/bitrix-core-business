@@ -172,7 +172,7 @@ final class ProductImage extends Controller
 		}
 		else
 		{
-			if (!$product->getPropertyCollection()->findByCode(MorePhotoImage::CODE))
+			if (!$product->getPropertyCollection()->findByCodeLazy(MorePhotoImage::CODE))
 			{
 				$this->addError(
 					new Error(
@@ -357,7 +357,7 @@ final class ProductImage extends Controller
 			return $r;
 		}
 
-		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_READ, 200040300010);
+		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_READ, $this->getErrorCodeReadAccessDenied());
 	}
 
 	private function checkPermissionProductWrite(BaseEntity $product): Result
@@ -368,7 +368,7 @@ final class ProductImage extends Controller
 			return $r;
 		}
 
-		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_EDIT, 200040300020);
+		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_EDIT, $this->getErrorCodeModifyAccessDenied());
 	}
 
 	private function checkPermissionProduct(BaseEntity $product, string $permission, int $errorCode): Result
@@ -388,7 +388,7 @@ final class ProductImage extends Controller
 
 		if (!$this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW))
 		{
-			$r->addError(new Error('Access Denied', 200040300020));
+			$r->addError($this->getErrorModifyAccessDenied());
 		}
 
 		return $r;
@@ -403,7 +403,7 @@ final class ProductImage extends Controller
 			&& !$this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 
 		return $r;

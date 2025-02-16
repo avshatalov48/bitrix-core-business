@@ -32,6 +32,8 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 		$arParams["CACHE_TIME"] = (int)($arParams["CACHE_TIME"] ?? 36000000);
 		$arParams["IBLOCK_ID"] = (int)($arParams["IBLOCK_ID"] ?? 0);
 		$arParams["SECTION_ID"] = (int)($arParams["SECTION_ID"] ?? 0);
+		$arParams['SECTION_CODE'] = (string)($arParams['SECTION_CODE'] ?? '');
+		$arParams['SECTION_CODE_PATH'] = (string)($arParams['SECTION_CODE_PATH'] ?? '');
 		if ($arParams["SECTION_ID"] <= 0 && Loader::includeModule('iblock'))
 		{
 			$arParams["SECTION_ID"] = CIBlockFindTools::GetSectionID(

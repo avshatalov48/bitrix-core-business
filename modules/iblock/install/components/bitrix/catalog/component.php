@@ -323,6 +323,8 @@ else
 
 $arResult["VARIABLES"]["SMART_FILTER_PATH"] ??= '';
 $arResult["VARIABLES"]["SECTION_ID"] ??= 0;
+$arResult["VARIABLES"]["SECTION_CODE"] ??= '';
 $arResult['VARIABLES']['ELEMENT_ID'] ??= 0;
+$arResult['VARIABLES']['ELEMENT_CODE'] ??= '';
 
 $this->IncludeComponentTemplate($componentPage);

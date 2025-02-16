@@ -246,6 +246,14 @@ class catalog extends CModule
 			'onRestAppInstall'
 		);
 
+		$eventManager->registerEventHandler(
+			'ai',
+			'onTuningLoad',
+			'catalog',
+			'\Bitrix\Catalog\Integration\AI\Settings',
+			'onTuningLoad',
+		);
+
 		if ($this->bitrix24mode)
 		{
 			Main\Config\Option::set('catalog', 'enable_viewed_products', 'Y');
@@ -492,6 +500,14 @@ class catalog extends CModule
 			$this->MODULE_ID,
 			'\Bitrix\Catalog\Integration\PullManager',
 			'onGetDependentModule'
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'ai',
+			'onTuningLoad',
+			'catalog',
+			'\Bitrix\Catalog\Integration\AI\Settings',
+			'onTuningLoad',
 		);
 
 		$eventManager->unRegisterEventHandler('report', 'onAnalyticPageBatchCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onAnalyticPageBatchCollect');

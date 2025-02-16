@@ -476,9 +476,17 @@ class CatalogProductVariationDetailsComponent
 
 			foreach ($propertyFields[BaseForm::MORE_PHOTO] as $key => $propertyField)
 			{
-				if (is_numeric($propertyField['VALUE']))
+				if (is_array($propertyField))
 				{
-					$value = (int)$propertyField['VALUE'];
+					$currentValue = $propertyField['VALUE'] ?? null;
+				}
+				else
+				{
+					$currentValue = $propertyField;
+				}
+				if (is_numeric($currentValue))
+				{
+					$value = (int)$currentValue;
 
 					if ($value === $previewPicture)
 					{

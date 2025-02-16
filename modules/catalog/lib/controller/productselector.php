@@ -425,7 +425,7 @@ class ProductSelector extends JsonController
 			return null;
 		}
 
-		$brand = $product->getPropertyCollection()->findByCode('BRAND_FOR_FACEBOOK');
+		$brand = $product->getPropertyCollection()->findByCodeLazy('BRAND_FOR_FACEBOOK');
 		if (!$brand)
 		{
 			return null;
@@ -757,7 +757,7 @@ class ProductSelector extends JsonController
 
 		$values = [];
 
-		$property = $entity->getPropertyCollection()->findByCode(MorePhotoImage::CODE);
+		$property = $entity->getPropertyCollection()->findByCodeLazy(MorePhotoImage::CODE);
 		foreach ($imageValues as $key => $newImage)
 		{
 			$newImage = $this->prepareMorePhotoValue($newImage, $entity);

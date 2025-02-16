@@ -9,6 +9,11 @@ use Bitrix\Main\Grid\Column\Editable\Config;
 
 class ElementProvider extends BaseElementProvider
 {
+	/**
+	 * Returns column description list for product grid.
+	 *
+	 * @return array|Grid\Column\Column[]
+	 */
 	public function prepareColumns(): array
 	{
 		$result = [];
@@ -196,7 +201,6 @@ class ElementProvider extends BaseElementProvider
 			'type' => Grid\Column\Type::TEXT,
 			'name' => Loc::getMessage('IBLOCK_ELEMENT_COLUMN_PROVIDER_FIELD_PREVIEW_TEXT'),
 			'necessary' => false,
-			'editable' => true,
 			'multiple' => false,
 			'select' => [
 				'PREVIEW_TEXT',
@@ -209,7 +213,6 @@ class ElementProvider extends BaseElementProvider
 			'type' => Grid\Column\Type::TEXT,
 			'name' => Loc::getMessage('IBLOCK_ELEMENT_COLUMN_PROVIDER_FIELD_DETAIL_TEXT'),
 			'necessary' => false,
-			'editable' => true,
 			'multiple' => false,
 			'select' => [
 				'DETAIL_TEXT',

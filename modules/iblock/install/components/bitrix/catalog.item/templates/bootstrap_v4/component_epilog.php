@@ -18,7 +18,7 @@ if ($arParams['DISPLAY_COMPARE'])
 	$comparedIds = array();
 	$item = $templateData['ITEM'];
 
-	if (!empty($_SESSION[$arParams['COMPARE_NAME']][$item['IBLOCK_ID']]))
+	if (!empty($_SESSION[$arParams['COMPARE_NAME']][$item['IBLOCK_ID']]['ITEMS']))
 	{
 		if (!empty($item['JS_OFFERS']) && is_array($item['JS_OFFERS']))
 		{
@@ -49,13 +49,16 @@ if ($arParams['DISPLAY_COMPARE'])
 				if (!!window.<?=$templateData['JS_OBJ']?>)
 				{
 					window.<?=$templateData['JS_OBJ']?>.setCompared('<?=$compared?>');
-
-					<? if (!empty($comparedIds)): ?>
+					<?php
+					if (!empty($comparedIds)):
+						?>
 						window.<?=$templateData['JS_OBJ']?>.setCompareInfo(<?=CUtil::PhpToJSObject($comparedIds, false, true)?>);
-					<? endif ?>
+						<?php
+					endif;
+					?>
 				}
 			}));
 		</script>
-		<?
+		<?php
 	}
 }

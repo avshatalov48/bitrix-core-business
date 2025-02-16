@@ -13,6 +13,44 @@ class ProductCard extends EntityCard
 		super(id, settings);
 
 		this.initDocumentTypeSelector();
+
+		if (settings.isCopilotEnabled)
+		{
+			this.initCopilot();
+		}
+	}
+
+	initCopilot()
+	{
+		this.extraMarkers = {};
+
+		EventEmitter.subscribe('onHtmlEditorCopilotInit', (event) => {
+			this.copilot = event.data.copilot;
+		});
+
+		EventEmitter.subscribe('onHtmlEditorCopilotShow', (event) => {
+			this.collectExtraMarkers();
+			this.copilot.setExtraMarkers(this.extraMarkers);
+		});
+	}
+
+	collectExtraMarkers()
+	{
+		const productNameEditNode = document.querySelector('#name_text');
+
+		if (productNameEditNode)
+		{
+			this.extraMarkers.product_name = productNameEditNode.value;
+		}
+		else
+		{
+			const productNameNode = document.querySelector('div[data-cid="NAME-CODE"]').querySelector('p');
+
+			if (productNameNode)
+			{
+				this.extraMarkers.product_name = productNameNode.innerHTML;
+			}
+		}
 	}
 
 	getEntityType()

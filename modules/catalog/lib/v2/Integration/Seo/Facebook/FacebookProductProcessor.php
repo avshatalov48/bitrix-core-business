@@ -45,7 +45,7 @@ class FacebookProductProcessor
 			)));
 		}
 
-		$brandProperty = $sku->getParent()->getPropertyCollection()->findByCode(BrandProperty::PROPERTY_CODE);
+		$brandProperty = $sku->getParent()->getPropertyCollection()->findByCodeLazy(BrandProperty::PROPERTY_CODE);
 		if (!$brandProperty || $brandProperty->getPropertyValueCollection()->isEmpty())
 		{
 			$result->addError(new Error(
@@ -371,7 +371,7 @@ class FacebookProductProcessor
 		$product = $variation->getParent();
 		if ($product)
 		{
-			$brandProperty = $product->getPropertyCollection()->findByCode(BrandProperty::PROPERTY_CODE);
+			$brandProperty = $product->getPropertyCollection()->findByCodeLazy(BrandProperty::PROPERTY_CODE);
 			if ($brandProperty)
 			{
 				$names = $this->getBrandNames($brandProperty);

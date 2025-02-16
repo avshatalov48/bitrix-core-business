@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Type\Collection;
 
@@ -6,15 +7,15 @@ class CIBlockPropertyResult extends CDBResult
 {
 	protected $IBLOCK_ID = 0;
 	protected $VERSION = 0;
-	protected $arProperties = array();
-	protected static $propertiesCache = array();
+	protected array $arProperties = [];
+	protected static array $propertiesCache = [];
 	protected $arPropertiesValues = array();
 	protected $lastRes = null;
 	protected $extMode = false;
 	protected $arPropertyValuesID = array();
 	protected $arDescriptions = array();
 
-	function Fetch()
+	public function Fetch()
 	{
 		global $DB;
 
@@ -193,7 +194,7 @@ class CIBlockPropertyResult extends CDBResult
 		return $res;
 	}
 
-	private function addPropertyValue($IBLOCK_PROPERTY_ID, $VALUE)
+	private function addPropertyValue($IBLOCK_PROPERTY_ID, $VALUE): void
 	{
 		if (isset($this->arProperties[$IBLOCK_PROPERTY_ID]))
 		{
@@ -204,7 +205,7 @@ class CIBlockPropertyResult extends CDBResult
 		}
 	}
 
-	private function initPropertiesValues($IBLOCK_ELEMENT_ID)
+	private function initPropertiesValues($IBLOCK_ELEMENT_ID): void
 	{
 		$this->arPropertiesValues["IBLOCK_ELEMENT_ID"] = $IBLOCK_ELEMENT_ID;
 		foreach ($this->arProperties as $arProp)
@@ -229,7 +230,7 @@ class CIBlockPropertyResult extends CDBResult
 		}
 	}
 
-	private function addPropertyData($IBLOCK_PROPERTY_ID, $VALUE_ID, $DESCRIPTION)
+	private function addPropertyData($IBLOCK_PROPERTY_ID, $VALUE_ID, $DESCRIPTION): void
 	{
 		if (isset($this->arProperties[$IBLOCK_PROPERTY_ID]))
 		{
@@ -246,7 +247,7 @@ class CIBlockPropertyResult extends CDBResult
 		}
 	}
 
-	function setIBlock($IBLOCK_ID, $propertyID = array())
+	public function setIBlock($IBLOCK_ID, $propertyID = [])
 	{
 		$this->VERSION = CIBlockElement::GetIBVersion($IBLOCK_ID);
 
@@ -254,20 +255,43 @@ class CIBlockPropertyResult extends CDBResult
 		{
 			Collection::normalizeArrayValuesByInt($propertyID);
 		}
-		$this->arProperties = array();
+		$this->arProperties = [];
 		if (
 			!empty($propertyID)
-			|| (empty($propertyID) && !isset(self::$propertiesCache[$IBLOCK_ID]))
+			|| !isset(self::$propertiesCache[$IBLOCK_ID])
 		)
 		{
-			$propertyIterator = PropertyTable::getList(array(
-				'select' => array(
-					'ID', 'IBLOCK_ID', 'NAME', 'ACTIVE', 'SORT', 'CODE', 'DEFAULT_VALUE', 'PROPERTY_TYPE',
-					'MULTIPLE', 'LINK_IBLOCK_ID', 'VERSION', 'USER_TYPE', 'USER_TYPE_SETTINGS'
-				),
-				'filter' => (empty($propertyID) ? array('IBLOCK_ID' => $IBLOCK_ID) : array('ID' => $propertyID, 'IBLOCK_ID' => $IBLOCK_ID)),
-				'order' => array('ID' => 'ASC')
-			));
+			$filter = [
+				"IBLOCK_ID" => $IBLOCK_ID,
+			];
+			if (!empty($propertyID))
+			{
+				$filter['ID'] = $propertyID;
+			}
+			$propertyIterator = PropertyTable::getList([
+				'select' => [
+					'ID',
+					'IBLOCK_ID',
+					'NAME',
+					'ACTIVE',
+					'SORT',
+					'CODE',
+					'DEFAULT_VALUE',
+					'PROPERTY_TYPE',
+					'MULTIPLE',
+					'LINK_IBLOCK_ID',
+					'VERSION',
+					'USER_TYPE',
+					'USER_TYPE_SETTINGS',
+				],
+				'filter' => $filter,
+				'order' => [
+					'ID' => 'ASC',
+				],
+				'cache' => [
+					'ttl' => 86400,
+				],
+			]);
 			while ($property = $propertyIterator->fetch())
 			{
 				if ($property['USER_TYPE'])
@@ -299,11 +323,10 @@ class CIBlockPropertyResult extends CDBResult
 		}
 	}
 
-	function setMode($extMode)
+	public function setMode($extMode)
 	{
 		$this->extMode = $extMode;
 		$this->arPropertyValuesID = array();
 		$this->arDescriptions = array();
 	}
 }
-?>

@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["FLOW_CANNOT_DELETE_STATUS"] = "Существуют документы, находящиеся в удаляемом статусе";
 $MESS["FLOW_CANNOT_DELETE_STATUS_IBLOCK"] = "Существуют элементы информационных блоков, находящиеся в удаляемом статусе";
 $MESS["FLOW_PAGE_TITLE"] = "Статусы документов";
@@ -27,4 +28,3 @@ $MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "активировать";
 $MESS["MAIN_ALL"] = "(все)";
 $MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "деактивировать";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "удалить";
-?>

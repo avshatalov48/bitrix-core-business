@@ -135,6 +135,11 @@ final class PriceType extends Controller implements EventBindInterface
 	 * public function getAction
 	 * @see GetAction::getAction
 	 */
+
+	protected function getErrorCodeEntityNotExists(): string
+	{
+		return ErrorCode::PRICE_TYPE_ENTITY_NOT_EXISTS;
+	}
 	//endregion
 
 	/**

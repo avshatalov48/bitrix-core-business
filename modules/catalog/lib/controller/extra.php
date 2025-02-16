@@ -41,7 +41,7 @@ final class Extra extends Controller
 
 		if (!$this->accessController->check(ActionDictionary::ACTION_PRODUCT_PRICE_EXTRA_EDIT))
 		{
-			$r->addError(new Error('Access Denied', 200040300020));
+			$r->addError($this->getErrorModifyAccessDenied());
 		}
 
 		return $r;
@@ -59,8 +59,13 @@ final class Extra extends Controller
 			)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 		return $r;
+	}
+
+	protected function getErrorCodeEntityNotExists(): string
+	{
+		return ErrorCode::EXTRA_TYPE_ENTITY_NOT_EXISTS;
 	}
 }

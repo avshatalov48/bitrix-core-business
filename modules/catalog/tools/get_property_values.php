@@ -1,13 +1,13 @@
-<?
+<?php
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-define('STOP_STATISTICS', true);
-define('PUBLIC_AJAX_MODE', true);
+const STOP_STATISTICS = true;
+const PUBLIC_AJAX_MODE = true;
 
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Iblock,
-	Bitrix\Highloadblock\HighloadBlockTable;
+use Bitrix\Highloadblock\HighloadBlockTable;
+use Bitrix\Iblock;
+use Bitrix\Main;
+use Bitrix\Main\Loader;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
@@ -101,4 +101,3 @@ $APPLICATION->RestartBuffer();
 header('Content-Type: application/json');
 echo Bitrix\Main\Web\Json::encode($result);
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin_after.php');
-die();

@@ -113,7 +113,11 @@ this.BX.UI = this.BX.UI || {};
 	  KEYBOARD: 'keyboard',
 	  KEYBOARD_2: 'keyboard-2',
 	  CONNECTION: 'connection',
-	  DISCONNECTION: 'disconnection'
+	  DISCONNECTION: 'disconnection',
+	  IMAGE_ROTATE_LEFT: 'image-rotate-left',
+	  IMAGE_ROTATE_RIGHT: 'image-rotate-right',
+	  ZOOM_IN: 'zoom-in',
+	  ZOOM_OUT: 'zoom-out'
 	});
 	const Social = Object.freeze({
 	  CLOUD_SIFRE: 'cloud-sifre',
@@ -569,7 +573,11 @@ this.BX.UI = this.BX.UI || {};
 	  EDIT_MENU: 'edit-menu',
 	  DEMONSTRATION_GRAPHICS: 'demonstration-graphics',
 	  CALENDAR_CHECK: 'calendar-check',
-	  SIGN: 'sign'
+	  SIGN: 'sign',
+	  FLIPCHART: 'flipchart',
+	  NUMBERS_05: 'numbers-05',
+	  DEMONSTRATION_GRAPHICS_2: 'demonstration-graphics-2',
+	  EARTH_TIME: 'earth-time'
 	});
 	const ContactCenter = Object.freeze({
 	  DIAL_5: 'dial-5',
@@ -653,6 +661,8 @@ this.BX.UI = this.BX.UI || {};
 	  CAR: 'car',
 	  CRM_PAYMENT: 'crm-payment',
 	  INSERT: 'insert',
+	  CRM_LETTERS: 'crm-letters',
+	  CRM_MAP: 'crm-map',
 	  SEND_FILE: 'send-file',
 	  BITRIX_1C: 'bitrix-1c'
 	});

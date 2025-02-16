@@ -129,7 +129,6 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$this->prepareToolbar();
 		$this->arResult['IS_SHOW_GUIDE'] = $this->isShowGuide();
 		$this->arResult['IS_SHOW_PRODUCT_BATCH_METHOD_POPUP'] = $this->isShowProductBatchMethodPopup();
-		$this->arResult['IS_SHOW_PROFIT_REPORT_TOUR'] = $this->isShowProfitReportTour();
 
 		$this->arResult['PATH_TO'] = $this->arParams['PATH_TO'];
 
@@ -1373,21 +1372,6 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$isCrmIncluded = Loader::includeModule('crm');
 
 		return $canUserChangeSettings && $shouldShowPopupOption && !$wasPopupShownForUser && $isCrmIncluded;
-	}
-
-	private function isShowProfitReportTour(): bool
-	{
-		if (!Loader::includeModule('report'))
-		{
-			return false;
-		}
-
-		$shouldShowTourOption = Main\Config\Option::get('catalog', 'should_show_batch_method_onboarding', 'N') === 'Y';
-		$userOptions = CUserOptions::GetOption('catalog', 'document-list', []);
-		$wasTourShownForUser = ($userOptions['was_profit_report_tour_shown'] ?? 'N') === 'Y';
-		$isInventoryManagementUsed = Catalog\Config\State::isUsedInventoryManagement();
-
-		return !$wasTourShownForUser && $shouldShowTourOption && $isInventoryManagementUsed;
 	}
 
 	private function getUserFilter(): array

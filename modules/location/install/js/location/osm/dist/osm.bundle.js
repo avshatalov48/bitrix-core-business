@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Location = this.BX.Location || {};
 (function (exports,ui_designTokens,main_core,location_core) {
@@ -11572,7 +11573,7 @@ this.BX.Location = this.BX.Location || {};
 	  // devices. Enabled by default unless running on old Android devices.
 	  inertia: !android23,
 	  // @option inertiaDeceleration: Number = 3000
-	  // The rate with which the inertial movement slows down, in pixels/second?.
+	  // The rate with which the inertial movement slows down, in pixels/second².
 	  inertiaDeceleration: 3400,
 	  // px/s^2
 
@@ -12476,7 +12477,7 @@ this.BX.Location = this.BX.Location || {};
 	    });
 	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _attribution, {
 	      writable: true,
-	      value: '<a href="https://leafletjs.com" title="A JS library for interactive maps" target="_blank">Leaflet</a> | Map data &copy; <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors'
+	      value: 'Map data &copy; OpenStreetMap contributors'
 	    });
 	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _mapFactoryMethod, {
 	      writable: true,
@@ -12890,7 +12891,7 @@ this.BX.Location = this.BX.Location || {};
 	    });
 	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _attribution$1, {
 	      writable: true,
-	      value: '<a href="https://leafletjs.com" title="A JS library for interactive maps" target="_blank">Leaflet</a> | Map data &copy; <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors'
+	      value: 'Map data &copy; OpenStreetMap contributors'
 	    });
 	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _mapFactoryMethod$1, {
 	      writable: true,

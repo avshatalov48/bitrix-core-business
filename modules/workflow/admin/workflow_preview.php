@@ -1,48 +1,48 @@
-<?
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002 Bitrix                  #
-# https://www.bitrixsoft.com          #
-# mailto:admin@bitrix.ru                     #
-##############################################
-*/
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/prolog.php';
+/** @var CMain $APPLICATION */
+/** @var CDatabase $DB */
+$WORKFLOW_RIGHT = $APPLICATION->GetGroupRight('workflow');
+if ($WORKFLOW_RIGHT == 'D')
+{
+	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
+}
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/prolog.php");
-$WORKFLOW_RIGHT = $APPLICATION->GetGroupRight("workflow");
-if($WORKFLOW_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+/* @var $request \Bitrix\Main\HttpRequest */
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/include.php");
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/include.php';
 IncludeModuleLangFile(__FILE__);
 
+$ID = intval($request['ID']);
 /***************************************************************************
 			GET | POST handlers
 ****************************************************************************/
 // there is document ID
-if($ID > 0 && check_bitrix_sessid())
+if ($ID > 0 && check_bitrix_sessid())
 {
 	// check if document exists in database
-	$z = $DB->Query("SELECT ID FROM b_workflow_document WHERE ID = ".intval($ID));
-	if (!($zr=$z->Fetch()))
+	$z = $DB->Query('SELECT ID FROM b_workflow_document WHERE ID = ' . intval($ID));
+	if (!($zr = $z->Fetch()))
 	{
-		require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 
-		$aMenu = array(
-			array(
-				"ICON" => "btn_list",
-				"TEXT"	=> GetMessage("FLOW_RECORDS_LIST"),
-				"LINK"	=> "workflow_list.php?lang=".LANGUAGE_ID,//"&ID=".$ID
-				"TITLE"	=> GetMessage("FLOW_RECORDS_LIST"),
-			)
-		);
+		$aMenu = [
+			[
+				'ICON' => 'btn_list',
+				'TEXT' => GetMessage('FLOW_RECORDS_LIST'),
+				'LINK' => 'workflow_list.php?lang=' . LANGUAGE_ID,
+				'TITLE' => GetMessage('FLOW_RECORDS_LIST'),
+			],
+		];
 		$context = new CAdminContextMenu($aMenu);
 		$context->Show();
 
-		CAdminMessage::ShowMessage(GetMessage("FLOW_DOCUMENT_NOT_FOUND"));
+		CAdminMessage::ShowMessage(GetMessage('FLOW_DOCUMENT_NOT_FOUND'));
 
-		require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-		die();
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';
+		die;
 	}
 	else
 	{
@@ -50,29 +50,31 @@ if($ID > 0 && check_bitrix_sessid())
 		// save preview file
 		$z = CWorkflow::GetByID($ID);
 		$zr = $z->Fetch();
-		$prolog = $zr["PROLOG"];
+		$prolog = $zr['PROLOG'];
 		if ($prolog <> '')
 		{
-			$title = $zr["TITLE"];
+			$title = $zr['TITLE'];
 			$prolog = SetPrologTitle($prolog, $title);
 		}
-		$content = ($zr["BODY_TYPE"]=="text") ? TxtToHTML($zr["BODY"]) : $zr["BODY"];
-		$epilog = $zr["EPILOG"];
-		$filesrc = $prolog.PathToWF($content,$ID).$epilog;
-		SavePreviewContent($_SERVER["DOCUMENT_ROOT"].$filename, $filesrc);
+		$content = ($zr['BODY_TYPE'] == 'text') ? TxtToHTML($zr['BODY']) : $zr['BODY'];
+		$epilog = $zr['EPILOG'];
+		$filesrc = $prolog . PathToWF($content, $ID) . $epilog;
+		SavePreviewContent($_SERVER['DOCUMENT_ROOT'] . $filename, $filesrc);
 		// store file to database
-		$arFields = array(
-			"DOCUMENT_ID"	=> $ID,
-			"TIMESTAMP_X"	=> $DB->GetNowFunction(),
-			"FILENAME"		=> "'".$DB->ForSql($filename,255)."'"
-			);
-		$DB->Insert("b_workflow_preview",$arFields);
+		$arFields = [
+			'DOCUMENT_ID' => $ID,
+			'TIMESTAMP_X' => $DB->GetNowFunction(),
+			'FILENAME' => "'" . $DB->ForSql($filename, 255) . "'",
+		];
+		$DB->Insert('b_workflow_preview', $arFields);
 		// redirect to preview saved
-		if(file_exists($_SERVER["DOCUMENT_ROOT"].$filename))
+		if (file_exists($_SERVER['DOCUMENT_ROOT'] . $filename))
+		{
 			LocalRedirect($filename);
+		}
 		else
-			LocalRedirect("/bitrix/admin/workflow_list.php?lang=".LANG);
+		{
+			LocalRedirect('/bitrix/admin/workflow_list.php?lang=' . LANG);
+		}
 	}
 }
-
-?>

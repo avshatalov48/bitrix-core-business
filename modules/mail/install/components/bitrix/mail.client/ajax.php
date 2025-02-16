@@ -29,6 +29,11 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 {
 	/** @var bool */
 	private $isCrmEnable = false;
+	private const CRM_TYPES = [
+		'contact',
+		'company',
+		'lead',
+	];
 
 	/**
 	 * Initializes controller.
@@ -669,10 +674,12 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 							if ($this->isCrmEnable)
 							{
-								// crm only
-								if (mb_strpos($item['id'], 'CRM') === 0)
+								if (isset($item['entityType']))
 								{
-									$crmCommunication[] = $item;
+									if (in_array($item['entityType'], self::CRM_TYPES, true))
+									{
+										$crmCommunication[] = $item;
+									}
 								}
 							}
 						}

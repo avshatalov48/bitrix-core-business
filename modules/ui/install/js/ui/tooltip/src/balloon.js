@@ -1,7 +1,7 @@
-import {Type, ajax, Loc} from 'main.core';
-import {BaseEvent, EventEmitter} from 'main.core.events';
+import { Type, ajax, Loc, Event } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
 
-import {Tooltip} from './tooltip';
+import { Tooltip } from './tooltip';
 
 
 export class TooltipBalloon
@@ -63,6 +63,8 @@ export class TooltipBalloon
 		}
 
 		this.params = anchorParams;
+
+		EventEmitter.subscribe('SidePanel.Slider:onOpen', this.onSliderOpen.bind(this));
 	}
 
 	create()
@@ -72,8 +74,7 @@ export class TooltipBalloon
 			this.startTrackMouse();
 		}
 
-		this.node.addEventListener('mouseout', this.stopTrackMouse.bind(this));
-		EventEmitter.subscribe('SidePanel.Slider:onOpen', this.onSliderOpen.bind(this));
+		Event.bind(this.node, 'mouseout', this.stopTrackMouse.bind(this));
 	}
 
 	onSliderOpen()

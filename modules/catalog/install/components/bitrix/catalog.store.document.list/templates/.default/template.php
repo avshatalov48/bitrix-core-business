@@ -175,41 +175,6 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 		});
 	}
 
-	function showProfitReportTour()
-	{
-		let target = document.getElementById('store_documents_analytics');
-		if (BX.Main.interfaceButtonsManager.data.store_documents?.getHiddenItems().find((el) => el === target))
-		{
-			target = document.getElementById('store_documents_more_button');
-		}
-
-		BX.Runtime.loadExtension('ui.tour').then((exports) => {
-			const { Guide } = exports;
-			const guide = new Guide({
-				steps: [
-					{
-						target,
-						title: <?= CUtil::PhpToJSObject(Loc::getMessage('PROFIT_TOUR_TITLE')) ?>,
-						text: <?= CUtil::PhpToJSObject(Loc::getMessage('PROFIT_TOUR_TEXT')) ?>,
-						events: {
-							onClose: () => {
-								BX.userOptions.save('catalog', 'document-list', 'was_profit_report_tour_shown', 'Y');
-							},
-						}
-					},
-				],
-				onEvents: true,
-			});
-			BX.UI.BannerDispatcher.normal.toQueue(() => {
-				guide.showNextStep();
-			});
-		});
-
-		BX.addCustomEvent('Step:onShow', (event) => {
-			event.data.guide.popup.contentContainer.parentElement.style.zIndex = 100;
-		});
-	}
-
 	function showProductBatchMethodPopup()
 	{
 		BX.Runtime.loadExtension('ui.dialogs.messagebox').then((exports) => {
@@ -281,12 +246,6 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 		if (isShowGuide)
 		{
 			showAddDocumentGuide();
-		}
-
-		const isShowProfitReportTour = <?= CUtil::PhpToJSObject($arResult['IS_SHOW_PROFIT_REPORT_TOUR']) ?>;
-		if (isShowProfitReportTour)
-		{
-			showProfitReportTour();
 		}
 
 		const isShowProductBatchMethodPopup = <?= CUtil::PhpToJSObject($arResult['IS_SHOW_PRODUCT_BATCH_METHOD_POPUP']) ?>;

@@ -41,7 +41,7 @@ final class Ratio extends Controller
 
 		if (!$this->accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT))
 		{
-			$r->addError(new Error('Access Denied', 200040300020));
+			$r->addError($this->getErrorModifyAccessDenied());
 		}
 
 		return $r;
@@ -58,7 +58,7 @@ final class Ratio extends Controller
 			)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 		return $r;
 	}

@@ -65,13 +65,13 @@ this.BX = this.BX || {};
 	      }
 	    }
 	    this.params = anchorParams;
+	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onOpen', this.onSliderOpen.bind(this));
 	  }
 	  create() {
 	    if (!Tooltip.getDisabledStatus()) {
 	      this.startTrackMouse();
 	    }
-	    this.node.addEventListener('mouseout', this.stopTrackMouse.bind(this));
-	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onOpen', this.onSliderOpen.bind(this));
+	    main_core.Event.bind(this.node, 'mouseout', this.stopTrackMouse.bind(this));
 	  }
 	  onSliderOpen() {
 	    if (this.tracking) {

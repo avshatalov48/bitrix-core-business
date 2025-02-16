@@ -11,46 +11,49 @@
 		 */
 		this.items = null;
 		this.currentIndex = null;
-		this.handlers = {};
+		this.handlers = {
+			handleCarouselItemError: this.handleCarouselItemError.bind(this),
+		};
+
 		this.baseContainer = options.baseContainer || document.body;
 
 		this.setItems(options.items || []);
 
 		this.isBodyPaddingAdded = null;
-		this.cycleMode = options.hasOwnProperty('cycleMode')? options.cycleMode : true;
-		this.preload = options.hasOwnProperty('preload')? options.preload : 3;
-		this.stretch = options.hasOwnProperty('stretch')? options.stretch : false;
+		this.cycleMode = options.hasOwnProperty('cycleMode') ? options.cycleMode : true;
+		this.stretch = options.hasOwnProperty('stretch') ? options.stretch : false;
 		this.cachedData = {};
 		this.optionsByGroup = {};
 		this.layout = {
 			container: null,
 			content: null,
 			inner: null,
+			title: null,
 			itemContainer: null,
 			next: null,
 			prev: null,
 			close: null,
+			downloadBtn: null,
+			moreBtn: null,
 			error: null,
 			loader: null,
 			loaderContainer: null,
 			loaderText: null,
-			panel: null
+			defaultActions: null,
+			extraActions: null,
+			carouselItems: null,
+			carouselContainer: null,
+			carouselScrollable: null,
 		};
 
-		/**
-		 * @type {BX.UI.ActionPanel}
-		 */
-		this.actionPanel = new BX.UI.ActionPanel({
-			darkMode: true,
-			floatMode: false,
-			autoHide: false,
-			showTotalSelectedBlock: false,
-			showResetAllBlock: false,
-			alignItems: 'center',
-			renderTo: function() {
-				return this.getPanelWrapper();
-			}.bind(this)
-		});
+		// Compatibility for BX.Disk.Viewer.Actions.runActionEdit
+		this.actionPanel = {
+			getItemById: () => {},
+		};
+
+		this.maxParallelLoads = 3;
+		this.loadingItems = new Set();
+		this.moreMenu = null;
 
 		this.eventsAlreadyBinded = false;
 
@@ -201,7 +204,7 @@
 					return;
 				}
 
-				//shortcut for download
+				// shortcut for download
 				if ((BX.browser.IsMac() && event.metaKey) || event.ctrlKey)
 				{
 					this.runActionByNode(target, 'download');
@@ -227,7 +230,7 @@
 			this.handlers.keyPress = this.handleKeyPress.bind(this);
 			this.handlers.touchStart = this.handleTouchStart.bind(this);
 			this.handlers.touchEnd = this.handleTouchEnd.bind(this);
-			this.handlers.resize = this.adjustViewerHeight.bind(this);
+			this.handlers.resize = this.handleWindowResize.bind(this);
 			this.handlers.showNext = this.showNext.bind(this);
 			this.handlers.showPrev = this.showPrev.bind(this);
 			this.handlers.close = this.close.bind(this);
@@ -269,6 +272,41 @@
 					this.enableReadingMode();
 				}.bind(this), 2800);
 			}
+		},
+
+		handleMoreBtnClick()
+		{
+			if (this.moreMenu === null)
+			{
+				const item = this.getCurrentItem();
+
+				const menuItems = [
+					...item.getMoreMenuItems(),
+					...this.createMoreMenuItems(item),
+				];
+
+				if (menuItems.length === 0)
+				{
+					return;
+				}
+
+				this.moreMenu = new BX.Main.Menu({
+					angle: true,
+					minWidth: 150,
+					bindElement: this.getMoreButton(),
+					offsetLeft: 30,
+					offsetTop: -20,
+					items: menuItems,
+					cacheable: false,
+					events: {
+						onDestroy: () => {
+							this.moreMenu = null;
+						},
+					},
+				});
+			}
+
+			this.moreMenu.show();
 		},
 
 		enableReadingMode: function(withTimer)
@@ -406,9 +444,17 @@
 			}.bind(this));
 		},
 
-		runAction: function (index, actionId, additionalParams)
+		runAction(index, actionId, additionalParams)
 		{
-			var item = this.getItemByIndex(index);
+			const item = this.getItemByIndex(index);
+			if (actionId === 'download')
+			{
+				// Compatibility: a download action doesn't exist anymore
+				window.open(item.getDownloadUrl(), this.isExternalLink(item.getDownloadUrl()) ? '_blank' : '_self');
+
+				return;
+			}
+
 			var actionToRun = item.getActions().find(function (action) {
 				return action.id === actionId;
 			});
@@ -451,6 +497,13 @@
 			}
 
 			BX.onCustomEvent('BX.UI.Viewer.Controller:onSetItems', [this, items]);
+
+			if (this.items !== null)
+			{
+				this.items.forEach((item) => {
+					item.destroy();
+				});
+			}
 
 			this.items = items;
 			this.items.forEach(function (item) {
@@ -551,6 +604,8 @@
 				newItem = new item.constructor(item.options);
 			}
 
+			item.destroy();
+
 			newItem.setController(this);
 			newItem.applyReloadOptions(options);
 
@@ -578,61 +633,106 @@
 			this.disableReadingMode();
 			this.showLoading();
 
+			const moveToStart = index === 0 && this.currentIndex === this.items.length - 1;
+			const moveToEnd = this.currentIndex === 0 && index === this.items.length - 1;
+
+			const direction = (index < this.currentIndex && !moveToStart) || moveToEnd ? 'backward' : 'forward';
 			this.currentIndex = index;
 
-			this.resetActionsInPanelByItem(this.getCurrentItem());
-			item.load().then(function (loadedItem) {
-				if (this.getCurrentItem() === loadedItem)
-				{
-					console.log('show item');
-					this.processShowItem(loadedItem);
-					if (options.asFirstToShow)
+			this.updateActions(this.getCurrentItem());
+			this.observeItemLoading(item);
+
+			const title = item.getTitle();
+			this.setTitle(BX.Type.isStringFilled(title) ? title : '');
+
+			item.load()
+				.then((loadedItem) => {
+					this.unobserveItemLoading(item);
+
+					if (this.getCurrentItem() === loadedItem)
 					{
-						loadedItem.asFirstToShow();
+						console.log('show item');
+						this.processShowItem(loadedItem, options);
+						if (options.asFirstToShow)
+						{
+							loadedItem.asFirstToShow();
+						}
 					}
-				}
-			}.bind(this))
-			.catch(function (reason) {
-				var loadedItem = reason.item;
+				})
+				.catch((reason) => {
+					this.unobserveItemLoading(item);
 
-				console.log('catch viewer');
+					var loadedItem = reason.item;
 
-				BX.onCustomEvent('BX.UI.Viewer.Controller:onItemError', [this, reason, loadedItem]);
+					console.log('catch viewer');
 
-				if (this.getCurrentItem() === loadedItem)
-				{
-					this.processError(reason, loadedItem);
-				}
+					BX.onCustomEvent('BX.UI.Viewer.Controller:onItemError', [this, reason, loadedItem]);
 
-				BX.onCustomEvent('BX.UI.Viewer.Controller:onAfterProcessItemError', [this, reason, loadedItem]);
-			}.bind(this));
+					if (this.getCurrentItem() === loadedItem)
+					{
+						this.processError(reason, loadedItem);
+					}
 
-			this.processPreload(this.currentIndex);
+					BX.onCustomEvent('BX.UI.Viewer.Controller:onAfterProcessItemError', [this, reason, loadedItem]);
+				})
+			;
+
 			this.updateControls();
-
 			this.lockScroll();
 			this.adjustViewerHeight();
+
+			const cycleMove = this.items.length > 20 && (moveToStart || moveToEnd);
+			this.selectCarouselItem(this.currentIndex, options.asFirstToShow !== true && !cycleMove);
+
+			this.processPreload(this.currentIndex, direction);
 		},
 
-		processPreload: function (fromIndex)
+		processPreload(fromIndex, direction)
 		{
-			if (!this.preload)
+			if (this.maxParallelLoads < 1)
 			{
 				return;
 			}
 
-			var preloadIndex = fromIndex + 1;
-			while(preloadIndex < (this.preload + fromIndex + 1))
+			const maxPreloads = this.maxParallelLoads - 1;
+			let preloadIndex = direction === 'backward' ? fromIndex - 1 : fromIndex + 1;
+			const shouldPreload = () => {
+				if (direction === 'backward')
+				{
+					return preloadIndex > (fromIndex - 1 - maxPreloads);
+				}
+
+				return preloadIndex < (maxPreloads + fromIndex + 1);
+			};
+
+			while (shouldPreload())
 			{
-				var itemByIndex = this.getItemByIndex(preloadIndex);
+				const itemByIndex = this.getItemByIndex(preloadIndex);
 				if (!itemByIndex)
 				{
 					break;
 				}
 
 				console.log('Trying to preload', preloadIndex);
-				itemByIndex.load();
-				preloadIndex++;
+
+				this.observeItemLoading(itemByIndex);
+				itemByIndex.load()
+					.then(() => {
+						this.unobserveItemLoading(itemByIndex);
+					})
+					.catch(() => {
+						this.unobserveItemLoading(itemByIndex);
+					})
+				;
+
+				if (direction === 'backward')
+				{
+					preloadIndex--;
+				}
+				else
+				{
+					preloadIndex++;
+				}
 			}
 		},
 
@@ -665,35 +765,24 @@
 		/**
 		 * @param {BX.UI.Viewer.Item} item
 		 */
-		processShowItem: function(item)
+		processShowItem: function(item, options)
 		{
+
 			this.hideCurrentItem();
 			this.hideLoading();
+			this.unlockExtraActions();
 
 			var contentWrapper = BX.create('div', {
 				props: {
 					className: 'ui-viewer-inner-content-wrapper'
-				}
+				},
 			});
 
+			const title = item.getTitle();
+			this.setTitle(BX.Type.isStringFilled(title) ? title : '');
+
 			var fragment = document.createDocumentFragment();
-			fragment.appendChild(item.render());
-
-			var title = item.getTitle();
-			if (title)
-			{
-				fragment.appendChild(BX.create('div', {
-					props: {
-						className: 'ui-viewer-inner-caption'
-					},
-					children: [
-						BX.create('span', {
-							text: title
-						})
-					]
-				}));
-			}
-
+			fragment.appendChild(item.render(options));
 			contentWrapper.appendChild(fragment);
 			var classList = this.layout.container.classList;
 			var containerModifiers = item.listContainerModifiers();
@@ -717,15 +806,17 @@
 			this.getNextButton().style.maxWidth = null;
 			this.getPrevButton().style.maxWidth = null;
 
-			if (contentWidth instanceof BX.Promise)
+			if (contentWidth && BX.Type.isFunction(contentWidth.then))
 			{
-				contentWidth.then(function(width) {
-					var controlWidth = (document.body.offsetWidth - width) / 2;
+				contentWidth.then((width) => {
+					let controlWidth = Math.floor((document.body.offsetWidth - Math.ceil(width)) / 2);
+					controlWidth = Math.max(controlWidth, 70);
+
 					this.getNextButton().style.width = controlWidth + 'px';
 					this.getPrevButton().style.width = controlWidth + 'px';
 					this.getNextButton().style.maxWidth = 'none';
 					this.getPrevButton().style.maxWidth = 'none';
-				}.bind(this));
+				});
 			}
 		},
 
@@ -748,6 +839,7 @@
 
 			this.hideCurrentItem();
 			this.hideLoading();
+			this.cleanExtraActions();
 
 			var contentWrapper = BX.create('div', {
 				props: {
@@ -756,20 +848,7 @@
 			});
 
 			var title = item.getTitle();
-			if (title)
-			{
-				contentWrapper.appendChild(BX.create('div', {
-						props: {
-							className: 'ui-viewer-inner-caption'
-						},
-						children: [
-							BX.create('span', {
-								html: title
-							})
-						]
-					})
-				);
-			}
+			this.setTitle(BX.Type.isStringFilled(title) ? title : '');
 
 			var options = {};
 			if (message)
@@ -836,31 +915,6 @@
 		},
 
 		/**
-		 * @param {BX.UI.Viewer.Item} item
-		 */
-		convertItemActionsToPanelItems: function (item)
-		{
-			return item.getActions().map(function(action) {
-				if (action.id === 'download' && action.href)
-				{
-					action.attributes = {
-						target: '_blank'
-					};
-				}
-
-				if (!action.href && BX.type.isFunction(action.action))
-				{
-					var fn = action.action;
-					action.onclick = function(event, panelItem) {
-						fn.call(this, item);
-					}.bind(this);
-				}
-
-				return action;
-			}, this);
-		},
-
-		/**
 		 * @param {String} link
 		 * @return {boolean}
 		 */
@@ -888,98 +942,141 @@
 		},
 
 		/**
+	 		* @param {BX.UI.Viewer.Item} item
+	 	*/
+		createMoreMenuItems(item)
+		{
+			return item.getActions().map((action) => {
+				const menuItem = { ...action };
+
+				if (!menuItem.href && BX.type.isFunction(menuItem.action))
+				{
+					const fn = menuItem.action;
+					menuItem.onclick = (event, menuItem) => {
+						fn.call(this, item, { event, menuItem });
+						this.moreMenu?.close();
+					};
+				}
+
+				menuItem.disabled = menuItem.disableBeforeLoaded === true && item.isLoaded === false;
+
+				if (BX.Type.isArrayFilled(menuItem.items))
+				{
+					menuItem.items = menuItem.items.map((subMenuItem) => {
+						const newMenuItem = { ...subMenuItem };
+						if (BX.type.isString(newMenuItem.onclick))
+						{
+							const onclick = new Function('event', 'popupItem', newMenuItem.onclick);
+							newMenuItem.onclick = (event, popupItem) => {
+								onclick(event, popupItem);
+								this.moreMenu?.close();
+							};
+						}
+
+						return newMenuItem;
+					});
+				}
+
+				return menuItem;
+			});
+		},
+
+		/**
 		 * @param {BX.UI.Viewer.Item} item
 		 */
-		refineItemActions: function (item)
+		refineItemActions(item)
 		{
-			var defaultActions = {
+			const defaultActions = {
 				download: {
 					id: 'download',
 					type: 'download',
-					text: BX.message('JS_UI_VIEWER_ITEM_ACTION_DOWNLOAD'),
+					text: BX.Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_DOWNLOAD'),
 					href: item.src,
-					buttonIconClass: 'ui-btn-icon-download'
+					buttonIconClass: 'ui-btn-icon-download',
 				},
 				edit: {
 					id: 'edit',
 					type: 'edit',
-					text: BX.message('JS_UI_VIEWER_ITEM_ACTION_EDIT'),
-					buttonIconClass: 'ui-btn-icon-edit'
+					text: BX.Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_EDIT'),
+					buttonIconClass: 'ui-btn-icon-edit',
 				},
 				share: {
 					id: 'share',
 					type: 'share',
-					text: BX.message('JS_UI_VIEWER_ITEM_ACTION_SHARE'),
-					buttonIconClass: 'ui-btn-icon-share'
+					text: BX.Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_SHARE'),
+					buttonIconClass: 'ui-btn-icon-share',
 				},
 				print: {
 					id: 'print',
 					type: 'print',
-					text: '',
-					buttonIconClass: 'ui-btn-icon-print ui-btn-disabled'
+					text: BX.Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_PRINT'),
+					buttonIconClass: 'ui-btn-icon-print ui-btn-disabled',
+					disableBeforeLoaded: true,
 				},
 				info: {
 					id: 'info',
 					type: 'info',
-					text: '',
-					buttonIconClass: 'ui-btn-icon-info ui-action-panel-item-last'
+					text: BX.Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_INFO'),
+					buttonIconClass: 'ui-btn-icon-info ui-action-panel-item-last',
 				},
 				delete: {
 					id: 'delete',
 					type: 'delete',
-					text: BX.message('JS_UI_VIEWER_ITEM_ACTION_DELETE'),
-					buttonIconClass: 'ui-btn-icon-remove'
-				}
+					text: BX.Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_DELETE'),
+					buttonIconClass: 'ui-btn-icon-remove',
+				},
 			};
 
-			return item.getNakedActions().map(function(action) {
-				if (defaultActions[action.type])
-				{
-					action = BX.mergeEx(defaultActions[action.type], action)
-				}
+			const actions = [];
+			for (const [, nakedAction] of item.getNakedActions().entries())
+			{
+				const action = (
+					defaultActions[nakedAction.type]
+						? BX.mergeEx(defaultActions[nakedAction.type], nakedAction)
+						: nakedAction
+				);
 
 				if (!action.id)
 				{
 					action.id = action.type;
 				}
 
-				if (!action.action && action.href)
+				if (action.id === 'download' && BX.Type.isStringFilled(action.href))
 				{
-					action.action = function () {
-						window.open(action.href, this.isExternalLink(action.href)? '_blank' : '_self');
-					}.bind(this);
+					item.setDownloadUrl(action.href);
+
+					continue;
 				}
 
-				if (BX.type.isArray(action.items))
+				if (!action.action && action.href)
 				{
-					action.items.forEach(function (item) {
-						if (BX.type.isString(item.onclick))
-						{
-							item.onclick = new Function('event', 'popupItem', item.onclick);
-						}
-					})
+					action.action = () => {
+						window.open(action.href, this.isExternalLink(action.href) ? '_blank' : '_self');
+					};
 				}
 
 				if (BX.type.isString(action.action))
 				{
-					var params = action.params || {};
-					var actionString = action.action;
+					const params = action.params || {};
+					const actionString = action.action;
 
-					action.action = function(item, additionalParams) {
+					action.action = (item, additionalParams) => {
 						try
 						{
-							var fn = eval(actionString);
+							const fn = eval(actionString);
 							fn.call(this, item, params, additionalParams);
 						}
-						catch(e)
+						catch (e)
 						{
 							console.log(e);
 						}
-					}.bind(this);
+					};
 				}
 
-				return action;
-			}, this);
+				actions.push(action);
+			}
+
+			return actions;
 		},
 
 		getLoader: function(options)
@@ -1073,13 +1170,50 @@
 			{
 				this.layout.close = BX.create('div', {
 					props: {
-						className: 'ui-viewer-close'
+						className: 'ui-viewer-close',
 					},
-					html: '<div class="ui-viewer-close-icon"></div>'
+					html:
+						'<div class="ui-viewer-close-icon">'
+							+ '<div class="ui-icon-set --cross-40"></div>'
+						+ '</div>'
 				});
 			}
 
 			return this.layout.close;
+		},
+
+		getDownloadButton: function()
+		{
+			if (!this.layout.downloadBtn)
+			{
+				this.layout.downloadBtn = BX.Tag.render`
+					<a 
+						class="ui-viewer-download-btn" 
+						target="_blank" 
+						title="${BX.Text.encode(BX.Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_DOWNLOAD'))}"
+						href="" 
+						download
+					>
+						<div class="ui-icon-set --download ui-viewer-download-btn-icon"></div>
+					</a>
+				`;
+			}
+
+			return this.layout.downloadBtn;
+		},
+
+		getMoreButton: function()
+		{
+			if (!this.layout.moreBtn)
+			{
+				this.layout.moreBtn = BX.Tag.render`
+					<div class="ui-viewer-more-btn" onclick="${this.handleMoreBtnClick.bind(this)}">
+						<div class="ui-icon-set --more ui-viewer-more-btn-icon"></div>
+					</div>
+				`;
+			}
+
+			return this.layout.moreBtn;
 		},
 
 		isOpen: function ()
@@ -1161,28 +1295,29 @@
 
 		open: function(index)
 		{
+
 			this.adjustViewport();
 			this.addBodyPadding();
 
 			var container = this.getViewerContainer();
-			this.baseContainer.appendChild(container);
-			BX.focus(container);
 
-			this.showPanel();
+			const baseContainer = this.baseContainer || document.body;
+			baseContainer.appendChild(container);
+
+			BX.focus(container);
 
 			var component = BX.ZIndexManager.getComponent(container);
 			if (!component)
 			{
-				BX.ZIndexManager.register(container, {
-					overlay: this.actionPanel.getPanelContainer(),
-					overlayGap: 1
-				});
+				BX.ZIndexManager.register(container);
 			}
 
 			BX.ZIndexManager.bringToFront(container);
 
+			this.createCarouselItems(index);
+
 			this.show(index, {
-				asFirstToShow: true
+				asFirstToShow: true,
 			});
 
 			this.bindEvents();
@@ -1190,34 +1325,361 @@
 			this._isOpen = true;
 		},
 
-		getPanelWrapper: function()
+		setTitle: function(title)
 		{
-			if (!this.layout.panel)
+			if (BX.Type.isStringFilled(title))
 			{
-				this.layout.panel = BX.create('div', {
-					props: {
-						className: 'ui-viewer-panel'
-					}
-				});
+				this.getTitleContainer().textContent = title;
+			}
+		},
+
+		getTitleContainer: function()
+		{
+			if (!this.layout.title)
+			{
+				this.layout.title = BX.Tag.render`
+					<span class="ui-viewer-title-text"></span>
+				`;
 			}
 
-			return this.layout.panel;
+			return this.layout.title;
 		},
 
-		showPanel: function()
+		getExtraActions: function()
 		{
-			this.actionPanel.layout.container.style.background = 'none';
+			if (!this.layout.extraActions)
+			{
+				this.layout.extraActions = BX.Tag.render`
+					<div class="ui-viewer-extra-actions"></div>
+				`;
+			}
 
-			this.actionPanel.draw();
-			this.actionPanel.showPanel();
+			return this.layout.extraActions;
 		},
 
-		resetActionsInPanelByItem: function (item)
+		getDefaultActions: function()
 		{
-			this.actionPanel.removeItems();
-			this.actionPanel.addItems(
-				this.convertItemActionsToPanelItems(item)
+			if (!this.layout.defaultActions)
+			{
+				this.layout.defaultActions = BX.Tag.render`
+					<div class="ui-viewer-default-actions">
+						${this.getDownloadButton()}
+						${this.getMoreButton()}
+					</div>
+				`;
+			}
+
+			return this.layout.defaultActions;
+		},
+
+		observeItemLoading(item)
+		{
+			const supportAbort = Object.hasOwn(Object.getPrototypeOf(item), 'abort');
+			if (item.isLoaded === true || !supportAbort)
+			{
+				return;
+			}
+
+			this.loadingItems.add(item);
+
+			if (this.loadingItems.size > this.maxParallelLoads)
+			{
+				for (const queueItem of this.loadingItems)
+				{
+					if (queueItem === item || queueItem === this.getCurrentItem())
+					{
+						continue;
+					}
+
+					const success = queueItem.abort();
+					if (success === true)
+					{
+						this.loadingItems.delete(queueItem);
+						break;
+					}
+				}
+			}
+		},
+
+		unobserveItemLoading(item)
+		{
+			this.loadingItems.delete(item);
+		},
+
+		updateActions(item)
+		{
+			this.getDownloadButton().setAttribute('href', item.getDownloadUrl());
+
+			if (item.getActions().length > 0)
+			{
+				BX.Dom.removeClass(this.getMoreButton(), '--hidden');
+			}
+			else
+			{
+				BX.Dom.addClass(this.getMoreButton(), '--hidden');
+			}
+
+			this.renderExtraActions(item);
+			if (!item.isLoaded)
+			{
+				this.lockExtraActions();
+			}
+		},
+
+		getCarouselContainer: function()
+		{
+			if (!this.layout.carouselContainer)
+			{
+				this.layout.carouselContainer = BX.Tag.render`
+					<div class="ui-viewer-carousel">
+						${this.getCarouselScrollable()}
+					<div>
+				`;
+			}
+
+			return this.layout.carouselContainer;
+		},
+
+		getCarouselScrollable: function()
+		{
+			if (!this.layout.carouselScrollable)
+			{
+				this.layout.carouselScrollable = BX.Tag.render`
+					<div 
+						class="ui-viewer-carousel-scrollable" 
+						onscroll="${BX.Runtime.debounce(this.handleCarouselScroll, 200, this)}"
+					>
+						${this.getCarouselItems()}
+					</div>
+				`;
+			}
+
+			return this.layout.carouselScrollable;
+		},
+
+		getCarouselItems: function()
+		{
+			if (!this.layout.carouselItems)
+			{
+				this.layout.carouselItems = BX.Tag.render`
+					<div class="ui-viewer-carousel-items" onclick="${this.handleCarouselClick.bind(this)}"></div>
+				`;
+			}
+
+			return this.layout.carouselItems;
+		},
+
+		getCarouselItemWidth: function(selected = false)
+		{
+			const margin = 4 * 2;
+
+			return selected ? 72 + margin : 46 + margin;
+		},
+
+		createCarouselItems: function(selectedIndex)
+		{
+			const itemsContainer = this.getCarouselItems();
+			BX.Dom.clean(itemsContainer);
+			BX.Dom.style(itemsContainer, { paddingLeft: null, paddingRight: null });
+			BX.Dom.style(this.getCarouselContainer(), { width: null });
+
+			BX.Dom.remove(this.getCarouselContainer());
+
+			if (!this.isCarouselEnabled())
+			{
+				return;
+			}
+
+			for (const [index, item] of this.items.entries())
+			{
+				const container = BX.Tag.render`
+					<div class="ui-viewer-carousel-item" data-index="${index}"></div>
+				`;
+
+				if (index === selectedIndex)
+				{
+					BX.Dom.addClass(container, '--selected');
+				}
+
+				if (item.getPreviewUrl() === null)
+				{
+					const icon = this.createItemIcon(item);
+					icon.renderTo(container);
+				}
+				else
+				{
+					const img = document.createElement('img');
+					img.className = 'ui-viewer-carousel-item-preview-img';
+					img.onerror = this.handlers.handleCarouselItemError;
+
+					// Preload first 10 items
+					if (index <= 10 || item.getPreviewUrl().startsWith('blob:'))
+					{
+						img.src = item.getPreviewUrl();
+					}
+					else
+					{
+						img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+						container.dataset.lazyloadSrc = item.getPreviewUrl();
+					}
+
+					container.appendChild(img);
+				}
+
+				BX.Dom.append(container, this.getCarouselItems());
+			}
+
+			BX.Dom.append(this.getCarouselContainer(), this.getViewerContainer());
+
+			const maxViewportWidth = this.getCarouselItemWidth() * 6 + this.getCarouselItemWidth(true); // 7 items
+			const minViewportWidth = (
+				(this.getItemsCount() - 1) * this.getCarouselItemWidth() + this.getCarouselItemWidth(true) / 2
+			) * 2;
+
+			const viewportWidth = Math.max(
+				this.getCarouselContainer().offsetWidth,
+				Math.min(minViewportWidth, maxViewportWidth),
 			);
+			const offset = viewportWidth / 2 - this.getCarouselItemWidth(true) / 2;
+
+			BX.Dom.style(this.getCarouselContainer(), {
+				width: `${viewportWidth}px`,
+			});
+
+			BX.Dom.style(itemsContainer, {
+				paddingLeft: `${offset}px`,
+				paddingRight: `${offset}px`,
+			});
+		},
+
+		loadCarouselPreviews()
+		{
+			const itemWidth = this.getCarouselItemWidth();
+			const scrollContainer = this.getCarouselItems().parentNode;
+			const windowWidth = scrollContainer.parentNode.offsetWidth;
+			const itemsInWindow = Math.round(windowWidth / itemWidth);
+			const scrollLeft = scrollContainer.scrollLeft;
+
+			const middleItemIndex = Math.ceil(scrollLeft / itemWidth);
+			const leftItemIndex = Math.max(middleItemIndex - itemsInWindow, 0);
+			const rightItemIndex = Math.min(middleItemIndex + itemsInWindow * 1.5, this.items.length - 1);
+
+			for (let index = leftItemIndex; index <= rightItemIndex; index++)
+			{
+				const carouselItem = this.getCarouselItems().children[index];
+				if (carouselItem.dataset.lazyloadSrc)
+				{
+					const img = carouselItem.firstElementChild;
+					img.src = carouselItem.dataset.lazyloadSrc;
+
+					BX.Dom.attr(carouselItem, 'data-lazyload-src', null);
+				}
+			}
+		},
+
+		getFileExtension: function(filename)
+		{
+			const position = BX.Type.isStringFilled(filename) ? filename.lastIndexOf('.') : -1;
+
+			return position > 0 ? filename.slice(Math.max(0, position + 1)) : '';
+		},
+
+		handleCarouselClick: function(event)
+		{
+			const container = event.target.closest('.ui-viewer-carousel-item');
+			if (!container)
+			{
+				return;
+			}
+
+			const index = Number(container.dataset.index);
+
+			this.show(index);
+		},
+
+		handleCarouselScroll(event)
+		{
+			this.loadCarouselPreviews();
+		},
+
+		handleCarouselItemError(event)
+		{
+			const container = event.target.closest('.ui-viewer-carousel-item');
+			const index = container.dataset.index;
+			const item = this.getItemByIndex(index);
+
+			BX.Dom.clean(container);
+
+			const icon = this.createItemIcon(item);
+			icon.renderTo(container);
+		},
+
+		createItemIcon(item)
+		{
+			return new BX.UI.Icons.Generator.FileIcon({
+				name: this.getFileExtension(item.getTitle()) || '...',
+				size: 18,
+			});
+		},
+
+		isCarouselEnabled: function()
+		{
+			if (this.items.length < 2)
+			{
+				return false;
+			}
+
+			return this.items.some((item) => {
+				return item.getPreviewUrl() !== null;
+			});
+		},
+
+		selectCarouselItem: function(index, smooth = true)
+		{
+			if (!this.isCarouselEnabled())
+			{
+				return;
+			}
+
+			const currentSelected = this.getCarouselItems().querySelector('.ui-viewer-carousel-item.--selected');
+			if (currentSelected)
+			{
+				BX.Dom.removeClass(currentSelected, '--selected');
+			}
+
+			const newSelected = this.getCarouselItems().querySelector(`.ui-viewer-carousel-item[data-index="${index}"]`);
+			BX.Dom.addClass(newSelected, '--selected');
+
+			this.adjustCarouselPosition(this.currentIndex, smooth);
+			this.loadCarouselPreviews();
+		},
+
+		adjustCarouselPosition: function(index, smooth = true)
+		{
+			if (!this.isCarouselEnabled())
+			{
+				return false;
+			}
+
+			const scrollContainer = this.getCarouselItems().parentNode;
+			const carouselItem = this.getCarouselItems().querySelector(`.ui-viewer-carousel-item[data-index="${index}"]`);
+			if (carouselItem === null)
+			{
+				return false;
+			}
+
+			const scrollLeft = this.getCarouselItemWidth() * index;
+			if (scrollContainer.scrollLeft !== scrollLeft)
+			{
+				scrollContainer.scrollTo({
+					left: scrollLeft,
+					behavior: smooth ? 'smooth' : 'instant',
+				});
+
+				return true;
+			}
+
+			return false;
 		},
 
 		hideCurrentItem: function()
@@ -1233,6 +1695,8 @@
 
 				this.getCurrentItem().beforeHide();
 			}
+
+			this.moreMenu?.close();
 
 			BX.cleanNode(this.layout.itemContainer);
 		},
@@ -1302,12 +1766,14 @@
 			return this.items[index];
 		},
 
+		getItemsCount: function()
+		{
+			return this.items.length;
+		},
+
 		handleClickOnItemContainer: function (event)
 		{
-			if (this.getCurrentItem() instanceof BX.UI.Viewer.Image)
-			{
-				this.showNext();
-			}
+			this.getCurrentItem().handleClickOnItemContainer(event);
 		},
 
 		allowToUseCycleMode: function ()
@@ -1360,7 +1826,7 @@
 				BX.remove(this.layout.container);
 				BX.removeClass(this.layout.container, 'ui-viewer-hide');
 				BX.unbindAll(this.layout.container);
-				this.actionPanel.hidePanel();
+
 				this.unLockScroll();
 				this.unbindEvents();
 				this.disableReadingMode();
@@ -1406,6 +1872,37 @@
 			BX.removeClass(document.body, 'ui-viewer-lock-body');
 		},
 
+		renderExtraActions(item)
+		{
+			this.cleanExtraActions();
+			BX.Dom.append(item.renderExtraActions(), this.getExtraActions());
+		},
+
+		cleanExtraActions()
+		{
+			BX.Dom.clean(this.getExtraActions());
+		},
+
+		lockExtraActions: function()
+		{
+			BX.Dom.addClass(this.getExtraActions(), '--locked');
+		},
+
+		unlockExtraActions: function()
+		{
+			BX.Dom.removeClass(this.getExtraActions(), '--locked');
+		},
+
+		handleWindowResize()
+		{
+			this.adjustViewerHeight();
+			const item = this.getCurrentItem();
+			if (item)
+			{
+				item.handleResize();
+			}
+		},
+
 		adjustViewerHeight: function()
 		{
 			if(!this.layout.container || BX.browser.IsMobile())
@@ -1421,25 +1918,36 @@
 				this.layout.container = BX.create('div', {
 					props: {
 						className: 'ui-viewer',
-						tabIndex: 22081990
+						tabIndex: 22081990,
 					},
 					style: {
 						height: window.clientHeight + 'px'
 					},
 					children: [
+						BX.Tag.render`
+							<div class="ui-viewer-header">
+								<div class="ui-viewer-author"></div>
+								<div class="ui-viewer-title">
+									${this.getTitleContainer()}
+								</div>
+								<div class="ui-viewer-actions">
+									${this.getExtraActions()}
+									${this.getDefaultActions()}
+									${this.getCloseButton()}
+								</div>
+							</div>
+						`,
 						this.layout.inner = BX.create('div', {
 							props: {
-								className: 'ui-viewer-inner'
+								className: 'ui-viewer-inner',
 							},
 							children: [
-								this.getItemContainer()
-							]
+								this.getItemContainer(),
+							],
 						}),
-						this.getCloseButton(),
 						this.getPrevButton(),
 						this.getNextButton(),
-						this.getPanelWrapper()
-					]
+					],
 				});
 			}
 
@@ -1538,6 +2046,12 @@
 				return;
 			}
 
+			const handled = this.getCurrentItem().handleKeyPress(event);
+			if (handled === true)
+			{
+				return;
+			}
+
 			switch (event.code)
 			{
 				case 'Space':
@@ -1560,8 +2074,6 @@
 
 					break;
 			}
-
-			this.getCurrentItem().handleKeyPress(event);
 		},
 
 		setOptionsByGroup: function (groupBy, options)
@@ -1616,7 +2128,6 @@
 		adjustViewport: function(){},
 		addBodyPadding: function(){},
 		adjustZindex: function(){},
-		showPanel: function(){},
 		adjustViewerHeight: function(){},
 		// showLoading: function(){},
 
@@ -1662,6 +2173,11 @@
 
 		handleClickOnItemContainer: function(){},
 		handleKeyPress: function(){},
+
+		temp()
+		{
+			// timestamp update 207392
+		},
 	};
 	/**
 	 * @param type

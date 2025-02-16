@@ -657,6 +657,9 @@ class HighloadBlock extends Base
 				'filter' => [
 					'@UF_XML_ID' => $xmlIds,
 				],
+				'cache' => [
+					'ttl' => 86400,
+				],
 			]);
 			while ($value = $iterator->fetch())
 			{

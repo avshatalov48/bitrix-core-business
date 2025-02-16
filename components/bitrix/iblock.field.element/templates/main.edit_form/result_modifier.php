@@ -58,10 +58,7 @@ if ($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 			'VALUE' => $item['ID'],
 		];
 
-		if(
-			($arResult['userField']['ENTITY_VALUE_ID'] <= 0 && $item['DEF'] === 'Y')
-			|| in_array($item['ID'], $arResult['value'])
-		)
+		if (in_array($item['ID'], $arResult['value']))
 		{
 			$startValue[] = $element;
 		}

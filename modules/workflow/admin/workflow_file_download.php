@@ -1,21 +1,26 @@
 <?php
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/prolog.php';
-
+/** @var CMain $APPLICATION */
+/** @var CUser $USER */
 $WORKFLOW_RIGHT = $APPLICATION->GetGroupRight('workflow');
 if ($WORKFLOW_RIGHT == 'D')
 {
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 }
-require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/include.php';
 
+/* @var $request \Bitrix\Main\HttpRequest */
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/workflow/include.php';
 IncludeModuleLangFile(__FILE__);
 
-$fname = $_REQUEST['fname'];
+$fname = $request['fname'];
 $strError = '';
 if ($USER->IsAdmin() || !in_array(GetFileExtension($fname), GetScriptFileExt()))
 {
-	$z = CWorkflow::GetFileByID($did, $fname);
+	$z = CWorkflow::GetFileByID($request['did'], $fname);
 	if ($zr = $z->Fetch())
 	{
 		$path = CWorkflow::GetTempDir() . $zr['TEMP_FILENAME'];
@@ -23,7 +28,7 @@ if ($USER->IsAdmin() || !in_array(GetFileExtension($fname), GetScriptFileExt()))
 		{
 			$io = CBXVirtualIo::GetInstance();
 			$filename = $io->RandomizeInvalidFilename(basename($zr['FILENAME']));
-			while(ob_end_clean());
+			while (ob_end_clean());
 			$fsize = filesize($path);
 			header('Content-Type: application/force-download; name="' . $filename . '"');
 			header('Content-Transfer-Encoding: binary');

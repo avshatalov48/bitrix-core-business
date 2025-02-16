@@ -1,5 +1,6 @@
 import { Runtime, Type } from 'main.core';
 import { type ActionTree, BuilderModel, GetterTree, type MutationTree } from 'ui.vue3.vuex';
+import { ServiceLocator } from '../../service/service-locator';
 import { compileAliasKey } from '../../utils';
 
 export type AccessRightsState = {
@@ -38,7 +39,8 @@ export type AccessRightItem = {
 	maxValue?: Set<string>,
 	defaultValue?: Set<string>,
 	emptyValue?: Set<string>,
-	setEmptyOnGroupActions?: boolean,
+	nothingSelectedValue?: Set<string>,
+	setEmptyOnSetMinMaxValueInColumn?: boolean,
 
 	variables: VariableCollection, // options to choose from in variable-like controls
 
@@ -49,7 +51,6 @@ export type AccessRightItem = {
 	enableSearch?: boolean,
 	showAvatars?: boolean,
 	compactView?: boolean,
-	disableSelectAll?: boolean,
 	hintTitle: ?string, // title for 'already selected values' hint in multivariable and dependent-variables selector
 };
 
@@ -63,7 +64,6 @@ export type Variable = {
 	supertitle: ?string,
 	avatar: ?string,
 	avatarOptions: ?Object,
-	selectionStrategy?: 'mutually-exclusive', // can perform some action after this option was selected
 	// used only in dependent-variables
 	conflictsWith?: Set<string>,
 	requires?: Set<string>,
@@ -115,12 +115,13 @@ export class AccessRightsModel extends BuilderModel
 
 				return result;
 			},
-			isMinValueSet: (state): boolean => {
+			isMinValueSetForAny: (state, getters): boolean => {
 				for (const section of state.collection.values())
 				{
 					for (const item of section.rights.values())
 					{
-						if (!Type.isNil(item.minValue))
+						const isSet = getters.isMinValueSet(section.sectionCode, item.id);
+						if (isSet)
 						{
 							return true;
 						}
@@ -129,12 +130,27 @@ export class AccessRightsModel extends BuilderModel
 
 				return false;
 			},
-			isMaxValueSet: (state): boolean => {
+			isMinValueSet: (state) => (sectionCode: string, rightId: string): boolean => {
+				const item = state.collection.get(sectionCode)?.rights.get(rightId);
+				if (!item)
+				{
+					console.warn(
+						'ui.accessrights.v2: attempt to check if min value set for unknown right',
+						{ sectionCode, rightId },
+					);
+
+					return false;
+				}
+
+				return !Type.isNil(item.minValue);
+			},
+			isMaxValueSetForAny: (state, getters): boolean => {
 				for (const section of state.collection.values())
 				{
 					for (const item of section.rights.values())
 					{
-						if (!Type.isNil(item.maxValue))
+						const isSet = getters.isMaxValueSet(section.sectionCode, item.id);
+						if (isSet)
 						{
 							return true;
 						}
@@ -142,21 +158,34 @@ export class AccessRightsModel extends BuilderModel
 				}
 
 				return false;
+			},
+			isMaxValueSet: (state) => (sectionCode: string, rightId: string): boolean => {
+				const item = state.collection.get(sectionCode)?.rights.get(rightId);
+				if (!item)
+				{
+					console.warn(
+						'ui.accessrights.v2: attempt to check if max value set for unknown right',
+						{ sectionCode, rightId },
+					);
+
+					return false;
+				}
+
+				return !Type.isNil(item.maxValue);
 			},
 			getEmptyValue: (state) => (sectionCode: string, valueId: string): Set<string> => {
 				const item = state.collection.get(sectionCode)?.rights.get(valueId);
-
-				if (item?.type === 'toggler')
+				if (!item)
 				{
-					const isFalsy = !item.emptyValue || !item.emptyValue[0];
-					if (isFalsy)
-					{
-						// use explicit '0' for correctly identify modifications
-						return new Set(['0']);
-					}
+					return new Set();
 				}
 
-				return item.emptyValue ?? new Set();
+				return ServiceLocator.getValueTypeByRight(item)?.getEmptyValue(item) ?? new Set();
+			},
+			getNothingSelectedValue: (state, getters) => (sectionCode: string, valueId: string): Set<string> => {
+				const item = state.collection.get(sectionCode)?.rights.get(valueId);
+
+				return item?.nothingSelectedValue ?? getters.getEmptyValue(sectionCode, valueId);
 			},
 			getSelectedVariablesAlias: (state) => (sectionCode: string, valueId: string, values: Set<string>): ?string => {
 				const item = state.collection.get(sectionCode)?.rights.get(valueId);

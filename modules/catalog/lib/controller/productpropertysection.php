@@ -45,10 +45,17 @@ final class ProductPropertySection extends ProductPropertyBase
 		if (!$checkPropertyResult->isSuccess())
 		{
 			$this->addErrors($checkPropertyResult->getErrors());
+
 			return null;
 		}
 
 		$property = $this->getPropertyById($propertyId);
+		if (!$property)
+		{
+			$this->addError($this->getErrorEntityNotExists());
+
+			return null;
+		}
 		$fields['IBLOCK_ID'] = $property['IBLOCK_ID'];
 
 		\CIBlockSectionPropertyLink::Set(self::BLANK_SECTION, $propertyId, $fields);

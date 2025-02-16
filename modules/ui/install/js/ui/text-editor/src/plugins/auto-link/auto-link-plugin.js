@@ -267,7 +267,6 @@ function handleLinkCreation(node: TextNode, matchers: Array<LinkMatcher>, onChan
 				attributes.target = '_blank';
 			}
 
-			console.log('match.url', match.text, match.url);
 			const linkNode = $createAutoLinkNode(match.url, attributes);
 			const textNode = $createTextNode(match.text);
 			textNode.setFormat(linkTextNode.getFormat());

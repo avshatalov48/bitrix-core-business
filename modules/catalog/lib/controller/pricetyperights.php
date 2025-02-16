@@ -21,7 +21,7 @@ trait PriceTypeRights
 			&& !AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)
 		)
 		{
-			$r->addError(new Error('Access Denied'));
+			$r->addError(new Error('Access Denied', ErrorCode::READ_PERMISSION_ACCESS_DENIED));
 		}
 
 		return $r;
@@ -36,7 +36,7 @@ trait PriceTypeRights
 
 		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT))
 		{
-			$result->addError(new Error('Access Denied'));
+			$result->addError(new Error('Access Denied', ErrorCode::MODIFY_PERMISSION_ACCESS_DENIED));
 		}
 
 		return $result;

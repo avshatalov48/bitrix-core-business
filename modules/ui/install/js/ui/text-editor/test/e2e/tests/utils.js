@@ -280,6 +280,7 @@ async function pasteWithClipboardDataFromPage(page, clipboardData)
 			canUseBeforeInput: _canUseBeforeInput,
 		}) => {
 			const files = [];
+			const items = [];
 			for (const [clipboardKey, clipboardValue] of Object.entries(_clipboardData))
 			{
 				if (clipboardKey.startsWith('playwright/base64'))
@@ -289,6 +290,13 @@ async function pasteWithClipboardDataFromPage(page, clipboardData)
 					const res = await fetch(base64);
 					const blob = await res.blob();
 					files.push(new File([blob], 'file', { type }));
+				}
+				else
+				{
+					items.push({
+						type: clipboardKey,
+						kind: 'string',
+					});
 				}
 			}
 
@@ -302,6 +310,7 @@ async function pasteWithClipboardDataFromPage(page, clipboardData)
 						return _clipboardData[type];
 					},
 					types: [...Object.keys(_clipboardData), 'Files'],
+					items,
 				};
 			}
 			else
@@ -313,6 +322,7 @@ async function pasteWithClipboardDataFromPage(page, clipboardData)
 						return _clipboardData[type];
 					},
 					types: Object.keys(_clipboardData),
+					items,
 				};
 			}
 

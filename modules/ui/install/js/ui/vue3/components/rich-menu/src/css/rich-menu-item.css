@@ -135,6 +135,10 @@
 	background-image: url('./images/role.svg');
 }
 
+.ui-rich-menu-item__icon.--settings {
+	background-image: url('./images/settings.svg');
+}
+
 .ui-rich-menu-item__icon.--trash-bin {
 	background-image: url('./images/trash-bin.svg');
 }

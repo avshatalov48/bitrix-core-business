@@ -23,7 +23,7 @@ final class PriceType extends Base
 			'NAME' => [
 				'TYPE' => DataType::TYPE_STRING,
 				'ATTRIBUTES' => [
-					Attributes::REQUIRED,
+					Attributes::REQUIRED_ADD,
 				],
 			],
 			'BASE' => [

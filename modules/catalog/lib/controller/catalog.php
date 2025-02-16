@@ -242,7 +242,7 @@ final class Catalog extends Controller
 		{
 			if (!$this->accessController->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS))
 			{
-				$r->addError(new Error('Access Denied', 200040300020));
+				$r->addError($this->getErrorModifyAccessDenied());
 			}
 		}
 
@@ -256,7 +256,7 @@ final class Catalog extends Controller
 		$user = CurrentUser::get();
 		if(!$user->canDoOperation('view_other_settings') && !$user->canDoOperation('edit_other_settings'))
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 
 		if (

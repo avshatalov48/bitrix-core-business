@@ -2,7 +2,7 @@
 $MESS['PRODUCT_COLUMN_PROVIDER_FIELD_TYPE'] = "Тип товара";
 $MESS['PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_TYPE'] = "Тип товара";
 $MESS['PRODUCT_COLUMN_PROVIDER_FIELD_AVAILABLE'] = "Доступность";
-$MESS['PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_AVAILABLE'] = "Доступность товара (не эквивалентна возможности покупки)";
+$MESS['PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_AVAILABLE_MSGVER_1'] = "Товар есть на складе или разрешена покупка даже при отсутствии товара";
 $MESS['PRODUCT_COLUMN_PROVIDER_FIELD_PRODUCT'] = "Товар";
 $MESS['PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_PRODUCT'] = "Товар";
 $MESS['PRODUCT_COLUMN_PROVIDER_FIELD_PRODUCT_QUANTITY'] = "Доступный остаток";

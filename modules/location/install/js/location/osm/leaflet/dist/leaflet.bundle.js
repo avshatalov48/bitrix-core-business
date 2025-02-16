@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Location = this.BX.Location || {};
 (function (exports) {
@@ -11635,7 +11636,7 @@ this.BX.Location = this.BX.Location || {};
 	  // devices. Enabled by default unless running on old Android devices.
 	  inertia: !android23,
 	  // @option inertiaDeceleration: Number = 3000
-	  // The rate with which the inertial movement slows down, in pixels/second?.
+	  // The rate with which the inertial movement slows down, in pixels/second².
 	  inertiaDeceleration: 3400,
 	  // px/s^2
 

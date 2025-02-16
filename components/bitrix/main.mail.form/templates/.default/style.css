@@ -6,9 +6,13 @@
 .main-mail-form-wrapper {
 	clear: both;
 	background: #fff;
-	padding: 0 20px;
+	padding: 10px 50px;
 	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	border-radius: var(--main-mail-form-border-radius, var(--ui-border-radius-md));
+}
+
+.ui-selector-footer .ui-selector-footer-link-add.hide-before:before {
+	visibility: hidden;
 }
 
 .main-mail-form-fields-wrapper {

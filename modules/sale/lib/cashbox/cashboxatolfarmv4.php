@@ -20,6 +20,11 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 	const HANDLER_MODE_ACTIVE = 'ACTIVE';
 	const HANDLER_MODE_TEST = 'TEST';
 
+	const CODE_VAT_5 = 'vat5';
+	const CODE_VAT_7 = 'vat7';
+
+	const CODE_CALC_VAT_5 = 'vat105';
+	const CODE_CALC_VAT_7 = 'vat107';
 	const CODE_CALC_VAT_10 = 'vat110';
 	const CODE_CALC_VAT_20 = 'vat120';
 
@@ -343,26 +348,30 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 	 */
 	private function mapVatValue($checkType, $vat)
 	{
-		$map = [
-			self::CODE_VAT_10 => [
-				PrepaymentCheck::getType() => self::CODE_CALC_VAT_10,
-				PrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_10,
-				PrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_10,
-				FullPrepaymentCheck::getType() => self::CODE_CALC_VAT_10,
-				FullPrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_10,
-				FullPrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_10
-			],
-			self::CODE_VAT_20 => [
-				PrepaymentCheck::getType() => self::CODE_CALC_VAT_20,
-				PrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_20,
-				PrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_20,
-				FullPrepaymentCheck::getType() => self::CODE_CALC_VAT_20,
-				FullPrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_20,
-				FullPrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_20,
-			],
-		];
+		$mapper = new Tools\Vat2PrepaymentCheckMapper(
+			$this->getVatToCalcVatMap()
+		);
+
+		$map = $mapper->getMap();
 
 		return $map[$vat][$checkType] ?? $vat;
+	}
+
+	protected static function getDefaultVatList(): array
+	{
+		$vatList = parent::getDefaultVatList();
+
+		return $vatList + [5 => self::CODE_VAT_5, 7 => self::CODE_VAT_7];
+	}
+
+	protected function getVatToCalcVatMap() : array
+	{
+		return [
+			self::CODE_VAT_5 => self::CODE_CALC_VAT_5,
+			self::CODE_VAT_7 => self::CODE_CALC_VAT_7,
+			self::CODE_VAT_10 => self::CODE_CALC_VAT_10,
+			self::CODE_VAT_20 => self::CODE_CALC_VAT_20,
+		];
 	}
 
 	/**

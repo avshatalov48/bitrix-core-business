@@ -438,24 +438,31 @@ class CatalogViewedProductTable extends Main\Entity\DataManager
 	/**
 	 * Clear old records.
 	 *
-	 * @param int $liveTime			Live time (in days).
+	 * @param int $liveTime Live time (in days).
 	 * @return void
 	 */
 	public static function clear($liveTime = 10)
 	{
 		$liveTime = (int)$liveTime;
 		if ($liveTime <= 0)
+		{
 			return;
+		}
+
+		$date = new Main\Type\Date();
+		$date->add('- ' . $liveTime . ' days');
 
 		$connection = Application::getConnection();
 		$helper = $connection->getSqlHelper();
-		$liveTo = $helper->addSecondsToDateTime($liveTime * 86400, $helper->quote('DATE_VISIT'));
 
 		$connection->query(
-			'delete from '.$helper->quote(self::getTableName()).
-			' where '.$liveTo.' < '.$helper->getCurrentDateTimeFunction()
+			'delete from ' . $helper->quote(self::getTableName())
+			. ' where ' .$helper->quote('DATE_VISIT') . ' < ' . $helper->convertToDbDate($date)
 		);
-		unset($liveTo, $helper, $connection);
+		unset(
+			$helper,
+			$connection,
+		);
 	}
 
 	/**

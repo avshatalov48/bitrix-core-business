@@ -516,7 +516,7 @@ final class Price extends Controller implements EventBindInterface
 		{
 			if (!$this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT))
 			{
-				$r->addError(new Error('Access Denied', 200040300020));
+				$r->addError($this->getErrorModifyAccessDenied());
 			}
 		}
 
@@ -532,7 +532,7 @@ final class Price extends Controller implements EventBindInterface
 			&& !$this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 		return $r;
 	}

@@ -421,7 +421,11 @@
 	--ui-icon-set__path_edit-menu: url('/bitrix/js/ui/icon-set/main/images/edit-menu.svg');
 	--ui-icon-set__path_demonstration-graphics: url('/bitrix/js/ui/icon-set/main/images/demonstration-graphics.svg');
 	--ui-icon-set__path_calendar-check: url('/bitrix/js/ui/icon-set/main/images/calendar-check.svg');
-	--ui-icon-set__path_sign: url('/bitrix/js/ui/icon-set/main/images/sign.svg')
+	--ui-icon-set__path_sign: url('/bitrix/js/ui/icon-set/main/images/sign.svg');
+	--ui-icon-set__path_demonstration-graphics-2: url('/bitrix/js/ui/icon-set/main/images/demonstration-graphics-2.svg');
+	--ui-icon-set__path_numbers-05: url('/bitrix/js/ui/icon-set/main/images/05-numbers.svg');
+	--ui-icon-set__path_flipchart: url('/bitrix/js/ui/icon-set/main/images/flipchart.svg');
+	--ui-icon-set__path_earth-time: url('/bitrix/js/ui/icon-set/main/images/earth-time.svg');
 }
 
 .ui-icon-set.--shield-2-core-problem {
@@ -2094,4 +2098,20 @@
 
 .ui-icon-set.--sign {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_sign);
+}
+
+.ui-icon-set.--flipchart {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_flipchart);
+}
+
+.ui-icon-set.--numbers-05 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_numbers-05);
+}
+
+.ui-icon-set.--demonstration-graphics-2 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_demonstration-graphics-2);
+}
+
+.ui-icon-set.--earth-time {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_earth-time);
 }

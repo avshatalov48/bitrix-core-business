@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\RestView;
 
+use Bitrix\Main\Result;
 use Bitrix\Rest\Integration\View\Attributes;
 use Bitrix\Rest\Integration\View\DataType;
 use Bitrix\Rest\Integration\View\Base;
@@ -9,16 +10,18 @@ use Bitrix\Rest\Integration\View\Base;
 final class ProductProperty extends Base
 {
 	/**
+	 * Returns fields descriptions.
+	 *
 	 * @return array[]
 	 */
-	public function getFields()
+	public function getFields(): array
 	{
 		return [
 			'ID' => [
 				'TYPE' => DataType::TYPE_INT,
 				'ATTRIBUTES' => [
-					Attributes::READONLY
-				]
+					Attributes::READONLY,
+				],
 			],
 			'TIMESTAMP_X' => [
 				'TYPE' => DataType::TYPE_DATETIME,
@@ -30,13 +33,13 @@ final class ProductProperty extends Base
 				'TYPE' => DataType::TYPE_INT,
 				'ATTRIBUTES' => [
 					Attributes::REQUIRED,
-				]
+				],
 			],
 			'NAME' => [
 				'TYPE' => DataType::TYPE_STRING,
 				'ATTRIBUTES' => [
-					Attributes::REQUIRED,
-				]
+					Attributes::REQUIRED_ADD,
+				],
 			],
 			'ACTIVE' => [
 				'TYPE' => DataType::TYPE_CHAR,
@@ -53,7 +56,7 @@ final class ProductProperty extends Base
 			'PROPERTY_TYPE' => [
 				'TYPE' => DataType::TYPE_STRING,
 				'ATTRIBUTES' => [
-					Attributes::REQUIRED,
+					Attributes::REQUIRED_ADD,
 				],
 			],
 			'USER_TYPE' => [
@@ -72,6 +75,9 @@ final class ProductProperty extends Base
 				'TYPE' => DataType::TYPE_CHAR,
 			],
 			'XML_ID' => [
+				'TYPE' => DataType::TYPE_STRING,
+			],
+			'FILE_TYPE' => [
 				'TYPE' => DataType::TYPE_STRING,
 			],
 			'MULTIPLE_CNT' => [
@@ -95,6 +101,33 @@ final class ProductProperty extends Base
 			'HINT' => [
 				'TYPE' => DataType::TYPE_STRING,
 			],
+			'USER_TYPE_SETTINGS' => [
+				'TYPE' => EntityFieldType::PRODUCT_PROPERTY_SETTINGS,
+			],
 		];
+	}
+
+	protected function externalizeExtendedTypeValue($name, $value, $fields, $fieldsInfo): Result
+	{
+		$info = $fieldsInfo[$name] ?? [];
+		$type = $info['TYPE'] ?? '';
+
+		if ($type === EntityFieldType::PRODUCT_PROPERTY_SETTINGS)
+		{
+			if (empty($value))
+			{
+				$value = null;
+			}
+			elseif (is_string($value) && $value !== '')
+			{
+				$value = unserialize($value, ['allowed_classes' => false]);
+			}
+			if (empty($value) || !is_array($value))
+			{
+				$value = null;
+			}
+		}
+
+		return parent::externalizeExtendedTypeValue($name, $value, $fields, $fieldsInfo);
 	}
 }

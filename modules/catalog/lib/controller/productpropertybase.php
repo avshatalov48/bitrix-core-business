@@ -2,13 +2,11 @@
 
 namespace Bitrix\Catalog\Controller;
 
-
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\CatalogIblockTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\Type\Collection;
 
 abstract class ProductPropertyBase extends Controller
 {
@@ -17,19 +15,26 @@ abstract class ProductPropertyBase extends Controller
 	 */
 	protected function getCatalogIds(): array
 	{
-		static $catalogIds = null;
-
-		if (is_null($catalogIds))
+		$catalogIds = [];
+		$iterator = CatalogIblockTable::getList([
+			'select' => [
+				'IBLOCK_ID'
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+		while ($row = $iterator->fetch())
 		{
-			$catalogIds = array_column(CatalogIblockTable::getList(['select' => ['IBLOCK_ID']])->fetchAll(), 'IBLOCK_ID');
-			Collection::normalizeArrayValuesByInt($catalogIds);
+			$catalogIds[] = (int)$row['IBLOCK_ID'];
 		}
+		unset($row, $iterator);
 
 		return $catalogIds;
 	}
 
 	/**
-	 * @param $iblockId
+	 * @param int $iblockId
 	 * @return bool
 	 */
 	protected function isIblockCatalog(int $iblockId): bool
@@ -63,13 +68,15 @@ abstract class ProductPropertyBase extends Controller
 		$property = $this->getPropertyById($propertyId);
 		if (!$property)
 		{
-			$result->addError(new Error('The specified property does not exist'));
+			$result->addError($this->getErrorEntityNotExists());
+
 			return $result;
 		}
 
 		if (!$this->isIblockCatalog((int)$property['IBLOCK_ID']))
 		{
-			$result->addError(new Error('The specified property does not belong to a product catalog'));
+			$result->addError($this->getErrorPropertyIblockIsNotCatalog());
+
 			return $result;
 		}
 
@@ -89,14 +96,23 @@ abstract class ProductPropertyBase extends Controller
 		if (!$checkPropertyResult->isSuccess())
 		{
 			$result->addErrors($checkPropertyResult->getErrors());
+
 			return $result;
 		}
 
 		$newProperty = $this->getPropertyById($newPropertyId);
+		if (!$newProperty)
+		{
+			$result->addError($this->getErrorEntityNotExists());
+
+			return $result;
+		}
+
 		$iblockPermissionsCheckResult = $this->checkIblockModifyPermission($newProperty['IBLOCK_ID']);
 		if (!$iblockPermissionsCheckResult->isSuccess())
 		{
 			$result->addErrors($iblockPermissionsCheckResult->getErrors());
+
 			return $result;
 		}
 
@@ -108,14 +124,14 @@ abstract class ProductPropertyBase extends Controller
 	 */
 	protected function checkReadPermissionEntity()
 	{
-		$r = new Result();
+		$result = new Result();
 
 		if (!($this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)))
 		{
-			$r->addError(new Error('Access Denied'));
+			$result->addError(new Error('Access Denied'));
 		}
 
-		return $r;
+		return $result;
 	}
 
 	/**
@@ -128,17 +144,38 @@ abstract class ProductPropertyBase extends Controller
 
 	/**
 	 * @param int $id
-	 * @return array|bool
+	 * @return array|null
 	 */
-	protected function getPropertyById(int $id)
+	protected function getPropertyById(int $id): ?array
 	{
-		static $map = [];
-
-		if (!isset($map[$id]))
+		if ($id <= 0)
 		{
-			$map[$id] = PropertyTable::getById($id)->fetch();
+			return null;
 		}
 
-		return $map[$id];
+		return PropertyTable::getRow([
+			'select' => ['*'],
+			'filter' => [
+				'=ID' => $id,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+	}
+
+	protected function getErrorPropertyIblockIsNotCatalog(): Error
+	{
+		return new Error('The specified property does not belong to a product catalog');
+	}
+
+	protected function getErrorPropertyInvalidType(): Error
+	{
+		return new Error('Invalid property type specified');
+	}
+
+	protected function getErrorBadPropertyFieldValues(): Error
+	{
+		return new Error('Invalid property field values');
 	}
 }

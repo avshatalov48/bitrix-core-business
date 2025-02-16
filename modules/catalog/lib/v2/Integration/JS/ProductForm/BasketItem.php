@@ -236,7 +236,7 @@ class BasketItem
 			return;
 		}
 
-		$property = $product->getPropertyCollection()->findByCode(self::BRAND_PROPERTY_CODE);
+		$property = $product->getPropertyCollection()->findByCodeLazy(self::BRAND_PROPERTY_CODE);
 		if (!$property)
 		{
 			return;

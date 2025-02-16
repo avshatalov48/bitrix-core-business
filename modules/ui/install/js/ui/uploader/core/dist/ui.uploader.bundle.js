@@ -445,6 +445,7 @@ this.BX.UI = this.BX.UI || {};
 	var _type = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("type");
 	var _width = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("width");
 	var _height = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("height");
+	var _animated = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("animated");
 	var _treatImageAsFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("treatImageAsFile");
 	var _clientPreview = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clientPreview");
 	var _clientPreviewUrl = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clientPreviewUrl");
@@ -502,6 +503,10 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _height, {
 	      writable: true,
 	      value: null
+	    });
+	    Object.defineProperty(this, _animated, {
+	      writable: true,
+	      value: false
 	    });
 	    Object.defineProperty(this, _treatImageAsFile, {
 	      writable: true,
@@ -1042,6 +1047,18 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }
+	  isAnimated() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _animated)[_animated];
+	  }
+	  setAnimated(flag) {
+	    if (main_core.Type.isBoolean(flag)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _animated)[_animated] = flag;
+	      this.emit(FileEvent.STATE_CHANGE, {
+	        property: 'animated',
+	        value: flag
+	      });
+	    }
+	  }
 	  setTreatImageAsFile(flag) {
 	    if (main_core.Type.isBoolean(flag)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _treatImageAsFile)[_treatImageAsFile] = flag;
@@ -1230,6 +1247,7 @@ this.BX.UI = this.BX.UI || {};
 	      failed: this.isFailed(),
 	      width: this.getWidth(),
 	      height: this.getHeight(),
+	      animated: this.isAnimated(),
 	      progress: this.getProgress(),
 	      error: this.getError(),
 	      errors: this.getErrors(),
@@ -2316,16 +2334,29 @@ this.BX.UI = this.BX.UI || {};
 	        reject(new Error('GIF signature not found.'));
 	        return;
 	      }
-	      const blob = file.slice(0, 10);
-	      getArrayBuffer(blob).then(buffer => {
+	      getArrayBuffer(file).then(buffer => {
 	        const view = new DataView(buffer);
 	        if (!compareBuffers(view, GIF87a, 0) && !compareBuffers(view, GIF89a, 0)) {
 	          reject(new Error('GIF signature not found.'));
 	          return;
 	        }
+
+	        // * a static 4-byte sequence (\x00\x21\xF9\x04)
+	        // * 4 variable bytes
+	        // * a static 2-byte sequence (\x00\x2C) (some variants may use \x00\x21 ?)
+	        // We read through the file til we reach the end of the file, or we've found
+	        // at least 2 frame headers
+	        let frames = 0;
+	        for (let i = 0, len = view.byteLength - 9; i < len && frames < 2; i++) {
+	          if (view.getUint8(i) === 0x00 && view.getUint8(i + 1) === 0x21 && view.getUint8(i + 2) === 0xF9 && view.getUint8(i + 3) === 0x04 && view.getUint8(i + 8) === 0x00 && (view.getUint8(i + 9) === 0x2C || view.getUint8(i + 9) === 0x21)) {
+	            frames++;
+	          }
+	        }
+	        const animated = frames > 1;
 	        resolve({
 	          width: view.getUint16(6, true),
-	          height: view.getUint16(8, true)
+	          height: view.getUint16(8, true),
+	          animated
 	        });
 	      }).catch(error => {
 	        reject(error);
@@ -2570,11 +2601,14 @@ this.BX.UI = this.BX.UI || {};
 	          const validStart = (extendedHeader & 0xC0) === 0;
 	          const validEnd = (extendedHeader & 0x01) === 0;
 	          if (validStart && validEnd) {
+	            const animated = (extendedHeader & 2) === 2; // 00000010 means an animated image
+
 	            const width = 1 + (headerView.getUint8(6) << 16 | headerView.getUint8(5) << 8 | headerView.getUint8(4));
 	            const height = 1 + (Math.trunc(headerView.getUint8(9)) | headerView.getUint8(8) << 8 | headerView.getUint8(7));
 	            resolve({
 	              width,
-	              height
+	              height,
+	              animated
 	            });
 	            return;
 	          }
@@ -2664,10 +2698,12 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      getImageSize(file.getBinary()).then(({
 	        width,
-	        height
+	        height,
+	        animated
 	      }) => {
 	        file.setWidth(width);
 	        file.setHeight(height);
+	        file.setAnimated(animated === true);
 	        if (width < this.getImageMinWidth() || height < this.getImageMinHeight()) {
 	          if (this.shouldTreatOversizeImageAsFile()) {
 	            file.setTreatImageAsFile(true);

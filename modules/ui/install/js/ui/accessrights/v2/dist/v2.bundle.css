@@ -4,12 +4,18 @@
 .ui-access-rights-v2-block {
 	position: relative;
 	pointer-events: none;
-	overflow: hidden;
-	height: 100vh;
 }
 
-.ui-access-rights-v2-block .ui-access-rights-v2-section {
-	opacity: .2;
+.ui-access-rights-v2-block::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(241, 244, 246, 0.8);
+	pointer-events: none;
+	z-index: 75;
 	transition: .2s;
 }
 
@@ -20,7 +26,7 @@
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0;
-	z-index: 100;
+	z-index: 50;
 	font-size: var(--ui-font-size-lg);
 }
 
@@ -157,7 +163,7 @@
 .ui-access-rights-v2-section-head .ui-access-rights-v2-column-item {
 	align-items: center;
 	flex-direction: row;
-	justify-content: normal;
+	justify-content: space-between;
 	border-left: none;
 	padding-left: 18px;
 }
@@ -248,18 +254,14 @@
 	transition: .11s;
 	transition-delay: .1s;
 	max-width: calc(205px - 20px - 16px - 5px); /* max column width - padding - menu - some padding between text and menu */
+	width: 100%;
+	text-align: center;
+	padding-right: 5px;
 }
 
 .ui-access-rights-v2-role-input {
 	border: none;
-	width: 100%;
-	text-align: center;
-}
-
-.ui-access-rights-v2-role-menu {
-	--ui-icon-set__icon-size: 16px;
-	opacity: var(--ui-opacity-40);
-	cursor: pointer;
+	padding-right: 15px;
 }
 
 .ui-access-rights-v2-column-item .ui-tag-selector-outer-container{
@@ -411,6 +413,21 @@ div.ui-access-rights-v2-members-item-new:last-of-type {
 	max-width: calc(100% - 40px); /* 20px for width paddings */
 }
 
+.ui-access-rights-v2-icon-more {
+	--ui-icon-set__icon-size: 16px;
+	opacity: var(--ui-opacity-40);
+	cursor: pointer;
+}
+
+.ui-access-rights-v2-search-input {
+	background-color: #F6F7F9;
+	border: none;
+}
+
+.ui-access-rights-v2-search-input:focus {
+	background-color: var(--ui-color-palette-white-base);
+}
+
 .ui-access-rights-v2-column-item.ui-access-rights-v2-header-roles-control {
 	display: flex;
 	flex-direction: column;
@@ -531,6 +548,24 @@ div.ui-access-rights-v2-members-item-new:last-of-type {
 	max-width: 200px;
 }
 
+.ui-access-rights-v2-menu-cell {
+	height: 18px;
+}
+
+.ui-access-rights-v2-title-column-menu {
+	margin-right: 12px;
+	cursor: pointer;
+
+	visibility: hidden;
+	width: 0;
+	transition: width 0.2s ease, visibility 0.2s ease;
+}
+
+.ui-access-rights-v2-column-item:hover .ui-access-rights-v2-title-column-menu {
+	visibility: visible;
+	width: 22px;
+}
+
 .ui-access-rights-v2-dv-popup--line-container {
 	margin-bottom: 15px;
 	padding: 0 10px;
@@ -567,53 +602,25 @@ div.ui-access-rights-v2-members-item-new:last-of-type {
 	max-width: 200px;
 }
 
-.ui-access-rights-v2-dv-popup--buttons {
+.ui-access-rights-v2-cell-popup-header-all-role-container {
+	display: flex;
+	align-items: center;
+}
+
+.ui-access-rights-v2-cell-popup-header-all-roles-caption {
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.ui-access-rights-v2-value-popup-buttons {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
 }
 
-.ui-access-rights-v2-cell-popup-header {
-	font-size: var(--ui-font-size-sm);
-}
-
-.ui-access-rights-v2-cell-popup-header-locator {
-	display: flex;
-	align-items: center;
-	height: 22px;
-	margin-bottom: 9px;
-}
-
-.ui-access-rights-v2-cell-popup-header-locator .ui-access-rights-v2-text-ellipsis {
-	max-width: 130px;
-}
-
-.ui-access-rights-v2-cell-popup-header-chevron {
-	--ui-icon-set__icon-size: 10px;
-	--ui-icon-set__icon-color: var(--ui-color-palette-gray-50);
-	margin-left: 3px;
-	margin-right: 3px;
-}
-
-.ui-access-rights-v2-cell-popup-header-role-line {
-	height: 30px;
-	margin-bottom: 9px;
-	border: var(--ui-border-width-thin) solid rgba(var(--ui-color-palette-gray-90-rgb), 0.1);
-	border-radius: var(--ui-border-radius-sm);
-	padding: 8px 18px 8px 8px;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
 .ui-access-rights-v2-cell-popup-header-role-container {
 	display: flex;
 	align-items: center;
-}
-
-.ui-access-rights-v2-cell-popup-header-role-icon {
-	--ui-icon-service-bg-color:var(--ui-color-palette-white-base);
-	--ui-icon-service-bg-image: url('/bitrix/js/ui/accessrights/v2/images/role.svg');
 }
 
 .ui-access-rights-v2-cell-popup-header-role-caption {
@@ -623,10 +630,53 @@ div.ui-access-rights-v2-members-item-new:last-of-type {
 
 .ui-access-rights-v2-cell-popup-header-role-title {
 	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
 }
 
 .ui-access-rights-v2-cell-popup-header-role-title.ui-access-rights-v2-text-ellipsis {
-	max-width: 300px;
+	max-width: 250px;
+}
+
+.ui-access-rights-v2-cell-popup-header-locator {
+	font-size: var(--ui-font-size-sm);
+	height: 22px;
+	margin-bottom: 9px;
+	overflow: hidden;
+
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.ui-access-rights-v2-cell-popup-header-locator .ui-access-rights-v2-text-ellipsis {
+	flex: 1;
+	max-width: -webkit-fit-content;
+	max-width: fit-content;
+}
+
+.ui-access-rights-v2-cell-popup-header-chevron {
+	--ui-icon-set__icon-size: 10px;
+	--ui-icon-set__icon-color: var(--ui-color-palette-gray-50);
+	margin-left: 3px;
+	margin-right: 3px;
+}
+
+.ui-access-rights-v2-cell-popup-header-master-switcher {
+	font-size: var(--ui-font-size-sm);
+	height: 30px;
+	margin-bottom: 9px;
+	padding: 10px 20px;
+	border-radius: var(--ui-border-radius-sm);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: var(--ui-color-palette-gray-02);
+	transition: background-color 0.5s;
+}
+
+.ui-access-rights-v2-cell-popup-header-master-switcher.--checked {
+	background-color: var(--ui-color-palette-green-15);
+	transition: background-color 0.5s;
 }
 
 .ui-access-rights-v2-cell-popup-header-toggle-container {
@@ -638,5 +688,12 @@ div.ui-access-rights-v2-members-item-new:last-of-type {
 	margin-left: auto;
 	margin-right: 5px;
 	font-size: var(--ui-font-size-xs);
-	color: var(--ui-color-palette-gray-40);
+	font-weight: var(--ui-font-weight-medium);
+	opacity: var(--ui-opacity-40);
+	transition: opacity 0.5s;
+}
+
+.ui-access-rights-v2-cell-popup-header-master-switcher.--checked .ui-access-rights-v2-cell-popup-header-toggle-caption {
+	opacity: var(--ui-opacity-full);
+	transition: opacity 0.5s;
 }

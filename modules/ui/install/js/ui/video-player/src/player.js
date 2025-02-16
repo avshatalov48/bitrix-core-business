@@ -2,8 +2,10 @@
 import { Dom, Type, Event, Reflection, Loc, type JsonObject } from 'main.core';
 import { BaseEvent } from 'main.core.events';
 import { videojs } from 'ui.video-js';
+import { GlobalSettings } from './global-settings';
 import { PlayerManager } from './player-manager';
 
+let langSetup = false;
 videojs.hook('beforesetup', (videoEl, options) => {
 	Dom.addClass(videoEl, 'ui-video-player ui-icon-set__scope');
 	if (videoEl.tagName.toLowerCase() === 'audio')
@@ -11,44 +13,50 @@ videojs.hook('beforesetup', (videoEl, options) => {
 		Dom.addClass(videoEl, 'vjs-audio-only-mode');
 	}
 
-	return options;
-});
+	if (langSetup === false)
+	{
+		videojs.addLanguage('video-player', {
+			Play: Loc.getMessage('VIDEO_PLAYER_PLAY'),
+			Pause: Loc.getMessage('VIDEO_PLAYER_PAUSE'),
+			Replay: Loc.getMessage('VIDEO_PLAYER_REPLAY'),
+			'Current Time': Loc.getMessage('VIDEO_PLAYER_CURRENT_TIME'),
+			Duration: Loc.getMessage('VIDEO_PLAYER_DURATION'),
+			'Remaining Time': Loc.getMessage('VIDEO_PLAYER_REMAINING_TIME'),
+			Loaded: Loc.getMessage('VIDEO_PLAYER_LOADED'),
+			Progress: Loc.getMessage('VIDEO_PLAYER_PROGRESS'),
+			'Progress Bar': Loc.getMessage('VIDEO_PLAYER_PROGRESS_BAR'),
+			Fullscreen: Loc.getMessage('VIDEO_PLAYER_FULLSCREEN'),
+			'Exit Fullscreen': Loc.getMessage('VIDEO_PLAYER_EXIT_FULLSCREEN'),
+			Mute: Loc.getMessage('VIDEO_PLAYER_MUTE'),
+			Unmute: Loc.getMessage('VIDEO_PLAYER_UNMUTE'),
+			'Playback Rate': Loc.getMessage('VIDEO_PLAYER_PLAYBACK_RATE'),
+			'Volume Level': Loc.getMessage('VIDEO_PLAYER_VOLUME_LEVEL'),
+			'You aborted the media playback': Loc.getMessage('VIDEO_PLAYER_ABORTED_PLAYBACK'),
+			'A network error caused the media download to fail part-way.': Loc.getMessage('VIDEO_PLAYER_NETWORK_ERROR'),
+			'The media could not be loaded, either because the server or network failed or because the format is not supported.': Loc.getMessage('VIDEO_PLAYER_FORMAT_NOT_SUPPORTED'),
+			'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.': Loc.getMessage('VIDEO_PLAYER_PLAYBACK_WAS_ABORTED'),
+			'No compatible source was found for this media.': Loc.getMessage('VIDEO_PLAYER_NO_COMPATIBLE_SOURCE'),
+			'The media is encrypted and we do not have the keys to decrypt it.': Loc.getMessage('VIDEO_PLAYER_MEDIA_IS_ENCRYPTED'),
+			'Play Video': Loc.getMessage('VIDEO_PLAYER_PLAY_VIDEO'),
+			'Exit Picture-in-Picture': Loc.getMessage('VIDEO_PLAYER_EXIT_PICTURE_IN_PICTURE'),
+			'Picture-in-Picture': Loc.getMessage('VIDEO_PLAYER_PICTURE_IN_PICTURE'),
+		});
 
-videojs.addLanguage('video-player', {
-	Play: Loc.getMessage('VIDEO_PLAYER_PLAY'),
-	Pause: Loc.getMessage('VIDEO_PLAYER_PAUSE'),
-	Replay: Loc.getMessage('VIDEO_PLAYER_REPLAY'),
-	'Current Time': Loc.getMessage('VIDEO_PLAYER_CURRENT_TIME'),
-	Duration: Loc.getMessage('VIDEO_PLAYER_DURATION'),
-	'Remaining Time': Loc.getMessage('VIDEO_PLAYER_REMAINING_TIME'),
-	Loaded: Loc.getMessage('VIDEO_PLAYER_LOADED'),
-	Progress: Loc.getMessage('VIDEO_PLAYER_PROGRESS'),
-	'Progress Bar': Loc.getMessage('VIDEO_PLAYER_PROGRESS_BAR'),
-	Fullscreen: Loc.getMessage('VIDEO_PLAYER_FULLSCREEN'),
-	'Exit Fullscreen': Loc.getMessage('VIDEO_PLAYER_EXIT_FULLSCREEN'),
-	Mute: Loc.getMessage('VIDEO_PLAYER_MUTE'),
-	Unmute: Loc.getMessage('VIDEO_PLAYER_UNMUTE'),
-	'Playback Rate': Loc.getMessage('VIDEO_PLAYER_PLAYBACK_RATE'),
-	'Volume Level': Loc.getMessage('VIDEO_PLAYER_VOLUME_LEVEL'),
-	'You aborted the media playback': Loc.getMessage('VIDEO_PLAYER_ABORTED_PLAYBACK'),
-	'A network error caused the media download to fail part-way.': Loc.getMessage('VIDEO_PLAYER_NETWORK_ERROR'),
-	'The media could not be loaded, either because the server or network failed or because the format is not supported.': Loc.getMessage('VIDEO_PLAYER_FORMAT_NOT_SUPPORTED'),
-	'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.': Loc.getMessage('VIDEO_PLAYER_PLAYBACK_WAS_ABORTED'),
-	'No compatible source was found for this media.': Loc.getMessage('VIDEO_PLAYER_NO_COMPATIBLE_SOURCE'),
-	'The media is encrypted and we do not have the keys to decrypt it.': Loc.getMessage('VIDEO_PLAYER_MEDIA_IS_ENCRYPTED'),
-	'Play Video': Loc.getMessage('VIDEO_PLAYER_PLAY_VIDEO'),
-	'Exit Picture-in-Picture': Loc.getMessage('VIDEO_PLAYER_EXIT_PICTURE_IN_PICTURE'),
-	'Picture-in-Picture': Loc.getMessage('VIDEO_PLAYER_PICTURE_IN_PICTURE'),
+		langSetup = true;
+	}
+
+	return options;
 });
 
 export class Player
 {
-	inited: boolean = false;
 	id: string = null;
 	muted: boolean = false;
 	hasStarted: boolean = false;
 	vjsPlayer: boolean = null;
 	isAudio: boolean = false;
+
+	static #globalSettings = new GlobalSettings('bx-video-player-settings');
 
 	constructor(id, params)
 	{
@@ -269,7 +277,8 @@ export class Player
 			}
 		}
 
-		this.volume = params.volume || 0.8;
+		this.volume = BX.Type.isNumber(params.volume) ? params.volume : null;
+
 		this.startTime = params.startTime || 0;
 		this.onInit = params.onInit;
 		this.lazyload = params.lazyload;
@@ -294,7 +303,6 @@ export class Player
 		this.muted = params.muted || false;
 
 		this.params = params;
-		this.active = this.isPlayed();
 	}
 
 	#getDefaultOptions(): JsonObject
@@ -335,28 +343,36 @@ export class Player
 
 		this.#fireEvent('onBeforeInit');
 
-		if (videojs.players[this.id])
-		{
-			videojs.players[this.id].dispose();
-		}
-
 		this.vjsPlayer = videojs(this.id, this.params);
 
 		if (this.isAudio)
 		{
 			this.#hideAudioControls();
+			this.#setInitialVolume();
 		}
+
+		this.vjsPlayer.one('loadedmetadata', (event) => {
+			if (!this.isAudio && !(this.vjsPlayer.videoWidth() > 0 && this.vjsPlayer.videoHeight() > 0))
+			{
+				// Throw an error if a video doesn't have dimensions
+				event.stopPropagation();
+				event.stopImmediatePropagation();
+
+				setTimeout(() => {
+					this.vjsPlayer.error(4);
+				}, 0);
+			}
+			else if (this.duration > 0)
+			{
+				this.vjsPlayer.duration(this.duration);
+			}
+		});
 
 		this.vjsPlayer.on('fullscreenchange', () => {
 			this.vjsPlayer.focus();
 		});
 
-		if (this.duration > 0)
-		{
-			this.vjsPlayer.one('loadedmetadata', () => {
-				this.vjsPlayer.duration(this.duration);
-			});
-		}
+		this.#proxyEvents();
 
 		this.vjsPlayer.ready(() => {
 			const controlBar = this.vjsPlayer.getChild('ControlBar');
@@ -368,28 +384,30 @@ export class Player
 				videojs.off(playbackButton.el(), 'mouseleave');
 			}
 
-			this.vjsPlayer.volume(this.volume);
 			this.vjsPlayer.one('play', this.#handlePlayOnce.bind(this));
 
-			this.inited = true;
 			if (Type.isFunction(this.onInit))
 			{
 				this.onInit(this);
 			}
 
 			this.#fireEvent('onAfterInit');
-			this.#proxyEvents();
-
-			if (this.autostart && !this.lazyload)
-			{
-				setTimeout(() => {
-					if (!this.hasStarted)
-					{
-						this.play();
-					}
-				}, 200);
-			}
 		});
+
+		if (this.autostart && !this.lazyload)
+		{
+			this.vjsPlayer.one('canplay', () => {
+				if (!this.hasStarted)
+				{
+					this.play();
+				}
+			});
+		}
+	}
+
+	isInited(): boolean
+	{
+		return this.vjsPlayer !== null;
 	}
 
 	getEventList(): Array<string>
@@ -405,6 +423,8 @@ export class Player
 			'Player:onClick',
 			'Player:onError',
 			'Player:onEnded',
+			'Player:onEnterPictureInPicture',
+			'Player:onLeavePictureInPicture',
 		];
 	}
 
@@ -514,10 +534,7 @@ export class Player
 			this.vjsPlayer.playbackRate(this.playbackRate);
 		}
 
-		if (this.volume)
-		{
-			this.vjsPlayer.volume(this.volume);
-		}
+		this.#setInitialVolume();
 
 		if (this.startTime > 0)
 		{
@@ -532,8 +549,23 @@ export class Player
 		}
 
 		this.vjsPlayer.on('volumechange', () => {
-			this.active = true;
+			this.constructor.#globalSettings.set('volume', this.vjsPlayer.volume());
 		});
+	}
+
+	#setInitialVolume(): void
+	{
+		const hasVolumePanel = !BX.Type.isNil(this.vjsPlayer.controlBar.getChild('VolumePanel'));
+		if (hasVolumePanel)
+		{
+			const volume = this.volume === null ? this.constructor.#globalSettings.get('volume', 0.8) : this.volume;
+			this.vjsPlayer.volume(volume);
+		}
+		else
+		{
+			const volume = this.volume === null ? 0.8 : this.volume;
+			this.vjsPlayer.volume(volume);
+		}
 	}
 
 	#handleClick(event: MouseEvent): void
@@ -546,12 +578,21 @@ export class Player
 
 	#handleKeyDown(event: KeyboardEvent): void
 	{
+		const beforeKeyDownEvent = new BaseEvent({ event });
+		this.#fireEvent('onBeforeKeyDown', beforeKeyDownEvent);
+		if (beforeKeyDownEvent.isDefaultPrevented())
+		{
+			return;
+		}
+
 		switch (event.code)
 		{
 			case 'KeyK':
 			case 'Space':
 			{
 				this.toggle();
+				event.preventDefault();
+				event.stopPropagation();
 
 				break;
 			}
@@ -568,6 +609,9 @@ export class Player
 					{
 						this.vjsPlayer.requestFullscreen();
 					}
+
+					event.preventDefault();
+					event.stopPropagation();
 				}
 
 				break;
@@ -576,6 +620,8 @@ export class Player
 			case 'KeyJ':
 			{
 				this.moveBackward(10);
+				event.preventDefault();
+				event.stopPropagation();
 
 				break;
 			}
@@ -583,6 +629,8 @@ export class Player
 			case 'KeyL':
 			{
 				this.moveForward(10);
+				event.preventDefault();
+				event.stopPropagation();
 
 				break;
 			}
@@ -590,6 +638,8 @@ export class Player
 			case 'ArrowLeft':
 			{
 				this.moveBackward(5);
+				event.preventDefault();
+				event.stopPropagation();
 
 				break;
 			}
@@ -597,6 +647,8 @@ export class Player
 			case 'ArrowRight':
 			{
 				this.moveForward(5);
+				event.preventDefault();
+				event.stopPropagation();
 
 				break;
 			}
@@ -612,12 +664,17 @@ export class Player
 					this.mute(true);
 				}
 
+				event.preventDefault();
+				event.stopPropagation();
+
 				break;
 			}
 
 			case 'Comma':
 			{
 				this.decreasePlaybackRate();
+				event.preventDefault();
+				event.stopPropagation();
 
 				break;
 			}
@@ -625,6 +682,8 @@ export class Player
 			case 'Period':
 			{
 				this.increasePlaybackRate();
+				event.preventDefault();
+				event.stopPropagation();
 
 				break;
 			}
@@ -634,19 +693,19 @@ export class Player
 			}
 		}
 
-		event.preventDefault();
-		event.stopPropagation();
-
-		this.#fireEvent('onKeyDown');
+		this.#fireEvent('onKeyDown', new BaseEvent({ event }));
 	}
 
-	#fireEvent(eventName: string): void
+	#fireEvent(eventName: string, event): void
 	{
 		if (Type.isStringFilled(eventName))
 		{
 			const fullName = `Player:${eventName}`;
 
-			Event.EventEmitter.emit(this, fullName, new BaseEvent({ compatData: [this, fullName] }));
+			const compatEvent = event || new BaseEvent();
+			compatEvent.setCompatData([this, fullName]);
+
+			Event.EventEmitter.emit(this, fullName, compatEvent);
 		}
 	}
 
@@ -662,7 +721,6 @@ export class Player
 		});
 
 		this.vjsPlayer.on('click', () => {
-			this.active = true;
 			this.#fireEvent('onClick');
 		});
 
@@ -670,8 +728,42 @@ export class Player
 			this.#fireEvent('onEnded');
 		});
 
+		this.vjsPlayer.on('loadedmetadata', () => {
+			this.#fireEvent('onLoadedMetadata');
+		});
+
 		this.vjsPlayer.on('error', () => {
 			this.#fireEvent('onError');
 		});
+
+		this.vjsPlayer.on('enterpictureinpicture', () => {
+			this.#fireEvent('onEnterPictureInPicture');
+		});
+
+		this.vjsPlayer.on('leavepictureinpicture', () => {
+			const event = new BaseEvent();
+			this.#fireEvent('onLeavePictureInPicture', event);
+
+			if (!event.isDefaultPrevented())
+			{
+				const visible = PlayerManager.isVisibleOnScreen(this.id, 1);
+				if (!visible)
+				{
+					this.pause();
+				}
+			}
+		});
+	}
+
+	destroy()
+	{
+		PlayerManager.removePlayer(this);
+
+		if (this.vjsPlayer !== null)
+		{
+			this.vjsPlayer.dispose();
+		}
+
+		this.vjsPlayer = null;
 	}
 }

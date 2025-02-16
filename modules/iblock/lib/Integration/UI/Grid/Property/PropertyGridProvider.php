@@ -4,6 +4,8 @@ namespace Bitrix\Iblock\Integration\UI\Grid\Property;
 
 use Bitrix\Iblock\Helpers\Admin\Property;
 use Bitrix\Iblock\Integration\UI\Grid\General\BaseProvider;
+use Bitrix\Main\Grid\Column\Type;
+use Bitrix\Main\Grid\Panel;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Type\Collection;
@@ -36,7 +38,7 @@ class PropertyGridProvider extends BaseProvider
 	/**
 	 * Field name.
 	 *
-	 * @param string $fieldId
+	 * @param string $fieldId Field indentifier.
 	 *
 	 * @return string|null
 	 */
@@ -63,6 +65,7 @@ class PropertyGridProvider extends BaseProvider
 			[
 				'id' => 'ID',
 				'name' => Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_ID'),
+				'type' => 'int',
 				'sort' => 'ID',
 			],
 			[
@@ -75,7 +78,7 @@ class PropertyGridProvider extends BaseProvider
 			[
 				'id' => 'CODE',
 				'name' => Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_CODE'),
-				'sort'  =>  'CODE',
+				'sort'  => 'CODE',
 				'editable' => true,
 			],
 			[
@@ -90,6 +93,7 @@ class PropertyGridProvider extends BaseProvider
 				'id' => 'SORT',
 				'name' => Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_SORT'),
 				'sort' => 'SORT',
+				'type' => 'int',
 				'default' => true,
 				'editable' => true,
 			],
@@ -233,17 +237,121 @@ class PropertyGridProvider extends BaseProvider
 	/**
 	 * Prepare row.
 	 *
-	 * @param array $rawRow
+	 * @param array $rawRow Row data from database.
 	 *
 	 * @return array
 	 */
 	public function prepareRow(array $rawRow): array
 	{
-		if (isset($rawRow['NAME']))
+		foreach($this->getColumns() as $field)
 		{
-			$rawRow['NAME'] = HtmlFilter::encode($rawRow['NAME']);
+			$id = $field['id'];
+			$type = $field['type'] ?? Type::TEXT;
+			switch ($type)
+			{
+				case Type::TEXT:
+					if (isset($rawRow[$id]))
+					{
+						$rawRow[$id] = HtmlFilter::encode($rawRow[$id]);
+					}
+					break;
+				case Type::INT:
+					if (isset($rawRow[$id]))
+					{
+						$rawRow[$id] = (int)$rawRow[$id];
+					}
+					break;
+			}
 		}
 
 		return parent::prepareRow($rawRow);
+	}
+
+	/**
+	 * Returns the description of the group action panel for the property grid.
+	 *
+	 * @return array|null
+	 */
+	public function getActionPanel(): ?array
+	{
+		$items = [];
+		$items[] = $this->getRemoveActionItem();
+		$items[] = $this->getEditActionItem();
+
+		return [
+			'GROUPS' => [
+				[
+					'ITEMS' => $items,
+				],
+			],
+		];
+	}
+
+	protected function getRemoveActionItem(): array
+	{
+		$onchange = new Panel\Snippet\Onchange();
+		$onchange->addAction([
+			'ACTION' => Panel\Actions::CALLBACK,
+			'CONFIRM' => true,
+			'CONFIRM_APPLY_BUTTON' => Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_CONFIRM_APPLY_REMOVE_BUTTON_TEXT'),
+			'CONFIRM_MESSAGE' => Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_CONFIRM_MESSAGE_REMOVE'),
+			'DATA' => [
+				[
+					'JS' => 'Grid.removeSelected()',
+				],
+			]
+		]);
+
+		$removeButton = new Panel\Snippet\Button();
+		$removeButton->setClass(Panel\DefaultValue::REMOVE_BUTTON_CLASS)
+			->setId(Panel\DefaultValue::REMOVE_BUTTON_ID)
+			->setOnchange($onchange)
+			->setText(Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_ACTION_DELETE'))
+			->setTitle(Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_ACTION_DELETE_TITLE'))
+		;
+
+		return $removeButton->toArray();
+	}
+
+	protected function getEditActionItem(): array
+	{
+		$snippet = new Panel\Snippet();
+
+		$actions = [];
+		$actions[] = [
+			'ACTION' => Panel\Actions::CREATE,
+			'DATA' => [
+				$snippet->getSaveEditButton(),
+				$snippet->getCancelEditButton(),
+			],
+		];
+		$actions[] = [
+			'ACTION' => Panel\Actions::CALLBACK,
+			'DATA' => [
+				[
+					'JS' => 'Grid.editSelected()',
+				],
+			],
+		];
+		$actions[] = [
+			'ACTION' => Panel\Actions::HIDE_ALL_EXPECT,
+			'DATA' => [
+				[
+					'ID' => Panel\DefaultValue::SAVE_BUTTON_ID,
+				],
+				[
+					'ID' => Panel\DefaultValue::CANCEL_BUTTON_ID,
+				],
+			],
+		];
+
+		$editButton = new Panel\Snippet\Button();
+		$editButton->setClass(Panel\DefaultValue::EDIT_BUTTON_CLASS);
+		$editButton->setId(Panel\DefaultValue::EDIT_BUTTON_ID);
+		$editButton->setText(Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_ACTION_EDIT'));
+		$editButton->setOnchange(new Panel\Snippet\Onchange($actions));
+		$editButton->setTitle(Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_ACTION_EDIT_TITLE'));
+
+		return $editButton->toArray();
 	}
 }

@@ -12,6 +12,7 @@ return [
 		'mail.sidepanelwrapper',
 		'ui.dialogs.messagebox',
 		'mail.avatar',
+		'main.core.events',
 		'ui.forms',
 		'ui.alerts',
 	],

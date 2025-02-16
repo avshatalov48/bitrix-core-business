@@ -1,4 +1,6 @@
+
 import { BBCodeNode, type BBCodeElementNode } from 'ui.bbcode.model';
+import { $insertDataTransferForPlainText } from 'ui.lexical.clipboard';
 import type { ElementNode } from 'ui.lexical.core';
 import {
 	RootNode,
@@ -14,6 +16,7 @@ import {
 	KEY_ARROW_LEFT_COMMAND,
 	KEY_ARROW_DOWN_COMMAND,
 	KEY_ARROW_RIGHT_COMMAND,
+	PASTE_COMMAND,
 	type LexicalNode,
 	type RangeSelection,
 	type LexicalCommand,
@@ -32,6 +35,8 @@ import type {
 	BBCodeExportOutput,
 	BBCodeImportConversion,
 } from '../../bbcode';
+import { NewLineMode } from '../../constants';
+import { wrapTextInParagraph } from '../../helpers/wrap-text-in-paragraph';
 
 import type { SchemeValidationOptions } from '../../types/scheme-validation-options';
 
@@ -201,12 +206,88 @@ export class ParagraphPlugin extends BasePlugin
 				this.#handleEscapeDown.bind(this),
 				COMMAND_PRIORITY_LOW,
 			),
+			this.getEditor().registerCommand(
+				PASTE_COMMAND,
+				this.#handlePaste.bind(this),
+				COMMAND_PRIORITY_LOW,
+			),
 		);
 	}
 
 	#isBlockNode(node: LexicalNode | null | undefined): boolean
 	{
 		return $isQuoteNode(node) || $isCodeNode(node) || $isSpoilerNode(node);
+	}
+
+	#handlePaste(event): boolean
+	{
+		if (this.getEditor().getNewLineMode() === NewLineMode.PARAGRAPH)
+		{
+			// use a build-in algorithm (Rich Text Plugin)
+			return false;
+		}
+
+		if (this.getEditor().getNewLineMode() === NewLineMode.LINE_BREAK)
+		{
+			event.preventDefault();
+			this.getEditor().update(
+				() => {
+					const selection = $getSelection();
+					const { clipboardData } = event;
+					if (clipboardData !== null && $isRangeSelection(selection))
+					{
+						$insertDataTransferForPlainText(clipboardData, selection);
+					}
+				},
+				{
+					tag: 'paste',
+				},
+			);
+
+			return true;
+		}
+
+		// Mixed Mode
+		const clipboardData: DataTransfer = event.clipboardData;
+		if (
+			!clipboardData
+			|| clipboardData.items.length !== 1
+			|| (clipboardData.items[0].type !== 'text/plain' && clipboardData.items[0].type !== 'text/uri-list')
+		)
+		{
+			return false;
+		}
+
+		const text = clipboardData.getData('text/plain') || clipboardData.getData('text/uri-list');
+		const hasLineBreaks = /\n/.test(text);
+		if (!hasLineBreaks)
+		{
+			return false;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		const html = wrapTextInParagraph(text);
+		const dataTransfer = new DataTransfer();
+		dataTransfer.setData('text/plain', clipboardData.getData('text/plain'));
+		dataTransfer.setData('text/html', html);
+		const pasteEvent = new ClipboardEvent('paste', {
+			clipboardData: dataTransfer,
+			bubbles: true,
+			cancelable: true,
+		});
+
+		if (pasteEvent.clipboardData.items.length === 0)
+		{
+			// Firefox
+			pasteEvent.clipboardData.setData('text/plain', clipboardData.getData('text/plain'));
+			pasteEvent.clipboardData.setData('text/html', html);
+		}
+
+		this.getEditor().getEditableContainer().dispatchEvent(pasteEvent);
+
+		return true;
 	}
 
 	#handleEscapeUp(): boolean

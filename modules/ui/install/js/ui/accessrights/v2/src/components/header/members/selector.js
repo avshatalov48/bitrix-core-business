@@ -1,5 +1,6 @@
 import { Type } from 'main.core';
 import { Dialog, type Item, type ItemId } from 'ui.entity-selector';
+import { EntitySelectorContext } from '../../../integration/entity-selector/dictionary';
 
 export const Selector = {
 	name: 'Selector',
@@ -30,7 +31,7 @@ export const Selector = {
 	{
 		(new Dialog({
 			enableSearch: true,
-			context: 'ui.accessrights.v2~member-selector',
+			context: EntitySelectorContext.MEMBER,
 			alwaysShowLabels: true,
 			entities: [
 				{

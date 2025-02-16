@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["FLOW_FORGOT_FILENAME"] = "Please provide the \"Full file name\"";
 $MESS["FLOW_DOCUMENT_LOCKED"] = "The document is temporarily locked by the user # #ID# (#DATE#)";
 $MESS["FLOW_EDIT_RECORD"] = "Edit document";
@@ -49,4 +50,3 @@ $MESS["FLOW_ACCESS_DENIED_FOR_FILE_WRITE"] = "You don't have enough rights to cr
 $MESS["FLOW_DOCUMENT_NOT_FOUND"] = "Incorrect document ID, or document could not be found in the database.";
 $MESS["FLOW_ERROR"] = "Error! ";
 $MESS["FLOW_ERROR_WRONG_STATUS"] = "You do not have enough permissions to save documents in this status.";
-?>

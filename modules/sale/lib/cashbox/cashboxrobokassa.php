@@ -20,6 +20,8 @@ class CashboxRobokassa extends CashboxPaySystem
 	private const CODE_VAT_0 = 'vat0';
 	private const CODE_VAT_10 = 'vat10';
 	private const CODE_VAT_20 = 'vat20';
+	private const CODE_VAT_5 = 'vat5';
+	private const CODE_VAT_7 = 'vat7';
 
 	private const CHECK_PAYMENT_TYPE = 2;
 
@@ -444,12 +446,14 @@ class CashboxRobokassa extends CashboxPaySystem
 				$defaultVatList = [
 					0 => self::CODE_VAT_0,
 					10 => self::CODE_VAT_10,
-					20 => self::CODE_VAT_20
+					20 => self::CODE_VAT_20,
+					5 => self::CODE_VAT_5,
+					7 => self::CODE_VAT_7,
 				];
 
 				foreach ($vatList as $vat)
 				{
-					$value = '';
+					$value = null;
 					if (isset($defaultVatList[(int)$vat['RATE']]))
 					{
 						$value = $defaultVatList[(int)$vat['RATE']];

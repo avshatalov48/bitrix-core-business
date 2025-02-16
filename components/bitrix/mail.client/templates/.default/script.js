@@ -464,8 +464,8 @@
 			var deleteLink   = BX.findChildByClassName(this.__wrapper, 'js-msg-view-control-delete', true);
 
 			BX.bind(replyButton, 'click', this.showReplyForm.bind(this));
-			BX.bind(replyAllLink, 'click', this.showReplyForm.bind(this));
-			BX.bind(replyLink, 'click', this.showReplyForm.bind(this, true));
+			BX.bind(replyAllLink, 'click', this.showReplyForm.bind(this, true));
+			BX.bind(replyLink, 'click', this.showReplyForm.bind(this));
 
 			BX.bind(forwardLink, 'click', function ()
 			{
@@ -724,7 +724,7 @@
 		}
 	};
 
-	BXMailMessage.prototype.showReplyForm = function (min)
+	BXMailMessage.prototype.showReplyForm = function(isReplyAll)
 	{
 		var mailForm = BXMainMailForm.getForm(this.options.formId);
 		var replyButton = BX.findChildByClassName(this.__wrapper, 'js-msg-view-reply-panel', true);
@@ -734,20 +734,21 @@
 			this.htmlForm.__wrapper.appendChild(this.htmlForm);
 		}
 
-		mailForm.init();
+		var isInit = mailForm.init({
+			isReplyAll,
+		});
 
-		if (min === true)
+		if (isInit === false)
 		{
-			mailForm.getField('data[to]').setValue(this.options.rcptSelected);
-			mailForm.getField('data[cc]').setValue();
+			if (isReplyAll === true)
+			{
+				mailForm.fillFieldsForReplyAll();
+			}
+			else
+			{
+				mailForm.fillFieldsForReply();
+			}
 		}
-		else
-		{
-			mailForm.getField('data[to]').setValue(this.options.rcptAllSelected);
-			mailForm.getField('data[cc]').setValue(this.options.rcptCcSelected);
-		}
-
-		mailForm.getField('data[bcc]').setValue();
 
 		BX.onCustomEvent('MailMessage:replyButtonClick', [this]);
 

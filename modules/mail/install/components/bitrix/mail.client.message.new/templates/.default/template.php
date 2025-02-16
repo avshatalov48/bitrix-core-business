@@ -51,75 +51,6 @@ $emailsLimitToSendMessage = Helper\LicenseManager::getEmailsLimitToSendMessage()
 $this->endViewTarget();
 
 $message = $arResult['MESSAGE'];
-
-$rcptList = [
-	'users' => [],
-	'emails' => $arResult['EMAILS'],
-	'mailContacts' => $arResult['LAST_RCPT'],
-	'companies' => [],
-	'contacts' => [],
-	'deals' => [],
-	'leads' => [],
-];
-$rcptLast = [
-	'users' => [],
-	'emails' => [],
-	'mailContacts' => array_combine(array_keys($arResult['LAST_RCPT']), array_keys($arResult['LAST_RCPT'])),
-	'companies' => [],
-	'contacts' => [],
-	'deals' => [],
-	'leads' => [],
-];
-
-$prepareReply = function($__field) use (&$message, &$rcptList, &$rcptLast) {
-	$result = [];
-
-	foreach ((array)$__field as $item)
-	{
-		if (!empty($item['email']))
-		{
-			if ('reply' == $message['__type'] && $message['__email'] == $item['email'])
-			{
-				continue;
-			}
-
-			//			$id = 'U'.md5($item['email']);
-			//			$type = 'users';
-			$id = 'MC'.$item['email'];
-			$type = 'mailcontacts';
-
-			$rcptList['emails'][$id] = $rcptList[$type][$id] = [
-				'id' => $id,
-				'entityId' => count($rcptList['emails']) + 1,
-				'name' => $item['name'] ? : $item['email'],
-				'desc' => $item['email'],
-				'email' => $item['email'],
-				'isEmail' => 'Y',
-			];
-			$rcptLast['emails'][$id] = $rcptLast[$type][$id] = $id;
-
-			$result[$id] = $type;
-		}
-	}
-
-	return $result;
-};
-
-$rcptSelected = [];
-$rcptCcSelected = [];
-
-if ('reply' == $message['__type'])
-{
-	$rcptSelected = $prepareReply($message['__is_outcome'] ? $message['__to'] : $message['__reply_to']);
-	$rcptCcSelected = $prepareReply($message['__cc']);
-}
-else
-{
-	$rcptSelected = $prepareReply($message['__rcpt']);
-}
-
-$isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
-
 ?>
 
 <div class="mail-msg-view-wrapper">
@@ -187,25 +118,6 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 				$attachedFiles = array_intersect($attachedFiles, $inlineFiles);
 			}
 
-			$selectorParams = [
-				//'pathToAjax' => '/bitrix/components/bitrix/crm.activity.editor/ajax.php?soc_net_log_dest=search_email_comms',
-				'extranetUser' => false,
-				'isCrmFeed' => $isCrmEnabled,
-				'CrmTypes' => ['CRMCONTACT', 'CRMCOMPANY', 'CRMLEAD'],
-				'enableUsers' => true,
-				'useClientDatabase' => true,
-				'allowSearchEmailContacts' => true,
-				'allowAddUser' => true,
-				'allowAddCrmContact' => false,
-				'allowSearchEmailUsers' => true,
-				'allowSearchCrmEmailUsers' => false,
-				'allowUserSearch' => true,
-				'items' => $rcptList,
-				'itemsLast' => $rcptLast,
-				'emailDescMode' => true,
-				'searchOnlyWithEmail' => true,
-			];
-
 			$APPLICATION->includeComponent(
 				'bitrix:main.mail.form',
 				'',
@@ -220,6 +132,8 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 					'USE_SIGNATURES' => true,
 					'USE_CALENDAR_SHARING' => true,
 					'COPILOT_PARAMS' => $arResult['COPILOT_PARAMS'],
+					'CONTEXT_NAME' => 'MAIL',
+					'SELECTED_RECIPIENTS_JSON' => Message::getSelectedRecipientsForDialog($message['__rcpt'], true)->toJsObject(),
 					'FIELDS' => [
 						[
 							'name' => 'data[from]',
@@ -237,11 +151,6 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_TO'),
 							'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
 							'type' => 'rcpt',
-							//'value'       => $rcptSelected,
-							'selector' => array_merge(
-								$selectorParams,
-								['itemsSelected' => $rcptSelected]
-							),
 							'required' => true,
 						],
 						[
@@ -249,12 +158,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 							'title' => Loc::getMessage('MAIL_MESSAGE_NEW_CC'),
 							'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
 							'type' => 'rcpt',
-							'folded' => empty($rcptCcSelected),
-							//'value'       => $rcptCcSelected,
-							'selector' => array_merge(
-								$selectorParams,
-								['itemsSelected' => $rcptCcSelected]
-							),
+							'folded' => false,
 						],
 						[
 							'name' => 'data[bcc]',
@@ -262,7 +166,6 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 							'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
 							'type' => 'rcpt',
 							'folded' => true,
-							'selector' => $selectorParams,
 						],
 						[
 							'name' => 'data[subject]',
@@ -339,13 +242,6 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 
 		var mailForm = BXMainMailForm.getForm('<?=\CUtil::jsEscape($formId) ?>');
 		mailForm.init();
-		<? if($arResult['SELECTED_EMAIL_CODE'] && !empty($arResult['LAST_RCPT'][$arResult['SELECTED_EMAIL_CODE']])): ?>
-		mailForm.getField('data[to]').setValue({
-			'<?= CUtil::JSEscape(
-				$arResult['SELECTED_EMAIL_CODE']
-			) ?>': 'mailContacts',
-		});
-		<? endif;?>
 	});
 
 </script>

@@ -2,8 +2,150 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
-(function (exports,main_core_events,ui_dialogs_messagebox,main_loader,ui_vue3_components_richMenu,ui_ears,ui_vue3,ui_vue3_components_popup,ui_vue3_directives_hint,ui_buttons,ui_entitySelector,ui_vue3_components_switcher,main_popup,ui_hint,ui_notification,ui_vue3_vuex,main_core) {
+(function (exports,main_core_events,ui_dialogs_messagebox,ui_buttons,ui_vue3_components_popup,ui_entitySelector,ui_vue3,ui_vue3_directives_hint,ui_vue3_components_switcher,main_popup,ui_ears,ui_hint,ui_vue3_components_richMenu,ui_notification,ui_analytics,ui_vue3_vuex,main_core) {
 	'use strict';
+
+	/**
+	 * @abstract
+	 */
+	class Base {
+	  /*
+	   * @abstract
+	   */
+	  getComponentName() {
+	    throw new Error('not implemented');
+	  }
+	  getEmptyValue(item) {
+	    var _item$emptyValue;
+	    return (_item$emptyValue = item.emptyValue) != null ? _item$emptyValue : new Set();
+	  }
+	  getMinValue(item) {
+	    if (!main_core.Type.isNil(item.minValue)) {
+	      return item.minValue;
+	    }
+	    return null;
+	  }
+	  getMaxValue(item) {
+	    if (!main_core.Type.isNil(item.maxValue)) {
+	      return item.maxValue;
+	    }
+	    return null;
+	  }
+	  isRowValueConfigurable() {
+	    return true;
+	  }
+	}
+
+	class DependentVariables extends Base {
+	  getComponentName() {
+	    return 'DependentVariables';
+	  }
+	}
+
+	class Multivariables extends Base {
+	  getComponentName() {
+	    return 'Multivariables';
+	  }
+	}
+
+	class Toggler extends Base {
+	  getComponentName() {
+	    return 'Toggler';
+	  }
+	  getEmptyValue(item) {
+	    const isFalsy = !item.emptyValue || !item.emptyValue[0];
+	    if (isFalsy) {
+	      // use explicit '0' for correctly identify modifications
+	      return new Set(['0']);
+	    }
+	    return super.getEmptyValue(item);
+	  }
+	  getMinValue(item) {
+	    const explicit = super.getMinValue(item);
+	    if (!main_core.Type.isNull(explicit)) {
+	      return explicit;
+	    }
+	    return new Set(['0']);
+	  }
+	  getMaxValue(item) {
+	    const explicit = super.getMaxValue(item);
+	    if (!main_core.Type.isNull(explicit)) {
+	      return explicit;
+	    }
+	    return new Set(['1']);
+	  }
+	  isRowValueConfigurable() {
+	    return false;
+	  }
+	}
+
+	class Variables extends Base {
+	  getComponentName() {
+	    return 'Variables';
+	  }
+	}
+
+	var _cache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cache");
+	class ServiceLocator {
+	  /**
+	   * `BX.UI.Hint.createInstance` takes up to 30% of CPU time when multiple hints are mounted on page
+	   * (e.g. on a load, search), probably because of `Manager.initByClassName` call in `new Manager`.
+	   * therefore, we share a Manager instance across all hints in the app
+	   */
+	  static getHint(appGuid) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].remember(`hint-${appGuid}`, () => {
+	      return BX.UI.Hint.createInstance({
+	        id: `ui-access-rights-v2-hint-${appGuid}`,
+	        popupParameters: {
+	          className: 'ui-access-rights-v2-popup-pointer-events ui-hint-popup',
+	          autoHide: true,
+	          darkMode: true,
+	          maxWidth: 280,
+	          offsetTop: 0,
+	          offsetLeft: 8,
+	          angle: true,
+	          animation: 'fading-slide'
+	        }
+	      });
+	    });
+	  }
+	  static getValueTypeByRight(right) {
+	    return this.getValueType(right.type);
+	  }
+	  static getValueType(type) {
+	    const stringType = String(type);
+	    return babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].remember(stringType, () => {
+	      if (stringType === 'dependent_variables') {
+	        return new DependentVariables();
+	      }
+	      if (stringType === 'multivariables') {
+	        return new Multivariables();
+	      }
+	      if (stringType === 'toggler') {
+	        return new Toggler();
+	      }
+	      if (stringType === 'variables') {
+	        return new Variables();
+	      }
+	      console.warn('ui.accessrights.v2: Unknown access right type', type);
+	      return null;
+	    });
+	  }
+	}
+	Object.defineProperty(ServiceLocator, _cache, {
+	  writable: true,
+	  value: new main_core.Cache.MemoryCache()
+	});
+
+	const EntitySelectorContext = Object.freeze({
+	  ROLE: 'ui.accessrights.v2~role-selector',
+	  MEMBER: 'ui.accessrights.v2~member-selector',
+	  VARIABLE: 'ui.accessrights.v2~variable-selector'
+	});
+	const EntitySelectorEntities = Object.freeze({
+	  ROLE: 'ui.accessrights.v2~role',
+	  VARIABLE: 'ui.accessrights.v2~variable'
+	});
 
 	const Selector = {
 	  name: 'Selector',
@@ -31,7 +173,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	  mounted() {
 	    new ui_entitySelector.Dialog({
 	      enableSearch: true,
-	      context: 'ui.accessrights.v2~member-selector',
+	      context: EntitySelectorContext.MEMBER,
 	      alwaysShowLabels: true,
 	      entities: [{
 	        id: 'user',
@@ -326,8 +468,8 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    }),
 	    ...ui_vue3_vuex.mapGetters({
 	      isMaxVisibleUserGroupsReached: 'userGroups/isMaxVisibleUserGroupsReached',
-	      isMaxValueSet: 'accessRights/isMaxValueSet',
-	      isMinValueSet: 'accessRights/isMinValueSet'
+	      isMaxValueSetForAny: 'accessRights/isMaxValueSetForAny',
+	      isMinValueSetForAny: 'accessRights/isMinValueSetForAny'
 	    }),
 	    title: {
 	      get() {
@@ -425,13 +567,13 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    },
 	    onSetMaxValuesClick() {
 	      this.isPopupShown = false;
-	      this.$store.dispatch('userGroups/setMaxAccessRightValuesForUserGroup', {
+	      this.$store.dispatch('userGroups/setMaxAccessRightValues', {
 	        userGroupId: this.userGroup.id
 	      });
 	    },
 	    onSetMinValuesClick() {
 	      this.isPopupShown = false;
-	      this.$store.dispatch('userGroups/setMinAccessRightValuesForUserGroup', {
+	      this.$store.dispatch('userGroups/setMinAccessRightValues', {
 	        userGroupId: this.userGroup.id
 	      });
 	    },
@@ -469,19 +611,19 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 			</div>
 			<div 
 				ref="menu"
-				class="ui-icon-set --more ui-access-rights-v2-role-menu" 
+				class="ui-icon-set --more ui-access-rights-v2-icon-more" 
 				@click="showActionsMenu"
 			>
 				<RichMenuPopup v-if="isPopupShown" @close="isPopupShown = false" :popup-options="{bindElement: $refs.menu}">
 					<RichMenuItem
-						v-if="isMaxValueSet"
+						v-if="isMaxValueSetForAny"
 						:icon="RichMenuItemIcon.check"
 						:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS')"
 						:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS_SUBTITLE')"
 						@click="onSetMaxValuesClick"
 					/>
 					<RichMenuItem
-						v-if="isMinValueSet"
+						v-if="isMinValueSetForAny"
 						:icon="RichMenuItemIcon['red-lock']"
 						:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS')"
 						:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS_SUBTITLE')"
@@ -518,6 +660,33 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 		</div>
 	`
 	};
+
+	class ItemsMapper {
+	  static mapUserGroups(userGroups) {
+	    const result = [];
+	    for (const userGroup of userGroups.values()) {
+	      result.push({
+	        id: userGroup.id,
+	        entityId: EntitySelectorEntities.ROLE,
+	        title: userGroup.title,
+	        supertitle: main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE'),
+	        avatar: '/bitrix/js/ui/accessrights/v2/images/role-avatar.svg',
+	        tabs: ['recents']
+	      });
+	    }
+	    return result;
+	  }
+	  static mapVariables(variables) {
+	    const items = [];
+	    for (const variable of variables.values()) {
+	      const item = main_core.Runtime.clone(variable);
+	      item.entityId = item.entityId || EntitySelectorEntities.VARIABLE;
+	      item.tabs = 'recents';
+	      items.push(item);
+	    }
+	    return items;
+	  }
+	}
 
 	const CellLayout = {
 	  template: `
@@ -570,16 +739,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      });
 	    },
 	    copyDialogItems() {
-	      const result = [];
-	      for (const userGroup of this.allUserGroups.values()) {
-	        result.push({
-	          id: userGroup.id,
-	          entityId: 'accessrights-user-group',
-	          title: userGroup.title || this.$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_NAME'),
-	          tabs: ['recents']
-	        });
-	      }
-	      return result;
+	      return ItemsMapper.mapUserGroups(this.allUserGroups);
 	    },
 	    viewDialogItems() {
 	      const result = [];
@@ -618,13 +778,12 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    },
 	    showCopyDialog() {
 	      const copyDialog = new ui_entitySelector.Dialog({
-	        context: 'ui.accessrights.v2~role-selector',
+	        context: EntitySelectorContext.ROLE,
 	        targetNode: this.$refs.configure,
 	        multiple: false,
 	        dropdownMode: true,
 	        enableSearch: true,
 	        cacheable: false,
-	        showAvatars: false,
 	        items: this.copyDialogItems,
 	        events: {
 	          'Item:onSelect': dialogEvent => {
@@ -641,7 +800,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    },
 	    showViewDialog(target) {
 	      this.viewDialog = new ui_entitySelector.Dialog({
-	        context: 'ui.accessrights.v2~role-selector',
+	        context: EntitySelectorContext.ROLE,
 	        footer: this.isMaxVisibleUserGroupsSet ? this.$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_SELECTOR_MAX_VISIBLE_WARNING', {
 	          '#COUNT#': this.maxVisibleUserGroups
 	        }) : null,
@@ -650,7 +809,6 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	        dropdownMode: true,
 	        enableSearch: true,
 	        cacheable: false,
-	        showAvatars: false,
 	        items: this.viewDialogItems,
 	        events: {
 	          'Item:onBeforeSelect': dialogEvent => {
@@ -690,13 +848,13 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    }
 	  },
 	  template: `
-		<ColumnLayout v-memo="[shownGroupsCounter]">
+		<ColumnLayout>
 			<CellLayout class="ui-access-rights-v2-header-roles-control">
 				<div class='ui-access-rights-v2-column-item-text ui-access-rights-v2-header-roles-control-header'>
 					<div>{{ $Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLES') }}</div>
 					<div
 						ref="configure"
-						class="ui-icon-set --more ui-access-rights-v2-role-menu"
+						class="ui-icon-set --more ui-access-rights-v2-icon-more"
 						@click="isPopupShown = true"
 					>
 						<RichMenuPopup v-if="isPopupShown" @close="isPopupShown = false" :popup-options="{bindElement: $refs.configure}">
@@ -731,7 +889,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 							<RichMenuItem
 								:icon="RichMenuItemIcon['opened-eye']"
 								:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_VIEW')"
-								:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_VIEW_SUBTITLE')"
+								:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE_VIEW_SUBTITLE_MSGVER_1')"
 								@click="onRoleViewClick"
 							/>
 						</RichMenuPopup>
@@ -811,22 +969,15 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    emitScrollEvent(event) {
 	      // this component instance is being scrolled, we need to notify other instances
 	      const {
-	        scrollLeft,
-	        scrollWidth,
-	        clientWidth,
-	        offsetWidth
+	        scrollLeft
 	      } = event.target;
-	      const scrollLeftOffset = scrollWidth - clientWidth;
-	      const scrollBarWidth = offsetWidth - clientWidth;
-	      if (scrollLeftOffset > scrollBarWidth) {
-	        lastScrollLeft.set(this.guid, scrollLeft);
+	      lastScrollLeft.set(this.guid, scrollLeft);
 
-	        // emit global application event so other SyncHorizontalScroll instances receive it
-	        this.$Bitrix.eventEmitter.emit('ui:accessrights:v2:syncScroll', {
-	          scrollLeft,
-	          componentGuid: this.componentGuid
-	        });
-	      }
+	      // emit global application event so other SyncHorizontalScroll instances receive it
+	      this.$Bitrix.eventEmitter.emit('ui:accessrights:v2:syncScroll', {
+	        scrollLeft,
+	        componentGuid: this.componentGuid
+	      });
 	    },
 	    handleScrollEvent(event) {
 	      const {
@@ -946,14 +1097,14 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    }
 	  },
 	  template: `
-		<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-round">
+		<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-access-rights-v2-search">
 			<input
 				type="text"
-				class="ui-ctl-element ui-ctl-textbox"
+				class="ui-ctl-element ui-ctl-textbox ui-access-rights-v2-search-input"
 				:placeholder="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SEARCH_PLACEHOLDER')"
 				v-model="searchQuery"
 			>
-			<a class="ui-ctl-after ui-ctl-icon-search"></a>
+			<a class="ui-ctl-after ui-ctl-icon-search ui-access-rights-v2-search-icon"></a>
 		</div>
 	`
 	};
@@ -963,6 +1114,18 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    return false;
 	  }
 	  return !accessRightItem.group || accessRightItem.isGroupExpanded;
+	}
+	function getSelectedVariables(variables, selected, isAllSelected) {
+	  if (isAllSelected) {
+	    return variables;
+	  }
+	  const selectedVariables = new Map();
+	  for (const [variableId, variable] of variables) {
+	    if (selected.has(variableId)) {
+	      selectedVariables.set(variableId, variable);
+	    }
+	  }
+	  return selectedVariables;
 	}
 	function getMultipleSelectedVariablesTitle(selectedVariables) {
 	  const lastVariable = [...selectedVariables.values()].pop();
@@ -1067,41 +1230,68 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	        }
 	        return result;
 	      },
-	      isMinValueSet: state => {
+	      isMinValueSetForAny: (state, getters) => {
 	        for (const section of state.collection.values()) {
 	          for (const item of section.rights.values()) {
-	            if (!main_core.Type.isNil(item.minValue)) {
+	            const isSet = getters.isMinValueSet(section.sectionCode, item.id);
+	            if (isSet) {
 	              return true;
 	            }
 	          }
 	        }
 	        return false;
 	      },
-	      isMaxValueSet: state => {
+	      isMinValueSet: state => (sectionCode, rightId) => {
+	        var _state$collection$get;
+	        const item = (_state$collection$get = state.collection.get(sectionCode)) == null ? void 0 : _state$collection$get.rights.get(rightId);
+	        if (!item) {
+	          console.warn('ui.accessrights.v2: attempt to check if min value set for unknown right', {
+	            sectionCode,
+	            rightId
+	          });
+	          return false;
+	        }
+	        return !main_core.Type.isNil(item.minValue);
+	      },
+	      isMaxValueSetForAny: (state, getters) => {
 	        for (const section of state.collection.values()) {
 	          for (const item of section.rights.values()) {
-	            if (!main_core.Type.isNil(item.maxValue)) {
+	            const isSet = getters.isMaxValueSet(section.sectionCode, item.id);
+	            if (isSet) {
 	              return true;
 	            }
 	          }
 	        }
 	        return false;
+	      },
+	      isMaxValueSet: state => (sectionCode, rightId) => {
+	        var _state$collection$get2;
+	        const item = (_state$collection$get2 = state.collection.get(sectionCode)) == null ? void 0 : _state$collection$get2.rights.get(rightId);
+	        if (!item) {
+	          console.warn('ui.accessrights.v2: attempt to check if max value set for unknown right', {
+	            sectionCode,
+	            rightId
+	          });
+	          return false;
+	        }
+	        return !main_core.Type.isNil(item.maxValue);
 	      },
 	      getEmptyValue: state => (sectionCode, valueId) => {
-	        var _state$collection$get, _item$emptyValue;
-	        const item = (_state$collection$get = state.collection.get(sectionCode)) == null ? void 0 : _state$collection$get.rights.get(valueId);
-	        if ((item == null ? void 0 : item.type) === 'toggler') {
-	          const isFalsy = !item.emptyValue || !item.emptyValue[0];
-	          if (isFalsy) {
-	            // use explicit '0' for correctly identify modifications
-	            return new Set(['0']);
-	          }
+	        var _state$collection$get3, _ServiceLocator$getVa, _ServiceLocator$getVa2;
+	        const item = (_state$collection$get3 = state.collection.get(sectionCode)) == null ? void 0 : _state$collection$get3.rights.get(valueId);
+	        if (!item) {
+	          return new Set();
 	        }
-	        return (_item$emptyValue = item.emptyValue) != null ? _item$emptyValue : new Set();
+	        return (_ServiceLocator$getVa = (_ServiceLocator$getVa2 = ServiceLocator.getValueTypeByRight(item)) == null ? void 0 : _ServiceLocator$getVa2.getEmptyValue(item)) != null ? _ServiceLocator$getVa : new Set();
+	      },
+	      getNothingSelectedValue: (state, getters) => (sectionCode, valueId) => {
+	        var _state$collection$get4, _item$nothingSelected;
+	        const item = (_state$collection$get4 = state.collection.get(sectionCode)) == null ? void 0 : _state$collection$get4.rights.get(valueId);
+	        return (_item$nothingSelected = item == null ? void 0 : item.nothingSelectedValue) != null ? _item$nothingSelected : getters.getEmptyValue(sectionCode, valueId);
 	      },
 	      getSelectedVariablesAlias: state => (sectionCode, valueId, values) => {
-	        var _state$collection$get2;
-	        const item = (_state$collection$get2 = state.collection.get(sectionCode)) == null ? void 0 : _state$collection$get2.rights.get(valueId);
+	        var _state$collection$get5;
+	        const item = (_state$collection$get5 = state.collection.get(sectionCode)) == null ? void 0 : _state$collection$get5.rights.get(valueId);
 	        if (!item) {
 	          return null;
 	        }
@@ -1317,45 +1507,133 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	  }
 	}
 
-	/**
-	 * A special case of Hint. We don't need interactivity here, but we do need to wrap slot with a hint.
-	 * Combine these properties in a single vue hint wrapper is impossible.
-	 */
-	const SelectedHint = {
-	  name: 'SelectedHint',
-	  props: {
-	    html: {
-	      type: String,
-	      required: true
-	    }
+	const MenuCell = {
+	  name: 'MenuCell',
+	  components: {
+	    CellLayout,
+	    RichMenuPopup: ui_vue3_components_richMenu.RichMenuPopup,
+	    RichMenuItem: ui_vue3_components_richMenu.RichMenuItem
 	  },
+	  inject: ['section', 'userGroup'],
 	  data() {
 	    return {
-	      isRendered: true
+	      isMenuShown: false
 	    };
 	  },
-	  watch: {
-	    html() {
-	      // force hint directive to re-render
-	      this.isRendered = false;
-	      void this.$nextTick(() => {
-	        this.isRendered = true;
+	  computed: {
+	    RichMenuItemIcon: () => ui_vue3_components_richMenu.RichMenuItemIcon,
+	    ...ui_vue3_vuex.mapGetters({
+	      isMaxValueSetForAny: 'accessRights/isMaxValueSetForAny',
+	      isMinValueSetForAny: 'accessRights/isMinValueSetForAny'
+	    }),
+	    menuPopupOptions() {
+	      const width = 290;
+	      return {
+	        bindElement: this.$refs.icon,
+	        width,
+	        // by default popup is positioned so that the left top angle is below the bind element.
+	        // we need to position it in the center of the column
+	        offsetLeft: -Math.floor(width / 2) + 9
+	      };
+	    },
+	    shownUserGroupsWithoutCurrent() {
+	      const shown = this.$store.getters['userGroups/shown'];
+	      const shownWithoutCurrent = main_core.Runtime.clone(shown);
+	      shownWithoutCurrent.delete(this.userGroup.id);
+	      return shownWithoutCurrent;
+	    },
+	    applyDialogItems() {
+	      return ItemsMapper.mapUserGroups(this.shownUserGroupsWithoutCurrent);
+	    }
+	  },
+	  methods: {
+	    toggleMenu() {
+	      this.isMenuShown = !this.isMenuShown;
+	    },
+	    showApplyDialog() {
+	      this.isMenuShown = false;
+	      const applyDialog = new ui_entitySelector.Dialog({
+	        context: EntitySelectorContext.ROLE,
+	        targetNode: this.$refs.icon,
+	        multiple: false,
+	        dropdownMode: true,
+	        enableSearch: true,
+	        cacheable: false,
+	        items: this.applyDialogItems,
+	        events: {
+	          'Item:onSelect': dialogEvent => {
+	            const {
+	              item
+	            } = dialogEvent.getData();
+	            this.$store.dispatch('userGroups/copySectionValues', {
+	              srcUserGroupId: this.userGroup.id,
+	              dstUserGroupId: item.getId(),
+	              sectionCode: this.section.sectionCode
+	            });
+	          }
+	        }
+	      });
+	      applyDialog.show();
+	    },
+	    setMaxValuesInSection() {
+	      this.isMenuShown = false;
+	      this.$store.dispatch('userGroups/setMaxAccessRightValuesInSection', {
+	        userGroupId: this.userGroup.id,
+	        sectionCode: this.section.sectionCode
+	      });
+	    },
+	    setMinValuesInSection() {
+	      this.isMenuShown = false;
+	      this.$store.dispatch('userGroups/setMinAccessRightValuesInSection', {
+	        userGroupId: this.userGroup.id,
+	        sectionCode: this.section.sectionCode
 	      });
 	    }
 	  },
-	  directives: {
-	    hint: ui_vue3_directives_hint.hint
-	  },
-	  // offsetTop is needed to fix infinite mouseenter/mouseleave loop in chromium. issue 204272
 	  template: `
-		<div v-if="isRendered" v-hint="{
-			html,
-			popupOptions: {
-				offsetTop: 3,
-			},
-		}" data-hint-init="vue">
-			<slot/>
-		</div>
+		<CellLayout class="ui-access-rights-v2-menu-cell" style="cursor: pointer" @click="toggleMenu">
+			<div
+				ref="icon"
+				class="ui-icon-set --more ui-access-rights-v2-icon-more"
+			>
+				<RichMenuPopup
+					v-if="isMenuShown"
+					@close="isMenuShown = false"
+					:popup-options="menuPopupOptions"
+				>
+					<RichMenuItem
+						v-if="isMaxValueSetForAny"
+						:icon="RichMenuItemIcon.check"
+						:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS')"
+						:subtitle="$Bitrix.Loc.getMessage(
+							'JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS_SUBTITLE_SECTION',
+							{
+								'#SECTION#': section.sectionTitle + (section.sectionSubTitle ? (' ' + section.sectionSubTitle) : ''),
+							}
+						)"
+						@click="setMaxValuesInSection"
+					/>
+					<RichMenuItem
+						v-if="isMinValueSetForAny"
+						:icon="RichMenuItemIcon['red-lock']"
+						:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS')"
+						:subtitle="$Bitrix.Loc.getMessage(
+							'JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS_SUBTITLE_SECTION',
+							{
+								'#SECTION#': section.sectionTitle + (section.sectionSubTitle ? (' ' + section.sectionSubTitle) : ''),
+							}
+						)"
+						@click="setMinValuesInSection"
+					/>
+					<RichMenuItem
+						:icon="RichMenuItemIcon.copy"
+						:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_APPLY_TO_ROLE')"
+						:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_APPLY_TO_ROLE_SUBTITLE')"
+						@click="showApplyDialog"
+					/>
+				</RichMenuPopup>
+			</div>
+		</CellLayout>
 	`
 	};
 
@@ -1382,23 +1660,16 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	`
 	};
 
-	const PopupHeader = {
-	  name: 'PopupHeader',
+	const Locator = {
+	  name: 'Locator',
 	  components: {
-	    Switcher: ui_vue3_components_switcher.Switcher,
 	    SectionIcon: Icon
 	  },
-	  emits: ['setMax', 'setMin'],
 	  props: {
-	    // later in a row menu here should be passed text 'All roles'
-	    userGroupTitle: {
-	      type: String,
-	      required: true
-	    },
-	    values: {
-	      /** @type Set<string> */
-	      type: Set,
-	      required: true
+	    maxWidth: {
+	      type: Number,
+	      // same as value popup width
+	      default: 430
 	    }
 	  },
 	  inject: ['section', 'right'],
@@ -1409,6 +1680,122 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      }
 	      const groupHead = this.section.rights.get(this.right.group);
 	      return groupHead == null ? void 0 : groupHead.title;
+	    }
+	  },
+	  template: `
+		<div class="ui-access-rights-v2-cell-popup-header-locator" :style="{
+			maxWidth: maxWidth + 'px',
+		}">
+			<SectionIcon/>
+			<span
+				class="ui-access-rights-v2-text-ellipsis"
+				:title="section.sectionTitle"
+			>{{ section.sectionTitle }}</span>
+			<span
+				v-if="section.sectionSubTitle" 
+				class="ui-access-rights-v2-text-ellipsis"
+				:title="section.sectionSubTitle"
+				style="margin-left: 5px; color: var(--ui-color-palette-gray-70);"
+			>{{ section.sectionSubTitle }}</span>
+			<div class="ui-icon-set --chevron-right ui-access-rights-v2-cell-popup-header-chevron"></div>
+			<template v-if="rightOrGroupTitle !== right.title">
+				<span class="ui-access-rights-v2-text-ellipsis" :title="right.title">{{ right.title }}</span>
+				<div class="ui-icon-set --chevron-right ui-access-rights-v2-cell-popup-header-chevron"></div>
+			</template>
+			<span class="ui-access-rights-v2-text-ellipsis" :title="rightOrGroupTitle">{{ rightOrGroupTitle }}</span>
+		</div>
+	`
+	};
+
+	const MasterSwitcher = {
+	  name: 'MasterSwitcher',
+	  components: {
+	    Switcher: ui_vue3_components_switcher.Switcher
+	  },
+	  emits: ['check', 'uncheck'],
+	  props: {
+	    isChecked: {
+	      type: Boolean,
+	      required: true
+	    }
+	  },
+	  inject: ['section', 'right'],
+	  computed: {
+	    switcherOptions() {
+	      return {
+	        size: 'small',
+	        color: 'green'
+	      };
+	    }
+	  },
+	  template: `
+		<div class="ui-access-rights-v2-cell-popup-header-master-switcher" :class="{
+			'--checked': isChecked,
+		}">
+			<slot/>
+			<div class="ui-access-rights-v2-cell-popup-header-toggle-container">
+				<span class="ui-access-rights-v2-cell-popup-header-toggle-caption">{{
+					$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ACCESS')
+				}}</span>
+				<Switcher
+					:is-checked="isChecked"
+					@check="$emit('check')"
+					@uncheck="$emit('uncheck')"
+					:options="switcherOptions"
+					data-accessrights-min-max
+				/>
+			</div>
+		</div>
+	`
+	};
+
+	const SingleRoleTitle = {
+	  name: 'SingleRoleTitle',
+	  props: {
+	    userGroupTitle: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  template: `
+		<div class="ui-access-rights-v2-cell-popup-header-role-container">
+			<div>
+				<div class="ui-access-rights-v2-cell-popup-header-role-caption">
+					{{ $Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE') }}
+				</div>
+				<div
+					class="ui-access-rights-v2-cell-popup-header-role-title ui-access-rights-v2-text-ellipsis"
+					:title="userGroupTitle"
+				>
+					{{ userGroupTitle }}
+				</div>
+			</div>
+		</div>
+	`
+	};
+
+	const PopupHeader = {
+	  name: 'DependentVariablesPopupHeader',
+	  components: {
+	    Locator,
+	    MasterSwitcher,
+	    SingleRoleTitle
+	  },
+	  emits: ['setMax', 'setMin'],
+	  props: {
+	    values: {
+	      /** @type Set<string> */
+	      type: Set,
+	      required: true
+	    }
+	  },
+	  inject: ['right'],
+	  computed: {
+	    isChecked() {
+	      if (!this.isMinMaxValuesSet) {
+	        return this.values.size > 0;
+	      }
+	      return this.isSelectedAnythingBesidesMin;
 	    },
 	    isMinMaxValuesSet() {
 	      return !main_core.Type.isNil(this.right.minValue) && !main_core.Type.isNil(this.right.maxValue);
@@ -1423,91 +1810,55 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	        }
 	      }
 	      return false;
+	    }
+	  },
+	  methods: {
+	    setMin() {
+	      if (this.isMinMaxValuesSet) {
+	        this.$emit('setMin');
+	      }
 	    },
-	    switcherOptions() {
-	      return {
-	        size: 'small',
-	        color: 'green'
-	      };
+	    setMax() {
+	      if (this.isMinMaxValuesSet) {
+	        this.$emit('setMax');
+	      }
 	    }
 	  },
 	  template: `
-		<div class="ui-access-rights-v2-cell-popup-header">
-			<div class="ui-access-rights-v2-cell-popup-header-locator">
-				<SectionIcon/>
-				<span
-					class="ui-access-rights-v2-text-ellipsis"
-					:title="section.sectionTitle"
-				>{{ section.sectionTitle }}</span>
-				<span
-					v-if="section.sectionSubTitle" 
-					class="ui-access-rights-v2-text-ellipsis"
-					:title="section.sectionSubTitle"
-					style="margin-left: 5px; color: var(--ui-color-palette-gray-70);"
-				>{{ section.sectionSubTitle }}</span>
-				<div class="ui-icon-set --chevron-right ui-access-rights-v2-cell-popup-header-chevron"></div>
-				<template v-if="rightOrGroupTitle !== right.title">
-					<span class="ui-access-rights-v2-text-ellipsis" :title="right.title">{{ right.title }}</span>
-					<div class="ui-icon-set --chevron-right ui-access-rights-v2-cell-popup-header-chevron"></div>
-				</template>
-				<span class="ui-access-rights-v2-text-ellipsis" :title="rightOrGroupTitle">{{ rightOrGroupTitle }}</span>
-			</div>
-			<div class="ui-access-rights-v2-cell-popup-header-role-line">
-				<div class="ui-access-rights-v2-cell-popup-header-role-container">
-					<span class="ui-icon ui-icon-square ui-icon-xs ui-access-rights-v2-cell-popup-header-role-icon">
-						<i></i>
-					</span>
-					<div>
-						<div class="ui-access-rights-v2-cell-popup-header-role-caption">
-							{{ $Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ROLE') }}
-						</div>
-						<div
-							class="ui-access-rights-v2-cell-popup-header-role-title ui-access-rights-v2-text-ellipsis"
-							:title="userGroupTitle"
-						>
-							{{ userGroupTitle }}
-						</div>
-					</div>
-				</div>
-				<div v-if="isMinMaxValuesSet" class="ui-access-rights-v2-cell-popup-header-toggle-container">
-					<span class="ui-access-rights-v2-cell-popup-header-toggle-caption">{{
-						$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ACCESS')
-					}}</span>
-					<Switcher
-						:is-checked="isSelectedAnythingBesidesMin"
-						@check="$emit('setMax')"
-						@uncheck="$emit('setMin')"
-						:options="switcherOptions"
-						data-accessrights-min-max
-					/>
-				</div>
-			</div>
+		<div>
+			<Locator/>
+			<MasterSwitcher
+				:is-checked="isChecked"
+				@check="setMax"
+				@uncheck="setMin"
+			>
+				<slot/>
+			</MasterSwitcher>
 		</div>
 	`
 	};
 
 	const PopupContent = {
-	  name: 'PopupContent',
-	  emits: ['close'],
+	  name: 'DependentVariablesPopupContent',
+	  emits: ['apply'],
 	  components: {
 	    Switcher: ui_vue3_components_switcher.Switcher,
 	    PopupHeader
 	  },
 	  props: {
 	    // value for selector is id of a selected variable
-	    value: {
-	      /** @type AccessRightValue */
-	      type: Object,
-	      required: true
+	    initialValues: {
+	      type: Set,
+	      default: new Set()
 	    }
 	  },
 	  data() {
 	    return {
 	      // values modified during popup lifetime and not yet dispatched to store
-	      notSavedValues: main_core.Runtime.clone(this.value.values)
+	      notSavedValues: this.getNotSavedValues()
 	    };
 	  },
-	  inject: ['section', 'userGroup', 'right'],
+	  inject: ['section', 'right', 'redefineApply'],
 	  computed: {
 	    isMinMaxValuesSet() {
 	      return !main_core.Type.isNil(this.right.minValue) && !main_core.Type.isNil(this.right.maxValue);
@@ -1516,16 +1867,16 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      if (!this.isMinMaxValuesSet) {
 	        return this.right.variables;
 	      }
-	      const variablesWithoutMin = main_core.Runtime.clone(this.right.variables);
+	      const variablesWithoutMinAndSecondary = main_core.Runtime.clone(this.right.variables);
 	      for (const variableId of this.right.minValue) {
-	        variablesWithoutMin.delete(variableId);
+	        variablesWithoutMinAndSecondary.delete(variableId);
 	      }
-	      for (const [variableId, variable] of variablesWithoutMin) {
+	      for (const [variableId, variable] of variablesWithoutMinAndSecondary) {
 	        if (variable.secondary) {
-	          variablesWithoutMin.delete(variableId);
+	          variablesWithoutMinAndSecondary.delete(variableId);
 	        }
 	      }
-	      return variablesWithoutMin;
+	      return variablesWithoutMinAndSecondary;
 	    },
 	    secondaryVariables() {
 	      const result = new Map();
@@ -1536,8 +1887,8 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      }
 	      return result;
 	    },
-	    emptyValues() {
-	      return this.$store.getters['accessRights/getEmptyValue'](this.section.sectionCode, this.value.id);
+	    nothingSelectedValues() {
+	      return this.$store.getters['accessRights/getNothingSelectedValue'](this.section.sectionCode, this.right.id);
 	    },
 	    switcherOptions() {
 	      return {
@@ -1553,20 +1904,9 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    }
 	  },
 	  mounted() {
-	    const applyButton = new ui_buttons.ApplyButton({
-	      color: ui_buttons.ButtonColor.PRIMARY,
-	      onclick: () => {
-	        this.apply();
-	        this.$emit('close');
-	      }
+	    this.redefineApply(() => {
+	      this.apply();
 	    });
-	    applyButton.renderTo(this.$refs['button-container']);
-	    const cancelButton = new ui_buttons.CancelButton({
-	      onclick: () => {
-	        this.$emit('close');
-	      }
-	    });
-	    cancelButton.renderTo(this.$refs['button-container']);
 	  },
 	  methods: {
 	    addValue(variableId) {
@@ -1629,14 +1969,20 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    apply() {
 	      let values = this.notSavedValues;
 	      if (values.size <= 0) {
-	        values = this.emptyValues;
+	        values = this.nothingSelectedValues;
 	      }
-	      this.$store.dispatch('userGroups/setAccessRightValues', {
-	        sectionCode: this.section.sectionCode,
-	        userGroupId: this.userGroup.id,
-	        valueId: this.value.id,
+	      this.$emit('apply', {
 	        values
 	      });
+	    },
+	    getNotSavedValues() {
+	      const result = new Set();
+	      this.initialValues.forEach(value => {
+	        if (this.right.variables.has(value)) {
+	          result.add(value);
+	        }
+	      });
+	      return result;
 	    }
 	  },
 	  // data attributes are needed for e2e automated tests
@@ -1644,12 +1990,13 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 		<div>
 			<PopupHeader
 				:values="notSavedValues"
-				:user-group-title="userGroup.title" 
 				@set-max="setMaxValue"
 				@set-min="setMinValue"
-			/>
+			>
+				<slot name="role-title"/>
+			</PopupHeader>
 			<div class="ui-access-rights-v2-dv-popup--line-container">
-				<div 
+				<div
 					v-for="[variableId, variable] in variablesShownInList"
 					:key="variableId"
 					class="ui-access-rights-v2-dv-popup--line"
@@ -1679,17 +2026,459 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 					<span class="ui-access-rights-v2-text-ellipsis">{{ variable.title }}</span>
 				</div>
 			</div>
-			<div ref="button-container" class="ui-access-rights-v2-dv-popup--buttons"></div>
 		</div>
 	`
 	};
 
-	const DependentVariables = {
+	const AllRolesTitle = {
+	  name: 'AllRolesTitle',
+	  template: `
+		<div class="ui-access-rights-v2-cell-popup-header-all-role-container">
+			<div class="ui-icon-set --persons-3" style="margin-right: 4px;"></div>
+			<div class="ui-access-rights-v2-cell-popup-header-all-roles-caption">{{ 
+				$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ALL_ROLES')
+			}}</div>
+		</div>
+	`
+	};
+
+	const ValuePopup = {
+	  name: 'ValuePopup',
+	  components: {
+	    Popup: ui_vue3_components_popup.Popup
+	  },
+	  emits: ['close', 'apply'],
+	  provide() {
+	    return {
+	      redefineApply: func => {
+	        this.onApply = func;
+	      }
+	    };
+	  },
+	  data() {
+	    return {
+	      onApply: () => {
+	        this.$emit('apply');
+	      }
+	    };
+	  },
+	  computed: {
+	    popupOptions() {
+	      return {
+	        autoHide: true,
+	        closeEsc: true,
+	        cacheable: false,
+	        minWidth: 466,
+	        padding: 18
+	      };
+	    }
+	  },
+	  mounted() {
+	    void this.$nextTick(() => {
+	      const applyButton = new ui_buttons.ApplyButton({
+	        color: ui_buttons.ButtonColor.PRIMARY,
+	        onclick: () => {
+	          this.apply();
+	          this.$emit('close');
+	        }
+	      });
+	      applyButton.renderTo(this.$refs['button-container']);
+	      const cancelButton = new ui_buttons.CancelButton({
+	        onclick: () => {
+	          this.$emit('close');
+	        }
+	      });
+	      cancelButton.renderTo(this.$refs['button-container']);
+	    });
+	  },
+	  methods: {
+	    apply() {
+	      this.onApply();
+	    }
+	  },
+	  template: `
+		<Popup @close="$emit('close')" :options="popupOptions">
+			<slot/>
+			<div ref="button-container" class="ui-access-rights-v2-value-popup-buttons"></div>
+		</Popup>
+	`
+	};
+
+	const DependentVariables$1 = {
 	  name: 'DependentVariables',
 	  components: {
-	    Popup: ui_vue3_components_popup.Popup,
 	    PopupContent,
-	    SelectedHint
+	    AllRolesTitle,
+	    ValuePopup
+	  },
+	  emits: ['close'],
+	  inject: ['section', 'right'],
+	  methods: {
+	    apply({
+	      values
+	    }) {
+	      this.$store.dispatch('userGroups/setAccessRightValuesForShown', {
+	        sectionCode: this.section.sectionCode,
+	        valueId: this.right.id,
+	        values
+	      });
+	    }
+	  },
+	  template: `
+		<ValuePopup @close="$emit('close')">
+			<PopupContent @apply="apply">
+				<template #role-title>
+					<AllRolesTitle/>
+				</template>
+			</PopupContent>
+		</ValuePopup>
+	`
+	};
+
+	let _ = t => t,
+	  _t,
+	  _t2;
+	var _toggleSelectButtons = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("toggleSelectButtons");
+	var _selectAll = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectAll");
+	var _deselectAll = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deselectAll");
+	var _onItemStatusChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onItemStatusChange");
+	class Footer extends ui_entitySelector.DefaultFooter {
+	  constructor(dialog, options) {
+	    super(dialog, options);
+	    Object.defineProperty(this, _onItemStatusChange, {
+	      value: _onItemStatusChange2
+	    });
+	    Object.defineProperty(this, _deselectAll, {
+	      value: _deselectAll2
+	    });
+	    Object.defineProperty(this, _selectAll, {
+	      value: _selectAll2
+	    });
+	    Object.defineProperty(this, _toggleSelectButtons, {
+	      value: _toggleSelectButtons2
+	    });
+	    this.selectAllButton = main_core.Tag.render(_t || (_t = _`<div class="ui-selector-footer-link">${0}</div>`), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ALL_SELECT_LABEL'));
+	    main_core.Dom.hide(this.selectAllButton);
+	    main_core.Event.bind(this.selectAllButton, 'click', babelHelpers.classPrivateFieldLooseBase(this, _selectAll)[_selectAll].bind(this));
+	    this.deselectAllButton = main_core.Tag.render(_t2 || (_t2 = _`<div class="ui-selector-footer-link">${0}</div>`), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ALL_DESELECT_LABEL'));
+	    main_core.Dom.hide(this.deselectAllButton);
+	    main_core.Event.bind(this.deselectAllButton, 'click', babelHelpers.classPrivateFieldLooseBase(this, _deselectAll)[_deselectAll].bind(this));
+	    this.getDialog().subscribe('Item:onSelect', babelHelpers.classPrivateFieldLooseBase(this, _onItemStatusChange)[_onItemStatusChange].bind(this));
+	    this.getDialog().subscribe('Item:onDeselect', babelHelpers.classPrivateFieldLooseBase(this, _onItemStatusChange)[_onItemStatusChange].bind(this));
+	  }
+	  getContent() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _toggleSelectButtons)[_toggleSelectButtons]();
+	    return [this.selectAllButton, this.deselectAllButton];
+	  }
+	}
+	function _toggleSelectButtons2() {
+	  if (this.getDialog().getSelectedItems().length === this.getDialog().getItems().length) {
+	    main_core.Dom.hide(this.selectAllButton);
+	    main_core.Dom.show(this.deselectAllButton);
+	  } else {
+	    main_core.Dom.show(this.selectAllButton);
+	    main_core.Dom.hide(this.deselectAllButton);
+	  }
+	}
+	function _selectAll2() {
+	  this.getDialog().getItems().forEach(item => {
+	    item.select();
+	  });
+	}
+	function _deselectAll2() {
+	  this.getDialog().getSelectedItems().forEach(item => {
+	    item.deselect();
+	  });
+	}
+	function _onItemStatusChange2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _toggleSelectButtons)[_toggleSelectButtons]();
+	}
+
+	let _$1 = t => t,
+	  _t$1;
+	var _renderVueApp = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderVueApp");
+	class Header$1 extends ui_entitySelector.BaseHeader {
+	  constructor(...args) {
+	    super(...args);
+	    Object.defineProperty(this, _renderVueApp, {
+	      value: _renderVueApp2
+	    });
+	  }
+	  render() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _renderVueApp)[_renderVueApp]();
+	  }
+	}
+	function _renderVueApp2() {
+	  const container = main_core.Tag.render(_t$1 || (_t$1 = _$1`<div style="padding: 20px 20px 0;"></div>`));
+	  const app = ui_vue3.BitrixVue.createApp(Locator, {
+	    maxWidth: this.getDialog().getWidth()
+	  });
+	  app.provide('section', this.getOption('section'));
+	  app.provide('right', this.getOption('right'));
+	  app.mount(container);
+	  return container;
+	}
+
+	const Selector$1 = {
+	  name: 'Selector',
+	  emits: ['apply', 'close'],
+	  props: {
+	    // value for selector is id of a selected variable
+	    initialValues: {
+	      type: Set,
+	      default: new Set()
+	    }
+	  },
+	  inject: ['section', 'right'],
+	  data() {
+	    return {
+	      // values modified during popup lifetime and not yet dispatched to store
+	      values: this.initialValues
+	    };
+	  },
+	  dialog: null,
+	  computed: {
+	    isAllSelected() {
+	      return this.values.has(this.right.allSelectedCode);
+	    },
+	    selectedVariables() {
+	      return getSelectedVariables(this.right.variables, this.values, this.isAllSelected);
+	    },
+	    dialogItems() {
+	      return ItemsMapper.mapVariables(this.right.variables);
+	    },
+	    selectedDialogItems() {
+	      return this.dialogItems.filter(item => this.selectedVariables.has(item.id));
+	    }
+	  },
+	  mounted() {
+	    this.showSelector();
+	  },
+	  beforeUnmount() {
+	    var _this$dialog;
+	    (_this$dialog = this.dialog) == null ? void 0 : _this$dialog.hide();
+	  },
+	  methods: {
+	    showSelector() {
+	      this.dialog = new ui_entitySelector.Dialog({
+	        height: 400,
+	        context: EntitySelectorContext.VARIABLE,
+	        enableSearch: this.right.enableSearch,
+	        multiple: true,
+	        autoHide: true,
+	        hideByEsc: true,
+	        dropdownMode: true,
+	        compactView: this.right.compactView,
+	        showAvatars: this.right.showAvatars,
+	        selectedItems: this.selectedDialogItems,
+	        searchOptions: {
+	          allowCreateItem: false
+	        },
+	        cacheable: false,
+	        events: {
+	          'Item:onSelect': this.onItemSelect,
+	          'Item:onDeselect': this.onItemDeselect,
+	          onHide: this.apply,
+	          onDestroy: () => {
+	            this.dialog = null;
+	          }
+	        },
+	        entities: [{
+	          id: EntitySelectorEntities.VARIABLE
+	        }],
+	        items: this.dialogItems,
+	        header: Header$1,
+	        headerOptions: {
+	          section: this.section,
+	          right: this.right
+	        },
+	        footer: Footer
+	      });
+	      this.dialog.show();
+	    },
+	    onItemSelect(event) {
+	      const addedItem = event.getData().item;
+	      this.addValue(String(addedItem.getId()));
+	    },
+	    onItemDeselect(event) {
+	      const removedItem = event.getData().item;
+	      this.removeValue(String(removedItem.getId()));
+	    },
+	    addValue(value) {
+	      const newValues = main_core.Runtime.clone(this.values);
+	      newValues.add(value);
+	      if (newValues.length >= this.right.variables.size) {
+	        this.setValues(new Set([this.right.allSelectedCode]));
+	      } else {
+	        this.setValues(newValues);
+	      }
+	    },
+	    removeValue(value) {
+	      if (this.values.has(this.right.allSelectedCode)) {
+	        const allVariablesIds = [...this.right.variables.values()].map(variable => variable.id);
+	        const allVariablesIdsWithoutRemoved = new Set(allVariablesIds);
+	        allVariablesIdsWithoutRemoved.delete(value);
+	        this.setValues(allVariablesIdsWithoutRemoved);
+	      } else {
+	        const newValues = [...this.values].filter(candidate => candidate !== value);
+	        this.setValues(new Set(newValues));
+	      }
+	    },
+	    setValues(newValues) {
+	      this.values = newValues;
+	    },
+	    apply() {
+	      this.setNothingSelectedValueIfNeeded();
+	      this.$emit('apply', {
+	        values: this.values
+	      });
+	      this.$emit('close');
+	    },
+	    setNothingSelectedValueIfNeeded() {
+	      if (this.values.size <= 0) {
+	        const nothingSelected = this.$store.getters['accessRights/getNothingSelectedValue'](this.section.sectionCode, this.right.id);
+	        for (const nothing of nothingSelected) {
+	          this.addValue(nothing);
+	        }
+	      }
+	    }
+	  },
+	  template: `
+		<div></div>
+	`
+	};
+
+	const Multivariables$1 = {
+	  name: 'Multivariables',
+	  emits: ['close'],
+	  components: {
+	    Selector: Selector$1
+	  },
+	  inject: ['section', 'right'],
+	  methods: {
+	    apply({
+	      values
+	    }) {
+	      this.$store.dispatch('userGroups/setAccessRightValuesForShown', {
+	        sectionCode: this.section.sectionCode,
+	        valueId: this.right.id,
+	        values
+	      });
+	    },
+	    close() {
+	      this.$emit('close');
+	    }
+	  },
+	  template: `
+		<Selector @apply="apply" @close="close"/>
+	`
+	};
+
+	const POPUP_ID = 'ui-access-rights-v2-row-value-variables';
+	const Variables$1 = {
+	  name: 'Variables',
+	  emits: ['close'],
+	  inject: ['section', 'right'],
+	  mounted() {
+	    this.showSelector();
+	  },
+	  beforeUnmount() {
+	    this.closeSelector();
+	  },
+	  methods: {
+	    showSelector() {
+	      const menuItems = [];
+	      for (const variable of this.right.variables.values()) {
+	        menuItems.push({
+	          id: variable.id,
+	          text: variable.title,
+	          onclick: (innerEvent, item) => {
+	            var _item$getMenuWindow;
+	            (_item$getMenuWindow = item.getMenuWindow()) == null ? void 0 : _item$getMenuWindow.close();
+	            this.setValue(variable.id);
+	          }
+	        });
+	      }
+	      main_popup.MenuManager.show({
+	        id: POPUP_ID,
+	        bindElement: this.$el,
+	        items: menuItems,
+	        autoHide: true,
+	        cacheable: false,
+	        events: {
+	          onClose: () => {
+	            this.$emit('close');
+	          }
+	        }
+	      });
+	    },
+	    setValue(value) {
+	      this.$store.dispatch('userGroups/setAccessRightValuesForShown', {
+	        sectionCode: this.section.sectionCode,
+	        valueId: this.right.id,
+	        values: new Set([value])
+	      });
+	    },
+	    closeSelector() {
+	      var _MenuManager$getMenuB;
+	      (_MenuManager$getMenuB = main_popup.MenuManager.getMenuById(POPUP_ID)) == null ? void 0 : _MenuManager$getMenuB.close();
+	    }
+	  },
+	  // invisible div for binding selector to it
+	  template: `
+		<div></div>
+	`
+	};
+
+	/**
+	 * A special case of Hint. We don't need interactivity here, but we do need to wrap slot with a hint.
+	 * Combine these properties in a single vue hint wrapper is impossible.
+	 */
+	const SelectedHint = {
+	  name: 'SelectedHint',
+	  props: {
+	    html: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {
+	      isRendered: true
+	    };
+	  },
+	  watch: {
+	    html() {
+	      // force hint directive to re-render
+	      this.isRendered = false;
+	      void this.$nextTick(() => {
+	        this.isRendered = true;
+	      });
+	    }
+	  },
+	  directives: {
+	    hint: ui_vue3_directives_hint.hint
+	  },
+	  // offsetTop is needed to fix infinite mouseenter/mouseleave loop in chromium. issue 204272
+	  template: `
+		<div v-if="isRendered" v-hint="{
+			html,
+			popupOptions: {
+				offsetTop: 3,
+			},
+		}" data-hint-init="vue">
+			<slot/>
+		</div>
+	`
+	};
+
+	const DependentVariables$2 = {
+	  name: 'DependentVariables',
+	  components: {
+	    ValuePopup,
+	    PopupContent,
+	    SelectedHint,
+	    SingleRoleTitle
 	  },
 	  props: {
 	    // value for selector is id of a selected variable
@@ -1704,16 +2493,10 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      isPopupShown: false
 	    };
 	  },
-	  inject: ['section', 'right'],
+	  inject: ['section', 'userGroup', 'right'],
 	  computed: {
 	    selectedVariables() {
-	      const selected = new Map();
-	      for (const [variableId, variable] of this.right.variables) {
-	        if (this.value.values.has(variableId)) {
-	          selected.set(variableId, variable);
-	        }
-	      }
-	      return selected;
+	      return getSelectedVariables(this.right.variables, this.value.values, false);
 	    },
 	    currentAlias() {
 	      return this.$store.getters['accessRights/getSelectedVariablesAlias'](this.section.sectionCode, this.value.id, this.value.values);
@@ -1735,15 +2518,18 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	        return this.right.hintTitle;
 	      }
 	      return this.$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SELECTED_ITEMS_TITLE');
-	    },
-	    popupOptions() {
-	      return {
-	        autoHide: true,
-	        closeEsc: true,
-	        cacheable: false,
-	        minWidth: 466,
-	        padding: 18
-	      };
+	    }
+	  },
+	  methods: {
+	    apply({
+	      values
+	    }) {
+	      this.$store.dispatch('userGroups/setAccessRightValues', {
+	        sectionCode: this.section.sectionCode,
+	        userGroupId: this.userGroup.id,
+	        valueId: this.value.id,
+	        values
+	      });
 	    }
 	  },
 	  template: `
@@ -1752,72 +2538,25 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 		}" @click="isPopupShown = true">
 			<SelectedHint v-if="hintHtml" :html="hintHtml">{{title}}</SelectedHint>
 			<div v-else :title="title">{{title}}</div>
-			<Popup v-if="isPopupShown" @close="isPopupShown = false" :options="popupOptions">
-				<PopupContent 
-					@close="isPopupShown = false"
-					:value="value"
-				/>
-			</Popup>
+			<ValuePopup v-if="isPopupShown" @close="isPopupShown = false">
+				<PopupContent
+					@apply="apply"
+					:initial-values="value.values"
+				>
+					<template #role-title>
+						<SingleRoleTitle :user-group-title="userGroup.title"/>
+					</template>
+				</PopupContent>
+			</ValuePopup>
 		</div>
 	`
 	};
 
-	let _ = t => t,
-	  _t,
-	  _t2,
-	  _t3;
-	class Footer extends ui_entitySelector.DefaultFooter {
-	  constructor(dialog, options) {
-	    super(dialog, options);
-	    this.selectAllButton = main_core.Tag.render(_t || (_t = _`<div class="ui-selector-footer-link ui-selector-search-footer-label--hide">${0}</div>`), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ALL_SELECT_LABEL'));
-	    main_core.Event.bind(this.selectAllButton, 'click', this.selectAll.bind(this));
-	    this.deselectAllButton = main_core.Tag.render(_t2 || (_t2 = _`<div class="ui-selector-footer-link ui-selector-search-footer-label--hide">${0}</div>`), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_ALL_DESELECT_LABEL'));
-	    main_core.Event.bind(this.deselectAllButton, 'click', this.deselectAll.bind(this));
-	    this.getDialog().subscribe('Item:onSelect', this.onItemStatusChange.bind(this));
-	    this.getDialog().subscribe('Item:onDeselect', this.onItemStatusChange.bind(this));
-	  }
-	  getContent() {
-	    this.toggleSelectButtons();
-	    return main_core.Tag.render(_t3 || (_t3 = _`
-			<div class="ui-selector-search-footer-box">
-				${0}
-				${0}
-			</div>
-		`), this.selectAllButton, this.deselectAllButton);
-	  }
-	  toggleSelectButtons() {
-	    if (this.getDialog().getSelectedItems().length === this.getDialog().getItems().length) {
-	      if (main_core.Dom.hasClass(this.deselectAllButton, 'ui-selector-search-footer-label--hide')) {
-	        main_core.Dom.addClass(this.selectAllButton, 'ui-selector-search-footer-label--hide');
-	        main_core.Dom.removeClass(this.deselectAllButton, 'ui-selector-search-footer-label--hide');
-	      }
-	    } else if (main_core.Dom.hasClass(this.selectAllButton, 'ui-selector-search-footer-label--hide')) {
-	      main_core.Dom.addClass(this.deselectAllButton, 'ui-selector-search-footer-label--hide');
-	      main_core.Dom.removeClass(this.selectAllButton, 'ui-selector-search-footer-label--hide');
-	    }
-	  }
-	  selectAll() {
-	    if (this.getDialog().getSelectedItems().length === this.getDialog().getItems().length) {
-	      return;
-	    }
-	    this.getDialog().getItems().forEach(item => {
-	      item.select();
-	    });
-	  }
-	  deselectAll() {
-	    this.getDialog().getSelectedItems().forEach(item => {
-	      item.deselect();
-	    });
-	  }
-	  onItemStatusChange() {
-	    this.toggleSelectButtons();
-	  }
-	}
-
-	const Multivariables = {
+	const Multivariables$2 = {
 	  name: 'Multivariables',
 	  components: {
-	    SelectedHint
+	    SelectedHint,
+	    Selector: Selector$1
 	  },
 	  props: {
 	    // value for selector is id of a selected variable
@@ -1828,24 +2567,17 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    }
 	  },
 	  inject: ['section', 'userGroup', 'right'],
+	  data() {
+	    return {
+	      isSelectorShown: false
+	    };
+	  },
 	  computed: {
 	    isAllSelected() {
 	      return this.value.values.has(this.right.allSelectedCode);
 	    },
 	    selectedVariables() {
-	      if (this.isAllSelected) {
-	        return this.right.variables;
-	      }
-	      const selected = new Map();
-	      for (const [variableId, variable] of this.right.variables) {
-	        if (this.value.values.has(variableId)) {
-	          selected.set(variableId, variable);
-	        }
-	      }
-	      return selected;
-	    },
-	    emptyValues() {
-	      return this.$store.getters['accessRights/getEmptyValue'](this.section.sectionCode, this.value.id);
+	      return getSelectedVariables(this.right.variables, this.value.values, this.isAllSelected);
 	    },
 	    currentAlias() {
 	      return this.$store.getters['accessRights/getSelectedVariablesAlias'](this.section.sectionCode, this.value.id, this.value.values);
@@ -1870,139 +2602,20 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	        return this.right.hintTitle;
 	      }
 	      return this.$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SELECTED_ITEMS_TITLE');
-	    },
-	    dialogItems() {
-	      const items = [];
-	      for (const variable of this.right.variables.values()) {
-	        const item = main_core.Runtime.clone(variable);
-	        item.entityId = item.entityId || 'editor-right-item';
-	        item.tabs = 'recents';
-	        if (item.selectionStrategy) {
-	          item.customData = {
-	            ...item.customData,
-	            selectionStrategy: item.selectionStrategy
-	          };
-	        }
-	        items.push(item);
-	      }
-	      return items;
-	    },
-	    selectedDialogItems() {
-	      return this.dialogItems.filter(item => this.selectedVariables.has(item.id));
 	    }
 	  },
 	  methods: {
 	    showSelector() {
-	      const dialog = new ui_entitySelector.Dialog({
-	        targetNode: this.$el,
-	        height: 300,
-	        context: 'editor-right-items',
-	        enableSearch: this.right.enableSearch,
-	        multiple: true,
-	        dropdownMode: true,
-	        compactView: this.right.compactView,
-	        showAvatars: this.right.showAvatars,
-	        selectedItems: this.selectedDialogItems,
-	        searchOptions: {
-	          allowCreateItem: false
-	        },
-	        cacheable: false,
-	        events: {
-	          'Item:onSelect': this.onItemSelect,
-	          'Item:onDeselect': this.onItemDeselect,
-	          onHide: this.setEmptyValueIfNoneSelected
-	        },
-	        entities: [{
-	          id: 'editor-right-item'
-	        }],
-	        items: this.dialogItems,
-	        footer: this.right.disableSelectAll ? null : Footer
-	      });
-	      dialog.show();
+	      this.isSelectorShown = true;
 	    },
-	    onItemSelect(event) {
-	      const addedItem = event.getData().item;
-	      this.processSelectionLogic(addedItem);
-	      const addedValue = String(addedItem.getId());
-
-	      /**
-	       * Multivariables has complex logic that takes into account current values. And those values can be changed
-	       * multiple times during a single `onItemSelect` call (deselect for items with `selectionStrategy`).
-	       * Vue caches props changes. We would receive new `this.value.values` only after `onItemSelect` returned
-	       * completely. Therefore, if we do all mutations in a single event loop message, all mutations will operate
-	       * with `this.value.values` that have yet to be updated, and our resulting values will be a mess.
-	       * Delaying mutation to a next event loop message ensures that we will operate with updated `this.value.values`.
-	       */
-	      setTimeout(() => {
-	        this.addValue(addedValue);
-	      });
-	    },
-	    processSelectionLogic(addedItem) {
-	      const selected = addedItem.getDialog().getSelectedItems();
-
-	      // clear other selected items
-	      if (addedItem.customData.get('selectionStrategy') === 'mutually-exclusive') {
-	        for (const item of selected) {
-	          if (addedItem.getId() !== item.getId()) {
-	            item.deselect();
-	          }
-	        }
-	      }
-	      for (const item of selected) {
-	        if (item.customData.get('selectionStrategy') === 'mutually-exclusive' && addedItem.getId() !== item.getId()) {
-	          item.deselect();
-	        }
-	      }
-	    },
-	    onItemDeselect(event) {
-	      const removedItem = event.getData().item;
-	      const removedValue = String(removedItem.getId());
-
-	      /**
-	       * Multivariables has complex logic that takes into account current values. And those values can be changed
-	       * multiple times during a single `onItemSelect` call (deselect for items with `selectionStrategy`).
-	       * Vue caches props changes. We would receive new `this.value.values` only after `onItemSelect` returned
-	       * completely. Therefore, if we do all mutations in a single event loop message, all mutations will operate
-	       * with `this.value.values` that have yet to be updated, and our resulting values will be a mess.
-	       * Delaying mutation to a next event loop message ensures that we will operate with updated `this.value.values`.
-	       */
-	      setTimeout(() => {
-	        this.removeValue(removedValue);
-	      });
-	    },
-	    addValue(value) {
-	      const newValues = main_core.Runtime.clone(this.value.values);
-	      newValues.add(value);
-	      if (newValues.length >= this.right.variables.size) {
-	        this.setValues(new Set([this.right.allSelectedCode]));
-	      } else {
-	        this.setValues(newValues);
-	      }
-	    },
-	    removeValue(value) {
-	      if (this.value.values.has(this.right.allSelectedCode)) {
-	        const allVariablesIds = [...this.right.variables.values()].map(variable => variable.id);
-	        const allVariablesIdsWithoutRemoved = new Set(allVariablesIds);
-	        allVariablesIdsWithoutRemoved.delete(value);
-	        this.setValues(allVariablesIdsWithoutRemoved);
-	      } else {
-	        const newValues = [...this.value.values].filter(candidate => candidate !== value);
-	        this.setValues(new Set(newValues));
-	      }
-	    },
-	    setEmptyValueIfNoneSelected() {
-	      if (this.value.values.size <= 0) {
-	        for (const empty of this.emptyValues) {
-	          this.addValue(empty);
-	        }
-	      }
-	    },
-	    setValues(newValues) {
+	    setValues({
+	      values
+	    }) {
 	      this.$store.dispatch('userGroups/setAccessRightValues', {
 	        sectionCode: this.section.sectionCode,
 	        userGroupId: this.userGroup.id,
 	        valueId: this.value.id,
-	        values: newValues
+	        values
 	      });
 	    }
 	  },
@@ -2012,6 +2625,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 			:html="hintHtml" 
 			class='ui-access-rights-v2-column-item-text-link'
 			@click="showSelector"
+			v-bind="$attrs"
 		>
 			{{ title }}
 		</SelectedHint>
@@ -2020,13 +2634,20 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 			class='ui-access-rights-v2-column-item-text-link ui-access-rights-v2-text-ellipsis'
 			@click="showSelector"
 			:title="title"
+			v-bind="$attrs"
 		>
 			{{ title }}
 		</div>
+		<Selector
+			v-if="isSelectorShown" 
+			:initial-values="value.values"
+			@close="isSelectorShown = false"
+			@apply="setValues"
+		/>
 	`
 	};
 
-	const Toggler = {
+	const Toggler$1 = {
 	  name: 'Toggler',
 	  components: {
 	    Switcher: ui_vue3_components_switcher.Switcher
@@ -2068,8 +2689,8 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	`
 	};
 
-	const POPUP_ID = 'ui-access-rights-v2-column-item-popup-variables';
-	const Variables = {
+	const POPUP_ID$1 = 'ui-access-rights-v2-column-item-popup-variables';
+	const Variables$2 = {
 	  name: 'Variables',
 	  props: {
 	    // value for selector is id of a selected variable
@@ -2121,7 +2742,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	        });
 	      }
 	      main_popup.MenuManager.show({
-	        id: POPUP_ID,
+	        id: POPUP_ID$1,
 	        bindElement: event.target,
 	        items: menuItems,
 	        autoHide: true,
@@ -2149,28 +2770,24 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	};
 
 	const Cells = Object.freeze({
-	  Toggler,
-	  Variables,
-	  Multivariables,
-	  DependentVariables
+	  DependentVariables: DependentVariables$2,
+	  Multivariables: Multivariables$2,
+	  Toggler: Toggler$1,
+	  Variables: Variables$2
 	});
-	function getCellComponent(accessRightItem) {
-	  if (accessRightItem.type === 'toggler') {
-	    return 'Toggler';
+	const Rows = Object.freeze({
+	  DependentVariables: DependentVariables$1,
+	  Multivariables: Multivariables$1,
+	  // no row value for toggler
+	  Variables: Variables$1
+	});
+	function getValueComponent(accessRightItem) {
+	  const type = ServiceLocator.getValueTypeByRight(accessRightItem);
+	  if (!type) {
+	    // vue will render empty cell
+	    return '';
 	  }
-	  if (accessRightItem.type === 'variables') {
-	    return 'Variables';
-	  }
-	  if (accessRightItem.type === 'multivariables') {
-	    return 'Multivariables';
-	  }
-	  if (accessRightItem.type === 'dependent_variables') {
-	    return 'DependentVariables';
-	  }
-	  console.warn('ui.accessrights.v2: Unknown access right type', accessRightItem);
-
-	  // vue will render empty cell
-	  return '';
+	  return type.getComponentName();
 	}
 
 	const ValueCell = {
@@ -2198,7 +2815,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      return value || this.$store.getters['userGroups/getEmptyAccessRightValue'](this.userGroup.id, this.section.sectionCode, this.right.id);
 	    },
 	    cellComponent() {
-	      return getCellComponent(this.right);
+	      return getValueComponent(this.right);
 	    }
 	  },
 	  // data attributes are needed for e2e automated tests
@@ -2223,7 +2840,8 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	  name: 'Column',
 	  components: {
 	    ColumnLayout,
-	    ValueCell
+	    ValueCell,
+	    MenuCell
 	  },
 	  props: {
 	    userGroup: {
@@ -2253,7 +2871,8 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    }
 	  },
 	  template: `
-		<ColumnLayout>
+		<ColumnLayout ref="column">
+			<MenuCell/>
 			<ValueCell
 				v-for="[rightId, accessRightItem] in renderedRights"
 				:key="rightId"
@@ -2263,225 +2882,11 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	`
 	};
 
-	/**
-	 * `BX.UI.Hint.createInstance` takes up to 30% of CPU time when multiple hints are mounted on page
-	 * (e.g. on a load, search), probably because of `Manager.initByClassName` call in `new Manager`.
-	 * therefore, we share a Manager instance across all hints in the app
-	 */
-	var _cache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cache");
-	class HintLocator {
-	  static get(appGuid) {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].remember(appGuid, () => {
-	      return BX.UI.Hint.createInstance({
-	        id: `ui-access-rights-v2-hint-${appGuid}`,
-	        popupParameters: {
-	          className: 'ui-access-rights-v2-popup-pointer-events ui-hint-popup',
-	          autoHide: true,
-	          darkMode: true,
-	          maxWidth: 280,
-	          offsetTop: 0,
-	          offsetLeft: 8,
-	          angle: true,
-	          animation: 'fading-slide'
-	        }
-	      });
-	    });
-	  }
-	}
-	Object.defineProperty(HintLocator, _cache, {
-	  writable: true,
-	  value: new main_core.Cache.MemoryCache()
-	});
-
-	let _$1 = t => t,
-	  _t$1;
-
-	/**
-	 * A special case of Hint that provides interactivity and reactivity.
-	 */
-	const Hint = {
-	  name: 'Hint',
-	  props: {
-	    html: {
-	      type: String,
-	      required: true
-	    }
-	  },
-	  computed: {
-	    ...ui_vue3_vuex.mapState({
-	      guid: state => state.application.guid
-	    })
-	  },
-	  mounted() {
-	    this.renderHint();
-	  },
-	  watch: {
-	    html() {
-	      // make ui.hint reactive :(
-	      main_core.Dom.clean(this.$refs.container);
-	      this.renderHint();
-	    }
-	  },
-	  methods: {
-	    renderHint() {
-	      const hintIconWrapper = main_core.Tag.render(_t$1 || (_t$1 = _$1`<span data-hint-html="true" data-hint-interactivity="true"></span>`));
-	      // Tag.render cant set prop value with HTML properly :(
-	      hintIconWrapper.setAttribute('data-hint', this.html);
-	      main_core.Dom.append(hintIconWrapper, this.$refs.container);
-	      this.getHintManager().init(this.$refs.container);
-	    },
-	    getHintManager() {
-	      return HintLocator.get(this.guid);
-	    }
-	  },
-	  template: '<span ref="container"></span>'
-	};
-
-	const Header$1 = {
-	  name: 'Header',
-	  components: {
-	    Hint,
-	    Icon
-	  },
-	  inject: ['section'],
-	  methods: {
-	    toggleSection() {
-	      this.$store.dispatch('accessRights/toggleSection', {
-	        sectionCode: this.section.sectionCode
-	      });
-	    }
-	  },
-	  template: `
-		<div
-			@click="toggleSection"
-			class='ui-access-rights-v2-section-header'
-			:class="{
-				'--expanded': section.isExpanded,
-			}" 
-			v-memo="[section.isExpanded]"
-		>
-			<div class="ui-access-rights-v2-section-header-expander">
-				<div class='ui-icon-set' :class="{
-					'--chevron-up': section.isExpanded,
-					'--chevron-down': !section.isExpanded,
-				}"
-				></div>
-			</div>
-			<Icon/>
-			<span 
-				class="ui-access-rights-v2-text-ellipsis ui-access-rights-v2-section-title"
-				:title="section.sectionTitle"
-			>{{ section.sectionTitle }}</span>
-			<span
-				v-if="section.sectionSubTitle"
-				class="ui-access-rights-v2-text-ellipsis ui-access-rights-v2-section-subtitle"
-				:title="section.sectionSubTitle"
-			>
-				{{ section.sectionSubTitle }}
-			</span>
-			<Hint v-if="section.sectionHint" :html="section.sectionHint"/>
-		</div>
-	`
-	};
-
-	const TitleCell = {
-	  name: 'TitleCell',
-	  components: {
-	    Hint
-	  },
-	  props: {
-	    right: {
-	      /** @type AccessRightItem */
-	      type: Object,
-	      required: true
-	    }
-	  },
-	  inject: ['section'],
-	  methods: {
-	    toggleGroup() {
-	      if (!this.right.groupHead) {
-	        return;
-	      }
-	      this.$store.dispatch('accessRights/toggleGroup', {
-	        sectionCode: this.section.sectionCode,
-	        groupId: this.right.id
-	      });
-	    }
-	  },
-	  // data attributes are needed for e2e automated tests
-	  template: `
-		<div
-			class='ui-access-rights-v2-column-item-text ui-access-rights-v2-column-item-title'
-			@click="toggleGroup"
-			:title="right.title"
-			:style="{
-				cursor: right.groupHead ? 'pointer' : null,
-			}"
-			v-memo="[right.isGroupExpanded]"
-			:data-accessrights-right-id="right.id"
-		>
-			<span
-				v-if="right.groupHead"
-				class="ui-icon-set"
-				:class="{
-					'--minus-in-circle': right.isGroupExpanded,
-					'--plus-in-circle': !right.isGroupExpanded,
-				}"
-			></span>
-			<span class="ui-access-rights-v2-text-ellipsis" :style="{
-				'margin-left': !right.groupHead && !right.group ? '23px' : null,
-			}">{{ right.title }}</span>
-			<Hint v-once v-if="right.hint" :html="right.hint" />
-		</div>
-	`
-	};
-
-	const TitleColumn = {
-	  name: 'TitleColumn',
-	  components: {
-	    TitleCell,
-	    ColumnLayout,
-	    CellLayout
-	  },
-	  props: {
-	    rights: {
-	      type: Map,
-	      required: true
-	    }
-	  },
-	  computed: {
-	    renderedRights() {
-	      const result = new Map();
-	      for (const [rightId, right] of this.rights) {
-	        if (shouldRowBeRendered(right)) {
-	          result.set(rightId, right);
-	        }
-	      }
-	      return result;
-	    }
-	  },
-	  template: `
-		<ColumnLayout>
-			<CellLayout
-				v-for="[rightId, accessRightItem] in renderedRights"
-				:key="rightId"
-				:class="{
-					'ui-access-rights-v2-group-children': accessRightItem.group,
-				}"
-			>
-				<TitleCell :right="accessRightItem" />
-			</CellLayout>
-		</ColumnLayout>
-	`
-	};
-
-	const Section = {
-	  name: 'Section',
+	const ColumnList = {
+	  name: 'ColumnList',
 	  components: {
 	    Column,
-	    SyncHorizontalScroll,
-	    TitleColumn,
-	    Header: Header$1
+	    SyncHorizontalScroll
 	  },
 	  props: {
 	    userGroups: {
@@ -2491,28 +2896,6 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    rights: {
 	      type: Map,
 	      required: true
-	    },
-	    code: {
-	      type: String,
-	      required: true
-	    },
-	    isExpanded: {
-	      type: Boolean,
-	      required: true
-	    },
-	    title: {
-	      type: String,
-	      required: true
-	    },
-	    subTitle: {
-	      type: String
-	    },
-	    hint: {
-	      type: String
-	    },
-	    icon: {
-	      /** @type AccessRightSectionIcon */
-	      type: Object
 	    }
 	  },
 	  throttledScrollHandler: null,
@@ -2525,23 +2908,10 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      isRightShadowShown: false
 	    };
 	  },
-	  provide() {
-	    return {
-	      section: ui_vue3.computed(() => {
-	        return {
-	          sectionCode: this.code,
-	          sectionTitle: this.title,
-	          sectionSubTitle: this.subTitle,
-	          sectionIcon: this.icon,
-	          sectionHint: this.hint,
-	          isExpanded: this.isExpanded,
-	          rights: this.rights
-	        };
-	      })
-	    };
-	  },
 	  created() {
-	    this.throttledScrollHandler = main_core.Runtime.throttle(this.adjustShadowsVisibility, 200);
+	    this.throttledScrollHandler = main_core.Runtime.throttle(() => {
+	      this.adjustShadowsVisibility();
+	    }, 200);
 	    this.throttledResizeHandler = main_core.Runtime.throttle(() => {
 	      this.adjustShadowsVisibility();
 	      this.adjustEars();
@@ -2561,15 +2931,6 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      if (newValue.size !== oldValue.size) {
 	        this.adjustShadowsVisibility();
 	        this.adjustEars();
-	      }
-	    },
-	    isExpanded(newValue) {
-	      if (newValue === true) {
-	        void this.$nextTick(() => {
-	          this.initEars();
-	        });
-	      } else {
-	        this.destroyEars();
 	      }
 	    }
 	  },
@@ -2653,6 +3014,382 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      this.ears = null;
 	    }
 	  },
+	  template: `
+		<div
+			class='ui-access-rights-v2-section-content'
+			:class="{
+				'ui-access-rights-v2-section-shadow-left-shown': isLeftShadowShown,
+				'ui-access-rights-v2-section-shadow-right-shown': isRightShadowShown,
+			}"
+		>
+			<SyncHorizontalScroll
+				ref="column-container"
+				class='ui-access-rights-v2-section-wrapper'
+				@scroll="throttledScrollHandler"
+			>
+				<Column
+					v-for="[groupId, group] in userGroups"
+					:key="groupId"
+					:user-group="group"
+					:rights="rights"
+					:data-accessrights-user-group-id="groupId"
+				/>
+			</SyncHorizontalScroll>
+		</div>
+	`
+	};
+
+	let _$2 = t => t,
+	  _t$2;
+
+	/**
+	 * A special case of Hint that provides interactivity and reactivity.
+	 */
+	const Hint = {
+	  name: 'Hint',
+	  props: {
+	    html: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    ...ui_vue3_vuex.mapState({
+	      guid: state => state.application.guid
+	    })
+	  },
+	  mounted() {
+	    this.renderHint();
+	  },
+	  watch: {
+	    html() {
+	      // make ui.hint reactive :(
+	      main_core.Dom.clean(this.$refs.container);
+	      this.renderHint();
+	    }
+	  },
+	  methods: {
+	    renderHint() {
+	      const hintIconWrapper = main_core.Tag.render(_t$2 || (_t$2 = _$2`<span data-hint-html="true" data-hint-interactivity="true"></span>`));
+	      // Tag.render cant set prop value with HTML properly :(
+	      hintIconWrapper.setAttribute('data-hint', this.html);
+	      main_core.Dom.append(hintIconWrapper, this.$refs.container);
+	      this.getHintManager().initNode(hintIconWrapper);
+	    },
+	    getHintManager() {
+	      return ServiceLocator.getHint(this.guid);
+	    }
+	  },
+	  template: '<span ref="container"></span>'
+	};
+
+	const Header$2 = {
+	  name: 'Header',
+	  components: {
+	    Hint,
+	    Icon
+	  },
+	  inject: ['section'],
+	  methods: {
+	    toggleSection() {
+	      this.$store.dispatch('accessRights/toggleSection', {
+	        sectionCode: this.section.sectionCode
+	      });
+	    }
+	  },
+	  template: `
+		<div
+			@click="toggleSection"
+			class='ui-access-rights-v2-section-header'
+			:class="{
+				'--expanded': section.isExpanded,
+			}" 
+			v-memo="[section.isExpanded]"
+		>
+			<div class="ui-access-rights-v2-section-header-expander">
+				<div class='ui-icon-set' :class="{
+					'--chevron-up': section.isExpanded,
+					'--chevron-down': !section.isExpanded,
+				}"
+				></div>
+			</div>
+			<Icon/>
+			<span 
+				class="ui-access-rights-v2-text-ellipsis ui-access-rights-v2-section-title"
+				:title="section.sectionTitle"
+			>{{ section.sectionTitle }}</span>
+			<span
+				v-if="section.sectionSubTitle"
+				class="ui-access-rights-v2-text-ellipsis ui-access-rights-v2-section-subtitle"
+				:title="section.sectionSubTitle"
+			>
+				{{ section.sectionSubTitle }}
+			</span>
+			<Hint v-if="section.sectionHint" :html="section.sectionHint"/>
+		</div>
+	`
+	};
+
+	const MenuCell$1 = {
+	  name: 'MenuCell',
+	  components: {
+	    CellLayout
+	  },
+	  template: `
+		<CellLayout class="ui-access-rights-v2-menu-cell"/>
+	`
+	};
+
+	const RowValue = {
+	  name: 'RowValue',
+	  components: {
+	    ...Rows
+	  },
+	  emits: ['close'],
+	  inject: ['right'],
+	  computed: {
+	    component() {
+	      return getValueComponent(this.right);
+	    }
+	  },
+	  template: `
+		<Component :is="component" @close="$emit('close')" />
+	`
+	};
+
+	const TitleCell = {
+	  name: 'TitleCell',
+	  components: {
+	    Hint,
+	    RowValue,
+	    RichMenuItem: ui_vue3_components_richMenu.RichMenuItem,
+	    RichMenuPopup: ui_vue3_components_richMenu.RichMenuPopup
+	  },
+	  props: {
+	    right: {
+	      /** @type AccessRightItem */
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  inject: ['section'],
+	  provide() {
+	    return {
+	      right: this.right
+	    };
+	  },
+	  data() {
+	    return {
+	      isMenuShown: false,
+	      isRowValueShown: false
+	    };
+	  },
+	  computed: {
+	    RichMenuItemIcon: () => ui_vue3_components_richMenu.RichMenuItemIcon,
+	    isMinValueSet() {
+	      return this.$store.getters['accessRights/isMinValueSet'](this.section.sectionCode, this.right.id);
+	    },
+	    isMaxValueSet() {
+	      return this.$store.getters['accessRights/isMaxValueSet'](this.section.sectionCode, this.right.id);
+	    },
+	    isRowValueConfigurable() {
+	      var _ServiceLocator$getVa, _ServiceLocator$getVa2;
+	      return (_ServiceLocator$getVa = (_ServiceLocator$getVa2 = ServiceLocator.getValueTypeByRight(this.right)) == null ? void 0 : _ServiceLocator$getVa2.isRowValueConfigurable()) != null ? _ServiceLocator$getVa : false;
+	    }
+	  },
+	  methods: {
+	    toggleGroup() {
+	      if (!this.right.groupHead) {
+	        return;
+	      }
+	      this.$store.dispatch('accessRights/toggleGroup', {
+	        sectionCode: this.section.sectionCode,
+	        groupId: this.right.id
+	      });
+	    },
+	    toggleMenu() {
+	      this.isMenuShown = !this.isMenuShown;
+	    },
+	    setMaxValuesForRight() {
+	      this.isRowValueShown = false;
+	      this.isMenuShown = false;
+	      this.$store.dispatch('userGroups/setMaxAccessRightValuesForRight', {
+	        sectionCode: this.section.sectionCode,
+	        rightId: this.right.id
+	      });
+	    },
+	    setMinValuesForRight() {
+	      this.isRowValueShown = false;
+	      this.isMenuShown = false;
+	      this.$store.dispatch('userGroups/setMinAccessRightValuesForRight', {
+	        sectionCode: this.section.sectionCode,
+	        rightId: this.right.id
+	      });
+	    },
+	    openRowValue() {
+	      this.isMenuShown = false;
+	      this.isRowValueShown = true;
+	    }
+	  },
+	  // data attributes are needed for e2e automated tests
+	  template: `
+		<div
+			class='ui-access-rights-v2-column-item-text ui-access-rights-v2-column-item-title'
+			@click="toggleGroup"
+			:title="right.title"
+			:style="{
+				cursor: right.groupHead ? 'pointer' : null,
+			}"
+			v-memo="[right.isGroupExpanded]"
+			:data-accessrights-right-id="right.id"
+		>
+			<span
+				v-if="right.groupHead"
+				class="ui-icon-set"
+				:class="{
+					'--minus-in-circle': right.isGroupExpanded,
+					'--plus-in-circle': !right.isGroupExpanded,
+				}"
+			></span>
+			<span class="ui-access-rights-v2-text-ellipsis" :style="{
+				'margin-left': !right.groupHead && !right.group ? '23px' : null,
+			}">{{ right.title }}</span>
+			<Hint v-once v-if="right.hint" :html="right.hint" />
+		</div>
+		<div
+			ref="icon" 
+			class="ui-icon-set --more ui-access-rights-v2-icon-more ui-access-rights-v2-title-column-menu" 
+			@click="toggleMenu"
+		>
+			<RichMenuPopup
+				v-if="isMenuShown"
+				@close="isMenuShown = false"
+				:popup-options="{bindElement: $refs.icon, width: 300}"
+			>
+				<RichMenuItem
+					v-if="isMaxValueSet"
+					:icon="RichMenuItemIcon.check"
+					:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS_ROW')"
+					:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS_ROW_SUBTITLE')"
+					@click="setMaxValuesForRight"
+				/>
+				<RichMenuItem
+					v-if="isMinValueSet"
+					:icon="RichMenuItemIcon['red-lock']"
+					:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS_ROW')"
+					:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS_ROW_SUBTITLE')"
+					@click="setMinValuesForRight"
+				/>
+				<RichMenuItem
+					v-if="isRowValueConfigurable"
+					:icon="RichMenuItemIcon.settings"
+					:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_OPEN_ROW_VALUE')"
+					:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_OPEN_ROW_VALUE_SUBTITLE')"
+					@click="openRowValue"
+				/>
+			</RichMenuPopup>
+			<RowValue v-if="isRowValueShown" @close="isRowValueShown = false"/>
+		</div>
+	`
+	};
+
+	const TitleColumn = {
+	  name: 'TitleColumn',
+	  components: {
+	    TitleCell,
+	    ColumnLayout,
+	    CellLayout,
+	    MenuCell: MenuCell$1
+	  },
+	  props: {
+	    rights: {
+	      type: Map,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    renderedRights() {
+	      const result = new Map();
+	      for (const [rightId, right] of this.rights) {
+	        if (shouldRowBeRendered(right)) {
+	          result.set(rightId, right);
+	        }
+	      }
+	      return result;
+	    }
+	  },
+	  template: `
+		<ColumnLayout>
+			<MenuCell/>
+			<CellLayout
+				v-for="[rightId, accessRightItem] in renderedRights"
+				:key="rightId"
+				:class="{
+					'ui-access-rights-v2-group-children': accessRightItem.group,
+				}"
+			>
+				<TitleCell :right="accessRightItem" />
+			</CellLayout>
+		</ColumnLayout>
+	`
+	};
+
+	const Section = {
+	  name: 'Section',
+	  components: {
+	    Column,
+	    SyncHorizontalScroll,
+	    TitleColumn,
+	    Header: Header$2,
+	    ColumnList
+	  },
+	  props: {
+	    userGroups: {
+	      type: Map,
+	      required: true
+	    },
+	    rights: {
+	      type: Map,
+	      required: true
+	    },
+	    code: {
+	      type: String,
+	      required: true
+	    },
+	    isExpanded: {
+	      type: Boolean,
+	      required: true
+	    },
+	    title: {
+	      type: String,
+	      required: true
+	    },
+	    subTitle: {
+	      type: String
+	    },
+	    hint: {
+	      type: String
+	    },
+	    icon: {
+	      /** @type AccessRightSectionIcon */
+	      type: Object
+	    }
+	  },
+	  provide() {
+	    return {
+	      section: ui_vue3.computed(() => {
+	        return {
+	          sectionCode: this.code,
+	          sectionTitle: this.title,
+	          sectionSubTitle: this.subTitle,
+	          sectionIcon: this.icon,
+	          sectionHint: this.hint,
+	          isExpanded: this.isExpanded,
+	          rights: this.rights
+	        };
+	      })
+	    };
+	  },
 	  // data attributes are needed for e2e automated tests
 	  template: `
 		<div class="ui-access-rights-v2-section" :data-accessrights-section-code="code">
@@ -2661,27 +3398,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 				<div class='ui-access-rights-v2-section-head'>
 					<TitleColumn :rights="rights" />
 				</div>
-				<div
-					class='ui-access-rights-v2-section-content'
-					:class="{
-						'ui-access-rights-v2-section-shadow-left-shown': isLeftShadowShown,
-						'ui-access-rights-v2-section-shadow-right-shown': isRightShadowShown,
-					}"
-				>
-					<SyncHorizontalScroll
-						ref="column-container"
-						class='ui-access-rights-v2-section-wrapper'
-						@scroll="throttledScrollHandler"
-					>
-						<Column 
-							v-for="[groupId, group] in userGroups"
-							:key="groupId"
-							:user-group="group"
-							:rights="rights"
-							:data-accessrights-user-group-id="groupId"
-						/>
-					</SyncHorizontalScroll>
-				</div>
+				<ColumnList :rights="rights" :user-groups="userGroups"/>
 			</div>
 		</div>
 	`
@@ -2698,6 +3415,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	  computed: {
 	    ...ui_vue3_vuex.mapState({
 	      isSaving: state => state.application.isSaving,
+	      guid: state => state.application.guid,
 	      searchContainerSelector: state => state.application.options.searchContainerSelector
 	    }),
 	    ...ui_vue3_vuex.mapGetters({
@@ -2706,19 +3424,16 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    })
 	  },
 	  mounted() {
-	    this.loader = new main_loader.Loader({
-	      target: this.$refs.container
-	    });
+	    ServiceLocator.getHint(this.guid).initOwnerDocument(this.$refs.container);
 	  },
-	  beforeUnmount() {
-	    this.loader.destroy();
-	  },
-	  watch: {
-	    isSaving(newValue) {
-	      if (newValue) {
-	        this.loader.show();
-	      } else {
-	        this.loader.hide();
+	  methods: {
+	    scrollToSection(sectionCode) {
+	      const section = this.$refs.sections.find(item => item.code === sectionCode);
+	      if (section) {
+	        scrollTo({
+	          top: main_core.Dom.getPosition(section.$el).top - 155,
+	          behavior: 'smooth'
+	        });
 	      }
 	    }
 	  },
@@ -2741,10 +3456,230 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 				:icon="accessRightSection.sectionIcon"
 				:rights="accessRightSection.rights"
 				:user-groups="shownUserGroups"
+				ref="sections"
 			/>
 		</div>
 	`
 	};
+
+	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _data = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("data");
+	var _isEnabled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isEnabled");
+	var _isCancelAlreadyRegistered = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCancelAlreadyRegistered");
+	var _analyzeRoles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("analyzeRoles");
+	var _isUserGroupEdited = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUserGroupEdited");
+	var _getSaveErrorStatus = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSaveErrorStatus");
+	var _registerRoleCreateEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("registerRoleCreateEvent");
+	var _registerRoleEditEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("registerRoleEditEvent");
+	var _registerRoleDeleteEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("registerRoleDeleteEvent");
+	var _appendRoleCountView = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("appendRoleCountView");
+	var _appendP = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("appendP");
+	class AnalyticsManager {
+	  constructor(store, analyticsData) {
+	    Object.defineProperty(this, _appendP, {
+	      value: _appendP2
+	    });
+	    Object.defineProperty(this, _appendRoleCountView, {
+	      value: _appendRoleCountView2
+	    });
+	    Object.defineProperty(this, _registerRoleDeleteEvent, {
+	      value: _registerRoleDeleteEvent2
+	    });
+	    Object.defineProperty(this, _registerRoleEditEvent, {
+	      value: _registerRoleEditEvent2
+	    });
+	    Object.defineProperty(this, _registerRoleCreateEvent, {
+	      value: _registerRoleCreateEvent2
+	    });
+	    Object.defineProperty(this, _getSaveErrorStatus, {
+	      value: _getSaveErrorStatus2
+	    });
+	    Object.defineProperty(this, _isUserGroupEdited, {
+	      value: _isUserGroupEdited2
+	    });
+	    Object.defineProperty(this, _analyzeRoles, {
+	      value: _analyzeRoles2
+	    });
+	    Object.defineProperty(this, _store, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _data, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _isEnabled, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _isCancelAlreadyRegistered, {
+	      writable: true,
+	      value: false
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = store;
+	    babelHelpers.classPrivateFieldLooseBase(this, _data)[_data] = analyticsData;
+
+	    // check 2 out of 3 required fields
+	    // 'event' field is provided by AnalyticsManager
+	    babelHelpers.classPrivateFieldLooseBase(this, _isEnabled)[_isEnabled] = Object.hasOwn(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data], 'tool') && Object.hasOwn(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data], 'category');
+	  }
+	  onSaveAttempt() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isEnabled)[_isEnabled]) {
+	      return;
+	    }
+	    const {
+	      createdRoles,
+	      editedRoles,
+	      deletedRoles
+	    } = babelHelpers.classPrivateFieldLooseBase(this, _analyzeRoles)[_analyzeRoles]();
+	    for (let i = 0; i < createdRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleCreateEvent)[_registerRoleCreateEvent]('attempt');
+	    }
+	    for (let i = 0; i < editedRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleEditEvent)[_registerRoleEditEvent]('attempt');
+	    }
+	    for (let i = 0; i < deletedRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleDeleteEvent)[_registerRoleDeleteEvent]('attempt');
+	    }
+	  }
+	  onSaveSuccess() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isEnabled)[_isEnabled]) {
+	      return;
+	    }
+	    const {
+	      createdRoles,
+	      editedRoles,
+	      deletedRoles
+	    } = babelHelpers.classPrivateFieldLooseBase(this, _analyzeRoles)[_analyzeRoles]();
+	    for (let i = 0; i < createdRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleCreateEvent)[_registerRoleCreateEvent]('success');
+	    }
+	    for (let i = 0; i < editedRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleEditEvent)[_registerRoleEditEvent]('success');
+	    }
+	    for (let i = 0; i < deletedRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleDeleteEvent)[_registerRoleDeleteEvent]('success');
+	    }
+	  }
+	  onSaveError(response) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isEnabled)[_isEnabled]) {
+	      return;
+	    }
+	    const status = babelHelpers.classPrivateFieldLooseBase(this, _getSaveErrorStatus)[_getSaveErrorStatus](response);
+	    const {
+	      createdRoles,
+	      editedRoles,
+	      deletedRoles
+	    } = babelHelpers.classPrivateFieldLooseBase(this, _analyzeRoles)[_analyzeRoles]();
+	    for (let i = 0; i < createdRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleCreateEvent)[_registerRoleCreateEvent](status);
+	    }
+	    for (let i = 0; i < editedRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleEditEvent)[_registerRoleEditEvent](status);
+	    }
+	    for (let i = 0; i < deletedRoles; i++) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _registerRoleDeleteEvent)[_registerRoleDeleteEvent](status);
+	    }
+	  }
+	  onCancelChanges() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isEnabled)[_isEnabled]) {
+	      return;
+	    }
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isCancelAlreadyRegistered)[_isCancelAlreadyRegistered]) {
+	      return;
+	    }
+	    ui_analytics.sendData({
+	      ...babelHelpers.classPrivateFieldLooseBase(this, _data)[_data],
+	      event: 'settings_cancel'
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _isCancelAlreadyRegistered)[_isCancelAlreadyRegistered] = true;
+	  }
+	  onCloseWithoutSave() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isEnabled)[_isEnabled]) {
+	      return;
+	    }
+	    ui_analytics.sendData({
+	      ...babelHelpers.classPrivateFieldLooseBase(this, _data)[_data],
+	      event: 'settings_pop_cancel'
+	    });
+	  }
+	}
+	function _analyzeRoles2() {
+	  const result = {
+	    createdRoles: 0,
+	    editedRoles: 0,
+	    deletedRoles: babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.userGroups.deleted.size
+	  };
+	  for (const userGroup of babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.userGroups.collection.values()) {
+	    if (userGroup.isNew) {
+	      result.createdRoles++;
+	    } else if (babelHelpers.classPrivateFieldLooseBase(this, _isUserGroupEdited)[_isUserGroupEdited](userGroup)) {
+	      result.editedRoles++;
+	    }
+	  }
+	  return result;
+	}
+	function _isUserGroupEdited2(userGroup) {
+	  if (userGroup.isModified) {
+	    return true;
+	  }
+	  for (const value of userGroup.accessRights.values()) {
+	    if (value.isModified) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+	function _getSaveErrorStatus2(response) {
+	  if (!main_core.Type.isArrayFilled(response == null ? void 0 : response.errors)) {
+	    return 'error';
+	  }
+	  for (const error of response.errors) {
+	    if (main_core.Type.isStringFilled(error == null ? void 0 : error.code)) {
+	      return `error_${main_core.Text.toCamelCase(error.code)}`;
+	    }
+	  }
+	  return 'error';
+	}
+	function _registerRoleCreateEvent2(status) {
+	  const data = {
+	    ...babelHelpers.classPrivateFieldLooseBase(this, _data)[_data],
+	    event: 'role_create',
+	    status
+	  };
+	  babelHelpers.classPrivateFieldLooseBase(this, _appendRoleCountView)[_appendRoleCountView](data);
+	  ui_analytics.sendData(data);
+	}
+	function _registerRoleEditEvent2(status) {
+	  const data = {
+	    ...babelHelpers.classPrivateFieldLooseBase(this, _data)[_data],
+	    event: 'role_edit',
+	    status
+	  };
+	  babelHelpers.classPrivateFieldLooseBase(this, _appendRoleCountView)[_appendRoleCountView](data);
+	  ui_analytics.sendData(data);
+	}
+	function _registerRoleDeleteEvent2(status) {
+	  const data = {
+	    ...babelHelpers.classPrivateFieldLooseBase(this, _data)[_data],
+	    event: 'role_delete',
+	    status
+	  };
+	  babelHelpers.classPrivateFieldLooseBase(this, _appendRoleCountView)[_appendRoleCountView](data);
+	  ui_analytics.sendData(data);
+	}
+	function _appendRoleCountView2(data) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _appendP)[_appendP](data, 'roleCountView', babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['userGroups/shown'].size);
+	}
+	function _appendP2(data, name, value) {
+	  for (const pName of ['p1', 'p2', 'p3', 'p4', 'p5']) {
+	    if (!Object.hasOwn(data, pName)) {
+	      // eslint-disable-next-line no-param-reassign
+	      data[pName] = `${name}_${value}`;
+	      return;
+	    }
+	  }
+	}
 
 	const ACTION_SAVE = 'save';
 	const MODE = 'ajax';
@@ -2801,10 +3736,18 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	const NEW_USER_GROUP_ID_PREFIX = 'new~~~';
 	var _initialUserGroups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initialUserGroups");
 	var _setAccessRightValuesAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setAccessRightValuesAction");
-	var _setMinAccessRightValuesForUserGroupAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMinAccessRightValuesForUserGroupAction");
-	var _getMinValueForGroupAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMinValueForGroupAction");
-	var _setMaxAccessRightValuesForUserGroupAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMaxAccessRightValuesForUserGroupAction");
-	var _getMaxValueForGroupAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMaxValueForGroupAction");
+	var _setAccessRightValuesForShownAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setAccessRightValuesForShownAction");
+	var _setMinAccessRightValuesAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMinAccessRightValuesAction");
+	var _setMinAccessRightValuesInSectionAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMinAccessRightValuesInSectionAction");
+	var _setMinAccessRightValuesForRight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMinAccessRightValuesForRight");
+	var _getMinValueForColumnAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMinValueForColumnAction");
+	var _getMinValue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMinValue");
+	var _setMaxAccessRightValuesAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMaxAccessRightValuesAction");
+	var _setMaxAccessRightValuesInSectionAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMaxAccessRightValuesInSectionAction");
+	var _setMaxAccessRightValuesForRight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMaxAccessRightValuesForRight");
+	var _getMaxValueForColumnAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMaxValueForColumnAction");
+	var _getMaxValue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMaxValue");
+	var _copySectionValuesAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("copySectionValuesAction");
 	var _setRoleTitleAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setRoleTitleAction");
 	var _addMemberAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addMemberAction");
 	var _removeMemberAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeMemberAction");
@@ -2864,17 +3807,41 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    Object.defineProperty(this, _setRoleTitleAction, {
 	      value: _setRoleTitleAction2
 	    });
-	    Object.defineProperty(this, _getMaxValueForGroupAction, {
-	      value: _getMaxValueForGroupAction2
+	    Object.defineProperty(this, _copySectionValuesAction, {
+	      value: _copySectionValuesAction2
 	    });
-	    Object.defineProperty(this, _setMaxAccessRightValuesForUserGroupAction, {
-	      value: _setMaxAccessRightValuesForUserGroupAction2
+	    Object.defineProperty(this, _getMaxValue, {
+	      value: _getMaxValue2
 	    });
-	    Object.defineProperty(this, _getMinValueForGroupAction, {
-	      value: _getMinValueForGroupAction2
+	    Object.defineProperty(this, _getMaxValueForColumnAction, {
+	      value: _getMaxValueForColumnAction2
 	    });
-	    Object.defineProperty(this, _setMinAccessRightValuesForUserGroupAction, {
-	      value: _setMinAccessRightValuesForUserGroupAction2
+	    Object.defineProperty(this, _setMaxAccessRightValuesForRight, {
+	      value: _setMaxAccessRightValuesForRight2
+	    });
+	    Object.defineProperty(this, _setMaxAccessRightValuesInSectionAction, {
+	      value: _setMaxAccessRightValuesInSectionAction2
+	    });
+	    Object.defineProperty(this, _setMaxAccessRightValuesAction, {
+	      value: _setMaxAccessRightValuesAction2
+	    });
+	    Object.defineProperty(this, _getMinValue, {
+	      value: _getMinValue2
+	    });
+	    Object.defineProperty(this, _getMinValueForColumnAction, {
+	      value: _getMinValueForColumnAction2
+	    });
+	    Object.defineProperty(this, _setMinAccessRightValuesForRight, {
+	      value: _setMinAccessRightValuesForRight2
+	    });
+	    Object.defineProperty(this, _setMinAccessRightValuesInSectionAction, {
+	      value: _setMinAccessRightValuesInSectionAction2
+	    });
+	    Object.defineProperty(this, _setMinAccessRightValuesAction, {
+	      value: _setMinAccessRightValuesAction2
+	    });
+	    Object.defineProperty(this, _setAccessRightValuesForShownAction, {
+	      value: _setAccessRightValuesForShownAction2
 	    });
 	    Object.defineProperty(this, _setAccessRightValuesAction, {
 	      value: _setAccessRightValuesAction2
@@ -2972,11 +3939,26 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      setAccessRightValues: (store, payload) => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _setAccessRightValuesAction)[_setAccessRightValuesAction](store, payload);
 	      },
-	      setMinAccessRightValuesForUserGroup: (store, payload) => {
-	        babelHelpers.classPrivateFieldLooseBase(this, _setMinAccessRightValuesForUserGroupAction)[_setMinAccessRightValuesForUserGroupAction](store, payload);
+	      setAccessRightValuesForShown: (store, payload) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setAccessRightValuesForShownAction)[_setAccessRightValuesForShownAction](store, payload);
 	      },
-	      setMaxAccessRightValuesForUserGroup: (store, payload) => {
-	        babelHelpers.classPrivateFieldLooseBase(this, _setMaxAccessRightValuesForUserGroupAction)[_setMaxAccessRightValuesForUserGroupAction](store, payload);
+	      setMinAccessRightValues: (store, payload) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setMinAccessRightValuesAction)[_setMinAccessRightValuesAction](store, payload);
+	      },
+	      setMaxAccessRightValues: (store, payload) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setMaxAccessRightValuesAction)[_setMaxAccessRightValuesAction](store, payload);
+	      },
+	      setMinAccessRightValuesInSection: (store, payload) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setMinAccessRightValuesInSectionAction)[_setMinAccessRightValuesInSectionAction](store, payload);
+	      },
+	      setMaxAccessRightValuesInSection: (store, payload) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setMaxAccessRightValuesInSectionAction)[_setMaxAccessRightValuesInSectionAction](store, payload);
+	      },
+	      setMinAccessRightValuesForRight: (store, payload) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setMinAccessRightValuesForRight)[_setMinAccessRightValuesForRight](store, payload);
+	      },
+	      setMaxAccessRightValuesForRight: (store, payload) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _setMaxAccessRightValuesForRight)[_setMaxAccessRightValuesForRight](store, payload);
 	      },
 	      setRoleTitle: (store, payload) => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _setRoleTitleAction)[_setRoleTitleAction](store, payload);
@@ -2989,6 +3971,9 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      },
 	      copyUserGroup: (store, payload) => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _copyUserGroupAction)[_copyUserGroupAction](store, payload);
+	      },
+	      copySectionValues: (store, payload) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _copySectionValuesAction)[_copySectionValuesAction](store, payload);
 	      },
 	      addUserGroup: store => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _addUserGroupAction)[_addUserGroupAction](store);
@@ -3100,67 +4085,194 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    isModified: babelHelpers.classPrivateFieldLooseBase(this, _isValueModified)[_isValueModified](payload.userGroupId, payload.valueId, payload.values, store.rootGetters['accessRights/getEmptyValue'](payload.sectionCode, payload.valueId))
 	  });
 	}
-	function _setMinAccessRightValuesForUserGroupAction2(store, {
+	function _setAccessRightValuesForShownAction2(store, payload) {
+	  for (const userGroupId of store.getters.shown.keys()) {
+	    void store.dispatch('setAccessRightValues', {
+	      ...payload,
+	      userGroupId
+	    });
+	  }
+	}
+	function _setMinAccessRightValuesAction2(store, {
 	  userGroupId
 	}) {
-	  for (const section of store.rootState.accessRights.collection.values()) {
-	    for (const item of section.rights.values()) {
-	      const valueToSet = babelHelpers.classPrivateFieldLooseBase(this, _getMinValueForGroupAction)[_getMinValueForGroupAction](item, store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, item.id));
-	      if (main_core.Type.isNil(valueToSet)) {
-	        continue;
-	      }
-	      void store.dispatch('setAccessRightValues', {
-	        userGroupId,
-	        sectionCode: section.sectionCode,
-	        valueId: item.id,
-	        values: valueToSet
-	      });
-	    }
+	  for (const sectionCode of store.rootState.accessRights.collection.keys()) {
+	    void store.dispatch('setMinAccessRightValuesInSection', {
+	      userGroupId,
+	      sectionCode
+	    });
 	  }
 	  void store.dispatch('accessRights/expandAllSections', null, {
 	    root: true
 	  });
 	}
-	function _getMinValueForGroupAction2(item, emptyValue) {
-	  const setEmpty = main_core.Type.isBoolean(item.setEmptyOnGroupActions) && item.setEmptyOnGroupActions;
+	function _setMinAccessRightValuesInSectionAction2(store, {
+	  userGroupId,
+	  sectionCode
+	}) {
+	  const section = store.rootState.accessRights.collection.get(sectionCode);
+	  if (!section) {
+	    console.warn('ui.accessrights.v2: attempt to set min values in section that dont exists', {
+	      sectionCode
+	    });
+	    return;
+	  }
+	  for (const item of section.rights.values()) {
+	    const valueToSet = babelHelpers.classPrivateFieldLooseBase(this, _getMinValueForColumnAction)[_getMinValueForColumnAction](item, store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, item.id));
+	    if (main_core.Type.isNil(valueToSet)) {
+	      continue;
+	    }
+	    void store.dispatch('setAccessRightValues', {
+	      userGroupId,
+	      sectionCode: section.sectionCode,
+	      valueId: item.id,
+	      values: valueToSet
+	    });
+	  }
+	}
+	function _setMinAccessRightValuesForRight2(store, {
+	  sectionCode,
+	  rightId
+	}) {
+	  var _store$rootState$acce;
+	  const right = (_store$rootState$acce = store.rootState.accessRights.collection.get(sectionCode)) == null ? void 0 : _store$rootState$acce.rights.get(rightId);
+	  if (!right) {
+	    console.warn('ui.accessrights.v2: attempt to set min values for right that dont exists', {
+	      sectionCode,
+	      rightId
+	    });
+	    return;
+	  }
+	  const valueToSet = babelHelpers.classPrivateFieldLooseBase(this, _getMinValue)[_getMinValue](right);
+	  if (main_core.Type.isNil(valueToSet)) {
+	    console.warn('ui.accessrights.v2: attempt to set min values for right that dont have min value set', {
+	      sectionCode,
+	      rightId
+	    });
+	    return;
+	  }
+	  void store.dispatch('setAccessRightValuesForShown', {
+	    sectionCode,
+	    valueId: rightId,
+	    values: valueToSet
+	  });
+	}
+	function _getMinValueForColumnAction2(item, emptyValue) {
+	  const setEmpty = main_core.Type.isBoolean(item.setEmptyOnSetMinMaxValueInColumn) && item.setEmptyOnSetMinMaxValueInColumn;
 	  if (setEmpty) {
 	    return emptyValue;
 	  }
-	  if (!main_core.Type.isNil(item.minValue)) {
-	    return item.minValue;
-	  }
-	  return null;
+	  return babelHelpers.classPrivateFieldLooseBase(this, _getMinValue)[_getMinValue](item);
 	}
-	function _setMaxAccessRightValuesForUserGroupAction2(store, {
+	function _getMinValue2(item) {
+	  var _ServiceLocator$getVa;
+	  return (_ServiceLocator$getVa = ServiceLocator.getValueTypeByRight(item)) == null ? void 0 : _ServiceLocator$getVa.getMinValue(item);
+	}
+	function _setMaxAccessRightValuesAction2(store, {
 	  userGroupId
 	}) {
-	  for (const section of store.rootState.accessRights.collection.values()) {
-	    for (const item of section.rights.values()) {
-	      const valueToSet = babelHelpers.classPrivateFieldLooseBase(this, _getMaxValueForGroupAction)[_getMaxValueForGroupAction](item, store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, item.id));
-	      if (main_core.Type.isNil(valueToSet)) {
-	        continue;
-	      }
-	      void store.dispatch('setAccessRightValues', {
-	        userGroupId,
-	        sectionCode: section.sectionCode,
-	        valueId: item.id,
-	        values: valueToSet
-	      });
-	    }
+	  for (const sectionCode of store.rootState.accessRights.collection.keys()) {
+	    void store.dispatch('setMaxAccessRightValuesInSection', {
+	      userGroupId,
+	      sectionCode
+	    });
 	  }
 	  void store.dispatch('accessRights/expandAllSections', null, {
 	    root: true
 	  });
 	}
-	function _getMaxValueForGroupAction2(item, emptyValue) {
-	  const setEmpty = main_core.Type.isBoolean(item.setEmptyOnGroupActions) && item.setEmptyOnGroupActions;
+	function _setMaxAccessRightValuesInSectionAction2(store, {
+	  userGroupId,
+	  sectionCode
+	}) {
+	  const section = store.rootState.accessRights.collection.get(sectionCode);
+	  if (!section) {
+	    console.warn('ui.accessrights.v2: attempt to set max values in section that dont exists', {
+	      sectionCode
+	    });
+	    return;
+	  }
+	  for (const item of section.rights.values()) {
+	    const valueToSet = babelHelpers.classPrivateFieldLooseBase(this, _getMaxValueForColumnAction)[_getMaxValueForColumnAction](item, store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, item.id));
+	    if (main_core.Type.isNil(valueToSet)) {
+	      continue;
+	    }
+	    void store.dispatch('setAccessRightValues', {
+	      userGroupId,
+	      sectionCode: section.sectionCode,
+	      valueId: item.id,
+	      values: valueToSet
+	    });
+	  }
+	}
+	function _setMaxAccessRightValuesForRight2(store, {
+	  sectionCode,
+	  rightId
+	}) {
+	  var _store$rootState$acce2;
+	  const right = (_store$rootState$acce2 = store.rootState.accessRights.collection.get(sectionCode)) == null ? void 0 : _store$rootState$acce2.rights.get(rightId);
+	  if (!right) {
+	    console.warn('ui.accessrights.v2: attempt to set max values for right that dont exists', {
+	      sectionCode,
+	      rightId
+	    });
+	    return;
+	  }
+	  const valueToSet = babelHelpers.classPrivateFieldLooseBase(this, _getMaxValue)[_getMaxValue](right);
+	  if (main_core.Type.isNil(valueToSet)) {
+	    console.warn('ui.accessrights.v2: attempt to set max values for right that dont have max value set', {
+	      sectionCode,
+	      rightId
+	    });
+	    return;
+	  }
+	  void store.dispatch('setAccessRightValuesForShown', {
+	    sectionCode,
+	    valueId: rightId,
+	    values: valueToSet
+	  });
+	}
+	function _getMaxValueForColumnAction2(item, emptyValue) {
+	  const setEmpty = main_core.Type.isBoolean(item.setEmptyOnSetMinMaxValueInColumn) && item.setEmptyOnSetMinMaxValueInColumn;
 	  if (setEmpty) {
 	    return emptyValue;
 	  }
-	  if (!main_core.Type.isNil(item.maxValue)) {
-	    return item.maxValue;
+	  return babelHelpers.classPrivateFieldLooseBase(this, _getMaxValue)[_getMaxValue](item);
+	}
+	function _getMaxValue2(item) {
+	  var _ServiceLocator$getVa2;
+	  return (_ServiceLocator$getVa2 = ServiceLocator.getValueTypeByRight(item)) == null ? void 0 : _ServiceLocator$getVa2.getMaxValue(item);
+	}
+	function _copySectionValuesAction2(store, payload) {
+	  const src = babelHelpers.classPrivateFieldLooseBase(this, _getUserGroup)[_getUserGroup](store.state, payload.srcUserGroupId);
+	  if (!src) {
+	    console.warn('ui.accessrights.v2: Attempt to copy values from user group that dont exists', payload);
+	    return;
 	  }
-	  return null;
+	  const section = store.rootState.accessRights.collection.get(payload.sectionCode);
+	  if (!section) {
+	    console.warn('ui.accessrights.v2: Attempt to copy values for section that dont exists', payload);
+	    return;
+	  }
+	  for (const rightId of section.rights.keys()) {
+	    const value = src.accessRights.get(rightId);
+	    if (value) {
+	      void store.dispatch('setAccessRightValues', {
+	        userGroupId: payload.dstUserGroupId,
+	        sectionCode: section.sectionCode,
+	        valueId: value.id,
+	        values: value.values
+	      });
+	    } else {
+	      const emptyValue = store.rootGetters['accessRights/getEmptyValue'](section.sectionCode, rightId);
+	      void store.dispatch('setAccessRightValues', {
+	        userGroupId: payload.dstUserGroupId,
+	        sectionCode: section.sectionCode,
+	        valueId: rightId,
+	        values: emptyValue
+	      });
+	    }
+	  }
 	}
 	function _setRoleTitleAction2(store, payload) {
 	  if (!main_core.Type.isString(payload.title)) {
@@ -3341,16 +4453,13 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 
 	function createStore(options, userGroups, accessRights, appGuid) {
 	  const userGroupsModel = UserGroupsModel.create().setInitialUserGroups(userGroups);
-	  const accessRightsModel = AccessRightsModel.create().setInitialAccessRights(accessRights);
 	  const {
-	    store,
-	    builder
-	  } = ui_vue3_vuex.Builder.init().addModel(ApplicationModel.create().setOptions(options).setGuid(appGuid)).addModel(userGroupsModel).addModel(accessRightsModel).syncBuild();
+	    store
+	  } = ui_vue3_vuex.Builder.init().addModel(ApplicationModel.create().setOptions(options).setGuid(appGuid)).addModel(AccessRightsModel.create().setInitialAccessRights(accessRights)).addModel(userGroupsModel).syncBuild();
 	  return {
 	    store,
-	    resetState: () => builder.clearModelState(),
-	    userGroupsModel,
-	    accessRightsModel
+	    resetState: () => userGroupsModel.clearState(),
+	    userGroupsModel
 	  };
 	}
 
@@ -3428,11 +4537,15 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	var _internalizeExternalItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("internalizeExternalItem");
 	var _internalizeSelectedVariablesAliases = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("internalizeSelectedVariablesAliases");
 	var _internalizeValueSet = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("internalizeValueSet");
+	var _internalizeSetEmptyOnSetMinMaxValueInColumn = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("internalizeSetEmptyOnSetMinMaxValueInColumn");
 	var _internalizeExternalVariable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("internalizeExternalVariable");
 	class AccessRightsInternalizer {
 	  constructor() {
 	    Object.defineProperty(this, _internalizeExternalVariable, {
 	      value: _internalizeExternalVariable2
+	    });
+	    Object.defineProperty(this, _internalizeSetEmptyOnSetMinMaxValueInColumn, {
+	      value: _internalizeSetEmptyOnSetMinMaxValueInColumn2
 	    });
 	    Object.defineProperty(this, _internalizeValueSet, {
 	      value: _internalizeValueSet2
@@ -3499,7 +4612,8 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    maxValue: babelHelpers.classPrivateFieldLooseBase(this, _internalizeValueSet)[_internalizeValueSet](externalItem.maxValue),
 	    defaultValue: babelHelpers.classPrivateFieldLooseBase(this, _internalizeValueSet)[_internalizeValueSet](externalItem.defaultValue),
 	    emptyValue: babelHelpers.classPrivateFieldLooseBase(this, _internalizeValueSet)[_internalizeValueSet](externalItem.emptyValue),
-	    setEmptyOnGroupActions: main_core.Type.isBoolean(externalItem.setEmptyOnGroupActions) ? externalItem.setEmptyOnGroupActions : null,
+	    nothingSelectedValue: babelHelpers.classPrivateFieldLooseBase(this, _internalizeValueSet)[_internalizeValueSet](externalItem.nothingSelectedValue),
+	    setEmptyOnSetMinMaxValueInColumn: babelHelpers.classPrivateFieldLooseBase(this, _internalizeSetEmptyOnSetMinMaxValueInColumn)[_internalizeSetEmptyOnSetMinMaxValueInColumn](externalItem),
 	    variables: main_core.Type.isArray(externalItem.variables) ? new Map() : null,
 	    allSelectedCode: main_core.Type.isStringFilled(externalItem.allSelectedCode) ? externalItem.allSelectedCode : null,
 	    selectedVariablesAliases: aliases,
@@ -3507,7 +4621,6 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    enableSearch: main_core.Type.isBoolean(externalItem.enableSearch) ? externalItem.enableSearch : null,
 	    showAvatars: main_core.Type.isBoolean(externalItem.showAvatars) ? externalItem.showAvatars : null,
 	    compactView: main_core.Type.isBoolean(externalItem.compactView) ? externalItem.compactView : null,
-	    disableSelectAll: main_core.Type.isBoolean(externalItem.disableSelectAll) ? externalItem.disableSelectAll : null,
 	    hintTitle: main_core.Type.isStringFilled(externalItem.hintTitle) ? externalItem.hintTitle : null
 	  };
 	  if (normalizedItem.groupHead || normalizedItem.group) {
@@ -3544,6 +4657,15 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	  }
 	  return new Set([String(value)]);
 	}
+	function _internalizeSetEmptyOnSetMinMaxValueInColumn2(externalItem) {
+	  const boolOrNull = x => main_core.Type.isBoolean(x) ? x : null;
+	  if (!main_core.Type.isUndefined(externalItem.setEmptyOnSetMinMaxValueInColumn)) {
+	    return boolOrNull(externalItem.setEmptyOnSetMinMaxValueInColumn);
+	  }
+
+	  // todo compatibility, can be removed when crm update is out
+	  return boolOrNull(externalItem.setEmptyOnGroupActions);
+	}
 	function _internalizeExternalVariable2(externalVariable) {
 	  return {
 	    id: String(externalVariable.id),
@@ -3552,7 +4674,6 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    supertitle: main_core.Type.isStringFilled(externalVariable.supertitle) ? externalVariable.supertitle : null,
 	    avatar: main_core.Type.isStringFilled(externalVariable.avatar) ? externalVariable.avatar : null,
 	    avatarOptions: main_core.Type.isPlainObject(externalVariable.avatarOptions) ? externalVariable.avatarOptions : null,
-	    selectionStrategy: main_core.Type.isStringFilled(externalVariable.selectionStrategy) ? externalVariable.selectionStrategy : null,
 	    conflictsWith: main_core.Type.isArray(externalVariable.conflictsWith) ? new Set(externalVariable.conflictsWith.map(x => String(x))) : null,
 	    requires: main_core.Type.isArray(externalVariable.requires) ? new Set(externalVariable.requires.map(x => String(x))) : null,
 	    secondary: main_core.Type.isBoolean(externalVariable.secondary) ? externalVariable.secondary : null
@@ -3745,11 +4866,12 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	var _isUserConfirmedClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUserConfirmedClose");
 	var _handleSliderClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleSliderClose");
 	var _app = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("app");
-	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
+	var _rootComponent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("rootComponent");
+	var _store$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _resetState = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resetState");
 	var _unwatch = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("unwatch");
 	var _userGroupsModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userGroupsModel");
-	var _accessRightsModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("accessRightsModel");
+	var _analyticsManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("analyticsManager");
 	var _bindEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindEvents");
 	var _unbindEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("unbindEvents");
 	var _tryShowFeaturePromoter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tryShowFeaturePromoter");
@@ -3807,7 +4929,11 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _store, {
+	    Object.defineProperty(this, _rootComponent, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _store$1, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -3823,7 +4949,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _accessRightsModel, {
+	    Object.defineProperty(this, _analyticsManager, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -3842,6 +4968,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	        size: ui_buttons.ButtonSize.SMALL,
 	        text: main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_MODIFIED_CANCEL_YES_CANCEL'),
 	        onclick: () => {
+	          babelHelpers.classPrivateFieldLooseBase(this, _analyticsManager)[_analyticsManager].onCancelChanges();
 	          babelHelpers.classPrivateFieldLooseBase(this, _resetState)[_resetState]();
 	          box.close();
 	        }
@@ -3857,32 +4984,39 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    box.show();
 	  }
 	  sendActionRequest() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.application.isSaving || !babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['userGroups/isModified']) {
-	      return;
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].commit('application/setSaving', true);
-	    babelHelpers.classPrivateFieldLooseBase(this, _runSaveAjaxRequest)[_runSaveAjaxRequest]().then(({
-	      userGroups,
-	      accessRights
-	    }) => {
-	      babelHelpers.classPrivateFieldLooseBase(this, _userGroupsModel)[_userGroupsModel].setInitialUserGroups(userGroups);
-	      babelHelpers.classPrivateFieldLooseBase(this, _accessRightsModel)[_accessRightsModel].setInitialAccessRights(accessRights);
-
-	      // reset modification flags and stuff
-	      babelHelpers.classPrivateFieldLooseBase(this, _resetState)[_resetState]();
-	      babelHelpers.classPrivateFieldLooseBase(this, _showNotification)[_showNotification](main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SETTINGS_HAVE_BEEN_SAVED'));
-	    }).catch(response => {
-	      var _response$errors, _response$errors$;
-	      console.warn('ui.accessrights.v2: error during save', response);
-	      if (babelHelpers.classPrivateFieldLooseBase(this, _tryShowFeaturePromoter)[_tryShowFeaturePromoter](response)) {
+	    return new Promise((resolve, reject) => {
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.application.isSaving || !babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].getters['userGroups/isModified']) {
+	        resolve();
 	        return;
 	      }
-	      babelHelpers.classPrivateFieldLooseBase(this, _showNotification)[_showNotification]((response == null ? void 0 : (_response$errors = response.errors) == null ? void 0 : (_response$errors$ = _response$errors[0]) == null ? void 0 : _response$errors$.message) || 'Something went wrong');
-	    }).finally(() => {
-	      var _babelHelpers$classPr;
-	      const waitContainer = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _buttonPanel)[_buttonPanel]) == null ? void 0 : _babelHelpers$classPr.getContainer().querySelector('.ui-btn-wait');
-	      main_core.Dom.removeClass(waitContainer, 'ui-btn-wait');
-	      babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].commit('application/setSaving', false);
+	      babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].commit('application/setSaving', true);
+	      babelHelpers.classPrivateFieldLooseBase(this, _analyticsManager)[_analyticsManager].onSaveAttempt();
+	      babelHelpers.classPrivateFieldLooseBase(this, _runSaveAjaxRequest)[_runSaveAjaxRequest]().then(({
+	        userGroups
+	      }) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _analyticsManager)[_analyticsManager].onSaveSuccess();
+	        babelHelpers.classPrivateFieldLooseBase(this, _userGroupsModel)[_userGroupsModel].setInitialUserGroups(userGroups);
+
+	        // reset modification flags and stuff
+	        babelHelpers.classPrivateFieldLooseBase(this, _resetState)[_resetState]();
+	        babelHelpers.classPrivateFieldLooseBase(this, _showNotification)[_showNotification](main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SETTINGS_HAVE_BEEN_SAVED'));
+	      }).catch(response => {
+	        var _response$errors, _response$errors$;
+	        babelHelpers.classPrivateFieldLooseBase(this, _analyticsManager)[_analyticsManager].onSaveError(response);
+	        console.warn('ui.accessrights.v2: error during save', response);
+	        if (babelHelpers.classPrivateFieldLooseBase(this, _tryShowFeaturePromoter)[_tryShowFeaturePromoter](response)) {
+	          reject(response);
+	          return;
+	        }
+	        babelHelpers.classPrivateFieldLooseBase(this, _showNotification)[_showNotification]((response == null ? void 0 : (_response$errors = response.errors) == null ? void 0 : (_response$errors$ = _response$errors[0]) == null ? void 0 : _response$errors$.message) || 'Something went wrong');
+	        reject(response);
+	      }).finally(() => {
+	        var _babelHelpers$classPr;
+	        const waitContainer = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _buttonPanel)[_buttonPanel]) == null ? void 0 : _babelHelpers$classPr.getContainer().querySelector('.ui-btn-wait');
+	        main_core.Dom.removeClass(waitContainer, 'ui-btn-wait');
+	        babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].commit('application/setSaving', false);
+	        resolve();
+	      });
 	    });
 	  }
 	  draw() {
@@ -3890,14 +5024,12 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	    const {
 	      store,
 	      resetState,
-	      accessRightsModel,
 	      userGroupsModel
 	    } = createStore(applicationOptions, new UserGroupsInternalizer(applicationOptions.maxVisibleUserGroups).transform(babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1].userGroups), new AccessRightsInternalizer().transform(babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1].accessRights), babelHelpers.classPrivateFieldLooseBase(this, _guid$1)[_guid$1]);
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = store;
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1] = store;
 	    babelHelpers.classPrivateFieldLooseBase(this, _resetState)[_resetState] = resetState;
 	    babelHelpers.classPrivateFieldLooseBase(this, _userGroupsModel)[_userGroupsModel] = userGroupsModel;
-	    babelHelpers.classPrivateFieldLooseBase(this, _accessRightsModel)[_accessRightsModel] = accessRightsModel;
-	    babelHelpers.classPrivateFieldLooseBase(this, _unwatch)[_unwatch] = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].watch((state, getters) => getters['userGroups/isModified'], newValue => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _unwatch)[_unwatch] = babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].watch((state, getters) => getters['userGroups/isModified'], newValue => {
 	      if (newValue) {
 	        var _babelHelpers$classPr2;
 	        (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _buttonPanel)[_buttonPanel]) == null ? void 0 : _babelHelpers$classPr2.show();
@@ -3907,24 +5039,31 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      }
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _app)[_app] = ui_vue3.BitrixVue.createApp(Grid);
-	    babelHelpers.classPrivateFieldLooseBase(this, _app)[_app].use(babelHelpers.classPrivateFieldLooseBase(this, _store)[_store]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _app)[_app].use(babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1]);
 	    main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _renderTo)[_renderTo]);
-	    babelHelpers.classPrivateFieldLooseBase(this, _app)[_app].mount(babelHelpers.classPrivateFieldLooseBase(this, _renderTo)[_renderTo]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _rootComponent)[_rootComponent] = babelHelpers.classPrivateFieldLooseBase(this, _app)[_app].mount(babelHelpers.classPrivateFieldLooseBase(this, _renderTo)[_renderTo]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _analyticsManager)[_analyticsManager] = new AnalyticsManager(babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1], babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1].analytics);
 	  }
 	  destroy() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _analyticsManager)[_analyticsManager] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _app)[_app].unmount();
 	    babelHelpers.classPrivateFieldLooseBase(this, _app)[_app] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _unbindEvents)[_unbindEvents]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _unwatch)[_unwatch]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _unwatch)[_unwatch] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _resetState)[_resetState] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _userGroupsModel)[_userGroupsModel] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _accessRightsModel)[_accessRightsModel] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _options$1)[_options$1] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _buttonPanel)[_buttonPanel] = null;
 	    main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _renderTo)[_renderTo]);
 	    babelHelpers.classPrivateFieldLooseBase(this, _renderTo)[_renderTo] = null;
+	  }
+	  hasUnsavedChanges() {
+	    return !(!babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].getters['userGroups/isModified'] || babelHelpers.classPrivateFieldLooseBase(this, _isUserConfirmedClose)[_isUserConfirmedClose]);
+	  }
+	  scrollToSection(sectionCode) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _rootComponent)[_rootComponent].scrollToSection(sectionCode);
 	  }
 	}
 	function _bindEvents2() {
@@ -3973,37 +5112,36 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	  });
 	}
 	function _runSaveAjaxRequest2() {
-	  const internalUserGroups = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.userGroups.collection;
+	  const internalUserGroups = babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.userGroups.collection;
 	  let userGroups = null;
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.application.options.isSaveOnlyChangedRights) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.application.options.isSaveOnlyChangedRights) {
 	    userGroups = new OnlyChangedUserGroupsExporter().transform(internalUserGroups);
 	  } else {
 	    userGroups = new AllUserGroupsExporter().transform(internalUserGroups);
 	  }
-	  const bodyType = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.application.options.bodyType;
+	  const bodyType = babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.application.options.bodyType;
 
 	  // wrap ajax in native promise
 	  return new Promise((resolve, reject) => {
-	    main_core.ajax.runComponentAction(babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.application.options.component, babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.application.options.actionSave, {
-	      mode: babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.application.options.mode,
+	    main_core.ajax.runComponentAction(babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.application.options.component, babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.application.options.actionSave, {
+	      mode: babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.application.options.mode,
 	      [bodyType]: {
 	        userGroups,
-	        deletedUserGroups: [...babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.userGroups.deleted.values()],
-	        parameters: babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.application.options.additionalSaveParams
+	        deletedUserGroups: [...babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.userGroups.deleted.values()],
+	        parameters: babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.application.options.additionalSaveParams
 	      }
 	    }).then(response => {
-	      const maxVisibleUserGroups = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].state.application.options.maxVisibleUserGroups;
+	      const maxVisibleUserGroups = babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].state.application.options.maxVisibleUserGroups;
 	      const newUserGroups = new UserGroupsInternalizer(maxVisibleUserGroups).transform(response.data.USER_GROUPS);
 	      new ShownUserGroupsCopier(internalUserGroups, maxVisibleUserGroups).transform(newUserGroups);
 	      resolve({
-	        userGroups: newUserGroups,
-	        accessRights: new AccessRightsInternalizer().transform(response.data.ACCESS_RIGHTS)
+	        userGroups: newUserGroups
 	      });
 	    }).catch(reject);
 	  });
 	}
 	function _confirmBeforeClosingModifiedSlider2(sliderEvent) {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['userGroups/isModified'] || babelHelpers.classPrivateFieldLooseBase(this, _isUserConfirmedClose)[_isUserConfirmedClose]) {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].getters['userGroups/isModified'] || babelHelpers.classPrivateFieldLooseBase(this, _isUserConfirmedClose)[_isUserConfirmedClose]) {
 	    return;
 	  }
 	  sliderEvent.denyAction();
@@ -4016,9 +5154,12 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      size: ui_buttons.ButtonSize.SMALL,
 	      text: main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_MODIFIED_CLOSE_YES_CLOSE'),
 	      onclick: () => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _analyticsManager)[_analyticsManager].onCloseWithoutSave();
 	        babelHelpers.classPrivateFieldLooseBase(this, _isUserConfirmedClose)[_isUserConfirmedClose] = true;
 	        box.close();
-	        sliderEvent.getSlider().close();
+	        setTimeout(() => {
+	          sliderEvent.getSlider().close();
+	        });
 	      }
 	    }), new ui_buttons.CancelButton({
 	      size: ui_buttons.ButtonSize.SMALL,
@@ -4032,5 +5173,5 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 
 	exports.App = App;
 
-}((this.BX.UI.AccessRights.V2 = this.BX.UI.AccessRights.V2 || {}),BX.Event,BX.UI.Dialogs,BX,BX.UI.Vue3.Components,BX.UI,BX.Vue3,BX.UI.Vue3.Components,BX.Vue3.Directives,BX.UI,BX.UI.EntitySelector,BX.UI.Vue3.Components,BX.Main,BX,BX,BX.Vue3.Vuex,BX));
+}((this.BX.UI.AccessRights.V2 = this.BX.UI.AccessRights.V2 || {}),BX.Event,BX.UI.Dialogs,BX.UI,BX.UI.Vue3.Components,BX.UI.EntitySelector,BX.Vue3,BX.Vue3.Directives,BX.UI.Vue3.Components,BX.Main,BX.UI,BX,BX.UI.Vue3.Components,BX,BX.UI.Analytics,BX.Vue3.Vuex,BX));
 //# sourceMappingURL=v2.bundle.js.map

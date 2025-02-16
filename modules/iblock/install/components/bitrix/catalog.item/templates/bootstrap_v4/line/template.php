@@ -14,8 +14,8 @@ use Bitrix\Main\Localization\Loc;
  * @var array $actualItem
  * @var array $minOffer
  * @var array $itemIds
- * @var array $price
- * @var array $measureRatio
+ * @var array|null $price
+ * @var float|int|null $measureRatio
  * @var bool $haveOffers
  * @var bool $showSubscribe
  * @var array $morePhoto
@@ -88,7 +88,7 @@ else
 					<?
 				}
 
-				if ($arParams['SHOW_DISCOUNT_PERCENT'] === 'Y')
+				if ($arParams['SHOW_DISCOUNT_PERCENT'] === 'Y' && !empty($price))
 				{
 					?>
 						<div class="product-item-label-ring <?=$discountPositionClass?>" id="<?=$itemIds['DSC_PERC']?>" <?=($price['PERCENT'] > 0 ? '' : 'style="display: none;"')?>>
@@ -442,7 +442,7 @@ else
 								?>
 							</span>
 							<?
-							if ($arParams['SHOW_OLD_PRICE'] === 'Y')
+							if ($arParams['SHOW_OLD_PRICE'] === 'Y' && !empty($price))
 							{
 								?>
 								<br><span class="product-item-price-old" id="<?=$itemIds['PRICE_OLD']?>" <?=($price['RATIO_PRICE'] >= $price['RATIO_BASE_PRICE'] ? 'style="display: none;"' : '')?>>

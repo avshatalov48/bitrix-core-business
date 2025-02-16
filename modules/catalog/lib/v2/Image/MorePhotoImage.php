@@ -24,7 +24,7 @@ class MorePhotoImage extends BaseImage
 		/** @var BaseIblockElementEntity $parent */
 		if ($parent = $this->getParent())
 		{
-			$property = $parent->getPropertyCollection()->findByCode(self::CODE);
+			$property = $parent->getPropertyCollection()->findByCodeLazy(self::CODE);
 			if ($property)
 			{
 				/** @var \Bitrix\Catalog\v2\PropertyValue\PropertyValue $item */
@@ -60,7 +60,7 @@ class MorePhotoImage extends BaseImage
 		/** @var  $parent BaseIblockElementEntity */
 		if ($parent = $this->getParent())
 		{
-			$property = $parent->getPropertyCollection()->findByCode(MorePhotoImage::CODE);
+			$property = $parent->getPropertyCollection()->findByCodeLazy(MorePhotoImage::CODE);
 			if ($property)
 			{
 				$valueCollection = $property->getPropertyValueCollection();

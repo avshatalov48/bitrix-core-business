@@ -4,3 +4,7 @@
 	border: none !important;
 	padding: 0 !important;
 }
+
+.iblock-section-selector-wrapper .main-ui-select-inner-item.main-ui-select-inner-item-selected {
+	background: #f3f6f8;
+}

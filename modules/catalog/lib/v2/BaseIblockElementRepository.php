@@ -5,10 +5,9 @@ namespace Bitrix\Catalog\v2;
 use Bitrix\Catalog\Model\Product;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
-use Bitrix\Iblock\ElementTable;
+use Bitrix\Catalog\v2\Internal\ProductInternalService;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\Type\DateTime;
 
 /**
  * Class BaseIblockElementRepository
@@ -123,7 +122,6 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 				$entityFields = $fields[$entity->getId()] ?? null;
 				if (!is_array($entityFields))
 				{
-					AddMessage2Log('Cannot load product ' . $entity->getId(), 'catalog');
 					continue;
 				}
 				$entityFields = array_diff_key($entityFields, ['TYPE' => true]);
@@ -342,92 +340,16 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 
 	protected function addInternal(array $fields): Result
 	{
-		$result = new Result();
+		$productService = new ProductInternalService();
 
-		$elementFields = $this->prepareElementFields($fields);
-
-		if (!empty($elementFields))
-		{
-			$element = new \CIBlockElement();
-			$id = $element->add($elementFields);
-
-			if ($id)
-			{
-				$result->setData(['ID' => $id]);
-			}
-			else
-			{
-				$result->addError(new Error($element->getLastError()));
-			}
-		}
-
-		if ($result->isSuccess())
-		{
-			$productFields = $this->prepareProductFields($fields);
-
-			if (!empty($productFields))
-			{
-				$productFields['ID'] = $result->getData()['ID'];
-				$res = Product::add([
-					'fields' => $productFields,
-					'external_fields' => [
-						'IBLOCK_ID' => $elementFields['IBLOCK_ID'],
-					],
-				]);
-
-				if (!$res->isSuccess())
-				{
-					$result->addErrors($res->getErrors());
-				}
-			}
-		}
-
-		return $result;
+		return $productService->add($fields);
 	}
 
 	protected function updateInternal(int $id, array $fields): Result
 	{
-		$result = new Result();
+		$productService = new ProductInternalService();
 
-		$elementFields = $this->prepareElementFields($fields);
-
-		if (!empty($elementFields))
-		{
-			$element = new \CIBlockElement();
-			$res = $element->update($id, $elementFields);
-
-			if (!$res)
-			{
-				$result->addError(new Error($element->getLastError()));
-			}
-		}
-
-		if ($result->isSuccess())
-		{
-			$productFields = $this->prepareProductFields($fields);
-
-			if (!empty($productFields))
-			{
-				$res = Product::update($id, $productFields);
-
-				if (!$res->isSuccess())
-				{
-					$result->addErrors($res->getErrors());
-				}
-			}
-		}
-
-		if ($result->isSuccess())
-		{
-			$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues(
-				\CIBlockElement::GetIBlockByID($id),
-				$id
-			);
-			$ipropValues->clearValues();
-			unset($ipropValues);
-		}
-
-		return $result;
+		return $productService->update($id, $fields);
 	}
 
 	protected function deleteInternal(int $id): Result
@@ -463,53 +385,6 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 		}
 
 		return $result;
-	}
-
-	protected function prepareElementFields(array $fields): array
-	{
-		if (array_key_exists('ACTIVE_FROM', $fields) && $fields['ACTIVE_FROM'] === null)
-		{
-			$fields['ACTIVE_FROM'] = false;
-		}
-
-		if (array_key_exists('ACTIVE_TO', $fields) && $fields['ACTIVE_TO'] === null)
-		{
-			$fields['ACTIVE_TO'] = false;
-		}
-
-		if (!array_key_exists('MODIFIED_BY', $fields))
-		{
-			global $USER;
-			if (isset($USER) && $USER instanceof \CUser)
-			{
-				$fields['MODIFIED_BY'] = $USER->getID();
-			}
-		}
-
-		return array_intersect_key($fields, ElementTable::getMap());
-	}
-
-	protected function prepareProductFields(array $fields): array
-	{
-		$catalogFields = array_intersect_key(
-			$fields,
-			array_fill_keys(
-				Product::getTabletFieldNames(Product::FIELDS_ALL),
-				true
-			)
-		);
-
-		if (isset($catalogFields['TIMESTAMP_X']))
-		{
-			$catalogFields['TIMESTAMP_X'] = new DateTime($catalogFields['TIMESTAMP_X']);
-		}
-
-		if (isset($catalogFields['TYPE']))
-		{
-			$catalogFields['TYPE'] = (int)$catalogFields['TYPE'];
-		}
-
-		return $catalogFields;
 	}
 
 	private function replaceRawFromTilda(array $element): array

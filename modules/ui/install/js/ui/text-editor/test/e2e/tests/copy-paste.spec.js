@@ -591,3 +591,63 @@ test.describe('HTML Copy & Paste', () => {
 		);
 	});
 });
+
+test.describe('Text Copy & Paste', () => {
+	test.beforeEach(async ({ page }) => initializeTest({ page }));
+
+	test('Copy and paste multi line text', async ({ page }) => {
+		await focusEditor(page);
+		await pasteFromClipboard(page, {
+			'text/plain': '111\n222\n333',
+		});
+
+		await page.pause();
+
+		await assertHTML(
+			page,
+			paragraph(text('111') + br() + text('222') + br() + text('333')),
+		);
+	});
+
+	test('Copy and paste multi line text with extra newlines', async ({ page }) => {
+		await focusEditor(page);
+		await pasteFromClipboard(page, {
+			'text/plain': '111\n\n222\n\n333',
+		});
+
+		await page.pause();
+
+		await assertHTML(
+			page,
+			paragraph('111') + paragraph('222') + paragraph('333'),
+		);
+	});
+
+	test('Copy and paste multi line text with a mix of newlines', async ({ page }) => {
+		await focusEditor(page);
+		await pasteFromClipboard(page, {
+			'text/plain': '\none\ntwo\n\nthree\n\n\nfour',
+		});
+
+		await page.pause();
+
+		await assertHTML(
+			page,
+			paragraph(br() + text('one') + br() + text('two')) + paragraph('three') + paragraph(br() + text('four')),
+		);
+	});
+
+	test('Copy and paste multi line text with a mix of Windows newlines', async ({ page }) => {
+		await focusEditor(page);
+		await pasteFromClipboard(page, {
+			'text/plain': '\r\none\r\ntwo\r\n\r\nthree\r\n\r\n\r\nfour',
+		});
+
+		await page.pause();
+
+		await assertHTML(
+			page,
+			paragraph(br() + text('one') + br() + text('two')) + paragraph('three') + paragraph(br() + text('four')),
+		);
+	});
+});

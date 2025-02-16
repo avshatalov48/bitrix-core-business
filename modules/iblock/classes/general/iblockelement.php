@@ -175,7 +175,7 @@ class CAllIBlockElement
 		return null;
 	}
 
-	function CancelWFSetMove()
+	public function CancelWFSetMove()
 	{
 		$this->bWF_SetMove = false;
 	}
@@ -277,7 +277,7 @@ class CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	// Send changing status message
 	///////////////////////////////////////////////////////////////////
-	function WF_SetMove($NEW_ID, $OLD_ID = 0)
+	public function WF_SetMove($NEW_ID, $OLD_ID = 0)
 	{
 		if(CModule::IncludeModule("workflow"))
 		{
@@ -6273,7 +6273,8 @@ class CAllIBlockElement
 				FROM
 					".$element->sFrom."
 					LEFT JOIN b_iblock_element_property BEP ON BEP.IBLOCK_ELEMENT_ID = BE.ID ".
-				"WHERE 1=1 ".$element->sWhere.(!empty($propertyID) ? " AND BEP.IBLOCK_PROPERTY_ID IN (".implode(', ', $propertyID).")" : "")."
+						(!empty($propertyID) ? "AND BEP.IBLOCK_PROPERTY_ID IN (" . implode(', ', $propertyID) . ")" : "") .
+				"WHERE 1=1 " . $element->sWhere . "
 				ORDER BY
 					BEP.IBLOCK_ELEMENT_ID, BEP.IBLOCK_PROPERTY_ID, BEP.ID
 			";

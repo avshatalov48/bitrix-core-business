@@ -1758,7 +1758,7 @@
 
 		CheckForVideo: function(str)
 		{
-			var videoRe = new RegExp('(?:src)\\s*=\\s*("|\')([\\s\\S]*?((?:youtube.com)|(?:youtu.be)|(?:rutube.ru)|(?:vimeo.com)|(?:vk.com)|(?:' + location.host + '))[\\s\\S]*?)(\\1)', 'ig');
+			var videoRe = new RegExp('(?:src)\\s*=\\s*("|\')([\\s\\S]*?((?:youtube.com)|(?:youtu.be)|(?:youtube-nocookie.com)|(?:www.youtube-nocookie.com)|(?:rutube.ru)|(?:www.rutube.ru)|(?:vimeo.com)|(?:player.vimeo.com)|(?:vk.com)|(?:vk.ru)|(?:' + location.host + '))[\\s\\S]*?)(\\1)', 'ig');
 
 			var res = videoRe.exec(str);
 			if (res)
@@ -1785,15 +1785,20 @@
 			{
 				case 'youtube.com':
 				case 'youtu.be':
+				case 'youtube-nocookie.com':
+				case 'www.youtube-nocookie.com':
 					name = 'YouTube';
 					break;
 				case 'rutube.ru':
+				case 'www.rutube.ru':
 					name = 'Rutube';
 					break;
 				case 'vimeo.com':
+				case 'player.vimeo.com':
 					name = 'Vimeo';
 					break;
 				case 'vk.com':
+				case 'vk.ru':
 					name = 'Vk';
 					break;
 				case location.host:

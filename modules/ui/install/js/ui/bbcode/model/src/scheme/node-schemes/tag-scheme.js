@@ -70,8 +70,6 @@ export class BBCodeTagScheme extends BBCodeNodeScheme
 			);
 		})();
 
-		node.trimLinebreaks();
-
 		const openingTag: string = node.getOpeningTag();
 		const content: string = node.getContent(options);
 		const closingTag: string = node.getClosingTag();

@@ -111,7 +111,7 @@ final class Store extends Controller
 
 		if (!$this->accessController->check(ActionDictionary::ACTION_STORE_MODIFY))
 		{
-			$r->addError(new Error('Access Denied', 200040300020));
+			$r->addError($this->getErrorModifyAccessDenied());
 		}
 
 		return $r;
@@ -129,7 +129,7 @@ final class Store extends Controller
 			)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 		return $r;
 	}

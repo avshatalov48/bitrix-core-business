@@ -97,7 +97,12 @@ export default class Sensor extends EventEmitter
 	{
 		if (child)
 		{
-			const { dragElement } = this.options;
+			const { dragElement, elementsPreventingDrag } = this.options;
+
+			if ((elementsPreventingDrag ?? []).some((selector) => child.closest(selector)))
+			{
+				return null;
+			}
 
 			return child.closest(dragElement) || null;
 		}

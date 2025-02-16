@@ -98,3 +98,7 @@
 .ui__promo-video-popup-content_footer.--align-right {
 	justify-content: flex-end;
 }
+
+.ui__promo-video-popup-content_footer.--align-center {
+	justify-content: center;
+}

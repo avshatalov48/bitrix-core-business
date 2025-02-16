@@ -278,7 +278,7 @@ elseif ($_GET["mode"]=="init")
 			"zip" => $arParams["USE_ZIP"] && function_exists("zip_open"),
 			"TEMP_DIR" => ($arParams["USE_TEMP_DIR"] === "Y"? $DIR_NAME: ""),
 			"NS" => array(
-				"STEP" => 0,
+				"STEP" => 1,
 			),
 			"SECTION_MAP" => false,
 			"PRICES_MAP" => false,
@@ -373,19 +373,15 @@ elseif (($_GET["mode"] == "import") && $ABS_FILE_NAME)
 		"iblock_cache_mode" => $arParams["IBLOCK_CACHE_MODE"]
 	];
 
-	if ($NS["STEP"] < 1)
+	if ($NS["STEP"] == 1)
 	{
 		$obXMLFile = new CIBlockXMLFile(CBitrixCatalogImport1C::XML_TREE_TABLE_NAME);
-		$obXMLFile->DropTemporaryTables();
-		$strMessage = GetMessage("CC_BSC1_TABLES_DROPPED");
-		$NS["STEP"] = 1;
-	}
-	elseif ($NS["STEP"] == 1)
-	{
-		$obXMLFile = new CIBlockXMLFile(CBitrixCatalogImport1C::XML_TREE_TABLE_NAME);
-		if ($obXMLFile->CreateTemporaryTables())
+
+		$result = $obXMLFile->initializeTemporaryTables();
+
+		if ($result)
 		{
-			$strMessage = GetMessage("CC_BSC1_TABLES_CREATED");
+			$strMessage = GetMessage("CC_BSC1_TABLES_PREPARED");
 			$NS["STEP"] = 2;
 
 			foreach (GetModuleEvents("catalog", "OnBeforeCatalogImport1C", true) as $arEvent)
@@ -395,7 +391,7 @@ elseif (($_GET["mode"] == "import") && $ABS_FILE_NAME)
 		}
 		else
 		{
-			$strError = GetMessage("CC_BSC1_TABLE_CREATE_ERROR");
+			$strError = GetMessage("CC_BSC1_TABLE_PREPARE_ERROR");
 		}
 	}
 	elseif ($NS["STEP"] == 2)

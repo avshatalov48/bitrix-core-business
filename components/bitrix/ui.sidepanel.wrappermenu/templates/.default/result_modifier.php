@@ -27,11 +27,17 @@ if (!function_exists('getWrapperMenu'))
 
 			foreach ($items as $item)
 			{
+				$itemCanBeActive = isset($item['CAN_BE_ACTIVE'])
+					? ' ui-sidepanel-menu-canBeActive-' . $item['CAN_BE_ACTIVE']
+					: '';
+
 				if ($level == 0)
 				{
 					$result .= '<li class="ui-sidepanel-menu-item' .
 						($item['ACTIVE'] ? ' ui-sidepanel-menu-active' : '') .
 						($item['DISABLED'] ? ' ui-sidepanel-menu-disabled' : '') .
+						($item['SUBMENU_OPEN'] ? ' ui-sidepanel-menu-submenuOpen' : '') .
+						$itemCanBeActive .
 						'">';
 					$result .= '<a ';
 					$result .= getLinkItemAttributes($item['ATTRIBUTES'], 'ui-sidepanel-menu-link');
@@ -44,7 +50,10 @@ if (!function_exists('getWrapperMenu'))
 				}
 				else
 				{
-					$result .= '<li class="ui-sidepanel-submenu-item'.($item['ACTIVE'] ? ' ui-sidepanel-submenu-active' : '').'">';
+					$result .= '<li class="ui-sidepanel-submenu-item' .
+						($item['ACTIVE'] ? ' ui-sidepanel-submenu-active' : '') .
+						$itemCanBeActive .
+						'">';
 					$result .= '<a ';
 					$result .= getLinkItemAttributes($item['ATTRIBUTES'], 'ui-sidepanel-submenu-link');
 					$result .= '><div class="ui-sidepanel-menu-link-text">'.$item['NAME'].'</div>';

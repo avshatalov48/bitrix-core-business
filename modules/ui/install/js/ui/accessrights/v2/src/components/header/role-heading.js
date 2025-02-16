@@ -29,8 +29,8 @@ export const RoleHeading = {
 		}),
 		...mapGetters({
 			isMaxVisibleUserGroupsReached: 'userGroups/isMaxVisibleUserGroupsReached',
-			isMaxValueSet: 'accessRights/isMaxValueSet',
-			isMinValueSet: 'accessRights/isMinValueSet',
+			isMaxValueSetForAny: 'accessRights/isMaxValueSetForAny',
+			isMinValueSetForAny: 'accessRights/isMinValueSetForAny',
 		}),
 		title: {
 			get(): string {
@@ -143,14 +143,14 @@ export const RoleHeading = {
 		onSetMaxValuesClick(): void {
 			this.isPopupShown = false;
 
-			this.$store.dispatch('userGroups/setMaxAccessRightValuesForUserGroup', {
+			this.$store.dispatch('userGroups/setMaxAccessRightValues', {
 				userGroupId: this.userGroup.id,
 			});
 		},
 		onSetMinValuesClick(): void {
 			this.isPopupShown = false;
 
-			this.$store.dispatch('userGroups/setMinAccessRightValuesForUserGroup', {
+			this.$store.dispatch('userGroups/setMinAccessRightValues', {
 				userGroupId: this.userGroup.id,
 			});
 		},
@@ -191,19 +191,19 @@ export const RoleHeading = {
 			</div>
 			<div 
 				ref="menu"
-				class="ui-icon-set --more ui-access-rights-v2-role-menu" 
+				class="ui-icon-set --more ui-access-rights-v2-icon-more" 
 				@click="showActionsMenu"
 			>
 				<RichMenuPopup v-if="isPopupShown" @close="isPopupShown = false" :popup-options="{bindElement: $refs.menu}">
 					<RichMenuItem
-						v-if="isMaxValueSet"
+						v-if="isMaxValueSetForAny"
 						:icon="RichMenuItemIcon.check"
 						:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS')"
 						:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MAX_ACCESS_RIGHTS_SUBTITLE')"
 						@click="onSetMaxValuesClick"
 					/>
 					<RichMenuItem
-						v-if="isMinValueSet"
+						v-if="isMinValueSetForAny"
 						:icon="RichMenuItemIcon['red-lock']"
 						:title="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS')"
 						:subtitle="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SET_MIN_ACCESS_RIGHTS_SUBTITLE')"

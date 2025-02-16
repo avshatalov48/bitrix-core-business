@@ -1,22 +1,27 @@
-<?
+<?php
+
 /** @global CMain $APPLICATION */
+/** @global CUser $USER */
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 
-define('STOP_STATISTICS', true);
-define('PUBLIC_AJAX_MODE', true);
-define('NOT_CHECK_PERMISSIONS', true);
+const STOP_STATISTICS = true;
+const PUBLIC_AJAX_MODE = true;
+const NOT_CHECK_PERMISSIONS = true;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-if(isset($_REQUEST['reloadCaptcha']) && $_REQUEST['reloadCaptcha'] == 'Y')
+if (isset($_REQUEST['reloadCaptcha']) && $_REQUEST['reloadCaptcha'] == 'Y')
 {
 	echo $APPLICATION->captchaGetCode();
 	die();
 }
 
-if(!check_bitrix_sessid()) die();
+if (!check_bitrix_sessid())
+{
+	die();
+}
 
 Loc::loadMessages(__FILE__);
 global $USER;
@@ -69,12 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 	}
 
 	$userId = false;
-	if($USER && is_object($USER) && $USER->isAuthorized())
+	if ($USER && is_object($USER) && $USER->isAuthorized())
 	{
 		$userId = $USER->getId();
 	}
 
-	if($_POST['subscribe'] == 'Y')
+	$landingId = null;
+	if (($_POST['subscribe'] ?? null) == 'Y')
 	{
 		$landingId = (!empty($_POST['landingId']) ? intval($_POST['landingId']) : null);
 
@@ -148,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 			}
 		}
 	}
-	elseif($_POST['contactFormSubmit'] == 'Y')
+	elseif (($_POST['contactFormSubmit'] ?? null) == 'Y')
 	{
 		if(empty($_POST['contact']) || !is_array($_POST['contact']))
 		{
@@ -235,4 +241,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
 echo Bitrix\Main\Web\Json::encode(array());
 require_once($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/main/include/epilog_after.php');
-die();

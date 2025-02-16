@@ -27,14 +27,20 @@ if (\Bitrix\Main\Loader::includeModule('catalog'))
 			'select' => [
 				'ID',
 				'TITLE',
+				'ADDRESS',
 			],
 			'filter' => [
 				'=ID' => $storeId,
 			],
+			'cache' => [
+				'ttl' => 86400,
+			],
 		]);
-
-		$defaultStoreId = $storeData['ID'];
-		$defaultStoreName = $storeData['TITLE'];
+		if ($storeData)
+		{
+			$defaultStoreId = $storeData['ID'];
+			$defaultStoreName = $storeData['TITLE'] ?: $storeData['ADDRESS'];
+		}
 	}
 
 	$allowCreateItem = $allAllowed && $controller->check(ActionDictionary::ACTION_STORE_MODIFY);

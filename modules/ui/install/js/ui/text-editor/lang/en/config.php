@@ -1,6 +1,7 @@
 <?php
 $MESS["TEXT_EDITOR_BTN_BOLD"] = "Bold (#keystroke#)";
 $MESS["TEXT_EDITOR_BTN_BULLETED_LIST"] = "Bulleted list";
+$MESS["TEXT_EDITOR_BTN_CLEAR_FORMATTING"] = "Remove Formatting";
 $MESS["TEXT_EDITOR_BTN_CODE"] = "Insert code";
 $MESS["TEXT_EDITOR_BTN_COPILOT"] = "CoPilot";
 $MESS["TEXT_EDITOR_BTN_IMAGE"] = "Insert image";
@@ -18,13 +19,12 @@ $MESS["TEXT_EDITOR_BTN_TABLE"] = "Insert table";
 $MESS["TEXT_EDITOR_BTN_UNDERLINE"] = "Underline (#keystroke#)";
 $MESS["TEXT_EDITOR_BTN_UNDO"] = "Undo (#keystroke#)";
 $MESS["TEXT_EDITOR_BTN_VIDEO"] = "Insert video";
-$MESS["TEXT_EDITOR_BTN_CLEAR_FORMATTING"] = "Remove Formatting";
 $MESS["TEXT_EDITOR_IMAGE_URL"] = "Image URL";
 $MESS["TEXT_EDITOR_INVALID_URL"] = "Invalid URL";
 $MESS["TEXT_EDITOR_LINK_URL"] = "Link URL";
 $MESS["TEXT_EDITOR_PLACEHOLDER_COPILOT"] = "Press Space to start CoPilot";
 $MESS["TEXT_EDITOR_PLACEHOLDER_MENTION"] = "Type @ to mention someone";
-$MESS["TEXT_EDITOR_PLACEHOLDER_MENTION_COPILOT"] = "Type @ to mention someone, or space to start Copilot";
+$MESS["TEXT_EDITOR_PLACEHOLDER_MENTION_COPILOT"] = "Type @ to mention someone, or space to start CoPilot";
 $MESS["TEXT_EDITOR_SPOILER_TITLE"] = "Spoiler";
 $MESS["TEXT_EDITOR_VIDEO_INSERT_HINT"] = "YouTube or Vimeo URL";
 $MESS["TEXT_EDITOR_VIDEO_INSERT_TITLE"] = "Insert video";

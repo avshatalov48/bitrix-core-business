@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["FLOW_PAGE_TITLE"] = "Document list";
 $MESS["FLOW_F_ID"] = "Document ID:";
 $MESS["FLOW_UNLOCK_S"] = "unlock";
@@ -45,4 +46,3 @@ $MESS["MAIN_ADMIN_LIST_CHECKED"] = "Checked:";
 $MESS["MAIN_FIND_TITLE"] = "Enter text to search for";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "delete";
 $MESS["MAIN_ALL"] = "(all)";
-?>

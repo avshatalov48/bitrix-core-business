@@ -49,13 +49,16 @@ if ($arParams['DISPLAY_COMPARE'])
 				if (!!window.<?=$templateData['JS_OBJ']?>)
 				{
 					window.<?=$templateData['JS_OBJ']?>.setCompared('<?=$compared?>');
-
-					<? if (!empty($comparedIds)): ?>
+					<?php
+					if (!empty($comparedIds)):
+						?>
 						window.<?=$templateData['JS_OBJ']?>.setCompareInfo(<?=CUtil::PhpToJSObject($comparedIds, false, true)?>);
-					<? endif ?>
+						<?php
+					endif;
+					?>
 				}
 			}));
 		</script>
-		<?
+		<?php
 	}
 }

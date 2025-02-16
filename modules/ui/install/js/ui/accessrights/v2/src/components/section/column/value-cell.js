@@ -1,7 +1,7 @@
 import type { AccessRightItem } from '../../../store/model/access-rights-model';
 import type { AccessRightValue } from '../../../store/model/user-groups-model';
 import { CellLayout } from '../../layout/cell-layout';
-import { Cells, getCellComponent } from './cell/registry';
+import { Cells, getValueComponent } from '../value/registry';
 
 export const ValueCell = {
 	name: 'ValueCell',
@@ -31,7 +31,7 @@ export const ValueCell = {
 		},
 		cellComponent(): string
 		{
-			return getCellComponent(this.right);
+			return getValueComponent(this.right);
 		},
 	},
 	// data attributes are needed for e2e automated tests

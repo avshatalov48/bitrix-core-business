@@ -79,18 +79,35 @@ final class StoreDocumentProductPositionRepository
 		}
 
 		$documentProductListData = \CCatalogStoreDocsElement::getList(
-			['ID' => 'ASC'],
-			['DOC_ID' => $documentId],
+			[
+				'ID' => 'ASC',
+			],
+			[
+				'=DOC_ID' => $documentId,
+			],
 			false,
 			false,
-			['ELEMENT_ID', 'ELEMENT_NAME', 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE']
+			[
+				'ID',
+				'ELEMENT_ID',
+				'ELEMENT_NAME',
+				'AMOUNT',
+				'PURCHASING_PRICE',
+				'BASE_PRICE',
+			]
 		);
 
 		$documentProductList = [];
 		while ($product = $documentProductListData->Fetch())
 		{
+			unset($product['ID']);
+			$product['ELEMENT_ID'] = (int)$product['ELEMENT_ID'];
 			$documentProductList[] = $this->formProductPositionData($product);
 		}
+		unset(
+			$product,
+			$documentProductListData,
+		);
 
 		$this->documentProductPositionListCollection[$documentId] = $documentProductList;
 		return $documentProductList;

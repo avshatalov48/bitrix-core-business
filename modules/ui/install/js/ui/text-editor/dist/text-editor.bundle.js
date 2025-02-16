@@ -626,6 +626,18 @@ this.BX.UI = this.BX.UI || {};
 	  this.emit('onClick');
 	}
 
+	function wrapTextInParagraph(text) {
+	  let result = '';
+	  const parts = text.split(/((?:\r?\n){2})/);
+	  for (const part of parts) {
+	    if (part === '\n\n' || part === '\r\n\r\n') {
+	      continue;
+	    }
+	    result += `<p>${part.replaceAll(/(\r?\n)/g, '<br>')}</p>`;
+	  }
+	  return result;
+	}
+
 	/* eslint-disable no-underscore-dangle */
 	class QuoteNode extends ui_lexical_core.ElementNode {
 	  static getType() {
@@ -1230,7 +1242,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	    return false;
-	  }, ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(ui_lexical_core.PASTE_COMMAND, babelHelpers.classPrivateFieldLooseBase(this, _handlePaste)[_handlePaste].bind(this), ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(INSERT_SPOILER_COMMAND, payload => {
+	  }, ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(ui_lexical_core.PASTE_COMMAND, babelHelpers.classPrivateFieldLooseBase(this, _handlePaste)[_handlePaste].bind(this), ui_lexical_core.COMMAND_PRIORITY_NORMAL), this.getEditor().registerCommand(INSERT_SPOILER_COMMAND, payload => {
 	    this.getEditor().update(() => {
 	      const title = main_core.Type.isPlainObject(payload) && main_core.Type.isStringFilled(payload.title) ? payload.title : undefined;
 	      const selection = ui_lexical_core.$getSelection();
@@ -1824,6 +1836,7 @@ this.BX.UI = this.BX.UI || {};
 	var _registerCommands$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("registerCommands");
 	var _registerListeners = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("registerListeners");
 	var _isBlockNode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isBlockNode");
+	var _handlePaste$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handlePaste");
 	var _handleEscapeUp = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleEscapeUp");
 	var _handleEscapeDown = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleEscapeDown");
 	class ParagraphPlugin extends BasePlugin {
@@ -1834,6 +1847,9 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    Object.defineProperty(this, _handleEscapeUp, {
 	      value: _handleEscapeUp2
+	    });
+	    Object.defineProperty(this, _handlePaste$1, {
+	      value: _handlePaste2$1
 	    });
 	    Object.defineProperty(this, _isBlockNode, {
 	      value: _isBlockNode2
@@ -1944,10 +1960,60 @@ this.BX.UI = this.BX.UI || {};
 	  // below it to allow adding more content. It's similar what $insertBlockNode
 	  // (mainly for decorators), except it'll always be possible to continue adding
 	  // new content even if trailing paragraph is accidentally deleted
-	  this.getEditor().registerCommand(ui_lexical_core.KEY_ARROW_DOWN_COMMAND, babelHelpers.classPrivateFieldLooseBase(this, _handleEscapeDown)[_handleEscapeDown].bind(this), ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(ui_lexical_core.KEY_ARROW_RIGHT_COMMAND, babelHelpers.classPrivateFieldLooseBase(this, _handleEscapeDown)[_handleEscapeDown].bind(this), ui_lexical_core.COMMAND_PRIORITY_LOW));
+	  this.getEditor().registerCommand(ui_lexical_core.KEY_ARROW_DOWN_COMMAND, babelHelpers.classPrivateFieldLooseBase(this, _handleEscapeDown)[_handleEscapeDown].bind(this), ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(ui_lexical_core.KEY_ARROW_RIGHT_COMMAND, babelHelpers.classPrivateFieldLooseBase(this, _handleEscapeDown)[_handleEscapeDown].bind(this), ui_lexical_core.COMMAND_PRIORITY_LOW), this.getEditor().registerCommand(ui_lexical_core.PASTE_COMMAND, babelHelpers.classPrivateFieldLooseBase(this, _handlePaste$1)[_handlePaste$1].bind(this), ui_lexical_core.COMMAND_PRIORITY_LOW));
 	}
 	function _isBlockNode2(node) {
 	  return $isQuoteNode(node) || $isCodeNode(node) || $isSpoilerNode(node);
+	}
+	function _handlePaste2$1(event) {
+	  if (this.getEditor().getNewLineMode() === NewLineMode.PARAGRAPH) {
+	    // use a build-in algorithm (Rich Text Plugin)
+	    return false;
+	  }
+	  if (this.getEditor().getNewLineMode() === NewLineMode.LINE_BREAK) {
+	    event.preventDefault();
+	    this.getEditor().update(() => {
+	      const selection = ui_lexical_core.$getSelection();
+	      const {
+	        clipboardData
+	      } = event;
+	      if (clipboardData !== null && ui_lexical_core.$isRangeSelection(selection)) {
+	        ui_lexical_clipboard.$insertDataTransferForPlainText(clipboardData, selection);
+	      }
+	    }, {
+	      tag: 'paste'
+	    });
+	    return true;
+	  }
+
+	  // Mixed Mode
+	  const clipboardData = event.clipboardData;
+	  if (!clipboardData || clipboardData.items.length !== 1 || clipboardData.items[0].type !== 'text/plain' && clipboardData.items[0].type !== 'text/uri-list') {
+	    return false;
+	  }
+	  const text = clipboardData.getData('text/plain') || clipboardData.getData('text/uri-list');
+	  const hasLineBreaks = /\n/.test(text);
+	  if (!hasLineBreaks) {
+	    return false;
+	  }
+	  event.preventDefault();
+	  event.stopPropagation();
+	  const html = wrapTextInParagraph(text);
+	  const dataTransfer = new DataTransfer();
+	  dataTransfer.setData('text/plain', clipboardData.getData('text/plain'));
+	  dataTransfer.setData('text/html', html);
+	  const pasteEvent = new ClipboardEvent('paste', {
+	    clipboardData: dataTransfer,
+	    bubbles: true,
+	    cancelable: true
+	  });
+	  if (pasteEvent.clipboardData.items.length === 0) {
+	    // Firefox
+	    pasteEvent.clipboardData.setData('text/plain', clipboardData.getData('text/plain'));
+	    pasteEvent.clipboardData.setData('text/html', html);
+	  }
+	  this.getEditor().getEditableContainer().dispatchEvent(pasteEvent);
+	  return true;
 	}
 	function _handleEscapeUp2() {
 	  const selection = ui_lexical_core.$getSelection();
@@ -2523,7 +2589,7 @@ this.BX.UI = this.BX.UI || {};
 	      return true;
 	    }
 	    return false;
-	  }, ui_lexical_core.COMMAND_PRIORITY_LOW));
+	  }, ui_lexical_core.COMMAND_PRIORITY_NORMAL));
 	}
 	function _registerCommands2$3() {
 	  this.cleanUpRegister(this.getEditor().registerCommand(INSERT_CODE_COMMAND, payload => {
@@ -8745,7 +8811,7 @@ this.BX.UI = this.BX.UI || {};
 	function _registerToggleLinkCommand2() {
 	  return this.getEditor().registerCommand(ui_lexical_link.TOGGLE_LINK_COMMAND, payload => {
 	    if (payload === null) {
-	      ui_lexical_link.toggleLink(payload);
+	      ui_lexical_link.$toggleLink(payload);
 	      return true;
 	    }
 	    const selection = ui_lexical_core.$getSelection();
@@ -8779,7 +8845,7 @@ this.BX.UI = this.BX.UI || {};
 	        if (selection.isCollapsed() && !babelHelpers.classPrivateFieldLooseBase(this, _isLinkSelected)[_isLinkSelected](selection)) {
 	          babelHelpers.classPrivateFieldLooseBase(this, _insertLink)[_insertLink](selection, url, attributes, originalUrl);
 	        } else {
-	          ui_lexical_link.toggleLink(url, attributes);
+	          ui_lexical_link.$toggleLink(url, attributes);
 	        }
 	        return true;
 	      }
@@ -8968,12 +9034,12 @@ this.BX.UI = this.BX.UI || {};
 
 	    // If we select nodes that are elements then avoid applying the link.
 	    if (!selection.getNodes().some(node => ui_lexical_core.$isElementNode(node))) {
-	      ui_lexical_link.toggleLink(clipboardText);
+	      ui_lexical_link.$toggleLink(clipboardText);
 	      event.preventDefault();
 	      return true;
 	    }
 	    return false;
-	  }, ui_lexical_core.COMMAND_PRIORITY_LOW);
+	  }, ui_lexical_core.COMMAND_PRIORITY_NORMAL);
 	}
 	function _insertLink2(selection, url, attributes, originalUrl) {
 	  const linkUrl = sanitizeUrl(url);
@@ -9191,7 +9257,6 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(attributes.target)) {
 	        attributes.target = '_blank';
 	      }
-	      console.log('match.url', match.text, match.url);
 	      const linkNode = ui_lexical_link.$createAutoLinkNode(match.url, attributes);
 	      const textNode = ui_lexical_core.$createTextNode(match.text);
 	      textNode.setFormat(linkTextNode.getFormat());

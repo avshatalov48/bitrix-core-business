@@ -32,12 +32,21 @@ final class ProductPropertyFeature extends ProductPropertyBase
 		if (!$checkPropertyResult->isSuccess())
 		{
 			$this->addErrors($checkPropertyResult->getErrors());
+
 			return null;
 		}
 
 		$property = $this->getPropertyById($propertyId);
+		if (!$property)
+		{
+			$this->addError($this->getErrorEntityNotExists());
 
-		return ['FEATURES' => PropertyCatalogFeature::getPropertyFeatureList($property)];
+			return null;
+		}
+
+		return [
+			'FEATURES' => PropertyCatalogFeature::getPropertyFeatureList($property),
+		];
 	}
 
 	/**

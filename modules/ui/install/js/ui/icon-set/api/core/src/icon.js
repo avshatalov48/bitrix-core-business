@@ -108,6 +108,10 @@ export const Actions = Object.freeze({
 	KEYBOARD_2: 'keyboard-2',
 	CONNECTION: 'connection',
 	DISCONNECTION: 'disconnection',
+	IMAGE_ROTATE_LEFT: 'image-rotate-left',
+	IMAGE_ROTATE_RIGHT: 'image-rotate-right',
+	ZOOM_IN: 'zoom-in',
+	ZOOM_OUT: 'zoom-out',
 });
 
 export const Social = Object.freeze({
@@ -566,6 +570,10 @@ export const Main = Object.freeze({
 	DEMONSTRATION_GRAPHICS: 'demonstration-graphics',
 	CALENDAR_CHECK: 'calendar-check',
 	SIGN: 'sign',
+	FLIPCHART: 'flipchart',
+	NUMBERS_05: 'numbers-05',
+	DEMONSTRATION_GRAPHICS_2: 'demonstration-graphics-2',
+	EARTH_TIME: 'earth-time',
 });
 
 export const ContactCenter = Object.freeze({
@@ -652,6 +660,8 @@ export const CRM = Object.freeze({
 	CAR: 'car',
 	CRM_PAYMENT: 'crm-payment',
 	INSERT: 'insert',
+	CRM_LETTERS: 'crm-letters',
+	CRM_MAP: 'crm-map',
 	SEND_FILE: 'send-file',
 	BITRIX_1C: 'bitrix-1c',
 });

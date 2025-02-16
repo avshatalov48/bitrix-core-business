@@ -1,11 +1,14 @@
-import {Text, Uri, Loc, Dom, Reflection, Event, Runtime, ajax as Ajax, Type} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Text, Tag, Uri, Loc, Dom, Reflection, Event, Runtime, ajax as Ajax, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
 const Item = Reflection.namespace('BX.UI.Viewer.Item');
 const Util = Reflection.namespace('BX.util');
 const BXPromise = Reflection.namespace('BX.Promise');
 
 const DEFAULT_SCALE = 1.4;
+const SCALE_MIN = 0.5;
+const SCALE_MAX = 3;
+
 const PAGES_TO_PRELOAD = 3;
 
 // noinspection JSClosureCompilerSyntax
@@ -26,7 +29,8 @@ export class Document extends Item
 	lastRenderedPdfPage: number = 0;
 	contentNode: Element;
 	previewHtml: Element;
-	disableAnnotationLayer: boolean = false;
+	extraActions: HTMLElement = null;
+	disableAnnotationLayer: boolean = true;
 
 	constructor (options)
 	{
@@ -41,7 +45,7 @@ export class Document extends Item
 	{
 		super.setPropertiesByNode(node);
 
-		this.disableAnnotationLayer = node.dataset.hasOwnProperty('disableAnnotationLayer');
+		this.disableAnnotationLayer = node.dataset.hasOwnProperty('disableAnnotationLayer') ? true : this.disableAnnotationLayer;
 	}
 
 	applyReloadOptions(options)
@@ -196,41 +200,54 @@ export class Document extends Item
 		return this.contentNode;
 	}
 
-	getNakedActions(): Array
+	renderExtraActions(): HTMLElement
 	{
-		const nakedActions = super.getNakedActions();
+		if (this.extraActions === null)
+		{
+			this.extraActions = Tag.render`
+				<div class="ui-viewer-extra-actions">
+					<div 
+						class="ui-viewer-action-btn" 
+						onclick="${this.zoomOut.bind(this)}"
+						title="${Text.encode(Loc.getMessage('JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_OUT'))}"
+					>
+						<div class="ui-icon-set --zoom-out ui-viewer-action-btn-icon"></div>
+					</div>
+					<div 
+						class="ui-viewer-action-btn" 
+						onclick="${this.zoomIn.bind(this)}" 
+						title="${Text.encode(Loc.getMessage('JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_IN'))}"
+					>
+						<div class="ui-icon-set --zoom-in ui-viewer-action-btn-icon"></div>
+					</div>
+					<div 
+						class="ui-viewer-action-btn" 
+						onclick="${this.print.bind(this)}" 
+						title="${Text.encode(Loc.getMessage('JS_UI_VIEWER_ITEM_ACTION_PRINT'))}"
+					>
+						<div class="ui-icon-set --print-1 ui-viewer-action-btn-icon"></div>
+					</div>
+				</div>
+			`;
+		}
 
-		return this.insertPrintBeforeInfo(nakedActions);
+		return this.extraActions;
 	}
 
-	insertPrintBeforeInfo(actions: Array): Array<{type: string, action: Function}>
+	zoomIn(): void
 	{
-		actions = actions || [];
+		const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, this.scale * 1.1));
+		void this.updateScale(newScale).then(() => {
+			this.controller.adjustControlsSize(this.getContentWidth());
+		});
+	}
 
-		let infoIndex = null;
-		for (let i = 0; i < actions.length; i++)
-		{
-			if (actions[i].type === 'info')
-			{
-				infoIndex = i;
-			}
-		}
-
-		const printAction = {
-			type: 'print',
-			action: this.print.bind(this)
-		};
-
-		if (infoIndex === null)
-		{
-			actions.push(printAction);
-		}
-		else
-		{
-			actions = Util.insertIntoArray(actions, infoIndex, printAction);
-		}
-
-		return actions;
+	zoomOut(): void
+	{
+		const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, this.scale * 0.9));
+		void this.updateScale(newScale).then(() => {
+			this.controller.adjustControlsSize(this.getContentWidth());
+		});
 	}
 
 	getFirstDocumentPageHeight(): Promise<number>
@@ -321,7 +338,7 @@ export class Document extends Item
 		}
 
 		this.pdfRenderedPages[pageNumber] = new Promise((resolve) => {
-			this.getDocumentPage(pdf, pageNumber).then((page) =>  {
+			this.getDocumentPage(pdf, pageNumber).then((page) => {
 				const canvas = this.createCanvasPage();
 				const viewport = page.getViewport(this.scale);
 				canvas.height = viewport.height;
@@ -334,7 +351,7 @@ export class Document extends Item
 						return page.getAnnotations();
 					}).then(function (annotationData) {
 						const annotationLayer = Dom.create('div', {
-							props: {className: 'ui-viewer-pdf-annotation-layer'}
+							props: { className: 'ui-viewer-pdf-annotation-layer' },
 						});
 
 						Dom.insertAfter(annotationLayer, canvas);
@@ -342,25 +359,25 @@ export class Document extends Item
 							style: {
 								margin: '-' + canvas.offsetHeight + 'px auto 0 auto',
 								height: canvas.height + 'px',
-								width: canvas.width + 'px'
-							}
+								width: canvas.width + 'px',
+							},
 						});
 
 						pdfjsLib.AnnotationLayer.render({
-							viewport: viewport.clone({dontFlip: true}),
+							viewport: viewport.clone({ dontFlip: true }),
 							linkService: pdfjsLib.SimpleLinkService,
 							div: annotationLayer,
 							annotations: annotationData,
-							page: page
+							page: page,
 						});
 					});
 				}
 
-				renderPromise.then(function () {
+				renderPromise.then(function() {
 					return page.getTextContent();
-				}).then(function (textContent) {
+				}).then(function(textContent) {
 					const textLayer = Dom.create('div', {
-						props: {className: 'ui-viewer-pdf-text-layer'}
+						props: { className: 'ui-viewer-pdf-text-layer' },
 					});
 
 					Dom.insertAfter(textLayer, canvas);
@@ -368,15 +385,15 @@ export class Document extends Item
 						style: {
 							margin: '-' + canvas.offsetHeight + 'px auto 0 auto',
 							height: canvas.height + 'px',
-							width: canvas.width + 'px'
-						}
+							width: canvas.width + 'px',
+						},
 					});
 
 					pdfjsLib.renderTextLayer({
 						textContent: textContent,
 						container: textLayer,
 						viewport: viewport,
-						textDivs: []
+						textDivs: [],
 					});
 				});
 
@@ -408,18 +425,16 @@ export class Document extends Item
 		return canvas;
 	}
 
-	getContentWidth (): Promise<Number>
+	getContentWidth(): Promise<Number>
 	{
-		if (this.firstWidthDocumentPage)
-		{
-			return Promise.resolve(this.firstWidthDocumentPage);
-		}
-
 		return new Promise((resolve) => {
 			this.loadDocument().then(() => {
 				this.renderDocumentPage(this.pdfDocument, 1).then((page) => {
-					resolve(page.getViewport(this.scale).width);
-				})
+					const contentWidth = page.getViewport(this.scale).width;
+					const scrollWidth = this.contentNode.offsetWidth - this.contentNode.clientWidth;
+
+					resolve(contentWidth + scrollWidth);
+				});
 			});
 		});
 	}
@@ -433,12 +448,6 @@ export class Document extends Item
 				{
 					this._handleControls = this.controller.handleVisibleControls.bind(this.controller);
 					this.controller.enableReadingMode(true);
-
-					const printAction = this.controller.actionPanel.getItemById('print');
-					if (printAction)
-					{
-						printAction.layout.container.classList.remove('ui-btn-disabled');
-					}
 
 					Runtime.throttle(Event.bind(window, 'mousemove', this._handleControls), 20);
 				}
@@ -471,7 +480,7 @@ export class Document extends Item
 		this.contentNode.style.filter = 'blur(2px)';
 
 		this.controller.showLoading({
-			zIndex: 1
+			zIndex: 1,
 		});
 
 		this.updatePrintProgressMessage(index, total);
@@ -512,15 +521,39 @@ export class Document extends Item
 
 	handleKeyPress(event): void
 	{
-		switch (event.code)
+		if (!this.isLoaded)
 		{
-			case 'PageDown':
-			case 'PageUp':
-			case 'ArrowDown':
-			case 'ArrowUp':
-				BX.focus(this.contentNode);
-				break;
+			return false;
 		}
+
+		if (['PageDown', 'PageUp', 'ArrowDown', 'ArrowUp'].includes(event.code))
+		{
+			BX.focus(this.contentNode);
+
+			return false;
+		}
+
+		if (event.code === 'Equal')
+		{
+			event.preventDefault();
+			event.stopPropagation();
+
+			this.zoomIn();
+
+			return true;
+		}
+
+		if (event.code === 'Minus')
+		{
+			event.preventDefault();
+			event.stopPropagation();
+
+			this.zoomOut();
+
+			return true;
+		}
+
+		return false;
 	}
 
 	getScale(): number
@@ -548,20 +581,21 @@ export class Document extends Item
 		const updatePageScale = ((
 			page,
 			canvases: Array<number, HTMLCanvasElement>,
-			textLayers: Array<number,HTMLDivElement>
+			textLayers: Array<number, HTMLDivElement>,
 		): Promise => {
 			const canvas = canvases[page.pageIndex];
 			if (!canvas)
 			{
 				return Promise.resolve();
 			}
+
 			return new Promise((resolve) => {
 				const viewport = page.getViewport(this.scale);
 				canvas.width = viewport.width;
 				canvas.height = viewport.height;
 				page.render({
 					canvasContext: canvas.getContext('2d'),
-					viewport: viewport,
+					viewport,
 				}).then(() => {
 					const textLayer = textLayers[page.pageIndex];
 					if (textLayer)
@@ -571,16 +605,16 @@ export class Document extends Item
 							style: {
 								margin: '-' + canvas.offsetHeight + 'px auto 0 auto',
 								height: viewport.height + 'px',
-								width: viewport.width + 'px'
-							}
+								width: viewport.width + 'px',
+							},
 						});
 
 						page.getTextContent().then((textContent) => {
 							pdfjsLib.renderTextLayer({
-								textContent: textContent,
+								textContent,
 								container: textLayer,
-								viewport: viewport,
-								textDivs: []
+								viewport,
+								textDivs: [],
 							});
 
 							resolve();

@@ -33,7 +33,8 @@ Extension::load('ui.fonts.opensans');
 
     BX.ready(function () {
         var sidepanelMenu = new BX.UI.DropdownMenu({
-            container: document.getElementById("sidepanelMenu")
+            container: document.getElementById("sidepanelMenu"),
+			autoHideSubMenu: <?=$arResult['AUTO_HIDE_SUBMENU'] ? 'true' : 'false' ?>,
         });
 
         sidepanelMenu.init();

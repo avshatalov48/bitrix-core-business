@@ -23,20 +23,6 @@ class PropertyFeatureCollection extends BaseCollection
 		$this->repository = $repository;
 	}
 
-	public function findBySetting(string $field, $value): ?PropertyFeature
-	{
-		/** @var PropertyFeature $item */
-		foreach ($this->getIterator() as $item)
-		{
-			if ($item->getSetting($field) === $value)
-			{
-				return $item;
-			}
-		}
-
-		return null;
-	}
-
 	public function findByFeatureId(string $featureId): ?PropertyFeature
 	{
 		/** @var PropertyFeature $item */

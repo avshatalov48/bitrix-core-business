@@ -2,21 +2,21 @@
 
 namespace Bitrix\Catalog\RestView;
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Engine\Response\Converter;
-use Bitrix\Main\Error;
-use Bitrix\Main\ORM\Fields\ScalarField;
-use Bitrix\Main\Result;
-use Bitrix\Main\Type\Date;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Catalog;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Iblock;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Engine\Response\Converter;
+use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\ScalarField;
+use Bitrix\Main\Result;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Rest\Integration\View\Attributes;
 use Bitrix\Rest\Integration\View\Base;
 use Bitrix\Rest\Integration\View\DataType;
-use Bitrix\Main\Config\Option;
 
 final class Product extends Base
 {
@@ -28,7 +28,7 @@ final class Product extends Base
 	 * @return array
 	 * return fields all type product
 	 */
-	public function getFields()
+	public function getFields(): array
 	{
 		$this->loadFieldNames();
 
@@ -42,22 +42,11 @@ final class Product extends Base
 	 */
 	protected function prepareFieldAttributs($info, $attributs): array
 	{
-		$r = parent::prepareFieldAttributs($info, $attributs);
-
-		$r['NAME'] = $info['NAME'];
-		if ($info['TYPE'] === DataType::TYPE_PRODUCT_PROPERTY)
-		{
-			$r['IS_DYNAMIC'] = true;
-			$r['IS_MULTIPLE'] = in_array(Attributes::MULTIPLE, $attributs, true);
-			$r['PROPERTY_TYPE'] = $info['PROPERTY_TYPE'];
-			$r['USER_TYPE'] = $info['USER_TYPE'];
-			if (isset($info['VALUES']))
-			{
-				$r['VALUES'] = $info['VALUES'];
-			}
-		}
-
-		return $r;
+		return EntityFieldType::prepareProductField(
+			parent::prepareFieldAttributs($info, $attributs),
+			$info,
+			$attributs
+		);
 	}
 
 	/**
@@ -211,7 +200,7 @@ final class Product extends Base
 				}
 
 				$info = [
-					'TYPE' => DataType::TYPE_PRODUCT_PROPERTY,
+					'TYPE' => EntityFieldType::PRODUCT_PROPERTY,
 					'PROPERTY_TYPE' => $property['PROPERTY_TYPE'],
 					'USER_TYPE' => $property['USER_TYPE'],
 					'ATTRIBUTES' => [Attributes::DYNAMIC],
@@ -274,7 +263,7 @@ final class Product extends Base
 			unset($property, $iterator);
 
 			$fieldsInfo['PROPERTY_*'] = [
-				'TYPE' => DataType::TYPE_PRODUCT_PROPERTY,
+				'TYPE' => EntityFieldType::PRODUCT_PROPERTY,
 				'ATTRIBUTES' => [
 					Attributes::READONLY,
 					Attributes::DYNAMIC,
@@ -519,31 +508,15 @@ final class Product extends Base
 	 */
 	private function getFieldsCatalogProductByType(int $id): array
 	{
-		switch ($id)
+		return match ($id)
 		{
-			case ProductTable::TYPE_SERVICE:
-				$r = $this->getFieldsCatalogProductByTypeService();
-				break;
-			case ProductTable::TYPE_PRODUCT:
-				$r = $this->getFieldsCatalogProductByTypeProduct();
-				break;
-			case ProductTable::TYPE_SET:
-				$r = $this->getFieldsCatalogProductByTypeSet();
-				break;
-			case ProductTable::TYPE_SKU:
-			case ProductTable::TYPE_EMPTY_SKU:
-				$r = $this->getFieldsCatalogProductByTypeSKU();
-				break;
-			case ProductTable::TYPE_OFFER:
-			case ProductTable::TYPE_FREE_OFFER:
-				$r = $this->getFieldsCatalogProductByTypeOffer();
-				break;
-			default:
-				$r = [];
-				break;
-		}
-
-		return $r;
+			ProductTable::TYPE_SERVICE => $this->getFieldsCatalogProductByTypeService(),
+			ProductTable::TYPE_PRODUCT => $this->getFieldsCatalogProductByTypeProduct(),
+			ProductTable::TYPE_SET => $this->getFieldsCatalogProductByTypeSet(),
+			ProductTable::TYPE_SKU, ProductTable::TYPE_EMPTY_SKU => $this->getFieldsCatalogProductByTypeSKU(),
+			ProductTable::TYPE_OFFER, ProductTable::TYPE_FREE_OFFER => $this->getFieldsCatalogProductByTypeOffer(),
+			default => [],
+		};
 	}
 
 	/**
@@ -554,6 +527,9 @@ final class Product extends Base
 		$fieldList = [
 			'AVAILABLE' => [
 				'TYPE' => DataType::TYPE_CHAR,
+			],
+			'MEASURE' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
 			'VAT_ID' => [
 				'TYPE' => DataType::TYPE_INT,
@@ -852,42 +828,30 @@ final class Product extends Base
 	private static function getProductTypes($catalogType): array
 	{
 		//TODO: remove after create \Bitrix\Catalog\Model\CatalogIblock
-		switch ($catalogType)
+		return match ($catalogType)
 		{
-			case \CCatalogSku::TYPE_CATALOG:
-				$result = [
-					ProductTable::TYPE_SERVICE => true,
-					ProductTable::TYPE_PRODUCT => true,
-					ProductTable::TYPE_SET => true,
-				];
-				break;
-			case \CCatalogSku::TYPE_OFFERS:
-				$result = [
-					ProductTable::TYPE_OFFER => true,
-					ProductTable::TYPE_FREE_OFFER => true,
-				];
-				break;
-			case \CCatalogSku::TYPE_FULL:
-				$result = [
-					ProductTable::TYPE_SERVICE => true,
-					ProductTable::TYPE_PRODUCT => true,
-					ProductTable::TYPE_SET => true,
-					ProductTable::TYPE_SKU => true,
-					ProductTable::TYPE_EMPTY_SKU => true,
-				];
-				break;
-			case \CCatalogSku::TYPE_PRODUCT:
-				$result = [
-					ProductTable::TYPE_SKU => true,
-					ProductTable::TYPE_EMPTY_SKU => true,
-				];
-				break;
-			default:
-				$result = [];
-				break;
-		}
-
-		return $result;
+			\CCatalogSku::TYPE_CATALOG => [
+				ProductTable::TYPE_SERVICE => true,
+				ProductTable::TYPE_PRODUCT => true,
+				ProductTable::TYPE_SET => true,
+			],
+			\CCatalogSku::TYPE_OFFERS => [
+				ProductTable::TYPE_OFFER => true,
+				ProductTable::TYPE_FREE_OFFER => true,
+			],
+			\CCatalogSku::TYPE_FULL => [
+				ProductTable::TYPE_SERVICE => true,
+				ProductTable::TYPE_PRODUCT => true,
+				ProductTable::TYPE_SET => true,
+				ProductTable::TYPE_SKU => true,
+				ProductTable::TYPE_EMPTY_SKU => true,
+			],
+			\CCatalogSku::TYPE_PRODUCT => [
+				ProductTable::TYPE_SKU => true,
+				ProductTable::TYPE_EMPTY_SKU => true,
+			],
+			default => [],
+		};
 	}
 
 	/**
@@ -1103,7 +1067,7 @@ final class Product extends Base
 
 		$type = $info['TYPE'] ?? '';
 
-		if ($type === DataType::TYPE_PRODUCT_PROPERTY)
+		if ($type === EntityFieldType::PRODUCT_PROPERTY)
 		{
 			$propertyType = $info['PROPERTY_TYPE'] ?? '';
 			$userType = $info['USER_TYPE'] ?? '';
@@ -1446,7 +1410,7 @@ final class Product extends Base
 		$info = $fieldsInfo[$name] ?? [];
 		$type = $info['TYPE'] ?? '';
 
-		if ($type === DataType::TYPE_PRODUCT_PROPERTY)
+		if ($type === EntityFieldType::PRODUCT_PROPERTY)
 		{
 			$attrs = $info['ATTRIBUTES'] ?? [];
 			$isMultiple = in_array(Attributes::MULTIPLE, $attrs, true);

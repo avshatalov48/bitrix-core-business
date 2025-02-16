@@ -54,21 +54,15 @@ export const SyncHorizontalScroll = {
 	methods: {
 		emitScrollEvent(event): void {
 			// this component instance is being scrolled, we need to notify other instances
-			const { scrollLeft, scrollWidth, clientWidth, offsetWidth } = event.target;
+			const { scrollLeft } = event.target;
 
-			const scrollLeftOffset = scrollWidth - clientWidth;
-			const scrollBarWidth = offsetWidth - clientWidth;
+			lastScrollLeft.set(this.guid, scrollLeft);
 
-			if (scrollLeftOffset > scrollBarWidth)
-			{
-				lastScrollLeft.set(this.guid, scrollLeft);
-
-				// emit global application event so other SyncHorizontalScroll instances receive it
-				this.$Bitrix.eventEmitter.emit('ui:accessrights:v2:syncScroll', {
-					scrollLeft,
-					componentGuid: this.componentGuid,
-				});
-			}
+			// emit global application event so other SyncHorizontalScroll instances receive it
+			this.$Bitrix.eventEmitter.emit('ui:accessrights:v2:syncScroll', {
+				scrollLeft,
+				componentGuid: this.componentGuid,
+			});
 		},
 		handleScrollEvent(event: BaseEvent): void {
 			const { scrollLeft, componentGuid } = event.getData();

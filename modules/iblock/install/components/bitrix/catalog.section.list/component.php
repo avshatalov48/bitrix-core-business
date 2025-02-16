@@ -260,6 +260,7 @@ if ($this->startResultCache(
 		$arResult["SECTION"] = array(
 			"ID" => 0,
 			"DEPTH_LEVEL" => 0,
+			"IBLOCK_SECTION_ID" => 0,
 		);
 		$arFilter["<="."DEPTH_LEVEL"] = $arParams["TOP_DEPTH"];
 	}

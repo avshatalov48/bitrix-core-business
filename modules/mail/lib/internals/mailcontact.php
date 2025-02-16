@@ -170,4 +170,47 @@ class MailContactTable extends Entity\DataManager
 
 		return $result;
 	}
+
+	/**
+	 * @param string $email
+	 * @param int $userId
+	 * @return array
+	 */
+	public static function getContactByEmail(string $email, int $userId): array
+	{
+		$contact = [
+			'NAME' => '',
+			'ID' => 0,
+		];
+
+		$email = trim(mb_strtolower($email));
+
+		if (!check_email($email))
+		{
+			return $contact;
+		}
+
+		$contactResult = self::getList(
+			[
+				'select' => [
+					'ID',
+					'NAME',
+				],
+				'filter' => [
+					'=USER_ID' => $userId,
+					'=EMAIL' => $email,
+				],
+			]
+		)->fetch();
+
+		if (isset($contactResult['ID']))
+		{
+			$contact = [
+				'NAME' => $contactResult['NAME'],
+				'ID' => (int) $contactResult['ID'],
+			];
+		}
+
+		return $contact;
+	}
 }

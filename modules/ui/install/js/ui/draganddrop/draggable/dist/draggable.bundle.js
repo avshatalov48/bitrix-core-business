@@ -83,8 +83,12 @@ this.BX.UI = this.BX.UI || {};
 	  getDragElementByChild(child) {
 	    if (child) {
 	      const {
-	        dragElement
+	        dragElement,
+	        elementsPreventingDrag
 	      } = this.options;
+	      if ((elementsPreventingDrag != null ? elementsPreventingDrag : []).some(selector => child.closest(selector))) {
+	        return null;
+	      }
 	      return child.closest(dragElement) || null;
 	    }
 	    return null;
@@ -546,16 +550,19 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    this[sensorsKey] = [...this.getSensors(), ...initializedSensors];
 	  }
+	  destroy() {
+	    this.removeSensor(...this.getSensors());
+	  }
 	  removeSensor(...sensors) {
 	    const removedSensors = this.getSensors().filter(sensor => {
-	      return sensors.includes(sensor.constructor);
+	      return sensors.includes(sensor);
 	    });
 	    removedSensors.forEach(sensor => {
 	      sensor.unsubscribe('drag:start', this.onDragStart);
 	      sensor.unsubscribe('drag:move', this.onDragMove);
 	      sensor.unsubscribe('drag:end', this.onDragEnd);
 	      sensor.unsubscribe('drag:drop', this.onDragDrop);
-	      sensor.enable();
+	      sensor.disable();
 	    });
 	    this[sensorsKey] = this.getSensors().filter(sensor => {
 	      return !removedSensors.includes(sensor);

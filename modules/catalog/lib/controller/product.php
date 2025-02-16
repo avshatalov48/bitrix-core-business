@@ -7,6 +7,7 @@ use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\Controller\Product\SkuDeferredCalculations;
 use Bitrix\Catalog\Model\Event;
 use Bitrix\Catalog\ProductTable;
+use Bitrix\Catalog\v2;
 use Bitrix\Iblock;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Response\DataType\Page;
@@ -383,24 +384,15 @@ class Product extends Controller implements EventBindInterface
 				: $elementFields
 		;
 
-		$element = new \CIBlockElement();
-		$element->setIblock($fields['IBLOCK_ID']);
-		$id = $element->Add($elementFieldsAdd);
-		$error = $element->getLastError();
-		if ($error !== '')
-		{
-			$this->addError(new Error($error));
+		$productService = new v2\Internal\ProductInternalService(true);
 
-			return null;
-		}
+		$result = $productService->add(array_merge($productFields, $elementFieldsAdd));
 
-		$productFields['ID'] = $id;
-		$result = \Bitrix\Catalog\Model\Product::add([
-			'fields' => $productFields,
-			'external_fields' => ['IBLOCK_ID' => $fields['IBLOCK_ID']],
-		]);
+		$id = $result->getData()['ID'];
+
 		if (!$result->isSuccess())
 		{
+			$element = new \CIBlockElement();
 			$element::Delete($id);
 			$this->addErrors($result->getErrors());
 
@@ -448,8 +440,6 @@ class Product extends Controller implements EventBindInterface
 			}
 		}
 
-		$element = new \CIBlockElement();
-
 		$groupFields = $this->splitFieldsByEntity($fields);
 
 		$productFields = $groupFields['productFields'];
@@ -483,30 +473,20 @@ class Product extends Controller implements EventBindInterface
 
 				return null;
 			}
-			if (!$element->Update($id, $elementFieldsUpdate))
-			{
-				$error = $element->getLastError();
-				if ($error === '')
-				{
-					$error = 'Update error';
-				}
-				$this->addError(new Error($error));
-
-					return null;
-			}
 		}
 
 		if (
 			!empty($productFields)
+			|| !empty($elementFieldsUpdate)
 		)
 		{
-			$result = \Bitrix\Catalog\Model\Product::update(
+			$productService = new v2\Internal\ProductInternalService(true);
+
+			$result = $productService->update(
 				$id,
-				[
-					'fields' => $productFields,
-					'external_fields' => ['IBLOCK_ID' => $fields['IBLOCK_ID']],
-				]
+				array_merge($productFields, $elementFieldsUpdate)
 			);
+
 			if (!$result->isSuccess())
 			{
 				$this->addErrors($result->getErrors());
@@ -1292,7 +1272,7 @@ class Product extends Controller implements EventBindInterface
 			&& !$this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 		return $r;
 	}
@@ -1542,7 +1522,7 @@ class Product extends Controller implements EventBindInterface
 			throw new RestException('event object not found trying to process event');
 		}
 
-		if($event instanceof Event) // update, add
+		if ($event instanceof \Bitrix\Main\Event) // update, add
 		{
 			$id = $event->getParameter('id');
 		}
@@ -1557,7 +1537,7 @@ class Product extends Controller implements EventBindInterface
 			throw new RestException('id not found trying to process event');
 		}
 
-		$product = \Bitrix\Catalog\Model\Product::getCacheItem($id);
+		$product = \Bitrix\Catalog\Model\Product::getCacheItem($id, true);
 
 		$type = $product['TYPE']  ?? null;
 
@@ -1580,9 +1560,15 @@ class Product extends Controller implements EventBindInterface
 		$class = $entity->getNamespace() . $entity->getName();
 		$model = \Bitrix\Catalog\Model\Product::class;
 
+		$updateEventName = v2\Event\Event::makeEventName(
+			v2\Event\Event::ENTITY_PRODUCT,
+			v2\Event\Event::METHOD_UPDATE,
+			v2\Event\Event::STAGE_AFTER
+		);
+
 		return [
 			Event::makeEventName($model,DataManager::EVENT_ON_AFTER_ADD) => $entity->getModule().'.'.$entity->getName().'.on.add',
-			Event::makeEventName($model,DataManager::EVENT_ON_AFTER_UPDATE) => $entity->getModule().'.'.$entity->getName().'.on.update',
+			$updateEventName => $entity->getModule().'.'.$entity->getName().'.on.update',
 			Event::makeEventName($class,DataManager::EVENT_ON_DELETE) => $entity->getModule().'.'.$entity->getName().'.on.delete',
 		];
 	}

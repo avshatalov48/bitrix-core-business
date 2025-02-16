@@ -173,6 +173,26 @@ class Controller extends Base
 		$this->addError($this->getErrorEntityNotExists());
 	}
 
+	protected function getErrorCodeModifyAccessDenied(): string
+	{
+		return ErrorCode::MODIFY_PERMISSION_ACCESS_DENIED;
+	}
+
+	protected function getErrorModifyAccessDenied(): Error
+	{
+		return new Error('Access Denied', $this->getErrorCodeModifyAccessDenied());
+	}
+
+	protected function getErrorCodeReadAccessDenied(): string
+	{
+		return ErrorCode::READ_PERMISSION_ACCESS_DENIED;
+	}
+
+	protected function getErrorReadAccessDenied(): Error
+	{
+		return new Error('Access Denied', $this->getErrorCodeReadAccessDenied());
+	}
+
 	// rest-event region
 	/**
 	 * @implements EventBindInterface

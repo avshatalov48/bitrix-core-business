@@ -71,6 +71,12 @@ abstract class ElementList extends Base
 		return (bool)$this->paginationMode;
 	}
 
+	/**
+	 * Returns validated component parameters.
+	 *
+	 * @param mixed $params Raw component parameters.
+	 * @return array
+	 */
 	public function onPrepareComponentParams($params)
 	{
 		if (!is_array($params))
@@ -664,6 +670,13 @@ abstract class ElementList extends Base
 	}
 
 	// some logic of \CComponentAjax to execute in component_epilog
+
+	/**
+	 * Internal method for component ajax - modify urls.
+	 *
+	 * @param array $data Link list.
+	 * @return void
+	 */
 	public function prepareLinks(&$data)
 	{
 		$addParam = \CAjax::GetSessionParam($this->arParams['AJAX_ID']);
@@ -1324,6 +1337,11 @@ abstract class ElementList extends Base
 		$this->arResult['ELEMENTS'] = array_keys($this->elementLinks);
 	}
 
+	/**
+	 * Load component data with use page navigation.
+	 *
+	 * @return void
+	 */
 	public function loadData()
 	{
 		$this->initNavParams();

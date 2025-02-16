@@ -125,6 +125,7 @@ $cardParameters = [
 	'productStoreGridId' => $arResult['STORE_AMOUNT_GRID_ID'],
 	'productTypeSelector' => 'catalog-productcard-product-type-selector',
 	'productTypeSelectorTypes' => $arResult['DROPDOWN_TYPES'],
+	'isCopilotEnabled' => $arResult['IS_COPILOT_ENABLED'],
 ];
 ?>
 <script>

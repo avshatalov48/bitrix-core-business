@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CIBlockFindTools
 {
 	public static function GetElementID($element_id, $element_code, $section_id, $section_code, $arFilter)
@@ -148,6 +149,7 @@ class CIBlockFindTools
 			$vars = $cache->GetVars();
 			$pageID = $vars[0];
 			$arVariables = $vars[1];
+
 			return $pageID;
 		}
 
@@ -168,12 +170,18 @@ class CIBlockFindTools
 			b_iblock_element BE
 		";
 
+		$elementId = $arVariables["ELEMENT_ID"] ?? '';
+		$elementCode = $arVariables["ELEMENT_CODE"] ?? '';
 		$strWhere = "
-			".($arVariables["ELEMENT_ID"] != ""? "AND BE.ID = ".intval($arVariables["ELEMENT_ID"]): "")."
-			".($arVariables["ELEMENT_CODE"] != ""? "AND BE.CODE = '".$DB->ForSql($arVariables["ELEMENT_CODE"])."'": "")."
+			" . ($elementId != "" ? "AND BE.ID = " . (int)$elementId : "") . "
+			" . ($elementCode != "" ? "AND BE.CODE = '" . $DB->ForSql($elementCode) . "'" : "") . "
 		";
 
-		if ($arVariables["SECTION_CODE_PATH"] != "")
+		if (
+			isset($arVariables["SECTION_CODE_PATH"])
+			&& is_string($arVariables["SECTION_CODE_PATH"])
+			&& $arVariables["SECTION_CODE_PATH"] != ""
+		)
 		{
 			$select .= ", BS.ID as SECTION_ID, BS.CODE";
 			//The path may be incomplete so we join part of the section tree BS and BSP
@@ -185,6 +193,13 @@ class CIBlockFindTools
 			$joinField = "BSP.ID";
 
 			$sectionPath = explode("/", $arVariables["SECTION_CODE_PATH"]);
+			// B24 fix
+			if (count($sectionPath) > 58) // $strFrom already contains three join (max - 61)
+			{
+				return false;
+			}
+
+			$i = 0;
 			foreach (array_reverse($sectionPath) as $i => $SECTION_CODE)
 			{
 				$strFrom .= "
@@ -211,7 +226,9 @@ class CIBlockFindTools
 			".$strWhere."
 		";
 		$rs = $DB->Query($strSql);
-		if ($r = $rs->Fetch())
+		$r = $rs->Fetch();
+		unset($rs);
+		if ($r)
 		{
 			if (isset($sectionPath) && is_array($sectionPath))
 			{
@@ -225,6 +242,7 @@ class CIBlockFindTools
 					}
 				}
 			}
+
 			return true;
 		}
 		else
@@ -237,11 +255,21 @@ class CIBlockFindTools
 	{
 		global $DB;
 
+		if (
+			!isset($arVariables["SECTION_CODE_PATH"])
+			|| !is_string($arVariables["SECTION_CODE_PATH"])
+		)
+		{
+			return false;
+		}
+
 		$sectionPath = explode("/", $arVariables["SECTION_CODE_PATH"]);
 
 		// B24 fix
 		if (count($sectionPath) > 61)
+		{
 			return false;
+		}
 
 		$strFrom = "";
 		$joinField = "";
@@ -281,10 +309,13 @@ class CIBlockFindTools
 			".$strRoot."
 		";
 		$rs = $DB->Query($strSql);
-		if ($ar = $rs->Fetch())
+		$ar = $rs->Fetch();
+		unset($rs);
+		if ($ar)
 		{
 			$arVariables["SECTION_ID"] = $ar["ID"];
 			$arVariables["SECTION_CODE"] = $sectionPath[count($sectionPath)-1];
+
 			return true;
 		}
 		else

@@ -4,12 +4,12 @@ namespace Bitrix\Catalog\Document\Action\Store;
 
 use Bitrix\Catalog\Document\Action\ProductAndStoreInfo;
 use Bitrix\Catalog\StoreProductTable;
+use Bitrix\Catalog\v2\Internal\ProductInternalService;
 use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\Result;
-use CCatalogProduct;
 use CCatalogStoreProduct;
 
 Loc::loadMessages(
@@ -77,9 +77,13 @@ trait BaseStoreQuantityAction
 			return false;
 		}
 
-		return CCatalogProduct::Update($this->productId, [
+		$productService = new ProductInternalService(true);
+
+		$res = $productService->update($this->productId, [
 			'QUANTITY' => (float)$row['SUM_AMOUNT'] - $this->getProductTotalReservedQuantity()
 		]);
+
+		return $res->isSuccess();
 	}
 
 	/**

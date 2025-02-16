@@ -38,7 +38,7 @@ class ProductProvider extends CatalogProvider
 		$result['AVAILABLE'] = [
 			'type' => Grid\Column\Type::CHECKBOX,
 			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_AVAILABLE'),
-			'title' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_AVAILABLE'),
+			'title' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_AVAILABLE_MSGVER_1'),
 			'necessary' => true,
 			'editable' => false,
 			'multiple' => false,

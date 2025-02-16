@@ -27,7 +27,7 @@ final class Extra extends Base
 				]
 			],
 			'PERCENTAGE'=>[
-				'TYPE'=>DataType::TYPE_STRING,
+				'TYPE'=>DataType::TYPE_FLOAT,
 				'ATTRIBUTES'=>[
 					Attributes::REQUIRED
 				]

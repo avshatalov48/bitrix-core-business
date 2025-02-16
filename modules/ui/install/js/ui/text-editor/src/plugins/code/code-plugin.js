@@ -264,7 +264,7 @@ export class CodePlugin extends BasePlugin
 
 					return false;
 				},
-				COMMAND_PRIORITY_LOW,
+				COMMAND_PRIORITY_NORMAL,
 			),
 		);
 	}

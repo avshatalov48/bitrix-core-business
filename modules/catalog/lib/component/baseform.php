@@ -5,6 +5,7 @@ namespace Bitrix\Catalog\Component;
 use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Integration\AI\Settings;
 use Bitrix\Catalog\Url;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\Product;
@@ -1302,6 +1303,30 @@ abstract class BaseForm
 				if (Option::get('catalog', 'default_product_vat_included') === 'Y')
 				{
 					$description['defaultValue'] = ProductTable::STATUS_YES;
+				}
+			}
+			elseif ($field instanceof TextField)
+			{
+				$description['buttons'] = [];
+				$description['postFormSettings'] = [
+					'isAiImageEnabled' => false,
+					'isDnDEnabled' => false,
+				];
+
+				if ($fieldName === 'DETAIL_TEXT')
+				{
+					$description['copilotIntegrationParams'] = [
+						'isMentionUnavailable' => true,
+						'isCopilotTextEnabledBySettings' => Settings::isTextProductCardAvailable(),
+						'copilotParams' => [
+							'contextId' => 'catalog_product_card_detail_description',
+							'moduleId' => 'catalog',
+							'category' => 'product_description',
+							'isCopilotEnabled' => true,
+						],
+					];
+
+					$description['buttons'][] = 'Copilot';
 				}
 			}
 

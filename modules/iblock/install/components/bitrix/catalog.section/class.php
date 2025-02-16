@@ -195,6 +195,7 @@ class CatalogSectionComponent extends ElementList
 			$sectionResult = array(
 				'ID' => 0,
 				'IBLOCK_ID' => $this->arParams['IBLOCK_ID'],
+				'CODE' => '',
 			);
 		}
 

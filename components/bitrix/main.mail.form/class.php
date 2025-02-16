@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Crm\Settings\ActivitySettings;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
@@ -136,6 +137,7 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 		}
 		\CJSCore::init($extensionsList);
 
+		$this->arParams['OLD_RECIPIENTS_MODE'] = (Loader::includeModule('crm') && ActivitySettings::getCurrent()->getEnableUnconnectedRecipients());
 		$this->arParams['FIELDS'] = $this->arParams['~FIELDS'];
 		$this->arParams['FIELDS_EXT'] = $this->arParams['~FIELDS_EXT'] ?? '';
 		$this->arParams['BUTTONS'] = $this->arParams['~BUTTONS'];

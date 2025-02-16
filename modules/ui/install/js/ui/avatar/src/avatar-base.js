@@ -158,7 +158,7 @@ export default class AvatarBase
 						: initials = words[0].charAt(0);
 				}
 
-				this.setInitials(initials);
+				this.setInitials(initials.toUpperCase());
 			}
 		}
 

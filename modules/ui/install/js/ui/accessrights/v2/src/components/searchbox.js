@@ -22,14 +22,14 @@ export const SearchBox = {
 		},
 	},
 	template: `
-		<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-round">
+		<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-access-rights-v2-search">
 			<input
 				type="text"
-				class="ui-ctl-element ui-ctl-textbox"
+				class="ui-ctl-element ui-ctl-textbox ui-access-rights-v2-search-input"
 				:placeholder="$Bitrix.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_SEARCH_PLACEHOLDER')"
 				v-model="searchQuery"
 			>
-			<a class="ui-ctl-after ui-ctl-icon-search"></a>
+			<a class="ui-ctl-after ui-ctl-icon-search ui-access-rights-v2-search-icon"></a>
 		</div>
 	`,
 };

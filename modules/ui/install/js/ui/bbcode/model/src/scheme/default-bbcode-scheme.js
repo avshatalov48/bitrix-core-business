@@ -44,28 +44,7 @@ export class DefaultBBCodeScheme extends BBCodeScheme
 				name: 'p',
 				group: ['#block'],
 				allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock'],
-				stringify(node: BBCodeElementNode): BBCodeElementNode {
-					// Temporary implementation for mobile compatibility
-
-					node.trimLinebreaks();
-					const openingTag: string = node.getOpeningTag();
-					const content: string = node.getContent(options);
-					const closingTag: string = node.getClosingTag();
-
-					const isAllowNewlineBeforeOpeningTag: boolean = (() => {
-						const previewsSibling: ?BBCodeContentNode = node.getPreviewsSibling();
-
-						return previewsSibling && previewsSibling.getName() !== '#linebreak';
-					})();
-
-					return [
-						isAllowNewlineBeforeOpeningTag ? '\n' : '',
-						openingTag,
-						content,
-						'\n',
-						closingTag,
-					].join('');
-				},
+				stringify: BBCodeTagScheme.defaultBlockStringifier,
 				allowedIn: ['#root', '#shadowRoot'],
 			}),
 			new BBCodeTagScheme({

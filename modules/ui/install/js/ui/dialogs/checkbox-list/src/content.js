@@ -222,11 +222,19 @@ export const Content = {
 		},
 		selectAll()
 		{
-			this.getOptionRefs().forEach((option) => !option.isLocked && option.setValue(true));
+			const visibleOptionIds: Set<string> = new Set(this.getOptions().map((option) => option.id));
+
+			this.getOptionRefs().forEach((option) => {
+				return !option.isLocked && visibleOptionIds.has(option.getId()) && option.setValue(true);
+			});
 		},
 		deselectAll()
 		{
-			this.getOptionRefs().forEach((option) => !option.isLocked && option.setValue(false));
+			const visibleOptionIds: Set<string> = new Set(this.getOptions().map((option) => option.id));
+
+			this.getOptionRefs().forEach((option) => {
+				return !option.isLocked && visibleOptionIds.has(option.getId()) && option.setValue(false);
+			});
 		},
 		getOptionRefs(): []
 		{

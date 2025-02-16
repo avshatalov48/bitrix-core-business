@@ -1,3 +1,3 @@
-<?
-$MESS ['FLOW_MODULE_TITLE'] = "Workflow";
-?>
+<?php
+
+$MESS['FLOW_MODULE_TITLE'] = "Workflow";

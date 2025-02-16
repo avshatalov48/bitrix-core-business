@@ -177,7 +177,7 @@ final class StoreProduct extends Controller
 			|| $this->accessController->check(ActionDictionary::ACTION_STORE_VIEW)
 		))
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 		return $r;
 	}

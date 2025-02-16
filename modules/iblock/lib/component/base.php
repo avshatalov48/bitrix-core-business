@@ -2641,7 +2641,7 @@ abstract class Base extends \CBitrixComponent
 				$items[$index]['ITEM_MEASURE'] = array(
 					'ID' => null,
 					'TITLE' => $this->storage['DEFAULT_MEASURE']['SYMBOL_RUS'],
-					'~TITLE' => $this->storage['DEFAULT_MEASURE']['~SYMBOL_RUS']
+					'~TITLE' => $this->storage['DEFAULT_MEASURE']['~SYMBOL_RUS'],
 				);
 			}
 		}
@@ -5125,7 +5125,7 @@ abstract class Base extends \CBitrixComponent
 
 			if ($skuPropList[$code]['USER_TYPE'] === 'directory')
 			{
-				$intValue = $skuPropList[$code]['XML_MAP'][$offer['DISPLAY_PROPERTIES'][$code]['VALUE']];
+				$intValue = $skuPropList[$code]['XML_MAP'][$offer['DISPLAY_PROPERTIES'][$code]['VALUE']] ?? 0;
 				$cell['VALUE'] = $intValue;
 			}
 			elseif ($skuPropList[$code]['PROPERTY_TYPE'] === 'L')

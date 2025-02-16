@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\v2;
 
 use Bitrix\Catalog\ProductTable;
+use Bitrix\Catalog\v2\Event\Event;
 use Bitrix\Catalog\v2\Fields\TypeCasters\MapTypeCaster;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
 use Bitrix\Catalog\v2\Image\HasImageCollection;
@@ -64,7 +65,6 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 	{
 		if ($this->propertyCollection === null)
 		{
-			// ToDo make lazy load like sku collection with iterator callback?
 			$this->setPropertyCollection($this->loadPropertyCollection());
 		}
 
@@ -310,6 +310,18 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 				// hack to re-initialize saved ids from database after files saving
 				$this->unsetImageCollection();
 			}
+		}
+
+		if (!$this->isNew() && $entityChanged)
+		{
+			Event::send(
+				Event::ENTITY_PRODUCT,
+				Event::METHOD_UPDATE,
+				Event::STAGE_AFTER,
+				[
+					'id' => $this->getId(),
+				],
+			);
 		}
 
 		return $result;

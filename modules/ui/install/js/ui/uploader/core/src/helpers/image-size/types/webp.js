@@ -61,6 +61,8 @@ export default class Webp
 						const validEnd = (extendedHeader & 0x01) === 0;
 						if (validStart && validEnd)
 						{
+							const animated = (extendedHeader & 2) === 2; // 00000010 means an animated image
+
 							const width = 1 + (
 								(headerView.getUint8(6) << 16)
 								| (headerView.getUint8(5) << 8)
@@ -73,7 +75,7 @@ export default class Webp
 								| headerView.getUint8(7)
 							);
 
-							resolve({ width, height });
+							resolve({ width, height, animated });
 
 							return;
 						}

@@ -224,7 +224,7 @@ this.BX.UI = this.BX.UI || {};
 	      console.error('RichTextArea: clipboard pasting error.');
 	    });
 	    return true;
-	  }, ui_lexical_core.COMMAND_PRIORITY_LOW);
+	  }, ui_lexical_core.COMMAND_PRIORITY_NORMAL);
 	  this.getEditor().registerCommand(DRAG_START_COMMAND, () => {
 	    babelHelpers.classPrivateFieldLooseBase(this, _allowDropFiles)[_allowDropFiles] = false;
 	  }, ui_lexical_core.COMMAND_PRIORITY_LOW);

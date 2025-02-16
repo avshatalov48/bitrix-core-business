@@ -5,7 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	"css" => "/bitrix/js/ui/viewer/css/style.css",
+	'css' => './dist/viewer.bundle.css',
 	"js" => [
 		"/bitrix/js/ui/viewer/ui.viewer.item.js",
 		"/bitrix/js/ui/viewer/ui.viewer.js",
@@ -14,10 +14,10 @@ return [
 	'rel' => [
 		'ajax',
 		'loader',
-		'main.polyfill.find',
-		'ui.actionpanel',
-		'ui.buttons',
-		'ui.buttons.icons',
+		'main.popup',
+		'ui.icon-set.actions',
+		'ui.icon-set.main',
+		'ui.icons.generator',
 		'ui.design-tokens',
 		'ui.fonts.opensans',
 	],

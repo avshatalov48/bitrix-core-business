@@ -89,6 +89,11 @@ BX.UI.Notification.Stack.prototype =
 
 			if (!balloon || balloon === currentBalloon)
 			{
+				if (currentBalloon.doNotAdjustPosition)
+				{
+					return;
+				}
+
 				switch (this.getPosition())
 				{
 					case BX.UI.Notification.Position.TOP_LEFT:

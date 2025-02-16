@@ -3392,8 +3392,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        delete data.fields.ID;
 
 	        // taxes
-	        var taxIncluded = this.getSettingValue('taxIncluded', null);
-	        var taxIncludedFormatted = this.getSettingValue('taxIncludedFormatted', null);
+	        var taxIncludedFromFirstItem = this.getSettingValue('taxIncludedFromFirstItem', null);
+	        var taxIncludedFromFirstItemFormatted = this.getSettingValue('taxIncludedFromFirstItemFormatted', null);
+	        var taxIncluded = taxIncludedFromFirstItem ? taxIncludedFromFirstItem : this.getSettingValue('taxIncluded', null);
+	        var taxIncludedFormatted = taxIncludedFromFirstItemFormatted ? taxIncludedFromFirstItemFormatted : this.getSettingValue('taxIncludedFormatted', null);
 	        if (taxIncluded && taxIncludedFormatted) {
 	          if (data.fields['TAX_INCLUDED'] === 'Y' && data.fields['TAX_INCLUDED'] !== taxIncluded) {
 	            data.fields['BASE_PRICE'] = data.fields['BASE_PRICE'] / (1 + data.fields['TAX_RATE'] / 100);

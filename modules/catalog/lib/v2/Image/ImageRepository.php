@@ -115,7 +115,7 @@ class ImageRepository implements ImageRepositoryContract
 	private function getMorePhotoEntities(BaseIblockElementEntity $element): array
 	{
 		$morePhotos = [];
-		$property = $element->getPropertyCollection()->findByCode(MorePhotoImage::CODE);
+		$property = $element->getPropertyCollection()->findByCodeLazy(MorePhotoImage::CODE);
 		if (!$property)
 		{
 			return [];
@@ -161,6 +161,9 @@ class ImageRepository implements ImageRepositoryContract
 	protected function getList(array $params): array
 	{
 		$files = [];
+		$params['cache'] = [
+			'ttl' => 86400,
+		];
 		$filesRaw = FileTable::getList($params);
 		while ($file = $filesRaw->fetch())
 		{

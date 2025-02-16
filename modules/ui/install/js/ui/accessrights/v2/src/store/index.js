@@ -14,17 +14,13 @@ export function createStore(
 	store: Store,
 	resetState: () => Promise<void>,
 	userGroupsModel: UserGroupsModel,
-	accessRightsModel: AccessRightsModel,
 }
 {
 	const userGroupsModel = UserGroupsModel.create()
 		.setInitialUserGroups(userGroups)
 	;
-	const accessRightsModel = AccessRightsModel.create()
-		.setInitialAccessRights(accessRights)
-	;
 
-	const { store, builder } = Builder
+	const { store } = Builder
 		.init()
 		.addModel(
 			ApplicationModel.create()
@@ -32,15 +28,18 @@ export function createStore(
 				.setGuid(appGuid)
 			,
 		)
+		.addModel(
+			AccessRightsModel.create()
+				.setInitialAccessRights(accessRights)
+			,
+		)
 		.addModel(userGroupsModel)
-		.addModel(accessRightsModel)
 		.syncBuild()
 	;
 
 	return {
 		store,
-		resetState: () => builder.clearModelState(),
+		resetState: () => userGroupsModel.clearState(),
 		userGroupsModel,
-		accessRightsModel,
 	};
 }

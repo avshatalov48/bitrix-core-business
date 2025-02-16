@@ -777,6 +777,8 @@ class ElementType extends BaseType
 
 	/**
 	 * @internal
+	 *
+	 * @return bool
 	 */
 	public static function canUseDialogAndUiViews(): bool
 	{

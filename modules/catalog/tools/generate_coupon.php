@@ -1,13 +1,13 @@
-<?
+<?php
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-define("STOP_STATISTICS", true);
-define("BX_SECURITY_SHOW_MESSAGE", true);
-define('NO_AGENT_CHECK', true);
+const STOP_STATISTICS = true;
+const BX_SECURITY_SHOW_MESSAGE = true;
+const NO_AGENT_CHECK = true;
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 

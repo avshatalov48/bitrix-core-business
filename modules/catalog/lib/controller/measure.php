@@ -171,7 +171,7 @@ final class Measure extends Controller implements EventBindInterface
 
 		if (!$this->accessController->check(ActionDictionary::ACTION_STORE_VIEW))
 		{
-			$r->addError(new Error('Access Denied', 200040300020));
+			$r->addError($this->getErrorModifyAccessDenied());
 		}
 
 		return $r;
@@ -188,7 +188,7 @@ final class Measure extends Controller implements EventBindInterface
 			)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 		return $r;
 	}

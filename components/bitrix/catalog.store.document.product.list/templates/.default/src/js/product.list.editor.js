@@ -1542,8 +1542,10 @@ export class Editor
 			delete data.fields.ID;
 
 			// taxes
-			const taxIncluded = this.getSettingValue('taxIncluded', null);
-			const taxIncludedFormatted = this.getSettingValue('taxIncludedFormatted', null);
+			const taxIncludedFromFirstItem = this.getSettingValue('taxIncludedFromFirstItem', null);
+			const taxIncludedFromFirstItemFormatted = this.getSettingValue('taxIncludedFromFirstItemFormatted', null);
+			const taxIncluded = taxIncludedFromFirstItem ? taxIncludedFromFirstItem : this.getSettingValue('taxIncluded', null);
+			const taxIncludedFormatted = taxIncludedFromFirstItemFormatted ? taxIncludedFromFirstItemFormatted : this.getSettingValue('taxIncludedFormatted', null);
 			if (taxIncluded && taxIncludedFormatted)
 			{
 				if (

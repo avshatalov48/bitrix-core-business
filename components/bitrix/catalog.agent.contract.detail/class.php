@@ -359,7 +359,7 @@ class CatalogAgentContractDetail
 			{
 				$entityData = array_merge($entityData, $this->getUserDataToEntity($documentData['MODIFIED_BY'], 'MODIFIED_BY'));
 			}
-			
+
 			if ($documentData['CREATED_BY'])
 			{
 				$entityData = array_merge($entityData, $this->getUserDataToEntity($documentData['CREATED_BY'], 'CREATED_BY'));
@@ -638,7 +638,10 @@ class CatalogAgentContractDetail
 			$fields['TITLE'] = $data['TITLE'];
 		}
 
-		$fields['FILES'] = $data['FILES'];
+		$fields['FILES'] = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
+			'files_uploader',
+			$data['FILES']
+		);
 
 		if (!empty($data['CONTRACTOR_ID']))
 		{

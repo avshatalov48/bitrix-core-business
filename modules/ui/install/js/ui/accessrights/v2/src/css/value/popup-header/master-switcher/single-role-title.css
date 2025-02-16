@@ -1,0 +1,18 @@
+.ui-access-rights-v2-cell-popup-header-role-container {
+	display: flex;
+	align-items: center;
+}
+
+.ui-access-rights-v2-cell-popup-header-role-caption {
+	font-size: var(--ui-font-size-xs);
+	color: var(--ui-color-palette-gray-40);
+}
+
+.ui-access-rights-v2-cell-popup-header-role-title {
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.ui-access-rights-v2-cell-popup-header-role-title.ui-access-rights-v2-text-ellipsis {
+	max-width: 250px;
+}

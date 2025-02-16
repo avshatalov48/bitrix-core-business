@@ -33,7 +33,12 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI
 	$startValue = [];
 	$itemList = [];
 
-	foreach ($arResult['userField']['USER_TYPE']['FIELDS'] as $key => $val)
+	$fields = (
+		empty($arResult['userField']['USER_TYPE']['FIELDS'])
+			? []
+			: $arResult['userField']['USER_TYPE']['FIELDS']
+	);
+	foreach ($fields as $key => $val)
 	{
 		if ($key === '' && $isMultiple)
 		{

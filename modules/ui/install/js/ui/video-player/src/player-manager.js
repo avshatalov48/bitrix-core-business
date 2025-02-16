@@ -19,6 +19,11 @@ export class PlayerManager
 		}
 	}
 
+	static removePlayer(playerToRemove)
+	{
+		this.#players = this.#players.filter((player: Player) => player !== playerToRemove);
+	}
+
 	static #init(): void
 	{
 		if (this.#isStarted)
@@ -71,8 +76,7 @@ export class PlayerManager
 			return;
 		}
 
-		let topVisiblePlayer = false;
-		let isAnyPlaying = false;
+		let topVisiblePlayer = null;
 
 		const players = [...this.#players];
 		for (const [index, player] of players.entries())
@@ -84,7 +88,7 @@ export class PlayerManager
 				continue;
 			}
 
-			if (player.lazyload && !player.inited && this.isVisibleOnScreen(player.id, 2))
+			if (player.lazyload && !player.isInited() && this.isVisibleOnScreen(player.id, 2))
 			{
 				player.init();
 			}
@@ -94,69 +98,47 @@ export class PlayerManager
 				continue;
 			}
 
-			if (player.active)
-			{
-				continue;
-			}
-
-			if (player.isEnded())
-			{
-				continue;
-			}
-
 			if (this.isVisibleOnScreen(player.id, 1))
 			{
-				if (topVisiblePlayer === false)
+				if (topVisiblePlayer === null)
 				{
 					topVisiblePlayer = player;
 				}
 			}
-			else if (player.isPlaying())
-			{
-				player.pause();
-			}
-
-			if (player.isPlaying())
-			{
-				isAnyPlaying = true;
-			}
 		}
 
-		if (isAnyPlaying)
+		if (topVisiblePlayer !== null && !topVisiblePlayer.isPlayed() && !topVisiblePlayer.hasStarted)
 		{
-			return;
-		}
-
-		if (topVisiblePlayer !== false)
-		{
-			if (!topVisiblePlayer.inited)
+			if (!topVisiblePlayer.isInited())
 			{
 				topVisiblePlayer.autostart = true;
 			}
 			else if (topVisiblePlayer.isReady() && !topVisiblePlayer.isEnded())
 			{
+				for (const [, player] of players.entries())
+				{
+					if (player === topVisiblePlayer || !player.autostart)
+					{
+						continue;
+					}
+
+					if (player.isPlaying())
+					{
+						player.pause();
+					}
+				}
+
 				topVisiblePlayer.mute(true);
-
-				Event.EventEmitter.subscribeOnce(
-					topVisiblePlayer,
-					'Player:onClick',
-					(event: BaseEvent) => {
-						setTimeout(() => {
-							topVisiblePlayer.mute(false);
-						}, 100);
-					},
-				);
-
 				topVisiblePlayer.play();
 			}
 		}
 	}
 
-	static getElementCoords(id: string): Object
+	static getElementCoords(element: HTMLElement): Object
 	{
 		const VISIBLE_OFFSET = 0.25;
 
-		const box = document.getElementById(id).getBoundingClientRect();
+		const box = element.getBoundingClientRect();
 
 		const elementHeight = box.bottom - box.top;
 		const top = box.top + VISIBLE_OFFSET * elementHeight;
@@ -182,7 +164,13 @@ export class PlayerManager
 	{
 		let visible = false;
 
-		const coords = this.getElementCoords(id);
+		const element = document.getElementById(id);
+		if (element === null)
+		{
+			return false;
+		}
+
+		const coords = this.getElementCoords(element);
 		const clientHeight = document.documentElement.clientHeight;
 
 		let windowTop = window.pageYOffset || document.documentElement.scrollTop;

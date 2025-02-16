@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["FLOW_PANEL_CREATE_WITH_WF"] = "Via Workflow";
 $MESS["FLOW_PANEL_EDIT_WITH_WF"] = "Via Workflow";
 $MESS["FLOW_PANEL_CREATE_ALT"] = "Create a new page in current section via workflow";
@@ -12,4 +13,3 @@ $MESS["FLOW_CURRENT_STATUS"] = "Current status:";
 $MESS["FLOW_DOCUMENT_NOT_PUBLISHED"] = "The document cannot be published.";
 $MESS["FLOW_ACCESS_DENIED_FOR_FILE_WRITE"] = "You don't have permission to create the file \"#FILENAME#\" (you should have \"Write\" access for this file or directory).";
 $MESS["FLOW_ERROR"] = "Error! ";
-?>

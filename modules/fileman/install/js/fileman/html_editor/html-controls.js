@@ -4880,9 +4880,7 @@ function __run()
 		var pParTbl = c.appendChild(BX.create('TABLE', {props: {className: 'bxhtmled-dialog-tbl bxhtmled-video-dialog-tbl'}}));
 
 		// Title
-		r = this.AddTableRow(pParTbl, {label: BX.message('BXEdVideoInfoTitle') + ':', id: this.id + '-title'});
-		this.pTitle = r.rightCell.appendChild(BX.create('INPUT', {props: {id: this.id + '-title', type: 'text', className: 'bxhtmled-90-input', disabled: !!this.editor.bbCode}}));
-		BX.addClass(r.row, 'bxhtmled-video-ext-row bxhtmled-video-ext-loc-row');
+		this.pTitle = document.createElement('span');
 
 		// Size
 		r = this.AddTableRow(pParTbl, {label: BX.message('BXEdVideoSize') + ':', id: this.id + '-size'});
@@ -4926,7 +4924,6 @@ function __run()
 
 	VideoDialog.prototype.AnalyzeVideoSource = function(value)
 	{
-		var _this = this;
 		if (value.match(/<iframe([\s\S]*?)\/iframe>/gi))
 		{
 			var video = this.editor.phpParser.CheckForVideo(value);
@@ -4944,37 +4941,73 @@ function __run()
 		}
 		else
 		{
-			this.StartWaiting();
-
-			BX.ajax.runAction('fileman.api.htmleditorajax.getVideoOembed', {
-				data: {
-					video_source: value
-				}
-			}).then(
-				// Success
-				function(response)
-				{
-					this.StopWaiting();
-					if (response.data.result)
-					{
-						this.ShowVideoParams(response.data.data);
-					}
-					else
-					{
-						if (response.data.error !== '')
-						{
-							this.ShowVideoParams(false, response.data.error);
-						}
-					}
-				}.bind(this),
-				// Failure
-				function (response)
-				{
-					this.StopWaiting();
-					this.ShowVideoParams(false);
-				}.bind(this)
-			);
+			void this.loadIframe(value);
 		}
+	};
+
+	VideoDialog.prototype.loadIframe = async function(value)
+	{
+		const parsedResult = await this.parseIframe(value);
+		if (parsedResult)
+		{
+			this.ShowVideoParams(parsedResult);
+
+			return;
+		}
+
+		void this.loadIframeOld(value);
+	};
+
+	VideoDialog.prototype.parseIframe = async function(value)
+	{
+		const { VideoService } = await BX.Runtime.loadExtension('ui.video-service');
+
+		const service = VideoService.createByUrl(value);
+		if (!service)
+		{
+			return null;
+		}
+
+		return {
+			html: `<iframe src="${service.getEmbeddedUrl()}" width="640" height="340"></iframe>`,
+			provider: service.getId(),
+			width: 640,
+			height: 340,
+		};
+	};
+
+	VideoDialog.prototype.loadIframeOld = function(value)
+	{
+		this.StartWaiting();
+
+		BX.ajax.runAction('fileman.api.htmleditorajax.getVideoOembed', {
+			data: {
+				video_source: value
+			}
+		}).then(
+			// Success
+			function(response)
+			{
+				this.StopWaiting();
+				if (response.data.result)
+				{
+					this.ShowVideoParams(response.data.data);
+				}
+				else
+				{
+					if (response.data.error !== '')
+					{
+						this.ShowVideoParams(false, response.data.error);
+					}
+				}
+			}.bind(this),
+			// Failure
+			function (response)
+			{
+				this.StopWaiting();
+				this.ShowVideoParams(false);
+			}.bind(this)
+		);
 	};
 
 	VideoDialog.prototype.StartWaiting = function()

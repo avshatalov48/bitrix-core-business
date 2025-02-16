@@ -43,6 +43,14 @@
 	display: none;
 }
 
+.ui-video-player.ui-icon-set__scope.video-js .vjs-tech:focus-visible {
+	outline: none;
+}
+
+.ui-video-player.ui-icon-set__scope.video-js .vjs-button:focus-visible {
+	outline-color: #2fc8f6;
+}
+
 /* Temporary hacks for disk_player.css */
 .ui-video-player.ui-icon-set__scope.video-js .vjs-big-play-button:after {
 	display: none !important;

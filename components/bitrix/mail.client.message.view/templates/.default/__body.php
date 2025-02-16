@@ -3,7 +3,6 @@
 use Bitrix\Mail\Message;
 use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\UI\Viewer;
 use Bitrix\Main\Web\Uri;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
@@ -34,63 +33,12 @@ if (IsModuleInstalled('disk'))
 /** @var \CMailClientMessageViewComponent $component */
 /** @var array $message */
 
-$rcptList = array(
-	'users' => array(),
-	'emails' => $arResult['EMAILS'],
-	'mailContacts' => $arResult['LAST_RCPT'],
-	'companies' => array(),
-	'contacts' => array(),
-	'deals' => array(),
-	'leads' => array(),
-);
-$rcptLast = array(
-	'users' => array(),
-	'emails' => array(),
-	'mailContacts' => array_combine(array_keys($arResult['LAST_RCPT']), array_keys($arResult['LAST_RCPT'])),
-	'companies' => array(),
-	'contacts' => array(),
-	'deals' => array(),
-	'leads' => array(),
-);
-
-$prepareReply = function($__field) use (&$message, &$rcptList, &$rcptLast)
-{
-	$result = array();
-
-	foreach ($__field as $item)
-	{
-		if (!empty($item['email']))
-		{
-			if ($message['__email'] == $item['email'])
-			{
-				continue;
-			}
-
-//			$id = 'U'.md5($item['email']);
-//			$type = 'users';
-			$id = 'MC'.$item['email'];
-			$type = 'mailcontacts';
-
-			$rcptList['emails'][$id] = $rcptList[$type][$id] = array(
-				'id'         => $id,
-				'entityId'   => count($rcptList['emails'])+1,
-				'name'       => $item['name'] ?: $item['email'],
-				'desc'       => $item['email'],
-				'email'      => $item['email'],
-				'isEmail'    => 'Y',
-			);
-			$rcptLast['emails'][$id] = $rcptLast[$type][$id] = $id;
-
-			$result[$id] = $type;
-		}
-	}
-
-	return $result;
-};
-
-$rcptAllSelected = $prepareReply(array_merge($message['__to'], $message['__reply_to']));
-$rcptSelected = $prepareReply($message['__is_outcome'] ? $message['__to'] : $message['__reply_to']);
-$rcptCcSelected = $prepareReply($message['__cc']);
+$replyTo = array_merge($message['__to'], $message['__reply_to']);
+$replyTo = array_filter($replyTo, function($item) use ($message) {
+	return $item['email'] !== $message['__email'];
+});
+$selectedRecipients = $message['__is_outcome'] ? $message['__to'] : $message['__reply_to'];
+$replyCC = $message['__cc'];
 
 $datetimeFormat = \Bitrix\Main\Loader::includeModule('intranet') ? \CIntranetUtils::getCurrentDatetimeFormat() : false;
 $datetimeFormatted = \CComponentUtil::getDateTimeFormatted(
@@ -185,9 +133,9 @@ $fileRefreshButtonId = "mail_msg_{$messageId}_refresh_files_button";
 						$avatarParams = $address->validate() && !empty($arResult['avatarParams'][trim($address->getEmail())]) ? $arResult['avatarParams'][trim($address->getEmail())] : ['avatarSize' => 23];
 						$result[] = array(
 							'URL' => $address->validate() ? sprintf('mailto:%s', $address->getEmail()) : null,
-							'TITLE' => $address->validate() ? $address->getEmail() : $item,
+							'TITLE' => $address->validate() ? $avatarParams['mailContact']['NAME'] : $item,
 							'AVATAR_PARAMS' => $avatarParams,
-							'HREF_TITLE' => $avatarParams['mailContact']['NAME'],
+							'HREF_TITLE' => $address->validate() ? $address->getEmail() : $item,
 							'IMAGE' => $address->getEmail() == $message['__email'] ? $arResult['USER_IMAGE'] : '',
 						);
 					}
@@ -208,7 +156,7 @@ $fileRefreshButtonId = "mail_msg_{$messageId}_refresh_files_button";
 						<? $count = count($list); ?>
 						<? $limit = $count > ($k > 0 ? 2 : 4) ? ($k > 0 ? 1 : 3) : $count; ?>
 						<span style="display: flex; align-items: center; margin-right: 5px; ">
-							<span class="mail-msg-view-rcpt-list" <? if ($k > 0): ?> style="color: #000; "<? endif ?>><?=$type ?>:</span>
+							<span class="mail-msg-view-rcpt-list"><?=$type ?>:</span>
 							<? foreach ($list as $item): ?>
 								<? if ($limit == 0): ?>
 									<a class="mail-msg-view-rcpt-more mail-msg-fake-link" href="#">
@@ -394,23 +342,6 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 
     $attachedFiles = array_intersect(array_column($diskFiles, 'id'), $inlineFiles);
 
-	$selectorParams = array(
-		//'pathToAjax' => '/bitrix/components/bitrix/crm.activity.editor/ajax.php?soc_net_log_dest=search_email_comms';
-		'extranetUser'             => false,
-		'isCrmFeed'                => $isCrmEnabled,
-		'CrmTypes'                 => array('CRMCONTACT', 'CRMCOMPANY', 'CRMLEAD'),
-		'useClientDatabase'        => true,
-		'allowAddUser'             => true,
-		'allowAddCrmContact'       => false,
-		'allowSearchEmailUsers'    => true,
-		'allowSearchCrmEmailUsers' => false,
-		'allowUserSearch'          => true,
-		'items'                    => $rcptList,
-		'itemsLast'                => $rcptLast,
-		'emailDescMode'            => true,
-		'searchOnlyWithEmail'      => true,
-	);
-
 	$formQuoteFieldName = 'data[message]';
 	$APPLICATION->includeComponent(
 		'bitrix:main.mail.form', '',
@@ -424,6 +355,10 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 			'USE_SIGNATURES' => true,
 			'USE_CALENDAR_SHARING' => true,
 			'COPILOT_PARAMS' => $arResult['COPILOT_PARAMS'],
+			'CONTEXT_NAME' => 'MAIL',
+			'REPLY_FIELD_TO_JSON' => Message::getSelectedRecipientsForDialog($replyTo)->toJsObject(),
+			'REPLY_FIELD_CC_JSON' => Message::getSelectedRecipientsForDialog($replyCC)->toJsObject(),
+			'SELECTED_RECIPIENTS_JSON' => Message::getSelectedRecipientsForDialog($selectedRecipients)->toJsObject(),
 			'FIELDS' => array(
 				array(
 					'name'     => 'data[from]',
@@ -434,19 +369,11 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 					'required' => true,
 					'folded'   => true,
 				),
-				//array(
-				//	'type' => 'separator',
-				//),
 				array(
 					'name'        => 'data[to]',
 					'title'       => Loc::getMessage('MAIL_MESSAGE_NEW_TO'),
 					'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
 					'type'        => 'rcpt',
-					//'value'       => $rcptSelected,
-					'selector'    => array_merge(
-						$selectorParams,
-						array('itemsSelected' => $rcptSelected)
-					),
 					'required' => true,
 				),
 				array(
@@ -454,12 +381,7 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 					'title'       => Loc::getMessage('MAIL_MESSAGE_NEW_CC'),
 					'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
 					'type'        => 'rcpt',
-					'folded'      => empty($rcptCcSelected),
-					//'value'       => $rcptCcSelected,
-					'selector'    => array_merge(
-						$selectorParams,
-						array('itemsSelected' => $rcptCcSelected)
-					),
+					'folded'      => false,
 				),
 				array(
 					'name'        => 'data[bcc]',
@@ -467,7 +389,6 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 					'placeholder' => Loc::getMessage('MAIL_MESSAGE_NEW_ADD_RCPT'),
 					'type'        => 'rcpt',
 					'folded'      => true,
-					'selector'    => $selectorParams,
 				),
 				array(
 					'name'        => 'data[subject]',

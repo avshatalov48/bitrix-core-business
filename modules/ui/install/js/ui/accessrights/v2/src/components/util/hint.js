@@ -1,7 +1,7 @@
 import { Dom, Tag } from 'main.core';
 import 'ui.hint';
 import { mapState } from 'ui.vue3.vuex';
-import { HintLocator } from '../../integration/hint/hint-locator';
+import { ServiceLocator } from '../../service/service-locator';
 
 /**
  * A special case of Hint that provides interactivity and reactivity.
@@ -41,10 +41,10 @@ export const Hint = {
 				this.$refs.container,
 			);
 
-			this.getHintManager().init(this.$refs.container);
+			this.getHintManager().initNode(hintIconWrapper);
 		},
 		getHintManager(): BX.UI.Hint {
-			return HintLocator.get(this.guid);
+			return ServiceLocator.getHint(this.guid);
 		},
 	},
 	template: '<span ref="container"></span>',

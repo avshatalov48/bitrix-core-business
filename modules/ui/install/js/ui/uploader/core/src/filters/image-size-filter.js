@@ -49,9 +49,10 @@ export default class ImageSizeFilter extends Filter
 			}
 
 			getImageSize(file.getBinary())
-				.then(({ width, height }): void => {
+				.then(({ width, height, animated }): void => {
 					file.setWidth(width);
 					file.setHeight(height);
+					file.setAnimated(animated === true);
 
 					if (width < this.getImageMinWidth() || height < this.getImageMinHeight())
 					{

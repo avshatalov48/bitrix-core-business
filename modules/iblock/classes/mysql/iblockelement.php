@@ -7,7 +7,7 @@ use Bitrix\Iblock\IblockTable;
 
 class CIBlockElement extends CAllIBlockElement
 {
-	function prepareSql($arSelectFields=array(), $arFilter=array(), $arGroupBy=false, $arOrder=array("SORT"=>"ASC"))
+	public function prepareSql($arSelectFields=array(), $arFilter=array(), $arGroupBy=false, $arOrder=array("SORT"=>"ASC"))
 	{
 		global $DB;
 		$connection = Main\Application::getConnection();
@@ -1906,11 +1906,13 @@ class CIBlockElement extends CAllIBlockElement
 			");
 			while ($ar = $rs->Fetch())
 			{
-				$property_id = $ar["IBLOCK_PROPERTY_ID"];
-				if (!isset($arDBProps[$property_id]))
-					$arDBProps[$property_id] = array();
+				$propertyId = (int)$ar["IBLOCK_PROPERTY_ID"];
+				if (!isset($arDBProps[$propertyId]))
+				{
+					$arDBProps[$propertyId] = [];
+				}
 
-				$arDBProps[$property_id][$ar["ID"]] = $ar;
+				$arDBProps[$propertyId][$ar["ID"]] = $ar;
 			}
 			unset($ar);
 			unset($rs);
@@ -1920,26 +1922,31 @@ class CIBlockElement extends CAllIBlockElement
 				from b_iblock_element_prop_s".$IBLOCK_ID."
 				where IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
 			");
-			if ($ar = $rs->Fetch())
+			$ar = $rs->Fetch();
+			if ($ar)
 			{
-				foreach($ar_prop as $property)
+				foreach ($ar_prop as $property)
 				{
-					$property_id = $property["ID"];
-					if(
-						$property["MULTIPLE"] == "N"
-						&& isset($ar["PROPERTY_".$property_id])
-						&& mb_strlen($ar["PROPERTY_".$property_id])
+					$propertyId = (int)$property["ID"];
+					$valueKey = 'PROPERTY_' . $propertyId;
+					$valueIdKey = $ELEMENT_ID .':' . $propertyId;
+					if (
+						$property["MULTIPLE"] === "N"
+						&& isset($ar[$valueKey])
+						&& $ar[$valueKey] !== ''
 					)
 					{
-						if (!isset($arDBProps[$property_id]))
-							$arDBProps[$property_id] = array();
+						if (!isset($arDBProps[$propertyId]))
+						{
+							$arDBProps[$propertyId] = [];
+						}
 
-						$arDBProps[$property_id][$ELEMENT_ID.":".$property_id] = array(
-							"ID" => $ELEMENT_ID.":".$property_id,
-							"IBLOCK_PROPERTY_ID" => $property_id,
-							"VALUE" => $ar["PROPERTY_".$property_id],
-							"DESCRIPTION" => $ar["DESCRIPTION_".$property_id] ?? '',
-						);
+						$arDBProps[$propertyId][$valueIdKey] = [
+							'ID' => $valueIdKey,
+							'IBLOCK_PROPERTY_ID' => $propertyId,
+							'VALUE' => $ar[$valueKey],
+							'DESCRIPTION' => $ar['DESCRIPTION_' . $propertyId] ?? '',
+						];
 					}
 				}
 				unset($property);
@@ -1964,11 +1971,13 @@ class CIBlockElement extends CAllIBlockElement
 			");
 			while ($ar = $rs->Fetch())
 			{
-				$property_id = $ar["IBLOCK_PROPERTY_ID"];
-				if (!isset($arDBProps[$property_id]))
-					$arDBProps[$property_id] = array();
+				$propertyId = (int)$ar["IBLOCK_PROPERTY_ID"];
+				if (!isset($arDBProps[$propertyId]))
+				{
+					$arDBProps[$propertyId] = [];
+				}
 
-				$arDBProps[$property_id][$ar["ID"]] = $ar;
+				$arDBProps[$propertyId][$ar["ID"]] = $ar;
 			}
 			unset($ar);
 			unset($rs);
@@ -2020,7 +2029,7 @@ class CIBlockElement extends CAllIBlockElement
 			if ($prop["USER_TYPE"] != "")
 			{
 				$arUserType = CIBlockProperty::GetUserType($prop["USER_TYPE"]);
-				if (array_key_exists("ConvertToDB", $arUserType))
+				if (isset($arUserType['ConvertToDB']))
 				{
 					foreach ($PROP as $key => $value)
 					{
@@ -2461,8 +2470,7 @@ class CIBlockElement extends CAllIBlockElement
 
 						if (
 							is_array($val)
-							&& array_key_exists('del', $val)
-							&& mb_strlen($val["del"])
+							&& (string)($val['del'] ?? '') !== ''
 						)
 						{
 							unset($orderedPROP[$res["ID"]]);

@@ -1,0 +1,36 @@
+.ui-access-rights-v2-cell-popup-header-master-switcher {
+	font-size: var(--ui-font-size-sm);
+	height: 30px;
+	margin-bottom: 9px;
+	padding: 10px 20px;
+	border-radius: var(--ui-border-radius-sm);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: var(--ui-color-palette-gray-02);
+	transition: background-color 0.5s;
+}
+
+.ui-access-rights-v2-cell-popup-header-master-switcher.--checked {
+	background-color: var(--ui-color-palette-green-15);
+	transition: background-color 0.5s;
+}
+
+.ui-access-rights-v2-cell-popup-header-toggle-container {
+	display: flex;
+	height: 17px; /* same as switcher size. we need it for vertical alignment */
+}
+
+.ui-access-rights-v2-cell-popup-header-toggle-caption {
+	margin-left: auto;
+	margin-right: 5px;
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-medium);
+	opacity: var(--ui-opacity-40);
+	transition: opacity 0.5s;
+}
+
+.ui-access-rights-v2-cell-popup-header-master-switcher.--checked .ui-access-rights-v2-cell-popup-header-toggle-caption {
+	opacity: var(--ui-opacity-full);
+	transition: opacity 0.5s;
+}

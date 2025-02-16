@@ -422,8 +422,8 @@ this.BX = this.BX || {};
 	    }, 0);
 	    for (let i = 0; i < userGroup.accessRights.length; i++) {
 	      const item = userGroup.accessRights[i];
-	      if (item && item.id === accessId) {
-	        item.value = item.value === '0' ? '1' : '0';
+	      if (item && String(item.id) === String(accessId)) {
+	        item.value = String(item.value) === '0' ? '1' : '0';
 	        return;
 	      }
 	    }
@@ -440,7 +440,7 @@ this.BX = this.BX || {};
 	    const deleteIds = [];
 	    for (let i = 0; i < userGroup.accessRights.length; i++) {
 	      const item = userGroup.accessRights[i];
-	      if (item && item.id === accessId) {
+	      if (item && String(item.id) === String(accessId)) {
 	        deleteIds.push(i);
 	      }
 	    }
@@ -1755,6 +1755,7 @@ this.BX = this.BX || {};
 	    main_core.Event.bind(variablesValue, 'click', this.showSelector.bind(this));
 	    main_core.Dom.append(variablesValue, this.getChanger());
 	    BX.UI.Hint.init(this.getChanger());
+	    this.selector.setTargetNode(this.getChanger());
 	    return this.getChanger();
 	  }
 	  refresh() {
@@ -1779,8 +1780,7 @@ this.BX = this.BX || {};
 	    return this.variables.filter(variable => this.includesSelected(variable.id));
 	  }
 	  includesSelected(itemId) {
-	    // eslint-disable-next-line eqeqeq
-	    return this.selectedValues.some(id => id == itemId);
+	    return this.selectedValues.some(id => String(id) === String(itemId));
 	  }
 	  showSelector(event) {
 	    this.selector.show();
@@ -1788,24 +1788,26 @@ this.BX = this.BX || {};
 	}
 	function _obSelectItem2(event) {
 	  const addedItem = event.getData().item;
+	  const addedId = String(addedItem.id);
 	  if (this.changerOptions.useSelectedActions) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _useSelectedActionLogic)[_useSelectedActionLogic](addedItem);
 	  }
-	  this.selectedValues.push(String(addedItem.id));
+	  if (!this.selectedValues.includes(addedId)) {
+	    this.selectedValues.push(addedId);
+	  }
 	  if (this.selectedValues.length === this.variables.length) {
-	    this.selectedValues.push(this.allSelectedCode);
+	    this.selectedValues = [this.allSelectedCode];
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _afterSetupItems)[_afterSetupItems]();
 	}
 	function _onDeselectItem2(event) {
 	  const removedItem = event.getData().item;
-	  const idx = this.selectedValues.indexOf(removedItem.id);
-	  if (idx > -1) {
-	    this.selectedValues.splice(idx, 1);
-	  }
-	  const allCodeIdx = this.selectedValues.indexOf(this.allSelectedCode);
-	  if (allCodeIdx > -1) {
-	    this.selectedValues.splice(allCodeIdx, 1);
+	  const removedId = String(removedItem.id);
+	  if (this.selectedValues.includes(this.allSelectedCode)) {
+	    const allWithoutRemoved = this.variables.map(variable => String(variable.id)).filter(id => id !== removedId);
+	    this.selectedValues = allWithoutRemoved;
+	  } else {
+	    this.selectedValues = this.selectedValues.filter(id => id !== removedId);
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _afterSetupItems)[_afterSetupItems]();
 	}

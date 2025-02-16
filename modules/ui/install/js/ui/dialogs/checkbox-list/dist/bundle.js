@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,checkboxList_css,main_popup,ui_designTokens,ui_vue3,ui_forms,ui_switcher,main_core_events,main_core) {
 	'use strict';
@@ -467,10 +468,16 @@ this.BX = this.BX || {};
 	      option == null ? void 0 : option.setValue(value);
 	    },
 	    selectAll() {
-	      this.getOptionRefs().forEach(option => !option.isLocked && option.setValue(true));
+	      const visibleOptionIds = new Set(this.getOptions().map(option => option.id));
+	      this.getOptionRefs().forEach(option => {
+	        return !option.isLocked && visibleOptionIds.has(option.getId()) && option.setValue(true);
+	      });
 	    },
 	    deselectAll() {
-	      this.getOptionRefs().forEach(option => !option.isLocked && option.setValue(false));
+	      const visibleOptionIds = new Set(this.getOptions().map(option => option.id));
+	      this.getOptionRefs().forEach(option => {
+	        return !option.isLocked && visibleOptionIds.has(option.getId()) && option.setValue(false);
+	      });
 	    },
 	    getOptionRefs() {
 	      return [...this.optionsRef.values()];

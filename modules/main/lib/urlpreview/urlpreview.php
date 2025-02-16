@@ -31,11 +31,16 @@ class UrlPreview
 	protected static $trustedHosts = [
 		'youtube.com' => 'youtube.com',
 		'youtu.be' => 'youtu.be',
+		'youtube-nocookie.com' => 'youtube-nocookie.com',
+		'www.youtube-nocookie.com' => 'www.youtube-nocookie.com',
 		'vimeo.com' => 'vimeo.com',
+		'player.vimeo.com' => 'player.vimeo.com',
 		'rutube.ru' => 'rutube.ru',
+		'www.rutube.ru' => 'www.rutube.ru',
 		'facebook.com' => 'facebook.com',
 		'fb.watch' => 'fb.watch',
 		'vk.com' => 'vk.com',
+		'vk.ru' => 'vk.ru',
 		'instagram.com' => 'instagram.com',
 	];
 

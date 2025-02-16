@@ -579,7 +579,7 @@ class Helper
 			'filter' => [
 				'=MAILBOX_ID' => $mailboxId,
 				'=ENTITY_TYPE' => 'DIR',
-				'ENTITY_ID' =>  array_keys($folderCountersForAdding)
+				'=ENTITY_ID' =>  array_keys($folderCountersForAdding)
 			],
 			'select' => [
 				'ENTITY_ID',

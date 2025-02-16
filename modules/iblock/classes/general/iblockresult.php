@@ -38,12 +38,22 @@ class CIBlockResult extends CDBResult
 
 	function SetSectionContext($arSection)
 	{
-		if(is_array($arSection) && array_key_exists("ID", $arSection))
+		if (is_array($arSection) && array_key_exists("ID", $arSection))
 		{
+			$code = '';
+			if (isset($arSection['~CODE']))
+			{
+				$code = $arSection['~CODE'];
+			}
+			elseif (isset($arSection['CODE']))
+			{
+				$code = $arSection['CODE'];
+			}
+
 			$this->arSectionContext = array(
-				"ID" => intval($arSection["ID"]) > 0? intval($arSection["ID"]): "",
-				"CODE" => urlencode(isset($arSection["~CODE"])? $arSection["~CODE"]: $arSection["CODE"]),
-				"IBLOCK_ID" => intval($arSection["IBLOCK_ID"]),
+				"ID" => (int)$arSection["ID"] > 0 ? (int)$arSection["ID"] : "",
+				"CODE" => urlencode($code),
+				"IBLOCK_ID" => intval($arSection["IBLOCK_ID"] ?? 0),
 			);
 		}
 		else

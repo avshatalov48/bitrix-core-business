@@ -1,0 +1,35 @@
+.ui-access-rights-v2-dv-popup--line-container {
+	margin-bottom: 15px;
+	padding: 0 10px;
+}
+
+.ui-access-rights-v2-dv-popup--line {
+	font-size: var(--ui-font-size-md);
+	line-height: var(--ui-font-line-height-3xs);
+	padding-left: 10px;
+	padding-right: 10px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 38px;
+	margin-bottom: 5px;
+	border-bottom: 1px solid #F0F0F0;
+}
+
+.ui-access-rights-v2-dv-popup--line:last-child {
+	border-bottom: none;
+}
+
+.ui-access-rights-v2-dv-popup--line.--secondary {
+	justify-content: flex-start;
+	border-bottom: none;
+}
+
+.ui-access-rights-v2-dv-popup--line .ui-access-rights-v2-text-ellipsis {
+	max-width: 300px;
+	height: 20px; /* we need it for vertical alignment of text */
+}
+
+.ui-access-rights-v2-dv-popup--line.--secondary .ui-access-rights-v2-text-ellipsis {
+	max-width: 200px;
+}

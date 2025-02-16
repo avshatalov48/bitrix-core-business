@@ -3,6 +3,7 @@ namespace Bitrix\MessageService;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Config;
+use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Error;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type\DateTime;
@@ -27,25 +28,50 @@ class Queue
 	private const OPTION_QUEUE_STOP_MODULE = 'messageservice';
 	private const OPTION_QUEUE_STOP_NAME = 'queue_stopped';
 
+	private const CACHE_HAS_MESSAGES_TIME = 2592000;
+	public const CACHE_HAS_MESSAGES_ID = 'has_messages_cache';
+	public const CACHE_HAS_MESSAGES_DIR = '/messageservice/';
+
 	public static function hasMessages(): bool
 	{
-		$result = MessageTable::getList([
-			'select' => ['ID'],
-			'filter' => [
-				'=SUCCESS_EXEC' => SuccessExec::NO,
-				[
-					'LOGIC' => 'OR',
-					'<NEXT_EXEC' => new DateTime(),
-					'=NEXT_EXEC' => null,
-				]
-			],
-			'cache' => [
-				'ttl' => 60,
-			],
-			'limit' => 1,
-		]);
+		$nextExec = new DateTime();
 
-		return !empty($result->fetch());
+		$cache = Cache::createInstance();
+		if ($cache->initCache(self::CACHE_HAS_MESSAGES_TIME, self::CACHE_HAS_MESSAGES_ID, self::CACHE_HAS_MESSAGES_DIR))
+		{
+			$nextExec = $cache->getVars();
+		}
+		elseif ($cache->startDataCache())
+		{
+			$result = MessageTable::getList([
+				'select' => ['ID', 'NEXT_EXEC'],
+				'filter' => [
+					'=SUCCESS_EXEC' => SuccessExec::NO,
+				],
+				'limit' => 1,
+				'order' => ['ID' => 'DESC'],
+			])->fetch();
+
+			if ($result)
+			{
+				if ($result['NEXT_EXEC'] instanceof DateTime)
+				{
+					$nextExec = $result['NEXT_EXEC'];
+				}
+				else
+				{
+					$nextExec = new DateTime();
+				}
+			}
+			else
+			{
+				$nextExec = (new DateTime())->add('+' . self::CACHE_HAS_MESSAGES_TIME . ' seconds');
+			}
+
+			$cache->endDataCache($nextExec);
+		}
+
+		return $nextExec <= new DateTime();
 	}
 
 	/**

@@ -2189,7 +2189,7 @@ var focusWithoutScrolling = function(element)
 			return true;
 		}
 
-		if (keyCode === this.editor.KEY_CODES["enter"] && !BX.browser.IsFirefox() && this.editor.action.IsSupported('insertLineBreak'))
+		if (keyCode === this.editor.KEY_CODES["enter"] && this.editor.action.IsSupported('insertLineBreak'))
 		{
 			if (BX.browser.IsIE10() || BX.browser.IsIE11())
 			{

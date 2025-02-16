@@ -316,26 +316,21 @@ class CashboxOrangeData
 	 */
 	private function mapVatValue($checkType, $vat)
 	{
-		$map = [
-			self::CODE_VAT_10 => [
-				PrepaymentCheck::getType() => self::CODE_CALC_VAT_10,
-				PrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_10,
-				PrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_10,
-				FullPrepaymentCheck::getType() => self::CODE_CALC_VAT_10,
-				FullPrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_10,
-				FullPrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_10,
-			],
-			self::CODE_VAT_20 => [
-				PrepaymentCheck::getType() => self::CODE_CALC_VAT_20,
-				PrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_20,
-				PrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_20,
-				FullPrepaymentCheck::getType() => self::CODE_CALC_VAT_20,
-				FullPrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_20,
-				FullPrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_20,
-			],
-		];
+		$mapper = new Tools\Vat2PrepaymentCheckMapper(
+			$this->getVatToCalcVatMap()
+		);
+
+		$map = $mapper->getMap();
 
 		return $map[$vat][$checkType] ?? $vat;
+	}
+
+	protected function getVatToCalcVatMap() : array
+	{
+		return [
+			self::CODE_VAT_10 => self::CODE_CALC_VAT_10,
+			self::CODE_VAT_20 => self::CODE_CALC_VAT_20,
+		];
 	}
 
 	/**
@@ -944,14 +939,11 @@ class CashboxOrangeData
 			$vatList = $dbRes->fetchAll();
 			if ($vatList)
 			{
-				$defaultVatList = [
-					0 => self::CODE_VAT_0,
-					10 => self::CODE_VAT_10,
-					20 => self::CODE_VAT_20
-				];
+				$defaultVatList = static::getDefaultVatList();
+
 				foreach ($vatList as $vat)
 				{
-					$value = '';
+					$value = null;
 					if (isset($defaultVatList[(int)$vat['RATE']]))
 						$value = $defaultVatList[(int)$vat['RATE']];
 
@@ -1004,6 +996,15 @@ class CashboxOrangeData
 		];
 
 		return $settings;
+	}
+
+	protected static function getDefaultVatList() : array
+	{
+		return [
+			0 => self::CODE_VAT_0,
+			10 => self::CODE_VAT_10,
+			20 => self::CODE_VAT_20,
+		];
 	}
 
 	/**

@@ -6666,11 +6666,20 @@ window._main_polyfill_core = true;
 	          settingsScripts.forEach(entry => {
 	            document.body.insertAdjacentHTML('beforeend', entry.script);
 	          });
-	          inlineScripts.forEach(script => {
+	          const runScriptsBefore = inlineScripts.filter(script => {
+	            return !script.startsWith('BX.Runtime.registerExtension');
+	          });
+	          const runScriptsAfter = inlineScripts.filter(script => {
+	            return script.startsWith('BX.Runtime.registerExtension');
+	          });
+	          runScriptsBefore.forEach(script => {
 	            BX.evalGlobal(script);
 	          });
 	          void Promise.all([loadAll(externalScripts), loadAll(externalStyles)]).then(() => {
 	            babelHelpers.classPrivateFieldSet(this, _state, Extension.State.LOADED);
+	            runScriptsAfter.forEach(script => {
+	              BX.evalGlobal(script);
+	            });
 	            if (babelHelpers.classPrivateFieldGet(this, _namespace)) {
 	              return Reflection.getClass(babelHelpers.classPrivateFieldGet(this, _namespace));
 	            }

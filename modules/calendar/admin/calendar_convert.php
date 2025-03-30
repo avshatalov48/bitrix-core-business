@@ -482,8 +482,13 @@ class CCalendarConvert
 		// CONVERT ACCESS:
 		if ($ownerType == 'user') // Socnet
 		{
-			if (!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $ownerId, "calendar"))
+			if (
+				!\Bitrix\Main\Loader::includeModule('socialnetwork')
+				|| !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $ownerId, "calendar")
+			)
+			{
 				return $result;
+			}
 
 			// Read
 			$read = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_USER, $ownerId, "calendar", 'view');
@@ -509,8 +514,13 @@ class CCalendarConvert
 		}
 		elseif($ownerType == 'group')
 		{
-			if (!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $ownerId, "calendar"))
+			if (
+				!\Bitrix\Main\Loader::includeModule('socialnetwork')
+				|| !CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $ownerId, "calendar")
+			)
+			{
 				return $result;
+			}
 
 			// Read
 			$read = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_GROUP, $ownerId, "calendar", 'view');

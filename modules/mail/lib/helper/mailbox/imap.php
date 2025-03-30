@@ -772,6 +772,7 @@ class Imap extends Mail\Helper\Mailbox
 
 		$lastDir = $this->getDirsHelper()->getLastSyncDirByDefault($currentDir);
 
+		/** @var Mail\Internals\Entity\MailboxDirectory $item */
 		foreach ($dirsSync as $item)
 		{
 			MailboxDirectoryHelper::setCurrentSyncDir($item->getPath());
@@ -974,7 +975,7 @@ class Imap extends Mail\Helper\Mailbox
 
 			if (empty($messages))
 			{
-				if (false === $messages)
+				if ($messages === false)
 				{
 					$this->warnings->add($this->client->getErrors()->toArray());
 					return true;
@@ -1051,6 +1052,7 @@ class Imap extends Mail\Helper\Mailbox
 	{
 		$messagesSynced = 0;
 
+		$error = [];
 		$meta = $this->client->select($dir->getPath(), $error);
 
 		if (false === $meta)
@@ -1247,10 +1249,113 @@ class Imap extends Mail\Helper\Mailbox
 		return $report;
 	}
 
+	private function getBorderlineUIDs(Mail\Internals\Entity\MailboxDirectory $dir): array
+	{
+		static $borderlineUIDs = null;
+
+		if (!is_null($borderlineUIDs))
+		{
+			return $borderlineUIDs;
+		}
+
+		$error = [];
+		$meta = $this->client->select($dir->getPath(), $error);
+
+		if (!isset($meta['exists']))
+		{
+			$this->warnings->add($this->client->getErrors()->toArray());
+			$borderlineUIDs = [];
+
+			return $borderlineUIDs;
+		}
+
+		$messagesNumberInTheMailService = $meta['exists'];
+		$messages = $this->fetchMessage(sprintf('1,%u', $messagesNumberInTheMailService), $dir->getPath());
+
+		if (empty($messages))
+		{
+			$borderlineUIDs = [];
+
+			return $borderlineUIDs;
+		}
+
+		$range = [
+			reset($messages)['UID'],
+			end($messages)['UID'],
+		];
+
+		sort($range);
+
+		//fixed errors of some mail services that give incorrect letter intervals
+		if($range[0] === $range[1] && $messagesNumberInTheMailService > 1)
+		{
+			$borderlineUIDs = [];
+
+			return $borderlineUIDs;
+		}
+
+		$borderlineUIDs = $range;
+
+		return $borderlineUIDs;
+	}
+
+	protected function getMessageInFolderFilter(Mail\Internals\Entity\MailboxDirectory $dir): array
+	{
+		$borderlineUIDs = $this->getBorderlineUIDs($dir);
+
+		if (empty($borderlineUIDs))
+		{
+			return [];
+		}
+
+		return [
+			'=DIR_MD5' => $dir->getDirMd5(),
+			[
+				'LOGIC' => 'AND',
+				'>=MSG_UID' => $borderlineUIDs[0],
+				'<=MSG_UID' => $borderlineUIDs[1],
+			],
+		];
+	}
+
+	/**
+	 * @param string $format
+	 * (examples: '%u:%u', '1:*', '1,%u')
+	 * @param string $dirPath
+	 *
+	 * The keys match the 'id' value within each structure:
+	 * @return array<int, array{
+	 *      id: string,
+	 *      UID: string,
+	 *      FLAGS: array<int, string>
+	 *  }>
+	 */
+	private function fetchMessage(string $format, string $dirPath): array
+	{
+		$error = [];
+		$messages = $this->client->fetch(false, $dirPath, $format, '(UID FLAGS)', $error);
+
+		if (empty($messages))
+		{
+			if (false === $messages)
+			{
+				$this->warnings->add($this->client->getErrors()->toArray());
+			}
+
+			return [];
+		}
+
+		krsort($messages);
+
+		return $messages;
+	}
+
 	protected function resyncDirInternal($dir, $numberForResync = false)
 	{
+		$error = [];
 		$meta = $this->client->select($dir->getPath(), $error);
-		if (false === $meta)
+
+		if (!isset($meta['exists']))
 		{
 			$this->warnings->add($this->client->getErrors()->toArray());
 
@@ -1299,31 +1404,8 @@ class Imap extends Mail\Helper\Mailbox
 			return;
 		}
 
-		$fetcher = function ($range) use ($dir)
-		{
-			$messages = $this->client->fetch(false, $dir->getPath(), $range, '(UID FLAGS)', $error);
-
-			if (empty($messages))
-			{
-				if (false === $messages)
-				{
-					$this->warnings->add($this->client->getErrors()->toArray());
-				}
-				else
-				{
-					// @TODO: log
-				}
-
-				return false;
-			}
-
-			krsort($messages);
-
-			return $messages;
-		};
-
 		$messagesNumberInTheMailService = $meta['exists'];
-		$messages = $fetcher(($messagesNumberInTheMailService > 10000 || $numberForResync !== false) ? sprintf('1,%u', $messagesNumberInTheMailService) : '1:*');
+		$messages = $this->fetchMessage((($messagesNumberInTheMailService > 10000 || $numberForResync !== false) ? sprintf('1,%u', $messagesNumberInTheMailService) : '1:*'), $dir->getPath());
 
 		if (empty($messages))
 		{
@@ -1337,7 +1419,8 @@ class Imap extends Mail\Helper\Mailbox
 		);
 		sort($range);
 
-		if($range[0]===$range[1] and $messagesNumberInTheMailService > 1)
+		//fixed errors of some mail services that give incorrect letter intervals
+		if($range[0] === $range[1] && $messagesNumberInTheMailService > 1)
 		{
 			return false;
 		}
@@ -1367,7 +1450,7 @@ class Imap extends Mail\Helper\Mailbox
 		{
 			$range1 = $meta['exists'];
 			$range0 = max($range1 - ($numberForResync - 1), 1);
-			$messages = $fetcher(sprintf('%u:%u', $range0, $range1));
+			$messages = $this->fetchMessage(sprintf('%u:%u', $range0, $range1), $dir->getPath());
 
 			if (empty($messages))
 			{
@@ -1392,7 +1475,7 @@ class Imap extends Mail\Helper\Mailbox
 			$rangeSize = $range1 > 10000 ? 8000 : $range1;
 			$range0 = max($range1 - $rangeSize, 1);
 
-			$messages = $fetcher(sprintf('%u:%u', $range0, $range1));
+			$messages = $this->fetchMessage(sprintf('%u:%u', $range0, $range1), $dir->getPath());
 
 			if (empty($messages))
 			{
@@ -1733,6 +1816,9 @@ class Imap extends Mail\Helper\Mailbox
 			'S' => array(),
 			'U' => array(),
 		);
+
+		$firstLocalUID = null;
+
 		foreach ($messages as $id => $item)
 		{
 			$messageUid = md5(sprintf('%s:%u:%u', $dirPath, $uidtoken, $item['UID']));
@@ -1766,15 +1852,27 @@ class Imap extends Mail\Helper\Mailbox
 			}
 			else
 			{
-				/*
-				addMessage2Log(
-					sprintf(
-						'IMAP: message lost (%u:%s:%u:%s)',
-						$this->mailbox['ID'], $dirPath, $uidtoken, $item['UID']
-					),
-					'mail', 0, false
-				);
-				*/
+				if (is_null($firstLocalUID))
+				{
+					$firstLocalUID = \Bitrix\Mail\MailMessageUidTable::getFirstLocalUID((int) $this->mailbox['ID'], $dirPath, $uidtoken);
+				}
+
+				if ((int) $item['UID'] > $firstLocalUID)
+				{
+					$lostMessageFields = [
+						'ID' => $messageUid,
+						'IS_OLD' => 'D',
+						'DIR_MD5'  => md5($dirPath),
+						'DIR_UIDV' => $uidtoken,
+						'MSG_UID'  => $item['UID'],
+						'MAILBOX_ID' => $this->mailbox['ID'],
+						/* To prevent lost messages from falling under the "downloadable" filter,
+						 set the upload date a little earlier: */
+						'DATE_INSERT' => (new Main\Type\DateTime())->add('- '.(static::MESSAGE_RESYNCHRONIZATION_TIME*2).' seconds'),
+					];
+
+					$this->registerMessage($lostMessageFields, redefineInsertDate: false);
+				}
 			}
 		}
 

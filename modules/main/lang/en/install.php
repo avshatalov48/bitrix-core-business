@@ -211,6 +211,8 @@ $MESS["SC_CAN_WRITE"] = "accessible for writing";
 $MESS["SC_CAN_WRITE1"] = "accessible for writing";
 $MESS["SC_CATALOG"] = "Folder";
 $MESS["SC_CURRENT"] = "Current value";
+$MESS["SC_DB_PGSQL_CONFIG_ER"] = "The value of standard_conforming_strings must be \"on\" (standard_conforming_strings = on).";
+$MESS["SC_DB_PGSQL_CONFIG_MAC_ER"] = "The value of ac_ignore_maclabel must be \"true\" (ac_ignore_maclabel = true).";
 $MESS["SC_DB_PGSQL_DATABASE_CTYPE_ER"] = "The database you selected has incompatible LC_TYPE (C.UTF-8 is required).";
 $MESS["SC_DB_PGSQL_PGCRYPTO_ER"] = "The pgcrypto extension has to be installed to the database.";
 $MESS["SC_DB_PGSQL_VERSION_ER"] = "Your version of PostgreSQL is outdated and does not meet the minimum system requirements.";

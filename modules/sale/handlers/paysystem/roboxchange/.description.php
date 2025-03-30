@@ -31,7 +31,7 @@ $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_TITLE'),
 	'SORT' => 500,
 	'HANDLER_MODE_LIST' => [
-		'bank_card' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE'),
+		'bank_card' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE_MSGVER_1'),
 		'widget' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_WIDGET_MODE'),
 		'sbp' =>  Loc::getMessage('SALE_HPS_ROBOXCHANGE_SBP_MODE'),
 		'apple_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE'),
@@ -41,7 +41,7 @@ $data = [
 	'HANDLER_MODE_DESCRIPTION_LIST' => [
 		'bank_card' => [
 			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_DESCRIPTION'),
-			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE_PUBLIC_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE_PUBLIC_DESCRIPTION_MSGVER_1'),
 		],
 		'widget' => [
 			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_WIDGET_MODE_MAIN_DESCRIPTION'),

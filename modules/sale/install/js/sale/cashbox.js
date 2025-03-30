@@ -358,7 +358,7 @@
 					'kkmId': kkmId,
 					'handler': handlerSelect.value || '',
 					'restCode': restCode || '',
-					'sessid': BX.bitrix_sessid()
+					'sessid': BX.bitrix_sessid(),
 				},
 				method: 'POST',
 				dataType: 'json',
@@ -383,6 +383,17 @@
 						if (result && result.hasOwnProperty('HTML'))
 							BX('sale-cashbox-settings-container').innerHTML = result.HTML;
 
+						if (result && result.ENABLE_OFD_SETTINGS)
+						{
+							tabControl.form['OFD'].disabled = false;
+							tabControl.EnableTab('edit4');
+						}
+						else
+						{
+							tabControl.form['OFD'].disabled = true;
+							tabControl.DisableTab('edit4');
+						}
+
 						if (BX('sale-cashbox-models-container'))
 						{
 							if (result && result.hasOwnProperty('MODEL_HTML'))
@@ -395,7 +406,17 @@
 							}
 						}
 
-						if (result.hasOwnProperty('OFD'))
+						if (BX('ID').value === '0' && !result.ENABLE_OFD_SETTINGS)
+						{
+							BX('OFD').value = '';
+							this.reloadOfdSettings();
+						}
+						else if (BX('ID').value !== '0' && !result.ENABLE_OFD_SETTINGS)
+						{
+							BX('OFD').value = BX('LAST_USED_OFD').value;
+							this.reloadOfdSettings();
+						}
+						else if (result.hasOwnProperty('OFD'))
 						{
 							BX('OFD').value = result.OFD;
 						}

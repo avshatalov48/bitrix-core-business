@@ -41,7 +41,7 @@ export function getMultipleSelectedVariablesTitle(selectedVariables: VariableCol
 
 	if (selectedVariables.size === 1)
 	{
-		return cutLongTitle(lastVariable.title);
+		return lastVariable.title;
 	}
 
 	return Loc.getMessage(

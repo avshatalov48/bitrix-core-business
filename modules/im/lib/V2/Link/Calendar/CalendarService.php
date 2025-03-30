@@ -211,7 +211,7 @@ class CalendarService
 		{
 			$text = (new Message($calendar->getMessageId()))->getQuotedMessage() . "\n";
 			$text .= Loc::getMessage(
-				'IM_CHAT_CALENDAR_REGISTER_FROM_MESSAGE_NOTIFICATION' . $genderModifier,
+				'IM_CHAT_CALENDAR_REGISTER_FROM_MESSAGE_NOTIFICATION' . $genderModifier . '_MSGVER_1',
 				[
 					'#LINK#' => $calendar->getEntity()->getUrl(),
 					'#USER_ID#' => $this->getContext()->getUserId(),
@@ -223,7 +223,7 @@ class CalendarService
 			return $text;
 		}
 		return Loc::getMessage(
-			'IM_CHAT_CALENDAR_REGISTER_FROM_CHAT_NOTIFICATION' . $genderModifier,
+			'IM_CHAT_CALENDAR_REGISTER_FROM_CHAT_NOTIFICATION' . $genderModifier . '_MSGVER_1',
 			[
 				'#LINK#' => $calendar->getEntity()->getUrl(),
 				'#USER_ID#' => $this->getContext()->getUserId(),

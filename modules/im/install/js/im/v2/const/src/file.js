@@ -23,3 +23,16 @@ export const FileIconType = Object.freeze({
 	attach: 'attach',
 	quote: 'quote',
 });
+
+export const AudioPlaybackRate = Object.freeze({
+	1: 1,
+	1.5: 1.5,
+	2: 2,
+});
+
+export const AudioPlaybackState = Object.freeze({
+	play: 'play',
+	pause: 'pause',
+	stop: 'stop',
+	none: 'none',
+});

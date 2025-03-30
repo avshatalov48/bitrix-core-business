@@ -38,7 +38,7 @@ final class TabletCommand extends Command
 {
 	private TabletService $service;
 
-	protected function configure()
+	protected function configure(): void
 	{
 		$this->service = new TabletService();
 
@@ -54,7 +54,7 @@ final class TabletCommand extends Command
 		;
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output)
+	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$tableName = $input->getArgument('table_name');
 		if (!is_string($tableName))

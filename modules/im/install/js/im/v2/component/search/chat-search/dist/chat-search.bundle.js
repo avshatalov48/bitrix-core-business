@@ -247,7 +247,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    const isAnyChatOpened = this.store.getters['application/getLayout'].entityId.length > 0;
 	    return {
-	      text: main_core.Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER'),
+	      text: main_core.Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER_MSGVER_1'),
 	      onclick: async () => {
 	        if (!isAnyChatOpened) {
 	          await im_public.Messenger.openChat(this.context.dialogId);
@@ -813,7 +813,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return {
 	      isRecentLoading: false,
 	      isServerLoading: false,
-	      queryWasDeleted: false,
 	      currentServerQueries: 0,
 	      result: {
 	        recent: [],
@@ -831,9 +830,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  watch: {
 	    cleanQuery(newQuery, previousQuery) {
-	      if (newQuery.length > 0) {
-	        this.queryWasDeleted = false;
-	      }
 	      if (newQuery.length === 0) {
 	        this.searchService.clearSessionResult();
 	      }
@@ -962,9 +958,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (im_v2_lib_utils.Utils.key.isCombination(keyboardEvent, 'Enter')) {
 	        this.onPressEnterKey(event);
 	      }
-	      if (im_v2_lib_utils.Utils.key.isCombination(keyboardEvent, 'Backspace')) {
-	        this.onPressBackspaceKey();
-	      }
 	    },
 	    onPressEnterKey(keyboardEvent) {
 	      const firstItem = this.getFirstItemFromSearchResults();
@@ -975,19 +968,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        dialogId: firstItem.dialogId,
 	        nativeEvent: keyboardEvent
 	      });
-	    },
-	    onPressBackspaceKey() {
-	      if (this.searchQuery.length > 0) {
-	        this.queryWasDeleted = false;
-	        return;
-	      }
-	      if (!this.queryWasDeleted) {
-	        this.queryWasDeleted = true;
-	        return;
-	      }
-	      if (this.queryWasDeleted) {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.search.close);
-	      }
 	    },
 	    getFirstItemFromSearchResults() {
 	      if (this.showLatestSearchResult && this.result.recent.length > 0) {

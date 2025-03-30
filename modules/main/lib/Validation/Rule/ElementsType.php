@@ -8,6 +8,8 @@ use ArrayAccess;
 use Attribute;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
+use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\Rule\Enum\Type;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
@@ -23,7 +25,7 @@ class ElementsType implements PropertyValidationAttributeInterface
 	public function __construct(
 		private readonly ?Type   $typeEnum = null,
 		private readonly ?string $className = null,
-		?string                  $errorMessage = null
+		string|LocalizableMessageInterface|null $errorMessage = null
 	)
 	{
 		if (null === $this->typeEnum && null === $this->className)
@@ -41,7 +43,7 @@ class ElementsType implements PropertyValidationAttributeInterface
 		if (!is_array($propertyValue) && !is_iterable($propertyValue) && !($propertyValue instanceof ArrayAccess))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_ELEMENTS_TYPE_UNSUPPORTED_TYPE')
+				new LocalizableMessage('MAIN_VALIDATION_ELEMENTS_TYPE_UNSUPPORTED_TYPE')
 			));
 
 			return $this->replaceWithCustomError($result);
@@ -70,7 +72,7 @@ class ElementsType implements PropertyValidationAttributeInterface
 			if (!$checkType($item))
 			{
 				$result->addError(new ValidationError(
-					Loc::getMessage('MAIN_VALIDATION_ELEMENTS_TYPE_UNSUPPORTED_TYPE')
+					new LocalizableMessage('MAIN_VALIDATION_ELEMENTS_TYPE_UNSUPPORTED_TYPE')
 				));
 
 				return $result;
@@ -87,7 +89,7 @@ class ElementsType implements PropertyValidationAttributeInterface
 		if (!class_exists($this->className))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_ELEMENTS_TYPE_UNSUPPORTED_TYPE')
+				new LocalizableMessage('MAIN_VALIDATION_ELEMENTS_TYPE_UNSUPPORTED_TYPE')
 			));
 
 			return $result;
@@ -98,7 +100,7 @@ class ElementsType implements PropertyValidationAttributeInterface
 			if (!$item instanceof $this->className)
 			{
 				$result->addError(new ValidationError(
-					Loc::getMessage('MAIN_VALIDATION_ELEMENTS_TYPE_UNSUPPORTED_TYPE')
+					new LocalizableMessage('MAIN_VALIDATION_ELEMENTS_TYPE_UNSUPPORTED_TYPE')
 				));
 
 				return $result;

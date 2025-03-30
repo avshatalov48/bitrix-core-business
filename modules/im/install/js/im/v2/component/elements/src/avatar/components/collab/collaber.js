@@ -1,16 +1,15 @@
 import { Color } from 'im.v2.const';
 
 import { AvatarSize } from '../base/avatar';
-import { UiAvatarGuest } from '../base/ui-avatar-guest';
+import { AvatarType, BaseUiAvatar } from '../base/base-ui-avatar';
 
 import type { ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const CollaberAvatar = {
 	name: 'CollaberAvatar',
-	components: { UiAvatarGuest },
-	props:
-	{
+	components: { BaseUiAvatar },
+	props: {
 		dialogId: {
 			type: [String, Number],
 			default: 0,
@@ -40,8 +39,8 @@ export const CollaberAvatar = {
 			default: true,
 		},
 	},
-	computed:
-	{
+	computed: {
+		AvatarType: () => AvatarType,
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -60,7 +59,8 @@ export const CollaberAvatar = {
 		},
 	},
 	template: `
-		<UiAvatarGuest 
+		<BaseUiAvatar
+			:type="AvatarType.collaber"
 			:key="dialogId"
 			:title="dialogName" 
 			:size="size" 

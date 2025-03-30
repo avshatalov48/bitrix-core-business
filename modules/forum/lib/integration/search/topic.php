@@ -140,6 +140,11 @@ class Topic extends Main\Update\Stepper
 
 	public static function reindex(int $topicId, bool $reindexOnlyFirstMessage = false)
 	{
+		if (!Main\Loader::includeModule('search'))
+		{
+			return self::FINISH_EXECUTION;
+		}
+
 		$storedInformation = Main\Config\Option::get('forum', 'search.reindex.topic', '');
 		$topicsToReindex = [];
 

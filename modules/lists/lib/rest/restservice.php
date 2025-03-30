@@ -13,6 +13,8 @@ use Bitrix\Lists\Security\IblockRight;
 use Bitrix\Lists\Security\Right;
 use Bitrix\Lists\Security\RightParam;
 use Bitrix\Lists\Security\SectionRight;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Rest\AccessException;
@@ -96,13 +98,34 @@ class RestService extends \IRestService
 			self::throwError($right->getErrors());
 		}
 
-		$iblockId = $iblock->add();
-		if ($iblock->hasErrors())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
 		{
-			self::throwError($iblock->getErrors());
+			$iblockId = $iblock->add();
+			if (!$iblockId)
+			{
+				$errors = $iblock->getErrors();
+			}
 		}
+		catch (SqlQueryException)
+		{
+			$iblockId = false;
+			$errors[] = new Error('Internal error adding list. Try adding again.');
+		}
+		if ($iblockId)
+		{
+			$conn->commitTransaction();
 
-		return $iblockId;
+			return $iblockId;
+		}
+		else
+		{
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
+		}
 	}
 
 	public static function getLists(array $params, $n, \CRestServer $server)
@@ -163,13 +186,33 @@ class RestService extends \IRestService
 			self::throwError($right->getErrors());
 		}
 
-		if ($iblock->update())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
 		{
+			$success = $iblock->update();
+			if (!$success)
+			{
+				$errors = $iblock->getErrors();
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$success = false;
+			$errors[] = new Error('Internal error updating the list. Try updating again.');
+		}
+		if ($success)
+		{
+			$conn->commitTransaction();
+
 			return true;
 		}
 		else
 		{
-			self::throwError($iblock->getErrors());
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
 		}
 	}
 
@@ -199,13 +242,33 @@ class RestService extends \IRestService
 			self::throwError($right->getErrors());
 		}
 
-		if ($iblock->delete())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
 		{
+			$success = $iblock->delete();
+			if (!$success)
+			{
+				$errors = $iblock->getErrors();
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$success = false;
+			$errors[] = new Error('Internal error deleting list. Try deleting again.');
+		}
+		if ($success)
+		{
+			$conn->commitTransaction();
+
 			return true;
 		}
 		else
 		{
-			self::throwError($iblock->getErrors());
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
 		}
 	}
 
@@ -232,13 +295,35 @@ class RestService extends \IRestService
 		}
 
 		$section = new Section($param);
-		$sectionId = $section->add();
-		if ($section->hasErrors())
-		{
-			self::throwError($section->getErrors());
-		}
 
-		return $sectionId;
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
+		{
+			$sectionId = $section->add();
+			if (!$sectionId)
+			{
+				$errors = $section->getErrors();
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$sectionId = false;
+			$errors[] = new Error('Internal error adding list section. Try adding again.');
+		}
+		if ($sectionId)
+		{
+			$conn->commitTransaction();
+
+			return $sectionId;
+		}
+		else
+		{
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
+		}
 	}
 
 	public static function getSection(array $params, $n, \CRestServer $server)
@@ -303,13 +388,33 @@ class RestService extends \IRestService
 			self::throwError($right->getErrors());
 		}
 
-		if ($section->update())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
 		{
+			$success = $section->update();
+			if (!$success)
+			{
+				$errors = $section->getErrors();
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$success = false;
+			$errors[] = new Error('Internal error updating the list section. Try updating again.');
+		}
+		if ($success)
+		{
+			$conn->commitTransaction();
+
 			return true;
 		}
 		else
 		{
-			self::throwError($section->getErrors());
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
 		}
 	}
 
@@ -341,13 +446,33 @@ class RestService extends \IRestService
 			self::throwError($right->getErrors());
 		}
 
-		if ($section->delete())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
 		{
+			$success = $section->delete();
+			if (!$success)
+			{
+				$errors = $section->getErrors();
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$success = false;
+			$errors[] = new Error('Internal error deleting list section. Try deleting again.');
+		}
+		if ($success)
+		{
+			$conn->commitTransaction();
+
 			return true;
 		}
 		else
 		{
-			self::throwError($section->getErrors());
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
 		}
 	}
 
@@ -553,13 +678,34 @@ class RestService extends \IRestService
 			self::throwError($element->getErrors(), "Element already exists", Element::ERROR_ELEMENT_ALREADY_EXISTS);
 		}
 
-		$elementId = $element->add();
-		if ($element->hasErrors())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
 		{
-			self::throwError($element->getErrors());
+			$elementId = $element->add();
+			if (!$elementId)
+			{
+				$errors = $element->getErrors();
+			}
 		}
+		catch (SqlQueryException)
+		{
+			$elementId = false;
+			$errors[] = new Error('Internal error adding list element. Try adding again.');
+		}
+		if ($elementId)
+		{
+			$conn->commitTransaction();
 
-		return $elementId;
+			return $elementId;
+		}
+		else
+		{
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
+		}
 	}
 
 	public static function getElement(array $params, $n, \CRestServer $server)
@@ -645,13 +791,33 @@ class RestService extends \IRestService
 			self::throwError($element->getErrors(), "Element not found", Element::ERROR_ELEMENT_NOT_FOUND);
 		}
 
-		if ($element->update())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
 		{
+			$success = $element->update();
+			if (!$success)
+			{
+				$errors = $element->getErrors();
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$success = false;
+			$errors[] = new Error('Internal error updating list element. Try updating again.');
+		}
+		if ($success)
+		{
+			$conn->commitTransaction();
+
 			return true;
 		}
 		else
 		{
-			self::throwError($element->getErrors());
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
 		}
 	}
 
@@ -695,13 +861,33 @@ class RestService extends \IRestService
 			self::throwError($elementRight->getErrors());
 		}
 
-		if ($element->delete())
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		$errors = [];
+		try
 		{
+			$success = $element->delete();
+			if (!$success)
+			{
+				$errors = $element->getErrors();
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$success = false;
+			$errors[] = new Error('Internal error deleting list element. Try deleting again.');
+		}
+		if ($success)
+		{
+			$conn->commitTransaction();
+
 			return true;
 		}
 		else
 		{
-			self::throwError($element->getErrors());
+			$conn->rollbackTransaction();
+
+			self::throwError($errors);
 		}
 	}
 

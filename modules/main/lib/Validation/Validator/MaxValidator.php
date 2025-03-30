@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Main\Validation\Validator;
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 
@@ -24,7 +24,7 @@ class MaxValidator implements ValidatorInterface
 		{
 			$result->addError(
 				new ValidationError(
-					Loc::getMessage('MAIN_VALIDATION_MAX_NOT_A_NUMBER'),
+					new LocalizableMessage('MAIN_VALIDATION_MAX_NOT_A_NUMBER'),
 					failedValidator: $this
 				)
 			);
@@ -36,7 +36,7 @@ class MaxValidator implements ValidatorInterface
 		{
 			$result->addError(
 				new ValidationError(
-					Loc::getMessage('MAIN_VALIDATION_MAX_GREATER_THAN_MAX', ['#MAX#' => $this->max]),
+					new LocalizableMessage('MAIN_VALIDATION_MAX_GREATER_THAN_MAX', ['#MAX#' => $this->max]),
 					failedValidator: $this
 				)
 			);

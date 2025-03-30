@@ -29,12 +29,12 @@ class ModuleManager
 	 *
 	 * @return array
 	 */
-	public static function getModulesFromDisk($withLocal = true)
+	public static function getModulesFromDisk($withLocal = true, $withPartners = true, $withKernel = true)
 	{
 		$modules = [];
 
 		$folders = [
-			"/bitrix/modules"
+			"/bitrix/modules",
 		];
 
 		if ($withLocal)
@@ -58,8 +58,10 @@ class ModuleManager
 				{
 					if (
 						!isset($modules[$dir])
-						&& is_dir($folderPath . "/" . $dir)
+						&& is_dir($folderPath . '/' . $dir)
 						&& !in_array($dir, ['.', '..'], true)
+						&& ($withPartners || !str_contains($dir, '.'))
+						&& ($withKernel || str_contains($dir, '.'))
 					)
 					{
 						if ($info = \CModule::CreateModuleObject($dir))
@@ -70,6 +72,8 @@ class ModuleManager
 							$modules[$dir]["version"] = $info->MODULE_VERSION;
 							$modules[$dir]["versionDate"] = $info->MODULE_VERSION_DATE;
 							$modules[$dir]["sort"] = $info->MODULE_SORT;
+							$modules[$dir]["partner"] = $info->PARTNER_NAME;
+							$modules[$dir]["partnerUri"] = $info->PARTNER_URI;
 							$modules[$dir]["isInstalled"] = $info->IsInstalled();
 						}
 					}
@@ -183,5 +187,72 @@ class ModuleManager
 		$moduleName = preg_replace("/[^a-zA-Z0-9_.]+/i", "", trim($moduleName));
 
 		return $moduleName === $originalModuleName;
+	}
+
+	public static function decreaseVersion(string $moduleId, int $count, ?string $fromVersion = null): ?string
+	{
+		if (!self::isValidModule($moduleId))
+		{
+			return null;
+		}
+
+		if ($moduleId === 'main')
+		{
+			$versionFile = $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/version.php';
+		}
+		else
+		{
+			$versionFile = $_SERVER['DOCUMENT_ROOT'] . getLocalPath('modules/' . $moduleId . '/install/version.php');
+		}
+
+		$count = $count > 0 ? $count : 1;
+
+		if (file_exists($versionFile) && is_file($versionFile))
+		{
+			$fileContent = file_get_contents($versionFile);
+
+			if (preg_match("/(\\d+)\\.(\\d+)\\.(\\d+)/", $fileContent, $match))
+			{
+				$oldVersion = $match[0];
+
+				if ($fromVersion !== null)
+				{
+					if (!preg_match("/(\\d+)\\.(\\d+)\\.(\\d+)/", $fromVersion, $match))
+					{
+						return null;
+					}
+				}
+
+				if ($match[3] - $count >= 0)
+				{
+					$match[3] -= $count;
+				}
+				else
+				{
+					$match[3] = 10000 - $count + (int)$match[3];
+					if ($match[2] == 0)
+					{
+						$match[2] = 9999;
+						$match[1] -= 1;
+					}
+					else
+					{
+						$match[2] -= 1;
+					}
+				}
+
+				if ($match[1] > 0 && $match[2] >= 0 && $match[3] >= 0)
+				{
+					$fileContent = str_replace($oldVersion, $match[1] . '.' . $match[2] . '.' . $match[3], $fileContent);
+					file_put_contents($versionFile, $fileContent);
+
+					Application::resetAccelerator($versionFile);
+				}
+
+				return $match[1] . '.' . $match[2] . '.' . $match[3];
+			}
+		}
+
+		return null;
 	}
 }

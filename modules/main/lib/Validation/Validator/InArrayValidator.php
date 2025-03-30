@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Main\Validation\Validator;
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 
@@ -24,7 +24,7 @@ class InArrayValidator implements ValidatorInterface
 		if (!in_array($value, $this->validValues, $this->strict))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_IN_ARRAY'),
+				new LocalizableMessage('MAIN_VALIDATION_IN_ARRAY'),
 				failedValidator: $this
 			));
 		}

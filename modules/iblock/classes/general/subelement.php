@@ -1834,7 +1834,7 @@ echo '
 		}
 	}
 
-	public static function closeSubForm($reload = true, $closeWait = true)
+	public static function closeSubForm($reload = true, $closeWait = true): void
 	{
 		$reload = ($reload !== false);
 		$closeWait = ($closeWait !== false);
@@ -1852,8 +1852,8 @@ echo '
 		if ($reload)
 			$result .= ' if (!!currentWindow.ReloadSubList) { currentWindow.ReloadSubList(); }';
 		$result .= '</script>';
-		echo $result;
-		die();
+
+		CMain::FinalActions($result);
 	}
 }
 

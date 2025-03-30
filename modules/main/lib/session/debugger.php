@@ -46,7 +46,7 @@ final class Debugger
 		$traceItems = Helper::getBackTrace(10, DEBUG_BACKTRACE_IGNORE_ARGS, 4);
 		foreach ($traceItems as $item)
 		{
-			if (!empty($item['class']) && strpos($item['file'], 'lib/session/'))
+			if ($this->isInternalSessionLine($item))
 			{
 				continue;
 			}
@@ -59,6 +59,30 @@ final class Debugger
 		{
 			$this->addHeader("Usage", $firstUsage);
 		}
+	}
+
+	/**
+	 * Detects if the given trace item belongs to the internal session logic.
+	 * @param array $item
+	 * @return bool
+	 */
+	private function isInternalSessionLine(array $item): bool
+	{
+		if (empty($item['class']))
+		{
+			return false;
+		}
+
+		if (strpos($item['file'], 'lib' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR))
+		{
+			return true;
+		}
+		if (strpos($item['file'], 'storage' . DIRECTORY_SEPARATOR . 'nativesessionstorage'))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	public function logToFile($text): void

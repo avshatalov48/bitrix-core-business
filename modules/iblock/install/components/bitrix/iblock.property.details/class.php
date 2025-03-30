@@ -17,7 +17,10 @@ use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\Response\ContentArea\ContentAreaInterface;
 use Bitrix\Main\Engine\Response\ContentArea\DataSectionInterface;
 use Bitrix\Main\Engine\Response\HtmlContent;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+
+Loader::includeModule('iblock');
 
 class IblockPropertyDetails extends CBitrixComponent implements Controllerable
 {

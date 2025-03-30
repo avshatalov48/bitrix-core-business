@@ -22,6 +22,11 @@ class SqlTrackerQuery implements \ArrayAccess
 	protected $trace = null;
 	/** @var SqlTracker */
 	protected $tracker;
+	protected int $lengths = 0;
+	protected int $selectedRows = 0;
+	protected int $fetchedRows = 0;
+	protected int $selectedFieldsCount = 0;
+	protected bool $hasBigFields = false;
 
 	/**
 	 * @param SqlTracker $tracker This sql tracker.
@@ -86,6 +91,99 @@ class SqlTrackerQuery implements \ArrayAccess
 	{
 		$this->finishTime = Helper::getCurrentMicrotime();
 		$this->addTime($this->finishTime - $this->startTime);
+	}
+
+	/**
+	 * Adds fetched row size to the query statistic.
+	 * 
+	 * @param int $length
+	 * @return void
+	 */
+	public function addLength(int $length)
+	{
+			$this->lengths += $length;
+	}
+
+	/**
+	 * Returns size of the fetched rows.
+	 * 
+	 * @return float|int
+	 */
+	public function getLength(): int
+	{
+		return $this->lengths;
+	}
+
+	/**
+	 * Increments the number of fetched rows.
+	 * 
+	 * @return void
+	 */
+	public function incrementFetched(): void
+	{
+		$this->fetchedRows++;
+	}
+
+	/**
+	 * Returns the number of the fetched rows.
+	 * 
+	 * @return int
+	 */
+	public function getFetchedRowsCount(): int
+	{
+		return $this->fetchedRows;
+	}
+
+	/**
+	 * Sets selected rows count.
+	 * 
+	 * @param int $count
+	 * @return void
+	 */
+	public function setSelectedRowsCount(int $count): void
+	{
+		$this->selectedRows = $count;
+	}
+
+	/**
+	 * Returns selected rows count.
+	 * 
+	 * @return int
+	 */
+	public function getSelectedRowsCount(): int
+	{
+		return $this->selectedRows;
+	}
+
+	/**
+	 * Sets the fields number in the result.
+	 * 
+	 * @param int $count
+	 * @return void
+	 */
+	public function setSelectedFieldsCount(int $count): void
+	{
+		$this->selectedFieldsCount = $count;
+	}
+
+	/**
+	 * Returns the fields number.
+	 * 
+	 * @return int
+	 */
+	public function getSelectedFieldsCount(): int
+	{
+		return $this->selectedFieldsCount;
+	}
+
+	public function setHasBigFields(bool $value)
+	{
+		$this->hasBigFields = $value;
+	}
+
+	public function hasBigFields(): bool
+	{
+		return $this->hasBigFields;
 	}
 
 	/**

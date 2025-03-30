@@ -115,13 +115,13 @@ class UpdateSystemExpertHelper
 		}
 
 		$result = '';
-		foreach ($count as $moduleName => $count)
+		foreach ($count as $moduleName => $cnt)
 		{
 			if (!empty($result))
 			{
 				$result .= ',';
 			}
-			$result .= '"' . $moduleName . '": ' . $count;
+			$result .= '"' . $moduleName . '": ' . $cnt;
 		}
 
 		return $result;
@@ -183,20 +183,29 @@ class UpdateSystemExpertHelper
 	{
 		$clientModules = $this->getClientModules();
 		$presentModulesWithUpdates = [];
-		foreach ($this->updateList['MODULES'][0]['#']['MODULE'] as $moduleUpdates)
+		if (isset($this->updateList['MODULES'][0]['#']['MODULE']))
 		{
-			$moduleId = $this->escapeModuleId($moduleUpdates["@"]["ID"]);
-			$presentModulesWithUpdates[$moduleId] = $moduleId;
+			foreach ($this->updateList['MODULES'][0]['#']['MODULE'] as $moduleUpdates)
+			{
+				$moduleId = $this->escapeModuleId($moduleUpdates["@"]["ID"]);
+				$presentModulesWithUpdates[$moduleId] = $moduleId;
+			}
 		}
+		else
+		{
+			$this->updateList['MODULES'][0]['#'] = [];
+		}
+
 		foreach ($clientModules as $moduleId => $version)
 		{
 			if (!isset($presentModulesWithUpdates[$moduleId]))
 			{
-				$name = $this->getModuleName($moduleId);
+				[$name, $description] = $this->getModuleInfo($moduleId);
 				$this->updateList['MODULES'][0]['#']['MODULE'][] = [
 					'@' => [
 						'ID' => $moduleId,
 						'NAME' => $name,
+						'DESCRIPTION' => $description,
 					],
 					'#' => [],
 				];
@@ -204,15 +213,18 @@ class UpdateSystemExpertHelper
 		}
 	}
 
-	private function getModuleName($moduleId)
+	private function getModuleInfo($moduleId)
 	{
-		$module = \CModule::CreateModuleObject($moduleId);
-		if (is_object($module) && property_exists($module, 'MODULE_NAME'))
+		$module = CModule::CreateModuleObject($moduleId);
+		$name = $moduleId;
+		$description = '';
+		if (is_object($module))
 		{
-			return $module->MODULE_NAME . ' (' . $moduleId . ')';
+			$name = $module->MODULE_NAME ?? $moduleId;
+			$description = $module->MODULE_DESCRIPTION ?? '';
 		}
 
-		return $moduleId;
+		return [$name, $description];
 	}
 }
 
@@ -225,20 +237,40 @@ $updatesCount = $expertUpdateHelper->getUpdatesCount();
 <!--suppress JSPrimitiveTypeWrapperUsage -->
 <!--suppress ES6ConvertVarToLetConst -->
 <style>
+	.conflicts_message {
+		margin-top: 16px;
+    }
 	.conflicts_message.conflicts_message_hidden {
 		display: none;
 	}
 	.conflicts_message .conflicts_message_title {
 		font-weight: bold;
+		margin-bottom: 8px;
 	}
+	#expert_install_conflicts_message {
+		line-height: 150%;
+    }
+	#expert_install_conflicts_message a {
+		text-decoration: none;
+    }
 </style>
 <tr>
 	<td colspan="2">
-		<table border="0" cellspacing="1" cellpadding="3" width="100%">
+		<table border="0" cellspacing="0" cellpadding="0" width="100%">
+			<tr>
+				<td colspan="2"><?= GetMessage("SUP_SULL_CNT") ?>: <?= $updatesCount ?><BR><BR></td>
+			</tr>
 			<tr>
 				<td>
-					<?= GetMessage("SUP_SULL_CNT") ?>: <?= $updatesCount ?><BR><BR>
-					<input TYPE="button" ID="expert_install_updates_sel_button" NAME="expert_install_updates"<?= (($updatesCount <= 0) ? " disabled" : "") ?>value="<?= GetMessage("SUP_SULL_BUTTON") ?>" onclick="UpdateSystemExpertHelper.getInstance().handleInstallUpdatesButtonClicked()">
+					<input TYPE="button" ID="expert_install_updates_sel_button" NAME="expert_install_updates"<?= (($updatesCount <= 0) ? " disabled" : "") ?> value="<?= GetMessage("SUP_SULL_BUTTON") ?>" onclick="UpdateSystemExpertHelper.getInstance().handleInstallUpdatesButtonClicked()">
+				</td>
+				<td align="right">
+					<input TYPE="button" value="<?= GetMessage('SUP_EXPORT_BUTTON') ?>" title="<?= GetMessage('SUP_EXPORT_TITLE') ?>" onclick="UpdateSystemExpertHelper.getInstance().handleExportButtonClicked()">
+					<input TYPE="button" value="<?= GetMessage('SUP_IMPORT_BUTTON') ?>" title="<?= GetMessage('SUP_IMPORT_TITLE') ?>" onclick="UpdateSystemExpertHelper.getInstance().handleImportButtonClicked()">
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
 					<div id="expert_install_conflicts" class="conflicts_message conflicts_message_hidden">
 						<div class="conflicts_message_title"><?=GetMessage('SUP_CONFLICT_POPUP_TITLE');?></div>
 						<div id="expert_install_conflicts_message"></div>
@@ -246,6 +278,7 @@ $updatesCount = $expertUpdateHelper->getUpdatesCount();
 				</td>
 			</tr>
 		</table>
+		<br>
 		<table border="0" cellspacing="1" cellpadding="3" width="100%" class="internal" id="expert_table_updates_sel_list">
 			<tr>
 				<td class="heading"><INPUT TYPE="checkbox" NAME="select_all" id="expert_id_select_all" title="<?= GetMessage("SUP_SULL_CBT") ?>" onClick="UpdateSystemExpertHelper.getInstance().handleSelectAllRowsClicked()" checked></td>
@@ -279,7 +312,6 @@ $updatesCount = $expertUpdateHelper->getUpdatesCount();
 					{
 						for ($j = 0, $cntj = count($moduleUpdates["#"]["VERSION"]); $j < $cntj; $j++)
 						{
-							$strTitleTmp .= str_replace("#VER#", $moduleUpdates["#"]["VERSION"][$j]["@"]["ID"], GetMessage("SUP_SULL_VERSION"))."\n".$moduleUpdates["#"]["VERSION"][$j]["#"]["DESCRIPTION"][0]["#"]."\n";
 							$availableVersions[] = $moduleUpdates["#"]["VERSION"][$j]["@"]["ID"];
 						}
 					}
@@ -300,10 +332,10 @@ $updatesCount = $expertUpdateHelper->getUpdatesCount();
 					$strTitleTmp = htmlspecialcharsbx(preg_replace("/<.+?>/i", "", $strTitleTmp));
 					?>
 					<tr title="<?= $strTitleTmp ?>">
-						<td><INPUT TYPE="checkbox" NAME="select_module_<?= $escapedModuleId ?>" value="Y" onClick="UpdateSystemExpertHelper.getInstance().handleModuleCheckboxClicked()" checked id="id_expert_select_module_<?= $escapedModuleId ?>"></td>
-						<td><label for="id_expert_select_module_<?= $escapedModuleId ?>"><?= str_replace("#NAME#", htmlspecialcharsbx($moduleUpdates["@"]["NAME"]), GetMessage("SUP_SULL_MODULE")) ?></label></td>
+						<td><a name="expert_module_<?= $escapedModuleId ?>"></a><INPUT TYPE="checkbox" NAME="select_module_<?= $escapedModuleId ?>" value="Y" onClick="UpdateSystemExpertHelper.getInstance().handleModuleCheckboxClicked()" checked id="id_expert_select_module_<?= $escapedModuleId ?>"></td>
+						<td><label for="id_expert_select_module_<?= $escapedModuleId ?>"><?= str_replace("#NAME#", htmlspecialcharsbx($moduleUpdates["@"]["NAME"]), GetMessage("SUP_SULL_MODULE")) . " (" . htmlspecialcharsbx($moduleUpdates["@"]["ID"]) . ")" ?></label></td>
 						<td><?= ($versionFrom ? GetMessage("SUP_SULL_REF_O") : GetMessage("SUP_SULL_REF_N")) ?></td>
-						<td><input id="id_expert_module_version_from_<?= $escapedModuleId ?>" name="module_version_from_<?= $escapedModuleId ?>" value="<?=$versionFrom;?>"<?=(!$versionFrom ? " disabled" : "");?> /></td>
+						<td><?= $versionFrom;?></td>
 						<td>
 							<select id="id_expert_module_version_to_<?=$escapedModuleId;?>" name="module_version_to_<?=$escapedModuleId;?>" onchange="UpdateSystemExpertHelper.getInstance().handleSelectVersionChanged()">
 								<?php foreach ($availableVersions as $version)
@@ -315,7 +347,7 @@ $updatesCount = $expertUpdateHelper->getUpdatesCount();
 								?>
 							</select>
 						</td>
-						<td><a href="javascript:ShowDescription('<?= $escapedModuleId ?>')"><?= GetMessage("SUP_SULL_NOTE_D") ?></a></td>
+						<td><?php if(isset($moduleUpdates["#"]["VERSION"])):?><a href="javascript:ShowDescription('<?= $escapedModuleId ?>')"><?= GetMessage("SUP_SULL_NOTE_D") ?></a><?php endif ?></td>
 					</tr>
 					<?
 				}
@@ -433,10 +465,11 @@ try
 
 		return version;
 	};
-	UpdateSystemExpertHelper = function(dependencies, updateCounts)
+	UpdateSystemExpertHelper = function(dependencies, updateCounts, clientModules)
 	{
 		this.dependencies = dependencies;
 		this.updateCounts = updateCounts;
+		this.clientModules = clientModules;
 		this.installedUpdates = [];
 		this.updatedModules = {};
 	};
@@ -444,6 +477,8 @@ try
 		CONFLICT_POPUP_TITLE: "<?=GetMessageJS('SUP_CONFLICT_POPUP_TITLE');?>",
 		CONFLICT_MODULE_MESSAGE: "<?=GetMessageJS('SUP_CONFLICT_MODULE_MESSAGE');?>",
 		SUP_CONFLICT_NOTHING_SELECTED: "<?=GetMessageJS('SUP_CONFLICT_NOTHING_SELECTED');?>",
+		SUP_IMPORT_SUCCESS: "<?=GetMessageJS('SUP_IMPORT_SUCCESS');?>",
+		SUP_IMPORT_ERROR: "<?=GetMessageJS('SUP_IMPORT_ERROR');?>",
 	};
 	UpdateSystemExpertHelper.getMessage = function(code, replacements)
 	{
@@ -452,7 +487,7 @@ try
 		{
 			return '';
 		}
-		if (!replacements || replacements === undefined || typeof(replacements) !== 'object')
+		if (!replacements || typeof(replacements) !== 'object')
 		{
 			return message;
 		}
@@ -544,13 +579,12 @@ try
 	};
 	UpdateSystemExpertHelper.prototype.isUpdateInstalled = function(identifier) {
 		var moduleName = identifier.getModule();
-		var installedVersionInput = document.getElementById('id_expert_module_version_from_' + moduleName);
-		if (!installedVersionInput || !installedVersionInput.value || installedVersionInput.disabled)
+		if (!this.clientModules[moduleName])
 		{
 			// module is not installed
 			return false;
 		}
-		var installedIdentifier = new UpdateIdentifier(moduleName, installedVersionInput.value);
+		var installedIdentifier = new UpdateIdentifier(moduleName, this.clientModules[moduleName]);
 
 		return installedIdentifier.isGreaterOrEqualThan(identifier);
 	};
@@ -624,13 +658,13 @@ try
 				{
 					requiredUpdatesMessage += ', ';
 				}
-				requiredUpdatesMessage += requiredUpdate.getModule() + " " + requiredUpdate.getVersion();
+				requiredUpdatesMessage += '<a href="#expert_module_' + requiredUpdate.getModule() + '">' + requiredUpdate.getModule() + " " + requiredUpdate.getVersion() + '</a>';
 			}.bind(this));
 			message += UpdateSystemExpertHelper.getMessage('CONFLICT_MODULE_MESSAGE', {
-				'#MODULE#': module + " " + dependencies[module].update.getVersion(),
+				'#MODULE#': '<a href="#expert_module_' + module + '">' + module + " " + dependencies[module].update.getVersion() + '</a>',
 				'#REQUIRES#': requiredUpdatesMessage
 			})
-			message += "\n";
+			message += "<br>\n";
 		}.bind(this));
 
 		return message;
@@ -878,7 +912,8 @@ try
 		{
 			UpdateSystemExpertHelper.instance = new UpdateSystemExpertHelper(
 				{<?=$expertUpdateHelper->getJavascriptObjectWithDependencies();?>},
-				{<?=$expertUpdateHelper->getJavascriptObjectWithUpdates();?>}
+				{<?=$expertUpdateHelper->getJavascriptObjectWithUpdates();?>},
+				<?=json_encode($expertUpdateHelper->getClientModules());?>
 			);
 		}
 
@@ -900,12 +935,12 @@ try
 	UpdateSystemExpertHelper.prototype.showConflictMessage = function(conflictMessage)
 	{
 		document.getElementById('expert_install_conflicts').classList.remove('conflicts_message_hidden');
-		document.getElementById('expert_install_conflicts_message').innerText = conflictMessage;
+		document.getElementById('expert_install_conflicts_message').innerHTML = conflictMessage;
 	};
 	UpdateSystemExpertHelper.prototype.hideConflictMessage = function()
 	{
 		document.getElementById('expert_install_conflicts').classList.add('conflicts_message_hidden');
-		document.getElementById('expert_install_conflicts_message').innerText = '';
+		document.getElementById('expert_install_conflicts_message').innerHTML = '';
 	};
 	UpdateSystemExpertHelper.prototype.disableInstallButton = function()
 	{
@@ -933,25 +968,110 @@ try
 			return;
 		}
 
+		var selectedModules = this.getSelectedModules();
+		if (Object.keys(selectedModules).length > 0)
+		{
+			this.installUpdates(selectedModules);
+		}
+	};
+
+	UpdateSystemExpertHelper.prototype.getSelectedModules = function()
+	{
+		var selectedModules = {};
 		var selectedUpdates = this.getSelectedUpdates();
-		if (selectedUpdates.length <= 0)
+
+		selectedUpdates.forEach(function(updateTo) {
+			var module = updateTo.getModule();
+			selectedModules[module] = updateTo.getVersion();
+		}.bind(this));
+
+		return selectedModules;
+	}
+
+	UpdateSystemExpertHelper.prototype.handleExportButtonClicked = function()
+	{
+		var modules = this.getSelectedModules();
+		if (Object.keys(modules).length === 0)
 		{
 			return;
 		}
-		var selectedModules = {};
-		selectedUpdates.forEach(function(updateTo) {
-			var module = updateTo.getModule();
-			selectedModules[module] = {
-				to: updateTo.getVersion()
-			};
-			var inputFrom = document.getElementById('id_expert_module_version_from_' + module);
-			if (inputFrom && inputFrom.value && inputFrom.value.length > 0)
-			{
-				selectedModules[module].from = inputFrom.value;
-			}
-		}.bind(this));
-		this.installUpdates(selectedModules);
+
+		const file = new File(
+			[ JSON.stringify(modules) ],
+			'updates.json',
+			{ type: 'application/json' },
+		);
+
+		const link = document.createElement('a');
+		link.href = URL.createObjectURL(file);
+		link.download = 'updates.json';
+		link.click();
+
+		setTimeout(function () {
+			URL.revokeObjectURL(link.href);
+		}, 60 * 1000);
 	};
+
+	UpdateSystemExpertHelper.prototype.handleImportButtonClicked = function()
+	{
+		const input = document.createElement('input');
+		input.setAttribute('type', 'file');
+		input.setAttribute('accept', '.json');
+
+		input.onchange = function () {
+			input.files[0].text().then(function(text) {
+				var modulesUpdates;
+				try
+				{
+					modulesUpdates = JSON.parse(text);
+				}
+				catch (error)
+				{
+				}
+
+				if (typeof modulesUpdates !== "object")
+				{
+					alert(UpdateSystemExpertHelper.getMessage('SUP_IMPORT_ERROR'));
+					return;
+				}
+
+				var checkbox = document.getElementById('expert_id_select_all');
+				checkbox.checked = false;
+				this.handleSelectAllRowsClicked(false);
+
+				Object.keys(modulesUpdates).forEach(function(module) {
+					var moduleCheckbox = document.getElementById('id_expert_select_module_' + module);
+					if (moduleCheckbox)
+					{
+						moduleCheckbox.checked = true;
+					}
+
+					var selectNode = document.getElementById('id_expert_module_version_to_' + module);
+					if (selectNode && selectNode.tagName.toUpperCase() === 'SELECT')
+					{
+						for (var i = 0; i < selectNode.length; i++)
+						{
+							selectNode[i].selected = (selectNode[i].value == modulesUpdates[module]);
+						}
+					}
+				});
+
+				this.processConflicts();
+
+				// reset file input
+				input.value = '';
+
+				setTimeout(function () {
+					alert(UpdateSystemExpertHelper.getMessage('SUP_IMPORT_SUCCESS'));
+				}, 100);
+
+			}.bind(this));
+
+		}.bind(this);
+
+		input.click();
+	}
+
 	UpdateSystemExpertHelper.prototype.installUpdates = function(selectedModules)
 	{
 		SetProgressHint("<?= GetMessageJS("SUP_INITIAL") ?>");
@@ -961,7 +1081,6 @@ try
 		}.bind(this));
 		cycleModules = true;
 		cycleLangs = false;
-		cycleHelps = false;
 
 		tabControl.SelectTab('tab1');
 
@@ -978,29 +1097,12 @@ try
 	{
 		return 'expertModules=' + encodeURIComponent(JSON.stringify(this.selectedModulesToInstall));
 	};
-	UpdateSystemExpertHelper.prototype.processInstallationStep = function(data)
-	{
-		var dataParts = data.split('|');
-		if (dataParts.length > 1)
-		{
-			var installedUpdates = dataParts[1].split(',');
-			installedUpdates.forEach(function(update) {
-				update = update.trim();
-				var updateParts = update.split(' ');
-				var module = updateParts[0];
-				if (this.selectedModulesToInstall.hasOwnProperty(module))
-				{
-					delete this.selectedModulesToInstall[module].from;
-				}
-			}.bind(this));
-		}
-	};
 	UpdateSystemExpertHelper.prototype.handleInstallationCompleted = function()
 	{
 		this.selectedModulesToInstall = [];
 		this.updatedModules = [];
 	};
-	UpdateSystemExpertHelper.prototype.handleSelectAllRowsClicked = function()
+	UpdateSystemExpertHelper.prototype.handleSelectAllRowsClicked = function(processConflicts = true)
 	{
 		var checkbox = document.getElementById('expert_id_select_all');
 		if (!checkbox)
@@ -1015,9 +1117,12 @@ try
 			{
 				moduleCheckbox.checked = isChecked;
 			}
-		}.bind(this));
+		});
 
-		this.processConflicts();
+		if (processConflicts)
+		{
+			this.processConflicts();
+		}
 	};
 	UpdateSystemExpertHelper.prototype.disableUpdatesTable = function()
 	{

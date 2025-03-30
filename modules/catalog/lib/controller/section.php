@@ -4,6 +4,8 @@ namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Iblock\SectionTable;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\ORM\Data\DataManager;
@@ -122,12 +124,25 @@ final class Section extends Controller
 			if ($r->isSuccess())
 			{
 				$section = new \CIBlockSection();
-				$id = $section->Add($fields);
-
-				$error = $section->getLastError();
+				$connection = Application::getConnection();
+				$connection->startTransaction();
+				try
+				{
+					$id = $section->Add($fields);
+					$error = $section->getLastError();
+				}
+				catch (SqlQueryException)
+				{
+					$error = 'Internal error adding section. Try adding again.';
+				}
 				if ($error !== '')
 				{
+					$connection->rollbackTransaction();
 					$r->addError(new Error($error, 200700300000));
+				}
+				else
+				{
+					$connection->commitTransaction();
 				}
 				unset(
 					$error,
@@ -180,12 +195,25 @@ final class Section extends Controller
 			if ($r->isSuccess())
 			{
 				$section = new \CIBlockSection();
-				$section->Update($id, $fields);
-
-				$error = $section->getLastError();
+				$connection = Application::getConnection();
+				$connection->startTransaction();
+				try
+				{
+					$section->Update($id, $fields);
+					$error = $section->getLastError();
+				}
+				catch (SqlQueryException)
+				{
+					$error = 'Internal error updating section. Try updating again.';
+				}
 				if ($error !== '')
 				{
+					$connection->rollbackTransaction();
 					$r->addError(new Error($error, 200700300010));
+				}
+				else
+				{
+					$connection->commitTransaction();
 				}
 				unset(
 					$error,
@@ -216,16 +244,33 @@ final class Section extends Controller
 
 			if ($r->isSuccess())
 			{
-				if (!\CIBlockSection::Delete($id))
+				$connection = Application::getConnection();
+				$connection->startTransaction();
+				try
 				{
-					if ($ex = self::getApplication()->GetException())
+					if (!\CIBlockSection::Delete($id))
 					{
-						$r->addError(new Error($ex->GetString(), $ex->GetId()));
+						if ($ex = self::getApplication()->GetException())
+						{
+							$r->addError(new Error($ex->GetString(), $ex->GetId()));
+						}
+						else
+						{
+							$r->addError(new Error('delete section error', 200700300020));
+						}
 					}
-					else
-					{
-						$r->addError(new Error('delete section error', 200700300020));
-					}
+				}
+				catch (SqlQueryException)
+				{
+					$r->addError(new Error('Internal error deleting section. Try deleting again.', 200700300020));
+				}
+				if ($r->isSuccess())
+				{
+					$connection->commitTransaction();
+				}
+				else
+				{
+					$connection->rollbackTransaction();
 				}
 			}
 		}

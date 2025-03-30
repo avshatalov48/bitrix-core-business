@@ -549,7 +549,7 @@ create table if not exists b_sonet_collab_option
 	VALUE     varchar(255) NOT NULL,
 	PRIMARY KEY (ID)
 );
-create unique index ix_sonet_collab_option_collab_name ON b_sonet_collab_option (collab_id, name)
+create unique index ix_sonet_collab_option_collab_name ON b_sonet_collab_option (collab_id, name);
 
 create table if not exists b_sonet_collab_last_activity
 (

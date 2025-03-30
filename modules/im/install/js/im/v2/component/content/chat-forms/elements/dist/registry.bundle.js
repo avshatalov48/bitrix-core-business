@@ -509,13 +509,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        subtext: this.loc('IM_CREATE_CHAT_SETTINGS_SECTION_OPEN_SUBTITLE'),
 	        selected: this.isAvailableInSearch
 	      }];
-	    },
-	    descriptionPlaceholderText() {
-	      return this.loc('IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION_PLACEHOLDER', {
-	        '#BR#': '\n',
-	        '#QUOTE_START#': '"',
-	        '#QUOTE_END#': '"'
-	      });
 	    }
 	  },
 	  methods: {
@@ -532,7 +525,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<CreateChatSection name="settings" :title="loc('IM_CREATE_CHAT_SETTINGS_SECTION')">
 			<div v-if="withSearchOption" class="bx-im-content-create-chat__section_block">
-				<CreateChatHeading :text="loc('IM_CREATE_CHAT_SETTINGS_SECTION_PRIVACY')" />
+				<CreateChatHeading :text="loc('IM_CREATE_CHAT_SETTINGS_SECTION_PRIVACY_MSGVER_1')" />
 				<RadioOption :items="privacyOptions" @change="onTypeChange" />
 			</div>
 			<div class="bx-im-content-create-chat__section_block">
@@ -540,7 +533,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div class="bx-im-chat-forms-settings__description_container">
 					<TextareaInput
 						:value="description"
-						:placeholder="descriptionPlaceholderText"
+						:placeholder="loc('IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION_PLACEHOLDER_MSGVER_1')"
 						:rounded="false"
 						@input="onDescriptionChange"
 					/>

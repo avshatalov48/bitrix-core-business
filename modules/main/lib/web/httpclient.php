@@ -311,7 +311,6 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 		while (true)
 		{
 			//Only absoluteURI is accepted
-			//Location response-header field must be absoluteURI either
 			$uri = new Uri($this->effectiveUrl);
 
 			// make a PSR-7 request
@@ -337,13 +336,15 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 				return true;
 			}
 
-			if ($this->redirect && ($location = $this->getHeaders()->get('Location')) !== null && $location != '')
+			if ($this->redirect && ($location = $this->getHeaders()->get('Location')) != '')
 			{
 				if ($this->redirectCount < $this->redirectMax)
 				{
-					// there can be different host in Location
+					// there can be a different host in Location
 					$this->headers->delete('Host');
-					$this->effectiveUrl = $location;
+
+					// relative URI is possible according to RFC 9110
+					$this->effectiveUrl = (string)(new Uri($location))->resolveRelativeUri($uri);
 
 					$status = $this->getStatus();
 					if ($status == 302 || $status == 303)
@@ -595,6 +596,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	 * Sets the response output to the stream instead of the string result. Useful for large responses.
 	 * Note, the stream must be readable/writable to support a compressed response.
 	 * Note, in this mode the result string is empty.
+	 * Note, only Http\Stream response body is supported.
 	 *
 	 * @param resource $handler File or stream handler.
 	 * @return $this
@@ -624,9 +626,9 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	 * @param string $filePath Absolute file path.
 	 * @return bool
 	 */
-	public function download($url, $filePath)
+	public function download($url, $filePath, string $method = Http\Method::GET, $entityBody = null)
 	{
-		$result = $this->query(Http\Method::GET, $url);
+		$result = $this->query($method, $url, $entityBody);
 
 		if ($result && ($status = $this->getStatus()) >= 200 && $status < 300)
 		{
@@ -733,7 +735,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 			{
 				$result = (string)$body;
 			}
-			else
+			elseif ($body instanceof Http\Stream)
 			{
 				$body->copyTo($this->outputStream);
 			}
@@ -805,7 +807,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 		}
 	}
 
-	protected function buildRequest(RequestInterface $request): RequestInterface
+	protected function buildRequest(RequestInterface $request): Http\Request
 	{
 		$method = $request->getMethod();
 		$uri = $request->getUri();
@@ -887,7 +889,13 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 			$request = $eventResult->getRequest();
 		}
 
-		return $request;
+		return new Http\Request(
+			$request->getMethod(),
+			$request->getUri(),
+			$request->getHeaders(),
+			$request->getBody(),
+			$request->getProtocolVersion()
+		);
 	}
 
 	protected function checkRequest(RequestInterface $request): bool

@@ -9,10 +9,10 @@ return [
 	'css' => 'dist/index.bundle.css',
 	'js' => 'dist/index.bundle.js',
 	'rel' => [
-		'main.core.events',
 		'ui.form-elements.view',
 		'ui.form-elements.field',
 		'main.core',
+		'main.core.events',
 		'ui.section',
 	],
 	'skip_core' => false,

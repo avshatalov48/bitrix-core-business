@@ -1,4 +1,5 @@
 <?php
+$MESS["LISTS_ELEMENT_CREATION_GUIDE_AJAX_ADD_INTERNAL_ERROR"] = "Workflow konnte nicht gestartet werden. Bitte versuchen Sie es erneut.";
 $MESS["LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS"] = "Etwas ist schiefgegangen. Stellen Sie sicher, dass Ihre Eingabe korrekt ist.";
 $MESS["LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS_1"] = "Fehler. Bitte überprüfen Sie Ihre Eingabe.";
 $MESS["LISTS_ELEMENT_CREATION_GUIDE_AJAX_EMPTY_REQUIRED_TEMPLATE_IDS"] = "Erforderlicher Parameter templateIds wurde nicht übermittelt.";

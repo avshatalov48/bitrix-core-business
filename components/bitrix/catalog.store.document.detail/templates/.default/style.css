@@ -554,3 +554,8 @@ input.pagetitle-item {
 		max-width: 600px;
 	}
 }
+
+.document-status-label
+{
+	margin-left: 10px;
+}

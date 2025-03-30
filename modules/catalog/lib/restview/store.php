@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Bitrix\Catalog\RestView;
-
 
 use Bitrix\Rest\Integration\View\Attributes;
 use Bitrix\Rest\Integration\View\DataType;
@@ -14,78 +12,77 @@ final class Store extends Base
 	public function getFields()
 	{
 		return [
-			'ID'=>[
-				'TYPE'=>DataType::TYPE_INT,
-				'ATTRIBUTES'=>[
-					Attributes::READONLY
+			'ID' => [
+				'TYPE' => DataType::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::READONLY,
+				],
+			],
+			'TITLE' => [
+				'TYPE' => DataType::TYPE_STRING,
+			],
+			'ACTIVE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
+			'ADDRESS' => [
+				'TYPE' => DataType::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::REQUIRED_ADD,
 				]
 			],
-			'TITLE'=>[
-				'TYPE'=>DataType::TYPE_STRING
+			'DESCRIPTION' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'ACTIVE'=>[
-				'TYPE'=>DataType::TYPE_CHAR
+			'GPS_N' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'ADDRESS'=>[
-				'TYPE'=>DataType::TYPE_STRING,
-				'ATTRIBUTES'=>[
-					Attributes::REQUIRED
-				]
+			'GPS_S' => [
+				'TYPE' => DataType::TYPE_FLOAT,
 			],
-			'DESCRIPTION'=>[
-				'TYPE'=>DataType::TYPE_STRING
+			'IMAGE_ID' => [
+				'TYPE' => DataType::TYPE_FILE,
 			],
-			'GPS_N'=>[
-				'TYPE'=>DataType::TYPE_FLOAT
+			'DATE_MODIFY' => [
+				'TYPE' => DataType::TYPE_DATETIME,
 			],
-			'GPS_S'=>[
-				'TYPE'=>DataType::TYPE_FLOAT
+			'DATE_CREATE' => [
+				'TYPE' => DataType::TYPE_DATETIME,
 			],
-			'IMAGE_ID'=>[
-				'TYPE'=>DataType::TYPE_INT
+			'USER_ID' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'LOCATION_ID'=>[
-				'TYPE'=>DataType::TYPE_INT
+			'MODIFIED_BY' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'DATE_MODIFY'=>[
-				'TYPE'=>DataType::TYPE_DATETIME
+			'PHONE' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'DATE_CREATE'=>[
-				'TYPE'=>DataType::TYPE_DATETIME
+			'SCHEDULE' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'USER_ID'=>[
-				'TYPE'=>DataType::TYPE_INT
+			'XML_ID' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'MODIFIED_BY'=>[
-				'TYPE'=>DataType::TYPE_INT
+			'SORT' => [
+				'TYPE' => DataType::TYPE_INT,
 			],
-			'PHONE'=>[
-				'TYPE'=>DataType::TYPE_STRING
+			'EMAIL' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'SCHEDULE'=>[
-				'TYPE'=>DataType::TYPE_STRING
+			'ISSUING_CENTER' => [
+				'TYPE' => DataType::TYPE_CHAR,
 			],
-			'XML_ID'=>[
-				'TYPE'=>DataType::TYPE_STRING
+			'CODE' => [
+				'TYPE' => DataType::TYPE_STRING,
 			],
-			'SORT'=>[
-				'TYPE'=>DataType::TYPE_INT
-			],
-			'EMAIL'=>[
-				'TYPE'=>DataType::TYPE_STRING
-			],
-			'ISSUING_CENTER'=>[
-				'TYPE'=>DataType::TYPE_CHAR
-			],
-			'SHIPPING_CENTER'=>[
-				'TYPE'=>DataType::TYPE_CHAR
-			],
-			'SITE_ID'=>[
-				'TYPE'=>DataType::TYPE_STRING
-			],
-			'CODE'=>[
-				'TYPE'=>DataType::TYPE_STRING
-			],
+		];
+	}
+
+	protected function externalizeFileValue($name, $value, $fields): array
+	{
+		return [
+			'ID' => (int)$value,
+			'URL' => \CFile::GetPath((int)$value),
 		];
 	}
 }

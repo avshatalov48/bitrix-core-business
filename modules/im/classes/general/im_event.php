@@ -778,7 +778,10 @@ class CIMEvent
 				return true;
 			}
 
-			if (\Bitrix\Im\User::getInstance($arParams["ID"])->isBot())
+			if (
+				$arParams['EXTERNAL_AUTH_ID'] === IM\Bot::EXTERNAL_AUTH_ID
+				|| \Bitrix\Im\User::getInstance($arParams["ID"])->isBot()
+			)
 			{
 				return true;
 			}
@@ -797,8 +800,9 @@ class CIMEvent
 
 	public static function OnAfterUserUpdate($arParams)
 	{
-		IM\V2\Entity\User\UserFactory::getInstance()->clearCache((int)$arParams["ID"]);
+		$chat = new CIMChat(0);
 		$user = IM\V2\Entity\User\User::getInstance((int)$arParams["ID"]);
+		IM\V2\Entity\User\UserFactory::getInstance()->clearCache((int)$arParams["ID"]);
 
 		IM\V2\Message\CounterService::onAfterUserUpdate($arParams);
 		IM\V2\Chat\User\OwnerService::onAfterUserUpdate($arParams);
@@ -812,12 +816,7 @@ class CIMEvent
 
 				if ($commonChatId && CIMChat::GetRelationById($commonChatId, $arParams["ID"], true, false))
 				{
-					$CIMChat = new CIMChat($arParams["ID"]);
-					$CIMChat->DeleteUser(
-						$commonChatId,
-						$arParams["ID"],
-						additionalParams: ['SKIP_RIGHTS' => true]
-					);
+					$chat->DeleteUser($commonChatId, $arParams["ID"], false);
 				}
 			}
 			else
@@ -840,17 +839,11 @@ class CIMEvent
 
 					if ($userInChat && !$userCanJoin)
 					{
-						$CIMChat = new CIMChat($arParams["ID"]);
-						$CIMChat->DeleteUser(
-							$commonChatId,
-							$arParams["ID"],
-							additionalParams: ['SKIP_RIGHTS' => true]
-						);
+						$chat->DeleteUser($commonChatId, $arParams["ID"], false);
 					}
 					else if (!$userInChat && $userCanJoin)
 					{
-						$CIMChat = new CIMChat(0);
-						$CIMChat->AddUser($commonChatId, [$arParams["ID"]], null, true, true);
+						$chat->AddUser($commonChatId, [$arParams["ID"]], null, true, true);
 					}
 				}
 			}

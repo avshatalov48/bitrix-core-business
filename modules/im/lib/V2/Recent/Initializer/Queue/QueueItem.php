@@ -20,6 +20,7 @@ class QueueItem
 		public readonly bool $isLocked,
 		public readonly DateTime $dateCreate,
 		public readonly DateTime $dateUpdate,
+		public readonly bool $isFirstInit
 	){}
 
 	public static function createFromRow(array $row): static
@@ -35,10 +36,11 @@ class QueueItem
 			$row['IS_LOCKED'] === 'Y',
 			$row['DATE_CREATE'],
 			$row['DATE_UPDATE'],
+			false,
 		);
 	}
 
-	public static function createFirstStep(int $userId, SourceType $sourceType, ?int $sourceId): static
+	public static function createFirstStep(int $userId, SourceType $sourceType, ?int $sourceId, bool $isFirstInit = false): static
 	{
 		$currentDate = new DateTime();
 
@@ -53,6 +55,7 @@ class QueueItem
 			false,
 			$currentDate,
 			$currentDate,
+			$isFirstInit
 		);
 	}
 
@@ -115,6 +118,7 @@ class QueueItem
 		?bool $isLocked = null,
 		?DateTime $dateCreate = null,
 		?DateTime $dateUpdate = null,
+		?bool $isFirstInit = null,
 	): self
 	{
 		return new static(
@@ -128,6 +132,7 @@ class QueueItem
 			$isLocked ?? $this->isLocked,
 			$dateCreate ?? $this->dateCreate,
 			$dateUpdate ?? $this->dateUpdate,
+			$isFirstInit ?? $this->isFirstInit,
 		);
 	}
 }

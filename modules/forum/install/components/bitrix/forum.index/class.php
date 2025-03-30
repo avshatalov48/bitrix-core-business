@@ -274,7 +274,7 @@ class ForumIndexComponent extends \CBitrixComponent
 				$arForumAddParams
 			);
 
-			$this->arResult["NAV_RESULT"] = $dbForumNav;
+			$this->arResult["NAV_RESULT_PAGE_COUNT"] = $dbForumNav->NavPageCount;
 			$this->arResult["NAV_STRING"] = $dbForumNav->GetPageNavStringEx($navComponentObject, GetMessage("F_FORUM"), $this->arParams["PAGE_NAVIGATION_TEMPLATE"]);
 			$this->arResult["NAV_PAGE"] = $dbForumNav->NavNum.":".$dbForumNav->NavPageNomer;
 

@@ -4,6 +4,7 @@ import { MessageBox } from 'ui.dialogs.messagebox';
 
 import './css/confirm.css';
 
+const MESSENGER_CLASS = 'bx-im-messenger__scope';
 const CONTAINER_CLASS = 'im-confirm-container';
 const CONTAINER_MIN_HEIGHT = 110;
 
@@ -13,6 +14,7 @@ export class ChatConfirm extends MessageBox
 	getPopupWindow(): Popup
 	{
 		const popup = super.getPopupWindow();
+		Dom.addClass(popup.getPopupContainer(), MESSENGER_CLASS);
 		Dom.addClass(popup.getPopupContainer(), CONTAINER_CLASS);
 		Dom.style(popup.getPopupContainer(), 'minHeight', `${CONTAINER_MIN_HEIGHT}px`);
 

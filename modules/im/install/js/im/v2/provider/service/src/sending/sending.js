@@ -149,20 +149,8 @@ export class SendingService
 		await this.#addForwardsToModels(forwardedMessages);
 
 		this.#sendScrollEvent({ force: true, dialogId });
-		try
-		{
-			const requestParams = this.#prepareSendForwardRequest({ forwardUuidMap, commentMessage, dialogId });
-			const response = await this.#sendMessageToServer(requestParams);
-			Logger.warn('SendingService: forwardMessage result -', response);
-			this.#handleForwardMessageResponse({ response, dialogId, commentMessage });
-		}
-		catch (errors)
-		{
-			this.#handleForwardMessageError({ commentMessage, forwardUuidMap });
-			this.#logSendErrors(errors, 'forwardMessage');
-		}
 
-		return Promise.resolve();
+		return this.#sendForwardRequest({ forwardUuidMap, commentMessage, dialogId });
 	}
 
 	async retrySendMessage(params: { tempMessageId: string, dialogId: string }): Promise
@@ -181,6 +169,14 @@ export class SendingService
 			tempMessageId: unsentMessage.id,
 			replyId: unsentMessage.replyId,
 		});
+
+		if (Type.isStringFilled(unsentMessage.forward.id))
+		{
+			const [, forwardId] = unsentMessage.forward.id.split('/');
+			const forwardUuidMap = { [unsentMessage.id]: forwardId };
+
+			return this.#sendForwardRequest({ forwardUuidMap, dialogId });
+		}
 
 		return this.#sendAndProcessMessage(message);
 	}
@@ -584,5 +580,23 @@ export class SendingService
 		return this.#store.dispatch('chats/clearLastMessageViews', {
 			dialogId,
 		});
+	}
+
+	async #sendForwardRequest({ forwardUuidMap, commentMessage, dialogId }): Promise<void>
+	{
+		try
+		{
+			const requestParams = this.#prepareSendForwardRequest({ forwardUuidMap, commentMessage, dialogId });
+			const response = await this.#sendMessageToServer(requestParams);
+			Logger.warn('SendingService: forwardMessage result -', response);
+			this.#handleForwardMessageResponse({ response, dialogId, commentMessage });
+		}
+		catch (errors)
+		{
+			this.#handleForwardMessageError({ commentMessage, forwardUuidMap });
+			this.#logSendErrors(errors, 'forwardMessage');
+		}
+
+		return Promise.resolve();
 	}
 }

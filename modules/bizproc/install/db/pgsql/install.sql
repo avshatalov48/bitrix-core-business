@@ -112,7 +112,8 @@ CREATE TABLE b_bp_task (
   PRIMARY KEY (ID)
 );
 CREATE INDEX ix_b_bp_task_overdue_date_modified ON b_bp_task (overdue_date, modified);
-CREATE INDEX ix_b_bp_task_workflow_id ON b_bp_task (workflow_id);
+CREATE INDEX ix_b_bp_task_workflow_id_activity ON b_bp_task (workflow_id, activity);
+CREATE INDEX ix_b_bp_task_workflow_id_overdue_date ON b_bp_task (workflow_id, overdue_date);
 CREATE INDEX ix_b_bp_task_modified ON b_bp_task (modified);
 CREATE INDEX ix_b_bp_task_created ON b_bp_task (created_date);
 

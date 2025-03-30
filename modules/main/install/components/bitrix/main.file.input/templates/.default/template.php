@@ -2,31 +2,11 @@
 
 use Bitrix\Main\Web\Json;
 
-if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
-/**
- * @var array $arParams
- * @var array $arResult
- */
-/*?><input type="radio" name="tabs" id="file" value="file" /><label class="mfi-tab-header mfi-tab-header-file" for="file">File</label>
-<input type="radio" name="tabs" id="camera" value="camera" /><label class="mfi-tab-header mfi-tab-header-camera" for="camera">Camera</label>
-<ul class="tabs">
-	<li class="mfi-tab-body-canvas">
-		<div class="webform-field-upload">
-			<span class="webform-small-button webform-button-upload" id="mfi-#id#-snapshot" >Try again</span>
-		</div>
-		<canvas id="mfi-#id#-snapshot-canvas"></canvas>
-	</li>
-	<li class="mfi-tab-body-file">
-		<input type="file" >
-	</li>
-	<li class="mfi-tab-body-camera">
-		<div id="mfi-#id#-snapshot-area">
-			<video autoplay id="mfi-#id#-snapshot-video"></video>
-			<div id="mfi-#id#-snapshot-button">Take snapshot</div>
-		</div>
-	</li>
-</ul>
-<?*/
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 
 $arParams["SHOW_AVATAR_EDITOR"] = $arParams["SHOW_AVATAR_EDITOR"] ?? null;
 if ($arParams["SHOW_AVATAR_EDITOR"] == "Y")
@@ -42,7 +22,7 @@ $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 if ($arParams["ALLOW_UPLOAD"] == "N" && empty($arResult['FILES']))
 	return "";
 $cnt = count($arResult['FILES']);
-$id = CUtil::JSEscape($arParams['CONTROL_ID']);
+
 if ($arParams['MULTIPLE'] == 'Y' && !str_ends_with($arParams['INPUT_NAME'], "[]"))
 	$arParams['INPUT_NAME'] .= "[]";
 $thumbForUploaded = <<<HTML
@@ -57,7 +37,7 @@ HTML;
 ?>
 <div class="file-input">
 	<ol class="webform-field-upload-list webform-field-upload-list-<?=$arParams["MULTIPLE"] == "Y" ? "multiple" : "single"?><?
-		?><?=($arParams["SHOW_AVATAR_EDITOR"] == "Y" && $arParams["ALLOW_UPLOAD"] == "I" ? " webform-field-upload-icon-view" : "")?>" id="mfi-<?=$arParams['CONTROL_ID']?>"><?
+		?><?=($arParams["SHOW_AVATAR_EDITOR"] == "Y" && $arParams["ALLOW_UPLOAD"] == "I" ? " webform-field-upload-icon-view" : "")?>" id="mfi-<?=$arParams['CONTROL_UNIQUE_ID']?>"><?
 		foreach ($arResult['FILES'] as $file)
 		{
 			$ext = GetFileExtension($file['ORIGINAL_NAME']);
@@ -80,7 +60,7 @@ HTML;
 	?></ol>
 	<?if ($arParams["ALLOW_UPLOAD"] != "N")
 	{
-		?><div class="webform-field-upload" id="mfi-<?=$arParams['CONTROL_ID']?>-button"><?
+		?><div class="webform-field-upload" id="mfi-<?=$arParams['CONTROL_UNIQUE_ID']?>-button"><?
 			if (isset($arParams["INPUT_CAPTION"]) && !empty($arParams["INPUT_CAPTION"]))
 			{
 				$inputCaption = $arParams["INPUT_CAPTION"];
@@ -96,11 +76,11 @@ HTML;
 			}
 			if ($arParams["SHOW_AVATAR_EDITOR"] == "Y" && $arParams["ALLOW_UPLOAD"] == "I")
 			{
-				?><input type="button" id="mfi-<?=$arParams['CONTROL_ID']?>-editor" /><?
+				?><input type="button" id="mfi-<?=$arParams['CONTROL_UNIQUE_ID']?>-editor" /><?
 			}
 			else
 			{
-				?><input type="file" id="file_input_<?=$arParams['CONTROL_ID']?>" <?=$arParams["MULTIPLE"] === 'Y' ? ' multiple="multiple"' : ''?> /><?
+				?><input type="file" id="file_input_<?=$arParams['CONTROL_UNIQUE_ID']?>" <?=$arParams["MULTIPLE"] === 'Y' ? ' multiple="multiple"' : ''?> /><?
 			}
 		?></div><?
 		if (!empty($arParams["ALLOW_UPLOAD_EXT"]) || $arParams['MAX_FILE_SIZE'] > 0)
@@ -121,6 +101,7 @@ HTML;
 		BX.ready(function(){
 			BX.MFInput.init(<?= Json::encode(array(
 				"controlId" => $arParams['CONTROL_ID'],
+				"controlUniqueId" => $arParams['CONTROL_UNIQUE_ID'] ?? $arParams['CONTROL_ID'],
 				"controlUid" => $arParams['CONTROL_UID'],
 				"controlSign" => $arParams["CONTROL_SIGN"],
 				"inputName" => $arParams['INPUT_NAME'],

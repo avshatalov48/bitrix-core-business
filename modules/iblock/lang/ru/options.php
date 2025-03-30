@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_OPTION_SECTION_SYSTEM"] = "Системные настройки";
 $MESS["IBLOCK_OPTION_SECTION_LIST_AND_FORM"] = "Списки и формы редактирования элементов";
 $MESS["IBLOCK_OPTION_SECTION_CUSTOM_FORM"] = "Пользовательские формы редактирования элементов";
@@ -34,4 +34,3 @@ $MESS["IBLOCK_OPTION_CHECK_ACTIVITY_PERIOD_CUSTOM"] = "задан вручную
 $MESS["IBLOCK_OPTION_CHECK_ACTIVITY_PERIOD_CUSTOM_UNIT"] = " сек.";
 $MESS["IBLOCK_MESS_DELETE_ENTITY"] = "Удалить";
 $MESS["IBLOCK_MESS_ADD_ENTITY"] = "Добавить...";
-?>

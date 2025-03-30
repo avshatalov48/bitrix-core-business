@@ -4,7 +4,6 @@ namespace Bitrix\Currency\Integration;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Currency\Helpers\Editor;
-use Bitrix\Main\Type\RandomSequence;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\Web\Json;
 use Bitrix\Catalog\Component\BaseForm;
@@ -579,7 +578,7 @@ class IblockMoneyProperty
 			});
 			});
 		</script>
-		<?
+		<?php
 		$script = ob_get_contents();
 		ob_end_clean();
 		return  $script;

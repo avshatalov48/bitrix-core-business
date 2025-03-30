@@ -167,6 +167,11 @@ export class ChatService
 		this.#readService.readMessage(chatId, messageId);
 	}
 
+	readChatQueuedMessages(chatId: number): Promise<boolean>
+	{
+		return this.#readService.readChatQueuedMessages(chatId);
+	}
+
 	clearDialogMark(dialogId: string)
 	{
 		this.#readService.clearDialogMark(dialogId);

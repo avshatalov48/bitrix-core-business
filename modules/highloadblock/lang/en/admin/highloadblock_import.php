@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ADMIN_TOOLS_ACCESS_DENIED"] = "Access denied";
 $MESS["ADMIN_TOOLS_TITLE_IMPORT"] = "Import Highload Block";
 $MESS["ADMIN_TOOLS_TAB_IMPORT"] = "Import Highload Block";
@@ -25,4 +25,3 @@ $MESS["ADMIN_TOOLS_PROCESS_PERCENT"] = "Imported #percent#% (items imported: #co
 $MESS["ADMIN_TOOLS_PROCESS_FINISH_DELETE"] = "Remember to delete imported files.";
 $MESS["ADMIN_TOOLS_PROCESS_FINAL"] = "Import has been completed.";
 $MESS["XML_FILE_NOT_ACCESSIBLE"] = "Import file was not found or read access denied.";
-?>

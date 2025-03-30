@@ -55,11 +55,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    isCollab() {
 	      return this.dialog.type === im_v2_const.ChatType.collab;
 	    },
+	    isOpenLines() {
+	      return this.dialog.type === im_v2_const.ChatType.lines;
+	    },
 	    isChannel() {
 	      return im_v2_lib_channel.ChannelManager.isChannel(this.dialogId);
 	    },
 	    showHistoryOption() {
-	      return !this.isCollab && this.isChat && !this.isChannel;
+	      return !this.isCollab && this.isChat && !this.isChannel && !this.isOpenLines;
 	    },
 	    containerStyles() {
 	      return {

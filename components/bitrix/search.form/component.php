@@ -1,5 +1,8 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 /** @global CDatabase $DB */
@@ -13,17 +16,18 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var string $parentComponentPath */
 /** @var string $parentComponentTemplate */
 
-if(!IsModuleInstalled("search"))
+if (!IsModuleInstalled('search'))
 {
-	ShowError(GetMessage("BSF_C_MODULE_NOT_INSTALLED"));
+	ShowError(GetMessage('BSF_C_MODULE_NOT_INSTALLED'));
 	return;
 }
 
 //variables from component
-if(!isset($arParams["PAGE"]) || $arParams["PAGE"] == '')
-	$arParams["PAGE"] = "#SITE_DIR#search/index.php";
+if (!isset($arParams['PAGE']) || $arParams['PAGE'] == '')
+{
+	$arParams['PAGE'] = '#SITE_DIR#search/index.php';
+}
 
-$arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", SITE_DIR, $arParams["PAGE"]));
+$arResult['FORM_ACTION'] = htmlspecialcharsbx(str_replace('#SITE_DIR#', SITE_DIR, $arParams['PAGE']));
 
 $this->IncludeComponentTemplate();
-?>

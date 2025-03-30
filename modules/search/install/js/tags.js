@@ -1,32 +1,33 @@
-if (typeof oObject != "object")
+if (typeof oObject != 'object')
+{
 	window.oObject = {};
+}
 
 var Errors = {
-	"result_unval" : "Error in result",
-	"result_empty" : "Empty result"
+	'result_unval': 'Error in result',
+	'result_empty': 'Empty result',
 };
 
 function JsTc(oHandler, arSites, sParser, arParams)
 {
 	var t = this;
-	var tmp = 0;
 
-	t.oObj = typeof oHandler == 'object' ? oHandler : document.getElementById("TAGS");
+	t.oObj = typeof oHandler == 'object' ? oHandler : document.getElementById('TAGS');
 	t.arSites = arSites;
 	t.arParams = (BX.type.isPlainObject(arParams) ? arParams : {});
-	t.selfFolderUrl = t.arParams.selfFolderUrl || "/bitrix/admin/";
+	t.selfFolderUrl = t.arParams.selfFolderUrl || '/bitrix/admin/';
 	// Arrays for data
 	if (sParser)
 	{
-		t.sExp = new RegExp("["+sParser+"]+", "i");
+		t.sExp = new RegExp('[' + sParser + ']+', 'i');
 	}
 	else
 	{
-		t.sExp = new RegExp(",");
+		t.sExp = new RegExp(',');
 	}
-	t.oLast = {"str":false, "arr":false};
-	t.oThis = {"str":false, "arr":false};
-	t.oEl = {"start":false, "end":false};
+	t.oLast = { 'str': false, 'arr': false };
+	t.oThis = { 'str': false, 'arr': false };
+	t.oEl = { 'start': false, 'end': false };
 	t.oUnfinedWords = {};
 	// Flags
 	t.bReady = true;
@@ -36,15 +37,17 @@ function JsTc(oHandler, arSites, sParser, arParams)
 	t.oDiv = null;
 	// Pointers
 	t.oActive = null;
-	t.oPointer = Array();
-	t.oPointer_default = Array();
+	t.oPointer = [];
+	t.oPointer_default = [];
 	t.oPointer_this = 'input_field';
 
 	t.oObj.onblur = function()
 	{
 		t.eFocus = false;
 	};
-	t.oObj.onfocus = function(){
+
+	t.oObj.onfocus = function()
+	{
 		if (!t.eFocus)
 		{
 			t.eFocus = true;
@@ -56,46 +59,48 @@ function JsTc(oHandler, arSites, sParser, arParams)
 		}
 	};
 
-	t.CHttpRequest = new JCHttpRequest();
+	t.oLast['arr'] = t.oObj.value.split(t.sExp);
+	t.oLast['str'] = t.oLast['arr'].join(':');
 
-	t.oLast["arr"] = t.oObj.value.split(t.sExp);
-	t.oLast["str"] = t.oLast["arr"].join(":");
-
-	setTimeout(function(){t.CheckModif('this')}, 500);
+	setTimeout(function() { t.CheckModif('this'); }, 500);
 
 	this.CheckModif = function(__data)
 	{
-		var
-			sThis = false, tmp = 0,
-			bUnfined = false, word = "",
-			cursor = {};
+		var sThis = false;
+		var tmp = 0;
+		var bUnfined = false;
+		var word = '';
+		var cursor = {};
 
 		if (!t.eFocus)
+		{
 			return;
+		}
 
 		if (t.bReady && t.oObj.value.length > 0)
 		{
 			// Preparing input data
-			t.oThis["arr"] = t.oObj.value.split(t.sExp);
-			t.oThis["str"] = t.oThis["arr"].join(":");
+			t.oThis['arr'] = t.oObj.value.split(t.sExp);
+			t.oThis['str'] = t.oThis['arr'].join(':');
 
 			// Getting modificated element
-			if (t.oThis["str"] && (t.oThis["str"] != t.oLast["str"]))
+			if (t.oThis['str'] && (t.oThis['str'] != t.oLast['str']))
 			{
 				cursor['position'] = TCJsUtils.getCursorPosition(t.oObj);
-				if (cursor['position']['end'] > 0 && !t.sExp.test(t.oObj.value.substr(cursor['position']['end']-1, 1)))
+				if (cursor['position']['end'] > 0 && !t.sExp.test(t.oObj.value.substr(cursor['position']['end'] - 1, 1)))
 				{
 					cursor['arr'] = t.oObj.value.substr(0, cursor['position']['end']).split(t.sExp);
-					sThis = t.oThis["arr"][cursor['arr'].length - 1];
+					sThis = t.oThis['arr'][cursor['arr'].length - 1];
 
 					t.oEl['start'] = cursor['position']['end'] - cursor['arr'][cursor['arr'].length - 1].length;
 					t.oEl['end'] = t.oEl['start'] + sThis.length;
 					t.oEl['content'] = sThis;
 
-					t.oLast["arr"] = t.oThis["arr"];
-					t.oLast["str"] = t.oThis["str"];
+					t.oLast['arr'] = t.oThis['arr'];
+					t.oLast['str'] = t.oThis['str'];
 				}
 			}
+
 			if (sThis)
 			{
 				// Checking for UnfinedWords
@@ -108,74 +113,82 @@ function JsTc(oHandler, arSites, sParser, arParams)
 						break;
 					}
 				}
+
 				if (!bUnfined)
+				{
 					t.Send(sThis);
+				}
 			}
 		}
-		setTimeout(function(){t.CheckModif('this')}, 500);
+		setTimeout(function() { t.CheckModif('this'); }, 500);
 	};
 
 	t.Send = function(sSearch)
 	{
 		if (!sSearch)
-			return false;
-		var oError = {};
+		{
+			return;
+		}
 
-		t.CHttpRequest.Action
-			= function(data)
-			{
-				var result = {};
-				t.bReady = true;
-				try
-				{
-					eval("result = " + data + ";");
-				}
-				catch(e)
-				{
-					oError['result_unval'] = e;
-				}
-
-				if (TCJsUtils.empty(result))
-					oError['result_empty'] = Errors['result_empty'];
-
-				try
-				{
-					if (TCJsUtils.empty(oError) && (typeof result == 'object'))
-					{
-						if (!(result.length == 1 && result[0]['NAME'] == t.oEl['content']))
-						{
-							t.Show(result);
-							return;
-						}
-					}
-					else
-					{
-						t.oUnfinedWords[t.oEl['content']] = '!fined';
-					}
-				}
-				catch(e)
-				{
-					oError['unknown_error'] = e;
-				}
-				return;
-			};
-		//alert(t.arSites);
-		var queryString = t.selfFolderUrl+'search_tags.php?search='+encodeURIComponent(sSearch);
+		var queryString = t.selfFolderUrl + 'search_tags.php?search=' + encodeURIComponent(sSearch);
 		try
 		{
-			if (t.arSites && t.arSites.constructor.toString().indexOf("Array") != -1)
+			if (t.arSites && t.arSites.constructor.toString().indexOf('Array') != -1)
 			{
 				for (var i = 0, length = t.arSites.length; i < length; i++)
-					queryString += '&site_id[]='+encodeURIComponent(t.arSites[i]);
+				{
+					queryString += '&site_id[]=' + encodeURIComponent(t.arSites[i]);
+				}
 			}
-			var ck_box = document.getElementById('ck_'+oHandler.id);
-			if (ck_box)
+			var checkBox = document.getElementById('ck_' + oHandler.id);
+			if (checkBox && checkBox.checked)
 			{
-				if(ck_box.checked)
-					queryString += '&order_by=NAME';
+				queryString += '&order_by=NAME';
 			}
-		} catch (e) {}
-		t.CHttpRequest.Send(queryString);
+		}
+		catch
+		{
+		}
+
+		BX.ajax.post(queryString, '', BX.delegate(function(data)
+		{
+			var oError = {};
+			var result = {};
+
+			t.bReady = true;
+			try
+			{
+				eval('result = ' + data + ';');
+			}
+			catch (e)
+			{
+				oError['result_unval'] = e;
+			}
+
+			if (TCJsUtils.empty(result))
+			{
+				oError['result_empty'] = Errors['result_empty'];
+			}
+
+			try
+			{
+				if (TCJsUtils.empty(oError) && (typeof result == 'object'))
+				{
+					if (!(result.length == 1 && result[0]['NAME'] == t.oEl['content']))
+					{
+						t.Show(result);
+					}
+				}
+				else
+				{
+					t.oUnfinedWords[t.oEl['content']] = '!fined';
+				}
+			}
+			catch (e)
+			{
+				oError['unknown_error'] = e;
+			}
+		}, t));
 	};
 
 	t.Show = function(result)
@@ -184,41 +197,43 @@ function JsTc(oHandler, arSites, sParser, arParams)
 
 		var pos = BX.pos(t.oObj);
 
-		t.oDiv = document.body.appendChild(document.createElement("DIV"));
-		t.oDiv.id = t.oObj.id+'_div';
-		t.oDiv.className = "bx-popup-menu";
+		t.oDiv = document.body.appendChild(document.createElement('DIV'));
+		t.oDiv.id = t.oObj.id + '_div';
+		t.oDiv.className = 'bx-popup-menu';
 		t.oDiv.style.position = 'absolute';
 		t.aDiv = t.Print(result, ['NAME', 'CNT']);
 		if (t.oDiv.offsetWidth < 300)
-			t.oDiv.style.width = t.oDiv.offsetWidth + "px";
+		{
+			t.oDiv.style.width = t.oDiv.offsetWidth + 'px';
+		}
 		else
-			t.oDiv.style.width = "300px";
+		{
+			t.oDiv.style.width = '300px';
+		}
 		t.oDiv.style.zIndex = 5000;
 
-		jsFloatDiv.Show(t.oDiv, pos["left"], pos["bottom"]);
+		jsFloatDiv.Show(t.oDiv, pos['left'], pos['bottom']);
 
-		BX.bind(document, "click", t.CheckMouse);
-		BX.bind(document, "keydown", t.CheckKeyword);
+		BX.bind(document, 'click', t.CheckMouse);
+		BX.bind(document, 'keydown', t.CheckKeyword);
 	};
 
 	t.Print = function(aArr, aColumn)
 	{
 		var aEl = null;
 		var sPrefix = '';
-		var sColumn = '';
-		var aResult = Array();
-		var aRes = Array();
+		var aResult = [];
+		var aRes = [];
 		var iCnt = 0;
-		var tmp = 0;
 
 		sPrefix = t.oDiv.id;
-		var str = '<table cellspacing="0" cellpadding="0" border="0"><tr><td class="popupmenu">'+
+		var str = '<table cellspacing="0" cellpadding="0" border="0"><tr><td class="popupmenu">' +
 			'<table cellspacing="0" cellpadding="0" border="0" width="100%">';
 		for (var i = 0, length = aArr.length; i < length; i++)
 		{
 			// Math
 			aEl = aArr[i];
-			aRes = Array();
+			aRes = [];
 			aRes['ID'] = (aEl['ID'] && aEl['ID'].length > 0) ? aEl['ID'] : iCnt++;
 			aRes['GID'] = sPrefix + '_' + aRes['ID'];
 			aRes['NAME'] = TCJsUtils.htmlspecialcharsEx(aEl['NAME']);
@@ -226,21 +241,23 @@ function JsTc(oHandler, arSites, sParser, arParams)
 			aResult[aRes['GID']] = aRes;
 			t.oPointer.push(aRes['GID']);
 			// Graph
-			str += '<tr><td>'+
-			'<table cellspacing="0" cellpadding="0" border="0" class="popupitem" '+
-				'onmouseout="window.oObject.' + t.oObj.id + '.Init(); this.className=\'popupitem\';" '+
-				'onmouseover="window.oObject.' + t.oObj.id + '.Init(); this.className=\'popupitem popupitemover\'" '+
-				'onclick="window.oObject.' + t.oObj.id + '.oActive=this.id;" '+
-				'id="' + aRes['GID'] + '" name="' + sPrefix + '_table">'+
-				'<tr><td class="gutter"><div></div></td>'+
-				'<td class="item" id="' + aRes['GID'] + '_NAME" width="90%">' + aRes['NAME'] + '</td>'+
-				'<td class="item" id="' + aRes['GID'] + '_CNT" width="10%" align="right">' + aRes['CNT'] + '</td>'+
-			'</tr></table></td></tr>';
+			str += '<tr><td>'
+				+ '<table cellspacing="0" cellpadding="0" border="0" class="popupitem" '
+				+ 'onmouseout="window.oObject.' + t.oObj.id + '.Init(); this.className=\'popupitem\';" '
+				+ 'onmouseover="window.oObject.' + t.oObj.id + '.Init(); this.className=\'popupitem popupitemover\'" '
+				+ 'onclick="window.oObject.' + t.oObj.id + '.oActive=this.id;" '
+				+ 'id="' + aRes['GID'] + '" name="' + sPrefix + '_table">'
+				+ '<tr><td class="gutter"><div></div></td>'
+				+ '<td class="item" id="' + aRes['GID'] + '_NAME" width="90%">' + aRes['NAME'] + '</td>'
+				+ '<td class="item" id="' + aRes['GID'] + '_CNT" width="10%" align="right">' + aRes['CNT'] + '</td>'
+				+ '</tr></table></td></tr>'
+			;
 		}
 		str += '</table></td></tr></table>';
 		t.oPointer.push('input_field');
 		t.oPointer_default = t.oPointer;
 		t.oDiv.innerHTML = str;
+
 		return aResult;
 	};
 
@@ -251,18 +268,19 @@ function JsTc(oHandler, arSites, sParser, arParams)
 			jsFloatDiv.Close(t.oDiv);
 			t.oDiv.parentNode.removeChild(t.oDiv);
 		}
-		catch(e)
-		{}
+		catch
+		{
+		}
 
-		t.oPointer = Array();
-		t.oPointer_default = Array();
+		t.oPointer = [];
+		t.oPointer_default = [];
 		t.oPointer_this = 'input_field';
 		t.oDiv = null;
 		t.aDiv = null;
 		t.oActive = null;
 
-		BX.unbind(document, "click", t.CheckMouse);
-		BX.unbind(document, "keydown", t.CheckKeyword);
+		BX.unbind(document, 'click', t.CheckMouse);
+		BX.unbind(document, 'keydown', t.CheckKeyword);
 	};
 
 	t.Replace = function()
@@ -273,19 +291,20 @@ function JsTc(oHandler, arSites, sParser, arParams)
 			var tmp1 = '';
 			if (typeof tmp == 'object')
 			{
-				var elEntities = document.createElement("span");
-				elEntities.innerHTML = tmp['NAME'].replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+				var elEntities = document.createElement('span');
+				elEntities.innerHTML = tmp['NAME'].replaceAll('&quot;', '"').replaceAll('&amp;', '&');
 				tmp1 = elEntities.innerHTML;
 			}
-			//this preserves leading spaces
+			// this preserves leading spaces
 			var start = t.oEl['start'];
-			while(start < t.oObj.value.length && t.oObj.value.substring(start, start+1) == " ")
+			while (start < t.oObj.value.length && t.oObj.value.substring(start, start + 1) == ' ')
+			{
 				start++;
+			}
 
-			t.oObj.value = t.oObj.value.substring(0, start) + tmp1.replace(/&lt;/g, '<').replace(/&gt;/g, '>') + t.oObj.value.substr(t.oEl['end']);
+			t.oObj.value = t.oObj.value.substring(0, start) + tmp1.replaceAll('&lt;', '<').replaceAll('&gt;', '>') + t.oObj.value.substr(t.oEl['end']);
 			TCJsUtils.setCursorPosition(t.oObj, start + tmp1.length);
 		}
-		return;
 	};
 
 	t.Init = function()
@@ -298,8 +317,9 @@ function JsTc(oHandler, arSites, sParser, arParams)
 
 	t.Clear = function()
 	{
-		var oEl = {}, ii = '';
-		oEl = t.oDiv.getElementsByTagName("table");
+		var oEl = {};
+		var ii = '';
+		oEl = t.oDiv.getElementsByTagName('table');
 		if (oEl.length > 0 && typeof oEl == 'object')
 		{
 			for (ii in oEl)
@@ -309,12 +329,11 @@ function JsTc(oHandler, arSites, sParser, arParams)
 					var oE = oEl[ii];
 					if (oE.name == (t.oDiv.id + '_table') || (t.aDiv[oE.id]))
 					{
-						oE.className = "popupitem";
+						oE.className = 'popupitem';
 					}
 				}
 			}
 		}
-		return;
 	};
 
 	t.CheckMouse = function()
@@ -326,12 +345,13 @@ function JsTc(oHandler, arSites, sParser, arParams)
 	t.CheckKeyword = function(e)
 	{
 		if (!e)
+		{
 			e = window.event;
-		var
-			oP = null,
-			oEl = null,
-			ii = null;
-		if ((37 < e.keyCode && e.keyCode <41) || (e.keyCode == 13))
+		}
+		var oP = null;
+		var oEl = null;
+
+		if ((e.keyCode > 37 && e.keyCode < 41) || (e.keyCode == 13))
 		{
 			t.Clear();
 
@@ -351,7 +371,7 @@ function JsTc(oHandler, arSites, sParser, arParams)
 						oEl = document.getElementById(oP);
 						if (typeof oEl == 'object')
 						{
-							oEl.className = "popupitem popupitemover";
+							oEl.className = 'popupitem popupitemover';
 						}
 					}
 					t.oPointer.unshift(oP);
@@ -363,13 +383,14 @@ function JsTc(oHandler, arSites, sParser, arParams)
 						t.oPointer.push(oP);
 						oP = t.oPointer.shift();
 					}
+
 					if (oP != 'input_field')
 					{
 						t.oActive = oP;
 						oEl = document.getElementById(oP);
 						if (typeof oEl == 'object')
 						{
-							oEl.className = "popupitem popupitemover";
+							oEl.className = 'popupitem popupitemover';
 						}
 					}
 					t.oPointer.push(oP);
@@ -392,6 +413,8 @@ function JsTc(oHandler, arSites, sParser, arParams)
 						e.stopPropagation();
 					}
 					break;
+				default:
+					break;
 			}
 			t.oPointer_this	= oP;
 		}
@@ -399,16 +422,23 @@ function JsTc(oHandler, arSites, sParser, arParams)
 		{
 			t.Destroy();
 		}
+
 		return true;
 	};
 }
-var TCJsUtils =
-{
+var TCJsUtils = {
 	getCursorPosition: function(oObj)
 	{
-		var result = {'start': 0, 'end': 0};
+		var result = {
+			'start': 0,
+			'end': 0,
+		};
+
 		if (!oObj || (typeof oObj != 'object'))
+		{
 			return result;
+		}
+
 		try
 		{
 			if (document.selection != null && oObj.selectionStart == null)
@@ -418,15 +448,15 @@ var TCJsUtils =
 				var oParent = oRange.parentElement();
 				var sBookmark = oRange.getBookmark();
 				var sContents = oObj.value;
-				var sContents_ = oObj.value;
+				var sContentsSaved = oObj.value;
 				var sMarker = '__' + Math.random() + '__';
 
-				while(sContents.indexOf(sMarker) != -1)
+				while (sContents.indexOf(sMarker) != -1)
 				{
 					sMarker = '__' + Math.random() + '__';
 				}
 
-				if (!oParent || oParent === null || (oParent.type != "textarea" && oParent.type != "text"))
+				if (!oParent || oParent === null || (oParent.type != 'textarea' && oParent.type != 'text'))
 				{
 					return result;
 				}
@@ -434,30 +464,33 @@ var TCJsUtils =
 				oRange.text = sMarker + oRange.text + sMarker;
 				sContents = oObj.value;
 				result['start'] = sContents.indexOf(sMarker);
-				sContents = sContents.replace(sMarker, "");
+				sContents = sContents.replace(sMarker, '');
 				result['end'] = sContents.indexOf(sMarker);
-				oObj.value = sContents_;
+				oObj.value = sContentsSaved;
 				oRange.moveToBookmark(sBookmark);
 				oRange.select();
+
 				return result;
 			}
-			else
-			{
-				return {
-					'start': oObj.selectionStart,
-					'end': oObj.selectionEnd
-				};
-			}
+
+			return {
+				'start': oObj.selectionStart,
+				'end': oObj.selectionEnd
+			};
 		}
-		catch(e){}
+		catch
+		{
+		}
+
 		return result;
 	},
 
 	setCursorPosition: function(oObj, iPosition)
 	{
-		var result = false;
 		if (typeof oObj != 'object')
+		{
 			return false;
+		}
 
 		oObj.focus();
 
@@ -473,13 +506,13 @@ var TCJsUtils =
 				oObj.selectionStart = iPosition;
 				oObj.selectionEnd = iPosition;
 			}
+
 			return true;
 		}
-		catch(e)
+		catch
 		{
 			return false;
 		}
-
 	},
 
 	empty: function(oObj)
@@ -496,18 +529,30 @@ var TCJsUtils =
 				}
 			}
 		}
+
 		return result;
 	},
 
 	htmlspecialcharsEx: function(str)
 	{
-		var res = str.replace(/&amp;/g, '&amp;amp;').replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;').replace(/&quot;/g, '&amp;quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-		return res;
+		return str
+			.replaceAll('&amp;', '&amp;amp;')
+			.replaceAll('&lt;', '&amp;lt;')
+			.replaceAll('&gt;', '&amp;gt;')
+			.replaceAll('&quot;', '&amp;quot;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+		;
 	},
 
 	htmlspecialcharsback: function(str)
 	{
-		var res = str.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-		return res;
-	}
-}
+		return str
+			.replaceAll('&lt;', '<')
+			.replaceAll('&gt;', '>')
+			.replaceAll('&quot;', '"')
+			.replaceAll('&amp;', '&')
+		;
+	},
+};

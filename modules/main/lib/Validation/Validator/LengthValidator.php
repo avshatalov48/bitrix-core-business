@@ -6,6 +6,8 @@ namespace Bitrix\Main\Validation\Validator;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
+use Bitrix\Main\Localization\LocalizableMessagePlural;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 
@@ -32,7 +34,7 @@ class LengthValidator implements ValidatorInterface
 		if (!is_string($value))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_LENGTH_INVALID_ARGUMENT'),
+				new LocalizableMessage('MAIN_VALIDATION_LENGTH_INVALID_ARGUMENT'),
 				failedValidator: $this
 			));
 
@@ -61,7 +63,7 @@ class LengthValidator implements ValidatorInterface
 		if ($length < $this->min)
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessagePlural('MAIN_VALIDATION_LENGTH_INVALID_MIN', $this->min, ['#MIN#' => $this->min]),
+				new LocalizableMessagePlural('MAIN_VALIDATION_LENGTH_INVALID_MIN', $this->min, ['#MIN#' => $this->min]),
 				failedValidator: $this
 			));
 		}
@@ -76,7 +78,7 @@ class LengthValidator implements ValidatorInterface
 		if ($length > $this->max)
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessagePlural('MAIN_VALIDATION_LENGTH_INVALID_MAX', $this->max, ['#MAX#' => $this->max])
+				new LocalizableMessagePlural('MAIN_VALIDATION_LENGTH_INVALID_MAX', $this->max, ['#MAX#' => $this->max])
 				, failedValidator: $this
 			));
 		}

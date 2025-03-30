@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Crm\Settings\ActivitySettings;
+use Bitrix\Crm\Activity;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
@@ -137,7 +138,19 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 		}
 		\CJSCore::init($extensionsList);
 
-		$this->arParams['OLD_RECIPIENTS_MODE'] = (Loader::includeModule('crm') && ActivitySettings::getCurrent()->getEnableUnconnectedRecipients());
+		$this->arParams['OLD_RECIPIENTS_MODE'] = false;
+		$this->arParams['OWNER_CATEGORY_ID'] = 0;
+
+		if (Loader::includeModule('crm'))
+		{
+			$this->arParams['OLD_RECIPIENTS_MODE'] = ActivitySettings::getCurrent()->getEnableUnconnectedRecipients();
+
+			if (!empty($this->arParams['OWNER_TYPE_ID']) && !empty($this->arParams['OWNER_ID']))
+			{
+				$this->arParams['OWNER_CATEGORY_ID'] = Activity\Mail\Message::getRecipientCategoryId((int) $this->arParams['OWNER_TYPE_ID'], (int) $this->arParams['OWNER_ID']);
+			}
+		}
+
 		$this->arParams['FIELDS'] = $this->arParams['~FIELDS'];
 		$this->arParams['FIELDS_EXT'] = $this->arParams['~FIELDS_EXT'] ?? '';
 		$this->arParams['BUTTONS'] = $this->arParams['~BUTTONS'];

@@ -16,6 +16,7 @@ use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
 use Bitrix\Rest\Engine\Access;
 use Bitrix\Rest\Engine\Access\HoldEntity;
+use Bitrix\Rest\Service\PasswordService;
 
 class Auth
 {
@@ -68,7 +69,7 @@ class Auth
 			if (
 				!$error
 					&& (
-						!Access::isAvailable()
+						!Access::isAvailableAPAuthByPasswordId((int)$tokenInfo['password_id'])
 						|| (
 							Access::needCheckCount()
 							&& !Access::isAvailableCount(Access::ENTITY_TYPE_WEBHOOK, $tokenInfo['password_id'])
@@ -78,7 +79,7 @@ class Auth
 			{
 					$tokenInfo = [
 						'error' => 'ACCESS_DENIED',
-						'error_description' => 'REST is available only on commercial plans.'
+						'error_description' => 'REST is available only by subscription.'
 					];
 					$error = true;
 			}

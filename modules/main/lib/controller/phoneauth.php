@@ -49,7 +49,7 @@ class PhoneAuth extends Main\Engine\Controller
 		];
 	}
 
-	public function confirmAction($code, $signedData)
+	public function confirmAction(string $code, string $signedData)
 	{
 		global $USER;
 
@@ -61,12 +61,14 @@ class PhoneAuth extends Main\Engine\Controller
 		catch(\Bitrix\Main\SystemException $exception)
 		{
 			$this->addError(new Main\Error(Loc::getMessage('main_register_incorrect_request'), 'ERR_SIGNATURE'));
+
 			return null;
 		}
 
-		if(!preg_match('/^[0-9]{6}$/', $code))
+		if (!preg_match('/^[0-9]{6}$/', $code))
 		{
 			$this->addError(new Main\Error(Loc::getMessage('main_err_confirm_code_format'), 'ERR_CONFIRM_CODE'));
+
 			return null;
 		}
 
@@ -77,13 +79,14 @@ class PhoneAuth extends Main\Engine\Controller
 			'select' => ['USER_ID', 'PHONE_NUMBER', 'USER.ID', 'USER.ACTIVE'],
 		])->fetchObject();
 
-		if(!$phoneRecord)
+		if (!$phoneRecord)
 		{
 			$this->addError(new Main\Error(Loc::getMessage('main_register_no_user'), 'ERR_NOT_FOUND'));
+
 			return null;
 		}
 
-		if(\CUser::VerifyPhoneCode($phoneRecord->getPhoneNumber(), $code))
+		if (\CUser::VerifyPhoneCode($phoneRecord->getPhoneNumber(), $code))
 		{
 			if($phoneRecord->getUser()->getActive() && !$USER->IsAuthorized())
 			{
@@ -95,6 +98,7 @@ class PhoneAuth extends Main\Engine\Controller
 		else
 		{
 			$this->addError(new Main\Error(Loc::getMessage('main_err_confirm'), 'ERR_CONFIRM_CODE'));
+
 			return null;
 		}
 	}

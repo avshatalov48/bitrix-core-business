@@ -870,7 +870,7 @@
 					this.form.handler
 					&& this.form.handler.htmlEditor
 					&& this.form.handler.htmlEditor.IsVisible()
-					&& this.form.handler.htmlEditor.GetContent() !== ""
+					&& !node
 				)
 				{
 					return;
@@ -1079,6 +1079,13 @@
 				},
 				this.getTemplate(),
 			));
+
+			let fileCountDownloaded = document.getElementsByClassName('diskuf-files-entity').length;
+			if (fileCountDownloaded === 0)
+			{
+				BX.load(['/bitrix/js/disk/css/legacy_uf_common.css']);
+			}
+
 			var ob = BX.processHTML(html, false);
 			var results;
 			var newCommentsContainer = this.node.newComments;

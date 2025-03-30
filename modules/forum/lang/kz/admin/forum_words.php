@@ -1,0 +1,27 @@
+<?php
+$MESS["FLT_ACT_ADD"] = "Қосу";
+$MESS["FLT_ACT_DEL"] = "Жою";
+$MESS["FLT_ACT_DEL_CONFIRM"] = "Сіз шынымен жазбаны жойғыңыз келе ме?";
+$MESS["FLT_ACT_EDIT"] = "Өзгерту";
+$MESS["FLT_ACT_GEN"] = "Қалыпты жасау";
+$MESS["FLT_ACT_GEN_CONFIRM"] = "&nbsp;қолданып&nbsp;";
+$MESS["FLT_ACT_USE_IT_N"] = "Жоқ";
+$MESS["FLT_ACT_USE_IT_Y"] = "Иә";
+$MESS["FLT_DESCRIPTION"] = "Сипаттама";
+$MESS["FLT_FLT_PTTRN"] = "Тіркес";
+$MESS["FLT_FLT_TRNSL"] = "Транслит";
+$MESS["FLT_FLT_WORDS"] = "Cөз";
+$MESS["FLT_NOT_DICTIONARY"] = "Сөздік көрсетілмеген.";
+$MESS["FLT_NOT_UPDATE"] = "Өзгерістер сақталмады.";
+$MESS["FLT_PATTERN"] = "Қалып";
+$MESS["FLT_PATTERN_CREATE"] = "Қалыпты жасау түрі";
+$MESS["FLT_REPLACEMENT"] = "Алмастыру";
+$MESS["FLT_TITLE"] = "Сөздер сөздігі";
+$MESS["FLT_TITLE_NAV"] = "Сөздер";
+$MESS["FLT_USE_IT"] = "Белсенді";
+$MESS["FLT_WORDS"] = "Cөз";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Белгіленген:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "жою";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Таңдалған:";
+$MESS["MAIN_FIND"] = "Табу";
+$MESS["MAIN_FIND_TITLE"] = "Іздеу үшін жол енгізіңіз";

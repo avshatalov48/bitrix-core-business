@@ -102,6 +102,10 @@ export const DialogStatus = {
 		{
 			return this.dialog.lastMessageViews;
 		},
+		additionalUsersLinkElementSelector(): string
+		{
+			return `.${MORE_USERS_CSS_CLASS}[data-id="${this.dialogId}"]`;
+		},
 	},
 	methods:
 	{
@@ -125,14 +129,14 @@ export const DialogStatus = {
 
 			return this.loc('IM_ELEMENTS_STATUS_READ_CHAT_PLURAL', {
 				'#USERS#': Text.encode(firstViewer.userName),
-				'#LINK_START#': `<span class="${MORE_USERS_CSS_CLASS}" ref="moreUsersLink">`,
+				'#LINK_START#': `<span class="${MORE_USERS_CSS_CLASS}" data-id="${this.dialogId}">`,
 				'#COUNT#': countOfViewers - 1,
 				'#LINK_END#': '</span>',
 			});
 		},
 		onClick(event: PointerEvent)
 		{
-			if (!event.target.matches(`.${MORE_USERS_CSS_CLASS}`))
+			if (!event.target.matches(this.additionalUsersLinkElementSelector))
 			{
 				return;
 			}
@@ -141,7 +145,7 @@ export const DialogStatus = {
 		},
 		onMoreUsersClick()
 		{
-			this.additionalUsersLinkElement = document.querySelector(`.${MORE_USERS_CSS_CLASS}`);
+			this.additionalUsersLinkElement = document.querySelector(this.additionalUsersLinkElementSelector);
 			this.showAdditionalUsers = true;
 		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string

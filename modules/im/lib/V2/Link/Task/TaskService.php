@@ -249,7 +249,12 @@ class TaskService
 	 */
 	protected function getFilesIdsForTaskFromMessage(Message $message): array
 	{
-		$copies = $message->getFiles()->getCopies();
+		$copies = $message->getFiles()->copyToOwnUploadedFiles()->getResult();
+		if (!isset($copies))
+		{
+			return [];
+		}
+
 		$copies->addToTmp(TemporaryFileService::TASK_SOURCE);
 		$newIds = [];
 
@@ -263,7 +268,12 @@ class TaskService
 
 	protected function getFileDataForTask(Message $message): array
 	{
-		$copies = $message->getFiles()->getCopies();
+		$copies = $message->getFiles()->copyToOwnUploadedFiles()->getResult();
+		if (!isset($copies))
+		{
+			return [];
+		}
+
 		$files = [];
 
 		foreach ($copies as $copy)
@@ -318,7 +328,7 @@ class TaskService
 		{
 			$text = (new Message($task->getMessageId()))->getQuotedMessage() . "\n";
 			$text .= Loc::getMessage(
-				'IM_CHAT_TASK_REGISTER_FROM_MESSAGE_NOTIFICATION' . $genderModifier,
+				'IM_CHAT_TASK_REGISTER_FROM_MESSAGE_NOTIFICATION' . $genderModifier . '_MSGVER_1',
 				[
 					'#LINK#' => $task->getEntity()->getUrl(),
 					'#USER_ID#' => $this->getContext()->getUserId(),

@@ -1,0 +1,21 @@
+<?php
+$MESS["smtp_configuration_admin_add"] = "SMTP-қосылымды қосу";
+$MESS["smtp_configuration_admin_add_title"] = "Жаңа қосылымды қосу";
+$MESS["smtp_configuration_admin_all"] = "(барлығы)";
+$MESS["smtp_configuration_admin_copy"] = "Көшірмені қосу";
+$MESS["smtp_configuration_admin_del"] = "Жою";
+$MESS["smtp_configuration_admin_del_conf"] = "Қосылымды жойғыңыз келетініне сенімдісіз бе?";
+$MESS["smtp_configuration_admin_edit"] = "Қосылымды редакциялау";
+$MESS["smtp_configuration_admin_edit1"] = "Өзгерту";
+$MESS["smtp_configuration_admin_email"] = "Жіберушінің E-mail-ы";
+$MESS["smtp_configuration_admin_find"] = "Табу:";
+$MESS["smtp_configuration_admin_host"] = "Хост";
+$MESS["smtp_configuration_admin_is_confirmed"] = "Расталды";
+$MESS["smtp_configuration_admin_is_public"] = "Барлық пайдаланушылар үшін";
+$MESS["smtp_configuration_admin_nav"] = "SMTP параметрлері";
+$MESS["smtp_configuration_admin_no"] = "Жоқ";
+$MESS["smtp_configuration_admin_sites"] = "Сайттар";
+$MESS["smtp_configuration_admin_title"] = "SMTP-қосылым параметрлері";
+$MESS["smtp_configuration_admin_username"] = "Аты";
+$MESS["smtp_configuration_admin_yes"] = "Иә";
+$MESS["smtp_configuration_wrong_field_value"] = "%FIELD_NAME% өрісінің қате мәні";

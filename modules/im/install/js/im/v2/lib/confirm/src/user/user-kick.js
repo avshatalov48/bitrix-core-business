@@ -1,3 +1,4 @@
+import { ChannelManager } from 'im.v2.lib.channel';
 import { Loc } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
@@ -23,8 +24,17 @@ const getPhrases = (dialogId: string): ConfirmParams => {
 		};
 	}
 
+	const isChannel = ChannelManager.isChannel(dialogId);
+	if (isChannel)
+	{
+		return {
+			text: Loc.getMessage('IM_LIB_CONFIRM_USER_CHANNEL_KICK'),
+			firstButtonCaption: Loc.getMessage('IM_LIB_CONFIRM_USER_KICK_YES'),
+		};
+	}
+
 	return {
-		text: Loc.getMessage('IM_LIB_CONFIRM_USER_KICK'),
+		text: Loc.getMessage('IM_LIB_CONFIRM_USER_KICK_MSGVER_1'),
 		firstButtonCaption: Loc.getMessage('IM_LIB_CONFIRM_USER_KICK_YES'),
 	};
 };

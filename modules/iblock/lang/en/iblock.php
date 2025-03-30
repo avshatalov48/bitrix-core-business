@@ -83,4 +83,4 @@ $MESS["IBLOCK_XML2_FILE_ERROR"] = "File open error.";
 $MESS["IBLOCK_XML2_INDEX_ERROR"] = "An error occurred trying to create index.";
 $MESS["IBLOCK_XML2_METADATA_ERROR"] = "An error occurred trying to import catalog metadata.";
 $MESS["IBLOCK_XML2_TABLE_PREPARE_ERROR"] = "Error creating temporary import tables.";
-$MESS["IBLOCK_YES"] = "Yes";
+$MESS['IBLOCK_YES'] = "Yes";

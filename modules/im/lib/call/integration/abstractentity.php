@@ -72,11 +72,4 @@ abstract class AbstractEntity
 			'name' => $this->getName($initiatorId)
 		];
 	}
-
-	protected function getCurrentUserId()
-	{
-		global $USER;
-
-		return (int)$USER->getId();
-	}
 }

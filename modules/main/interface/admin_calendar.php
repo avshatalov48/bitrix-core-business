@@ -77,6 +77,8 @@ class CAdminCalendar
 
 	public static function CalendarDate($sFieldName, $sValue="", $size="10", $bTime=false)
 	{
+		\Bitrix\Main\UI\Extension::load('ui.date-picker');
+
 		// component can't set 'size' param
 		return '
 	<div class="adm-input-wrap adm-input-wrap-calendar">
@@ -158,6 +160,8 @@ class CAdminCalendar
 	 */
 	private static function GetPeriodHtml($sFromName, $sToName, $sFromVal, $sToVal, $bSelectShow, $size, $bTime, $arPeriod, $periodValue = '')
 	{
+		\Bitrix\Main\UI\Extension::load('ui.date-picker');
+
 		$size = (int)$size;
 
 		$s = '

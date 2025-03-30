@@ -53,7 +53,7 @@ class ProductRowActionsProvider extends ElementRowActionsProvider
 				{
 					$additionalItems[] = $this->getActionById(ConvertToProductItem::getId());
 				}
-				else
+				if ($productType === ProductTable::TYPE_PRODUCT)
 				{
 					$additionalItems[] = $this->getActionById(ConvertToServiceItem::getId());
 				}

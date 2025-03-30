@@ -5,17 +5,30 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Bizproc\Task\Dto\ExternalEventTask\AddCommandDto;
+use Bitrix\Bizproc\Task\Dto\ExternalEventTask\RemoveCommandDto;
+use Bitrix\Bizproc\Task\Dto\MarkCompletedTaskDto;
+use Bitrix\Bizproc\Task\ExternalEventTask;
+use Bitrix\Bizproc\Task\Manager;
 use Bitrix\Main\Localization\Loc;
 
+/**
+ * @property-read array $Permission
+ * @property-read int $SenderUserId
+ */
 class CBPHandleExternalEventActivity
 	extends CBPActivity
 	implements IBPEventActivity, IBPActivityExternalEventListener, IBPEventDrivenActivity
 {
 	private bool $isInEventActivityMode = false;
+	private bool $canAddTask = true;
+	private array $taskUsers = [];
+	private ?int $taskId = null;
 
 	public function __construct($name)
 	{
 		parent::__construct($name);
+
 		$this->arProperties = [
 			'Title' => '',
 			'Permission' => [],
@@ -33,20 +46,20 @@ class CBPHandleExternalEventActivity
 	{
 		$this->isInEventActivityMode = true;
 
-		$v = [];
-		$arPermissionTmp = $this->Permission;
-		if (is_array($arPermissionTmp))
+		$users = [];
+		$permissions = $this->Permission;
+		if (is_array($permissions) && $permissions)
 		{
-			foreach ($arPermissionTmp as $val)
+			foreach ($permissions as $val)
 			{
-				$v[] = (mb_strpos($val, '{=') === 0 ? $val : '{=user:' . $val . '}');
+				$users[] = (str_starts_with($val, '{=') ? $val : '{=user:' . $val . '}');
 			}
 		}
 
-		if (count($v) > 0)
+		if ($users)
 		{
 			$this->writeToTrackingService(str_replace(
-				['#EVENT#', '#VAL#'], [$this->name, implode(', ', $v)],
+				['#EVENT#', '#VAL#'], [$this->name, implode(', ', $users)],
 				Loc::getMessage('BPHEEA_TRACK'))
 			);
 		}
@@ -62,14 +75,16 @@ class CBPHandleExternalEventActivity
 		);
 
 		$this->workflow->addEventHandler($this->name, $eventHandler);
+		$this->addTask();
 	}
 
 	public function unsubscribe(IBPActivityExternalEventListener $eventHandler)
 	{
-		$stateService = $this->workflow->getService('StateService');
+		$stateService = $this->workflow->getRuntime()->getStateService();
 		$stateService->deleteStateParameter($this->getWorkflowInstanceId(), $this->name);
 
 		$this->workflow->removeEventHandler($this->name, $eventHandler);
+		$this->completeTask();
 	}
 
 	public function execute()
@@ -105,45 +120,35 @@ class CBPHandleExternalEventActivity
 		}
 	}
 
-	public function OnExternalDrivenEvent($arEventParameters = [])
+	public function onExternalDrivenEvent($arEventParameters = [])
 	{
 		return $this->onExternalEventHandler($arEventParameters);
 	}
 
 	private function onExternalEventHandler($arEventParameters = [])
 	{
-		if (count($this->Permission) > 0)
+		$permissions = $this->Permission;
+		if (is_array($permissions) && $permissions)
 		{
-			$arSenderGroups = (array_key_exists('Groups', $arEventParameters) ? $arEventParameters['Groups'] : []);
-			if (!is_array($arSenderGroups))
+			$senderGroups = (array_key_exists('Groups', $arEventParameters) ? $arEventParameters['Groups'] : []);
+			if (!is_array($senderGroups))
 			{
-				$arSenderGroups = [$arSenderGroups];
+				$senderGroups = [$senderGroups];
 			}
+
 			if (array_key_exists('User', $arEventParameters))
 			{
-				$arSenderGroups[] = 'user_' . $arEventParameters['User'];
-				$arSenderGroups = array_merge($arSenderGroups, CBPHelper::getUserExtendedGroups($arEventParameters['User']));
-			}
-			if (count($arSenderGroups) <= 0)
-			{
-				return false;
+				$senderGroups[] = 'user_' . $arEventParameters['User'];
+				$senderGroups = array_merge($senderGroups, CBPHelper::getUserExtendedGroups($arEventParameters['User']));
 			}
 
-			$bHavePerms = false;
-
-			$intersect = array_intersect($this->Permission, $arSenderGroups);
-			if (count($intersect) > 0)
-			{
-				$bHavePerms = true;
-			}
-
-			if (!$bHavePerms)
+			if (!$senderGroups || !array_intersect($permissions, $senderGroups))
 			{
 				return false;
 			}
 		}
 
-		if ($this->executionStatus != CBPActivityExecutionStatus::Closed)
+		if ((int)$this->executionStatus !== CBPActivityExecutionStatus::Closed)
 		{
 			if (array_key_exists('User', $arEventParameters))
 			{
@@ -156,14 +161,71 @@ class CBPHandleExternalEventActivity
 		return false;
 	}
 
-	public function OnStateExternalEvent($arEventParameters = [])
+	public function onStateExternalEvent($arEventParameters = [])
 	{
 		if (
-			$this->executionStatus != CBPActivityExecutionStatus::Closed
+			(int)$this->executionStatus !== CBPActivityExecutionStatus::Closed
 			&& array_key_exists('User', $arEventParameters)
 		)
 		{
 			$this->SenderUserId = 'user_' . $arEventParameters['User'];
+		}
+	}
+
+	private function addTask(): void
+	{
+		if (!$this->canAddTask)
+		{
+			return;
+		}
+
+		$this->taskUsers = CBPHelper::extractUsers($this->Permission, $this->getDocumentId());
+		if (!$this->taskUsers)
+		{
+			return;
+		}
+
+		$task = ExternalEventTask::addToTask(
+			new AddCommandDto(
+				id: CBPHelper::stringify($this->name),
+				userIds: $this->taskUsers,
+				workflowId: $this->getWorkflowInstanceId(),
+			),
+		);
+		if ($task)
+		{
+			$this->taskId = $task->getId();
+		}
+	}
+
+	private function completeTask(): void
+	{
+		if (!$this->canAddTask || !$this->taskUsers)
+		{
+			return;
+		}
+
+		$taskData = ExternalEventTask::getCurrentTask($this->getWorkflowInstanceId());
+		if ($taskData && (int)$taskData['ID'] === $this->taskId)
+		{
+			$userId = (
+				!empty($this->SenderUserId)
+					? CBPHelper::extractFirstUser($this->SenderUserId, $this->getDocumentId())
+					: 0
+			);
+
+			/** @var ExternalEventTask $task */
+			$task = Manager::getTask(ExternalEventTask::getAssociatedActivity(), $taskData, $userId);
+
+			if ($userId > 0 && in_array($userId, $this->taskUsers, true))
+			{
+				$task->markCompleted(new MarkCompletedTaskDto(userId: $userId));
+			}
+
+			$task->removeFromTask(new RemoveCommandDto(
+				id: CBPHelper::stringify($this->name),
+				userIds: $this->taskUsers
+			));
 		}
 	}
 

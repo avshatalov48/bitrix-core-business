@@ -1,0 +1,19 @@
+<?php
+$MESS["REST_CONFIGURATION_IMPORT_APP_ERROR_TYPE"] = "Бұл қосымша конфигурациялық болып табылмайды";
+$MESS["REST_CONFIGURATION_IMPORT_EASY_DELETE_APP"] = "Битрикс24 баптауларын өзгерту үшін қолжетімді нұсқаларыңыз жоқ, сондықтан біз қосымшаны жойдық.";
+$MESS["REST_CONFIGURATION_IMPORT_ERRORS_MAX_FILE_SIZE"] = "Жүктелетін файлдың ең жоғары өлшемі: #SIZE# Мбайт";
+$MESS["REST_CONFIGURATION_IMPORT_ERRORS_POPUP_BTN_COPY"] = "Көшіру";
+$MESS["REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_LABEL"] = "Мәселенің сипаттамасы";
+$MESS["REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_PLACEHOLDER"] = "Мәселені сипаттау мәтіні";
+$MESS["REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TITLE"] = "Қателер туралы есеп";
+$MESS["REST_CONFIGURATION_IMPORT_ERRORS_REPORT_BTN"] = "Қателер туралы есеп";
+$MESS["REST_CONFIGURATION_IMPORT_FINISH_DESCRIPTION_MSGVER_1"] = "Дайын! Редакциялауға кірісуге болады";
+$MESS["REST_CONFIGURATION_IMPORT_FINISH_ERROR_DESCRIPTION"] = "Баптаулар импортталды, бірақ кейбір қателер бар.";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_APP_TITLE_BLOCK"] = "Қосымшаны орнату";
+$MESS["REST_CONFIGURATION_IMPORT_ROLLBACK_MODE_DESCRIPTION_2"] = "Пайдаланылған қосымшаны жою үшін сіздің Битрикс24 баптауларының қолжетімді нұсқаларының бірін таңдау керек немесе Битрикс24.Маркеттен жаңа қосымша таңдау керек.";
+$MESS["REST_CONFIGURATION_IMPORT_ROLLBACK_SUBMIT_BTN"] = "Қолдану";
+$MESS["REST_CONFIGURATION_IMPORT_ROLLBACK_TITLE_BLOCK"] = "Салалық баптауларды қалпына келтіру";
+$MESS["REST_CONFIGURATION_IMPORT_SAVE_FILE_BTN"] = "Жүктеу";
+$MESS["REST_CONFIGURATION_IMPORT_SAVE_FILE_DESCRIPTION"] = "Салалық баптаулары бар файлды жүктеңіз";
+$MESS["REST_CONFIGURATION_IMPORT_SAVE_FILE_PROCESS"] = "Файлды жүктейміз";
+$MESS["REST_CONFIGURATION_IMPORT_TITLE_BLOCK"] = "Салалық баптаулар импорты";

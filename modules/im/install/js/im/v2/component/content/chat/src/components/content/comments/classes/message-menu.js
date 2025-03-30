@@ -18,7 +18,7 @@ export class CommentsMessageMenu extends MessageMenu
 				this.getCopyFileItem(),
 				this.getDelimiter(),
 				this.getDownloadFileItem(),
-				this.getSaveToDisk(),
+				this.getSaveToDiskItem(),
 				this.getDelimiter(),
 				this.getOpenInChannelItem(),
 			];
@@ -37,7 +37,7 @@ export class CommentsMessageMenu extends MessageMenu
 			this.getCreateItem(),
 			this.getDelimiter(),
 			this.getDownloadFileItem(),
-			this.getSaveToDisk(),
+			this.getSaveToDiskItem(),
 			this.getDelimiter(),
 			this.getEditItem(),
 			this.getDeleteItem(),

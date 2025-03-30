@@ -1,0 +1,22 @@
+<?php
+$MESS["JS_SITE_SPEED_COMPOSITE"] = "Композит";
+$MESS["JS_SITE_SPEED_COMPOSITE_HITS"] = "Композиттік хиттер";
+$MESS["JS_SITE_SPEED_COMPOSITE_NO"] = "Жоқ";
+$MESS["JS_SITE_SPEED_COMPOSITE_YES"] = "Иә";
+$MESS["JS_SITE_SPEED_DOWNLOAD_TIME"] = "HTML жүктеу";
+$MESS["JS_SITE_SPEED_FAST"] = "Жылдам";
+$MESS["JS_SITE_SPEED_HITS"] = "Келулер саны";
+$MESS["JS_SITE_SPEED_INDEX"] = "Сайттың жылдамдығы";
+$MESS["JS_SITE_SPEED_INTERACTIVE"] = "Суреттеу, сек.";
+$MESS["JS_SITE_SPEED_INTERACTIVE_TIME"] = "Парақшаны суреттеу";
+$MESS["JS_SITE_SPEED_NOT_FAST"] = "Жылдам емес";
+$MESS["JS_SITE_SPEED_PAGE"] = "Парақша";
+$MESS["JS_SITE_SPEED_PROCESSING"] = "HTML өңдеу, сек.";
+$MESS["JS_SITE_SPEED_PROCESSING_TIME"] = "HTML өңдеу";
+$MESS["JS_SITE_SPEED_RESPONSE"] = "Сервердің жауабы, сек.";
+$MESS["JS_SITE_SPEED_RESPONSE_TIME"] = "Серверден жауап";
+$MESS["JS_SITE_SPEED_SECONDS_UNIT"] = "бастап";
+$MESS["JS_SITE_SPEED_SLOW"] = "Баяу";
+$MESS["JS_SITE_SPEED_TCP"] = "Серверге қосылу";
+$MESS["JS_SITE_SPEED_VERY_FAST"] = "Өте жылдам";
+$MESS["JS_SITE_SPEED_VERY_SLOW"] = "Өте баяу";

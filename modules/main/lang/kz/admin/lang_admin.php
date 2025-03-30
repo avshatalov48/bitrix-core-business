@@ -1,0 +1,25 @@
+<?php
+$MESS["ACTION"] = "Әрекеттер";
+$MESS["ACTIVE"] = "Белс.";
+$MESS["ADD_LANG"] = "Тілді қосу";
+$MESS["ADD_LANG_TITLE"] = "Жаңа тіл қосу";
+$MESS["CHANGE"] = "Өзгерту";
+$MESS["CHANGE_HINT"] = "Баптауларды өзгерту";
+$MESS["CONFIRM_DEL"] = "Тілді жойғыңыз келетініне сенімдісіз бе?";
+$MESS["COPY"] = "Көшірмені қосу";
+$MESS["COPY_HINT"] = "Тіл баптауларын көшіру";
+$MESS["DEF"] = "Әдепкі бойынша";
+$MESS["DELETE"] = "Жою";
+$MESS["DELETE_ERROR"] = "Тілді жою кезіндегі қате Ол басқа объектілермен байланысты болуы мүмкін.";
+$MESS["DELETE_HINT"] = "Тілді жою";
+$MESS["DIR"] = "Бума";
+$MESS["LANG_EDIT_TITLE"] = "ТІлді редакциялауға өту";
+$MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "белсендіру";
+$MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "өшіру";
+$MESS["NAME"] = "Атауы";
+$MESS["PAGES"] = "Тілдер";
+$MESS["SAVE"] = "Өзгертулерді сақтау";
+$MESS["SAVE_ERROR"] = "Тілді өзгерту кезіндегі қате ";
+$MESS["SORT"] = "Сұрыптау";
+$MESS["TITLE"] = "Тілдер";
+$MESS["lang_admin_code"] = "Код";

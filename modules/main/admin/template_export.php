@@ -23,8 +23,6 @@ $bUseCompression = true;
 if(!extension_loaded('zlib') || !function_exists("gzcompress"))
 	$bUseCompression = false;
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/tar_gz.php");
-
 CheckDirPath($_SERVER['DOCUMENT_ROOT'].BX_PERSONAL_ROOT."/tmp/templates/");
 $tmpfname = $_SERVER['DOCUMENT_ROOT'].BX_PERSONAL_ROOT."/tmp/templates/".\Bitrix\Main\Security\Random::getString(32).".tar.gz";
 

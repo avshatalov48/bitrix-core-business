@@ -192,6 +192,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	{
 		$emptyService = Delivery\Services\Manager::getById(Delivery\Services\EmptyDeliveryService::getEmptyDeliveryServiceId());
 		$fields = [
+			'CURRENCY' => $collection->getOrder()->getCurrency(),
 			'DATE_INSERT' => new Main\Type\DateTime(),
 			'DELIVERY_ID' => $emptyService['ID'],
 			'DELIVERY_NAME' => $emptyService['NAME'],

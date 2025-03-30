@@ -11,6 +11,8 @@ use Bitrix\Main\DB\SqlExpression;
 
 class CDatabasePgSql extends CAllDatabase
 {
+	const FULLTEXT_MAXIMUM_LENGTH = 900000;
+
 	/** @var \PgSql\Connection */
 	var $db_Conn;
 
@@ -110,6 +112,9 @@ class CDatabasePgSql extends CAllDatabase
 			$this->DoConnect();
 
 			$sqlHelper = $this->connection->getSqlHelper();
+
+			$fullTextColumns = $this->connection->getTableFullTextFields($table);
+
 			$dbResult = $this->query("
 				SELECT
 					column_name,
@@ -175,6 +180,23 @@ class CDatabasePgSql extends CAllDatabase
 						break;
 					default:
 						$type = "string";
+						if (!$field['CHARACTER_MAXIMUM_LENGTH'])
+						{
+							if (array_key_exists($fieldName, $fullTextColumns))
+							{
+								$field['CHARACTER_MAXIMUM_LENGTH'] = static::FULLTEXT_MAXIMUM_LENGTH;
+							}
+						}
+						else
+						{
+							if (
+								array_key_exists($fieldName, $fullTextColumns)
+								&& $field['CHARACTER_MAXIMUM_LENGTH'] > static::FULLTEXT_MAXIMUM_LENGTH
+							)
+							{
+								$field['CHARACTER_MAXIMUM_LENGTH'] = static::FULLTEXT_MAXIMUM_LENGTH;
+							}
+						}
 						break;
 				}
 

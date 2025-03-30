@@ -25,4 +25,5 @@ enum Type: string
 	case Sonet = 'SONET_GROUP';
 	case Tasks = 'TASKS';
 	case Call = 'CALL';
+	case Lines = 'LINES';
 }

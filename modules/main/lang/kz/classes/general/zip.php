@@ -1,0 +1,22 @@
+<?php
+$MESS["MAIN_ZIP_ERR_ARC_END"] = "\"#FILE_NAME#\" мұрағатының соңына өту мүмкін емес";
+$MESS["MAIN_ZIP_ERR_ARC_END_SIZE"] = "Орталық каталогты аяқтау туралы жазбаның өлшемі дұрыс емес: \"#SIZE#\"";
+$MESS["MAIN_ZIP_ERR_ARC_MID"] = "\"#FILE_NAME#\" мұрағатының орталық каталогына өту мүмкін емес";
+$MESS["MAIN_ZIP_ERR_ARC_MID_END"] = "Мұрағаттың орталық каталогына өту мүмкін емес";
+$MESS["MAIN_ZIP_ERR_DIR_CREATE_FAIL"] = "\"#DIR_NAME#\" бумасын жасау мүмкін емес";
+$MESS["MAIN_ZIP_ERR_DIR_OPEN_FAIL"] = "\"#DIR_NAME#\" бумасын ашу мүмкін емес";
+$MESS["MAIN_ZIP_ERR_EXTRACT"] = "Буманы жол ретінде ашу мүмкін емес";
+$MESS["MAIN_ZIP_ERR_INVALID_ARCHIVE_ZIP"] = "Мұрағаттың дұрыс емес өлшемі";
+$MESS["MAIN_ZIP_ERR_MISSING_FILE"] = "\"#FILE_NAME#\" атауымен файл жоқ";
+$MESS["MAIN_ZIP_ERR_NO_FILE"] = "\"#FILE_NAME#\" файлы табылмады";
+$MESS["MAIN_ZIP_ERR_PARAM"] = "Дұрыс емес параметр";
+$MESS["MAIN_ZIP_ERR_PARAM_CALLBACK"] = "\"#CALLBACK#\" \"#PARAM_NAME#\" параметрі үшін қолданыста бар функция болып табылмайды";
+$MESS["MAIN_ZIP_ERR_PARAM_KEY"] = "\"#KEY#\" кілті бар параметрге қолдау көрсетілмейді";
+$MESS["MAIN_ZIP_ERR_PARAM_LIST"] = "Файлдар тізімінің дұрыс емес параметрі";
+$MESS["MAIN_ZIP_ERR_PARAM_RULE"] = "Параметр ретінде кем дегенде бір ереже көрсетілуі керек";
+$MESS["MAIN_ZIP_ERR_READ"] = "\"#FILE_NAME#\" файлын ашу мүмкін емес";
+$MESS["MAIN_ZIP_ERR_READ_MODE"] = "\"#MODE#\" режимінде \"#FILE_NAME#\" файлын ашу мүмкін емес";
+$MESS["MAIN_ZIP_ERR_READ_OPEN"] = "\"#FILE_NAME#\" файлы қазірдің өзінде ашық";
+$MESS["MAIN_ZIP_ERR_READ_TMP"] = "Жазу үшін уақытша \"#FILE_NAME#\" файлын ашу мүмкін емес";
+$MESS["MAIN_ZIP_ERR_SIGNATURE"] = "Дұрыс қолтаңбаны табу мүмкін емес";
+$MESS["MAIN_ZIP_ERR_STRUCT"] = "Мұрағаттың дұрыс емес құрылымы";

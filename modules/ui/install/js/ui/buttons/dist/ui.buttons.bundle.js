@@ -518,6 +518,8 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonColor, "BASE_LIGHT", 'ui-btn-base-light');
 	babelHelpers.defineProperty(ButtonColor, "COLLAB", 'ui-btn-collab');
 	babelHelpers.defineProperty(ButtonColor, "PRIMARY_BORDER", 'ui-btn-primary-border');
+	babelHelpers.defineProperty(ButtonColor, "CURTAIN_PRIMARY", 'ui-btn-primary-curtain');
+	babelHelpers.defineProperty(ButtonColor, "CURTAIN_WARNING", 'ui-btn-primary-warning');
 
 	/**
 	 * @namespace {BX.UI}

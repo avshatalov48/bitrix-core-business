@@ -4,8 +4,8 @@ namespace Bitrix\Im\V2\Entity\File;
 
 use Bitrix\Disk\File;
 use Bitrix\Disk\Driver;
+use Bitrix\Disk\Folder;
 use Bitrix\Disk\Internals\FileTable;
-use Bitrix\Disk\Storage;
 use Bitrix\Im\Model\EO_FileTemporary;
 use Bitrix\Im\Model\EO_FileTemporary_Collection;
 use Bitrix\Im\V2\Entity\EntityCollection;
@@ -107,22 +107,86 @@ class FileCollection extends EntityCollection implements DateFilterable
 		return $result;
 	}
 
-	public function getCopies(?Storage $storage = null): self
+	/**
+	 * @param Folder $folder
+	 * @return Result<FileCollection>
+	 */
+	public function copyTo(Folder $folder): Result
 	{
-		$userId = $this->getContext()->getUserId();
-		$storage = $storage ?? Driver::getInstance()->getStorageByUserId($userId);
+		$result = new Result();
 		$copies = new static();
 
 		foreach ($this as $fileEntity)
 		{
-			$copy = $fileEntity->getCopy($storage);
-			if ($copy !== null)
+			$copy = $fileEntity->copyTo($folder)->getResult();
+			if (isset($copy))
 			{
 				$copies[] = $copy;
 			}
 		}
 
-		return $copies;
+		if ($copies->count() > 0)
+		{
+			$result->setResult($copies);
+		}
+		else
+		{
+			$result->addError(new FileError(FileError::COPY_ERROR));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return Result<FileCollection>
+	 */
+	public function copyToOwnSavedFiles(): Result
+	{
+		$result = $this->getOwnStorageFolderByType(FolderType::SavedFiles);
+		if (!$result->hasResult())
+		{
+			return $result;
+		}
+
+		return $this->copyTo($result->getResult());
+	}
+
+	/**
+	 * @return Result<FileCollection>
+	 */
+	public function copyToOwnUploadedFiles(): Result
+	{
+		$result = $this->getOwnStorageFolderByType(FolderType::UploadedFiles);
+		if (!$result->hasResult())
+		{
+			return $result;
+		}
+
+		return $this->copyTo($result->getResult());
+	}
+
+	/**
+	 * @param FolderType $folderType
+	 * @return Result<Folder>
+	 */
+	private function getOwnStorageFolderByType(FolderType $folderType): Result
+	{
+		$result = new Result();
+
+		$userId = $this->getContext()->getUserId();
+		$storage = Driver::getInstance()->getStorageByUserId($userId);
+		if (!isset($storage))
+		{
+			return $result->addError(new FileError(FileError::STORAGE_NOT_FOUND));
+		}
+
+		$folder = $storage->getSpecificFolderByCode($folderType->value);
+		if (!isset($folder))
+		{
+			return $result->addError(new FileError(FileError::FOLDER_NOT_FOUND));
+		}
+
+		return $result->setResult($folder);
 	}
 
 	public function addToTmp(string $source): Result

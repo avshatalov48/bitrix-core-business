@@ -1,5 +1,9 @@
 export { AvatarSize } from './avatar/components/base/avatar';
 export { ChatAvatar } from './avatar/chat-avatar';
+export { CollaberAvatar } from './avatar/components/collab/collaber';
+export { CollabChatAvatar } from './avatar/components/collab/collab-chat';
+export { ExtranetUserAvatar } from './avatar/components/extranet/extranet-user-avatar';
+export { ExtranetChatAvatar } from './avatar/components/extranet/extranet-chat-avatar';
 export { MessageAvatar } from './avatar/message-avatar';
 export { EmptyAvatar, EmptyAvatarType } from './avatar/empty-avatar';
 export { ChatTitle } from './chat-title/chat-title';

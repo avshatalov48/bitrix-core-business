@@ -19,6 +19,7 @@ class ImageRepository implements ImageRepositoryContract
 {
 	/** @var \Bitrix\Catalog\v2\Image\ImageFactory */
 	protected $factory;
+	protected array $loadedFiles = [];
 
 	public function __construct(ImageFactory $factory)
 	{
@@ -160,16 +161,37 @@ class ImageRepository implements ImageRepositoryContract
 
 	protected function getList(array $params): array
 	{
+		$idsFromFilter = $params['filter']['=ID'] ?? null;
 		$files = [];
-		$params['cache'] = [
-			'ttl' => 86400,
-		];
+		if ($this->loadedFiles && $idsFromFilter)
+		{
+			if (!is_array($idsFromFilter))
+			{
+				$idsFromFilter = [$idsFromFilter];
+			}
+			foreach ($idsFromFilter as $idFromFilterKey => $idFromFilter)
+			{
+				if (isset($this->loadedFiles[$idFromFilter]))
+				{
+					$files[] = $this->loadedFiles[$idFromFilter];
+					unset($idsFromFilter[$idFromFilterKey]);
+				}
+			}
+			if (empty($idsFromFilter))
+			{
+				return $files;
+			}
+			$params['filter']['=ID'] = $idsFromFilter;
+		}
+		unset($idsFromFilter);
+
 		$filesRaw = FileTable::getList($params);
 		while ($file = $filesRaw->fetch())
 		{
 			$file['SRC'] = \CFile::getFileSRC($file);
 			$file['FILE_STRUCTURE'] = $file;
 			$files[] = $file;
+			$this->loadedFiles[$file['ID']] = $file;
 		}
 
 		return $files;

@@ -4298,7 +4298,12 @@ abstract class Base extends \CBitrixComponent
 		}
 		else
 		{
-			$action = mb_strtoupper($this->request->get($this->arParams['ACTION_VARIABLE']));
+			$action = $this->request->get($this->arParams['ACTION_VARIABLE']);
+			$action =
+				is_string($action)
+					? mb_strtoupper(trim($action))
+					: ''
+			;
 		}
 
 		$productId = (int)$this->request->get($this->arParams['PRODUCT_ID_VARIABLE']);
@@ -4775,7 +4780,7 @@ abstract class Base extends \CBitrixComponent
 	{
 		$currencies = array();
 
-		if ($this->arResult['MODULES']['currency'])
+		if (!empty($this->arResult['MODULES']['currency']))
 		{
 			if (isset($this->arResult['CONVERT_CURRENCY']['CURRENCY_ID']))
 			{

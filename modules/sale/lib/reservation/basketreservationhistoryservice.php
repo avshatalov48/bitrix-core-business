@@ -84,7 +84,7 @@ class BasketReservationHistoryService
 			->fetchAll()
 		;
 
-		$basket2productIds = array_column($basketItems, 'PRODUCT_ID', 'ID');
+		$basket2productIds = array_filter(array_column($basketItems, 'PRODUCT_ID', 'ID'));
 		if (empty($basket2productIds))
 		{
 			return [];

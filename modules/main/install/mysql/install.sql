@@ -884,6 +884,16 @@ CREATE TABLE b_cache_tag
 	INDEX `ix_tag_relative_path` (`TAG`,`RELATIVE_PATH`)
 );
 
+CREATE TABLE b_cache_clean_path
+(
+	`ID` BIGINT NOT NULL AUTO_INCREMENT,
+	`PREFIX` TEXT,
+	`CLEAN_FROM` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`CLUSTER_GROUP` INT NOT NULL DEFAULT 0,
+	PRIMARY KEY (`ID`),
+	INDEX IX_CLEAN(`CLUSTER_GROUP`, `CLEAN_FROM`)
+);
+
 CREATE TABLE b_user_hit_auth
 (
 	ID int not null auto_increment,
@@ -1560,9 +1570,10 @@ CREATE TABLE b_user_device
 	PLATFORM varchar(25),
 	USER_AGENT varchar(1000),
 	COOKABLE char(1) not null default 'N',
+	APP_PASSWORD_ID int,
 	PRIMARY KEY(ID),
 	INDEX ix_user_device_user(USER_ID, DEVICE_UID),
-	INDEX ix_user_device_user_cookable(USER_ID, COOKABLE)
+	INDEX ix_user_device_user_cookable_appwd(USER_ID, COOKABLE, APP_PASSWORD_ID)
 );
 
 CREATE TABLE b_user_device_login

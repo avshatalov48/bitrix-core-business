@@ -1,0 +1,27 @@
+<?php
+$MESS["MAIN_ALL"] = "(барлығы)";
+$MESS["MAIN_EVENTLOG_AUDIT_TYPE_ID"] = "Оқиға";
+$MESS["MAIN_EVENTLOG_DESCRIPTION"] = "Сипаттама";
+$MESS["MAIN_EVENTLOG_FORUM_MESSAGE"] = "Хабарлама";
+$MESS["MAIN_EVENTLOG_FORUM_TOPIC"] = "Тақырып";
+$MESS["MAIN_EVENTLOG_GUEST_ID"] = "Қонақ";
+$MESS["MAIN_EVENTLOG_IBLOCK"] = "Ақпараттық блок";
+$MESS["MAIN_EVENTLOG_IBLOCK_DELETE"] = "Жойылған";
+$MESS["MAIN_EVENTLOG_ID"] = "ID";
+$MESS["MAIN_EVENTLOG_ITEM_ID"] = "Объект";
+$MESS["MAIN_EVENTLOG_LIST_PAGE"] = "Жазбалар";
+$MESS["MAIN_EVENTLOG_MODULE_ID"] = "Дереккөз";
+$MESS["MAIN_EVENTLOG_PAGE_TITLE"] = "Оқиғалар журналы";
+$MESS["MAIN_EVENTLOG_REMOTE_ADDR"] = "IP";
+$MESS["MAIN_EVENTLOG_REQUEST_URI"] = "URL";
+$MESS["MAIN_EVENTLOG_SEARCH"] = "Табу";
+$MESS["MAIN_EVENTLOG_SEVERITY"] = "Шұғылдық";
+$MESS["MAIN_EVENTLOG_SITE_ID"] = "Сайт";
+$MESS["MAIN_EVENTLOG_STOP_LIST"] = "тоқтатым-парағы";
+$MESS["MAIN_EVENTLOG_TIMESTAMP_X"] = "Уақыт";
+$MESS["MAIN_EVENTLOG_USER_AGENT"] = "User Agent";
+$MESS["MAIN_EVENTLOG_USER_ID"] = "Пайдаланушы";
+$MESS["MAIN_EVENTLOG_WRONG_TIMESTAMP_X_FROM"] = "Сүзгіге журнал жазбасының \"бастап\" дұрыс күнін енгізіңіз.";
+$MESS["MAIN_EVENTLOG_WRONG_TIMESTAMP_X_TO"] = "Сүзгіге журнал жазбасының \"дейін\" дұрыс күнін енгізіңіз.";
+$MESS["eventlog_notifications"] = "Оқиғалар журналының хабарландырулары";
+$MESS["eventlog_notifications_title"] = "Журналдан оқиғалар туралы хабарландыруларды баптау";

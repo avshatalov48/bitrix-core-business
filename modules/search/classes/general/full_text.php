@@ -16,18 +16,34 @@ class CSearchFullText
 	{
 		if (!isset(static::$instance))
 		{
-			$full_text_engine = COption::GetOptionString("search", "full_text_engine");
-			if ($full_text_engine === "sphinx")
+			$full_text_engine = COption::GetOptionString('search', 'full_text_engine');
+			if ($full_text_engine === 'sphinx')
 			{
 				self::$instance = new CSearchSphinx;
 				self::$instance->connect(
-					COption::GetOptionString("search", "sphinx_connection"),
-					COption::GetOptionString("search", "sphinx_index_name")
+					COption::GetOptionString('search', 'sphinx_connection'),
+					COption::GetOptionString('search', 'sphinx_index_name')
 				);
 			}
-			elseif ($full_text_engine === "mysql")
+			elseif ($full_text_engine === 'opensearch')
+			{
+				require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/backup.php");
+				self::$instance = new CSearchOpenSearch;
+				self::$instance->connect(
+					COption::GetOptionString('search', 'opensearch_connection'),
+					COption::GetOptionString('search', 'opensearch_user'),
+					CPasswordStorage::Get('search@opensearch_password'),
+					COption::GetOptionString('search', 'opensearch_index'),
+				);
+			}
+			elseif ($full_text_engine === 'mysql')
 			{
 				self::$instance = new CSearchMysql;
+				self::$instance->connect();
+			}
+			elseif ($full_text_engine === 'pgsql')
+			{
+				self::$instance = new CSearchPgsql;
 				self::$instance->connect();
 			}
 			else
@@ -64,14 +80,14 @@ class CSearchFullText
 		return false;
 	}
 
-	function searchTitle($phrase = "", $arPhrase = array(), $nTopCount = 5, $arParams = array(), $bNotFilter = false, $order = "")
+	function searchTitle($phrase = '', $arPhrase = [], $nTopCount = 5, $arParams = [], $bNotFilter = false, $order = '')
 	{
 		return false;
 	}
 
 	public function getErrorText()
 	{
-		return "";
+		return '';
 	}
 
 	public function getErrorNumber()

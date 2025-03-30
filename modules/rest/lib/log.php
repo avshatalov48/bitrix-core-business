@@ -26,9 +26,9 @@ use Bitrix\Main\Request;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Log_Query query()
- * @method static EO_Log_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Log_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Log_Result getById($id)
- * @method static EO_Log_Result getList(array $parameters = array())
+ * @method static EO_Log_Result getList(array $parameters = [])
  * @method static EO_Log_Entity getEntity()
  * @method static \Bitrix\Rest\EO_Log createObject($setDefaultValues = true)
  * @method static \Bitrix\Rest\EO_Log_Collection createCollection()

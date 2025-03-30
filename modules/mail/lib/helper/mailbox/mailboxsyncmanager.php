@@ -178,6 +178,11 @@ class MailboxSyncManager
 
 			$userMailboxIds = array_keys(MailboxTable::getUserMailboxes(onlyIds: true));
 
+			if (empty($userMailboxIds))
+			{
+				return $mailboxesSyncInfo;
+			}
+
 			$datesLastOpening = MailEntityOptionsTable::getList(
 				[
 					'select' => [

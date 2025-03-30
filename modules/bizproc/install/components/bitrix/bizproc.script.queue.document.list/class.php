@@ -82,6 +82,21 @@ class BizprocScriptQueueDocumentListComponent extends \CBitrixComponent
 			];
 
 			$rowActions = [];
+			if ($row['WORKFLOW_ID'])
+			{
+				if (!CBPHelper::isWorkflowFinished($row['WORKFLOW_ID']))
+				{
+					$rowActions[] = [
+						'text' => GetMessage('BIZPROC_SCRIPT_QDL_ACTION_TERMINATE'),
+						'onclick' => sprintf('BX.Bizproc.ScriptQueueDocumentListComponent.Instance.terminateWorkflow("%s")', $row['WORKFLOW_ID']),
+					];
+				}
+
+				$rowActions[] = [
+					'text' => GetMessage('BIZPROC_SCRIPT_QDL_ACTION_OPEN_LOG'),
+					'onclick' => sprintf('BX.Bizproc.ScriptQueueDocumentListComponent.Instance.openWorkflowLog("%s")', $row['WORKFLOW_ID']),
+				];
+			}
 
 			$rows[] = [
 				'data' => $rowData,

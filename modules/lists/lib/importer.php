@@ -407,6 +407,11 @@ class Importer
 		if(in_array($lang, self::$listRuLanguage))
 			$lang = 'ru';
 
+		if ($lang === 'co')
+		{
+			$lang = 'la';
+		}
+
 		$dir = new Main\IO\Directory(Main\Loader::getDocumentRoot() . static::PATH . $lang . "/");
 		if(!$dir->isExists())
 			$dir = new Main\IO\Directory(Main\Loader::getDocumentRoot() . static::PATH . "en/");

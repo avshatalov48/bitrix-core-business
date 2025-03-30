@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,sidepanel,main_core) {
+(function (exports) {
 	'use strict';
 
 	var _bind = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bind");
@@ -91,5 +91,5 @@ this.BX = this.BX || {};
 
 	exports.Router = Router;
 
-}((this.BX.Bizproc = this.BX.Bizproc || {}),BX,BX));
+}((this.BX.Bizproc = this.BX.Bizproc || {})));
 //# sourceMappingURL=router.bundle.js.map

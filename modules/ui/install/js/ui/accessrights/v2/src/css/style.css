@@ -50,9 +50,9 @@
 
 .ui-access-rights-v2-section-head {
 	display: flex;
-	width: 205px;
-	min-width: 205px;
-	max-width: 205px;
+	width: 260px;
+	min-width: 260px;
+	max-width: 260px;
 }
 
 .ui-access-rights-v2-section-content {
@@ -412,6 +412,12 @@ div.ui-access-rights-v2-members-item-new:last-of-type {
 	max-width: calc(100% - 40px); /* 20px for width paddings */
 }
 
+.ui-access-rights-v2-column-item .ui-access-rights-v2-text-ellipsis * {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
 .ui-access-rights-v2-icon-more {
 	--ui-icon-set__icon-size: 16px;
 	opacity: var(--ui-opacity-40);
@@ -425,4 +431,33 @@ div.ui-access-rights-v2-members-item-new:last-of-type {
 
 .ui-access-rights-v2-search-input:focus {
 	background-color: var(--ui-color-palette-white-base);
+}
+
+.ui-access-rights-v2-header-role-add {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ui-access-rights-v2-header-role-add .ui-btn {
+	width: 30px;
+	height: 30px;
+
+	overflow: hidden;
+	padding: 0;
+}
+
+.ui-access-rights-v2-header-role-add .ui-btn:hover:not(.ui-btn-disabled) {
+	border-color: var(--ui-color-palette-blue-30);
+	background: unset;
+}
+
+.ui-access-rights-v2-header-role-add .ui-btn.ui-btn-disabled {
+	cursor: unset;
+}
+
+.ui-access-rights-v2-header-role-add .ui-icon-set {
+	--ui-icon-set__icon-color: var(--ui-color-base-50);
 }

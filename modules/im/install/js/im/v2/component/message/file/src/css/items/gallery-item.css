@@ -62,3 +62,31 @@
 	height: 27px;
 	background: url("./images/play-icon.svg") no-repeat center;
 }
+
+.bx-im-gallery-item__remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 32px;
+	height: 32px;
+	background-color: rgba(var(--im-color-palette-black-solid-rgb), .5);
+	border-radius: 50%;
+	transition: opacity 200ms ease;
+	opacity: 0;
+}
+
+.bx-im-gallery-item__remove-icon {
+	width: 15px;
+	height: 19px;
+	background: url("./images/remove-icon.svg") no-repeat center;
+	transition: opacity 200ms ease;
+	opacity: .8;
+}
+
+.bx-im-gallery-item__container:hover .bx-im-gallery-item__remove,
+.bx-im-gallery-item__remove:hover .bx-im-gallery-item__remove-icon {
+	opacity: 1;
+}

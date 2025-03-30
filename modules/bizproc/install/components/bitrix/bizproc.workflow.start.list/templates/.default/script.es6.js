@@ -17,6 +17,12 @@ class WorkflowStartList
 	#signedDocumentId: string;
 	#counters: Map = new Map();
 
+	#canEdit: boolean;
+	#bizprocEditorUrl: string;
+
+	popupHint;
+	hintTimeout;
+
 	constructor(options)
 	{
 		if (!Type.isPlainObject(options))
@@ -27,6 +33,8 @@ class WorkflowStartList
 		this.gridId = options.gridId;
 		this.createTemplateButton = options.createTemplateButton;
 		this.errorsContainerDiv = options.errorsContainerDiv;
+		this.#canEdit = options.canEdit;
+		this.#bizprocEditorUrl = options.bizprocEditorUrl;
 
 		if (Type.isStringFilled(options.signedDocumentType))
 		{
@@ -41,11 +49,6 @@ class WorkflowStartList
 
 	init()
 	{
-		if (this.createTemplateButton)
-		{
-			Event.bind(this.createTemplateButton, 'click', event => this.createTemplate());
-		}
-
 		BX.UI.Hint.init(document);
 
 		if (this.getGrid())
@@ -56,14 +59,72 @@ class WorkflowStartList
 		EventEmitter.subscribe('Grid::updated', this.#onAfterGridUpdated.bind(this));
 	}
 
-	createTemplate(): void
+	editTemplate(event, templateId): void
 	{
-		alert('Create Template');
+		if (!this.#canEdit)
+		{
+			this.showNoPermissionsHint(event.target);
+
+			return;
+		}
+
+		if (this.#bizprocEditorUrl.length === 0)
+		{
+			this.showNoEditorHint(event.target);
+
+			return;
+		}
+
+		this.openBizprocEditor(templateId);
 	}
 
-	editTemplate(templateId): void
+	showAngleHint(node, text)
 	{
-		alert('Edit Template ' + templateId);
+		if (this.hintTimeout)
+		{
+			clearTimeout(this.hintTimeout);
+		}
+
+		this.popupHint = BX.UI.Hint.createInstance({
+			popupParameters: {
+				width: 334,
+				height: 104,
+				closeByEsc: true,
+				autoHide: true,
+				angle: {
+					offset: Dom.getPosition(node).width / 2,
+				},
+				bindOptions: {
+					position: 'top',
+				},
+			},
+		});
+
+		this.popupHint.close = function()
+		{
+			this.hide();
+		};
+		this.popupHint.show(node, text);
+		this.timeout = setTimeout(this.hideHint.bind(this), 5000);
+	}
+
+	hideHint()
+	{
+		if (this.popupHint)
+		{
+			this.popupHint.close();
+		}
+		this.popupHint = null;
+	}
+
+	showNoPermissionsHint(node)
+	{
+		this.showAngleHint(node, Loc.getMessage('BIZPROC_CMP_WORKKFLOW_START_LIST_START_RIGHTS_ERROR'));
+	}
+
+	showNoEditorHint(node): void
+	{
+		this.showAngleHint(node, Loc.getMessage('BIZPROC_CMP_WORKKFLOW_START_LIST_START_MODULE_ERROR'));
 	}
 
 	static changePin(templateId, gridId, event) {
@@ -223,6 +284,11 @@ class WorkflowStartList
 		message = message.replace('[/bold]', '</span>');
 
 		return Tag.render`<div class="ui-typography-text-xs">${message}</div>`;
+	}
+
+	openBizprocEditor(templateId)
+	{
+		top.window.location.href = this.#bizprocEditorUrl.replace('#ID#', templateId);
 	}
 }
 

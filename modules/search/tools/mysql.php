@@ -3,7 +3,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CSearchMysql extends CSearchFullText
 {
-	protected $error = "";
+	protected $error = '';
 	protected $errorno = 0;
 
 	public function connect($connectionString = '')
@@ -11,18 +11,18 @@ class CSearchMysql extends CSearchFullText
 		global $APPLICATION;
 		$DB = CDatabase::GetModuleConnection('search');
 
-		if (!$DB->TableExists("b_search_content_text"))
+		if (!$DB->TableExists('b_search_content_text'))
 		{
-			$APPLICATION->ThrowException(GetMessage("SEARCH_MYSQL_OLD_SCHEMA"));
+			$APPLICATION->ThrowException(GetMessage('SEARCH_MYSQL_OLD_SCHEMA'));
 			return false;
 		}
 
-		if (!$DB->IndexExists("b_search_content_text", array("SEARCHABLE_CONTENT")))
+		if (!$DB->IndexExists('b_search_content_text', ['SEARCHABLE_CONTENT']))
 		{
-			$r = $DB->Query("create fulltext index fti on b_search_content_text(SEARCHABLE_CONTENT)", true);
+			$r = $DB->Query('create fulltext index fti on b_search_content_text(SEARCHABLE_CONTENT)', true);
 			if (!$r)
 			{
-				$APPLICATION->ThrowException(GetMessage("SEARCH_MYSQL_INDEX_CREATE_ERROR", array("#ERRSTR#" => $DB->db_Error)));
+				$APPLICATION->ThrowException(GetMessage('SEARCH_MYSQL_INDEX_CREATE_ERROR', ['#ERRSTR#' => $DB->db_Error]));
 				return false;
 			}
 		}
@@ -33,31 +33,31 @@ class CSearchMysql extends CSearchFullText
 	public function truncate()
 	{
 		$DB = CDatabase::GetModuleConnection('search');
-		$DB->Query("TRUNCATE TABLE b_search_content_text");
+		$DB->Query('TRUNCATE TABLE b_search_content_text');
 	}
 
 	public function deleteById($ID)
 	{
 		$DB = CDatabase::GetModuleConnection('search');
-		$DB->Query("DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID);
+		$DB->Query('DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ' . $ID);
 	}
 
 	public function replace($ID, $arFields)
 	{
 		$DB = CDatabase::GetModuleConnection('search');
 
-		if (array_key_exists("SEARCHABLE_CONTENT", $arFields))
+		if (array_key_exists('SEARCHABLE_CONTENT', $arFields))
 		{
-			$text_md5 = md5($arFields["SEARCHABLE_CONTENT"]);
-			$rsText = $DB->Query("SELECT SEARCH_CONTENT_MD5 FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID);
+			$text_md5 = md5($arFields['SEARCHABLE_CONTENT']);
+			$rsText = $DB->Query('SELECT SEARCH_CONTENT_MD5 FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ' . $ID);
 			$arText = $rsText->Fetch();
-			if (!$arText || $arText["SEARCH_CONTENT_MD5"] !== $text_md5)
+			if (!$arText || $arText['SEARCH_CONTENT_MD5'] !== $text_md5)
 			{
-				$DB->Query("
+				$DB->Query('
 					REPLACE INTO b_search_content_text
 					(SEARCH_CONTENT_ID, SEARCH_CONTENT_MD5, SEARCHABLE_CONTENT)
 					values
-					(".$ID.", '".$DB->ForSql($text_md5)."', '".$DB->ForSql($arFields["SEARCHABLE_CONTENT"])."')
+					(' . $ID . ", '" . $DB->ForSql($text_md5) . "', '" . $DB->ForSql($arFields['SEARCHABLE_CONTENT']) . "')
 				");
 			}
 		}
@@ -67,28 +67,36 @@ class CSearchMysql extends CSearchFullText
 	{
 		$DB = CDatabase::GetModuleConnection('search');
 
-		$queryObject = $aParamsEx["QUERY_OBJECT"];
-		if ($queryObject->m_parsed_query == "( )" || $queryObject->m_parsed_query == '')
+		$queryObject = $aParamsEx['QUERY_OBJECT'];
+		if ($queryObject->m_parsed_query == '( )' || $queryObject->m_parsed_query == '')
 		{
-			$this->error = GetMessage("SEARCH_ERROR3");
+			$this->error = GetMessage('SEARCH_ERROR3');
 			$this->errorno = 3;
-			return array();
+			return [];
 		}
 
 		$strQuery = $this->PrepareQuery($queryObject, $queryObject->m_parsed_query);
+		if ($strQuery == '(())' || $queryObject->m_parsed_query == '')
+		{
+			$this->error = GetMessage('SEARCH_ERROR3');
+			$this->errorno = 3;
+			return [];
+		}
 
 		$strTags = '';
-		if (array_key_exists("TAGS", $arParams))
+		if (array_key_exists('TAGS', $arParams))
 		{
-			$this->strTagsText = $arParams["TAGS"];
-			$arTags = explode(",", $arParams["TAGS"]);
+			$this->strTagsText = $arParams['TAGS'];
+			$arTags = explode(',', $arParams['TAGS']);
 			foreach ($arTags as $i => $strTag)
 			{
 				$arTags[$i] = trim($strTag, '"');
 			}
 
 			if ($arTags)
-				$strTags = '+(+"'.implode('" +"', $arTags).'")';
+			{
+				$strTags = '+(+"' . implode('" +"', $arTags) . '")';
+			}
 		}
 
 		if (($strQuery == '') && ($strTags <> ''))
@@ -98,84 +106,87 @@ class CSearchMysql extends CSearchFullText
 		}
 		else
 		{
-			$strQuery = preg_replace_callback("/&#(\\d+);/", "chr", $strQuery);
+			$strQuery = preg_replace_callback('/&#(\\d+);/', 'chr', $strQuery);
 			$bTagsSearch = false;
 		}
-		
-		$query = "match sct.SEARCHABLE_CONTENT against('".$DB->ForSql($strQuery)."' in boolean mode)";
 
-		$arSqlWhere = array();
+		$query = "match sct.SEARCHABLE_CONTENT against('" . $DB->ForSql($strQuery) . "' in boolean mode)";
+
+		$arSqlWhere = [];
 		if (is_array($aParamsEx) && !empty($aParamsEx))
 		{
 			foreach ($aParamsEx as $aParamEx)
 			{
 				$strSqlWhere = CSearch::__PrepareFilter($aParamEx, $bIncSites);
-				if ($strSqlWhere != "")
+				if ($strSqlWhere != '')
+				{
 					$arSqlWhere[] = $strSqlWhere;
+				}
 			}
 		}
 		if (!empty($arSqlWhere))
 		{
-			$arSqlWhere = array(
-				"\n\t\t\t\t(".implode(")\n\t\t\t\t\tOR(", $arSqlWhere)."\n\t\t\t\t)",
-			);
+			$arSqlWhere = [
+				"\n\t\t\t\t(" . implode(")\n\t\t\t\t\tOR(", $arSqlWhere) . "\n\t\t\t\t)",
+			];
 		}
 
 		$strSqlWhere = CSearch::__PrepareFilter($arParams, $bIncSites);
-		if ($strSqlWhere != "")
+		if ($strSqlWhere != '')
+		{
 			array_unshift($arSqlWhere, $strSqlWhere);
+		}
 
-		$strSqlOrder = $this->__PrepareSort($aSort, "sc.", $bTagsCloud);
+		$strSqlOrder = $this->__PrepareSort($aSort, 'sc.', $bTagsCloud);
 
 		if (!empty($arSqlWhere))
 		{
-			$strSqlWhere = "\n\t\t\t\tAND (\n\t\t\t\t\t(".implode(")\n\t\t\t\t\tAND(", $arSqlWhere).")\n\t\t\t\t)";
+			$strSqlWhere = "\n\t\t\t\tAND (\n\t\t\t\t\t(" . implode(")\n\t\t\t\t\tAND(", $arSqlWhere) . ")\n\t\t\t\t)";
 		}
 
 		if ($bTagsCloud)
 		{
-			$strSql = "
+			$strSql = '
 				SELECT
 					stags.NAME
 					,COUNT(DISTINCT stags.SEARCH_CONTENT_ID) as CNT
 					,MAX(sc.DATE_CHANGE) DC_TMP
-					,".$DB->DateToCharFunction("MAX(sc.DATE_CHANGE)")." as FULL_DATE_CHANGE
-					,".$DB->DateToCharFunction("MAX(sc.DATE_CHANGE)", "SHORT")." as DATE_CHANGE
+					,' . $DB->DateToCharFunction('MAX(sc.DATE_CHANGE)') . ' as FULL_DATE_CHANGE
+					,' . $DB->DateToCharFunction('MAX(sc.DATE_CHANGE)', 'SHORT') . ' as DATE_CHANGE
 				FROM b_search_tags stags
 					INNER JOIN b_search_content sc ON (stags.SEARCH_CONTENT_ID=sc.ID)
 					INNER JOIN b_search_content_text sct ON sct.SEARCH_CONTENT_ID = sc.ID
 					INNER JOIN b_search_content_site scsite ON sc.ID=scsite.SEARCH_CONTENT_ID
 				WHERE
-					".CSearch::CheckPermissions("sc.ID")."
-					AND (".$query.")
+					' . CSearch::CheckPermissions('sc.ID') . '
+					AND (' . $query . ')
 					AND stags.SITE_ID = scsite.SITE_ID
-					".$strSqlWhere."
+					' . $strSqlWhere . '
 				GROUP BY
 					stags.NAME
-				".$strSqlOrder."
-			";
-
+				' . $strSqlOrder . '
+			';
 		}
 		else
 		{
-			$strSql = "
+			$strSql = '
 				SELECT
 					sct.SEARCH_CONTENT_ID
 					,scsite.SITE_ID
-					,".$query." `RANK`
+					,' . $query . ' `RANK`
 				FROM
 					b_search_content_text sct
 					INNER JOIN b_search_content sc ON sc.ID = sct.SEARCH_CONTENT_ID
 					INNER JOIN b_search_content_site scsite ON sc.ID = scsite.SEARCH_CONTENT_ID
 				WHERE
-					".CSearch::CheckPermissions("sc.ID")."
-					AND (".$query.")
-					".$strSqlWhere."
-			".$strSqlOrder;
+					' . CSearch::CheckPermissions('sc.ID') . '
+					AND (' . $query . ')
+					' . $strSqlWhere . '
+			' . $strSqlOrder;
 		}
 
 		$r = $DB->Query($strSql);
-		$result = array();
+		$result = [];
 		while ($a = $r->Fetch())
 		{
 			$result[] = $a;
@@ -184,7 +195,7 @@ class CSearchMysql extends CSearchFullText
 		return $result;
 	}
 
-	function searchTitle($phrase = "", $arPhrase = array(), $nTopCount = 5, $arParams = array(), $bNotFilter = false, $order = "")
+	function searchTitle($phrase = '', $arPhrase = [], $nTopCount = 5, $arParams = [], $bNotFilter = false, $order = '')
 	{
 		return false;
 	}
@@ -204,32 +215,34 @@ class CSearchMysql extends CSearchFullText
 		return new CSearchMySqlFormatter();
 	}
 
-	function __PrepareSort($aSort = array(), $strSearchContentAlias = "sc.", $bTagsCloud = false)
+	function __PrepareSort($aSort = [], $strSearchContentAlias = 'sc.', $bTagsCloud = false)
 	{
-		$arOrder = array();
+		$arOrder = [];
 		if (!is_array($aSort))
-			$aSort = array($aSort => "ASC");
+		{
+			$aSort = [$aSort => 'ASC'];
+		}
 
 		if ($bTagsCloud)
 		{
 			foreach ($aSort as $key => $ord)
 			{
-				$ord = mb_strtoupper($ord) <> "ASC"? "DESC": "ASC";
+				$ord = mb_strtoupper($ord) <> 'ASC' ? 'DESC' : 'ASC';
 				$key = mb_strtoupper($key);
 				switch ($key)
 				{
-				case "DATE_CHANGE":
-					$arOrder[] = "DC_TMP ".$ord;
+				case 'DATE_CHANGE':
+					$arOrder[] = 'DC_TMP ' . $ord;
 					break;
-				case "NAME":
-				case "CNT":
-					$arOrder[] = $key." ".$ord;
+				case 'NAME':
+				case 'CNT':
+					$arOrder[] = $key . ' ' . $ord;
 					break;
 				}
 			}
 			if (!$arOrder)
 			{
-				$arOrder[] = "NAME ASC";
+				$arOrder[] = 'NAME ASC';
 			}
 		}
 		else
@@ -237,53 +250,59 @@ class CSearchMysql extends CSearchFullText
 			$this->flagsUseRatingSort = 0;
 			foreach ($aSort as $key => $ord)
 			{
-				$ord = mb_strtoupper($ord) <> "ASC"? "DESC": "ASC";
+				$ord = mb_strtoupper($ord) <> 'ASC' ? 'DESC' : 'ASC';
 				$key = mb_strtoupper($key);
 				switch ($key)
 				{
-				case "DATE_CHANGE":
+				case 'DATE_CHANGE':
 					if (!($this->flagsUseRatingSort & 0x01))
+					{
 						$this->flagsUseRatingSort = 0x02;
-					$arOrder[] = $strSearchContentAlias.$key." ".$ord;
+					}
+					$arOrder[] = $strSearchContentAlias . $key . ' ' . $ord;
 					break;
-				case "RANK":
+				case 'RANK':
 					if (!($this->flagsUseRatingSort & 0x02))
+					{
 						$this->flagsUseRatingSort = 0x01;
-					$arOrder[] = "`RANK` ".$ord;
+					}
+					$arOrder[] = '`RANK` ' . $ord;
 					break;
-				case "TITLE_RANK":
-					$arOrder[] = "`RANK` ".$ord;
+				case 'TITLE_RANK':
+					$arOrder[] = '`RANK` ' . $ord;
 					break;
-				case "CUSTOM_RANK":
-					$arOrder[] = $strSearchContentAlias.$key." ".$ord;
+				case 'CUSTOM_RANK':
+					$arOrder[] = $strSearchContentAlias . $key . ' ' . $ord;
 					break;
-				case "ID":
-				case "MODULE_ID":
-				case "ITEM_ID":
-				case "TITLE":
-				case "PARAM1":
-				case "PARAM2":
-				case "UPD":
-				case "DATE_FROM":
-				case "DATE_TO":
-				case "URL":
+				case 'ID':
+				case 'MODULE_ID':
+				case 'ITEM_ID':
+				case 'TITLE':
+				case 'PARAM1':
+				case 'PARAM2':
+				case 'UPD':
+				case 'DATE_FROM':
+				case 'DATE_TO':
+				case 'URL':
 					if (!($this->flagsUseRatingSort & 0x01))
+					{
 						$this->flagsUseRatingSort = 0x02;
-					$arOrder[] = $strSearchContentAlias.$key." ".$ord;
+					}
+					$arOrder[] = $strSearchContentAlias . $key . ' ' . $ord;
 					break;
 				}
 			}
 
 			if (!$arOrder)
 			{
-				$arOrder[] = "CUSTOM_RANK DESC";
-				$arOrder[] = "`RANK` DESC";
-				$arOrder[] = $strSearchContentAlias."DATE_CHANGE DESC";
+				$arOrder[] = 'CUSTOM_RANK DESC';
+				$arOrder[] = '`RANK` DESC';
+				$arOrder[] = $strSearchContentAlias . 'DATE_CHANGE DESC';
 				$this->flagsUseRatingSort = 0x01;
 			}
 		}
 
-		return " ORDER BY ".implode(", ", $arOrder);
+		return ' ORDER BY ' . implode(', ', $arOrder);
 	}
 
 	function PrepareQuery($queryObject, $q)
@@ -291,7 +310,7 @@ class CSearchMysql extends CSearchFullText
 		$state = 0;
 		$qu = [];
 		$n = 0;
-		$this->error = "";
+		$this->error = '';
 		$this->errorno = 0;
 
 		foreach (preg_split('/ +/', $q) as $t)
@@ -332,12 +351,17 @@ class CSearchMysql extends CSearchFullText
 					}
 					else
 					{
-						if (strpos($t, '-') !== false)
+						if (preg_match('/[^\w\d]/u', $t))
 						{
-							$t = '"' . $t . '"';
+							$t = preg_replace('/[^\w\d]+$/u', '', $t);
+							$t = preg_replace('/^[^\w\d]+/u', '', $t);
+							if ($t === '')
+							{
+								continue;
+							}
+							$t = '(+' . preg_replace('/[^\w\d]+/u', ' +', $t) . ($queryObject->bStemming ? '*' : '') . ')';
 						}
-
-						if ($queryObject->bStemming)
+						elseif ($queryObject->bStemming)
 						{
 							$t .= '*';
 						}
@@ -380,9 +404,9 @@ class CSearchMysql extends CSearchFullText
 								$nn++;
 							}
 						}
-						if (isset($qu[$p-1]) && $qu[$p-1] === '')
+						if (isset($qu[$p - 1]) && $qu[$p - 1] === '')
 						{
-							$qu[$p-1] = ' +';
+							$qu[$p - 1] = ' +';
 						}
 					}
 				}
@@ -421,17 +445,22 @@ class CSearchMySqlFormatter extends CSearchFormatter
 	{
 		if ($r)
 		{
-			if (array_key_exists("CNT", $r))
+			if (array_key_exists('CNT', $r))
+			{
 				return $r;
-			elseif  (array_key_exists("SEARCH_CONTENT_ID", $r))
+			}
+			elseif (array_key_exists('SEARCH_CONTENT_ID', $r))
+			{
 				return $this->formatRow($r);
+			}
 		}
 	}
 
 	function formatRow($r)
 	{
 		$DB = CDatabase::GetModuleConnection('search');
-		$rs = $DB->Query($q="
+
+		$rs = $DB->Query('
 			select
 				sc.ID
 				,sc.MODULE_ID
@@ -446,18 +475,18 @@ class CSearchMySqlFormatter extends CSearchFormatter
 				,sc.DATE_TO
 				,sc.URL
 				,sc.CUSTOM_RANK
-				,".$DB->DateToCharFunction("sc.DATE_CHANGE")." as FULL_DATE_CHANGE
-				,".$DB->DateToCharFunction("sc.DATE_CHANGE", "SHORT")." as DATE_CHANGE
+				,' . $DB->DateToCharFunction('sc.DATE_CHANGE') . ' as FULL_DATE_CHANGE
+				,' . $DB->DateToCharFunction('sc.DATE_CHANGE', 'SHORT') . ' as DATE_CHANGE
 				,scsite.SITE_ID
 				,scsite.URL SITE_URL
-				".(BX_SEARCH_VERSION > 1? ",sc.USER_ID": "")."
+				,sc.USER_ID
 			from b_search_content sc
 			INNER JOIN b_search_content_site scsite ON sc.ID=scsite.SEARCH_CONTENT_ID
-			where ID = ".$r["SEARCH_CONTENT_ID"]."
-			and scsite.SITE_ID = '".$r["SITE_ID"]."'
+			where ID = ' . $r['SEARCH_CONTENT_ID'] . "
+			and scsite.SITE_ID = '" . $r['SITE_ID'] . "'
 		");
 		$r = $rs->Fetch();
+
 		return $r;
 	}
 }
-

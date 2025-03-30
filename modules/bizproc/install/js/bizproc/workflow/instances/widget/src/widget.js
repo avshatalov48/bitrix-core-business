@@ -5,6 +5,8 @@ import { footerTypeEnum, ImageStackSteps, imageTypeEnum } from 'ui.image-stack-s
 import { Label, LabelColor, LabelSize } from 'ui.label';
 import { DateTimeFormat } from 'main.date';
 
+import 'main.polyfill.intersectionobserver';
+
 import 'ui.design-tokens';
 import 'ui.icons';
 import 'ui.icon-set.main';
@@ -22,7 +24,7 @@ type WidgetUsers = {
 }
 
 const defaulFormatDuration = [
-	['s', 'sdiff'], ['i', 'idiff'], ['H', 'Hdiff'], ['d', 'ddiff'], ['m', 'mdiff'], ['Y', 'Ydiff']
+	['s', 'sdiff'], ['i', 'idiff'], ['H', 'Hdiff'], ['d', 'ddiff'], ['m', 'mdiff'], ['Y', 'Ydiff'],
 ];
 
 const autoRunIconType = {
@@ -36,6 +38,9 @@ export class Widget
 	#stack: ImageStackSteps;
 	#popupInstance: Popup;
 	#popupListNode: Element;
+
+	#listSkeleton: Element;
+	#offset: number = 0;
 
 	constructor(params: WidgetParams)
 	{
@@ -163,8 +168,8 @@ export class Widget
 
 	#getPopupContent(): Element
 	{
-		this.#popupListNode = Tag.render`<div class="bizproc-workflow-instances-popup-list"></div>`;
-		this.#renderListSkeleton(this.#popupListNode);
+		this.#listSkeleton = this.#renderListSkeleton();
+		this.#popupListNode = Tag.render`<div class="bizproc-workflow-instances-popup-list">${this.#listSkeleton}</div>`;
 		this.#loadList();
 
 		return Tag.render`
@@ -191,10 +196,11 @@ export class Widget
 		`;
 	}
 
-	#renderListSkeleton(target: Element): void
+	#renderListSkeleton(): Element
 	{
 		let i = 0;
 		let opacity = 1.15;
+		const target = Tag.render`<div class="bizproc-workflow-instances-popup-list-page"></div>`;
 		while (i < 5)
 		{
 			++i;
@@ -214,31 +220,46 @@ export class Widget
 			`;
 			Dom.append(node, target);
 		}
+
+		return target;
+	}
+
+	#renderListPage(list: []): Element
+	{
+		const pageNode = Tag.render`<div class="bizproc-workflow-instances-popup-list-page"></div>`;
+
+		list.forEach((item) => {
+			const facesNode = this.#renderListItemFaces(item.avatars.author, item.avatars.running);
+			const label = new Label({
+				text: this.#formatDuration(item.time.current),
+				color: LabelColor.LIGHT_BLUE,
+				size: LabelSize.SM,
+				fill: true,
+			});
+			const itemNode = Tag.render`
+				<div class="bizproc-workflow-instances-popup-list-item">
+					${facesNode}
+					<div class="bizproc-workflow-instances-popup-list-item-time">${label.render()}</div>
+				</div>
+			`;
+
+			Dom.append(itemNode, pageNode);
+		});
+
+		return pageNode;
 	}
 
 	#loadList(): void
 	{
 		ajax.runAction('bizproc.workflow.getTemplateInstances', {
-			data: { templateId: this.#params.tplId },
+			data: { templateId: this.#params.tplId, offset: this.#offset },
 		}).then((response) => {
-			Dom.clean(this.#popupListNode);
-			response.data.list.forEach((item) => {
-				const facesNode = this.#renderListItemFaces(item.avatars.author, item.avatars.running);
-				const label = new Label({
-					text: this.#formatDuration(item.time.current),
-					color: LabelColor.LIGHT_BLUE,
-					size: LabelSize.SM,
-					fill: true,
-				});
-				const itemNode = Tag.render`
-					<div class="bizproc-workflow-instances-popup-list-item">
-						${facesNode}
-						<div class="bizproc-workflow-instances-popup-list-item-time">${label.render()}</div>
-					</div>
-				`;
+			this.#offset += response.data.list.length;
 
-				Dom.append(itemNode, this.#popupListNode);
-			});
+			Dom.append(this.#renderListPage(response.data.list), this.#popupListNode);
+			Dom.append(this.#listSkeleton, this.#popupListNode); // move skeleton to the end
+
+			this.#handleNextPage(response.data.hasNextPage);
 		}).catch((response) => {
 			if (response.errors?.length > 0)
 			{
@@ -251,9 +272,30 @@ export class Widget
 			}
 			else
 			{
-				console.error(response);
+				console?.error(response);
 			}
 		});
+	}
+
+	#handleNextPage(hasNextPage: boolean): void
+	{
+		if (hasNextPage && this.#listSkeleton)
+		{
+			new IntersectionObserver((entries, observer) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting)
+					{
+						observer.disconnect();
+						this.#loadList();
+					}
+				});
+			}).observe(this.#listSkeleton);
+
+			return;
+		}
+
+		Dom.remove(this.#listSkeleton);
+		this.#listSkeleton = null;
 	}
 
 	#renderListItemFaces(author: [], running: []): Element

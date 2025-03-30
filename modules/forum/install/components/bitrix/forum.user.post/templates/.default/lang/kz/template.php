@@ -1,0 +1,24 @@
+<?php
+$MESS["FR_EMPTY"] = "Табылмады";
+$MESS["F_ALL_FORUMS"] = "Барлық форумдар";
+$MESS["F_ANCHOR"] = "Бұл хабарламаға сілтеме";
+$MESS["F_ANCHOR_TITLE"] = "Осы хабарламаға сілтеме мекенжайын айырбастау буферіне көшіріңіз";
+$MESS["F_ATTACH_FILES"] = "Тіркелген файлдар";
+$MESS["F_AUTHOR_PROFILE"] = "Автор профилі";
+$MESS["F_CLOSED"] = "Жабық";
+$MESS["F_DATE_REGISTER"] = "Тіркеу:";
+$MESS["F_EDIT"] = "Өзгерту";
+$MESS["F_EDIT_HEAD"] = "Өзгертілді:";
+$MESS["F_NUM_MESS"] = "Хабарлама:";
+$MESS["F_POINTS"] = "Балл:";
+$MESS["LU_BY_MESSAGE"] = "хабарламалар бойынша";
+$MESS["LU_BY_TOPIC"] = "тақырыптар бойынша";
+$MESS["LU_DATE_CREATE"] = "Құрылған күні";
+$MESS["LU_FORUM"] = "Форум";
+$MESS["LU_MESSAGE"] = "Хабарлама";
+$MESS["LU_SORT"] = "Реттеу";
+$MESS["LU_TITLE_ALL"] = "Пайдаланушының барлық хабарламалары";
+$MESS["LU_TITLE_LT"] = "Тақырыптар қатысушысы";
+$MESS["LU_TITLE_LTA"] = "Тақырып авторы";
+$MESS["LU_TOPIC"] = "Тақырыбы";
+$MESS["LU_USER_POSTS_ON_TOPIC"] = "Тақырыптағы хабарламалар";

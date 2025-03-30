@@ -212,6 +212,11 @@ class CAllSocNetUser
 
 		if (!$result)
 		{
+			if ($bUseSession && !CSocNetUser::IsEnabledModuleAdmin())
+			{
+				return false;
+			}
+
 			$cacheKey = 'false';
 			if (is_array($site_id))
 			{

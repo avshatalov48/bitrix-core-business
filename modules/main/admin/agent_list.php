@@ -40,7 +40,7 @@ function CheckFilter($FilterArr) // проверка введенных поле
 	}
 
 	$str = "";
-	if(trim($find_last_exec) <> '')
+	if(trim($find_last_exec ?? '') <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_last_exec,"D.M.Y"),"d.m.Y");
@@ -54,7 +54,7 @@ function CheckFilter($FilterArr) // проверка введенных поле
 		}
 	}
 
-	if(trim($find_next_exec) <> '')
+	if(trim($find_next_exec ?? '') <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_next_exec,"D.M.Y"),"d.m.Y");

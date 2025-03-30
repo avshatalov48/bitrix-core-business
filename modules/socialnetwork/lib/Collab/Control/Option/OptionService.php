@@ -41,6 +41,8 @@ class OptionService
 
 		$result = new Result();
 
+		$uniqueFields = ['COLLAB_ID', 'NAME'];
+
 		$options = $command->getOptions()->getValue();
 		foreach ($options as $option)
 		{
@@ -56,7 +58,7 @@ class OptionService
 
 			try
 			{
-				CollabOptionTable::merge($insert, $update);
+				CollabOptionTable::merge($insert, $update, $uniqueFields);
 			}
 			catch (Exception $e)
 			{

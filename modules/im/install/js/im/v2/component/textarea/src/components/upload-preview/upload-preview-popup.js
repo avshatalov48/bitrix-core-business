@@ -1,7 +1,5 @@
 import { PopupManager } from 'main.popup';
-
 import { MessengerPopup } from 'im.v2.component.elements';
-
 import { UploadPreviewContent } from './upload-preview-content';
 
 import type { PopupOptions } from 'main.popup';
@@ -39,14 +37,15 @@ export const UploadPreviewPopup = {
 				targetContainer: document.body,
 				fixed: true,
 				draggable: { restrict: true },
-				titleBar: this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE'),
+				titleBar: ' ',
 				offsetTop: 0,
 				padding: 0,
 				closeIcon: true,
 				contentColor: 'transparent',
 				contentPadding: 0,
 				className: 'bx-im-upload-preview__scope',
-				autoHide: false,
+				autoHide: true,
+				overlay: true,
 			};
 		},
 	},

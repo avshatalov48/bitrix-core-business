@@ -16,7 +16,7 @@ use Bitrix\Sale;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 
-const CATALOG_NEW_OFFERS_IBLOCK_NEED = '-1';
+const CATALOG_NEW_OFFERS_IBLOCK_NEED = -1;
 
 Loader::includeModule('catalog');
 
@@ -526,7 +526,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 			? (int)$_POST['OFFERS_IBLOCK_ID_'.$iblockId]
 			: 0
 		);
-		if ($offers_iblock_id < 0)
+		if ($offers_iblock_id !== CATALOG_NEW_OFFERS_IBLOCK_NEED && $offers_iblock_id < 0)
 		{
 			$offers_iblock_id = 0;
 		}

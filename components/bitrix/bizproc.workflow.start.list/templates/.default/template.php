@@ -63,6 +63,8 @@ $APPLICATION->IncludeComponent(
 			gridId: gridId,
 			createTemplateButton: document.getElementById('bp-add-template'),
 			errorsContainerDiv: document.getElementById('bp-workflow-start-list-errors-container'),
+			canEdit: <?= $arResult['canEdit'] ?>,
+			bizprocEditorUrl: '<?= CUtil::JSEscape($arResult['bizprocEditorUrl']) ?>',
 			signedDocumentType: '<?= CUtil::JSEscape($arResult['signedDocumentType']) ?>',
 			signedDocumentId:  '<?= CUtil::JSEscape($arResult['signedDocumentId']) ?>',
 		});

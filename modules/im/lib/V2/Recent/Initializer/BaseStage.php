@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Recent\Initializer;
 
+use Bitrix\Im\V2\Recent\Initializer\Queue\QueueItem;
 use Bitrix\Im\V2\Recent\Initializer\Stage\OtherUsersStage;
 use Bitrix\Im\V2\Recent\Initializer\Stage\TargetUserStage;
 use Bitrix\Main\Loader;
@@ -9,32 +10,38 @@ use Bitrix\Main\Type\DateTime;
 
 abstract class BaseStage implements Stage
 {
-	protected Source $source;
 	protected int $targetId;
+	protected DateTime $currentDate;
+	protected int $gapTime = self::WITHOUT_GAP_TIME;
 
-	public function __construct(Source $source, int $targetId)
+	public function __construct(int $targetId)
 	{
-		$this->source = $source;
 		$this->targetId = $targetId;
 	}
 
-	public static function getInstance(StageType $type, Source $source, int $targetId): Stage
+	public static function getInstance(StageType $type, int $targetId): Stage
 	{
 		return match ($type)
 		{
-			StageType::Target => new TargetUserStage($source, $targetId),
-			StageType::Other => new OtherUsersStage($source, $targetId),
+			StageType::Target => new TargetUserStage($targetId),
+			StageType::Other => new OtherUsersStage($targetId),
 		};
 	}
 
-	public function getSource(): Source
+	public static function createFromQueueItem(QueueItem $queueItem): Stage
 	{
-		return $this->source;
+		return static::getInstance($queueItem->stageType, $queueItem->userId);
 	}
 
-	final public function getItems(string $pointer, int $limit): InitialiazerResult
+	public function setGapTime(int $gapTime = self::GAP_TIME): static
 	{
-		$result = $this->getUsers($pointer, $limit);
+		$this->gapTime = $gapTime;
+
+		return $this;
+	}
+
+	final public function getItems(InitialiazerResult $result): InitialiazerResult
+	{
 		$users = $result->getItems();
 		$filteredUsers = $this->filterUsers($users);
 		$items = $this->getItemsByUsers($filteredUsers);
@@ -44,7 +51,7 @@ abstract class BaseStage implements Stage
 
 	public function sendPullAfterInsert(array $items): void
 	{
-		if (!Loader::includeModule('pull'))
+		if (empty($items) || !Loader::includeModule('pull'))
 		{
 			return;
 		}
@@ -64,11 +71,6 @@ abstract class BaseStage implements Stage
 
 	abstract protected function getPullParams(array $items): array;
 
-	protected function getUsers(string $pointer, int $limit): InitialiazerResult
-	{
-		return $this->source->getUsers($pointer, $limit);
-	}
-
 	final protected function filterUsers(array $users): array
 	{
 		$usersWithExistingItems = $this->getUsersWithExistingItems($users);
@@ -81,7 +83,6 @@ abstract class BaseStage implements Stage
 	protected function getItemsByUsers(array $users): array
 	{
 		$result = [];
-		$currentDate = new DateTime();
 
 		foreach ($users as $user)
 		{
@@ -89,23 +90,40 @@ abstract class BaseStage implements Stage
 			{
 				continue;
 			}
-			$result[] = $this->getItemByTargetAndUser($this->targetId, $user, $currentDate);
+			$result[] = $this->getItemByTargetAndUser($this->targetId, $user);
 		}
 
 		return $result;
 	}
 
-	abstract protected function getItemByTargetAndUser(int $targetUserId, int $otherUserId, DateTime $date): array;
+	protected function getCurrentDate(): DateTime
+	{
+		// We need to subtract n seconds from the current time to create a time gap.
+		// This ensures that the order of elements in the "recent" is correct.
+		// Collabers should always appear below the main collab chat.
+		if ($this->gapTime)
+		{
+			$this->currentDate ??= (new DateTime())->add("-{$this->gapTime} seconds");
+		}
+		else
+		{
+			$this->currentDate ??= new DateTime();
+		}
 
-	protected function getItem(int $userId, int $itemId, DateTime $date): array
+		return $this->currentDate;
+	}
+
+	abstract protected function getItemByTargetAndUser(int $targetUserId, int $otherUserId): array;
+
+	protected function getItem(int $userId, int $itemId): array
 	{
 		return [
 			'USER_ID' => $userId,
 			'ITEM_TYPE' => 'P',
 			'ITEM_ID' => $itemId,
-			'DATE_MESSAGE' => $date,
-			'DATE_UPDATE' => $date,
-			'DATE_LAST_ACTIVITY' => $date,
+			'DATE_MESSAGE' => $this->getCurrentDate(),
+			'DATE_UPDATE' => $this->getCurrentDate(),
+			'DATE_LAST_ACTIVITY' => $this->getCurrentDate(),
 		];
 	}
 

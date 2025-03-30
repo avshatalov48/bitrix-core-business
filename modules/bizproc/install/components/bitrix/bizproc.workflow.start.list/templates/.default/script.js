@@ -11,6 +11,8 @@
 	var _signedDocumentType = /*#__PURE__*/new WeakMap();
 	var _signedDocumentId = /*#__PURE__*/new WeakMap();
 	var _counters = /*#__PURE__*/new WeakMap();
+	var _canEdit = /*#__PURE__*/new WeakMap();
+	var _bizprocEditorUrl = /*#__PURE__*/new WeakMap();
 	var _onAfterGridUpdated = /*#__PURE__*/new WeakSet();
 	var _renderStartedByMeNow = /*#__PURE__*/new WeakSet();
 	var WorkflowStartList = /*#__PURE__*/function () {
@@ -30,12 +32,22 @@
 	      writable: true,
 	      value: new Map()
 	    });
+	    _classPrivateFieldInitSpec(this, _canEdit, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec(this, _bizprocEditorUrl, {
+	      writable: true,
+	      value: void 0
+	    });
 	    if (!main_core.Type.isPlainObject(options)) {
 	      return;
 	    }
 	    this.gridId = options.gridId;
 	    this.createTemplateButton = options.createTemplateButton;
 	    this.errorsContainerDiv = options.errorsContainerDiv;
+	    babelHelpers.classPrivateFieldSet(this, _canEdit, options.canEdit);
+	    babelHelpers.classPrivateFieldSet(this, _bizprocEditorUrl, options.bizprocEditorUrl);
 	    if (main_core.Type.isStringFilled(options.signedDocumentType)) {
 	      babelHelpers.classPrivateFieldSet(this, _signedDocumentType, options.signedDocumentType);
 	    }
@@ -46,12 +58,6 @@
 	  babelHelpers.createClass(WorkflowStartList, [{
 	    key: "init",
 	    value: function init() {
-	      var _this = this;
-	      if (this.createTemplateButton) {
-	        main_core.Event.bind(this.createTemplateButton, 'click', function (event) {
-	          return _this.createTemplate();
-	        });
-	      }
 	      BX.UI.Hint.init(document);
 	      if (this.getGrid()) {
 	        BX.Bizproc.Component.WorkflowStartList.colorPinnedRows(this.getGrid());
@@ -59,19 +65,66 @@
 	      main_core_events.EventEmitter.subscribe('Grid::updated', _classPrivateMethodGet(this, _onAfterGridUpdated, _onAfterGridUpdated2).bind(this));
 	    }
 	  }, {
-	    key: "createTemplate",
-	    value: function createTemplate() {
-	      alert('Create Template');
+	    key: "editTemplate",
+	    value: function editTemplate(event, templateId) {
+	      if (!babelHelpers.classPrivateFieldGet(this, _canEdit)) {
+	        this.showNoPermissionsHint(event.target);
+	        return;
+	      }
+	      if (babelHelpers.classPrivateFieldGet(this, _bizprocEditorUrl).length === 0) {
+	        this.showNoEditorHint(event.target);
+	        return;
+	      }
+	      this.openBizprocEditor(templateId);
 	    }
 	  }, {
-	    key: "editTemplate",
-	    value: function editTemplate(templateId) {
-	      alert('Edit Template ' + templateId);
+	    key: "showAngleHint",
+	    value: function showAngleHint(node, text) {
+	      if (this.hintTimeout) {
+	        clearTimeout(this.hintTimeout);
+	      }
+	      this.popupHint = BX.UI.Hint.createInstance({
+	        popupParameters: {
+	          width: 334,
+	          height: 104,
+	          closeByEsc: true,
+	          autoHide: true,
+	          angle: {
+	            offset: main_core.Dom.getPosition(node).width / 2
+	          },
+	          bindOptions: {
+	            position: 'top'
+	          }
+	        }
+	      });
+	      this.popupHint.close = function () {
+	        this.hide();
+	      };
+	      this.popupHint.show(node, text);
+	      this.timeout = setTimeout(this.hideHint.bind(this), 5000);
+	    }
+	  }, {
+	    key: "hideHint",
+	    value: function hideHint() {
+	      if (this.popupHint) {
+	        this.popupHint.close();
+	      }
+	      this.popupHint = null;
+	    }
+	  }, {
+	    key: "showNoPermissionsHint",
+	    value: function showNoPermissionsHint(node) {
+	      this.showAngleHint(node, main_core.Loc.getMessage('BIZPROC_CMP_WORKKFLOW_START_LIST_START_RIGHTS_ERROR'));
+	    }
+	  }, {
+	    key: "showNoEditorHint",
+	    value: function showNoEditorHint(node) {
+	      this.showAngleHint(node, main_core.Loc.getMessage('BIZPROC_CMP_WORKKFLOW_START_LIST_START_MODULE_ERROR'));
 	    }
 	  }, {
 	    key: "showErrors",
 	    value: function showErrors(errors) {
-	      var _this2 = this;
+	      var _this = this;
 	      this.errorsContainerDiv.style.margin = '10px';
 	      errors.forEach(function (error) {
 	        var alert = new ui_alerts.Alert({
@@ -80,7 +133,7 @@
 	          closeBtn: true,
 	          animated: true
 	        });
-	        alert.renderTo(_this2.errorsContainerDiv);
+	        alert.renderTo(_this.errorsContainerDiv);
 	      });
 	    }
 	  }, {
@@ -102,30 +155,35 @@
 	  }, {
 	    key: "startWorkflow",
 	    value: function startWorkflow(event, templateId) {
-	      var _this3 = this;
+	      var _this2 = this;
 	      event.preventDefault();
 	      var id = main_core.Text.toNumber(templateId);
 	      if (id <= 0 || !babelHelpers.classPrivateFieldGet(this, _signedDocumentType) || !babelHelpers.classPrivateFieldGet(this, _signedDocumentId)) {
 	        return;
 	      }
 	      var afterSuccessStart = function afterSuccessStart() {
-	        var _this3$getGrid;
+	        var _this2$getGrid;
 	        var slider = BX.SidePanel.Instance.getSliderByWindow(window);
 	        if (slider) {
 	          slider.close();
 	          return;
 	        }
-	        if (!babelHelpers.classPrivateFieldGet(_this3, _counters).has(templateId)) {
-	          babelHelpers.classPrivateFieldGet(_this3, _counters).set(templateId, 0);
+	        if (!babelHelpers.classPrivateFieldGet(_this2, _counters).has(templateId)) {
+	          babelHelpers.classPrivateFieldGet(_this2, _counters).set(templateId, 0);
 	        }
-	        babelHelpers.classPrivateFieldGet(_this3, _counters).set(templateId, babelHelpers.classPrivateFieldGet(_this3, _counters).get(templateId) + 1);
-	        (_this3$getGrid = _this3.getGrid()) === null || _this3$getGrid === void 0 ? void 0 : _this3$getGrid.reload();
+	        babelHelpers.classPrivateFieldGet(_this2, _counters).set(templateId, babelHelpers.classPrivateFieldGet(_this2, _counters).get(templateId) + 1);
+	        (_this2$getGrid = _this2.getGrid()) === null || _this2$getGrid === void 0 ? void 0 : _this2$getGrid.reload();
 	      };
 	      bizproc_workflow_starter.Starter.singleStart({
 	        signedDocumentId: babelHelpers.classPrivateFieldGet(this, _signedDocumentId),
 	        signedDocumentType: babelHelpers.classPrivateFieldGet(this, _signedDocumentType),
 	        templateId: id
 	      }, afterSuccessStart);
+	    }
+	  }, {
+	    key: "openBizprocEditor",
+	    value: function openBizprocEditor(templateId) {
+	      top.window.location.href = babelHelpers.classPrivateFieldGet(this, _bizprocEditorUrl).replace('#ID#', templateId);
 	    }
 	  }], [{
 	    key: "changePin",
@@ -176,7 +234,7 @@
 	  return WorkflowStartList;
 	}();
 	function _onAfterGridUpdated2() {
-	  var _this4 = this;
+	  var _this3 = this;
 	  if (this.getGrid()) {
 	    BX.UI.Hint.init(this.getGrid().getContainer());
 	    BX.Bizproc.Component.WorkflowStartList.colorPinnedRows(this.getGrid());
@@ -185,7 +243,7 @@
 	    var counter = document.querySelector("[data-role=\"template-".concat(key, "-counter\"]"));
 	    if (main_core.Type.isElementNode(counter)) {
 	      main_core.Dom.clean(counter);
-	      main_core.Dom.append(_classPrivateMethodGet(_this4, _renderStartedByMeNow, _renderStartedByMeNow2).call(_this4, key), counter);
+	      main_core.Dom.append(_classPrivateMethodGet(_this3, _renderStartedByMeNow, _renderStartedByMeNow2).call(_this3, key), counter);
 	    }
 	  });
 	}

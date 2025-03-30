@@ -23,7 +23,7 @@ class TargetUserStage extends BaseStage
 
 	protected function getPullParams(array $items): array
 	{
-		$date = new DateTime();
+		$date = $this->getCurrentDate();
 		$result = ['items' => []];
 		foreach ($items as $item)
 		{
@@ -39,6 +39,11 @@ class TargetUserStage extends BaseStage
 
 	protected function getUsersWithExistingItems(array $users): array
 	{
+		if (empty($users))
+		{
+			return [];
+		}
+
 		$result = [];
 		$raw = RecentTable::query()
 			->setSelect(['ITEM_ID'])
@@ -57,9 +62,9 @@ class TargetUserStage extends BaseStage
 		return $result;
 	}
 
-	protected function getItemByTargetAndUser(int $targetUserId, int $otherUserId, DateTime $date): array
+	protected function getItemByTargetAndUser(int $targetUserId, int $otherUserId): array
 	{
-		return $this->getItem($targetUserId, $otherUserId, $date);
+		return $this->getItem($targetUserId, $otherUserId);
 	}
 
 	protected function hasNextStep(InitialiazerResult $result): bool

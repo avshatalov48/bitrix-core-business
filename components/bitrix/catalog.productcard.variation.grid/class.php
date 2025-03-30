@@ -389,7 +389,7 @@ class CatalogProductVariationGridComponent
 		{
 			$id = $request['id'] ?? null;
 
-			if (is_numeric($id))
+			if ($this->isNumericId($id))
 			{
 				$this->processGridDelete([$id]);
 			}
@@ -435,12 +435,12 @@ class CatalogProductVariationGridComponent
 
 			foreach ($ids as $id)
 			{
-				if (!is_numeric($id))
+				if (!$this->isNumericId($id))
 				{
 					continue;
 				}
 
-				$sku = $skuCollection->findById($id);
+				$sku = $skuCollection->findById((int)$id);
 
 				if ($sku)
 				{
@@ -467,6 +467,25 @@ class CatalogProductVariationGridComponent
 				$this->errorCollection->add($result->getErrors());
 			}
 		}
+	}
+
+	private static function isNumericId($rawId): bool
+	{
+		if (is_int($rawId))
+		{
+			return true;
+		}
+
+		if (is_string($rawId))
+		{
+			$id = (int)$rawId;
+			if ((string)$id === $rawId)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private function hasSkuProperties(\Bitrix\Catalog\v2\Sku\SkuCollection $skuCollection): bool

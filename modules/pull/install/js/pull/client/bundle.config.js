@@ -1,5 +1,6 @@
 module.exports = {
-	input: './pull.client.js',
+	input: 'src/index.js',
+	output: 'dist/pull.client.js',
 	namespace: 'BX',
-	protected: true,
+	browserslist: true,
 };

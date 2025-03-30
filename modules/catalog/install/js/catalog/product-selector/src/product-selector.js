@@ -555,6 +555,8 @@ export class ProductSelector extends EventEmitter
 
 	subscribeEvents()
 	{
+		this.internalUnsubscribeEvents();
+
 		EventEmitter.incrementMaxListeners('ProductList::onChangeFields', 1);
 		EventEmitter.incrementMaxListeners('ProductSelector::onNameChange', 1);
 		EventEmitter.incrementMaxListeners('Catalog.ImageInput::save', 1);
@@ -575,6 +577,11 @@ export class ProductSelector extends EventEmitter
 	{
 		this.unsubscribeToVariationChange();
 
+		this.internalUnsubscribeEvents();
+	}
+
+	internalUnsubscribeEvents(): void
+	{
 		EventEmitter.unsubscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 		EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 		EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);

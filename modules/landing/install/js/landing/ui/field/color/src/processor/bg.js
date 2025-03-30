@@ -362,18 +362,19 @@ export default class Bg extends BgColor
 				const searchUrl = defaultValue[Bg.BG_IMAGE].match(regUrl);
 				if (searchUrl !== null)
 				{
-					const regSearchUrl = /"(https?:\/)?\/[\S]*"/gi;
+					const regSearchUrl = /["'](https?:\/)?\/[\S]*["']/gi;
 					const search = defaultValue[Bg.BG_IMAGE].match(regSearchUrl);
 					if (search)
 					{
-						processorValue[Bg.BG_URL_VAR] = search[0].replaceAll('"', '');
+						const regReplace = /["']/g;
+						processorValue[Bg.BG_URL_VAR] = search[0].replaceAll(regReplace, '');
 						if (search.length === 2)
 						{
-							processorValue[Bg.BG_URL_2X_VAR] = search[1].replaceAll('"', '');
+							processorValue[Bg.BG_URL_2X_VAR] = search[1].replaceAll(regReplace, '');
 						}
 						else
 						{
-							processorValue[Bg.BG_URL_2X_VAR] = search[0].replaceAll('"', '');
+							processorValue[Bg.BG_URL_2X_VAR] = search[0].replaceAll(regReplace, '');
 						}
 					}
 				}

@@ -136,6 +136,11 @@ export class ChatPullHandler
 			CallManager.getInstance().leaveCurrentCall();
 		}
 
+		if (currentUserIsKicked)
+		{
+			CallManager.getInstance().deleteRecentCall(params.dialogId);
+		}
+
 		this.#updateChatUsers(params);
 	}
 

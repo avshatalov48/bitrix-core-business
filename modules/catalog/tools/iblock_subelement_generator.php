@@ -582,7 +582,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $elementAdd && check_bitrix_sessid()
 						currentWindow.ReloadSubList();
 				}
 			</script>
-			<?
+			<?php
 			die();
 		}
 		if ($ex = $APPLICATION->GetException())
@@ -650,13 +650,13 @@ else
 
 	CAdminMessage::ShowMessage($errorMessage);
 	?>
-	<form enctype="multipart/form-data" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="iblock_generator_form" id="iblock_generator_form">
-	<input type="hidden" name="lang" value="<?echo LANGUAGE_ID; ?>">
-	<input type="hidden" name="subIBlockId" value="<?echo $subIBlockId?>">
-	<input type="hidden" name="subPropValue" value="<?echo $subPropValue?>">
-	<input type="hidden" name="iBlockId" value="<?echo $iBlockId?>">
-	<input type="hidden" name="subTmpId" value="<?echo $subTmpId?>">
-	<input type="hidden" name="PRODUCT_NAME_HIDDEN" value="<?echo htmlspecialcharsbx($parentProductName)?>">
+	<form enctype="multipart/form-data" method="POST" action="<?= $APPLICATION->GetCurPage() ?>" name="iblock_generator_form" id="iblock_generator_form">
+	<input type="hidden" name="lang" value="<?= LANGUAGE_ID ?>">
+	<input type="hidden" name="subIBlockId" value="<?= $subIBlockId ?>">
+	<input type="hidden" name="subPropValue" value="<?= $subPropValue ?>">
+	<input type="hidden" name="iBlockId" value="<?= $iBlockId ?>">
+	<input type="hidden" name="subTmpId" value="<?= $subTmpId ?>">
+	<input type="hidden" name="PRODUCT_NAME_HIDDEN" value="<?= htmlspecialcharsbx($parentProductName) ?>">
 	<?=bitrix_sessid_post();
 
 	$tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
@@ -667,20 +667,20 @@ else
 	BX('edit_edit_table').className += ' adm-shop-page-table';
 
 	var CellTPL = [];
-	<?
+	<?php
 	foreach ($arCellTemplates as $key => $value)
 	{
-		?>CellTPL[<? echo $key; ?>] = '<? echo $value; ?>';
-	<?
+		?>CellTPL[<?= $key; ?>] = '<?= $value; ?>';
+	<?php
 	}
 	?>
 
 	var CellAttr = [];
-	<?
+	<?php
 	foreach ($arCellTemplates as $key => $value)
 	{
-		?>CellAttr[<? echo $key; ?>] = '<? echo $value; ?>';
-	<?
+		?>CellAttr[<?= $key; ?>] = '<?= $value; ?>';
+	<?php
 	}
 	?>
 	var obPricesTable = new JCCatTblEdit({
@@ -775,40 +775,40 @@ else
 			<td class="adm-detail-content-cell-l"><?= GetMessage("IB_SEG_WEIGHT") ?>:</td>
 			<td class="adm-detail-content-cell-r">
 				<input type="text" style="width: 120px; margin-right: 10px" class="adm-input" name="IB_SEG_WEIGHT">
-				<?echo GetMessage("IB_SEG_BASE_LENGTH")?>:
+				<?= GetMessage("IB_SEG_BASE_LENGTH") ?>:
 				<input type="text" id="CAT_BASE_LENGTH" name="IB_SEG_BASE_LENGTH" style="width: 120px;  margin-right: 10px">
-				<?echo GetMessage("IB_SEG_BASE_WIDTH")?>:
+				<?= GetMessage("IB_SEG_BASE_WIDTH") ?>:
 				<input type="text" id="CAT_BASE_WIDTH" name="IB_SEG_BASE_WIDTH" style="width: 120px;  margin-right: 10px">
-				<?echo GetMessage("IB_SEG_BASE_HEIGHT")?>:
+				<?= GetMessage("IB_SEG_BASE_HEIGHT") ?>:
 				<input type="text" id="CAT_BASE_HEIGHT" name="IB_SEG_BASE_HEIGHT" style="width: 120px;">
 				<a class="adm-input-help-icon" onmouseover="BX.hint(this, '<?=htmlspecialcharsbx(CUtil::JSEscape(GetMessage('IB_SEG_TOOLTIP_WEIGHT'))); ?>')" href="#"></a>
 			</td>
 		</tr>
 		<tr>
 			<td class="adm-detail-content-cell-l"><?= GetMessage((!$useStoreControl ? 'IB_SEG_QUANTITY' : 'IB_SEG_MEASURE')); ?></td>
-			<td class="adm-detail-content-cell-r"><?
+			<td class="adm-detail-content-cell-r"><?php
 			if (!$useStoreControl)
 			{
 				?><input type="text" style="width: 120px; margin-right: 10px" class="adm-input" name="IB_SEG_QUANTITY">
-				<? echo GetMessage('IB_SEG_MEASURE');
+				<?= GetMessage('IB_SEG_MEASURE');
 			}
-			?> <span class="adm-select-wrap" style="vertical-align: middle !important;"><select name="IB_SEG_MEASURE" class="adm-select" style="width: 169px;"><?
+			?> <span class="adm-select-wrap" style="vertical-align: middle !important;"><select name="IB_SEG_MEASURE" class="adm-select" style="width: 169px;"><?php
 			$measureIterator = CCatalogMeasure::getList(
 				array(), array(), false, false, array("ID", "CODE", "MEASURE_TITLE", "SYMBOL_INTL", "IS_DEFAULT")
 			);
 			while($measure = $measureIterator->Fetch())
 			{
-				?><option value="<?=$measure['ID']?>"<? echo ($measure['IS_DEFAULT'] == 'Y' ? ' selected' : '');?>><?
-				echo htmlspecialcharsEx($measure['MEASURE_TITLE']); ?></option><?
+				?><option value="<?=$measure['ID']?>"<?= ($measure['IS_DEFAULT'] == 'Y' ? ' selected' : '') ?>><?php
+				echo htmlspecialcharsEx($measure['MEASURE_TITLE']); ?></option><?php
 			}
 			unset($measure, $measureIterator);
 			?></select></span></td>
 		</tr>
 		<tr>
-			<td class="adm-detail-content-cell-l"><?echo GetMessage("IB_SEG_VAT")?>:</td>
+			<td class="adm-detail-content-cell-l"><?= GetMessage("IB_SEG_VAT") ?>:</td>
 			<td class="adm-detail-content-cell-r">
 				<span class="adm-select-wrap" style="vertical-align: middle !important;">
-				<?
+				<?php
 					$arVATRef = CatalogGetVATArray(array(), true);
 					echo SelectBoxFromArray('IB_SEG_VAT_ID', $arVATRef, '', "", (!$elementAdd ? "disabled readonly" : '').'class="adm-select" style="width: 169px;"');
 				?>
@@ -816,21 +816,21 @@ else
 			</td>
 		</tr>
 		<tr>
-			<td class="adm-detail-content-cell-l"><?echo GetMessage("IB_SEG_VAT_INCLUDED")?></td>
+			<td class="adm-detail-content-cell-l"><?= GetMessage("IB_SEG_VAT_INCLUDED") ?></td>
 			<td class="adm-detail-content-cell-r">
-				<input type="hidden" name="IB_SEG_VAT_INCLUDED" id="IB_SEG_VAT_INCLUDED_N" value="N"><?
+				<input type="hidden" name="IB_SEG_VAT_INCLUDED" id="IB_SEG_VAT_INCLUDED_N" value="N"><?php
 				$vatInclude = (Main\Config\Option::get('catalog', 'default_product_vat_included') === 'Y');
-				?><input class="adm-designed-checkbox" type="checkbox" name="IB_SEG_VAT_INCLUDED" id="IB_SEG_VAT_INCLUDED" value="Y"<?=($vatInclude ? ' checked' : '');?>>
+				?><input class="adm-designed-checkbox" type="checkbox" name="IB_SEG_VAT_INCLUDED" id="IB_SEG_VAT_INCLUDED" value="Y"<?= ($vatInclude ? ' checked' : '') ?>>
 				<label class="adm-designed-checkbox-label" for="IB_SEG_VAT_INCLUDED"></label>
 			</td>
 		</tr>
-		<?
+		<?php
 		if ($accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW) && !$useStoreControl)
 		{
 			$baseCurrency = Currency\CurrencyManager::getBaseCurrency();
 		?>
 		<tr>
-			<td class="adm-detail-content-cell-l"><? echo GetMessage("IB_SEG_PURCHASING_PRICE") ?></td>
+			<td class="adm-detail-content-cell-l"><?= GetMessage("IB_SEG_PURCHASING_PRICE") ?></td>
 			<td class="adm-detail-content-cell-r">
 				<input type="text" name="IB_SEG_PURCHASING_PRICE" value="">
 				<span class="adm-select-wrap" style="vertical-align: middle !important;"><select name="IB_SEG_PURCHASING_CURRENCY" class="adm-select" style="width: 169px;">

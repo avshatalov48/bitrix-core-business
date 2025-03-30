@@ -87,6 +87,7 @@ if ($component->isAjaxRequest())
 			'value' => $arResult['value'],
 			'isMultiple' => $arResult['userField']['MULTIPLE'] === 'Y',
 			'type' => ElementType::USER_TYPE_ID,
+			'activeFilter' => ($arResult['userField']['SETTINGS']['ACTIVE_FILTER'] ?? 'N') === 'Y',
 		]);
 
 		$script = <<<EOT

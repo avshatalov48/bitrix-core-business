@@ -17,24 +17,26 @@ $lockStatus = HtmlFilter::encode($arResult["LOCK_STATUS"]);
 $elementName = HtmlFilter::encode($arResult["ELEMENT_NAME"]);
 $lockedUserName = HtmlFilter::encode($arResult["LOCKED_USER_NAME"]);
 $lockedBy = (int) $arResult["LOCKED_BY"];
+$locPlaceholders = [
+	"#ELEMENT#" => $elementName,
+];
+
+if ($lockStatus === 'red')
+{
+	$locPlaceholders["[LOCKED_BY]"] = "<a class=\"lists-lock-status-widget-locked-by\" href=\"/company/personal/user/$lockedBy/\" bx-tooltip-user-id=\"$lockedBy\">";
+	$locPlaceholders["[\LOCKED_BY]"] = "</a>";
+	$locPlaceholders["#LOCKED_BY_USERNAME#"] = $lockedUserName;
+}
 ?>
 
 <div id="<?=$widgetContainerId?>" class="lists-lock-status-widget-container">
 	<div class="lists-lock-status-widget-<?=$lockStatus?>">
 		<?=Loc::getMessage(
 			"LISTS_LOCK_STATUS_" . mb_strtoupper($lockStatus) . '_MSGVER_1',
-			["#ELEMENT#" => $elementName]
+			$locPlaceholders,
 		)?>
 	</div>
-	<?php if ($lockStatus == "red"): ?>
-		<div class="lists-lock-status-widget-locked-by">
-			<a href="/company/personal/user/<?=$lockedBy?>/" bx-tooltip-user-id="
-				<?=$lockedBy?>"><?=$lockedUserName?></a>
-		</div>
-	<?php elseif ($lockStatus == "green"): ?>
-
-	<?php endif; ?>
-	<div data-hint="<?=HtmlFilter::encode(Loc::getMessage("LISTS_LOCK_STATUS_HINT_".mb_strtoupper($lockStatus),
+	<div class="ui-hint" data-hint="<?=HtmlFilter::encode(Loc::getMessage("LISTS_LOCK_STATUS_HINT_".mb_strtoupper($lockStatus),
 		["#ELEMENT#" => $elementName, "#USER_NAME#" => $lockedUserName]))?>"></div>
 </div>
 

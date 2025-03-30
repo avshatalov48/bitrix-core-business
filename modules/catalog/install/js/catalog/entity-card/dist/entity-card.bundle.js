@@ -3490,6 +3490,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      this.getCreateDocumentPopup().show();
 	    }
 	  }, {
+	    key: "closeCreateDocumentPopup",
+	    value: function closeCreateDocumentPopup() {
+	      this.getCreateDocumentPopup().close();
+	    }
+	  }, {
 	    key: "getCreateDocumentMenuContent",
 	    value: function getCreateDocumentMenuContent() {
 	      var _this2 = this;
@@ -3500,11 +3505,16 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        var itemEntry = null;
 	        if (_this2.isInventoryManagementToolEnabled) {
 	          itemEntry = main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a class=\"menu-popup-item menu-popup-item-no-icon\" href=\"", "\">\n\t\t\t\t\t\t<span class=\"menu-popup-item-text\">", "</span>\n\t\t\t\t\t</a>\n\t\t\t\t"])), item.link, item.text);
+	          main_core.Event.bind(itemEntry, 'click', function (event) {
+	            event.preventDefault();
+	            _this2.closeCreateDocumentPopup();
+	          });
 	        } else {
 	          itemEntry = main_core.Tag.render(_templateObject4$5 || (_templateObject4$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a class=\"menu-popup-item menu-popup-item-no-icon\">\n\t\t\t\t\t\t<span class=\"menu-popup-item-text\">", "</span>\n\t\t\t\t\t</a>\n\t\t\t\t"])), item.text);
 	          main_core.Event.bind(itemEntry, 'click', function (event) {
 	            event.preventDefault();
 	            EntityCard.openInventoryManagementToolDisabledSlider();
+	            _this2.closeCreateDocumentPopup();
 	          });
 	        }
 	        popupItemsContainer.appendChild(itemEntry);

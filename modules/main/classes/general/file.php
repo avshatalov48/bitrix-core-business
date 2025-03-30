@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -20,15 +21,7 @@ use Bitrix\Main\Security;
 
 IncludeModuleLangFile(__FILE__);
 
-/**
- * @deprecated Use CFile
- * Class CAllFile
- */
-class CAllFile
-{
-}
-
-class CFile extends CAllFile
+class CFile
 {
 	protected const CACHE_DIR = 'b_file';
 	protected const DELETE_NONE = 0x00;
@@ -228,6 +221,9 @@ class CFile extends CAllFile
 
 		$original = null;
 
+		$connection = \Bitrix\Main\Application::getConnection();
+		$connection->lock('b_file', -1);
+
 		$io = CBXVirtualIo::GetInstance();
 
 		$bExternalStorage = false;
@@ -339,7 +335,6 @@ class CFile extends CAllFile
 			//control of duplicates
 			if ($arFile["FILE_HASH"] <> '')
 			{
-				$lockId = static::lockFileHash($arFile["size"], $arFile["FILE_HASH"]);
 				$original = static::FindDuplicate($arFile["size"], $arFile["FILE_HASH"]);
 
 				if ($original !== null)
@@ -405,16 +400,13 @@ class CFile extends CAllFile
 			"FILE_HASH" => ($original === null ? $arFile["FILE_HASH"] : ''),
 		]);
 
-		if (isset($lockId))
-		{
-			static::unlockFileHash($lockId);
-		}
-
 		if ($original !== null)
 		{
 			//save information about the duplicate for future use (on deletion)
 			static::AddDuplicate($original->getFileId(), $NEW_IMAGE_ID, false);
 		}
+
+		$connection->unlock('b_file');
 
 		static::CleanCache($NEW_IMAGE_ID);
 
@@ -545,7 +537,7 @@ class CFile extends CAllFile
 		$io = CBXVirtualIo::GetInstance();
 		$uploadDir = COption::GetOptionString("main", "upload_dir", "upload");
 		$deleteSize = 0;
-		$lockId = '';
+
 		$fileList = \Bitrix\Main\FileTable::getList([
 			'select' => ['ID', 'FILE_SIZE', 'SUBDIR', 'FILE_NAME'],
 			'filter' => [
@@ -558,16 +550,14 @@ class CFile extends CAllFile
 		]);
 		while ($duplicate = $fileList->fetchObject())
 		{
-			if (!$lockId)
-			{
-				$lockId = static::lockFileHash($original->getFileSize(), $original->getFileHash());
-			}
+			$connection->lock('b_file', -1);
 
 			Internal\FileHashTable::delete($duplicate->getId());
 
 			$duplicatePath = '/' . $duplicate->getSubdir() . '/' . $duplicate->getFileName();
 			if ($originalPath == $duplicatePath)
 			{
+				$connection->unlock('b_file');
 				continue;
 			}
 
@@ -582,6 +572,7 @@ class CFile extends CAllFile
 			}
 			if ($cancel)
 			{
+				$connection->unlock('b_file');
 				continue;
 			}
 
@@ -626,11 +617,8 @@ class CFile extends CAllFile
 					}
 				}
 			}
-		}
 
-		if ($lockId)
-		{
-			static::unlockFileHash($lockId);
+			$connection->unlock('b_file');
 		}
 
 		/****************************** QUOTA ******************************/
@@ -724,20 +712,19 @@ class CFile extends CAllFile
 			return;
 		}
 
-		$conn = Main\Application::getConnection();
+		$connection = Main\Application::getConnection();
+		$connection->lock('b_file', -1);
 
 		$res = static::GetByID($ID, true);
 
 		if ($res = $res->Fetch())
 		{
-			$hash = Internal\FileHashTable::getRowById($ID);
-			$lockId = $hash ? static::lockFileHash($hash['FILE_SIZE'], $hash['FILE_HASH'], $res['HANDLER_ID']) : '';
-
 			$delete = static::processDuplicates($ID);
 
 			if ($delete === self::DELETE_NONE)
 			{
 				//can't delete the file - duplicates found
+				$connection->unlock('b_file');
 				return;
 			}
 
@@ -790,14 +777,9 @@ class CFile extends CAllFile
 				// recursion inside
 				static::processVersions($ID);
 
-				$conn->query("DELETE FROM b_file WHERE ID = {$ID}");
+				$connection->query("DELETE FROM b_file WHERE ID = {$ID}");
 
 				static::CleanCache($ID);
-			}
-
-			if ($lockId)
-			{
-				static::unlockFileHash($lockId);
 			}
 
 			/****************************** QUOTA ******************************/
@@ -807,18 +789,8 @@ class CFile extends CAllFile
 			}
 			/****************************** QUOTA ******************************/
 		}
-	}
 
-	public static function lockFileHash($size, $hash, $bucket = 0)
-	{
-		$lockId = $size . '|' . $hash . '|' . (int)$bucket;
-		Main\Application::getConnection()->lock($lockId, -1);
-		return $lockId;
-	}
-
-	public static function unlockFileHash($lockId)
-	{
-		Main\Application::getConnection()->unlock($lockId);
+		$connection->unlock('b_file');
 	}
 
 	protected static function processDuplicates($ID)
@@ -938,15 +910,6 @@ class CFile extends CAllFile
 		{
 			static::Delete($version['VERSION_ID']);
 		}
-	}
-
-	/**
-	 * @param $ID
-	 * @deprecated Use CFile::Delete()
-	 */
-	public static function DoDelete($ID)
-	{
-		static::Delete($ID);
 	}
 
 	public static function CleanCache($fileId)
@@ -1912,8 +1875,8 @@ function ImgShw(ID, width, height, alt)
 							NAME="banner"
 							ALIGN=""
 							TYPE="application/x-shockwave-flash"
-							PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer">
-						</embed>
+							PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer" 
+						/>
 				</object>
 			';
 		}
@@ -2348,13 +2311,9 @@ function ImgShw(ID, width, height, alt)
 		}
 
 		$io = CBXVirtualIo::GetInstance();
-		$cacheImageFile = "/" . $uploadDirName . "/resize_cache/" . $file["SUBDIR"] . "/" . $arSize["width"] . "_" . $arSize["height"] . "_" . $resizeType . (is_array($arFilters) ? md5(serialize($arFilters)) : "") . "/" . $file["FILE_NAME"];
 
+		$cacheImageFile = "/" . $uploadDirName . "/resize_cache/" . $file["SUBDIR"] . "/" . $arSize["width"] . "_" . $arSize["height"] . "_" . $resizeType . (is_array($arFilters) ? md5(serialize($arFilters)) : "") . "/" . $file["FILE_NAME"];
 		$cacheImageFileCheck = $cacheImageFile;
-		if ($file["CONTENT_TYPE"] == "image/bmp")
-		{
-			$cacheImageFileCheck .= ".jpg";
-		}
 
 		static $cache = [];
 		$cache_id = $cacheImageFileCheck;
@@ -2570,7 +2529,7 @@ function ImgShw(ID, width, height, alt)
 		return true;
 	}
 
-	public static function ResizeImageFile($sourceFile, &$destinationFile, $arSize, $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL, $arWaterMark = [], $quality = false, $arFilters = false)
+	public static function ResizeImageFile($sourceFile, $destinationFile, $arSize, $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL, $arWaterMark = [], $quality = false, $arFilters = false)
 	{
 		$io = CBXVirtualIo::GetInstance();
 
@@ -2714,7 +2673,6 @@ function ImgShw(ID, width, height, alt)
 
 						if ($fileType == File\Image::FORMAT_BMP)
 						{
-							$destinationFile .= ".jpg";
 							$destinationImage->saveAs($io->GetPhysicalName($destinationFile), $quality, File\Image::FORMAT_JPEG);
 						}
 						else
@@ -3123,7 +3081,8 @@ function ImgShw(ID, width, height, alt)
 					ini_set('zlib.output_compression', 'Off');
 				}
 
-				if ($cur_pos > 0)
+				// $p shows that we are sending partial content (range request)
+				if ($p)
 				{
 					$response->setStatus("206 Partial Content");
 				}

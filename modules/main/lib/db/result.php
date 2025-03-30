@@ -61,6 +61,13 @@ abstract class Result implements \IteratorAggregate
 				}
 			}
 		}
+
+		if ($this->trackerQuery)
+		{
+			$this->trackerQuery->setSelectedRowsCount((int) $this->getSelectedRowsCount());
+			$this->trackerQuery->setSelectedFieldsCount($this->getFieldsCount());
+			$this->trackerQuery->setHasBigFields($this->hasBigFields());
+		}
 	}
 
 	/**
@@ -143,7 +150,16 @@ abstract class Result implements \IteratorAggregate
 
 		$data = $this->fetchRowInternal();
 
-		$this->trackerQuery?->refinishQuery();
+		if ($this->trackerQuery != null)
+		{
+			if ($data)
+			{
+				$this->trackerQuery->incrementFetched();
+				$this->trackerQuery->addLength($this->getLength());
+			}
+
+			$this->trackerQuery->refinishQuery();
+		}
 
 		if (!$data)
 		{
@@ -320,5 +336,35 @@ abstract class Result implements \IteratorAggregate
 	public function getIterator(): \Traversable
 	{
 		return new ResultIterator($this);
+	}
+
+	/**
+	 * Returns the number of fields in the result.
+	 *
+	 * @return int
+	 */
+	public function getFieldsCount(): int
+	{
+		return 0;
+	}
+
+	/**
+	 * Returns the size in bytes of the last fetched row.
+	 *
+	 * @return int
+	 */
+	public function getLength(): int
+	{
+		return 0;
+	}
+
+	/**
+	 * Checks the existence of the big fields in the result.
+	 *
+	 * @return bool
+	 */
+	public function hasBigFields(): bool
+	{
+		return false;
 	}
 }

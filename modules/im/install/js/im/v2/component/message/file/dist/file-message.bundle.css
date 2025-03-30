@@ -286,6 +286,35 @@
 	height: 27px;
 	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='28' height='27' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M20.388 13.356l-10.72-7.58a.8.8 0 00-.854-.052.856.856 0 00-.439.759v15.158a.855.855 0 00.438.76.8.8 0 00.855-.054l10.72-7.58a.86.86 0 00.362-.705.86.86 0 00-.362-.706z' fill='%23fff'/%3E%3C/svg%3E") no-repeat center;
 }
+
+.bx-im-gallery-item__remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 32px;
+	height: 32px;
+	background-color: rgba(var(--im-color-palette-black-solid-rgb), .5);
+	border-radius: 50%;
+	transition: opacity 200ms ease;
+	opacity: 0;
+}
+
+.bx-im-gallery-item__remove-icon {
+	width: 15px;
+	height: 19px;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M15.94 6.77h2.63v.01c.33 0 .6.27.6.6 0 .33-.27.6-.6.6H5.6c-.33 0-.6-.27-.6-.6 0-.33.27-.6.6-.6h2.61l.34-1.72a2.593 2.593 0 012.55-2.09h1.91a2.6 2.6 0 012.54 2.04l.39 1.76zM9.73 5.29l-.27 1.35v.01h5.22l-.3-1.38c-.14-.64-.71-1.1-1.37-1.1H11.1c-.66 0-1.24.47-1.37 1.12z' fill='%23fff'/%3E%3Cpath d='M10.36 17.67c.33 0 .6-.27.6-.6v-4.4c0-.33-.27-.6-.6-.6-.33 0-.6.27-.6.6v4.4c0 .33.27.6.6.6zM14.19 17.07c0 .33-.27.6-.6.6-.33 0-.6-.27-.6-.6v-4.4c0-.33.27-.6.6-.6.33 0 .6.27.6.6v4.4z' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M6.45 9h11.01c.61 0 1.08.54.99 1.14l-1.32 9.03c-.14.98-.99 1.71-1.98 1.71h-6.5c-1 0-1.85-.74-1.98-1.73l-1.21-9.02c-.08-.6.38-1.13.99-1.13zm8.7 10.68c.4 0 .73-.29.79-.68h.01l1.28-8.8H6.68l1.18 8.79c.05.39.39.69.79.69h6.5z' fill='%23fff'/%3E%3C/svg%3E") no-repeat center;
+	transition: opacity 200ms ease;
+	opacity: .8;
+}
+
+.bx-im-gallery-item__container:hover .bx-im-gallery-item__remove,
+.bx-im-gallery-item__remove:hover .bx-im-gallery-item__remove-icon {
+	opacity: 1;
+}
+
 .bx-im-video-item__scope {
 	--im-video-item__background-color_container: #f1f4f6
 }

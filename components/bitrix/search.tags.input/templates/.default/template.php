@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -11,24 +15,26 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
-CJSCore::Init(array("ajax"));
+CJSCore::Init(['ajax']);
 ?>
 <script>
 	BX.ready(function(){
-		var input = BX("<?echo $arResult["ID"]?>");
+		var input = BX("<?php echo $arResult['ID']?>");
 		if (input)
-			new JsTc(input, '<?echo $arParams["ADDITIONAL_VALUES"]?>');
+			new JsTc(input, '<?php echo $arParams['ADDITIONAL_VALUES']?>');
 	});
 </script>
-<?
-if (isset($arParams["SILENT"]) && $arParams["SILENT"] == "Y")
+<?php
+if (isset($arParams['SILENT']) && $arParams['SILENT'] == 'Y')
+{
 	return;
+}
 ?><input
-	name="<?=$arResult["NAME"]?>"
-	id="<?=$arResult["ID"]?>"
-	value="<?=$arResult["VALUE"]?>"
+	name="<?=$arResult['NAME']?>"
+	id="<?=$arResult['ID']?>"
+	value="<?=$arResult['VALUE']?>"
 	class="search-tags"
 	type="text"
 	autocomplete="off"
-	<?=$arResult["TEXT"]?>
+	<?=$arResult['TEXT']?>
 />

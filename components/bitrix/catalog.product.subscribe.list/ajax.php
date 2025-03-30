@@ -1,11 +1,11 @@
-<?
-define("STOP_STATISTICS", true);
-define('NO_AGENT_CHECK', true);
-define('PUBLIC_AJAX_MODE', true);
+<?php
+const STOP_STATISTICS = true;
+const NO_AGENT_CHECK = true;
+const PUBLIC_AJAX_MODE = true;
+const NOT_CHECK_PERMISSIONS = true;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Catalog\SubscribeTable;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 

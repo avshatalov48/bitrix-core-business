@@ -110,6 +110,7 @@ class iblock extends CModule
 					$arSql[] = "DROP TABLE if exists b_iblock_element_prop_s" . $arIBlock["ID"];
 					$arSql[] = "DROP TABLE if exists b_iblock_element_prop_m" . $arIBlock["ID"];
 				}
+				$arSql[] = "DROP TABLE if exists " . \Bitrix\Iblock\FullIndex\FullText::getTableName($arIBlock["ID"]);
 				$GLOBALS["USER_FIELD_MANAGER"]->OnEntityDelete("IBLOCK_".$arIBlock["ID"]."._SECTION");
 			}
 

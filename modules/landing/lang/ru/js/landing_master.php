@@ -307,8 +307,8 @@ $MESS["LANDING_GOOGLE_IMAGES_KEY_FIELD_TITLE"] = "Ключ Google Custom Search 
 $MESS["LANDING_GOOGLE_IMAGES_CHANGE_KEY_BUTTON"] = "Изменить ключ";
 $MESS["LANDING_GOOGLE_IMAGES_GET_KEY_GUIDE"] = "Для получения ключа перейдите по <a href=\"https://developers.google.com/custom-search/json-api/v1/introduction\" target='_blank'>ссылке</a>, нажмите кнопку &laquo;Get&nbsp;a&nbsp;key&raquo; и следуйте инструкциям.";
 
-$MESS["LANDING_BLOCK_RESTRICTED_TEXT2"] = "Сейчас вы видите только внешний вид блока. Оценить все его функции можно будет после публикации страницы.";
-$MESS["LANDING_BLOCK_RESTRICTED_TEXT_MAINPAGE"] = "Сейчас вы видите только внешний вид виджета. Оценить все его функции можно будет после публикации страницы.";
+$MESS["LANDING_BLOCK_RESTRICTED_TEXT2"] = "Сейчас вы видите только внешний вид блока. Оценить все его функции можно будет после публикации страницы";
+$MESS["LANDING_BLOCK_RESTRICTED_TEXT_MAINPAGE"] = "Сейчас вы видите только внешний вид виджета. Оценить все его функции можно будет после публикации страницы";
 $MESS["LANDING_LINK_FIELD_URL_TYPE_LINK"] = "Ссылка";
 $MESS["LANDING_LINK_FIELD_URL_TYPE_PHONE"] = "Телефон";
 $MESS["LANDING_LINK_FIELD_URL_TYPE_PHONE_PLACEHOLDER"] = "Укажите телефон";

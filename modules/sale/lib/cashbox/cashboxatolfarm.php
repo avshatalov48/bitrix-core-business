@@ -586,7 +586,12 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 
 		if (Main\Loader::includeModule('catalog'))
 		{
-			$dbRes = Catalog\VatTable::getList(['filter' => ['ACTIVE' => 'Y']]);
+			$dbRes = Catalog\VatTable::getList([
+				'filter' => ['=ACTIVE' => 'Y'],
+				'cache' => [
+					'ttl' => 86400,
+				]
+			]);
 			$vatList = $dbRes->fetchAll();
 			if ($vatList)
 			{

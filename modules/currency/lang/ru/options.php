@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CURRENCY_SETTINGS"] = "Основные настройки";
 $MESS["CURRENCY_SETTINGS_TITLE"] = "Основные настройки модуля";
 $MESS["BASE_CURRENCY"] = "Базовая валюта:";
@@ -29,4 +29,3 @@ $MESS["CURRENCY_AGENTS_ACTIVATE"] = "Активировать агента";
 $MESS["CURRENCY_AGENTS_DEACTIVATE"] = "Отключить агента";
 $MESS["CURRENCY_BASE_RATE_AGENT_ABSENT"] = "Внимание! Агент расчета курсов валют по отношению к базовой отсутствует!";
 $MESS["CURRENCY_AGENTS_CREATE_AGENT"] = "Добавить агента";
-?>

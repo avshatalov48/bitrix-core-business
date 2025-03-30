@@ -2,13 +2,11 @@
 
 namespace Bitrix\Main\UI\Filter;
 
-
 use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\UI\Filter;
-
 
 /**
  * Class Options of main.ui.filter
@@ -16,6 +14,9 @@ use Bitrix\Main\UI\Filter;
  */
 class Options
 {
+	const DEFAULT_FILTER = "default_filter";
+	const TMP_FILTER = "tmp_filter";
+
 	protected $id;
 	protected $options;
 	protected $commonPresets;
@@ -24,17 +25,13 @@ class Options
 	protected $request;
 	protected ?string $currentFilterPresetId = null;
 
-	const DEFAULT_FILTER = "default_filter";
-	const TMP_FILTER = "tmp_filter";
-
-
 	/**
 	 * Options constructor.
 	 * @param string $filterId $arParams["FILTER_ID"]
 	 * @param array $filterPresets $arParams["FILTER_PRESETS"]
 	 * @param string $commonPresetsId $arParams["COMMON_PRESETS_ID"] Set if you want to use common presets
 	 */
-	public function __construct($filterId, $filterPresets = array(), $commonPresetsId = null)
+	public function __construct($filterId, $filterPresets = [], $commonPresetsId = null)
 	{
 		$this->id = $filterId;
 		$this->options = $this->fetchOptions($this->id);
@@ -56,7 +53,7 @@ class Options
 
 		if (!isset($this->options["deleted_presets"]) || !is_array($this->options["deleted_presets"]))
 		{
-			$this->options["deleted_presets"] = array();
+			$this->options["deleted_presets"] = [];
 		}
 
 		if (!empty($filterPresets) && is_array($filterPresets))
@@ -65,7 +62,7 @@ class Options
 		}
 		else
 		{
-			$this->options["default_presets"] = array();
+			$this->options["default_presets"] = [];
 		}
 
 		if (!isset($this->options["default"]) || empty($this->options["default"]) ||
@@ -97,8 +94,7 @@ class Options
 			}
 		}
 
-		if (isset($this->options["update_default_presets"]) &&
-			$this->options["update_default_presets"] == true &&
+		if (!empty($this->options["update_default_presets"]) &&
 			!empty($filterPresets) &&
 			is_array($filterPresets))
 		{
@@ -123,7 +119,6 @@ class Options
 		}
 	}
 
-
 	/**
 	 * @return string
 	 */
@@ -132,7 +127,6 @@ class Options
 		return $this->commonPresetsId;
 	}
 
-
 	/**
 	 * @return bool
 	 */
@@ -140,7 +134,6 @@ class Options
 	{
 		return $this->useCommonPresets;
 	}
-
 
 	/**
 	 * Gets filter id
@@ -151,16 +144,14 @@ class Options
 		return $this->id;
 	}
 
-
 	/**
 	 * Sets filter presets
 	 * @param array $presets
 	 */
-	public function setPresets($presets = array())
+	public function setPresets($presets = [])
 	{
 		$this->options["filters"] = $presets;
 	}
-
 
 	/**
 	 * Sets current preset id
@@ -171,7 +162,6 @@ class Options
 		$this->options["filter"] = $presetId;
 	}
 
-
 	/**
 	 * Gets default presets from filter options
 	 * @return array|null
@@ -180,7 +170,6 @@ class Options
 	{
 		return $this->options["default_presets"];
 	}
-
 
 	/**
 	 * Gets presets
@@ -191,7 +180,6 @@ class Options
 		return $this->options["filters"];
 	}
 
-
 	/**
 	 * Sets default preset id
 	 * @param string $presetId
@@ -200,7 +188,6 @@ class Options
 	{
 		$this->options["default"] = $presetId;
 	}
-
 
 	/**
 	 * Checks is need use pinned preset
@@ -211,26 +198,23 @@ class Options
 		return $this->options["use_pin_preset"];
 	}
 
-
 	/**
 	 * Sets default presets
 	 * @param array $presets
 	 */
-	public function setDefaultPresets($presets = array())
+	public function setDefaultPresets($presets = [])
 	{
 		$this->options["default_presets"] = $presets;
 	}
-
 
 	/**
 	 * Sets deleted presets array
 	 * @param array $deletedPresets
 	 */
-	public function setDeletedPresets($deletedPresets = array())
+	public function setDeletedPresets($deletedPresets = [])
 	{
 		$this->options["deleted_presets"] = $deletedPresets;
 	}
-
 
 	/**
 	 * Sets use_pin_preset values
@@ -241,7 +225,6 @@ class Options
 		$this->options["use_pin_preset"] = $value;
 	}
 
-
 	/**
 	 * Gets common presets from database
 	 * @param string $id Common presets id $arParams["COMMON_PRESETS_ID"]
@@ -251,20 +234,10 @@ class Options
 	{
 		global $USER;
 
-		if ($USER->isAuthorized() ||
-			(!$USER->isAuthorized() && !isset(Application::getInstance()->getSession()["main.ui.filter.presets"][$id])))
-		{
-			$options = \CUserOptions::getOption("main.ui.filter.presets", $id, array(), self::getUserId());
-		}
-		else
-		{
-			$options = Application::getInstance()->getSession()["main.ui.filter.presets"][$id];
-		}
+		$options = \CUserOptions::getOption("main.ui.filter.presets", $id, [], (int)$USER?->getID());
 
 		return $options;
-
 	}
-
 
 	/**
 	 * Gets filter options from database
@@ -275,51 +248,47 @@ class Options
 	{
 		global $USER;
 
-		if ($USER->isAuthorized() ||
-			(!$USER->isAuthorized() && !isset(Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["options"])))
+		$storage = $this->getStorage();
+		$userId = (int)$USER?->getID();
+
+		if ($userId > 0 || !isset($storage[$this->getId()]["options"]))
 		{
-			$options = \CUserOptions::getOption("main.ui.filter", $id, array(), self::getUserId());
+			$options = [];
+
+			if ($userId > 0)
+			{
+				$options = \CUserOptions::getOption("main.ui.filter", $id, [], $userId);
+			}
 
 			if (empty($options))
 			{
-				$options = \CUserOptions::getOption("main.ui.filter.common", $id, array(), 0);
+				$options = \CUserOptions::getOption("main.ui.filter.common", $id, [], 0);
 			}
 		}
 		else
 		{
-			$options = Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["options"];
+			$options = $storage[$this->getId()]["options"];
 		}
 
 		return $options;
 	}
-
-
-	protected static function getUserId()
-	{
-		global $USER;
-		$userId = 0;
-
-		if ($USER->isAuthorized())
-		{
-			$userId = $USER->getID();
-		}
-
-		return $userId;
-	}
-
 
 	protected function getRequest()
 	{
 		return Context::getCurrent()->getRequest();
 	}
 
+	protected function getStorage()
+	{
+		return Application::getInstance()->getLocalSession('main.ui.filter');
+	}
 
 	/**
 	 * Finds default preset in presets array
 	 * @param array $presets
 	 * @return string Default preset id
 	 */
-	public static function findDefaultPresetId($presets = array())
+	public static function findDefaultPresetId($presets = [])
 	{
 		$result = "default_filter";
 
@@ -337,7 +306,6 @@ class Options
 		return $result;
 	}
 
-
 	/**
 	 * Gets filter options
 	 * @return array
@@ -346,7 +314,6 @@ class Options
 	{
 		return $this->options;
 	}
-
 
 	/**
 	 * Makes preset as default
@@ -366,7 +333,6 @@ class Options
 		$this->options["default"] = $presetId;
 	}
 
-
 	/**
 	 * Checks is need whether to set fields from query
 	 * @param HttpRequest $request
@@ -381,7 +347,6 @@ class Options
 		return $applyFilter !== null && $isAjaxRequest === null && !$request->isAjaxRequest();
 	}
 
-
 	/**
 	 * Fetches field values from request
 	 * @param array $fields
@@ -391,25 +356,24 @@ class Options
 	 */
 	public static function fetchSettingsFromQuery($fields, HttpRequest $request)
 	{
-		$result = array("fields" => array(), "rows" => array());
+		$result = ["fields" => [], "rows" => []];
 
-		foreach ($fields as $key => $field)
+		foreach ($fields as $field)
 		{
 			$id = $field["id"];
-			$fromId = $id."_from";
-			$toId = $id."_to";
-			$quarterId = $id."_quarter";
-			$yearId = $id."_year";
-			$monthId = $id."_month";
-			$daysId = $id."_days";
-			$nameId = $id."_name";
-			$labelId = $id."_label";
-			$valueId = $id."_value";
-			$dateselId = $id."_datesel";
-			$numselId = $id."_numsel";
+			$fromId = $id . "_from";
+			$toId = $id . "_to";
+			$quarterId = $id . "_quarter";
+			$yearId = $id . "_year";
+			$monthId = $id . "_month";
+			$daysId = $id . "_days";
+			$nameId = $id . "_name";
+			$labelId = $id . "_label";
+			$dateselId = $id . "_datesel";
+			$numselId = $id . "_numsel";
 			$type = $field["type"] ?? null;
-			$isEmpty = $id."_isEmpty";
-			$hasAnyValue = $id."_hasAnyValue";
+			$isEmpty = $id . "_isEmpty";
+			$hasAnyValue = $id . "_hasAnyValue";
 
 			if ($type == "date")
 			{
@@ -429,47 +393,56 @@ class Options
 					$result["rows"][] = $id;
 				}
 			}
-			else if ($type == "number")
-			{
-				if ($request[$numselId] !== null && ($request[$fromId] !== null || $request[$toId]))
-				{
-					$result["fields"][$numselId] = $request[$numselId];
-					$result["fields"][$fromId] = $request[$fromId] !== null ? $request[$fromId] : "";
-					$result["fields"][$toId] = $request[$toId] !== null ? $request[$toId] : "";
-					$result["rows"][] = $id;
-				}
-			}
-			else if ($type == "custom_entity")
-			{
-				if ($request[$id] !== null)
-				{
-					if ($request[$id] !== null || $request[$labelId] !== null)
-					{
-						$result["fields"][$labelId] = ($request[$nameId] !== null ?
-							$request[$nameId] : $request[$labelId]);
-					}
-					$result["fields"][$id] = $request[$id];
-					$result["rows"][] = $id;
-				}
-			}
-			else if ($type == "dest_selector" || $type == "entity_selector")
-			{
-				if ($request[$id] !== null)
-				{
-					$result["fields"][$id] = $request[$id];
-					if (isset($request[$labelId]))
-					{
-						$result["fields"][$labelId] = $request[$labelId];
-					}
-					$result["rows"][] = $id;
-				}
-			}
 			else
 			{
-				if ($request[$id] !== null)
+				if ($type == "number")
 				{
-					$result["fields"][$id] = $request[$id];
-					$result["rows"][] = $id;
+					if ($request[$numselId] !== null && ($request[$fromId] !== null || $request[$toId]))
+					{
+						$result["fields"][$numselId] = $request[$numselId];
+						$result["fields"][$fromId] = $request[$fromId] !== null ? $request[$fromId] : "";
+						$result["fields"][$toId] = $request[$toId] !== null ? $request[$toId] : "";
+						$result["rows"][] = $id;
+					}
+				}
+				else
+				{
+					if ($type == "custom_entity")
+					{
+						if ($request[$id] !== null)
+						{
+							if ($request[$id] !== null || $request[$labelId] !== null)
+							{
+								$result["fields"][$labelId] = ($request[$nameId] !== null ?
+									$request[$nameId] : $request[$labelId]);
+							}
+							$result["fields"][$id] = $request[$id];
+							$result["rows"][] = $id;
+						}
+					}
+					else
+					{
+						if ($type == "dest_selector" || $type == "entity_selector")
+						{
+							if ($request[$id] !== null)
+							{
+								$result["fields"][$id] = $request[$id];
+								if (isset($request[$labelId]))
+								{
+									$result["fields"][$labelId] = $request[$labelId];
+								}
+								$result["rows"][] = $id;
+							}
+						}
+						else
+						{
+							if ($request[$id] !== null)
+							{
+								$result["fields"][$id] = $request[$id];
+								$result["rows"][] = $id;
+							}
+						}
+					}
 				}
 			}
 
@@ -499,28 +472,26 @@ class Options
 		return $result;
 	}
 
-
 	/**
 	 * Gets session filter
 	 * @return mixed
 	 */
 	public function getSessionFilterId()
 	{
-		$session = Application::getInstance()->getSession();
+		$storage = $this->getStorage();
 
-		return $session["main.ui.filter"][$this->getId()]["filter"] ?? null;
+		return $storage[$this->getId()]["filter"] ?? null;
 	}
 
 	public function isSetOutside(): bool
 	{
-		$session = Application::getInstance()->getSession();
+		$storage = $this->getStorage();
 
 		return filter_var(
-			$session["main.ui.filter"][$this->getId()]["isSetOutside"] ?? false,
+			$storage[$this->getId()]["isSetOutside"] ?? false,
 			FILTER_VALIDATE_BOOLEAN
 		);
 	}
-
 
 	/**
 	 * Gets additional preset fields
@@ -529,23 +500,24 @@ class Options
 	 */
 	public function getAdditionalPresetFields($presetId)
 	{
-		$session = Application::getInstance()->getSession();
-		$additional = $session["main.ui.filter"][$this->getId()]["filters"][$presetId]["additional"] ?? [];
+		$storage = $this->getStorage();
+
+		$additional = $storage[$this->getId()]["filters"][$presetId]["additional"] ?? [];
 
 		return is_array($additional) ? $additional : [];
 	}
-
 
 	/**
 	 * Sets additional fields
 	 * @param string $presetId
 	 * @param array $additional
 	 */
-	public function setAdditionalPresetFields($presetId, $additional = array())
+	public function setAdditionalPresetFields($presetId, $additional = [])
 	{
-		Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["filters"][$presetId]["additional"] = $additional;
-	}
+		$storage = $this->getStorage();
 
+		$storage[$this->getId()]["filters"][$presetId]["additional"] = $additional;
+	}
 
 	/**
 	 * Gets default filter
@@ -567,15 +539,14 @@ class Options
 		return !empty($sessionFilterId) ? $sessionFilterId : $defaultFilterId;
 	}
 
-
-	protected function trySetFilterFromRequest($fields = array())
+	protected function trySetFilterFromRequest($fields = [])
 	{
 		$request = $this->getRequest();
 
 		if (self::isSetFromRequest($request))
 		{
 			$settings = self::fetchSettingsFromQuery($fields, $this->getRequest());
-			$clear = mb_strtoupper($request->get("clear_filter")) == "Y";
+			$clear = strtoupper($request->get("clear_filter")) == "Y";
 
 			if ($settings !== null || $clear)
 			{
@@ -587,7 +558,6 @@ class Options
 		}
 	}
 
-
 	/**
 	 * Gets filter settings by preset id
 	 * @param $presetId
@@ -598,16 +568,15 @@ class Options
 		return $this->options["filters"][$presetId] ?? null;
 	}
 
-
 	/**
 	 * Fetches filter fields from filter settings
 	 * @param array $filterSettings
 	 * @param array $additionalFields
 	 * @return array
 	 */
-	protected static function fetchFieldsFromFilterSettings($filterSettings = array(), $additionalFields = array())
+	protected static function fetchFieldsFromFilterSettings($filterSettings = [], $additionalFields = [])
 	{
-		$filterFields = array();
+		$filterFields = [];
 
 		if (is_array($filterSettings))
 		{
@@ -625,7 +594,6 @@ class Options
 		return $filterFields;
 	}
 
-
 	/**
 	 * @param string $key
 	 * @return bool
@@ -635,7 +603,6 @@ class Options
 		return is_string($key) && str_ends_with($key, "_datesel");
 	}
 
-
 	/**
 	 * Fetches date field values
 	 * @param string $key
@@ -643,9 +610,9 @@ class Options
 	 * @return array
 	 * @throws \Bitrix\Main\ObjectException
 	 */
-	public static function fetchDateFieldValue($key = "", $filterFields = array())
+	public static function fetchDateFieldValue($key = "", $filterFields = [])
 	{
-		$date = array();
+		$date = [];
 		$date[$key] = $filterFields[$key];
 
 		$cleanKey = str_replace("_datesel", "", $key);
@@ -662,7 +629,6 @@ class Options
 		return $date;
 	}
 
-
 	/**
 	 * Fetches number field values
 	 * @param string $key
@@ -670,9 +636,9 @@ class Options
 	 *
 	 * @return array
 	 */
-	public static function fetchNumberFieldValue($key = "", $filterFields = array())
+	public static function fetchNumberFieldValue($key = "", $filterFields = [])
 	{
-		$number = array();
+		$number = [];
 		$number[$key] = $filterFields[$key];
 		$cleanKey = str_replace("_numsel", "", $key);
 
@@ -701,15 +667,15 @@ class Options
 		return is_string($key) && str_ends_with($key, "_numsel");
 	}
 
-	public static function fetchFieldValuesFromFilterSettings($filterSettings = array(), $additionalFields = array(), $sourceFields = array())
+	public static function fetchFieldValuesFromFilterSettings($filterSettings = [], $additionalFields = [], $sourceFields = [])
 	{
 		$filterFields = self::fetchFieldsFromFilterSettings($filterSettings, $additionalFields);
-		$resultFields = array();
+		$resultFields = [];
 		foreach ($filterFields as $key => $field)
 		{
 			$isStrictField = false;
 
-			foreach ($sourceFields as $sourceKey => $sourceField)
+			foreach ($sourceFields as $sourceField)
 			{
 				if (isset($sourceField["id"]) && $key === $sourceField["id"] && isset($sourceField["strict"]))
 				{
@@ -717,7 +683,7 @@ class Options
 				}
 			}
 
-			if (($field !== "" && mb_strpos($key, -6) !== "_label") || $isStrictField)
+			if ($field !== "")
 			{
 				if (self::isDateField($key))
 				{
@@ -733,14 +699,13 @@ class Options
 
 				elseif (!str_ends_with($key, "_from") && !str_ends_with($key, "_to"))
 				{
-					if  (str_ends_with($key, "_isEmpty"))
+					if (str_ends_with($key, "_isEmpty"))
 					{
 						$resultFields[substr($key, 0, -8)] = false;
 					}
-					elseif  (str_ends_with($key, "_hasAnyValue"))
+					elseif (str_ends_with($key, "_hasAnyValue"))
 					{
-
-						$resultFields['!'.substr($key, 0, -12)] = false;
+						$resultFields['!' . substr($key, 0, -12)] = false;
 					}
 					else
 					{
@@ -752,7 +717,6 @@ class Options
 
 		return $resultFields;
 	}
-
 
 	/**
 	 * @param string $presetId
@@ -768,9 +732,9 @@ class Options
 	 * @param array $sourceFields Filter fields $arParams["FILTER"]
 	 * @return array
 	 */
-	public function getFilter($sourceFields = array())
+	public function getFilter($sourceFields = [])
 	{
-		$result = array();
+		$result = [];
 		$this->trySetFilterFromRequest($sourceFields);
 		$currentPresetId = $this->getCurrentFilterId();
 
@@ -799,7 +763,7 @@ class Options
 	 * @param array $sourceFields Filter fields $arParams["FILTER"]
 	 * @return array
 	 */
-	public function getFilterLogic($sourceFields = array())
+	public function getFilterLogic($sourceFields = [])
 	{
 		$filter = $this->getFilter($sourceFields);
 		$applied = ($filter["FILTER_APPLIED"] ?? false);
@@ -816,12 +780,12 @@ class Options
 	 */
 	public function getSearchString()
 	{
-		$session = Application::getInstance()->getSession();
-		$search = $session["main.ui.filter"][$this->id]["filter_search"] ?? '';
+		$storage = $this->getStorage();
+
+		$search = $storage[$this->id]["filter_search"] ?? '';
 
 		return is_string($search) ? $search : "";
 	}
-
 
 	/**
 	 * Saves filter optionsGet
@@ -832,21 +796,16 @@ class Options
 
 		if ($this->isUseCommonPresets())
 		{
-			$presets = array(
+			$presets = [
 				"filters" => $this->options["filters"],
-				"deleted_presets" => $this->options["deleted_presets"]
-			);
+				"deleted_presets" => $this->options["deleted_presets"],
+			];
 
 			if ($USER->isAuthorized())
 			{
 				\CUserOptions::setOption("main.ui.filter.presets", $this->getCommonPresetsId(), $presets);
 			}
-			else
-			{
-				Application::getInstance()->getSession()["main.ui.filter.presets"][$this->getCommonPresetsId()] = $presets;
-			}
 		}
-
 
 		if ($USER->isAuthorized())
 		{
@@ -854,12 +813,10 @@ class Options
 		}
 		else
 		{
-			Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["options"] = $this->options;
+			$storage = $this->getStorage();
+			$storage[$this->getId()]["options"] = $this->options;
 		}
 	}
-
-
-	/** @noinspection PhpUndefinedClassInspection */
 
 	/**
 	 * Gets filter options for all users
@@ -867,9 +824,8 @@ class Options
 	 */
 	public function getAllUserOptions()
 	{
-		return \CUserOptions::getList(null, array("CATEGORY" => "main.ui.filter", "NAME" => $this->getId()));
+		return \CUserOptions::getList(null, ["CATEGORY" => "main.ui.filter", "NAME" => $this->getId()]);
 	}
-
 
 	/**
 	 * @return bool
@@ -879,7 +835,6 @@ class Options
 		global $USER;
 		return $USER->CanDoOperation("edit_other_settings");
 	}
-
 
 	/**
 	 * Saves filter options for all users
@@ -896,7 +851,7 @@ class Options
 			{
 				$currentOptions = $this->options;
 
-				$forAllPresets = array();
+				$forAllPresets = [];
 
 				foreach ($currentOptions["filters"] as $key => $preset)
 				{
@@ -929,13 +884,11 @@ class Options
 
 				$this->saveCommon();
 			}
-
 		}
 	}
 
-
 	/**
-	 * Checks whether the parameters is common
+	 * Checks whether the parameters are common
 	 * @param $options
 	 * @return bool
 	 */
@@ -943,7 +896,6 @@ class Options
 	{
 		return isset($options["USER_ID"]) && $options["USER_ID"] == 0;
 	}
-
 
 	/**
 	 * Saves options for user with $userId
@@ -954,15 +906,15 @@ class Options
 	{
 		if ($this->isUseCommonPresets())
 		{
-			$presets = array(
+			$presets = [
 				"filters" => $options["filters"],
-				"deleted_presets" => $options["deleted_presets"]
-			);
+				"deleted_presets" => $options["deleted_presets"],
+			];
 
 			\CUserOptions::SetOption("main.ui.filter.presets", $this->getCommonPresetsId(), $presets, null, $userId);
 		}
 
-		$userOptions = \CUserOptions::GetOption("main.ui.filter", $this->getId(), array("filters" => array(), "default_presets" => array()), $userId);
+		$userOptions = \CUserOptions::GetOption("main.ui.filter", $this->getId(), ["filters" => [], "default_presets" => []], $userId);
 
 		if (is_array($options["deleted_presets"]))
 		{
@@ -979,13 +931,12 @@ class Options
 		\CUserOptions::SetOption("main.ui.filter", $this->getId(), $options, null, $userId);
 	}
 
-
 	/**
 	 * Saves current options as common
 	 */
 	public function saveCommon()
 	{
-		$presets = array();
+		$presets = [];
 		$options = $this->getOptions();
 
 		foreach ($options["filters"] as $key => $preset)
@@ -1001,7 +952,6 @@ class Options
 		\CUserOptions::setOption("main.ui.filter.common", $this->id, $options, true);
 	}
 
-
 	/**
 	 * Sets filter preset rows
 	 * @param string $presetId
@@ -1010,14 +960,22 @@ class Options
 	public function setFilterRows($presetId, $rows)
 	{
 		$aColsTmp = explode(",", $rows);
-		$aCols = array();
-		foreach($aColsTmp as $col)
-			if(($col = trim($col)) <> "")
+		$aCols = [];
+		foreach ($aColsTmp as $col)
+		{
+			if (($col = trim($col)) <> "")
+			{
 				$aCols[] = $col;
-		if($presetId <> '')
+			}
+		}
+		if ($presetId <> '')
+		{
 			$this->options["filters"][$presetId]["filter_rows"] = implode(",", $aCols);
+		}
 		else
+		{
 			$this->options["filter_rows"] = implode(",", $aCols);
+		}
 	}
 
 	public function removeRowFromPreset(string $presetId, string $rowName): bool
@@ -1028,7 +986,7 @@ class Options
 			return false;
 		}
 		$rows = explode(",", $rowsString);
-		$pos = array_search($rowName, $rows,true);
+		$pos = array_search($rowName, $rows, true);
 		if ($pos !== false)
 		{
 			unset($rows[$pos]);
@@ -1044,7 +1002,7 @@ class Options
 	 * Restores filter options to default
 	 * @param array $settings
 	 */
-	public function restore($settings = array())
+	public function restore($settings = [])
 	{
 		if (!empty($settings))
 		{
@@ -1061,15 +1019,16 @@ class Options
 			$this->options["default"] = self::findDefaultPresetId($this->options["default_presets"]);
 			$this->options["use_pin_preset"] = true;
 			$this->options["filter"] = $this->options["default"];
-			unset(Application::getInstance()->getSession()["main.ui.filter"][$this->id]["filter"]);
+
+			$storage = $this->getStorage();
+			unset($storage[$this->id]["filter"]);
 		}
 	}
-
 
 	/**
 	 * @param array $settings
 	 */
-	public function setFilterSettingsArray($settings = array())
+	public function setFilterSettingsArray($settings = [])
 	{
 		if (!empty($settings))
 		{
@@ -1097,7 +1056,6 @@ class Options
 		}
 	}
 
-
 	/**
 	 * @param string $presetId
 	 * @param $settings
@@ -1108,6 +1066,8 @@ class Options
 	{
 		if (!empty($presetId))
 		{
+			$storage = $this->getStorage();
+
 			if ($currentPreset)
 			{
 				$request = $this->getRequest();
@@ -1115,16 +1075,16 @@ class Options
 				$params = is_array($params) ? $params : [];
 
 				$isApplyFilter = (
-					(mb_strtoupper($request->get("apply_filter")) == "Y") ||
-					(isset($params["apply_filter"]) && mb_strtoupper($params["apply_filter"]) == "Y")
+					($request->get("apply_filter") == "Y" || $request->get("apply_filter") == "y") ||
+					(isset($params["apply_filter"]) && ($params["apply_filter"] == "Y" || $params["apply_filter"] == "y"))
 				);
 				$isClearFilter = (
-					(mb_strtoupper($request->get("clear_filter")) == "Y") ||
-					(isset($params["clear_filter"]) && mb_strtoupper($params["clear_filter"]) == "Y")
+					($request->get("clear_filter") == "Y" || $request->get("clear_filter") == "y") ||
+					(isset($params["clear_filter"]) && ($params["clear_filter"] == "Y" || $params["clear_filter"] == "y"))
 				);
 				$isWithPreset = (
-					(mb_strtoupper($request->get("with_preset")) == "Y") ||
-					(isset($params["with_preset"]) && mb_strtoupper($params["with_preset"]) == "Y")
+					($request->get("with_preset") == "Y" || $request->get("with_preset") == "y") ||
+					(isset($params["with_preset"]) && ($params["with_preset"] == "Y" || $params["with_preset"] == "y"))
 				);
 				$currentPresetId = $this->getCurrentFilterId();
 
@@ -1136,18 +1096,17 @@ class Options
 					|| $useRequest === false
 				)
 				{
-					Application::getInstance()->getSession()["main.ui.filter"][$this->id]["filter"] = $presetId;
-					Application::getInstance()->getSession()["main.ui.filter"][$this->id]["isSetOutside"] = $params["isSetOutside"] ?? false;
+					$storage[$this->id]["filter"] = $presetId;
+					$storage[$this->id]["isSetOutside"] = $params["isSetOutside"] ?? false;
 				}
-
 			}
 
 			if (!isset($this->options["filters"][$presetId]) || !is_array($this->options["filters"][$presetId]))
 			{
-				$this->options["filters"][$presetId] = array();
+				$this->options["filters"][$presetId] = [];
 			}
 
-			if (isset($settings["name"]) && !empty($settings["name"]))
+			if (!empty($settings["name"]))
 			{
 				$this->options["filters"][$presetId]["name"] = $settings["name"];
 			}
@@ -1166,29 +1125,29 @@ class Options
 			{
 				if (array_key_exists("FIND", $settings["fields"]))
 				{
-					Application::getInstance()->getSession()["main.ui.filter"][$this->id]["filter_search"] = $settings["fields"]["FIND"];
+					$storage[$this->id]["filter_search"] = $settings["fields"]["FIND"];
 					unset($settings["fields"]["FIND"]);
 				}
 
 				if ($presetId == "default_filter")
 				{
-					$this->options["filters"][$presetId]["fields"] = array();
+					$this->options["filters"][$presetId]["fields"] = [];
 				}
 				else
 				{
 					$this->options["filters"][$presetId]["fields"] = $settings["fields"];
 
-					$additionalFields = isset($settings["additional"]) && is_array($settings["additional"]) ? $settings["additional"] : array();
+					$additionalFields = isset($settings["additional"]) && is_array($settings["additional"]) ? $settings["additional"] : [];
 					$this->setAdditionalPresetFields($presetId, $additionalFields);
 				}
 			}
 
 			if (!isset($settings["fields"]) && isset($settings["clear_filter"]) && $settings["clear_filter"] === 'Y')
 			{
-				$this->options["filters"][$presetId]["fields"] = array();
+				$this->options["filters"][$presetId]["fields"] = [];
 			}
 
-			if (isset($settings["name"]) && !empty($settings["name"]))
+			if (!empty($settings["name"]))
 			{
 				$this->options["filters"][$presetId]["name"] = $settings["name"];
 			}
@@ -1198,11 +1157,11 @@ class Options
 				$rows = $settings["rows"];
 				if (is_array($rows))
 				{
-					$result = array();
-					foreach($rows as $id)
+					$result = [];
+					foreach ($rows as $id)
 					{
 						$id = trim($id);
-						if($id !== "")
+						if ($id !== "")
 						{
 							$result[] = $id;
 						}
@@ -1216,7 +1175,6 @@ class Options
 			}
 		}
 	}
-
 
 	/**
 	 * Deletes preset by preset id
@@ -1232,7 +1190,6 @@ class Options
 
 		unset($this->options["filters"][$presetId]);
 	}
-
 
 	/**
 	 * Checks preset is deleted
@@ -1251,7 +1208,7 @@ class Options
 	 */
 	public function setupDefaultFilter(array $fields, array $rows)
 	{
-		$this->setFilterSettings("tmp_filter", array("fields" => $fields, "rows" => $rows), true, false);
+		$this->setFilterSettings("tmp_filter", ["fields" => $fields, "rows" => $rows], true, false);
 		$this->save();
 	}
 
@@ -1265,18 +1222,18 @@ class Options
 	 */
 	public static function calcDates($fieldId, $source, &$result)
 	{
-		switch($source[$fieldId."_datesel"])
+		switch ($source[$fieldId . "_datesel"])
 		{
 			case DateType::YESTERDAY :
 			{
 				$dateTime = Filter\DateTimeFactory::createToday();
 
-				$result[$fieldId."_datesel"] = DateType::YESTERDAY;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_from"] = $dateTime->offset("- 1 days");
-				$result[$fieldId."_to"] = $dateTime->offset("- 1 second");
+				$result[$fieldId . "_datesel"] = DateType::YESTERDAY;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_from"] = $dateTime->offset("- 1 days");
+				$result[$fieldId . "_to"] = $dateTime->offset("- 1 second");
 				break;
 			}
 
@@ -1284,12 +1241,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createToday();
 
-				$result[$fieldId."_datesel"] = DateType::CURRENT_DAY;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_from"] = $dateTime->toString();
-				$result[$fieldId."_to"] = $dateTime->offset("+ 1 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::CURRENT_DAY;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_from"] = $dateTime->toString();
+				$result[$fieldId . "_to"] = $dateTime->offset("+ 1 days - 1 second");
 				break;
 			}
 
@@ -1297,12 +1254,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createToday();
 
-				$result[$fieldId."_datesel"] = DateType::TOMORROW;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_from"] = $dateTime->offset("+ 1 days");
-				$result[$fieldId."_to"] = $dateTime->offset("+ 2 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::TOMORROW;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_from"] = $dateTime->offset("+ 1 days");
+				$result[$fieldId . "_to"] = $dateTime->offset("+ 2 days - 1 second");
 				break;
 			}
 
@@ -1310,12 +1267,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createCurrentWeekMonday();
 
-				$result[$fieldId."_datesel"] = DateType::CURRENT_WEEK;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_from"] = $dateTime->toString();
-				$result[$fieldId."_to"] = $dateTime->offset("7 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::CURRENT_WEEK;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_from"] = $dateTime->toString();
+				$result[$fieldId . "_to"] = $dateTime->offset("7 days - 1 second");
 				break;
 			}
 
@@ -1323,12 +1280,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createNextWeekMonday();
 
-				$result[$fieldId."_datesel"] = DateType::NEXT_WEEK;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_from"] = $dateTime->toString();
-				$result[$fieldId."_to"] = $dateTime->offset("7 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::NEXT_WEEK;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_from"] = $dateTime->toString();
+				$result[$fieldId . "_to"] = $dateTime->offset("7 days - 1 second");
 				break;
 			}
 
@@ -1336,12 +1293,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createFirstDayOfCurrentMonth();
 
-				$result[$fieldId."_datesel"] = DateType::CURRENT_MONTH;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_from"] = $dateTime->toString();
-				$result[$fieldId."_to"] = $dateTime->offset("1 month - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::CURRENT_MONTH;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_from"] = $dateTime->toString();
+				$result[$fieldId . "_to"] = $dateTime->offset("1 month - 1 second");
 				break;
 			}
 
@@ -1349,12 +1306,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createFirstDayOfNextMonth();
 
-				$result[$fieldId."_datesel"] = DateType::NEXT_MONTH;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_from"] = $dateTime->toString();
-				$result[$fieldId."_to"] = $dateTime->offset("1 month - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::NEXT_MONTH;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_from"] = $dateTime->toString();
+				$result[$fieldId . "_to"] = $dateTime->offset("1 month - 1 second");
 				break;
 			}
 
@@ -1362,12 +1319,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createToday();
 
-				$result[$fieldId."_datesel"] = DateType::QUARTER;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_from"] = $dateTime->quarterStart();
-				$result[$fieldId."_to"] = $dateTime->quarterEnd();
+				$result[$fieldId . "_datesel"] = DateType::QUARTER;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_from"] = $dateTime->quarterStart();
+				$result[$fieldId . "_to"] = $dateTime->quarterEnd();
 				break;
 			}
 
@@ -1375,12 +1332,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createToday();
 
-				$result[$fieldId."_datesel"] = DateType::LAST_7_DAYS;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_from"] = $dateTime->offset("- 7 days");
-				$result[$fieldId."_to"] = $dateTime->offset("1 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::LAST_7_DAYS;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_from"] = $dateTime->offset("- 7 days");
+				$result[$fieldId . "_to"] = $dateTime->offset("1 days - 1 second");
 				break;
 			}
 
@@ -1388,12 +1345,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createToday();
 
-				$result[$fieldId."_datesel"] = DateType::LAST_30_DAYS;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_from"] = $dateTime->offset("- 30 days");
-				$result[$fieldId."_to"] = $dateTime->offset("1 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::LAST_30_DAYS;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_from"] = $dateTime->offset("- 30 days");
+				$result[$fieldId . "_to"] = $dateTime->offset("1 days - 1 second");
 				break;
 			}
 
@@ -1401,12 +1358,12 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createToday();
 
-				$result[$fieldId."_datesel"] = DateType::LAST_60_DAYS;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_from"] = $dateTime->offset("- 60 days");
-				$result[$fieldId."_to"] = $dateTime->offset("1 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::LAST_60_DAYS;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_from"] = $dateTime->offset("- 60 days");
+				$result[$fieldId . "_to"] = $dateTime->offset("1 days - 1 second");
 				break;
 			}
 
@@ -1414,30 +1371,30 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createToday();
 
-				$result[$fieldId."_datesel"] = DateType::LAST_90_DAYS;
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_quarter"] = $dateTime->quarter();
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_from"] = $dateTime->offset("- 90 days");
-				$result[$fieldId."_to"] = $dateTime->offset("1 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::LAST_90_DAYS;
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_quarter"] = $dateTime->quarter();
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_from"] = $dateTime->offset("- 90 days");
+				$result[$fieldId . "_to"] = $dateTime->offset("1 days - 1 second");
 				break;
 			}
 
 			case DateType::MONTH :
 			{
-				$month = $source[$fieldId."_month"];
-				$year = $source[$fieldId."_year"];
+				$month = $source[$fieldId . "_month"];
+				$year = $source[$fieldId . "_year"];
 
 				if (!empty($month) && !empty($year))
 				{
 					$dateTime = new Filter\DateTime(mktime(0, 0, 0, $month, 1, $year));
 
-					$result[$fieldId."_datesel"] = DateType::MONTH;
-					$result[$fieldId."_month"] = $dateTime->month();
-					$result[$fieldId."_quarter"] = $dateTime->quarter();
-					$result[$fieldId."_year"] = $dateTime->year();
-					$result[$fieldId."_from"] = $dateTime->toString();
-					$result[$fieldId."_to"] = $dateTime->offset("1 month - 1 second");
+					$result[$fieldId . "_datesel"] = DateType::MONTH;
+					$result[$fieldId . "_month"] = $dateTime->month();
+					$result[$fieldId . "_quarter"] = $dateTime->quarter();
+					$result[$fieldId . "_year"] = $dateTime->year();
+					$result[$fieldId . "_from"] = $dateTime->toString();
+					$result[$fieldId . "_to"] = $dateTime->offset("1 month - 1 second");
 				}
 
 				break;
@@ -1445,19 +1402,19 @@ class Options
 
 			case DateType::NEXT_DAYS :
 			{
-				if (is_numeric($source[$fieldId."_days"]))
+				if (is_numeric($source[$fieldId . "_days"]))
 				{
 					$dateTime = Filter\DateTimeFactory::createToday();
-					$days = (int) $source[$fieldId."_days"];
+					$days = (int)$source[$fieldId . "_days"];
 					$days = $days > 0 ? ($days + 1) : $days;
 
-					$result[$fieldId."_datesel"] = DateType::NEXT_DAYS;
-					$result[$fieldId."_month"] = $dateTime->month();
-					$result[$fieldId."_quarter"] = $dateTime->quarter();
-					$result[$fieldId."_days"] = $source[$fieldId."_days"];
-					$result[$fieldId."_year"] = $dateTime->year();
-					$result[$fieldId."_from"] = $dateTime->offset("1 days");
-					$result[$fieldId."_to"] = $dateTime->offset($days." days - 1 second");
+					$result[$fieldId . "_datesel"] = DateType::NEXT_DAYS;
+					$result[$fieldId . "_month"] = $dateTime->month();
+					$result[$fieldId . "_quarter"] = $dateTime->quarter();
+					$result[$fieldId . "_days"] = $source[$fieldId . "_days"];
+					$result[$fieldId . "_year"] = $dateTime->year();
+					$result[$fieldId . "_from"] = $dateTime->offset("1 days");
+					$result[$fieldId . "_to"] = $dateTime->offset($days . " days - 1 second");
 				}
 
 				break;
@@ -1465,19 +1422,19 @@ class Options
 
 			case DateType::PREV_DAYS :
 			{
-				if (is_numeric($source[$fieldId."_days"]))
+				if (is_numeric($source[$fieldId . "_days"]))
 				{
 					$dateTime = Filter\DateTimeFactory::createToday();
-					$days = (int) $source[$fieldId."_days"];
+					$days = (int)$source[$fieldId . "_days"];
 					$days = max($days, 0);
 
-					$result[$fieldId."_datesel"] = DateType::PREV_DAYS;
-					$result[$fieldId."_month"] = $dateTime->month();
-					$result[$fieldId."_quarter"] = $dateTime->quarter();
-					$result[$fieldId."_days"] = $source[$fieldId."_days"];
-					$result[$fieldId."_year"] = $dateTime->year();
-					$result[$fieldId."_from"] = $dateTime->offset("- ".$days." days");
-					$result[$fieldId."_to"] = $dateTime->offset("1 days -1 second");
+					$result[$fieldId . "_datesel"] = DateType::PREV_DAYS;
+					$result[$fieldId . "_month"] = $dateTime->month();
+					$result[$fieldId . "_quarter"] = $dateTime->quarter();
+					$result[$fieldId . "_days"] = $source[$fieldId . "_days"];
+					$result[$fieldId . "_year"] = $dateTime->year();
+					$result[$fieldId . "_from"] = $dateTime->offset("- " . $days . " days");
+					$result[$fieldId . "_to"] = $dateTime->offset("1 days -1 second");
 				}
 
 				break;
@@ -1485,29 +1442,30 @@ class Options
 
 			case AdditionalDateType::PREV_DAY :
 			{
-				if (is_numeric($source[$fieldId."_days"]))
+				if (is_numeric($source[$fieldId . "_days"]))
 				{
 					$dateTime = Filter\DateTimeFactory::createToday();
-					$days = (int) $source[$fieldId."_days"];
+					$days = (int)$source[$fieldId . "_days"];
 
-					$result[$fieldId."_days"] = $source[$fieldId."_days"];
-					$result[$fieldId."_from"] = $dateTime->offset(-$days." days");
-					$result[$fieldId."_to"] = $dateTime->offset(-($days-1)." days -1 second");
+					$result[$fieldId . "_days"] = $source[$fieldId . "_days"];
+					$result[$fieldId . "_from"] = $dateTime->offset(-$days . " days");
+					$result[$fieldId . "_to"] = $dateTime->offset(-($days - 1) . " days -1 second");
 				}
 
 				break;
 			}
 
 			case AdditionalDateType::NEXT_DAY :
+			case AdditionalDateType::AFTER_DAYS :
 			{
-				if (is_numeric($source[$fieldId."_days"]))
+				if (is_numeric($source[$fieldId . "_days"]))
 				{
 					$dateTime = Filter\DateTimeFactory::createToday();
-					$days = (int) $source[$fieldId."_days"];
+					$days = (int)$source[$fieldId . "_days"];
 
-					$result[$fieldId."_days"] = $source[$fieldId."_days"];
-					$result[$fieldId."_from"] = $dateTime->offset($days." days");
-					$result[$fieldId."_to"] = $dateTime->offset(($days+1)." days -1 second");
+					$result[$fieldId . "_days"] = $source[$fieldId . "_days"];
+					$result[$fieldId . "_from"] = $dateTime->offset($days . " days");
+					$result[$fieldId . "_to"] = $dateTime->offset(($days + 1) . " days -1 second");
 				}
 
 				break;
@@ -1515,50 +1473,34 @@ class Options
 
 			case AdditionalDateType::MORE_THAN_DAYS_AGO :
 			{
-				if (is_numeric($source[$fieldId."_days"]))
+				if (is_numeric($source[$fieldId . "_days"]))
 				{
 					$dateTime = Filter\DateTimeFactory::createToday();
-					$days = (int) $source[$fieldId."_days"];
+					$days = (int)$source[$fieldId . "_days"];
 
-					$result[$fieldId."_days"] = $source[$fieldId."_days"];
-					$result[$fieldId."_from"] = $dateTime->offset(-($days+1)." days");
-					$result[$fieldId."_to"] = $dateTime->offset(-$days." days -1 second");
+					$result[$fieldId . "_days"] = $source[$fieldId . "_days"];
+					$result[$fieldId . "_from"] = $dateTime->offset(-($days + 1) . " days");
+					$result[$fieldId . "_to"] = $dateTime->offset(-$days . " days -1 second");
 				}
 
 				break;
 			}
 
-			case AdditionalDateType::AFTER_DAYS :
-				{
-					if (is_numeric($source[$fieldId."_days"]))
-					{
-						$dateTime = Filter\DateTimeFactory::createToday();
-						$days = (int) $source[$fieldId."_days"];
-
-						$result[$fieldId."_days"] = $source[$fieldId."_days"];
-						$result[$fieldId."_from"] = $dateTime->offset($days." days");
-						$result[$fieldId."_to"] = $dateTime->offset(($days+1)." days -1 second");
-					}
-
-					break;
-				}
-
-
 			case DateType::QUARTER :
 			{
-				$quarter = $source[$fieldId."_quarter"];
-				$year = $source[$fieldId."_year"];
+				$quarter = $source[$fieldId . "_quarter"];
+				$year = $source[$fieldId . "_year"];
 
 				if (!empty($quarter) && !empty($year))
 				{
 					$dateTime = new Filter\DateTime(MakeTimeStamp(Quarter::getStartDate($quarter, $year)));
 
-					$result[$fieldId."_datesel"] = DateType::QUARTER;
-					$result[$fieldId."_quarter"] = $dateTime->quarter();
-					$result[$fieldId."_year"] = $dateTime->year();
-					$result[$fieldId."_month"] = $dateTime->month();
-					$result[$fieldId."_from"] = $dateTime->quarterStart();
-					$result[$fieldId."_to"] = $dateTime->quarterEnd();
+					$result[$fieldId . "_datesel"] = DateType::QUARTER;
+					$result[$fieldId . "_quarter"] = $dateTime->quarter();
+					$result[$fieldId . "_year"] = $dateTime->year();
+					$result[$fieldId . "_month"] = $dateTime->month();
+					$result[$fieldId . "_from"] = $dateTime->quarterStart();
+					$result[$fieldId . "_to"] = $dateTime->quarterEnd();
 				}
 
 				break;
@@ -1566,16 +1508,16 @@ class Options
 
 			case DateType::YEAR :
 			{
-				$year = $source[$fieldId."_year"];
+				$year = $source[$fieldId . "_year"];
 
 				if (!empty($year))
 				{
 					$dateTime = new Filter\DateTime(mktime(0, 0, 0, 1, 1, $year));
 
-					$result[$fieldId."_datesel"] = DateType::YEAR;
-					$result[$fieldId."_year"] = $dateTime->year();
-					$result[$fieldId."_from"] = $dateTime->toString();
-					$result[$fieldId."_to"] = $dateTime->offset("1 year - 1 second");
+					$result[$fieldId . "_datesel"] = DateType::YEAR;
+					$result[$fieldId . "_year"] = $dateTime->year();
+					$result[$fieldId . "_from"] = $dateTime->toString();
+					$result[$fieldId . "_to"] = $dateTime->offset("1 year - 1 second");
 				}
 
 				break;
@@ -1583,24 +1525,24 @@ class Options
 
 			case DateType::EXACT :
 			{
-				$sourceDate = $source[$fieldId."_from"];
+				$sourceDate = $source[$fieldId . "_from"];
 
 				if (!empty($sourceDate))
 				{
 					$date = new Date($sourceDate);
 					$dateTime = new Filter\DateTime(MakeTimeStamp($sourceDate));
 
-					$result[$fieldId."_datesel"] = DateType::EXACT;
+					$result[$fieldId . "_datesel"] = DateType::EXACT;
 
 					if ($dateTime->getTimestamp() > $date->getTimestamp())
 					{
-						$result[$fieldId."_from"] = $dateTime->toString();
-						$result[$fieldId."_to"] = $dateTime->toString();
+						$result[$fieldId . "_from"] = $dateTime->toString();
+						$result[$fieldId . "_to"] = $dateTime->toString();
 					}
 					else
 					{
-						$result[$fieldId."_from"] = $dateTime->toString();
-						$result[$fieldId."_to"] = $dateTime->offset("1 days - 1 second");
+						$result[$fieldId . "_from"] = $dateTime->toString();
+						$result[$fieldId . "_to"] = $dateTime->offset("1 days - 1 second");
 					}
 				}
 
@@ -1611,9 +1553,9 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createLastWeekMonday();
 
-				$result[$fieldId."_datesel"] = DateType::LAST_WEEK;
-				$result[$fieldId."_from"] = $dateTime->toString();
-				$result[$fieldId."_to"] = $dateTime->offset("7 days - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::LAST_WEEK;
+				$result[$fieldId . "_from"] = $dateTime->toString();
+				$result[$fieldId . "_to"] = $dateTime->offset("7 days - 1 second");
 				break;
 			}
 
@@ -1621,28 +1563,28 @@ class Options
 			{
 				$dateTime = Filter\DateTimeFactory::createFirstDayOfLastMonth();
 
-				$result[$fieldId."_datesel"] = DateType::LAST_MONTH;
-				$result[$fieldId."_year"] = $dateTime->year();
-				$result[$fieldId."_month"] = $dateTime->month();
-				$result[$fieldId."_from"] = $dateTime->toString();
-				$result[$fieldId."_to"] = $dateTime->offset("1 month - 1 second");
+				$result[$fieldId . "_datesel"] = DateType::LAST_MONTH;
+				$result[$fieldId . "_year"] = $dateTime->year();
+				$result[$fieldId . "_month"] = $dateTime->month();
+				$result[$fieldId . "_from"] = $dateTime->toString();
+				$result[$fieldId . "_to"] = $dateTime->offset("1 month - 1 second");
 				break;
 			}
 
 			case DateType::RANGE :
 			{
-				$startSourceDate = $source[$fieldId."_from"];
-				$endSourceDate = $source[$fieldId."_to"];
+				$startSourceDate = $source[$fieldId . "_from"];
+				$endSourceDate = $source[$fieldId . "_to"];
 
-				$result[$fieldId."_from"] = "";
-				$result[$fieldId."_to"] = "";
+				$result[$fieldId . "_from"] = "";
+				$result[$fieldId . "_to"] = "";
 
 				if (!empty($startSourceDate))
 				{
 					$startDateTime = new Filter\DateTime(MakeTimeStamp($startSourceDate));
 
-					$result[$fieldId."_datesel"] = DateType::RANGE;
-					$result[$fieldId."_from"] = $startDateTime->toString();
+					$result[$fieldId . "_datesel"] = DateType::RANGE;
+					$result[$fieldId . "_from"] = $startDateTime->toString();
 				}
 
 				if (!empty($endSourceDate))
@@ -1650,15 +1592,15 @@ class Options
 					$endDate = Date::createFromTimestamp(MakeTimeStamp($endSourceDate));
 					$endDateTime = new Filter\DateTime(MakeTimeStamp($endSourceDate));
 
-					$result[$fieldId."_datesel"] = DateType::RANGE;
+					$result[$fieldId . "_datesel"] = DateType::RANGE;
 
 					if ($endDateTime->getTimestamp() > $endDate->getTimestamp())
 					{
-						$result[$fieldId."_to"] = $endDateTime->toString();
+						$result[$fieldId . "_to"] = $endDateTime->toString();
 					}
 					else
 					{
-						$result[$fieldId."_to"] = $endDateTime->offset("1 days - 1 second");
+						$result[$fieldId . "_to"] = $endDateTime->offset("1 days - 1 second");
 					}
 				}
 
@@ -1667,46 +1609,37 @@ class Options
 		}
 	}
 
-
 	/**
 	 * Resets current applied filter
 	 */
 	public function reset()
 	{
-		Application::getInstance()->getSession()["main.ui.filter"][$this->id] = null;
+		$storage = $this->getStorage();
+		$storage[$this->id] = null;
 	}
-
 
 	/**
 	 * Destroys this filter options
 	 */
 	public function destroy()
 	{
-		static::destroyById($this->getId());
-	}
+		$filterId = $this->getId();
 
-
-	/**
-	 * Destroys filter options by filter id
-	 * @param $filterId
-	 */
-	public static function destroyById($filterId)
-	{
 		\CUserOptions::deleteOption("main.ui.filter", $filterId);
 		\CUserOptions::deleteOption("main.ui.filter.presets", $filterId);
-		unset(Application::getInstance()->getSession()["main.ui.filter"][$filterId]);
-		unset(Application::getInstance()->getSession()["main.ui.filter.presets"][$filterId]);
+
+		$storage = $this->getStorage();
+		unset($storage[$filterId]);
 	}
 
-
-	public static function getRowsFromFields($fields = array())
+	public static function getRowsFromFields($fields = [])
 	{
-		$rows = array();
+		$rows = [];
 
 		foreach ($fields as $key => $field)
 		{
 			$rows[] = str_replace(
-				array(
+				[
 					"_datesel",
 					"_numsel",
 					"_from",
@@ -1724,7 +1657,7 @@ class Options
 					"_years",
 					"_isEmpty",
 					"_hasAnyValue",
-				),
+				],
 				"",
 				$key
 			);
@@ -1732,7 +1665,6 @@ class Options
 
 		return array_unique($rows);
 	}
-
 
 	/**
 	 * Fetches preset fields list
@@ -1750,17 +1682,16 @@ class Options
 		return static::getRowsFromFields($preset["fields"]);
 	}
 
-
 	/**
 	 * Gets used fields
 	 * @return array
 	 */
 	public function getUsedFields()
 	{
-		$fields = array();
+		$fields = [];
 
 		// Fetch fields from user presets
-		foreach ($this->getPresets() as $key => $preset)
+		foreach ($this->getPresets() as $preset)
 		{
 			$presetFields = static::fetchPresetFields($preset);
 			$fields = array_merge($fields, $presetFields);
@@ -1768,7 +1699,7 @@ class Options
 
 		$defaultPresetFieldsOrder = [];
 		// Fetch fields from default presets
-		foreach ($this->getDefaultPresets() as $key => $preset)
+		foreach ($this->getDefaultPresets() as $preset)
 		{
 			$presetFields = static::fetchPresetFields($preset);
 			$fields = array_merge($fields, $presetFields);

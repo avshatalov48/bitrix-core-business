@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["currency_err1"] = "Error deleting the currency.";
 $MESS["currency_err2"] = "All fields are required!";
 $MESS["currency_err3_1"] = "Currency";
@@ -55,4 +55,3 @@ $MESS["CURRENCY_CODES_ISO_STANDART"] = "Refer to <a target=\"_blank\" href=\"#IS
 $MESS["HIDE_ZERO_DECIMALS"] = "Trim trailing zeros from fractional prices (in the public area)";
 $MESS["HIDE_ZERO_DECIMALS_DESCR_EXT"] = "<span class=\"required\" style=\"vertical-align: super; font-size: smaller;\">2</span> - Specifies to hide trailing fractional zeros in item prices in the public area. For example: the price 12500.00 will show as 12500, but the price 12500.50 will show as 12500.50.";
 $MESS["DECIMALS_COMMENTS"] = "<span class=\"required\" style=\"vertical-align: super; font-size: smaller;\">1</span> - the number of digits in fractional part affects only the way the prices are displayed. Calculations always take unrounded values. This may cause visual inconsistencies when displaying totals, converted currencies and discounts. Consider this example. The product price is 98.01 USD. If you set the number of digits in fractional part to zero, 98 USD will be shown as the product price. However, the total for 100 items of this product in the shopping cart will be 9801 USD.";
-?>

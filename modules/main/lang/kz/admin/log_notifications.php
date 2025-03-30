@@ -1,0 +1,20 @@
+<?php
+$MESS["log_notifications_active"] = "Белсенділік";
+$MESS["log_notifications_add"] = "Хабарландыруды қосу";
+$MESS["log_notifications_add_title"] = "Оқиғалар журналының жаңа хабарландыруды қосу";
+$MESS["log_notifications_browser"] = "Браузер";
+$MESS["log_notifications_copy"] = "Көшіру";
+$MESS["log_notifications_count"] = "Оқиғалар";
+$MESS["log_notifications_date_last"] = "Соңғы тексеру";
+$MESS["log_notifications_delete"] = "Жою";
+$MESS["log_notifications_delete_conf"] = "Шынымен хабарландыруды жойғыңыз келеді ме?";
+$MESS["log_notifications_edit"] = "Хабарландыруды редакциялау";
+$MESS["log_notifications_edit1"] = "Өзгерту";
+$MESS["log_notifications_interval"] = "Аралық";
+$MESS["log_notifications_ip"] = "IP-мекенжай";
+$MESS["log_notifications_name"] = "Атауы";
+$MESS["log_notifications_object"] = "Объект";
+$MESS["log_notifications_page"] = "Парақша";
+$MESS["log_notifications_title"] = "Оқиғалар журналының хабарландырулары";
+$MESS["log_notifications_type"] = "Оқиға түрі";
+$MESS["log_notifications_user"] = "Пайдаланушы";

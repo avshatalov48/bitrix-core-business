@@ -3,7 +3,7 @@ import { Type } from 'main.core';
 import { Color } from 'im.v2.const';
 
 import { AvatarSize } from './components/base/avatar';
-import { UiAvatarHexagon } from './components/base/ui-avatar-hexagon';
+import { AvatarType, BaseUiAvatar } from './components/base/base-ui-avatar';
 
 import './css/empty-avatar.css';
 
@@ -20,9 +20,8 @@ const COLLAB_EMPTY_AVATAR_URL = '/bitrix/js/im/v2/component/elements/src/avatar/
 // @vue/component
 export const EmptyAvatar = {
 	name: 'EmptyAvatar',
-	components: { UiAvatarHexagon },
-	props:
-	{
+	components: { BaseUiAvatar },
+	props: {
 		url: {
 			type: String,
 			default: '',
@@ -46,9 +45,9 @@ export const EmptyAvatar = {
 			imageLoadError: false,
 		};
 	},
-	computed:
-	{
+	computed: {
 		AvatarSize: () => AvatarSize,
+		AvatarType: () => AvatarType,
 		Color: () => Color,
 		isSquared(): boolean
 		{
@@ -79,7 +78,8 @@ export const EmptyAvatar = {
 		},
 	},
 	template: `
-		<UiAvatarHexagon 
+		<BaseUiAvatar
+			:type="AvatarType.collab"
 			v-if="isCollabType" 
 			:url="collabEmptyAvatarUrl" 
 			:size="size"

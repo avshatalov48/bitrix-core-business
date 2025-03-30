@@ -34,6 +34,7 @@ return [
 		'im.v2.lib.hotkey',
 		'im.v2.lib.textarea',
 		'im.v2.provider.service',
+		'im.v2.component.message.file',
 		'ui.icons',
 		'main.core.events',
 		'im.v2.lib.text-highlighter',

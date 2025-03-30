@@ -516,6 +516,11 @@ class CIMDisk
 		$attach = $options['ATTACH'] ?? null;
 		$asFile = isset($options['AS_FILE']) && $options['AS_FILE'] === 'Y';
 		$params = isset($options['PARAMS']) && is_array($options['PARAMS']) ? $options['PARAMS'] : null;
+		$waitFullExecution = $options['WAIT_FULL_EXECUTION'] ?? 'Y';
+		if ($chat->getEntityType() === 'LINES' || $chat->getEntityType() === 'LIVECHAT')
+		{
+			$waitFullExecution = 'Y';
+		}
 
 		$chatRelation = $chat->getRelations();
 
@@ -547,6 +552,10 @@ class CIMDisk
 				if ($asFile && $newFile)
 				{
 					(new IM\V2\Entity\File\FileItem($newFile, $chatId))->markAsFile();
+				}
+				if ($newFile)
+				{
+					(new IM\V2\Analytics\ChatAnalytics($chat))->addUploadFile($newFile);
 				}
 			}
 			else
@@ -628,6 +637,7 @@ class CIMDisk
 			"TEMPLATE_ID" => $templateId,
 			"FILE_TEMPLATE_ID" => $fileTemplateId,
 			"FILE_MODELS" => $result['FILE_MODELS'] ?? [],
+			"WAIT_FULL_EXECUTION" => $waitFullExecution,
 		];
 
 		if ($chat->getEntityType() == 'LIVECHAT')

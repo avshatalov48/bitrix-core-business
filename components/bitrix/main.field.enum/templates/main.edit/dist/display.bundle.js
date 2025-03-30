@@ -2,10 +2,8 @@
 this.BX = this.BX || {};
 this.BX.Desktop = this.BX.Desktop || {};
 this.BX.Desktop.Field = this.BX.Desktop.Field || {};
-(function (exports,ui_entitySelector,tagItem,main_core,main_core_events) {
+(function (exports,ui_entitySelector,main_core,main_core_events) {
 	'use strict';
-
-	tagItem = tagItem && tagItem.hasOwnProperty('default') ? tagItem['default'] : tagItem;
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 	var Dialog = /*#__PURE__*/function () {
@@ -27,6 +25,7 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    }
 	    this.fieldName = params.fieldName.toLowerCase();
 	    this.fieldNameForEvent = params.fieldNameForEvent;
+	    this.emptyValueTitle = params.emptyValueTitle;
 	    this.fieldTitle = params.fieldTitle;
 	    this.context = params.context;
 	    this.messages = params.messages;
@@ -82,7 +81,7 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	  }, {
 	    key: "prepareInput",
 	    value: function prepareInput(node) {
-	      this.input = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input \n\t\t\t\tname=\"", "_input\" \n\t\t\t\ttype=\"text\" \n\t\t\t\tclass=\"ui-ctl-element main-ui-control main-enum-dialog-input\" \n\t\t\t\tautocomplete=\"off\"\n\t\t\t/>\n\t\t"])), node.id);
+	      this.input = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input \n\t\t\t\tname=\"", "_input\" \n\t\t\t\ttype=\"text\" \n\t\t\t\tclass=\"ui-ctl-element main-ui-control main-enum-dialog-input\" \n\t\t\t\tautocomplete=\"off\"\n\t\t\t\tplaceholder=\"", "\"\n\t\t\t/>\n\t\t"])), node.id, this.emptyValueTitle);
 	      main_core.Dom.append(this.input, node);
 	      var dialogSelector = this.dialogSelector;
 	      var input = this.input;
@@ -362,5 +361,5 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	exports.Dialog = Dialog;
 	exports.Ui = Ui;
 
-}((this.BX.Desktop.Field.Enum = this.BX.Desktop.Field.Enum || {}),BX.UI.EntitySelector,BX,BX,BX.Event));
+}((this.BX.Desktop.Field.Enum = this.BX.Desktop.Field.Enum || {}),BX.UI.EntitySelector,BX,BX.Event));
 //# sourceMappingURL=display.bundle.js.map

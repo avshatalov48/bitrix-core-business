@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CC_BLL_MODULE_NOT_INSTALLED"] = "Модуль универсальных списков не установлен.";
 $MESS["CC_BLL_WRONG_IBLOCK_TYPE"] = "Неверный тип информационного блока.";
 $MESS["CC_BLL_WRONG_IBLOCK"] = "Указан неверный список.";
@@ -30,4 +30,4 @@ $MESS["CT_BLL_GRID_PAGE_SIZES_ALL"] = "Все";
 $MESS["CC_BLL_ELEMENT_ACTION_MENU_OPEN"] = "Открыть";
 $MESS["CC_BLL_EXTERNAL_LOCK"] = "Блокировка";
 $MESS["CT_BLL_UN_LOCK_ELEMENT"] = "Разблокировать";
-?>
+$MESS['CT_BLL_INTERNAL_DELETE_ERROR'] = "Не удалось удалить элемент. Попробуйте ещё раз.";

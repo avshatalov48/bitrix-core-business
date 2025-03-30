@@ -10,7 +10,7 @@ import { Logger } from 'im.v2.lib.logger';
 import { UploaderWrapper } from './classes/uploader-wrapper';
 import { SendingService } from '../registry';
 
-import type { ImModelChat, ImModelUser, ImModelMessage } from 'im.v2.model';
+import type { ImModelChat, ImModelUser, ImModelMessage, ImModelFile } from 'im.v2.model';
 import type { UploaderFile, UploaderError } from 'ui.uploader.core';
 import type { Store } from 'ui.vue3.vuex';
 import type { RestClient } from 'rest.client';
@@ -40,7 +40,8 @@ export class UploadingService
 			dialogId: string,
 			tempMessageId: string,
 			previewCreatedStatus: { [string]: boolean },
-			previewSentStatus: { [string]: boolean }
+			previewSentStatus: { [string]: boolean },
+			sourceFilesCount: number,
 		}
 	} = {};
 
@@ -160,6 +161,16 @@ export class UploadingService
 		});
 	}
 
+	#registerSourceFilesCount({ uploaderId, filesCount })
+	{
+		this.#uploaderFilesRegistry[uploaderId].sourceFilesCount = filesCount;
+	}
+
+	getSourceFilesCount(uploaderId: string): number
+	{
+		return this.#uploaderFilesRegistry[uploaderId].sourceFilesCount ?? 0;
+	}
+
 	#addFiles(params: UploadFilesParams): Promise<{uploaderFiles: UploaderFile[], uploaderId: string}>
 	{
 		const { files, dialogId, autoUpload, sendAsFile = false } = params;
@@ -173,6 +184,11 @@ export class UploadingService
 
 			const addedFiles = this.#uploaderWrapper.addFiles(filesForUploader);
 			this.#registerFiles(uploaderId, addedFiles, dialogId, autoUpload);
+
+			this.#registerSourceFilesCount({
+				filesCount: files.length,
+				uploaderId,
+			});
 
 			return {
 				uploaderFiles: addedFiles,
@@ -265,7 +281,10 @@ export class UploadingService
 			const { file, uploaderId }: {file: UploaderFile, uploaderId: string} = event.getData();
 			const serverFileId: number = file.getServerFileId().toString().slice(1);
 			const temporaryFileId: string = file.getId();
-			this.#setFileMapping({ serverFileId, temporaryFileId });
+			if (this.#isMediaFile(temporaryFileId))
+			{
+				this.#setFileMapping({ serverFileId, temporaryFileId });
+			}
 
 			this.#updateFileProgress(temporaryFileId, file.getProgress(), FileStatus.wait);
 
@@ -287,6 +306,14 @@ export class UploadingService
 			const { tempMessageId, tempFileId } = event.getData();
 			this.#cancelUpload(tempMessageId, tempFileId);
 		});
+	}
+
+	#isMediaFile(fileId: string | number): boolean
+	{
+		const mediaFileTypes: Array<string> = [FileType.image, FileType.video];
+		const file: ?ImModelFile = this.#store.getters['files/get'](fileId);
+
+		return Boolean(file) && mediaFileTypes.includes(file.type);
 	}
 
 	#setFileMapping(options: {serverFileId: number, temporaryFileId: string})
@@ -624,6 +651,22 @@ export class UploadingService
 		});
 	}
 
+	#unregisterFiles(uploaderId: string, files: UploaderFile[])
+	{
+		const entry = this.#uploaderFilesRegistry[uploaderId];
+		if (entry)
+		{
+			files.forEach((file: UploaderFile) => {
+				const fileId = file.getId();
+				if (this.#uploaderFilesRegistry[uploaderId].previewCreatedStatus)
+				{
+					delete this.#uploaderFilesRegistry[uploaderId].previewCreatedStatus[fileId];
+					delete this.#uploaderFilesRegistry[uploaderId].previewSentStatus[fileId];
+				}
+			});
+		}
+	}
+
 	#setPreviewCreatedStatus(uploaderId: string, fileId: string)
 	{
 		this.#uploaderFilesRegistry[uploaderId].previewCreatedStatus[fileId] = true;
@@ -829,6 +872,21 @@ export class UploadingService
 				error: true,
 			},
 		});
+	}
+
+	removeFileFromUploader(options: { uploaderId: string, filesIds: Array<string> })
+	{
+		const { uploaderId, filesIds } = options;
+
+		const files: Array<UploaderFile> = this.#uploaderWrapper.getFiles(uploaderId).filter((file: UploaderFile) => {
+			return filesIds.includes(file.getId());
+		});
+
+		files.forEach((file: UploaderFile) => {
+			file.remove();
+		});
+
+		this.#unregisterFiles(uploaderId, files);
 	}
 
 	destroy()

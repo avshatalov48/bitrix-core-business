@@ -140,7 +140,7 @@ else
 
 				?>
 				<h1 class="sale-order-title">
-					<?= Loc::getMessage('SPOL_TPL_ORDER_IN_STATUSES') ?> &laquo;<?=htmlspecialcharsbx($arResult['INFO']['STATUS'][$orderHeaderStatus]['NAME'])?>&raquo;
+					<?= Loc::getMessage('SPOL_TPL_ORDER_IN_STATUSES_MSGVER_1', ['#STATUS#' => htmlspecialcharsbx($arResult['INFO']['STATUS'][$orderHeaderStatus]['NAME'])]) ?>
 				</h1>
 				<?
 			}
@@ -246,9 +246,16 @@ else
 											?>
 										</div>
 										<div class="sale-order-list-payment-price">
-											<span class="sale-order-list-payment-element"><?=Loc::getMessage('SPOL_TPL_SUM_TO_PAID')?>:</span>
-
-											<span class="sale-order-list-payment-number"><?=$payment['FORMATED_SUM']?></span>
+											<?= Loc::getMessage(
+												'SPOL_TPL_SUM_TO_PAID_MSGVER_1',
+												[
+													'[text_span]' => '<span class="sale-order-list-payment-element">',
+													'[/text_span]' => '</span>',
+													'[sum_span]' => '<span class="sale-order-list-payment-number">',
+													'#SUM#' => $payment['FORMATED_SUM'],
+													'[/sum_span]' => '</span>',
+												],
+											) ?>
 										</div>
 										<?
 										if (!empty($payment['CHECK_DATA']))
@@ -492,7 +499,7 @@ else
 				$orderHeaderStatus = $order['ORDER']['STATUS_ID'];
 				?>
 				<h1 class="sale-order-title">
-					<?= Loc::getMessage('SPOL_TPL_ORDER_IN_STATUSES') ?> &laquo;<?=htmlspecialcharsbx($arResult['INFO']['STATUS'][$orderHeaderStatus]['NAME'])?>&raquo;
+					<?= Loc::getMessage('SPOL_TPL_ORDER_IN_STATUSES_MSGVER_1', ['#STATUS#' => htmlspecialcharsbx($arResult['INFO']['STATUS'][$orderHeaderStatus]['NAME'])]) ?>
 				</h1>
 				<?
 			}

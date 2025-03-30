@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 /**
@@ -14,6 +14,7 @@
  */
 
 use Bitrix\Main\Application;
+use Bitrix\Main\ModuleManager;
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client_partner.php");
@@ -57,16 +58,17 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["module"]) 
 		elseif(isset($_POST["act"]) && $_POST["act"] == "add_opinion")
 		{
 			$arF = Array(
-					"comments" => $_POST["comments"],
-					"lkey" => Application::getInstance()->getLicense()->getPublicHashKey(),
-					"act" => "add_delete_comment",
-					"name" => $USER->GetFullName(),
-					"email" => $USER->GetEmail(),
-					"reason" => $_POST["reason"],
-				);
+				"comments" => $_POST["comments"],
+				"lkey" => Application::getInstance()->getLicense()->getPublicHashKey(),
+				"act" => "add_delete_comment",
+				"name" => $USER->GetFullName(),
+				"email" => $USER->GetEmail(),
+				"reason" => $_POST["reason"],
+			);
 
-			$ht = new CHTTP();
-			$ht->Post("https://marketplace.1c-bitrix.ru/solutions/".$moduleId."/", $arF);
+			$http = new \Bitrix\Main\Web\HttpClient();
+			$http->post("https://marketplace.1c-bitrix.ru/solutions/".$moduleId."/", $arF);
+
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&result=OPAD");
 		}
 		elseif(isset($_POST["act"]) && $_POST["act"] == "unnotify_mp")
@@ -129,56 +131,30 @@ function OnModuleInstalledEvent($id, $installed, $Module)
 	}
 }
 
-$folders = array(
-	"/local/modules",
-	"/bitrix/modules",
-);
-foreach($folders as $folder)
+$arModules = ModuleManager::getModulesFromDisk(true, true, false);
+
+foreach ($arModules as $moduleDir => $module)
 {
-	if(file_exists($_SERVER["DOCUMENT_ROOT"].$folder))
+	if (defined(str_replace(".", "_", $module["id"]) . "_DEMO"))
 	{
-		$handle = opendir($_SERVER["DOCUMENT_ROOT"].$folder);
-		if($handle)
+		$arModules[$moduleDir]["demo"] = "Y";
+		if ($module["isInstalled"])
 		{
-			while (false !== ($dir = readdir($handle)))
+			if (CModule::IncludeModuleEx($module["id"]) != MODULE_DEMO_EXPIRED)
 			{
-				if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && str_contains($dir, "."))
-				{
-					$module_dir = $_SERVER["DOCUMENT_ROOT"].$folder."/".$dir;
-					if($info = CModule::CreateModuleObject($dir))
-					{
-						$arModules[$dir]["MODULE_ID"] = $info->MODULE_ID;
-						$arModules[$dir]["MODULE_NAME"] = $info->MODULE_NAME;
-						$arModules[$dir]["MODULE_DESCRIPTION"] = $info->MODULE_DESCRIPTION;
-						$arModules[$dir]["MODULE_VERSION"] = $info->MODULE_VERSION;
-						$arModules[$dir]["MODULE_VERSION_DATE"] = $info->MODULE_VERSION_DATE;
-						$arModules[$dir]["MODULE_SORT"] = $info->MODULE_SORT;
-						$arModules[$dir]["MODULE_PARTNER"] = $info->PARTNER_NAME;
-						$arModules[$dir]["MODULE_PARTNER_URI"] = $info->PARTNER_URI;
-						$arModules[$dir]["IsInstalled"] = $info->IsInstalled();
-						if(defined(str_replace(".", "_", $info->MODULE_ID)."_DEMO"))
-						{
-							$arModules[$dir]["DEMO"] = "Y";
-							if($info->IsInstalled())
-							{
-								if(CModule::IncludeModuleEx($info->MODULE_ID) != MODULE_DEMO_EXPIRED)
-								{
-									$arModules[$dir]["DEMO_DATE"] = ConvertTimeStamp($GLOBALS["SiteExpireDate_".str_replace(".", "_", $info->MODULE_ID)]);
-								}
-								else
-									$arModules[$dir]["DEMO_END"] = "Y";
-							}
-						}
-					}
-				}
+				$arModules[$moduleDir]["demoDate"] = ConvertTimeStamp($GLOBALS["SiteExpireDate_" . str_replace(".", "_", $module["id"])]);
 			}
-			closedir($handle);
+			else
+			{
+				$arModules[$moduleDir]["demoEnd"] = "Y";
+			}
 		}
 	}
 }
+
 \Bitrix\Main\Type\Collection::sortByColumn(
 	$arModules,
-	['MODULE_SORT' => SORT_ASC, 'MODULE_NAME' => SORT_STRING],
+	['sort' => SORT_ASC, 'name' => SORT_STRING],
 	'',
 	null,
 	true
@@ -282,7 +258,7 @@ if((!empty($_REQUEST["uninstall"]) || !empty($_REQUEST["install"]) || !empty($_R
 			}
 
 		}
-	elseif(!$Module->IsInstalled() && !empty($_REQUEST["clear"]))
+		elseif(!$Module->IsInstalled() && !empty($_REQUEST["clear"]))
 		{
 			if($Module->MODULE_ID <> '' && ($mdir = getLocalPath("modules/".$Module->MODULE_ID)) !== false)
 			{
@@ -345,86 +321,86 @@ $rsData->InitFromArray($arModules);
 $rsData = new CAdminResult($rsData, $sTableID);
 while($info = $rsData->Fetch())
 {
-	$row =& $lAdmin->AddRow($info["MODULE_ID"], $info);
+	$row =& $lAdmin->AddRow($info["id"], $info);
 
 	if(LANGUAGE_ID == "ru")
-		$name = "<b><a href=\"https://marketplace.1c-bitrix.ru/".htmlspecialcharsbx($info["MODULE_ID"])."\" target=\"_blank\">".htmlspecialcharsbx($info["MODULE_NAME"])."</a></b> (".htmlspecialcharsbx($info["MODULE_ID"]).")";
+		$name = "<b><a href=\"https://marketplace.1c-bitrix.ru/".htmlspecialcharsbx($info["id"])."\" target=\"_blank\">".htmlspecialcharsbx($info["name"])."</a></b> (".htmlspecialcharsbx($info["id"]).")";
 	elseif(LANGUAGE_ID == "ua")
-		$name = "<b><a href=\"https://marketplace.bitrix.ua/".htmlspecialcharsbx($info["MODULE_ID"])."\" target=\"_blank\">".htmlspecialcharsbx($info["MODULE_NAME"])."</a></b> (".htmlspecialcharsbx($info["MODULE_ID"]).")";
+		$name = "<b><a href=\"https://marketplace.bitrix.ua/".htmlspecialcharsbx($info["id"])."\" target=\"_blank\">".htmlspecialcharsbx($info["name"])."</a></b> (".htmlspecialcharsbx($info["id"]).")";
 	else
-		$name = "<b>".htmlspecialcharsbx($info["MODULE_NAME"])."</b> (".htmlspecialcharsbx($info["MODULE_ID"]).")";
+		$name = "<b>".htmlspecialcharsbx($info["name"])."</b> (".htmlspecialcharsbx($info["id"]).")";
 
-	if(isset($info["DEMO"]) && $info["DEMO"] == "Y")
+	if(isset($info["demo"]) && $info["demo"] == "Y")
 	{
 		$name .= " <span style=\"color:red;\">".GetMessage("MOD_DEMO")."</span>";
 	}
-	$name .= "<br />".htmlspecialcharsbx($info["MODULE_DESCRIPTION"]);
+	$name .= "<br />".htmlspecialcharsbx($info["description"]);
 	$row->AddViewField("NAME", $name);
-	$row->AddViewField("PARTNER", (($info["MODULE_PARTNER"] <> '') ? " ".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), GetMessage("MOD_PARTNER_NAME")) : "&nbsp;"));
-	$row->AddViewField("VERSION", $info["MODULE_VERSION"]);
-	$row->AddViewField("DATE_UPDATE", CDatabase::FormatDate($info["MODULE_VERSION_DATE"], "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT")));
-	if(isset($modules[$info["MODULE_ID"]]) && $modules[$info["MODULE_ID"]]["FREE_MODULE"] != "Y")
+	$row->AddViewField("PARTNER", (($info["partner"] <> '') ? " ".str_replace(array("#NAME#", "#URI#"), array($info["partner"], $info["partnerUri"]), GetMessage("MOD_PARTNER_NAME")) : "&nbsp;"));
+	$row->AddViewField("VERSION", $info["version"]);
+	$row->AddViewField("DATE_UPDATE", CDatabase::FormatDate($info["versionDate"], "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT")));
+	if(isset($modules[$info["id"]]) && $modules[$info["id"]]["FREE_MODULE"] != "Y")
 	{
-		if(isset($info["DEMO"]) && $info["DEMO"] == "Y")
+		if(isset($info["demo"]) && $info["demo"] == "Y")
 		{
 			if($linkToBuy)
 			{
-				if($info["DEMO_END"] == "Y")
-					$row->AddViewField("DATE_TO", "<span class=\"required\">".GetMessage("MOD_DEMO_END")."</span><br /><a href=\"".str_replace("#CODE#", $info["MODULE_ID"], $linkToBuy)."\" target=\"_blank\">".GetMessage("MOD_UPDATE_BUY_DEMO")."</a>");
+				if($info["demoEnd"] == "Y")
+					$row->AddViewField("DATE_TO", "<span class=\"required\">".GetMessage("MOD_DEMO_END")."</span><br /><a href=\"".str_replace("#CODE#", $info["id"], $linkToBuy)."\" target=\"_blank\">".GetMessage("MOD_UPDATE_BUY_DEMO")."</a>");
 				else
-					$row->AddViewField("DATE_TO", $info["DEMO_DATE"]."<br /><a href=\"".str_replace("#CODE#", $info["MODULE_ID"], $linkToBuy)."\" target=\"_blank\">".GetMessage("MOD_UPDATE_BUY_DEMO")."</a>");
+					$row->AddViewField("DATE_TO", $info["demoDate"]."<br /><a href=\"".str_replace("#CODE#", $info["id"], $linkToBuy)."\" target=\"_blank\">".GetMessage("MOD_UPDATE_BUY_DEMO")."</a>");
 			}
 			else
 			{
-				if($info["DEMO_END"] == "Y")
+				if($info["demoEnd"] == "Y")
 					$row->AddViewField("DATE_TO", "<span class=\"required\">".GetMessage("MOD_DEMO_END")."</span>");
 				else
-					$row->AddViewField("DATE_TO", $info["DEMO_DATE"]);
+					$row->AddViewField("DATE_TO", $info["demoDate"]);
 			}
 		}
 		else
 		{
-			if($modules[$info["MODULE_ID"]]["UPDATE_END"] == "Y")
+			if($modules[$info["id"]]["UPDATE_END"] == "Y")
 			{
-				if($linkToBuy && !empty($modules[$info["MODULE_ID"]]["VERSION"]))
-					$row->AddViewField("DATE_TO", "<span style=\"color:red;\">".$modules[$info["MODULE_ID"]]["DATE_TO"]."</span><br /><a href=\"".str_replace("#CODE#", $info["MODULE_ID"], $linkToBuyUpdate)."\" target=\"_blank\">".GetMessage("MOD_UPDATE_BUY")."</a>");
+				if($linkToBuy && !empty($modules[$info["id"]]["VERSION"]))
+					$row->AddViewField("DATE_TO", "<span style=\"color:red;\">".$modules[$info["id"]]["DATE_TO"]."</span><br /><a href=\"".str_replace("#CODE#", $info["id"], $linkToBuyUpdate)."\" target=\"_blank\">".GetMessage("MOD_UPDATE_BUY")."</a>");
 				else
-					$row->AddViewField("DATE_TO", "<span style=\"color:red;\">".$modules[$info["MODULE_ID"]]["DATE_TO"]."</span>");
+					$row->AddViewField("DATE_TO", "<span style=\"color:red;\">".$modules[$info["id"]]["DATE_TO"]."</span>");
 			}
 			else
 			{
-				$row->AddViewField("DATE_TO", $modules[$info["MODULE_ID"]]["DATE_TO"]);
+				$row->AddViewField("DATE_TO", $modules[$info["id"]]["DATE_TO"]);
 			}
 		}
 	}
 	$status = "";
-	if($info["IsInstalled"])
+	if($info["isInstalled"])
 		$status = GetMessage("MOD_INSTALLED");
 	else
 		$status = "<span class=\"required\">".GetMessage("MOD_NOT_INSTALLED")."</span>";
 
-	if(!empty($modules[$info["MODULE_ID"]]["VERSION"]))
-		$status .= "<br /><a href=\"/bitrix/admin/update_system_partner.php?tabControl_active_tab=tab2&addmodule=".$info["MODULE_ID"]."\" style=\"color:green;\">".GetMessage("MOD_SMP_NEW_UPDATES")."</a>";
+	if(!empty($modules[$info["id"]]["VERSION"]))
+		$status .= "<br /><a href=\"/bitrix/admin/update_system_partner.php?tabControl_active_tab=tab2&addmodule=".$info["id"]."\" style=\"color:green;\">".GetMessage("MOD_SMP_NEW_UPDATES")."</a>";
 	$row->AddViewField("STATUS", $status);
 
 	$arActions = Array();
-	if(!empty($modules[$info["MODULE_ID"]]) && !empty($modules[$info["MODULE_ID"]]["VERSION"]))
+	if(!empty($modules[$info["id"]]) && !empty($modules[$info["id"]]["VERSION"]))
 	{
 		$arActions[] = array(
 			"ICON" => "",
 			"DEFAULT" => true,
 			"TEXT" => GetMessage("MOD_SMP_UPDATE"),
-			"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/update_system_partner.php?tabControl_active_tab=tab2&addmodule=".$info["MODULE_ID"]),
+			"ACTION" => $lAdmin->ActionRedirect("/bitrix/admin/update_system_partner.php?tabControl_active_tab=tab2&addmodule=".$info["id"]),
 		);
 	}
 
-	if($info["IsInstalled"])
+	if($info["isInstalled"])
 	{
 		$arActions[] = array(
 			"ICON" => "delete",
 			"DEFAULT" => false,
 			"TEXT" => GetMessage("MOD_DELETE"),
-			"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?id=".htmlspecialcharsbx($info["MODULE_ID"])."&lang=".LANG."&uninstall=Y&".bitrix_sessid_get()),
+			"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?id=".htmlspecialcharsbx($info["id"])."&lang=".LANG."&uninstall=Y&".bitrix_sessid_get()),
 		);
 	}
 	else
@@ -433,13 +409,13 @@ while($info = $rsData->Fetch())
 			"ICON" => "add",
 			"DEFAULT" => false,
 			"TEXT" => GetMessage("MOD_INSTALL_BUTTON"),
-			"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?id=".htmlspecialcharsbx($info["MODULE_ID"])."&lang=".LANG."&install=Y&".bitrix_sessid_get()),
+			"ACTION" => $lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?id=".htmlspecialcharsbx($info["id"])."&lang=".LANG."&install=Y&".bitrix_sessid_get()),
 		);
 		$arActions[] = array(
 			"ICON" => "delete",
 			"DEFAULT" => false,
 			"TEXT" => GetMessage("MOD_SMP_DELETE"),
-			"ACTION" => "if(confirm('".GetMessageJS('MOD_CLEAR_CONFIRM', Array("#NAME#" => htmlspecialcharsbx($info["MODULE_NAME"])))."')) ".$lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?id=".htmlspecialcharsbx($info["MODULE_ID"])."&lang=".LANG."&clear=Y&".bitrix_sessid_get()),
+			"ACTION" => "if(confirm('".GetMessageJS('MOD_CLEAR_CONFIRM', Array("#NAME#" => htmlspecialcharsbx($info["name"])))."')) ".$lAdmin->ActionRedirect($APPLICATION->GetCurPage()."?id=".htmlspecialcharsbx($info["id"])."&lang=".LANG."&clear=Y&".bitrix_sessid_get()),
 		);
 	}
 	$row->AddActions($arActions);
@@ -503,7 +479,7 @@ while($info = $rsData->Fetch())
 			"ICON" => "",
 			"DEFAULT" => true,
 			"TEXT" => GetMessage("MOD_SMP_DOWNLOAD"),
-			"ACTION" => $lAdmin1->ActionRedirect("/bitrix/admin/update_system_partner.php?tabControl_active_tab=tab2&addmodule=".$info["MODULE_ID"]),
+			"ACTION" => $lAdmin1->ActionRedirect("/bitrix/admin/update_system_partner.php?tabControl_active_tab=tab2&addmodule=".$info["id"]),
 		);
 	}
 
@@ -518,11 +494,11 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 
 if($mod <> '' && $resultMod == "OK")
 {
-	CAdminMessage::ShowNote(GetMessage("MOD_SMP_INSTALLED", Array("#MODULE_NAME#" => $arModules[$mod]["MODULE_NAME"])));
+	CAdminMessage::ShowNote(GetMessage("MOD_SMP_INSTALLED", Array("#MODULE_NAME#" => $arModules[$mod]["name"])));
 }
 elseif($mod <> '' && $resultMod == "DELOK")
 {
-	CAdminMessage::ShowNote(GetMessage("MOD_SMP_UNINSTALLED", Array("#MODULE_NAME#" => $arModules[$mod]["MODULE_NAME"])));
+	CAdminMessage::ShowNote(GetMessage("MOD_SMP_UNINSTALLED", Array("#MODULE_NAME#" => $arModules[$mod]["name"])));
 }
 elseif($mod <> '' && $resultMod == "CLEAROK")
 {
@@ -571,4 +547,3 @@ if($bHaveNew)
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
-?>

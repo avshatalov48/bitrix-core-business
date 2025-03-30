@@ -26,11 +26,11 @@ Loc::loadMessages(__FILE__);
 
 class CBitrixSaleLocationImportComponent extends CBitrixComponent
 {
-	protected $componentData = 	array();
-	protected $dbResult = 		array();
-	protected $errors = 		array('FATAL' => array(), 'NONFATAL' => array());
+	protected array $componentData = [];
+	protected array $dbResult = [];
+	protected array $errors = ['FATAL' => [], 'NONFATAL' => []];
 
-	protected $import = 		null;
+	protected ?Import\ImportProcess $import = null;
 
 	const LOC2_IMPORT_PERFORMED_OPTION = 'sale_locationpro_import_performed';
 
@@ -187,11 +187,13 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 	{
 		$this->import->turnOffCache();
 
-		$this->dbResult['LAYOUT'] = 		$this->import->getRemoteLayout();
-		$this->resortLayoutBundleAlphabetically('');
-
-		$this->dbResult['TYPE_LEVELS'] = 	$this->import->getTypeLevels();
-		$this->dbResult['STATISTICS'] = 	$this->import->getStatisticsAll();
+		if (self::checkRegion())
+		{
+			$this->dbResult['LAYOUT'] = $this->import->getRemoteLayout();
+			$this->resortLayoutBundleAlphabetically('');
+			$this->dbResult['TYPE_LEVELS'] = $this->import->getTypeLevels();
+		}
+		$this->dbResult['STATISTICS'] = $this->import->getStatisticsAll();
 
 		return true;
 	}
@@ -228,7 +230,6 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 			$this->obtainData();
 		}
 
-		$this->arResult['ALLOW_SOURCE_REMOTE'] = self::checkRegion();
 		$this->formatResult();
 
 		$this->includeComponentTemplate();

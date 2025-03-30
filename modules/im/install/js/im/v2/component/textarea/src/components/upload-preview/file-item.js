@@ -1,61 +1,55 @@
-import { FileStatus, FileType } from 'im.v2.const';
+import { FileStatus } from 'im.v2.const';
 
-import { ErrorPreviewItem } from './items/error';
 import { FilePreviewItem } from './items/file';
-import { ImagePreviewItem } from './items/image';
+import { ErrorPreviewItem } from './items/error';
 
 import '../../css/upload-preview/file-item.css';
-
-import type { ImModelFile } from 'im.v2.model';
 
 // @vue/component
 export const FileItem = {
 	name: 'FileItem',
-	components: { ErrorPreviewItem, ImagePreviewItem, FilePreviewItem },
+	components: { FilePreviewItem, ErrorPreviewItem },
 	props: {
 		file: {
 			type: Object,
 			required: true,
 		},
-	},
-	data(): { text: string }
-	{
-		return {
-			text: '',
-			files: [],
-		};
-	},
-	computed:
-	{
-		fileFromStore(): ImModelFile
-		{
-			return this.file;
+		removable: {
+			type: Boolean,
+			default: false,
 		},
+	},
+	emits: ['onRemoveItem'],
+	computed: {
 		hasError(): boolean
 		{
-			return this.fileFromStore.status === FileStatus.error;
+			return this.file.status === FileStatus.error;
 		},
 		previewComponentName(): string
 		{
 			if (this.hasError)
 			{
-				return ErrorPreviewItem;
+				return ErrorPreviewItem.name;
 			}
 
-			if (this.fileFromStore.type === FileType.image || this.fileFromStore.type === FileType.video)
-			{
-				return ImagePreviewItem;
-			}
-
-			return FilePreviewItem;
+			return FilePreviewItem.name;
+		},
+	},
+	methods: {
+		onRemoveClick()
+		{
+			this.$emit('onRemoveItem', { file: this.file });
 		},
 	},
 	template: `
 		<div class="bx-im-upload-preview-file-item__scope">
 			<component
 				:is="previewComponentName"
-				:item="fileFromStore"
+				:file="file"
 			/>
+			<div v-if="removable" class="bx-im-upload-preview-file-item__remove" @click="onRemoveClick">
+				<div class="bx-im-upload-preview-file-item__remove-icon"></div>
+			</div>
 		</div>
 	`,
 };

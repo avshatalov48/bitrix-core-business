@@ -1,0 +1,19 @@
+<?php
+$MESS["MAIN_EVENTLOG_FILE"] = "Файлға қолжетімділік өзгертілді";
+$MESS["MAIN_EVENTLOG_GROUP"] = "Пайдаланушы топтары өзгертілді";
+$MESS["MAIN_EVENTLOG_GROUP_POLICY"] = "Топтың қауіпсіздік саясаты өзгертілді";
+$MESS["MAIN_EVENTLOG_MODULE"] = "Топтың модульге қолжетімділігі өзгертілді";
+$MESS["MAIN_EVENTLOG_MP_MODULE_DELETED"] = "Маркетплейс шешімі өшірілді";
+$MESS["MAIN_EVENTLOG_MP_MODULE_DOWNLOADED"] = "Маркетплейс шешімі сақталды";
+$MESS["MAIN_EVENTLOG_MP_MODULE_INSTALLED"] = "Маркетплейс шешімі орнатылған";
+$MESS["MAIN_EVENTLOG_MP_MODULE_UNINSTALLED"] = "Маркетплейс шешімі жойылған";
+$MESS["MAIN_EVENTLOG_TASK"] = "Қолжетімділік деңгейі өзгертілді";
+$MESS["MAIN_EVENTLOG_USER_AUTHORIZE"] = "Сәтті кіру";
+$MESS["MAIN_EVENTLOG_USER_DELETE"] = "Пайдаланушыны жою";
+$MESS["MAIN_EVENTLOG_USER_INFO"] = "Пайдаланушы құпиясөзін өзгерту туралы сұрау";
+$MESS["MAIN_EVENTLOG_USER_LOGIN"] = "Кіру қателері";
+$MESS["MAIN_EVENTLOG_USER_LOGINBYHASH_FAILED"] = "Сақталған авторландыру кезіндегі кіру қатесі";
+$MESS["MAIN_EVENTLOG_USER_LOGOUT"] = "Жүйеден шығу";
+$MESS["MAIN_EVENTLOG_USER_PASSWORD_CHANGED"] = "Пайдаланушы құпиясөзін өзгерту";
+$MESS["MAIN_EVENTLOG_USER_REGISTER"] = "Жаңа пайдаланушыны тіркеу";
+$MESS["MAIN_EVENTLOG_USER_REGISTER_FAIL"] = "Тіркеу қатесі";

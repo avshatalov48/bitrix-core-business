@@ -1,0 +1,19 @@
+<?php
+$MESS["MAIN_ARCHIVE_CANT_CREATE_PATH"] = "\"#DIR_NAME#\" бумасын жасау мүмкін емес";
+$MESS["MAIN_ARCHIVE_DIR_EXISTS"] = "\"#FILE_NAME#\" атауымен бума бұрыннан бар";
+$MESS["MAIN_ARCHIVE_ERR_CREATE_DIR"] = "\"#DIR_NAME#\" бумасын жасау мүмкін емес";
+$MESS["MAIN_ARCHIVE_ERR_CREATE_FILE"] = "\"#FILE_NAME#\" файлын жасау қатесі";
+$MESS["MAIN_ARCHIVE_ERR_DFILE"] = "Файлдың қате дескрипторы";
+$MESS["MAIN_ARCHIVE_ERR_OPEN"] = "\"#FILE_NAME#\" файлын ашу мүмкін емес";
+$MESS["MAIN_ARCHIVE_ERR_OPEN_WRITE"] = "Жазу үшін \"#FILE_NAME#\" файлын ашу мүмкін емес";
+$MESS["MAIN_ARCHIVE_ERR_PARAM"] = "\"#EXTRACT_MODE#\" ашудың қате режимі";
+$MESS["MAIN_ARCHIVE_ERR_RENAME"] = "\"#FILE_NAME#\" файлының атын \"#FILE_NAME2#\".tmp уақытша файлға өзгерту мүмкін емес";
+$MESS["MAIN_ARCHIVE_ERR_SIZE_CHECK"] = "\"#FILE_NAME#\" ашылған файлдың өлшемі дұрыс емес \"#SIZE#\" (\"EXP_SIZE#\" болуы керек). Мұрағат бүлінген болуы мүмкін";
+$MESS["MAIN_ARCHIVE_FILE_EXISTS"] = "\"#FILE_NAME#\" атауымен файл бұрыннан бар";
+$MESS["MAIN_ARCHIVE_FILE_PERMS"] = "\"#FILE_NAME#\" файлы бұрыннан бар және жазбадан қорғалған";
+$MESS["MAIN_ARCHIVE_INV_BLOCK_CHECK1"] = "Файл тақырыпатының бақылау сомасы дұрыс емес";
+$MESS["MAIN_ARCHIVE_INV_BLOCK_SIZE"] = "Блоктың өлшемі дұрыс емес: \"#BLOCK_SIZE#\"";
+$MESS["MAIN_ARCHIVE_NO_DIR"] = "\"#FILE_NAME#\" файлына жол табу мүмкін емес";
+$MESS["MAIN_ARCHIVE_NO_FILE"] = "\"#FILE_NAME#\" файлы табылмады";
+$MESS["MAIN_ARCHIVE_NO_FILENAME"] = "Файлдың дұрыс емес атауы";
+$MESS["MAIN_ARCHIVE_NO_READ"] = "\"#DIR_NAME#\" бумасын оқу мүмкін емес";

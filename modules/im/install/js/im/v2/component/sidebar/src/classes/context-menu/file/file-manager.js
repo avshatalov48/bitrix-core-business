@@ -25,8 +25,8 @@ export class FileManager
 		this.diskService.delete({ chatId: sidebarFile.chatId, fileId: sidebarFile.fileId });
 	}
 
-	saveOnDisk(fileId: number): Promise
+	saveOnDisk(fileIds: number[]): Promise
 	{
-		return this.diskService.save(fileId);
+		return this.diskService.save(fileIds);
 	}
 }

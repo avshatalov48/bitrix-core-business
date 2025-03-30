@@ -826,9 +826,6 @@ final class CProductQueryBuilder
 
 	/**
 	 * @return array[]
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private static function getProductUserFields(): array
 	{
@@ -850,7 +847,10 @@ final class CProductQueryBuilder
 			'order' => [
 				'SORT' => 'ASC',
 				'ID' => 'ASC',
-			]
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
 		]);
 		while ($row = $iterator->fetch())
 		{
@@ -866,7 +866,10 @@ final class CProductQueryBuilder
 
 			$result[$row['FIELD_NAME']] = $item;
 		}
-		unset($row, $iterator);
+		unset(
+			$row,
+			$iterator,
+		);
 
 		return $result;
 	}

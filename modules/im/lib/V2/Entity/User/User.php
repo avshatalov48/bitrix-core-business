@@ -359,7 +359,7 @@ class User implements RestEntity
 		$option['FOR_REST'] = false;
 		$userData = $this->toRestFormat($option);
 
-		if ($option['USER_SHORT_FORMAT'])
+		if ($option['USER_SHORT_FORMAT'] ?? null)
 		{
 			return $userData;
 		}
@@ -367,7 +367,7 @@ class User implements RestEntity
 		$converter = new Converter(Converter::TO_SNAKE | Converter::TO_UPPER | Converter::KEYS);
 		$userData = $converter->process($userData);
 
-		if ($userData['PHONES'])
+		if ($userData['PHONES'] ?? null)
 		{
 			$converter = new Converter(Converter::TO_LOWER | Converter::KEYS);
 			$userData['PHONES'] = $converter->process($userData['PHONES']);

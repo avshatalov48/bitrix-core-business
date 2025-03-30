@@ -6,6 +6,7 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
+use CCatalogStore;
 
 final class Store extends Controller
 {
@@ -31,73 +32,73 @@ final class Store extends Controller
 
 	public function addAction(array $fields)
 	{
-		$view = $this->getViewManager()
-			->getView($this);
-		$fields = $view->internalizeFieldsAdd($fields);
+		$result = CCatalogStore::Add($fields);
+		if (!$result)
+		{
+			global $APPLICATION;
+			$exception = $APPLICATION->GetException();
+			$error = $exception instanceof \CApplicationException ? $exception->GetString() : 'Unknown error';
+			$this->addError(new Error($error));
+			$APPLICATION->ResetException();
 
-		$res = $this->add($fields);
-		if ($res->isSuccess())
-		{
-			$result = $res->getId();
-		}
-		else
-		{
-			$result = [
-				'error' => 'ERROR_ADD',
-				'error_description' => implode(
-					'. ',
-					$res->getErrorMessages()
-				),
-			];
+			return null;
 		}
 
-		return $result;
+		return [
+			$this->getServiceItemName() => $this->get($result),
+		];
 	}
 
 	public function updateAction(int $id, array $fields)
 	{
-		$view = $this->getViewManager()
-			->getView($this);
-		$fields = $view->internalizeFieldsUpdate($fields);
+		$existsResult = $this->exists($id);
+		if (!$existsResult->isSuccess())
+		{
+			$this->addErrors($existsResult->getErrors());
 
-		$res = $this->update($id, $fields);
-		if (!is_null($res) && $res->isSuccess())
-		{
-			$result = $res->getId();
-		}
-		else
-		{
-			$result = [
-				'error' => 'ERROR_UPDATE',
-				'error_description' => implode(
-					'. ',
-					$this->getErrors()
-				),
-			];
+			return null;
 		}
 
-		return $result;
+		$result = CCatalogStore::Update($id, $fields);
+		if (!$result)
+		{
+			global $APPLICATION;
+			$exception = $APPLICATION->GetException();
+			$error = $exception instanceof \CApplicationException ? $exception->GetString() : 'Unknown error';
+			$this->addError(new Error($error));
+			$APPLICATION->ResetException();
+
+			return null;
+		}
+
+		return [
+			$this->getServiceItemName() => $this->get($result),
+		];
 	}
 
 	public function deleteAction(int $id)
 	{
-		$res = $this->delete($id);
-		if (!is_null($res) && $res->isSuccess())
+		$existsResult = $this->exists($id);
+		if (!$existsResult->isSuccess())
 		{
-			$result = 'Y';
-		}
-		else
-		{
-			$result = [
-				'error' => 'ERROR_DELETE',
-				'error_description' => implode(
-					'. ',
-					$this->getErrors()
-				),
-			];
+			$this->addErrors($existsResult->getErrors());
+
+			return null;
 		}
 
-		return $result;
+		$result = CCatalogStore::Delete($id);
+		if (!$result)
+		{
+			global $APPLICATION;
+			$exception = $APPLICATION->GetException();
+			$error = $exception instanceof \CApplicationException ? $exception->GetString() : 'Unknown error';
+			$this->addError(new Error($error));
+			$APPLICATION->ResetException();
+
+			return null;
+		}
+
+		return true;
 	}
 
 	protected function getEntityTable()
@@ -154,5 +155,10 @@ final class Store extends Controller
 		}
 
 		return $params;
+	}
+
+	protected function getErrorCodeEntityNotExists(): string
+	{
+		return ErrorCode::STORE_ENTITY_NOT_EXISTS;
 	}
 }

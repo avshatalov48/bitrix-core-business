@@ -163,6 +163,13 @@ class Dialog implements \JsonSerializable
 		}
 	}
 
+	public function cleanRecentItems(): RecentCollection
+	{
+		$this->recentItems = new RecentCollection();
+
+		return $this->recentItems;
+	}
+
 	public function setHeader(string $header, array $options = [])
 	{
 		if (strlen($header) > 0)

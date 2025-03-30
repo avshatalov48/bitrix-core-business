@@ -66,7 +66,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  collabCreationAvailable: 'collabCreationAvailable',
 	  inviteByLinkAvailable: 'inviteByLinkAvailable',
 	  inviteByPhoneAvailable: 'inviteByPhoneAvailable',
-	  documentSignAvailable: 'documentSignAvailable'
+	  documentSignAvailable: 'documentSignAvailable',
+	  intranetInviteAvailable: 'intranetInviteAvailable',
+	  voteCreationAvailable: 'voteCreationAvailable'
 	};
 	const FeatureManager = {
 	  chatHistory: ChatHistoryManager,

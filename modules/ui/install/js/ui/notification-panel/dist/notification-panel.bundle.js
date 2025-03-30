@@ -52,10 +52,14 @@ this.BX = this.BX || {};
 	  }
 	  getDefaultOptions() {
 	    return {
+	      styleClass: '',
 	      backgroundColor: '#F2FEE2',
+	      textColor: null,
+	      crossColor: null,
 	      leftIcon: null,
 	      rightButtons: [],
 	      showCloseIcon: true,
+	      zIndex: null,
 	      events: {}
 	    };
 	  }
@@ -88,7 +92,8 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isElementNode(this.options.content)) {
 	      main_core.Dom.append(this.options.content, content);
 	    } else if (main_core.Type.isString(this.options.content)) {
-	      main_core.Dom.append(main_core.Tag.render(_t5 || (_t5 = _`<div class="ui-notification-panel__text">${0}</div>`), this.options.content), content);
+	      const textColor = this.options.textColor;
+	      main_core.Dom.append(main_core.Tag.render(_t5 || (_t5 = _`<div class="ui-notification-panel__text" ${0}>${0}</div>`), textColor ? 'style="color: ' + textColor + '"' : '', this.options.content), content);
 	    }
 	    main_core.Dom.append(this.getFooter(), content);
 	    return content;
@@ -104,13 +109,15 @@ this.BX = this.BX || {};
 	    return footer;
 	  }
 	  getCloseButton() {
+	    const crossColor = this.options.crossColor;
 	    return main_core.Tag.render(_t7 || (_t7 = _`
 			<div 
 				class="ui-notification-panel__close-button ui-icon-set --cross-45"
 				onclick="${0}"
+				${0}
 			>
 			</div>
-		`), this.hide.bind(this));
+		`), this.hideByButton.bind(this), crossColor ? 'style="--ui-icon-set__icon-color: ' + crossColor + '"' : '');
 	  }
 	  getPopup() {
 	    var _babelHelpers$classPr, _babelHelpers$classPr2;
@@ -139,25 +146,38 @@ this.BX = this.BX || {};
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _panel)[_panel]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _createPanel)[_createPanel]();
 	    }
-	    this.getPopup().show();
+	    const popup = this.getPopup();
+	    popup.show();
+	    if (this.options.zIndex) {
+	      popup.getZIndexComponent().setZIndex(this.options.zIndex);
+	    }
 	  }
 	  hide() {
 	    this.getPopup().close();
 	  }
+	  hideByButton() {
+	    var _this$options$events;
+	    (_this$options$events = this.options.events) == null ? void 0 : _this$options$events.onHideByButton == null ? void 0 : _this$options$events.onHideByButton();
+	    this.emit('onHideByButton');
+	    this.hide();
+	  }
 	}
 	function _createPanel2() {
-	  babelHelpers.classPrivateFieldLooseBase(this, _panel)[_panel] = main_core.Tag.render(_t8 || (_t8 = _`<div class="ui-notification-panel" id="notification-panel-${0}"></div>`), this.options.id);
-	  const mainTable = document.body.querySelector('.bx-layout-table');
+	  babelHelpers.classPrivateFieldLooseBase(this, _panel)[_panel] = main_core.Tag.render(_t8 || (_t8 = _`<div class="ui-notification-panel ${0}" id="notification-panel-${0}"></div>`), this.options.styleClass, this.options.id);
+	  let mainTable = document.body.querySelector('.bx-layout-table');
+	  if (!mainTable) {
+	    mainTable = document.body.querySelector('.ui-slider-page');
+	  }
 	  main_core.Dom.insertBefore(babelHelpers.classPrivateFieldLooseBase(this, _panel)[_panel], mainTable);
 	}
 	function _handlePopupShow2() {
-	  var _this$options$events;
-	  (_this$options$events = this.options.events) == null ? void 0 : _this$options$events.onShow == null ? void 0 : _this$options$events.onShow();
+	  var _this$options$events2;
+	  (_this$options$events2 = this.options.events) == null ? void 0 : _this$options$events2.onShow == null ? void 0 : _this$options$events2.onShow();
 	  this.emit('onShow');
 	}
 	function _handlePopupClose2() {
-	  var _this$options$events2;
-	  (_this$options$events2 = this.options.events) == null ? void 0 : _this$options$events2.onHide == null ? void 0 : _this$options$events2.onHide();
+	  var _this$options$events3;
+	  (_this$options$events3 = this.options.events) == null ? void 0 : _this$options$events3.onHide == null ? void 0 : _this$options$events3.onHide();
 	  this.emit('onHide');
 	}
 

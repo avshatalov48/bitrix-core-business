@@ -22,3 +22,4 @@ $MESS["CPD_ADD_PRODUCT_DENIED_ERROR_TITLE"] = "Недостаточно прав
 $MESS["CPD_ENABLE_INVENTORY_MANAGEMENT_DENIED_ERROR_TITLE"] = "Недостаточно прав для включения складского учёта";
 $MESS['CPD_ERROR_CATALOG_SERVICES_LIMIT_TARIFF'] = "Функционал услуг недоступен на <a onclick=\"#LINK#\" style=\"cursor: pointer\">текущем тарифе</a> Битрикс24";
 $MESS['CPD_ERROR_CATALOG_SERVICES_LIMIT_EDITION'] = "Функционал услуг не входит в вашу редакцию продукта";
+$MESS['CPD_ERROR_SAVE'] = "Не удалось сохранить изменения, попробуйте ещё раз";

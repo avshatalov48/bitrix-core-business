@@ -3,7 +3,10 @@
 use Bitrix\Mail\Helper\LicenseManager;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
+
 \Bitrix\Main\UI\Extension::load([
+	'mail.setting-selector',
 	'ui.info-helper',
 	'ui.alerts',
 	'ui.forms',
@@ -269,29 +272,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 							<input type="checkbox" class="mail-connect-form-input mail-connect-form-input-check" name="fields[mail_connect_import_messages]" value="Y" id="mail_connect_mb_import_messages" checked>
 							<? [$label1, $label2] = explode('#AGE#', Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_MSGVER_1'), 2); ?>
 							<label class="mail_connect_mb_import_messages_label" for="mail_connect_mb_import_messages"><?=$label1 ?></label>
-							<? $maxAgeDefault = $maxAgeLimit > 0 && $maxAgeLimit < 7 ? 1 : 7; ?>
-							<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_connect_mb_max_age_field_<?=$maxAgeDefault ?>">
-								<input id="mail_connect_mb_max_age_field_0" type="radio" name="fields[msg_max_age]" value="0">
-								<label for="mail_connect_mb_max_age_field_0"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_<?=$maxAgeDefault ?>') ?></label>
-								<div class="mail-set-singleselect-wrapper">
-									<? foreach ($maxAgeDefault < 7 ? array(1, 7, 30, 60, 90) : array(7, 30, 60, 90) as $value): ?>
-										<? $disabled = $maxAgeLimit > 0 && $value > $maxAgeLimit; ?>
-										<input type="radio" name="fields[msg_max_age]" value="<?=$value ?>"
-											   id="mail_connect_mb_max_age_field_<?=$value ?>"
-											<? if ($maxAgeDefault == $value): ?> checked<? endif ?>
-											<? if ($disabled): ?> disabled<? endif ?>>
-										<label for="mail_connect_mb_max_age_field_<?=$value ?>"
-											<? if ($disabled): ?>
-												class="mail-set-singleselect-option-disabled"
-												onclick="showLicenseInfoPopup(); "
-											<? endif ?>><?=Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_' . $value) ?></label>
-									<? endforeach ?>
-									<? if ($maxAgeLimit <= 0): ?>
-										<input type="radio" name="fields[msg_max_age]" value="-1" id="mail_connect_mb_max_age_field_i">
-										<label for="mail_connect_mb_max_age_field_i"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_I') ?></label>
-									<? endif ?>
-								</div>
-							</label>
+							<div class="mail-connect-crm-selector-wrapper" id="mail-message-max-age"></div>
 							<?=$label2 ?>
 						</div>
 					</div>
@@ -506,20 +487,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 									<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_crm_sync_old">
 										<?=$label1 ?>
 									</label>
-									<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_connect_mb_crm_max_age_field_7">
-										<input id="mail_connect_mb_crm_max_age_field_0" type="radio" name="fields[crm_max_age]" value="0">
-										<label for="mail_connect_mb_crm_max_age_field_0"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_7') ?></label>
-										<div class="mail-set-singleselect-wrapper">
-											<? foreach (array(7, 30) as $value): ?>
-												<input type="radio" name="fields[crm_max_age]" value="<?=$value ?>"
-													   id="mail_connect_mb_crm_max_age_field_<?=$value ?>"
-													<? if (7 == $value): ?> checked <? endif ?>>
-												<label for="mail_connect_mb_crm_max_age_field_<?=$value ?>"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_' . $value) ?></label>
-											<? endforeach ?>
-											<input type="radio" name="fields[crm_max_age]" value="-1" id="mail_connect_mb_crm_max_age_field_i">
-											<label for="mail_connect_mb_crm_max_age_field_i"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_I') ?></label>
-										</div>
-									</label>
+									<div class="mail-connect-crm-selector-wrapper" id="mail-crm-max-age"></div>
 									<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_crm_sync_old">
 										<?=$label2 ?>
 									</label>
@@ -546,18 +514,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 								<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_crm_allow_entity_in">
 									<?=$label1 ?>
 								</label>
-								<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_connect_mb_crm_entity_in_<?=htmlspecialcharsbx($arParams['DEFAULT_NEW_ENTITY_IN']) ?>">
-									<input id="mail_connect_mb_crm_entity_in_0" type="radio" name="fields[crm_entity_in]" value="0">
-									<label for="mail_connect_mb_crm_entity_in_0"><?=htmlspecialcharsbx($arParams['NEW_ENTITY_LIST'][$arParams['DEFAULT_NEW_ENTITY_IN']]) ?></label>
-									<div class="mail-set-singleselect-wrapper">
-										<? foreach ($arParams['NEW_ENTITY_LIST'] as $value => $title): ?>
-											<input type="radio" name="fields[crm_entity_in]" value="<?=htmlspecialcharsbx($value) ?>"
-												   id="mail_connect_mb_crm_entity_in_<?=htmlspecialcharsbx($value) ?>"
-												<? if ($value == $arParams['DEFAULT_NEW_ENTITY_IN']): ?> checked <? endif ?>>
-											<label for="mail_connect_mb_crm_entity_in_<?=htmlspecialcharsbx($value) ?>"><?=htmlspecialcharsbx($title) ?></label>
-										<? endforeach ?>
-									</div>
-								</label>
+								<div class="mail-connect-crm-selector-wrapper" id="mail-connect-crm-allow-entity-in"></div>
 								<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_crm_allow_entity_in">
 									<?=$label2 ?>
 								</label>
@@ -575,18 +532,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 								<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_crm_allow_entity_out">
 									<?=$label1 ?>
 								</label>
-								<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_connect_mb_crm_entity_out_<?=htmlspecialcharsbx($arParams['DEFAULT_NEW_ENTITY_OUT']) ?>">
-									<input id="mail_connect_mb_crm_entity_out_0" type="radio" name="fields[crm_entity_out]" value="0">
-									<label for="mail_connect_mb_crm_entity_out_0"><?=htmlspecialcharsbx($arParams['NEW_ENTITY_LIST'][$arParams['DEFAULT_NEW_ENTITY_IN']]) ?></label>
-									<div class="mail-set-singleselect-wrapper">
-										<? foreach ($arParams['NEW_ENTITY_LIST'] as $value => $title): ?>
-											<input type="radio" name="fields[crm_entity_out]" value="<?=htmlspecialcharsbx($value) ?>"
-												   id="mail_connect_mb_crm_entity_out_<?=htmlspecialcharsbx($value) ?>"
-												<? if ($value == $arParams['DEFAULT_NEW_ENTITY_OUT']): ?> checked <? endif ?>>
-											<label for="mail_connect_mb_crm_entity_out_<?=htmlspecialcharsbx($value) ?>"><?=htmlspecialcharsbx($title) ?></label>
-										<? endforeach ?>
-									</div>
-								</label>
+								<div class="mail-connect-crm-selector-wrapper" id="mail-connect-crm-allow-entity-out"></div>
 								<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_crm_allow_entity_out">
 									<?=$label2 ?>
 								</label>
@@ -609,18 +555,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 								<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_crm_lead_source">
 									<?=$label1 ?>
 								</label>
-								<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_connect_mb_crm_lead_source_<?=htmlspecialcharsbx($arParams['DEFAULT_LEAD_SOURCE']) ?>">
-									<input id="mail_connect_mb_crm_lead_source_0" type="radio" name="fields[crm_lead_source]" value="0">
-									<label for="mail_connect_mb_crm_lead_source_0"><?=htmlspecialcharsbx($arParams['LEAD_SOURCE_LIST'][$arParams['DEFAULT_LEAD_SOURCE']]) ?></label>
-									<div class="mail-set-singleselect-wrapper">
-										<? foreach ($arParams['LEAD_SOURCE_LIST'] as $value => $title): ?>
-											<input type="radio" name="fields[crm_lead_source]" value="<?=htmlspecialcharsbx($value) ?>"
-												   id="mail_connect_mb_crm_lead_source_<?=htmlspecialcharsbx($value) ?>"
-												<? if ($value == $arParams['DEFAULT_LEAD_SOURCE']): ?> checked <? endif ?>>
-											<label for="mail_connect_mb_crm_lead_source_<?=htmlspecialcharsbx($value) ?>"><?=htmlspecialcharsbx($title) ?></label>
-										<? endforeach ?>
-									</div>
-								</label>
+								<div class="mail-connect-crm-selector-wrapper" id="mail-connect-crm-lead-source"></div>
 								<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_crm_lead_source">
 									<?=$label2 ?>
 								</label>
@@ -751,7 +686,63 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 </div>
 
 <?
-$arJsParams = array(
+$messageSyncIntervals = [];
+$crmSyncIntervals = [];
+
+$fullSyncPeriodKey = -1;
+$periodsInDaysForMessagesSync = [1, 7, 30, 60, 90];
+$periodsInDaysForAddToCrm = [7, 30];
+
+$defaultMaxAgeMessageSync = 7;
+$defaultMaxCrmSync = 7;
+
+
+if (empty($mailbox))
+{
+	$maxAgeLimit = LicenseManager::getSyncOldLimit();
+	$showTariffUpgradeOffer = false;
+
+	if ($maxAgeLimit > 0 && $maxAgeLimit < 7)
+	{
+		$defaultMaxAgeMessageSync = 1;
+	}
+
+	if ($maxAgeLimit > 0 && $maxAgeLimit < 90)
+	{
+		$showTariffUpgradeOffer = true;
+	}
+
+	foreach ($periodsInDaysForMessagesSync as $value)
+	{
+		if ($maxAgeLimit <= 0 || $value <= $maxAgeLimit)
+		{
+			$messageSyncIntervals[(string)$value] = htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_' . $value));
+		}
+	}
+
+	if ($maxAgeLimit <= 0)
+	{
+		$messageSyncIntervals[$fullSyncPeriodKey] = htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_I'));
+	}
+
+	foreach ($periodsInDaysForAddToCrm as $value)
+	{
+		$crmSyncIntervals[(string)$value] = htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_' . $value));
+	}
+
+	$crmSyncIntervals[$fullSyncPeriodKey] = htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AGE_2_I'));
+}
+
+$arJsParams = [
+	'crmSyncIntervals' => $crmSyncIntervals,
+	'messageSyncIntervals' => $messageSyncIntervals,
+	'crmEntityList' => $arParams['NEW_ENTITY_LIST'],
+	'leadSourceList' => $arParams['LEAD_SOURCE_LIST'],
+	'defaultMaxCrmSyncKey' => (string)$defaultMaxCrmSync,
+	'defaultMaxAgeMessageSyncKey' => (string)$defaultMaxAgeMessageSync,
+	'defaultLeadSourceKey' => $arParams['DEFAULT_LEAD_SOURCE'],
+	'defaultNewEntityInKey' => $arParams['DEFAULT_NEW_ENTITY_IN'],
+	'defaultNewEntityOutKey' => $arParams['DEFAULT_NEW_ENTITY_OUT'],
 	'isForbiddenToShare' => $arResult["FORBIDDEN_TO_SHARE_MAILBOX"],
 	'isSmtpSwitcherChecked' => $settings['IS_SMTP_SWITCHER_CHECKED'],
 	'isSmtpSwitcherDisabled' => $arResult['LOCK_SMTP'] && $settings['IS_SMTP_SWITCHER_CHECKED'],
@@ -760,7 +751,7 @@ $arJsParams = array(
 	'isSuccessSyncStatus' => $arResult['LAST_MAIL_CHECK_STATUS'],
 	'oauthUserIsEmpty' => empty($settings['oauth_user']),
 	'isOauthMode' => !empty($settings['oauth']),
-);
+];
 ?>
 <script>
 
@@ -781,7 +772,7 @@ $arJsParams = array(
 	BX.UI.Hint.init(BX('mail_connect_form'));
 
 	BX.ready(function() {
-		BX.MailClientConfig.Edit.init(<?=CUtil::PhpToJSObject($arJsParams)?>);
+		BX.MailClientConfig.Edit.init(<?=Json::encode($arJsParams)?>);
 	});
 
 	BX.message({
@@ -1702,7 +1693,7 @@ $arJsParams = array(
 			}
 		);
 
-		var mailboxData = <?=\Bitrix\Main\Web\Json::encode(array(
+		var mailboxData = <?=Json::encode(array(
 			'ID'       => $mailbox['ID'],
 			'EMAIL'    => $mailbox['EMAIL'],
 			'NAME'     => $mailbox['NAME'],
@@ -1728,7 +1719,7 @@ $arJsParams = array(
 			[
 				'<?=\CUtil::jsEscape($settings['oauth']->getStoredUid()) ?>',
 				'<?=\CUtil::jsEscape($settings['oauth']->getUrl()) ?>',
-				<?=\Bitrix\Main\Web\Json::encode($settings['oauth_user']) ?>,
+				<?=Json::encode($settings['oauth_user']) ?>,
 				true
 			]
 		);

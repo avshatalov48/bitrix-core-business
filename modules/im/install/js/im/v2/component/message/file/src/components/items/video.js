@@ -31,6 +31,10 @@ export const VideoItem = {
 			type: Object,
 			required: true,
 		},
+		handleLoading: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	computed:
 	{
@@ -123,7 +127,7 @@ export const VideoItem = {
 			:class="{'--with-forward': isForward}"
 			@click="download"
 		>
-			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageItem.id" />
+			<ProgressBar v-if="!isLoaded && handleLoading" :item="file" :messageId="messageItem.id" />
 			<VideoPlayer
 				:fileId="file.id"
 				:src="file.urlShow"

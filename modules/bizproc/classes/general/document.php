@@ -168,38 +168,41 @@ class CBPDocument
 	public static function getAllowableEvents($userId, $arGroups, $arState, $appendExtendedGroups = false)
 	{
 		if (!is_array($arState))
-			throw new CBPArgumentTypeException("arState");
+		{
+			throw new CBPArgumentTypeException('arState');
+		}
 		if (!is_array($arGroups))
-			throw new CBPArgumentTypeException("arGroups");
+		{
+			throw new CBPArgumentTypeException('arGroups');
+		}
 
 		$arGroups = CBPHelper::convertToExtendedGroups($arGroups);
 		if ($appendExtendedGroups)
 		{
 			$arGroups = array_merge($arGroups, CBPHelper::getUserExtendedGroups($userId));
 		}
-		if (!in_array("group_u".$userId, $arGroups))
-			$arGroups[] = "group_u".$userId;
-
-		$arResult = array();
-
-		if (is_array($arState["STATE_PARAMETERS"]) && count($arState["STATE_PARAMETERS"]) > 0)
+		if (!in_array('group_u' . $userId, $arGroups, true))
 		{
-			foreach ($arState["STATE_PARAMETERS"] as $arStateParameter)
-			{
-				$arStateParameter["PERMISSION"] = CBPHelper::convertToExtendedGroups($arStateParameter["PERMISSION"]);
+			$arGroups[] = 'group_u' . $userId;
+		}
 
-				if (count($arStateParameter["PERMISSION"]) <= 0
-					|| count(array_intersect($arGroups, $arStateParameter["PERMISSION"])) > 0)
+		$allowableEvents = [];
+		if (is_array($arState['STATE_PARAMETERS']) && $arState['STATE_PARAMETERS'])
+		{
+			foreach ($arState['STATE_PARAMETERS'] as $parameter)
+			{
+				$parameter['PERMISSION'] = CBPHelper::convertToExtendedGroups($parameter['PERMISSION']);
+				if (!$parameter['PERMISSION'] || array_intersect($arGroups, $parameter['PERMISSION']))
 				{
-					$arResult[] = array(
-						"NAME" => $arStateParameter["NAME"],
-						"TITLE" => (($arStateParameter["TITLE"] <> '') ? $arStateParameter["TITLE"] : $arStateParameter["NAME"]),
-					);
+					$allowableEvents[] = [
+						'NAME' => $parameter['NAME'],
+						'TITLE' => !empty($parameter['TITLE']) ? $parameter['TITLE'] : $parameter['NAME'],
+					];
 				}
 			}
 		}
 
-		return $arResult;
+		return $allowableEvents;
 	}
 
 	public static function addDocumentToHistory($parameterDocumentId, $name, $userId)
@@ -580,19 +583,37 @@ class CBPDocument
 
 	public static function postTaskForm($arTask, $userId, $arRequest, &$arErrors, $userName = "")
 	{
+		$activity = $arTask['ACTIVITY'] ?? '';
+
+		if (is_string($activity) && is_array($arTask) && Bizproc\Task\Manager::hasTask($activity))
+		{
+			$task = Bizproc\Task\Manager::getTask($activity, $arTask, (int)$userId);
+			$result = $task?->postTaskForm(is_array($arRequest) ? $arRequest : []);
+			if (!$result || !$result->isSuccess())
+			{
+				$arErrors = [];
+				foreach ($result->getErrors() as $error)
+				{
+					$arErrors[] = [
+						'code' => $error->getCode(),
+						'message' => $error->getMessage(),
+						'file' => null,
+						'customData' => $error->getCustomData(),
+					];
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
 		$originalUserId = CBPTaskService::getOriginalTaskUserId($arTask['ID'], $userId);
 
 		return CBPActivity::CallStaticMethod(
-			$arTask["ACTIVITY"],
-			"PostTaskForm",
-			array(
-				$arTask,
-				$originalUserId,
-				$arRequest,
-				&$arErrors,
-				$userName,
-				$userId
-			)
+			$activity,
+			'PostTaskForm',
+			[$arTask, $originalUserId, $arRequest, &$arErrors, $userName, $userId]
 		);
 	}
 
@@ -663,17 +684,19 @@ class CBPDocument
 	 */
 	public static function delegateTasks($fromUserId, $toUserId, $ids = array(), &$errors = array(), $allowedDelegationType = null)
 	{
-		$filter = array(
+		$filter = [
 			'USER_ID' => $fromUserId,
 			'STATUS' => CBPTaskStatus::Running,
-			'USER_STATUS' => CBPTaskUserStatus::Waiting
-		);
+			'USER_STATUS' => CBPTaskUserStatus::Waiting,
+		];
 
 		if ($ids)
 		{
 			$ids = array_filter(array_map('intval', (array)$ids));
 			if ($ids)
+			{
 				$filter['ID'] = $ids;
+			}
 		}
 
 		$isSinglePostfix = count($ids) === 1 ? '_SINGLE_MSGVER_1' : '_MSGVER_1';
@@ -692,6 +715,13 @@ class CBPDocument
 
 		while ($task = $iterator->fetch())
 		{
+			if ((int)$task['DELEGATION_TYPE'] === CBPTaskDelegationType::ExactlyNone)
+			{
+				$errors[] = Main\Localization\Loc::getMessage('BPCGDOC_ERROR_DELEGATE_2_SINGLE_MSGVER_1');
+
+				continue;
+			}
+
 			if ($allowedDelegationType && !in_array((int)$task['DELEGATION_TYPE'], $allowedDelegationType, true))
 			{
 				$errors[] = GetMessage(
@@ -759,15 +789,16 @@ class CBPDocument
 		return $found;
 	}
 
-	public static function getTaskControls($arTask)
+	public static function getTaskControls($arTask, $userId = 0)
 	{
-		return CBPActivity::CallStaticMethod(
-			$arTask["ACTIVITY"],
-			"getTaskControls",
-			array(
-				$arTask
-			)
-		);
+		$activity = $arTask['ACTIVITY'] ?? '';
+
+		if (is_string($activity) && is_array($arTask) && Bizproc\Task\Manager::hasTask($activity))
+		{
+			return Bizproc\Task\Manager::getTask($activity, $arTask, (int)$userId)?->getTaskControls();
+		}
+
+		return CBPActivity::CallStaticMethod($activity, 'getTaskControls', [$arTask, $userId]);
 	}
 
 	/**

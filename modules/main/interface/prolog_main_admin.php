@@ -437,13 +437,13 @@ if($USER->IsAuthorized()):
 
 		if (!isset($userOption["showInformerDate"]) || time() > $userOption["showInformerDate"])
 		{
-			if (!in_array(LANGUAGE_ID, array("ru", "ua")) || $license->getPartnerId() <= 0)
+			if (LANGUAGE_ID == "ru" && $license->getPartnerId() > 0)
 			{
-				$prolongUrl = "https://www.1c-bitrix.ru/buy_tmp/key_update.php?license_key=" . $license->getHashLicenseKey() . "&tobasket=y&lang=" . LANGUAGE_ID;
+				$prolongUrl = "/bitrix/admin/buy_support.php?lang=" . LANGUAGE_ID;
 			}
 			else
 			{
-				$prolongUrl = "/bitrix/admin/buy_support.php?lang=" . LANGUAGE_ID;
+				$prolongUrl = $license->getBuyLink();
 			}
 
 			echo BeginNote('style="position: relative; top: -15px;"');

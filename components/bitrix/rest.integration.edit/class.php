@@ -426,6 +426,17 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 	{
 		$requestData = $this->getRequestData();
 
+		$integrationId = (isset($requestData['ID']) && (int)$requestData['ID'] > 0)
+			? (int)$requestData['ID']
+			: (int)($this->arParams['ID'] ?? null);
+
+		if (!$this->canEditIntegrationById($integrationId))
+		{
+			return [
+				'helperCode' => 'limit_subscription_market_access_buy_marketplus',
+			];
+		}
+
 		if (
 			!Access::isAvailable()
 			|| !Access::isAvailableCount(Access::ENTITY_TYPE_INTEGRATION, $requestData['ID'])
@@ -437,6 +448,22 @@ class RestIntegrationEditComponent extends CBitrixComponent implements Controlle
 		}
 
 		return Provider::saveIntegration($requestData, $this->arParams['ELEMENT_CODE'], $this->arParams['ID']);
+	}
+
+	private function canEditIntegrationById(?int $integrationId): bool
+	{
+		$availabilityTool = \Bitrix\Rest\Infrastructure\IntegrationAvailabilityTool::createByDefault();
+		if ((int)$integrationId > 0)
+		{
+			$integration = \Bitrix\Rest\Repository\Container::getInstance()
+				->getIntegrationRepository()
+				->getById($integrationId)
+			;
+
+			return $integration && $availabilityTool->isAvailable($integration);
+		}
+
+		return $availabilityTool->canUseIntegration();
 	}
 
 	public function getNewIntegrationUrlAction()

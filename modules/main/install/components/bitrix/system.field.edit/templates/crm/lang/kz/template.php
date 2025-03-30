@@ -1,0 +1,21 @@
+<?php
+$MESS["CRM_CES_CREATE"] = "Жасау";
+$MESS["CRM_CES_CREATE_COMPANY"] = "Компанияны";
+$MESS["CRM_CES_CREATE_CONTACT"] = "Байланыс";
+$MESS["CRM_CES_CREATE_DEAL"] = "Мәмілені";
+$MESS["CRM_CES_CREATE_LEAD"] = "Лид";
+$MESS["CRM_FF_CANCEL"] = "Болдырмау";
+$MESS["CRM_FF_CHANGE"] = "Өзгерту";
+$MESS["CRM_FF_CHOISE"] = "Таңдау";
+$MESS["CRM_FF_CLOSE"] = "Жабу";
+$MESS["CRM_FF_COMPANY"] = "Компаниялар";
+$MESS["CRM_FF_CONTACT"] = "Байланыс ақпараты";
+$MESS["CRM_FF_DEAL"] = "Мәмілелер";
+$MESS["CRM_FF_LAST"] = "Соңғы";
+$MESS["CRM_FF_LEAD"] = "Лидтер";
+$MESS["CRM_FF_NO_RESULT"] = "Өкінішті, сіздің іздеу сұрауыңыз бойынша ештеңе табылған жоқ";
+$MESS["CRM_FF_OK"] = "Таңдау";
+$MESS["CRM_FF_ORDER"] = "Тапсырыстар";
+$MESS["CRM_FF_QUOTE"] = "Ұсыныстар";
+$MESS["CRM_FF_SEARCH"] = "Іздеу";
+$MESS["CRM_SFE_PERMISSION_DENIED"] = "Қолжетімділікке тыйым салынған";

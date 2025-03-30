@@ -1,0 +1,19 @@
+<?php
+$MESS["sms_template_admin_add"] = "Қалыпты қосу";
+$MESS["sms_template_admin_add_title"] = "Жаңа СМС хабарлама қалыбын қосу";
+$MESS["sms_template_admin_all"] = "(барлығы)";
+$MESS["sms_template_admin_copy"] = "Көшірмені қосу";
+$MESS["sms_template_admin_del"] = "Жою";
+$MESS["sms_template_admin_del_conf"] = "Қалыпты жойғыңыз келетініне сенімдісіз бе?";
+$MESS["sms_template_admin_edit"] = "Қалыпты редакциялау";
+$MESS["sms_template_admin_edit1"] = "Өзгерту";
+$MESS["sms_template_admin_find"] = "Табу:";
+$MESS["sms_template_admin_message"] = "Хабарлама мәтіні";
+$MESS["sms_template_admin_nav"] = "Қалыптар";
+$MESS["sms_template_admin_no"] = "Жоқ";
+$MESS["sms_template_admin_receiver"] = "Алушы";
+$MESS["sms_template_admin_sender"] = "Жіберуші";
+$MESS["sms_template_admin_site"] = "Сайт";
+$MESS["sms_template_admin_sites"] = "Сайттар";
+$MESS["sms_template_admin_title"] = "СМС хабарламалар қалыптары";
+$MESS["sms_template_admin_yes"] = "Иә";

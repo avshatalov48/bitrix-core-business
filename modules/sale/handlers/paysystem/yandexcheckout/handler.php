@@ -54,7 +54,6 @@ class YandexCheckoutHandler
 	public const PAYMENT_METHOD_BANK_CARD = 'bank_card';
 	public const PAYMENT_METHOD_YANDEX_MONEY = 'yoo_money';
 	public const PAYMENT_METHOD_SBERBANK = 'sberbank';
-	public const PAYMENT_METHOD_QIWI = 'qiwi';
 	public const PAYMENT_METHOD_CASH = 'cash';
 	public const PAYMENT_METHOD_EMBEDDED = 'embedded';
 	public const PAYMENT_METHOD_TINKOFF_BANK = 'tinkoff_bank';
@@ -68,7 +67,6 @@ class YandexCheckoutHandler
 	public const MODE_SBERBANK = 'sberbank';
 	public const MODE_SBERBANK_SMS = 'sberbank_sms';
 	public const MODE_SBERBANK_QR = 'sberbank_qr';
-	public const MODE_QIWI = 'qiwi';
 	public const MODE_CASH = 'cash';
 	public const MODE_MOBILE_BALANCE = 'mobile_balance';
 	public const MODE_EMBEDDED = 'embedded';
@@ -1261,7 +1259,6 @@ class YandexCheckoutHandler
 			static::MODE_SBERBANK => static::PAYMENT_METHOD_SBERBANK,
 			static::MODE_SBERBANK_SMS => static::PAYMENT_METHOD_SBERBANK,
 			static::MODE_SBERBANK_QR => static::PAYMENT_METHOD_SBERBANK,
-			static::MODE_QIWI => static::PAYMENT_METHOD_QIWI,
 			static::MODE_CASH => static::PAYMENT_METHOD_CASH,
 			static::MODE_EMBEDDED => static::PAYMENT_METHOD_EMBEDDED,
 			static::MODE_TINKOFF_BANK => static::PAYMENT_METHOD_TINKOFF_BANK,
@@ -1359,7 +1356,6 @@ class YandexCheckoutHandler
 	{
 		$paymentMethodFields = array(
 			static::MODE_ALFABANK => array('login'),
-			static::MODE_QIWI => array('phone'),
 			static::MODE_MOBILE_BALANCE => array('phone'),
 			static::MODE_SBERBANK_SMS => array('phone'),
 		);
@@ -1416,7 +1412,6 @@ class YandexCheckoutHandler
 	private function getPhoneFields(): array
 	{
 		return [
-			static::MODE_QIWI => ['phone'],
 			static::MODE_MOBILE_BALANCE => ['phone'],
 			static::MODE_SBERBANK_SMS => ['phone'],
 		];

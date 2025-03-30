@@ -97,7 +97,6 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 
 		if (
 			$this->ElementId
-			&& (bool)\Bitrix\Main\Config\Option::get('bizproc', 'release_preview_2024')
 			&& method_exists($this, 'fixResult')
 		)
 		{

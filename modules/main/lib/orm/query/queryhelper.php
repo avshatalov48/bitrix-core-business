@@ -102,6 +102,19 @@ class QueryHelper
 		/** @var Collection $collection query data */
 		$collection = $query->fetchCollection();
 
+		// original sort
+		if (!empty($rows))
+		{
+			$sortedCollection = $query->getEntity()->createCollection();
+
+			foreach ($rows as $row)
+			{
+				$sortedCollection->add($collection->getByPrimary($row));
+			}
+
+			$collection = $sortedCollection;
+		}
+
 		if (!empty($dividedSelect) && $collection->count())
 		{
 			// custom identity map & collect primaries

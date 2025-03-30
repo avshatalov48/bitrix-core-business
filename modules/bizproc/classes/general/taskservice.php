@@ -19,25 +19,21 @@ class CBPTaskService extends CBPRuntimeService
 
 	public function markCompleted($taskId, $userId, $status = CBPTaskUserStatus::Ok)
 	{
-		global $DB;
-
 		$taskId = (int)$taskId;
 		if ($taskId <= 0)
 		{
-			throw new Exception("id");
+			throw new Main\ArgumentOutOfRangeException('id', 1);
 		}
+
 		$userId = (int)$userId;
 		if ($userId <= 0)
 		{
-			throw new Exception("userId");
+			throw new Main\ArgumentOutOfRangeException('userId', 1);
 		}
+
 		$status = (int)$status;
 
-		$DB->Query(
-			"UPDATE b_bp_task_user SET STATUS = "
-			. $status . ", DATE_UPDATE = " . $DB->CurrentTimeFunction()
-			. " WHERE TASK_ID = " . $taskId . " AND USER_ID = " . $userId
-		);
+		Bizproc\Workflow\Task\TaskUserTable::updateStatus($taskId, [$userId], $status);
 
 		self::decrementUserTaskCounter($userId);
 		self::onTaskChange(
@@ -46,13 +42,56 @@ class CBPTaskService extends CBPRuntimeService
 				'USERS' => [$userId],
 				'USERS_STATUSES' => [$userId => $status],
 				'COUNTERS_DECREMENTED' => [$userId],
-				'STATUS_NAME' => 'COMPLETED'
+				'STATUS_NAME' => 'COMPLETED',
 			],
 			CBPTaskChangedStatus::Update
 		);
-		foreach (GetModuleEvents("bizproc", "OnTaskMarkCompleted", true) as $arEvent)
+		foreach (GetModuleEvents('bizproc', 'OnTaskMarkCompleted', true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array($taskId, $userId, $status));
+			ExecuteModuleEventEx($arEvent, [$taskId, $userId, $status]);
+		}
+	}
+
+	/**
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentNullException
+	 */
+	public function markUnCompleted(int $taskId, array $userIds)
+	{
+		if ($taskId <= 0)
+		{
+			throw new Main\ArgumentOutOfRangeException('taskId', 1);
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($userIds, false);
+		if (empty($userIds))
+		{
+			throw new Main\ArgumentNullException('userIds');
+		}
+
+		$status = CBPTaskUserStatus::Waiting;
+
+		Bizproc\Workflow\Task\TaskUserTable::updateStatus($taskId, $userIds, $status);
+
+		$usersStatuses = [];
+		foreach ($userIds as $userId)
+		{
+			self::incrementUserTaskCounter($userId);
+			$usersStatuses[$userId] = $status;
+		}
+		self::onTaskChange(
+			$taskId,
+			[
+				'USERS' => $userIds,
+				'USERS_STATUSES' => $usersStatuses,
+				'COUNTERS_INCREMENTED' => $userIds,
+				'STATUS_NAME' => 'UNCOMPLETED',
+			],
+			CBPTaskChangedStatus::Update
+		);
+		foreach (GetModuleEvents('bizproc', 'OnTaskMarkUnCompleted', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$taskId, $userIds, $status]);
 		}
 	}
 
@@ -140,17 +179,35 @@ class CBPTaskService extends CBPRuntimeService
 		return $users;
 	}
 
-	public static function getWorkflowUsers($workflowId)
+	public static function getWorkflowUsers(string $workflowId): array
 	{
 		global $DB;
 
 		$users = [];
-		$iterator = $DB->Query('SELECT DISTINCT TU.USER_ID, TU.STATUS'
-			.' FROM b_bp_task_user TU'
-			.' INNER JOIN b_bp_task T ON (T.ID = TU.TASK_ID)'
-			.' WHERE T.WORKFLOW_ID = \''.$DB->ForSql($workflowId).'\''
+		$iteratorOverdueNull = $DB->Query('SELECT DISTINCT TU.USER_ID, TU.STATUS'
+			. ' FROM b_bp_task_user TU'
+			. ' INNER JOIN b_bp_task T ON (T.ID = TU.TASK_ID)'
+			. ' WHERE T.WORKFLOW_ID = \''.$DB->ForSql($workflowId).'\''
+			. ' AND T.OVERDUE_DATE IS NULL'
 		);
-		while ($user = $iterator->fetch())
+		self::extractUsers($iteratorOverdueNull, $users);
+
+		$connection = $DB->getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+		$query = 'SELECT DISTINCT TU.USER_ID, TU.STATUS'
+			. ' FROM b_bp_task_user TU'
+			. ' INNER JOIN b_bp_task T ON (T.ID = TU.TASK_ID)'
+			. ' WHERE T.WORKFLOW_ID = \''.$DB->ForSql($workflowId).'\''
+			. ' AND T.OVERDUE_DATE > ' . $sqlHelper->getCurrentDateTimeFunction();
+		$iteratorOverdueFuture = $DB->Query($query);
+		self::extractUsers($iteratorOverdueFuture, $users);
+
+		return $users;
+	}
+
+	public static function extractUsers(mixed $usersIterator, array &$users): void
+	{
+		while ($user = $usersIterator->fetch())
 		{
 			$userId = (int)$user['USER_ID'];
 			$status = (int)$user['STATUS'];
@@ -163,14 +220,10 @@ class CBPTaskService extends CBPRuntimeService
 
 			$users[$userId] = $status;
 		}
-
-		return $users;
 	}
-
 
 	public static function delegateTask($taskId, $fromUserId, $toUserId)
 	{
-		global $DB;
 		$taskId = (int)$taskId;
 		$fromUserId = (int)$fromUserId;
 		$toUserId = (int)$toUserId;
@@ -180,36 +233,22 @@ class CBPTaskService extends CBPRuntimeService
 			return false;
 		}
 
-		$originalUserId = 0;
-
-		//check ORIGINAL_USER_ID
-		$iterator = $DB->Query('SELECT ORIGINAL_USER_ID'
-			.' FROM b_bp_task_user'
-			.' WHERE TASK_ID = '.$taskId.' AND USER_ID = '.$fromUserId
-		);
-		$row = $iterator->fetch();
-		if (!empty($row['ORIGINAL_USER_ID']))
-		{
-			$originalUserId = $row['ORIGINAL_USER_ID'];
-		}
-
 		// check USER_ID (USER_ID must be unique for task)
-		$iterator = $DB->Query('SELECT USER_ID'
-			.' FROM b_bp_task_user'
-			.' WHERE TASK_ID = '.$taskId.' AND USER_ID = '.$toUserId
-		);
+		$iterator =
+			Bizproc\Workflow\Task\TaskUserTable::query()
+				->setSelect(['USER_ID'])
+				->where('TASK_ID', $taskId)
+				->where('USER_ID', $toUserId)
+				->exec()
+		;
 		$row = $iterator->fetch();
 		if (!empty($row['USER_ID']))
 		{
 			return false;
 		}
 
-		$DB->Query(
-			"UPDATE b_bp_task_user SET USER_ID = "
-			.$toUserId
-			.(!$originalUserId? ', ORIGINAL_USER_ID = '.$fromUserId : '')
-			." WHERE TASK_ID = ".$taskId." AND USER_ID = ".$fromUserId
-		);
+		Bizproc\Workflow\Task\TaskUserTable::delegateTask($taskId, $fromUserId, $toUserId);
+
 		self::decrementUserTaskCounter($fromUserId);
 		self::incrementUserTaskCounter($toUserId);
 		self::onTaskChange(
@@ -223,9 +262,9 @@ class CBPTaskService extends CBPRuntimeService
 			],
 			CBPTaskChangedStatus::Delegate
 		);
-		foreach (GetModuleEvents("bizproc", "OnTaskDelegate", true) as $arEvent)
+		foreach (GetModuleEvents('bizproc', 'OnTaskDelegate', true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array($taskId, $fromUserId, $toUserId));
+			ExecuteModuleEventEx($arEvent, [$taskId, $fromUserId, $toUserId]);
 		}
 
 		return true;
@@ -233,17 +272,13 @@ class CBPTaskService extends CBPRuntimeService
 
 	public static function getOriginalTaskUserId($taskId, $realUserId)
 	{
-		global $DB;
 		$taskId = (int)$taskId;
 		$realUserId = (int)$realUserId;
 
-		$iterator = $DB->Query('SELECT ORIGINAL_USER_ID'
-			.' FROM b_bp_task_user'
-			.' WHERE TASK_ID = '.$taskId.' AND USER_ID = '.$realUserId
-		);
-		if ($row = $iterator->fetch())
+		$originalUserId = Bizproc\Workflow\Task\TaskUserTable::getOriginalTaskUserId($taskId, $realUserId);
+		if ($originalUserId !== null)
 		{
-			return $row['ORIGINAL_USER_ID'] > 0 ? $row['ORIGINAL_USER_ID'] : $realUserId;
+			return $originalUserId > 0 ? $originalUserId : $realUserId;
 		}
 
 		return false;
@@ -271,7 +306,6 @@ class CBPTaskService extends CBPRuntimeService
 			$removedUsers[] = $arRes["USER_ID"];
 		}
 		$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".intval($id)." ",);
-		$DB->Query("DELETE FROM b_bp_task WHERE ID = ".intval($id)." ");
 
 		self::onTaskChange(
 			$id,
@@ -285,6 +319,8 @@ class CBPTaskService extends CBPRuntimeService
 		{
 			ExecuteModuleEventEx($arEvent, [$id]);
 		}
+
+		$DB->Query('DELETE FROM b_bp_task WHERE ID = ' . (int)$id . ' ');
 	}
 
 	public static function deleteByWorkflow($workflowId, $taskStatus = null)
@@ -703,6 +739,7 @@ class CBPTaskService extends CBPRuntimeService
 					"VALUES ({$userId}, {$id}, {$userId})"
 				);
 
+				$addedUsers[] = $userId;
 				$incremented[] = $userId;
 				self::incrementUserTaskCounter($userId);
 			}

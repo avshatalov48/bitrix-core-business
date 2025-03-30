@@ -1,9 +1,9 @@
-<?
-define("NO_KEEP_STATISTIC", true);
-define("NO_AGENT_STATISTIC", true);
-define('NOT_CHECK_PERMISSIONS', true);
+<?php
 
-use Bitrix\Main;
+const NO_KEEP_STATISTIC = true;
+const NO_AGENT_STATISTIC = true;
+const NOT_CHECK_PERMISSIONS = true;
+
 use Bitrix\Main\Loader;
 use Bitrix\Sale\Location;
 use Bitrix\Sale\Location\Admin\LocationHelper as Helper;

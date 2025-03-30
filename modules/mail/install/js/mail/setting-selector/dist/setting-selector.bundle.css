@@ -1,0 +1,27 @@
+.setting-selector-button {
+	gap: 4px;
+	padding: 2px 3px 2px 4px;
+	display: inline-flex;
+	align-items: center;
+	margin-bottom: 5px;
+}
+
+.setting-selector-button:hover {
+	cursor: pointer;
+	background-color: var(--ui-color-base-20);
+	border-radius: 4px;
+}
+
+.setting-selector-button-text {
+	color: #1169c3;
+	border-bottom: 1px dashed #88b4e1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 600px;
+}
+
+.setting-selector-container
+{
+	display: inline;
+}

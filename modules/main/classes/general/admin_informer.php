@@ -187,10 +187,10 @@ class CAdminInformer
 			else // update_autocheck == false
 			{
 				//last update date time
-				$updateDate = COption::GetOptionString("main", "update_system_update", false);
+				$updateDate = COption::GetOptionInt("main", "update_system_update_time");
 
 				$updAIParams["HTML"] = '<span class="adm-informer-strong-text">'.GetMessage("top_panel_ai_sys_ver").' '.SM_VERSION."</span><br>";
-				$updAIParams["HTML"] .= $updateDate ? GetMessage("top_panel_ai_upd_last").'<br>'.$updateDate : GetMessage("top_panel_ai_upd_never");
+				$updAIParams["HTML"] .= $updateDate ? GetMessage("top_panel_ai_upd_last") . '<br>' . \Bitrix\Main\Type\DateTime::createFromTimestamp($updateDate) : GetMessage("top_panel_ai_upd_never");
 				$updAIParams["FOOTER"] = '<a href="/bitrix/admin/update_system.php?refresh=Y&lang='.LANGUAGE_ID.'">'.GetMessage("top_panel_ai_upd_chk").'</a>';
 				$updAIParams["ALERT"] = false;
 			}

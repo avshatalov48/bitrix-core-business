@@ -78,11 +78,17 @@ if (check_bitrix_sessid() && $request->isPost() && Loader::includeModule('iblock
 			}
 			elseif ($property['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_LIST)
 			{
-				$iterator = Iblock\PropertyEnumerationTable::getList(array(
-					'select' => array('*'),
-					'filter' => array('=PROPERTY_ID' => $propertyId),
-					'order' => array('DEF' => 'DESC', 'SORT' => 'ASC')
-				));
+				$iterator = Iblock\PropertyEnumerationTable::getList([
+					'select' => ['*'],
+					'filter' => [
+						'=PROPERTY_ID' => $propertyId,
+					],
+					'order' => [
+						'DEF' => 'DESC',
+						'SORT' => 'ASC',
+						'VALUE' => 'ASC',
+					]
+				]);
 				while ($row = $iterator->fetch())
 				{
 					$result[] = array(

@@ -12,11 +12,9 @@ class CPhotogalleryNotifySchema
 		return array(
 			"photogallery" => array(
 				"comment" => Array(
-					"NAME" => GetMessage("PHOTO_NS_COMMENT"),
+					"NAME" => GetMessage("PHOTO_NS_COMMENT_MSGVER_1"),
 				)
 			)
 		);
 	}
 }
-
-?>

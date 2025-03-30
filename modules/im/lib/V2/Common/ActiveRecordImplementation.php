@@ -377,7 +377,7 @@ trait ActiveRecordImplementation
 		}
 		if (!$this->isChanged())
 		{
-			return $result;
+			return $result->setResult(['IS_CHANGES' => false]);
 		}
 
 		$saveResult = $this->getDataEntity()->save();

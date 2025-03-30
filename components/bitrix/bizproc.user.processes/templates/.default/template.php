@@ -34,6 +34,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.icon-set.main',
 	'ui.viewer',
 	'ui.counterpanel',
+	'ui.hint',
 ]);
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 

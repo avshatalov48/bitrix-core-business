@@ -472,14 +472,20 @@ class CCalendarWebService extends IWebService
 
 		if ($bGroup)
 		{
-			\Bitrix\Main\Loader::includeModule('socialnetwork');
-			$arGroupTmp = CSocNetGroup::GetByID($arSection['SOCNET_GROUP_ID']);
-			if (($arGroupTmp["CLOSED"] === "Y") && COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") !== "Y")
+			if (\Bitrix\Main\Loader::includeModule('socialnetwork'))
 			{
-				return new CSoapFault(
-					'Cannot modify archive group calendar',
-					'Cannot modify archive group calendar'
-				);
+				$arGroupTmp = CSocNetGroup::GetByID($arSection['SOCNET_GROUP_ID']);
+
+				if (
+					($arGroupTmp["CLOSED"] === "Y")
+					&& COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") !== "Y"
+				)
+				{
+					return new CSoapFault(
+						'Cannot modify archive group calendar',
+						'Cannot modify archive group calendar'
+					);
+				}
 			}
 		}
 

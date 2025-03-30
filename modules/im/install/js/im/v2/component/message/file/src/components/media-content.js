@@ -22,7 +22,16 @@ export const MediaContent = {
 			type: Object,
 			required: true,
 		},
+		previewMode: {
+			type: Boolean,
+			default: false,
+		},
+		removable: {
+			type: Boolean,
+			default: false,
+		},
 	},
+	emits: ['onRemoveItem'],
 	computed:
 	{
 		message(): ImModelMessage
@@ -45,6 +54,22 @@ export const MediaContent = {
 		{
 			return getGalleryGridRowsConfig(this.fileIds.length);
 		},
+		galleryColumnsConfig(): { gridTemplateColumns: string }
+		{
+			if (this.previewMode)
+			{
+				return { gridTemplateColumns: '119px 67px 67px 119px' };
+			}
+
+			return {};
+		},
+		galleryStyle(): { [key: string]: string }
+		{
+			return {
+				...this.galleryRowConfig,
+				...this.galleryColumnsConfig,
+			};
+		},
 		hasText(): boolean
 		{
 			return this.message.text.length > 0;
@@ -55,7 +80,7 @@ export const MediaContent = {
 		},
 		onlyMedia(): boolean
 		{
-			return !this.hasText && !this.hasAttach;
+			return !this.previewMode && (!this.hasText && !this.hasAttach);
 		},
 		isSingleVideo(): boolean
 		{
@@ -73,10 +98,14 @@ export const MediaContent = {
 		{
 			return getGalleryElementsConfig(this.fileIds.length, index);
 		},
+		onRemoveItem(event)
+		{
+			this.$emit('onRemoveItem', event);
+		},
 	},
 	template: `
 		<div class="bx-im-message-media-content__container">
-			<div v-if="isGallery" class="bx-im-message-media-content__gallery" :style="galleryRowConfig">
+			<div v-if="isGallery" class="bx-im-message-media-content__gallery" :style="galleryStyle">
 				<GalleryItem
 					v-for="(fileId, index) in fileIds"
 					:key="fileId"
@@ -84,18 +113,24 @@ export const MediaContent = {
 					:isGallery="true"
 					:message="message"
 					:style="getGalleryElementStyles(index)"
+					:handleLoading="!previewMode"
+					:removable="removable"
+					@onRemoveClick="onRemoveItem"
 				/>
 			</div>
 			<div v-else-if="isSingleVideo" class="bx-im-message-media-content__single-video">
 				<VideoItem
 					:id="firstFileId"
 					:message="message"
+					:handleLoading="!previewMode"
 				/>
 			</div>
 			<div v-else class="bx-im-message-media-content__single-image">
 				<GalleryItem
 					:id="firstFileId"
 					:message="message"
+					:handleLoading="!previewMode"
+					:previewMode="previewMode"
 				/>
 			</div>
 			<div v-if="onlyMedia" class="bx-im-message-media-content__status-container">

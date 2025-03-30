@@ -49,7 +49,7 @@ export const HeaderMenu = {
 		<div @click="onIconClick" class="bx-im-list-container-recent__header-menu_icon" :class="{'--active': showPopup}" ref="icon"></div>
 		<MessengerMenu v-if="showPopup" :config="menuConfig" @close="showPopup = false">
 			<MenuItem
-				:title="loc('IM_RECENT_HEADER_MENU_READ_ALL')"
+				:title="loc('IM_RECENT_HEADER_MENU_READ_ALL_MSGVER_1')"
 				@click="onReadAllClick"
 			/>
 			<MenuItem

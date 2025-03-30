@@ -4143,7 +4143,10 @@ class CCalendar
 	{
 		if (!isset(self::$bCurUserSocNetAdmin))
 		{
-			self::$bCurUserSocNetAdmin = self::IsSocNet() && CSocNetUser::IsCurrentUserModuleAdmin();
+			self::$bCurUserSocNetAdmin = Loader::includeModule('socialnetwork')
+				&& self::IsSocNet()
+				&& CSocNetUser::IsCurrentUserModuleAdmin()
+			;
 		}
 
 		return self::$bCurUserSocNetAdmin;
@@ -4733,7 +4736,13 @@ class CCalendar
 	{
 		if (!isset(self::$bSocNet))
 		{
-			Loader::includeModule("socialnetwork");
+			if (!Loader::includeModule('socialnetwork'))
+			{
+				self::$bSocNet = false;
+
+				return false;
+			}
+
 			self::$bSocNet = class_exists('CSocNetUserToGroup') && CBXFeatures::IsFeatureEnabled("Calendar") && self::IsIntranetEnabled();
 		}
 

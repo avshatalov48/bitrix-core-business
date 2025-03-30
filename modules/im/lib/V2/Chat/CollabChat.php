@@ -12,6 +12,7 @@ use Bitrix\Im\V2\Entity\User\UserCollaber;
 use Bitrix\Im\V2\Integration\Socialnetwork\Group;
 use Bitrix\Im\V2\Permission\Action;
 use Bitrix\Im\V2\Permission\ActionGroup;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Recent\Initializer;
 use Bitrix\Im\V2\Rest\PopupData;
@@ -112,14 +113,14 @@ class CollabChat extends GroupChat
 		return parent::updateStateAfterUsersAdd($usersToAdd);
 	}
 
-	protected function updateStateAfterUserDelete(int $deletedUserId): self
+	protected function updateStateAfterUserDelete(int $deletedUserId, DeleteUserConfig $config): self
 	{
 		if (!empty($this->filterCollabers([$deletedUserId])))
 		{
 			GuestCounter::cleanCache($this->chatId);
 		}
 
-		return parent::updateStateAfterUserDelete($deletedUserId);
+		return parent::updateStateAfterUserDelete($deletedUserId, $config);
 	}
 
 	protected function sendPushUsersAdd(array $usersToAdd, RelationCollection $oldRelations): void

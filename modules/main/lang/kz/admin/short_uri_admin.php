@@ -1,0 +1,26 @@
+<?php
+$MESS["MAIN_ADD"] = "Қосу";
+$MESS["SU_AF_FROM_TILL_INSERT"] = "\"дейін\" пайдаланудың соңғы күні \"бастап\" күнінен артық болуы керек";
+$MESS["SU_AF_FROM_TILL_UPDATE"] = "\"дейін\" өзгерту күні \"бастап\" күнінен артық болуы керек";
+$MESS["SU_AF_F_LAST_USED"] = "Соңғы қолданған күні";
+$MESS["SU_AF_F_MODIFIED"] = "Өзгерту күні";
+$MESS["SU_AF_F_SHORT_URI"] = "Қысқа сілтеме";
+$MESS["SU_AF_F_URI"] = "Сілтеме";
+$MESS["SU_AF_SAVE_ERROR"] = "# жазбаны сақтау қатесі";
+$MESS["SU_AF_WRONG_INSERT_FROM"] = "Сүзгіде \"бастап\" соңғы қолдану күнін дұрыс енгізіңіз";
+$MESS["SU_AF_WRONG_INSERT_TILL"] = "Сүзгіде \"дейін\" соңғы қолдану күнін дұрыс енгізіңіз";
+$MESS["SU_AF_WRONG_UPDATE_FROM"] = "\"бастап\" сүзгіге өзгерістің дұрыс күнін енгізіңіз ";
+$MESS["SU_AF_WRONG_UPDATE_TILL"] = "\"дейін\" сүзгіге өзгерістің дұрыс күнін енгізіңіз ";
+$MESS["SU_AF_add_title"] = "Жаңа жазба қосу үшін басыңыз";
+$MESS["SU_AF_del"] = "Жою";
+$MESS["SU_AF_del_conf"] = "Әрекет қайтымсыз. Жазбаны жою керек пе?";
+$MESS["SU_AF_del_err"] = "Жазбаны жою мүмкін емес.";
+$MESS["SU_AF_nav"] = "Жазбалар";
+$MESS["SU_AF_title"] = "Қысқа сілтемелер";
+$MESS["SU_AF_upd"] = "Өзгерту";
+$MESS["SU_FLD_LAST_USED"] = "Соңғы қолданған күні";
+$MESS["SU_FLD_MODIFIED"] = "Өзгерту күні";
+$MESS["SU_FLD_NUMBER_USED"] = "Пайдалану саны";
+$MESS["SU_FLD_SHORT_URI"] = "Қысқа сілтеме";
+$MESS["SU_FLD_STATUS"] = "HTTP мәртебе";
+$MESS["SU_FLD_URI"] = "Сілтеме";

@@ -228,6 +228,8 @@ final class MimeType
 		'weba' => 'audio/webm',
 		'm3u8' => 'application/vnd.apple.mpegurl',
 		'ts' => 'video/MP2T',
+		'flp' => 'application/board',
+		'board' => 'application/board',
 	];
 
 	public static function getMimeTypeList()

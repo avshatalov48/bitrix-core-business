@@ -1,0 +1,26 @@
+<?php
+$MESS["ERROR_ADD_SMILE"] = "Смайликті қосу қатесі";
+$MESS["ERROR_BAD_SESSID"] = "Сіздің сессияңыз аяқталды. Әрекетті тағы бір рет қайталаңыз.";
+$MESS["ERROR_COPY_IMAGE"] = "Кескінді жүктеу қатесі. Жазу құқығы жеткіліксіз болуы мүмкін.";
+$MESS["ERROR_EDIT_SMILE"] = "Смайликті өзгерту қатесі";
+$MESS["ERROR_EXISTS_IMAGE"] = "Физикалық файл #FILE# дискіде қазірдің өзінде бар. Мүмкін, бұл файлды бір смайлик қолданып жатқан шығар.";
+$MESS["FE_NO_PERMS2ADD"] = "Смайликтерді жүктеу үшін құқықтар жеткіліксіз.";
+$MESS["FE_NO_PERMS2UPDATE"] = "Смайликтерді өзгертуге құқықтар жеткіліксіз.";
+$MESS["FORUM_CODE"] = "Код";
+$MESS["FORUM_EDIT_RECORD"] = "N#ID# смайликті өзгерту";
+$MESS["FORUM_IMAGE"] = "Смайлик кескіні";
+$MESS["FORUM_IMAGE_NAME"] = "Смайлик атауы";
+$MESS["FORUM_IMAGE_NOTE"] = "(ұсынылған смайлик өлшемі: 16x16, белгішелер: 15x15)";
+$MESS["FORUM_NEW_RECORD"] = "Жаңа смайлик";
+$MESS["FORUM_SORT"] = "Сұрыптау";
+$MESS["FORUM_TYPE"] = "Смайлик түрі";
+$MESS["FORUM_TYPING"] = "Смайликті жазу";
+$MESS["FORUM_TYPING_NOTE"] = "(бос орын арқылы бірнеше нұсқаны тізімдеуге болады)";
+$MESS["FSE_ICON"] = "Белгіше";
+$MESS["FSE_SMILE"] = "Смайлик";
+$MESS["FSN_2FLIST"] = "Смайликтер тізімі";
+$MESS["FSN_DELETE_SMILE"] = "Смайликті жою";
+$MESS["FSN_DELETE_SMILE_CONFIRM"] = "Бұл смайликті жойғыңыз келетініне сенімдісіз бе?";
+$MESS["FSN_NEW_SMILE"] = "Жаңа смайликті қосу";
+$MESS["FSN_TAB_SMILE"] = "Форум смайлигі";
+$MESS["FSN_TAB_SMILE_DESCR"] = "Форум смайлигі";

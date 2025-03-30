@@ -82,10 +82,7 @@ class Application
 
 			if (
 				$appDetailInfo
-				&& (
-					!Access::isAvailable($code)
-					|| !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $code)
-				)
+				&& !Access::canInstallApp($appDetailInfo)
 			)
 			{
 				$result = [

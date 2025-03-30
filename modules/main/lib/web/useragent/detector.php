@@ -93,6 +93,11 @@ class Detector implements DetectorInterface
 				$device = (str_contains($userAgent, 'Tablet') ? DeviceType::TABLET : DeviceType::MOBILE_PHONE);
 				return new Browser('Bitrix24.Mobile', 'Android', $device);
 			}
+
+			if (str_contains($userAgent, 'CardDavBitrix24'))
+			{
+				return new Browser('Bitrix24.DAV', 'Android', DeviceType::MOBILE_PHONE);
+			}
 		}
 		return null;
 	}

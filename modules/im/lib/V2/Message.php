@@ -2049,4 +2049,12 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	{
 		return $this->getChatId();
 	}
+
+	public function filterMessageText(): void
+	{
+		if (!$this->isSystem && $this->getMessage() !== null)
+		{
+			$this->setMessage(Text::filterUserBbCodes($this->getMessage(), $this->getContext()->getUserId()));
+		}
+	}
 }

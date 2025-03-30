@@ -4,6 +4,7 @@ $MESS["IBLOCK_BAD_BLOCK_TYPE"] = "Block type is not specified.";
 $MESS["IBLOCK_BAD_FILE_ERROR"] = "An error occurred uploading a file to the server.";
 $MESS["IBLOCK_BAD_FILE_NOT_FOUND"] = "File not found.";
 $MESS["IBLOCK_BAD_FILE_NOT_PICTURE"] = "Not an image file.";
+$MESS["IBLOCK_BAD_FULLTEXT_INDEX"] = "Full-text search field value is incorrect.";
 $MESS["IBLOCK_BAD_NAME"] = "Block name is not specified.";
 $MESS["IBLOCK_BAD_REST_ON_WO_API_CODE"] = "API_CODE is required to use REST.";
 $MESS["IBLOCK_BAD_SITE_ID"] = "Invalid site!";

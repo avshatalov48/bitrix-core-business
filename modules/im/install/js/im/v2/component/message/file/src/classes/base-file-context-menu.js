@@ -27,7 +27,7 @@ export class BaseFileContextMenu extends BaseMenu
 	{
 		return [
 			this.getDownloadFileItem(),
-			this.getSaveToDisk(),
+			this.getSaveToDiskItem(),
 		];
 	}
 
@@ -51,7 +51,7 @@ export class BaseFileContextMenu extends BaseMenu
 		};
 	}
 
-	getSaveToDisk(): ?MenuItem
+	getSaveToDiskItem(): ?MenuItem
 	{
 		const file = this.#getMessageFile();
 		if (!file)
@@ -60,11 +60,11 @@ export class BaseFileContextMenu extends BaseMenu
 		}
 
 		return {
-			text: Loc.getMessage('IM_MESSAGE_FILE_MENU_SAVE_ON_DISK'),
+			text: Loc.getMessage('IM_MESSAGE_FILE_MENU_SAVE_ON_DISK_MSGVER_1'),
 			onclick: function() {
-				void this.diskService.save(file.id).then(() => {
+				void this.diskService.save(this.context.files).then(() => {
 					BX.UI.Notification.Center.notify({
-						content: Loc.getMessage('IM_MESSAGE_FILE_MENU_SAVE_ON_DISK_SUCCESS'),
+						content: Loc.getMessage('IM_MESSAGE_FILE_MENU_SAVE_ON_DISK_SUCCESS_MSGVER_1'),
 					});
 				});
 				this.menuInstance.close();

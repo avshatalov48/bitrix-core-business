@@ -125,6 +125,8 @@ else:
 		<?php
 		$tabControl->Begin();
 		$tabControl->BeginNextTab();
+
+		$allowRemote = $component::checkRegion();
 		?>
 
 			<tr class="heading">
@@ -136,8 +138,10 @@ else:
 					<?=Loc::getMessage('SALE_SLI_LOCATION_SOURCE')?>
 				</td>
 				<td class="bx-ui-loc-i-mode-switch">
-					<label><input type="radio" name="SOURCE" value="remote" checked class="bx-ui-loc-i-option" /><?=Loc::getMessage('SALE_SLI_SOURCE_REMOTE')?></label><br />
-					<label><input type="radio" name="SOURCE" value="file" class="bx-ui-loc-i-option" /><?=Loc::getMessage('SALE_SLI_SOURCE_FILE')?></label></label>
+					<?php if ($allowRemote): ?>
+						<label><input type="radio" name="SOURCE" value="remote" checked class="bx-ui-loc-i-option" /><?=Loc::getMessage('SALE_SLI_SOURCE_REMOTE')?></label><br />
+					<?php endif; ?>
+					<label><input type="radio" name="SOURCE" value="file" <?= $allowRemote ? '' : 'checked' ?> class="bx-ui-loc-i-option" /><?=Loc::getMessage('SALE_SLI_SOURCE_FILE')?></label></label>
 				</td>
 			</tr>
 
@@ -369,6 +373,7 @@ else:
 				'url' => CHTTP::urlAddParams($arResult['URLS']['IMPORT_AJAX'], array('lang' => LANGUAGE_ID)),
 				'pageUrl' => $arResult['URLS']['IMPORT'],
 				'scope' => 'location-import',
+				'defaultState' => $allowRemote ? 'remote' : 'file',
 				'ajaxFlag' => 'AJAX_CALL',
 				'importId' => rand(99, 999),
 				'firstImport' => !!$arResult['FIRST_IMPORT'],

@@ -480,6 +480,11 @@ class EntityCard extends BaseCard
 		this.getCreateDocumentPopup().show();
 	}
 
+	closeCreateDocumentPopup()
+	{
+		this.getCreateDocumentPopup().close();
+	}
+
 	getCreateDocumentMenuContent()
 	{
 		const popupWrapper = Tag.render`<div class="menu-popup"></div>`;
@@ -495,6 +500,11 @@ class EntityCard extends BaseCard
 						<span class="menu-popup-item-text">${item.text}</span>
 					</a>
 				`;
+
+				Event.bind(itemEntry, 'click', (event) => {
+					event.preventDefault();
+					this.closeCreateDocumentPopup();
+				});
 			}
 			else
 			{
@@ -507,6 +517,7 @@ class EntityCard extends BaseCard
 				Event.bind(itemEntry, 'click', (event) => {
 					event.preventDefault();
 					EntityCard.openInventoryManagementToolDisabledSlider();
+					this.closeCreateDocumentPopup();
 				});
 			}
 

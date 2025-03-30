@@ -50,3 +50,4 @@ $MESS['CATALOG_PRODUCT_CARD_VARIATION_GRID_SETTINGS_DESC_MEASUREMENTS'] = "Ис�
 $MESS['CATALOG_PRODUCT_CARD_VARIATION_GRID_SETTINGS_TITLE_MEASURE_RATIO'] = "Коэффициент единицы измерения";
 $MESS['CATALOG_PRODUCT_CARD_VARIATION_GRID_SETTINGS_DESC_MEASURE_RATIO_MSGVER_1'] = "Использовать коэффициенты единиц измерения в товарах";
 $MESS['CATALOG_PRODUCT_CARD_VARIATION_GRID_PRICE_EDIT_RESTRICTED_HINT'] = "Недостаточно прав для изменения цены";
+$MESS['CATALOG_PRODUCT_CARD_VARIATION_GRID_MORE_PHOTO_SIZE'] = "Рекомендуемый размер изображения<br>не больше 1000x1000 пикселей";

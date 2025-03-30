@@ -217,6 +217,12 @@ final class Registry
 		self::$registryMap[$code] = $registryItem;
 	}
 
+	public static function resetAll() : void
+	{
+		self::$registryMap = [];
+		self::$registryObjects = [];
+	}
+
 	/**
 	 * Registry constructor.
 	 * @param $type

@@ -1,0 +1,26 @@
+<?php
+$MESS["FILE_BAD_FILENAME"] = "Файл атауы көрсетілмеген.";
+$MESS["FILE_BAD_FILE_TYPE"] = "Файл графикалық болып табылмайды";
+$MESS["FILE_BAD_MAX_RESOLUTION"] = "Кескіннің рұқсат етілген ең үлкен өлшемінен асып кетті";
+$MESS["FILE_BAD_QUOTA"] = "Диск кеңістігінің шектелуінен асып кетті";
+$MESS["FILE_BAD_SIZE"] = "Жүктелетін файлдың ең үлкен өлшемінен асып кетті";
+$MESS["FILE_BAD_TYPE"] = "Файл түрі дұрыс емес";
+$MESS["FILE_DELETE"] = "Файлды жою";
+$MESS["FILE_DOWNLOAD"] = "Жүктеу";
+$MESS["FILE_ENLARGE"] = "Үлкейту";
+$MESS["FILE_FILE_DOWNLOAD"] = "Файлды жүктеу";
+$MESS["FILE_HEIGHT"] = "Биіктігі";
+$MESS["FILE_NOT_FOUND"] = "Файл табылмады";
+$MESS["FILE_SIZE"] = "Өлшемі";
+$MESS["FILE_SIZE_Gb"] = "ГБ";
+$MESS["FILE_SIZE_Kb"] = "КБ";
+$MESS["FILE_SIZE_Mb"] = "МБ";
+$MESS["FILE_SIZE_Tb"] = "ТБ";
+$MESS["FILE_SIZE_b"] = "Б";
+$MESS["FILE_TEXT"] = "Файл";
+$MESS["FILE_WIDTH"] = "Ені";
+$MESS["MAIN_BAD_FILENAME1"] = "Файл атауында қате символдар бар.";
+$MESS["MAIN_BAD_FILENAME_LEN"] = "Файлдың атауы тым ұзын.";
+$MESS["MAIN_FIELD_FILE_DESC"] = "Сипаттама";
+$MESS["main_include_dots"] = "пиксельдер";
+$MESS["main_js_img_title"] = "Сурет";

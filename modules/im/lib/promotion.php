@@ -121,6 +121,13 @@ class Promotion
 		];
 
 		$result[] = [
+			"ID" => 'im:download-several-files:22112024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL,
+			"LIFETIME" => self::ENDLESS_LIFETIME,
+		];
+
+		$result[] = [
 			"ID" => 'call:copilot-notify-result:24112024:all',
 			"USER_TYPE" => self::USER_TYPE_ALL,
 			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL

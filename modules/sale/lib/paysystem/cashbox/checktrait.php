@@ -38,13 +38,19 @@ trait CheckTrait
 					$cashboxClass = $service->getCashboxClass();
 					$kkm = $cashboxClass::getKkmValue($service);
 
+					$filter = [
+						'=ACTIVE' => 'Y',
+						'=HANDLER' => $cashboxClass,
+					];
+
+					if (!empty($kkm))
+					{
+						$filter['=KKM_ID'] = $kkm;
+					}
+
 					$cashboxData = Sale\Cashbox\Manager::getList([
 						'select' => ['ID'],
-						'filter' => [
-							'=ACTIVE' => 'Y',
-							'=HANDLER' => $cashboxClass,
-							'=KKM_ID' => $kkm,
-						],
+						'filter' => $filter,
 					])->fetch();
 
 					if ($cashboxData)

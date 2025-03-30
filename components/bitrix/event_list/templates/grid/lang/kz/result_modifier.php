@@ -1,0 +1,4 @@
+<?php
+$MESS["EVENT_LIST_DATE_FIELD"] = "Күні";
+$MESS["EVENT_LIST_IP_FIELD"] = "IP";
+$MESS["EVENT_LIST_USER_FIELD"] = "Қызметкер";

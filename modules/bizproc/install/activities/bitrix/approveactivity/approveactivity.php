@@ -413,15 +413,18 @@ class CBPApproveActivity extends CBPCompositeActivity implements
 					if ($usage[0] === 'Document' && isset($fileFields[$usage[1]]))
 					{
 						$document = $documentService->getDocument($id, $type);
-						$resultValue = [
-							'DOCUMENT_ID' => $id,
-							'DOCUMENT_TYPE' => $type,
-							'DOCUMENT_FIELD_TYPE' => $fileFields[$usage[1]],
-							'DOCUMENT_FIELD_VALUE' => $document[$usage[1]] ?? null,
-							'USERS' => array_keys($this->arApproveResults),
-						];
+						if (!empty($document[$usage[1]]))
+						{
+							$resultValue = [
+								'DOCUMENT_ID' => $id,
+								'DOCUMENT_TYPE' => $type,
+								'DOCUMENT_FIELD_TYPE' => $fileFields[$usage[1]],
+								'DOCUMENT_FIELD_VALUE' => $document[$usage[1]],
+								'USERS' => array_keys($this->arApproveResults),
+							];
 
-						return new ResultDto(get_class($this), $resultValue);
+							return new ResultDto(get_class($this), $resultValue);
+						}
 					}
 				}
 			}
@@ -435,7 +438,6 @@ class CBPApproveActivity extends CBPCompositeActivity implements
 	{
 		if (!self::checkResultViewRights($result, $workflowId, $userId))
 		{
-
 			return RenderedResult::makeNoRights();
 		}
 

@@ -1,0 +1,21 @@
+<?php
+$MESS["SUP_SUAC_LOAD_M_BUTTON_CONF"] = "Назар аударыңыз! 1С-Битрикс компаниясы серіктестердің әзірлемелері үшін жауапты емес. Бөгде модульдер жұмысына қатысты барлық мәселелер бойынша, сондай-ақ бөгде модульдердің дұрыс жұмыс істемеуінен туындаған сайттың жұмысы бұзылған жағдайда, әзірлеуші серіктестерге хабарласыңыз. Модульді жүктеу керек пе?";
+$MESS["USMP_BACK"] = "Оралу";
+$MESS["USMP_CATEGORY"] = "Санат";
+$MESS["USMP_DATE_CREATE"] = "Жасалған күні";
+$MESS["USMP_DATE_UPDATE"] = "Өзгерту күні";
+$MESS["USMP_DESCR"] = "Сипаттама";
+$MESS["USMP_DO_CANCEL"] = "Болдырмау";
+$MESS["USMP_DO_LOAD"] = "Жүктеу";
+$MESS["USMP_ID"] = "Модуль коды";
+$MESS["USMP_IMAGE"] = "Кескін";
+$MESS["USMP_LOAD"] = "Жүктелді";
+$MESS["USMP_NAME"] = "Модуль атауы";
+$MESS["USMP_NO"] = "Жоқ";
+$MESS["USMP_NO_MODULE"] = "Модуль табылмады";
+$MESS["USMP_PARTNER"] = "Серіктес";
+$MESS["USMP_TAB_1"] = "Модуль";
+$MESS["USMP_TAB_2"] = "#NAME#' модулі";
+$MESS["USMP_TITLE"] = "#ID# модулі";
+$MESS["USMP_TYPE"] = "Түрі";
+$MESS["USMP_YES"] = "Иә";

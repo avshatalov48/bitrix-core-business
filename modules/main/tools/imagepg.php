@@ -19,12 +19,6 @@ if (!str_starts_with($img, '/') || str_starts_with($img, '//') || str_starts_wit
 	// external url
 	die();
 }
-
-$alt = "";
-if (isset($_GET["alt"]) && is_string($_GET["alt"]))
-{
-	$alt = htmlspecialchars_plus($_GET["alt"]);
-}
 ?>
 <html>
 <head>
@@ -41,8 +35,9 @@ function KeyPress()
 <style type="text/css">
 body {margin:0;}
 </style>
-<title><?echo $alt?></title></head>
+<title>Image</title>
+</head>
 <body topmargin="0" leftmargin="0" marginwidth="0" marginheight="0" onKeyPress="KeyPress()">
-<img src="<?echo htmlspecialchars_plus($img)?>" border="0" alt="<?echo $alt?>">
+<img src="<?= htmlspecialchars_plus($img) ?>" border="0" alt="">
 </body>
 </html>

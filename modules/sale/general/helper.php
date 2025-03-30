@@ -288,7 +288,7 @@ class CSaleHelper
 	{
 		$loc_diff = COption::GetOptionString('sale', 'ADDRESS_different_set', 'N');
 
-		if ($loc_diff == "Y" && ($siteId !== false || defined(SITE_ID)))
+		if ($loc_diff == "Y" && ($siteId !== false || defined('SITE_ID')))
 		{
 			if($siteId === false)
 				$siteId = SITE_ID;

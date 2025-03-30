@@ -10,6 +10,9 @@ $MESS['SALE_CASHBOX_YOOKASSA_SNO_UIO'] = 'Упрощённая (УСН, дохо
 $MESS['SALE_CASHBOX_YOOKASSA_SNO_ENVD'] = 'Единый налог на вменённый доход (ЕНВД)';
 $MESS['SALE_CASHBOX_YOOKASSA_SNO_ESN'] = 'Единый сельскохозяйственный налог (ЕСН)';
 $MESS['SALE_CASHBOX_YOOKASSA_SNO_PATENT'] = 'Патентная система налогообложения';
+$MESS['SALE_CASHBOX_YOOKASSA_SETTINGS_MARKING'] = 'Код маркировки';
+$MESS['SALE_CASHBOX_YOOKASSA_SETTINGS_MARKING_LABEL'] = 'Кодировка маркировочного кода';
+$MESS['SALE_CASHBOX_YOOKASSA_SETTINGS_MARKING_NOT_ENCODE'] = 'Не кодировать';
 
 $MESS['SALE_CASHBOX_YOOKASSA_ERROR_EMPTY_RESPONSE'] = 'Получен пустой ответ от сервера';
 $MESS['SALE_CASHBOX_YOOKASSA_ERROR_DECODE_RESPONSE'] = 'Ошибка декодирования строки JSON';

@@ -338,7 +338,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    const isAnyChatOpened = this.store.getters['application/getLayout'].entityId.length > 0;
 	    return {
-	      text: main_core.Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER'),
+	      text: main_core.Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER_MSGVER_1'),
 	      onclick: async () => {
 	        if (!isAnyChatOpened) {
 	          await im_public.Messenger.openChat(this.context.dialogId);

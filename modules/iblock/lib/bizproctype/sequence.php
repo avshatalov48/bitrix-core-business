@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Iblock\BizprocType;
 
 use Bitrix\Bizproc\FieldType;

@@ -156,6 +156,12 @@ export class WorkflowInfo
 				}
 			});
 		}
+
+		const desc = this.workflowContent.querySelector('.bp-workflow-info__desc-inner');
+		if (desc)
+		{
+			BX.UI.Hint.init(desc);
+		}
 	}
 
 	#renderButtons(): void
@@ -397,6 +403,16 @@ export class WorkflowInfo
 				}
 
 				desc.innerHTML = data.additionalParams.DESCRIPTION;
+				BX.UI.Hint.init(desc);
+			}
+
+			const slider = BX.SidePanel.Instance.getSliderByWindow(window);
+			if (slider)
+			{
+				const currentUrl = slider.getUrl();
+				const newUrl = currentUrl.replace(/\/bizproc\/\d+\//, `/bizproc/${this.taskId}/`);
+				slider.setUrl(newUrl);
+				top.history.replaceState({}, '', newUrl);
 			}
 		}
 

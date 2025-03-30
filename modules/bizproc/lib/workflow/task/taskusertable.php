@@ -2,11 +2,16 @@
 
 namespace Bitrix\Bizproc\Workflow\Task;
 
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Entity\DataManager;
 use Bitrix\Main\Entity\DatetimeField;
 use Bitrix\Main\Entity\IntegerField;
 use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Class TaskUserTable
@@ -85,22 +90,107 @@ class TaskUserTable extends DataManager
 
 	/**
 	 * @param mixed $primary Primary key.
-	 * @param array $data Entity data.
-	 * @throws NotImplementedException
-	 * @return void
-	 */
-	public static function update($primary, array $data)
-	{
-		throw new NotImplementedException('Use CBPTaskService class.');
-	}
-
-	/**
-	 * @param mixed $primary Primary key.
 	 * @throws NotImplementedException
 	 * @return void
 	 */
 	public static function delete($primary)
 	{
 		throw new NotImplementedException('Use CBPTaskService class.');
+	}
+
+	/**
+	 * Do not use it directly. All changes must go through CBPTaskService
+	 *
+	 * @param int $taskId
+	 * @param array $userIds
+	 * @param int $status
+	 *
+	 * @return UpdateResult|null
+	 * @throws ArgumentException
+	 * @throws SqlQueryException
+	 * @throws SystemException
+	 * @throws \Exception
+	 */
+	public static function updateStatus(int $taskId, array $userIds, int $status = \CBPTaskUserStatus::Ok): ?UpdateResult
+	{
+		$ids = static::getPrimariesByUniqueKey($taskId, $userIds);
+		if (!$ids)
+		{
+			return null;
+		}
+
+		$update = ['STATUS' => $status, 'DATE_UPDATE' => new DateTime()];
+
+		if (count($ids) > 1)
+		{
+			return static::updateMulti($ids, $update);
+		}
+
+		return static::update($ids[0], $update);
+	}
+
+	/**
+	 * Do not use it directly. All changes must go through CBPTaskService
+	 *
+	 * @param int $taskId
+	 * @param int $fromUserId
+	 * @param int $toUserId
+	 *
+	 * @return UpdateResult|null
+	 * @throws \Exception
+	 */
+	public static function delegateTask(int $taskId, int $fromUserId, int $toUserId): ?UpdateResult
+	{
+		$ids = static::getPrimariesByUniqueKey($taskId, [$fromUserId]);
+		if (!$ids)
+		{
+			return null;
+		}
+
+		$originalUserId = static::getOriginalTaskUserId($taskId, $fromUserId) ?? 0;
+		$update = ['USER_ID' => $toUserId];
+		if ($originalUserId <= 0)
+		{
+			$update['ORIGINAL_USER_ID'] = $fromUserId;
+		}
+
+		return static::update($ids[0], $update);
+	}
+
+	public static function getOriginalTaskUserId(int $taskId, int $userId): ?int
+	{
+		$row =
+			static::query()
+				->setSelect(['ORIGINAL_USER_ID'])
+				->where('TASK_ID', $taskId)
+				->where('USER_ID', $userId)
+				->exec()
+				->fetch()
+		;
+		if ($row)
+		{
+			return (int)$row['ORIGINAL_USER_ID'];
+		}
+
+		return null;
+	}
+
+	protected static function getPrimariesByUniqueKey(int $taskId, array $userIds): array
+	{
+		$query =
+			static::query()
+				->setSelect(['ID'])
+				->where('TASK_ID', $taskId)
+		;
+		if (count($userIds) > 1)
+		{
+			$query->whereIn('USER_ID', $userIds);
+		}
+		else
+		{
+			$query->where('USER_ID', $userIds[0] ?? 0);
+		}
+
+		return array_column($query->exec()->fetchAll(), 'ID');
 	}
 }

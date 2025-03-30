@@ -3,16 +3,21 @@
 namespace Bitrix\Main\Data;
 
 use Bitrix\Main;
+use Bitrix\Main\Application;
 use Bitrix\Main\Config;
+use Bitrix\Main\Data\Internal\CacheCleanPathTable;
 
 class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 {
+	private static CacheEngineFiles $instance;
 	protected int $written = 0;
 	protected int $read = 0;
 	protected string $path = '';
 	protected bool $useLock = false;
 	protected string $rootDirectory;
 	protected static array $lockHandles = [];
+	protected static array $cleanQueue = [];
+	protected static int $clusterGroup = 0;
 
 	/**
 	 * Engine constructor.
@@ -31,7 +36,37 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 			$this->useLock = !$options['actual_data'];
 		}
 
+		Application::getInstance()->addBackgroundJob(self::class.'::addCleanPath', [], Application::JOB_PRIORITY_LOW);
+
+		static::$clusterGroup = (defined('BX_CLUSTER_GROUP') ? (int)constant('BX_CLUSTER_GROUP') : 0);
 		$this->rootDirectory = $config['root_directory'] ?? Main\Loader::getDocumentRoot();
+
+		$key = $this->rootDirectory . BX_ROOT . '/cache/cacheCleanJob_lock.php';
+		if (!file_exists($key))
+		{
+			if ($handle = fopen($key, "wb+"))
+			{
+				fwrite($handle, 'lock');
+				fclose($handle);
+			}
+		}
+
+		if ($this->lock($key))
+		{
+			Application::getInstance()->addBackgroundJob(self::class . '::delayedDelete', [], Application::JOB_PRIORITY_LOW);
+		}
+
+		self::$instance = $this;
+	}
+
+	public static function getInstance(): CacheEngineFiles
+	{
+		if (!isset(self::$instance))
+		{
+			self::$instance = new static();
+		}
+
+		return self::$instance;
 	}
 
 	/**
@@ -90,40 +125,6 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 			unlink($fileName);
 
 			restore_error_handler();
-		}
-	}
-
-	/**
-	 * Adds delayed delete worker agent.
-	 * @return void
-	 */
-	protected static function addAgent(): void
-	{
-		global $APPLICATION;
-
-		static $agentAdded = false;
-		if (!$agentAdded)
-		{
-			$agentAdded = true;
-			$agents = \CAgent::GetList(
-				['ID' => 'DESC'],
-				['NAME' => '\\Bitrix\\Main\\Data\\CacheEngineFiles::delayedDelete(%']
-			);
-
-			if (!$agents->Fetch())
-			{
-				$res = \CAgent::AddAgent(
-					'\\Bitrix\\Main\\Data\\CacheEngineFiles::delayedDelete();',
-					'main', // module
-					'Y', // period
-					1 // interval
-				);
-
-				if (!$res)
-				{
-					$APPLICATION->ResetException();
-				}
-			}
 		}
 	}
 
@@ -207,12 +208,10 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 						$target = $this->randomizeFile($source . '.~');
 						if ($target != '')
 						{
-							Main\Data\Internal\CacheTagTable::add([
-								'SITE_ID' => '*',
-								'CACHE_SALT' => '*',
-								'RELATIVE_PATH' => $target,
-								'TAG' => '*',
-							]);
+							static::$cleanQueue[$target] = [
+								'PREFIX' => $target,
+								'CLUSTER_GROUP' => static::$clusterGroup
+							];
 
 							if (@rename($this->rootDirectory . $source, $this->rootDirectory . $target))
 							{
@@ -224,7 +223,8 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 
 				if ($delayedDelete)
 				{
-					static::addAgent();
+					Application::getInstance()->getManagedCache()->read(3600, 'needClean');
+					Application::getInstance()->getManagedCache()->setImmediate('needClean', 'Y');
 				}
 				else
 				{
@@ -310,7 +310,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 			if ($datecreate == 'BX')
 			{
 				$datecreate = fread($handle, 12);
-				$dateexpire = fread($handle, 12);
+				fread($handle, 12); // unused dateexpire
 			}
 			else
 			{
@@ -461,38 +461,38 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	/**
 	 * Deletes one cache directory. Works no longer than etime.
 	 * @param integer $etime Timestamp when to stop working.
-	 * @param array $ar Record from b_cache_tag.
+	 * @param array $path Record from b_cache_tag.
 	 * @return void
 	 */
-	protected static function deleteOneDir(int $etime = 0, array $ar = []): void
+	protected static function deleteOneDir(int $etime = 0, array $path = []): void
 	{
-		if (empty($ar))
+		if (empty($path))
 		{
 			return;
 		}
 
 		$deleteFromQueue = false;
-		$root = (new static())->rootDirectory;
-		$dirName = $root . $ar['RELATIVE_PATH'];
+		$root = CacheEngineFiles::getInstance()->rootDirectory;
+		$dirName = $root . $path['PREFIX'];
 
-		if ($ar['RELATIVE_PATH'] != '' && file_exists($dirName))
+		if ($path['PREFIX'] != '' && file_exists($dirName))
 		{
 			if (is_file($dirName))
 			{
-				DeleteDirFilesEx($ar['RELATIVE_PATH'], $root);
+				DeleteDirFilesEx($path['PREFIX'], $root);
 				$deleteFromQueue = true;
 			}
-			else
+			elseif (($dir = scandir($dirName)) !== false)
 			{
-				$dir = scandir($dirName);
 				$counter = count($dir);
 				foreach ($dir as $file)
 				{
 					$counter--;
 					if ($file != '.' && $file != '..')
 					{
-						DeleteDirFilesEx($ar['RELATIVE_PATH'] . '/' . $file, $root);
+						DeleteDirFilesEx($path['PREFIX'] . '/' . $file, $root);
 					}
+
 					if (time() > $etime)
 					{
 						break;
@@ -513,36 +513,45 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 
 		if ($deleteFromQueue)
 		{
-			Main\Data\Internal\CacheTagTable::delete($ar['ID']);
+			CacheCleanPathTable::delete($path['ID']);
 		}
 	}
 
 	/**
 	 * Agent function which deletes marked cache directories.
-	 * @param integer $count Desired delete count.
-	 * @return string
+	 * @return void
 	 */
-	public static function delayedDelete($count = 1): string
+	public static function delayedDelete(): void
 	{
 		$delta = 10;
 		$deleted = 0;
-		$etime = time() + 2;
+		$etime = time() + 5;
 
-		$count = (int) $count;
+		$managedCache = Application::getInstance()->getManagedCache();
+		$needClean = $managedCache->read(3600, 'needClean');
+
+		if ($needClean != 'Y')
+		{
+			static::unlock(CacheEngineFiles::getInstance()->rootDirectory . BX_ROOT . '/cache/cacheCleanJob_lock.php');
+			return;
+		}
+
+		$count = (int)$managedCache->getImmediate(604800, 'delCount');
 		if ($count < 1)
 		{
 			$count = 1;
 		}
 
-		$tags = Main\Data\Internal\CacheTagTable::query()
-			->setSelect(['ID', 'RELATIVE_PATH'])
-			->where('TAG', '*')
+		$paths = CacheCleanPathTable::query()
+			->setSelect(['ID', 'PREFIX'])
+			->where('CLEAN_FROM', '<=', new \Bitrix\Main\Type\DateTime())
+			->where('CLUSTER_GROUP', static::$clusterGroup)
 			->setLimit($count + $delta)
-			->fetchAll();
+			->exec();
 
-		foreach ($tags as $item)
+		while($path = $paths->fetch())
 		{
-			static::deleteOneDir($etime, $item);
+			static::deleteOneDir($etime, $path);
 			$deleted++;
 
 			if (time() > $etime)
@@ -560,13 +569,37 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 			$count--;
 		}
 
-		if ($deleted > 0)
+		$managedCache->read(604800, 'delCount');
+		if ($deleted > $count)
 		{
-			return "\\Bitrix\\Main\\Data\\CacheEngineFiles::delayedDelete({$count});";
+			$managedCache->setImmediate('delCount', $deleted);
 		}
-		else
+		elseif ($deleted < $count && $count > 1)
 		{
-			return '';
+			$managedCache->setImmediate('delCount', $deleted);
 		}
+
+		if ($deleted == 0)
+		{
+			$managedCache->read(3600, 'needClean');
+			$managedCache->setImmediate('needClean', $deleted);
+		}
+
+		static::unlock(CacheEngineFiles::getInstance()->rootDirectory . BX_ROOT . '/cache/cacheCleanJob_lock.php');
+	}
+
+	public static function addCleanPath(): void
+	{
+		if (empty(static::$cleanQueue))
+		{
+			return;
+		}
+
+		foreach (array_chunk(static::$cleanQueue, 100) as $chunk)
+		{
+			CacheCleanPathTable::addMulti($chunk, true);
+		}
+
+		static::$cleanQueue = [];
 	}
 }

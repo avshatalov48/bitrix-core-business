@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CURRENCY_SAVE_ERR"] = "Error updating the currency #ID#: #ERROR_TEXT#";
 $MESS["CURRENCY_SAVE_ERR2"] = "Error updating the currency #ID#";
 $MESS["currency_err1"] = "Error deleting the currency.";
@@ -28,4 +28,3 @@ $MESS["CONFIRM_SET_BASE_MESSAGE"] = "Are you sure you want to set this currency 
 $MESS["CONFIRM_DEL_MESSAGE"] = "Are you sure to delete this currency?";
 $MESS["currency_add_from_classifier"] = "Add from code registry";
 $MESS["currency_add_from_classifier_title"] = "Add currency from code registry";
-?>

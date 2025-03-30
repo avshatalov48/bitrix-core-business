@@ -206,13 +206,16 @@ class VatTable extends ORM\Data\DataManager
 	/**
 	 * Returns the ID of the active VAT rate for the specified value. If necessary, it creates a new VAT rate.
 	 *
-	 * @param float $rate Vat rate value.
+	 * @param float|null $rate Vat rate value.
 	 * @param bool $create Create new vat, if not exists.
 	 * @return int|null
 	 */
-	public static function getActiveVatIdByRate(float $rate, bool $create = false): ?int
+	public static function getActiveVatIdByRate(?float $rate, bool $create = false): ?int
 	{
-		if ($rate < 0 || $rate > 100)
+		if (
+			is_float($rate)
+			&& ($rate < 0 || $rate > 100)
+		)
 		{
 			return null;
 		}

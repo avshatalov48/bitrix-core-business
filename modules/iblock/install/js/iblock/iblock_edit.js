@@ -512,7 +512,10 @@ BX.IBlock.Tools.addNewRow = function(tableID, row_to_clone)
 		e = sHTML.indexOf(']',s);
 		if(e<0)break;
 		n = parseInt(sHTML.substr(s+2,e-s));
-		sHTML = sHTML.substr(0, s)+'[n'+(++n)+']'+sHTML.substr(e+1);
+		if (isFinite(n))
+		{
+			sHTML = sHTML.substr(0, s) + '[n' + (++n) + ']' + sHTML.substr(e + 1);
+		}
 		p=s+1;
 	}
 	p = 0;
@@ -523,7 +526,10 @@ BX.IBlock.Tools.addNewRow = function(tableID, row_to_clone)
 		e = sHTML.indexOf('_',s+2);
 		if(e<0)break;
 		n = parseInt(sHTML.substr(s+3,e-s));
-		sHTML = sHTML.substr(0, s)+'__n'+(++n)+'_'+sHTML.substr(e+1);
+		if (isFinite(n))
+		{
+			sHTML = sHTML.substr(0, s) + '__n' + (++n) + '_' + sHTML.substr(e + 1);
+		}
 		p=e+1;
 	}
 	p = 0;
@@ -534,7 +540,10 @@ BX.IBlock.Tools.addNewRow = function(tableID, row_to_clone)
 		e = sHTML.indexOf('__',s+2);
 		if(e<0)break;
 		n = parseInt(sHTML.substr(s+3,e-s));
-		sHTML = sHTML.substr(0, s)+'__N'+(++n)+'__'+sHTML.substr(e+2);
+		if (isFinite(n))
+		{
+			sHTML = sHTML.substr(0, s) + '__N' + (++n) + '__' + sHTML.substr(e + 2);
+		}
 		p=e+2;
 	}
 	p = 0;
@@ -545,7 +554,10 @@ BX.IBlock.Tools.addNewRow = function(tableID, row_to_clone)
 		e = sHTML.indexOf('xx',s+2);
 		if(e<0)break;
 		n = parseInt(sHTML.substr(s+3,e-s));
-		sHTML = sHTML.substr(0, s)+'xxn'+(++n)+'xx'+sHTML.substr(e+2);
+		if (isFinite(n))
+		{
+			sHTML = sHTML.substr(0, s) + 'xxn' + (++n) + 'xx' + sHTML.substr(e + 2);
+		}
 		p=e+2;
 	}
 	p = 0;
@@ -556,7 +568,10 @@ BX.IBlock.Tools.addNewRow = function(tableID, row_to_clone)
 		e = sHTML.indexOf('%5D',s+3);
 		if(e<0)break;
 		n = parseInt(sHTML.substr(s+4,e-s));
-		sHTML = sHTML.substr(0, s)+'%5Bn'+(++n)+'%5D'+sHTML.substr(e+3);
+		if (isFinite(n))
+		{
+			sHTML = sHTML.substr(0, s) + '%5Bn' + (++n) + '%5D' + sHTML.substr(e + 3);
+		}
 		p=e+3;
 	}
 

@@ -16,6 +16,7 @@ use Bitrix\Main\Web\Uri;
 use Bitrix\Rest\Engine\Access;
 use Bitrix\Rest\Event\Sender;
 use Bitrix\Rest\FormConfig\EventType;
+use Bitrix\Rest\Internals\FreeAppTable;
 use Bitrix\Rest\Marketplace\Client;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
@@ -54,9 +55,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_App_Query query()
- * @method static EO_App_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_App_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_App_Result getById($id)
- * @method static EO_App_Result getList(array $parameters = array())
+ * @method static EO_App_Result getList(array $parameters = [])
  * @method static EO_App_Entity getEntity()
  * @method static \Bitrix\Rest\EO_App createObject($setDefaultValues = true)
  * @method static \Bitrix\Rest\EO_App_Collection createCollection()
@@ -237,7 +238,17 @@ class AppTable extends Main\Entity\DataManager
 				),
 			),
 			(new OneToMany('LANG_ALL', AppLangTable::class, 'APP'))
-				->configureJoinType('left')
+				->configureJoinType('left'),
+			new Main\ORM\Fields\Relations\Reference(
+				'FREE_APP',
+				FreeAppTable::class,
+				Main\ORM\Query\Join::on('this.CODE', 'ref.APP_CODE'),
+			),
+			new Main\ORM\Fields\ExpressionField(
+				'IS_FREE',
+				'CASE WHEN %s IS NOT NULL THEN 1 ELSE 0 END',
+				['FREE_APP.APP_CODE'],
+			),
 		);
 	}
 
@@ -287,6 +298,7 @@ class AppTable extends Main\Entity\DataManager
 	 */
 	public static function onAfterAdd(Main\Entity\Event $event)
 	{
+		Main\Application::getInstance()->getCache()->cleanDir('rest/market_subscription');
 		EventController::onAddApp($event);
 		$data = $event->getParameters();
 		if(!static::$skipRemoteUpdate)
@@ -373,6 +385,7 @@ class AppTable extends Main\Entity\DataManager
 	 */
 	public static function onAfterUpdate(Main\Entity\Event $event)
 	{
+		Main\Application::getInstance()->getCache()->cleanDir('rest/market_subscription');
 		$data = $event->getParameters();
 		static::clearClientCache($data['primary']['ID']);
 
@@ -463,6 +476,7 @@ class AppTable extends Main\Entity\DataManager
 	 */
 	public static function onAfterDelete(Main\Entity\Event $event)
 	{
+		Main\Application::getInstance()->getCache()->cleanDir('rest/market_subscription');
 		$data = $event->getParameters();
 
 		static::clearClientCache($data['primary']['ID']);

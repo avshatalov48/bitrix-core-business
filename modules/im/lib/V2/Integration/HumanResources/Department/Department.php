@@ -9,7 +9,9 @@ use Bitrix\HumanResources\Contract\Service\NodeMemberService;
 use Bitrix\HumanResources\Contract\Service\NodeService;
 use Bitrix\HumanResources\Enum\DepthLevel;
 use Bitrix\HumanResources\Enum\NodeActiveFilter;
+use Bitrix\HumanResources\Item\Collection\NodeCollection;
 use Bitrix\HumanResources\Item\Node;
+use Bitrix\HumanResources\Item\NodeMember;
 use Bitrix\HumanResources\Service\Container;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
 use Bitrix\Main\Config\Option;
@@ -58,16 +60,9 @@ class Department extends BaseDepartment
 		}
 
 		self::$wasSearchedTopId = true;
-		$structure = $this->structureRepository->getByXmlId(\Bitrix\HumanResources\Item\Structure::DEFAULT_STRUCTURE_XML_ID);
 
-		if (!isset($structure))
-		{
-			return null;
-		}
-
-		$rootNode = $this->nodeRepository->getRootNodeByStructureId($structure->id);
-
-		if (!isset($rootNode))
+		$rootNode = $this->getRootNode();
+		if ($rootNode === null)
 		{
 			return null;
 		}
@@ -85,17 +80,10 @@ class Department extends BaseDepartment
 			return $this->structureDepartments;
 		}
 
-		$structure = $this->structureRepository->getByXmlId(\Bitrix\HumanResources\Item\Structure::DEFAULT_STRUCTURE_XML_ID);
-
-		if ($structure === null)
-		{
-			return [];
-		}
-
-		$rootNode = $this->nodeRepository->getRootNodeByStructureId($structure->id);
+		$rootNode = $this->getRootNode();
 		if ($rootNode === null)
 		{
-			return  [];
+			return [];
 		}
 
 		$nodes = $this->nodeRepository->getChildOf($rootNode, DepthLevel::FULL, NodeActiveFilter::ONLY_ACTIVE);
@@ -107,6 +95,25 @@ class Department extends BaseDepartment
 		}
 
 		return $this->structureDepartments;
+	}
+
+	public function getListByIds(array $ids): array
+	{
+		if (!empty($this->structureDepartments))
+		{
+			return $this->filterDepartmentsByIds($this->structureDepartments, $ids);
+		}
+
+		$departments = [];
+		$nodeCollection = $this->getNodesByIds($ids);
+
+		foreach ($nodeCollection as $node)
+		{
+			$department = $this->formatNode($node);
+			$departments[$department->id] = $department;
+		}
+
+		return $departments;
 	}
 
 	public function getListByXml(string $xmlId): array
@@ -143,5 +150,80 @@ class Department extends BaseDepartment
 			parent: $parentId,
 			nodeId: $node->id
 		);
+	}
+
+	public function getEmployeeIdsWithLimit(array $ids, int $limit = 50): array
+	{
+		$employees = $managers = [];
+		$nodeCollection = $this->getNodesByIds($ids);
+		$headRole = Container::getRoleRepository()->findByXmlId(NodeMember::DEFAULT_ROLE_XML_ID['HEAD'])?->id;
+
+		$count = 0;
+		foreach ($nodeCollection as $node)
+		{
+			$memberCollection = $this->nodeMemberService->getPagedEmployees(
+				$node->id,
+				false,
+				0,
+				$limit - $count
+			);
+
+			foreach ($memberCollection->getItemMap() as $member)
+			{
+				if (in_array($headRole, $member->roles ?? [], true))
+				{
+					$managers[$member->entityId] = $member->entityId;
+				}
+				else
+				{
+					$employees[$member->entityId] = $member->entityId;
+				}
+			}
+
+			$count = count($managers + $employees);
+
+			if ($count >= $limit)
+			{
+				break;
+			}
+		}
+
+		return array_slice($managers + $employees, 0, $limit);
+	}
+
+	protected function getNodesByIds(array $ids): NodeCollection
+	{
+		$codes = array_map(
+			static fn($id) => DepartmentBackwardAccessCode::makeById($id),
+			$ids
+		);
+
+		return $this->nodeRepository->findAllByAccessCodes($codes);
+	}
+
+	protected function getRootNode(): ?Node
+	{
+		$structure = $this->structureRepository->getByXmlId(\Bitrix\HumanResources\Item\Structure::DEFAULT_STRUCTURE_XML_ID);
+		if ($structure === null)
+		{
+			return null;
+		}
+
+		return $this->nodeRepository->getRootNodeByStructureId($structure->id);
+	}
+
+	protected function filterDepartmentsByIds(array $departments, array $ids): array
+	{
+		$departmentByIds = [];
+
+		foreach ($departments as $department)
+		{
+			if (in_array($department->id, $ids, true))
+			{
+				$departmentByIds[$department->id] = $department;
+			}
+		}
+
+		return $departmentByIds;
 	}
 }

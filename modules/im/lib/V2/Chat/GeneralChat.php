@@ -555,14 +555,14 @@ class GeneralChat extends GroupChat
 		return true;
 	}
 
-	protected function sendMessageUserDelete(int $userId, bool $skipRecent = false): void
+	protected function sendMessageUserDelete(int $userId, Relation\DeleteUserConfig $config): void
 	{
 		if (!self::getAutoMessageStatus(self::GENERAL_MESSAGE_TYPE_LEAVE))
 		{
 			return;
 		}
 
-		parent::sendMessageUserDelete($userId, $skipRecent);
+		parent::sendMessageUserDelete($userId, $config);
 	}
 
 	protected function getMessageUserDeleteText(int $userId): string

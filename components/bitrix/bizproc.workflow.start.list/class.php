@@ -130,6 +130,9 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 		$this->fillGridInfo();
 		$this->fillGridData();
 
+		$this->arResult['canEdit'] = $this->checkRightsEdit();
+		$this->arResult['bizprocEditorUrl'] = CBPDocumentService::getBizprocEditorUrl($this->getComplexDocumentType()) ?? '';
+
 		$this->arResult['signedDocumentType'] = CBPDocument::signDocumentType($this->getComplexDocumentType());
 		$this->arResult['signedDocumentId'] = CBPDocument::signDocumentType($this->getComplexDocumentId());
 
@@ -201,6 +204,15 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 		{
 			$this->setError(new Error(Loc::getMessage('BIZPROC_WORKFLOW_START_LIST_RIGHTS_ERROR')));
 		}
+	}
+
+	private function checkRightsEdit(): bool
+	{
+		return CBPDocument::canUserOperateDocument(
+			CBPCanUserOperateOperation::CreateWorkflow,
+			$this->getCurrentUserId(),
+			$this->arResult['documentId'],
+		);
 	}
 
 	private function getCurrentUserId(): int
@@ -327,9 +339,7 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 				'actions' => [
 					[
 						'text' => Loc::getMessage('BIZPROC_WORKFLOW_START_LIST_GRID_ROW_ACTION_EDIT'),
-						// 'onclick' => "BX.Bizproc.Component.WorkflowStartList.Instance.editTemplate(['{$template->getId()}']);",
-						'title' => Loc::getMessage('BIZPROC_WORKFLOW_START_LIST_SOON') ?? '',
-						'disabled' => true,
+						'onclick' => "BX.Bizproc.Component.WorkflowStartList.Instance.editTemplate(event, {$template->getId()});",
 					],
 				],
 				'cellActions' => [
@@ -502,12 +512,10 @@ class BizprocWorkflowStartList extends CBitrixComponent implements Errorable, Co
 		$createButton = \Bitrix\UI\Buttons\CreateButton::create([
 			'text' => Loc::getMessage('BIZPROC_WORKFLOW_START_LIST_ADD_TEMPLATE_BUTTON'),
 			'color' => \Bitrix\UI\Buttons\Color::SUCCESS,
-			'state' => \Bitrix\UI\Buttons\State::DISABLED,
-			'dataset' => [
-				'hint' => Loc::getMessage('BIZPROC_WORKFLOW_START_LIST_SOON') ?? '',
-				'hint-no-icon' => '',
-			],
 			'className' => 'ui-btn-no-caps',
+			'click' => new \Bitrix\UI\Buttons\JsCode(
+			"BX.Bizproc.Component.WorkflowStartList.Instance.editTemplate(event, 0)"
+			),
 		]);
 
 		$feedbackParams = \Bitrix\Main\Web\Json::encode($this->getFeedbackParams());

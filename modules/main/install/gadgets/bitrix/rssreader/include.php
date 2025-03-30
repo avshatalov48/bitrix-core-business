@@ -13,9 +13,6 @@ class gdRssFeeds
 
 function gdGetRss($rss_url, $cache_time = 0, $isHtml = false)
 {
-	/** @global CMain $APPLICATION */
-	global $APPLICATION;
-
 	$cache = new CPHPCache();
 	if(!$cache->StartDataCache($cache_time, 'c'.$rss_url.($isHtml ? 'y' : 'n'), "gdrss"))
 	{
@@ -25,11 +22,11 @@ function gdGetRss($rss_url, $cache_time = 0, $isHtml = false)
 
 	$oRssFeeds = new gdRssFeeds();
 
-	$ob = new CHTTP();
-	$ob->http_timeout = 10;
-	$ob->setFollowRedirect(true);
-	$ob->HTTPQuery("GET", $rss_url);
-	$res = $ob->result;
+	$http = new \Bitrix\Main\Web\HttpClient([
+		"socketTimeout" => 10,
+		"streamTimeout" => 10,
+	]);
+	$res = $http->get($rss_url);
 
 	if(!$res)
 	{

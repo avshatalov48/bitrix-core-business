@@ -4,38 +4,23 @@ namespace Bitrix\Im\V2\Relation;
 
 class AddUsersConfig
 {
-	private array $managerIds = [];
-	private ?bool $hideHistory;
-	private bool $withMessage;
-	private bool $skipRecent;
-	private bool $isFakeAdd;
-	private Reason $reason;
+	protected array $managerIds = [];
 
 	public function __construct(
 		array $managerIds = [],
-		?bool $hideHistory = null,
-		bool $withMessage = true,
-		bool $skipRecent = false,
-		bool $isFakeAdd = false,
-		Reason $reason = Reason::DEFAULT,
+		protected ?bool $hideHistory = null,
+		protected bool $withMessage = true,
+		protected bool $skipRecent = false,
+		protected bool $isFakeAdd = false,
+		protected Reason $reason = Reason::DEFAULT,
 	)
 	{
 		$this->setManagerIds($managerIds);
-		$this->hideHistory = $hideHistory;
-		$this->withMessage = $withMessage;
-		$this->skipRecent = $skipRecent;
-		$this->isFakeAdd = $isFakeAdd;
-		$this->reason = $reason;
 	}
 
 	public function isManager(int $userId): bool
 	{
 		return isset($this->managerIds[$userId]);
-	}
-
-	public function getManagerIds(): array
-	{
-		return $this->managerIds;
 	}
 
 	public function setManagerIds(array $managerIds): AddUsersConfig
@@ -64,32 +49,14 @@ class AddUsersConfig
 		return $this->withMessage;
 	}
 
-	public function setWithMessage(bool $withMessage): AddUsersConfig
-	{
-		$this->withMessage = $withMessage;
-		return $this;
-	}
-
 	public function skipRecent(): bool
 	{
 		return $this->skipRecent;
 	}
 
-	public function setSkipRecent(bool $skipRecent): AddUsersConfig
-	{
-		$this->skipRecent = $skipRecent;
-		return $this;
-	}
-
 	public function isFakeAdd(): bool
 	{
 		return $this->isFakeAdd;
-	}
-
-	public function setIsFakeAdd(bool $isFakeAdd): AddUsersConfig
-	{
-		$this->isFakeAdd = $isFakeAdd;
-		return $this;
 	}
 
 	public function getReason(): Reason

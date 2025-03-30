@@ -1,0 +1,10 @@
+<?php
+$MESS["REST_CONFIGURATION_IMPORT_ACCESS_DENIED"] = "Қолжетімсіз";
+$MESS["REST_CONFIGURATION_IMPORT_ERROR_PROCESS_REGISTRATION"] = "Импортты тіркеу қатесі";
+$MESS["REST_CONFIGURATION_IMPORT_MANIFEST_NOT_CURRENT"] = "Қате файл жүктелді";
+$MESS["REST_CONFIGURATION_IMPORT_MANIFEST_NOT_FOUND"] = "Манифест табылмады";
+$MESS["REST_CONFIGURATION_IMPORT_PAGE_TITLE_CREATE"] = "Парақша құру";
+$MESS["REST_CONFIGURATION_IMPORT_PREPARATION_TITLE"] = "Импортқа дайындық";
+$MESS["REST_CONFIGURATION_IMPORT_ROLLBACK_TITLE"] = "Салалық баптауларды қалпына келтіру";
+$MESS["REST_CONFIGURATION_IMPORT_TITLE"] = "Салалық баптаулар импорты";
+$MESS["REST_CONFIGURATION_ROLLBACK_DEFAULT_TITLE"] = "қосымшадан салалық баптауларды орнатуға дейінгі баптаулар (#CREATE_TIME#)";

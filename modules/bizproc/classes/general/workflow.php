@@ -762,10 +762,14 @@ class CBPWorkflow
 	public function addEventHandler($eventName, IBPActivityExternalEventListener $eventHandler)
 	{
 		if (!is_array($this->rootActivity->arEventsMap))
-			$this->rootActivity->arEventsMap = array();
+		{
+			$this->rootActivity->arEventsMap = [];
+		}
 
 		if (!array_key_exists($eventName, $this->rootActivity->arEventsMap))
-			$this->rootActivity->arEventsMap[$eventName] = array();
+		{
+			$this->rootActivity->arEventsMap[$eventName] = [];
+		}
 
 		$this->rootActivity->arEventsMap[$eventName][] = $eventHandler;
 	}
@@ -784,17 +788,25 @@ class CBPWorkflow
 	public function removeEventHandler($eventName, IBPActivityExternalEventListener $eventHandler)
 	{
 		if (!is_array($this->rootActivity->arEventsMap))
-			$this->rootActivity->arEventsMap = array();
+		{
+			$this->rootActivity->arEventsMap = [];
+		}
 
 		if (!array_key_exists($eventName, $this->rootActivity->arEventsMap))
-			$this->rootActivity->arEventsMap[$eventName] = array();
+		{
+			$this->rootActivity->arEventsMap[$eventName] = [];
+		}
 
 		$idx = array_search($eventHandler, $this->rootActivity->arEventsMap[$eventName], true);
 		if ($idx !== false)
+		{
 			unset($this->rootActivity->arEventsMap[$eventName][$idx]);
+		}
 
 		if (count($this->rootActivity->arEventsMap[$eventName]) <= 0)
+		{
 			unset($this->rootActivity->arEventsMap[$eventName]);
+		}
 	}
 
 	public function getAvailableStateEvents()

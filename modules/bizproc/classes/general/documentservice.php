@@ -279,6 +279,30 @@ class CBPDocumentService extends CBPRuntimeService
 		CBPRuntime::SendExternalEvent($workflowId, $eventName, []);
 	}
 
+	public static function getBizprocEditorUrl($parameterDocumentType): ?string
+	{
+		[$moduleId, $entity, $documentType] = CBPHelper::parseDocumentId($parameterDocumentType);
+
+		if ($moduleId)
+		{
+			try
+			{
+				Loader::includeModule($moduleId);
+				if (class_exists($entity) && method_exists($entity, "getBizprocEditorUrl"))
+				{
+
+					return call_user_func_array([$entity, "getBizprocEditorUrl"], [$parameterDocumentType]);
+				}
+			}
+			catch (Throwable)
+			{
+				return null;
+			}
+		}
+
+		return null;
+	}
+
 	public function getDocumentType($parameterDocumentId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);

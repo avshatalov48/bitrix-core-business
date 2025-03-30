@@ -391,8 +391,8 @@ abstract class Application
 	 * 'exception_handling' => array(
 	 *        'value' => array(
 	 *            'debug' => true,        // output exception on screen
-	 *            'handled_errors_types' => E_ALL & ~E_STRICT & ~E_NOTICE,    // catchable error types, printed to log
-	 *            'exception_errors_types' => E_ALL & ~E_NOTICE & ~E_STRICT,  // error types from catchable which throws exceptions
+	 *            'handled_errors_types' => E_ALL & ~E_NOTICE,    // catchable error types, printed to log
+	 *            'exception_errors_types' => E_ALL & ~E_NOTICE,  // error types from catchable which throws exceptions
 	 *            'ignore_silence' => false,      // ignore @
 	 *            'assertion_throws_exception' => true,       // assertion throws exception
 	 *            'assertion_error_type' => 256,

@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.popup',
 		'ui.dialogs.messagebox',
+		'ui.lottie',
 		'im.v2.lib.channel',
 		'main.core',
 		'im.v2.application.core',

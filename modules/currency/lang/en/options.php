@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CURRENCY_SETTINGS"] = "General settings";
 $MESS["CURRENCY_SETTINGS_TITLE"] = "Basic parameters for the module";
 $MESS["BASE_CURRENCY"] = "Base currency:";
@@ -29,4 +29,3 @@ $MESS["CURRENCY_BASE_RATE_AGENT_ABSENT"] = "Attention! Currency-to-base exchange
 $MESS["CURRENCY_AGENTS_CREATE_AGENT"] = "Create agent";
 $MESS["CUR_OPTIONS_BTN_SAVE_TITLE"] = "Save changes";
 $MESS["CUR_OPTIONS_BTN_RESET_TITLE"] = "Undo all unsaved changes";
-?>

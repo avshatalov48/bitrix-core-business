@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\v2\Section;
 
 use Bitrix\Catalog\v2\BaseCollection;
 use Bitrix\Main\Result;
+use Bitrix\Main\Type;
 
 /**
  * Class SectionCollection
@@ -90,17 +91,9 @@ class SectionCollection extends BaseCollection
 
 	private function filterValues(array $values): array
 	{
-		$filteredValues = [];
+		Type\Collection::normalizeArrayValuesByInt($values);
 
-		foreach ($values as $value)
-		{
-			if (is_numeric($value))
-			{
-				$filteredValues[] = (int)$value;
-			}
-		}
-
-		return array_unique($filteredValues);
+		return $values;
 	}
 
 	public function saveInternal(): Result

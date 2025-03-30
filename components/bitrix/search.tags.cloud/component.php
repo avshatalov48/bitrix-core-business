@@ -1,4 +1,7 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 /** @global CDatabase $DB */
@@ -15,176 +18,205 @@
 /** @var CCacheManager $CACHE_MANAGER */
 global $CACHE_MANAGER;
 
-if(!isset($arParams["CACHE_TIME"]))
-	$arParams["CACHE_TIME"] = 3600;
-
-$arParams["SORT"] = (isset($arParams["SORT"]) && $arParams["SORT"] == "CNT" ? "CNT" : "NAME");
-$arParams["SORT_BY"] = (isset($arParams["SORT_BY"]) && $arParams["SORT_BY"] == "ASC" ? "ASC" : "DESC");
-$arParams["PAGE_ELEMENTS"] = ((intval($arParams["PAGE_ELEMENTS"]) > 0) ? intval($arParams["PAGE_ELEMENTS"]) : 1000);
-$arParams["PERIOD"] = intval($arParams["PERIOD"]);
-$arParams["CHECK_DATES"] = ($arParams["CHECK_DATES"]=="Y" ? true : false);
-$arParams["~TAGS"] = (empty($arParams["~TAGS"]) ? ($_REQUEST["tags"] ?? '') : $arParams["~TAGS"]);
-$arParams["~TAGS"] = trim($arParams["~TAGS"]);
-$arParams["TAGS"] = htmlspecialcharsex($arParams["~TAGS"]);
-$arParams["SEARCH"] = (empty($arParams["SEARCH"]) ? ($_REQUEST["q"] ?? '') : $arParams["~SEARCH"]);
-$arParams["~SEARCH"] = trim($arParams["SEARCH"]);
-$arParams["SEARCH"] = htmlspecialcharsbx($arParams["~SEARCH"]);
-
-if (!empty($arParams["URL_SEARCH"]))
+if (!isset($arParams['CACHE_TIME']))
 {
-	$arResult["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["URL_SEARCH"], array("TAGS" => "tags=#TAGS#"));
-	if (mb_strpos($arResult["~URL"], "#TAGS#") === false)
+	$arParams['CACHE_TIME'] = 3600;
+}
+
+$arParams['SORT'] = (isset($arParams['SORT']) && $arParams['SORT'] == 'CNT' ? 'CNT' : 'NAME');
+$arParams['SORT_BY'] = (isset($arParams['SORT_BY']) && $arParams['SORT_BY'] == 'ASC' ? 'ASC' : 'DESC');
+$arParams['PAGE_ELEMENTS'] = ((intval($arParams['PAGE_ELEMENTS']) > 0) ? intval($arParams['PAGE_ELEMENTS']) : 1000);
+$arParams['PERIOD'] = intval($arParams['PERIOD']);
+$arParams['CHECK_DATES'] = ($arParams['CHECK_DATES'] == 'Y' ? true : false);
+$arParams['~TAGS'] = (empty($arParams['~TAGS']) ? ($_REQUEST['tags'] ?? '') : $arParams['~TAGS']);
+$arParams['~TAGS'] = trim($arParams['~TAGS']);
+$arParams['TAGS'] = htmlspecialcharsex($arParams['~TAGS']);
+$arParams['SEARCH'] = (empty($arParams['SEARCH']) ? ($_REQUEST['q'] ?? '') : $arParams['~SEARCH']);
+$arParams['~SEARCH'] = trim($arParams['SEARCH']);
+$arParams['SEARCH'] = htmlspecialcharsbx($arParams['~SEARCH']);
+
+if (!empty($arParams['URL_SEARCH']))
+{
+	$arResult['~URL'] = CComponentEngine::MakePathFromTemplate($arParams['URL_SEARCH'], ['TAGS' => 'tags=#TAGS#']);
+	if (mb_strpos($arResult['~URL'], '#TAGS#') === false)
 	{
-		if (mb_strpos($arResult["~URL"], "?") === false)
-			$arResult["~URL"] .= "?";
+		if (mb_strpos($arResult['~URL'], '?') === false)
+		{
+			$arResult['~URL'] .= '?';
+		}
 		else
-			$arResult["~URL"] .= "&";
-		$arResult["~URL"] .= "tags=#TAGS#";
+		{
+			$arResult['~URL'] .= '&';
+		}
+		$arResult['~URL'] .= 'tags=#TAGS#';
 	}
 }
 else
 {
-	$arResult["~URL"] = $APPLICATION->GetCurPageParam("tags=#TAGS#", array("tags"));
+	$arResult['~URL'] = $APPLICATION->GetCurPageParam('tags=#TAGS#', ['tags']);
 }
-$arResult["URL"] = htmlspecialcharsbx($arResult["~URL"]);
+$arResult['URL'] = htmlspecialcharsbx($arResult['~URL']);
 
-if (!empty($arParams["~TAGS"]) || !empty($arParams["~SEARCH"]))
+if (!empty($arParams['~TAGS']) || !empty($arParams['~SEARCH']))
 {
-	$arParams["CACHE_TIME"] = 0;
+	$arParams['CACHE_TIME'] = 0;
 }
 
-if ($this->StartResultCache(false, array($USER->GetGroups())))
+if ($this->StartResultCache(false, [$USER->GetGroups()]))
 {
-
-	if(!CModule::IncludeModule("search"))
+	if (!CModule::IncludeModule('search'))
 	{
 		$this->AbortResultCache();
-		ShowError(GetMessage("BSF_C_MODULE_NOT_INSTALLED"));
+		ShowError(GetMessage('BSF_C_MODULE_NOT_INSTALLED'));
 		return;
 	}
 
-	if(defined("BX_COMP_MANAGED_CACHE"))
-		$CACHE_MANAGER->registerTag("bitrix:search.tags.cloud");
-
-	if(empty($arParams["FILTER_NAME"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
-		$arFILTERCustom = array();
-	else
+	if (defined('BX_COMP_MANAGED_CACHE'))
 	{
-		$arFILTERCustom = $GLOBALS[$arParams["FILTER_NAME"]];
-		if(!is_array($arFILTERCustom))
-			$arFILTERCustom = array();
+		$CACHE_MANAGER->registerTag('bitrix:search.tags.cloud');
 	}
 
-	$exFILTER = CSearchParameters::ConvertParamsToFilter($arParams, "arrFILTER");
-	$exFILTER["LIMIT"] = $arParams["PAGE_ELEMENTS"];
+	if (empty($arParams['FILTER_NAME']) || !preg_match('/^[A-Za-z_][A-Za-z01-9_]*$/', $arParams['FILTER_NAME']))
+	{
+		$arFILTERCustom = [];
+	}
+	else
+	{
+		$arFILTERCustom = $GLOBALS[$arParams['FILTER_NAME']];
+		if (!is_array($arFILTERCustom))
+		{
+			$arFILTERCustom = [];
+		}
+	}
 
-	$arFilter = array(
-		"SITE_ID" => SITE_ID,
-		"QUERY" => $arParams["~SEARCH"],
-		"TAGS" => $arParams["~TAGS"] ? $arParams["~TAGS"] : "",
-	);
-	if ($arParams["PERIOD"] > 0)
-		$arFilter["DATE_CHANGE"] = Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL", LANG)), time()-($arParams["PERIOD"]*24*3600)+CTimeZone::GetOffset());
-	if($arParams["CHECK_DATES"])
-		$arFilter["CHECK_DATES"]="Y";
+	$exFILTER = CSearchParameters::ConvertParamsToFilter($arParams, 'arrFILTER');
+	$exFILTER['LIMIT'] = $arParams['PAGE_ELEMENTS'];
+
+	$arFilter = [
+		'SITE_ID' => SITE_ID,
+		'QUERY' => $arParams['~SEARCH'],
+		'TAGS' => $arParams['~TAGS'] ? $arParams['~TAGS'] : '',
+	];
+	if ($arParams['PERIOD'] > 0)
+	{
+		$arFilter['DATE_CHANGE'] = Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat('FULL', LANG)), time() - ($arParams['PERIOD'] * 24 * 3600) + CTimeZone::GetOffset());
+	}
+	if ($arParams['CHECK_DATES'])
+	{
+		$arFilter['CHECK_DATES'] = 'Y';
+	}
 
 	$arFilter = array_merge($arFILTERCustom, $arFilter);
 
 	$obSearch = new CSearch();
-	$obSearch->Search($arFilter, array("CNT" => "DESC"), $exFILTER, true);
+	$obSearch->Search($arFilter, ['CNT' => 'DESC'], $exFILTER, true);
 
-	$arResult["ERROR_CODE"] = $obSearch->errorno;
-	$arResult["ERROR_TEXT"] = $obSearch->error;
+	$arResult['ERROR_CODE'] = $obSearch->errorno;
+	$arResult['ERROR_TEXT'] = $obSearch->error;
 
-	$arResult["DATE"] = array();
-	$arResult["SEARCH"] = array();
-	if($obSearch->errorno==0)
+	$arResult['DATE'] = [];
+	$arResult['SEARCH'] = [];
+	if ($obSearch->errorno == 0)
 	{
 		$res = $obSearch->GetNext();
-		if(!$res && ($arParams["RESTART"] == "Y") && $obSearch->Query->bStemming)
+		if (!$res && ($arParams['RESTART'] == 'Y') && $obSearch->Query->bStemming)
 		{
-			$exFILTER["STEMMING"] = false;
+			$exFILTER['STEMMING'] = false;
 			$obSearch = new CSearch();
-			$obSearch->Search($arFilter, array("CNT" => "DESC"), $exFILTER, true);
+			$obSearch->Search($arFilter, ['CNT' => 'DESC'], $exFILTER, true);
 
-			$arResult["ERROR_CODE"] = $obSearch->errorno;
-			$arResult["ERROR_TEXT"] = $obSearch->error;
+			$arResult['ERROR_CODE'] = $obSearch->errorno;
+			$arResult['ERROR_TEXT'] = $obSearch->error;
 
-			if($obSearch->errorno == 0)
+			if ($obSearch->errorno == 0)
 			{
 				$res = $obSearch->GetNext();
 			}
 		}
 
-		if($res)
+		if ($res)
 		{
-			$arResult["CNT_MIN"] = $res["CNT"];
-			$arResult["CNT_MAX"] = $res["CNT"];
-			$res["TIME"] = MakeTimeStamp($res["FULL_DATE_CHANGE"]);
-			$arResult["TIME_MIN"] = $res["TIME"];
-			$arResult["TIME_MAX"] = $res["TIME"];
-			$arResult["CNT_ALL"] = 0;
+			$arResult['CNT_MIN'] = $res['CNT'];
+			$arResult['CNT_MAX'] = $res['CNT'];
+			$res['TIME'] = MakeTimeStamp($res['FULL_DATE_CHANGE']);
+			$arResult['TIME_MIN'] = $res['TIME'];
+			$arResult['TIME_MAX'] = $res['TIME'];
+			$arResult['CNT_ALL'] = 0;
 
-			$arTags = array();
-			if (($arParams["TAGS_INHERIT"] != "N") && ($arParams["TAGS"] <> ''))
+			$arTags = [];
+			if (($arParams['TAGS_INHERIT'] != 'N') && ($arParams['TAGS'] <> ''))
 			{
-				$tmp = explode(",", $arParams["~TAGS"]);
-				foreach($tmp as $tag)
+				$tmp = explode(',', $arParams['~TAGS']);
+				foreach ($tmp as $tag)
 				{
 					$tag = trim($tag);
-					if($tag <> '')
+					if ($tag <> '')
+					{
 						$arTags[$tag] = $tag;
+					}
 				}
 			}
 
 			do
 			{
-				$arResult["CNT_ALL"] += $res["CNT"];
-				if ($arResult["CNT_MIN"] > $res["CNT"])
-					$arResult["CNT_MIN"] = $res["CNT"];
-				elseif ($arResult["CNT_MAX"] < $res["CNT"])
-					$arResult["CNT_MAX"] = $res["CNT"];
-
-				$res["TIME"] = MakeTimeStamp($res["FULL_DATE_CHANGE"]);
-
-				if ($arResult["TIME_MIN"] > $res["TIME"])
-					$arResult["TIME_MIN"] = $res["TIME"];
-				elseif ($arResult["TIME_MAX"] < $res["TIME"])
-					$arResult["TIME_MAX"] = $res["TIME"];
-
-				$tags = $res["~NAME"];
-				if (count($arTags) > 0)
+				$arResult['CNT_ALL'] += $res['CNT'];
+				if ($arResult['CNT_MIN'] > $res['CNT'])
 				{
-					if(array_key_exists($tags, $arTags))
-						$tags = implode(",", $arTags);
-					else
-						$tags .= ",".implode(",", $arTags);
+					$arResult['CNT_MIN'] = $res['CNT'];
+				}
+				elseif ($arResult['CNT_MAX'] < $res['CNT'])
+				{
+					$arResult['CNT_MAX'] = $res['CNT'];
 				}
 
-				$res["URL"] = str_replace("#TAGS#", urlencode($tags), $arResult["URL"]);
+				$res['TIME'] = MakeTimeStamp($res['FULL_DATE_CHANGE']);
 
-				$res["NAME_HTML"] = mb_strtolower($res["NAME"]);
+				if ($arResult['TIME_MIN'] > $res['TIME'])
+				{
+					$arResult['TIME_MIN'] = $res['TIME'];
+				}
+				elseif ($arResult['TIME_MAX'] < $res['TIME'])
+				{
+					$arResult['TIME_MAX'] = $res['TIME'];
+				}
 
-				$arResult["SEARCH"][] = $res;
-				$arResult["CNT"][$res["NAME"]] = $res["CNT"];
-				$arResult["DATE"][$res["NAME"]] = $res["TIME"];
+				$tags = $res['~NAME'];
+				if (count($arTags) > 0)
+				{
+					if (array_key_exists($tags, $arTags))
+					{
+						$tags = implode(',', $arTags);
+					}
+					else
+					{
+						$tags .= ',' . implode(',', $arTags);
+					}
+				}
+
+				$res['URL'] = str_replace('#TAGS#', urlencode($tags), $arResult['URL']);
+
+				$res['NAME_HTML'] = mb_strtolower($res['NAME']);
+
+				$arResult['SEARCH'][] = $res;
+				$arResult['CNT'][$res['NAME']] = $res['CNT'];
+				$arResult['DATE'][$res['NAME']] = $res['TIME'];
 			} while ($res = $obSearch->getNext());
 		}
 	}
 
-	if ($arParams["SORT"] != "CNT")
+	if ($arParams['SORT'] != 'CNT')
 	{
-		\Bitrix\Main\Type\Collection::sortByColumn($arResult["SEARCH"], array(
-			"NAME_HTML" => SORT_ASC,
-			"CNT" => SORT_DESC,
-		));
+		\Bitrix\Main\Type\Collection::sortByColumn($arResult['SEARCH'], [
+			'NAME_HTML' => SORT_ASC,
+			'CNT' => SORT_DESC,
+		]);
 	}
 
-	$arResult["TAGS_CHAIN"] = array();
-	if ($arParams["~TAGS"])
+	$arResult['TAGS_CHAIN'] = [];
+	if ($arParams['~TAGS'])
 	{
-		$res = array_unique(explode(",", $arParams["~TAGS"]));
-		$url = array();
+		$res = array_unique(explode(',', $arParams['~TAGS']));
+		$url = [];
 		foreach ($res as $key => $tags)
 		{
 			$tags = trim($tags);
@@ -193,17 +225,16 @@ if ($this->StartResultCache(false, array($USER->GetGroups())))
 				$url_without = $res;
 				unset($url_without[$key]);
 				$url[$tags] = $tags;
-				$result = array(
-					"TAG_NAME" => htmlspecialcharsex($tags),
-					"TAG_PATH" => $APPLICATION->GetCurPageParam("tags=".urlencode(implode(",", $url)), array("tags")),
-					"TAG_WITHOUT" => $APPLICATION->GetCurPageParam((count($url_without) > 0 ? "tags=".urlencode(implode(",", $url_without)) : ""), array("tags")),
-				);
-				$arResult["TAGS_CHAIN"][] = $result;
+				$result = [
+					'TAG_NAME' => htmlspecialcharsex($tags),
+					'TAG_PATH' => $APPLICATION->GetCurPageParam('tags=' . urlencode(implode(',', $url)), ['tags']),
+					'TAG_WITHOUT' => $APPLICATION->GetCurPageParam((count($url_without) > 0 ? 'tags=' . urlencode(implode(',', $url_without)) : ''), ['tags']),
+				];
+				$arResult['TAGS_CHAIN'][] = $result;
 			}
 		}
 	}
 	$this->IncludeComponentTemplate();
 
-	return count($arResult["SEARCH"]);
+	return count($arResult['SEARCH']);
 }
-?>

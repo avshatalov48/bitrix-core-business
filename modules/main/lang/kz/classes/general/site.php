@@ -1,0 +1,27 @@
+<?php
+$MESS["BAD_LANG_DIR"] = "Сайтқа буманы енгізіңіз.";
+$MESS["BAD_SITE_DUP"] = "Сайттың ID көшіру.";
+$MESS["BAD_SITE_LID"] = "Сайттың ID-і 2 таңба болуы керек.";
+$MESS["BAD_SITE_NAME"] = "Сайттың атауын енгізіңіз.";
+$MESS["BAD_SORT"] = "Сұрыптауды енгізіңіз.";
+$MESS["MAIN_BAD_LANGUAGE_ID"] = "Өнімнің тілімен байланыс орнатылмаған";
+$MESS["MAIN_BAD_LANGUAGE_ID_BAD"] = "Өнімнің тілімен байланыс өрісінің мәніндегі қате";
+$MESS["MAIN_BAD_TEMPLATE"] = "Сайт үшін дұрыс емес қалып.";
+$MESS["MAIN_BAD_TEMPLATE_DUP"] = "Бірдей жағдайларда қалыпқа байланыстыруды көшіру.";
+$MESS["MAIN_BEFORE_DEL_ERR1"] = "Модульде жою кезіндегі қате";
+$MESS["MAIN_NAME_JOHN_LLOYD_SMITH"] = "Иван Васильевич Петров";
+$MESS["MAIN_NAME_JOHN_L_SMITH"] = "Иван В. Петров";
+$MESS["MAIN_NAME_JOHN_SMITH"] = "Иван Петров";
+$MESS["MAIN_NAME_J_L_SMITH"] = "И. В. Петров";
+$MESS["MAIN_NAME_J_SMITH"] = "И. Петров";
+$MESS["MAIN_NAME_MR_SMITH"] = "Петров мырза";
+$MESS["MAIN_NAME_SMITH_COMMA_J"] = "Петров, И.";
+$MESS["MAIN_NAME_SMITH_COMMA_JOHN_LLOYD"] = "Петров, Иван Васильевич";
+$MESS["MAIN_NAME_SMITH_COMMA_J_L"] = "Петров, И. В.";
+$MESS["MAIN_NAME_SMITH_J"] = "Петров И.";
+$MESS["MAIN_NAME_SMITH_JOHN"] = "Петров Иван";
+$MESS["MAIN_NAME_SMITH_JOHN_LLOYD"] = "Петров Иван Васильевич";
+$MESS["MAIN_NAME_SMITH_J_L"] = "Петров И. В.";
+$MESS["MAIN_SITE_LATIN"] = "Сайттың ID тек латын таңбалары мен сандары болуы керек.";
+$MESS["lang_check_culture_incorrect"] = "Қате аймақтық баптаулар көрсетілген.";
+$MESS["lang_check_culture_not_set"] = "Өңірлік баптаулар көрсетілмеген.";

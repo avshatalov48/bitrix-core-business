@@ -69,13 +69,13 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 			<td>
 				<span class="adm-select-wrap">
 					<select id="initialPriceTypeSelect" class="adm-select inactive-element" style="width: 169px;" disabled>
-						<option value="0"<?=($sourcePriceType == 0 ? ' selected' : ''); ?>><?
+						<option value="0"<?=($sourcePriceType == 0 ? ' selected' : ''); ?>><?php
 							echo Loc::getMessage('IBLIST_CHPRICE_PRICE_TYPE_EMPTY'); ?></option>
-						<?
+						<?php
 						foreach ($priceTypeList as $id => $title)
 						{
-							?><option value="<?=$id; ?>"<?=($sourcePriceType == $id ? ' selected' : ''); ?>><?
-							echo $title; ?></option><?
+							?><option value="<?=$id; ?>"<?=($sourcePriceType == $id ? ' selected' : ''); ?>><?php
+							echo $title; ?></option><?php
 						}
 						unset($id, $title);
 						?>
@@ -115,13 +115,13 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 				<td width="25%">
 					<span class="adm-select-wrap">
 						<select id="tablePriceTypeIdSelect" class="adm-select" style="width: 169px;">
-							<option value="0"<?=($destinationPriceType == 0 ? ' selected' : ''); ?>><?
+							<option value="0"<?=($destinationPriceType == 0 ? ' selected' : ''); ?>><?php
 								echo Loc::getMessage('IBLIST_CHPRICE_PRICE_TYPE_EMPTY'); ?></option>
-							<?
+							<?php
 							foreach ($priceTypeList as $id => $title)
 							{
-								?><option value="<?=$id; ?>"<?=($destinationPriceType == $id ? ' selected' : ''); ?>><?
-								echo $title; ?></option><?
+								?><option value="<?=$id; ?>"<?= ($destinationPriceType == $id ? ' selected' : '') ?>><?php
+								echo $title; ?></option><?php
 							}
 							unset($id, $title);
 							?>
@@ -144,12 +144,12 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 						<select id="tableUnitsSelect" class="adm-select" style="width: 169px;">
 							<option selected value="percent">%</option>
 							<option value="multiple"><?=Loc::getMessage("IBLIST_CHPRICE_TABLE_UNIT_MULTYPLE")?></option>
-							<?
+							<?php
 							foreach ($currenciesList as $currencyCode => $currencyElement)
 							{
 								?>
 								<option
-									<?
+									<?php
 										if ( isset($_SESSION['CHANGE_PRICE_PARAMS']['UNITS'])
 											&& ($_SESSION['CHANGE_PRICE_PARAMS']['UNITS'] === $currencyCode) )
 										{
@@ -158,7 +158,7 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 									?> value=<?=htmlspecialcharsbx($currencyCode); ?>>
 									<?=htmlspecialcharsbx($currencyElement)?>
 								</option>
-								<?
+								<?php
 							}
 							?>
 						</select>
@@ -175,7 +175,7 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 				</p>
 				<p>
 					<input type="radio"
-						<?
+						<?php
 						if (isset($_SESSION['CHANGE_PRICE_PARAMS']['FORMAT_RESULTS'])
 							&& $_SESSION['CHANGE_PRICE_PARAMS']['FORMAT_RESULTS'] === "floor")
 						{
@@ -189,7 +189,7 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 				</p>
 				<p>
 					<input type="radio"
-						<?
+						<?php
 						if ( empty($_SESSION['CHANGE_PRICE_PARAMS']['FORMAT_RESULTS'])
 							|| ($_SESSION['CHANGE_PRICE_PARAMS']['FORMAT_RESULTS'] === "ceil") )
 						{
@@ -203,7 +203,7 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 				</p>
 				<p>
 					<input type="radio"
-						<?
+						<?php
 						if (isset($_SESSION['CHANGE_PRICE_PARAMS']['FORMAT_RESULTS'])
 							&& $_SESSION['CHANGE_PRICE_PARAMS']['FORMAT_RESULTS'] === "round")
 						{
@@ -260,7 +260,7 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 				</table>
 				<table style="width: 100%;">
 					<tr>
-						<?
+						<?php
 						$sourceInput = "<input type='text' style='width:70px;margin:0 5px' id='exampleSourceValueInput' value='11111.11'>";
 						?>
 						<td style="text-align: center;">
@@ -286,7 +286,7 @@ if ($destinationPriceType < 0 || !isset($priceTypeList[$destinationPriceType]))
 	</div>
 </div>
 
-<?
+<?php
 
 $javascriptParams = array(
 	"tableReloadId" => htmlspecialcharsbx($_POST['sTableID']),
@@ -307,5 +307,5 @@ $javascriptParams = CUtil::PhpToJSObject($javascriptParams);
 	var iblockChangeScript = BX.Catalog.Admin.IblockChangePrice();
 	iblockChangeScript.init(<?=$javascriptParams?>);
 </script>
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

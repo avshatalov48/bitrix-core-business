@@ -65,6 +65,11 @@ export class NotificationPullHandler
 		this.updateCounterDebounced(params.counter);
 	}
 
+	handleNotifyReadAll()
+	{
+		void this.store.dispatch('notifications/readAll');
+	}
+
 	handleNotifyDelete(params)
 	{
 		const idsToDelete = Object.keys(params.id).map(id => Number.parseInt(id, 10));

@@ -1,4 +1,5 @@
 <?php
+$MESS["LISTS_ELEMENT_CREATION_GUIDE_AJAX_ADD_INTERNAL_ERROR"] = "Could not start workflow. Please try again.";
 $MESS["LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS"] = "Something went wrong. Make sure your input is correct.";
 $MESS["LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS_1"] = "Error. Please check your input.";
 $MESS["LISTS_ELEMENT_CREATION_GUIDE_AJAX_EMPTY_REQUIRED_TEMPLATE_IDS"] = "Required parameter templateIds is missing.";

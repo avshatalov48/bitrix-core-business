@@ -238,7 +238,7 @@ class BizprocDocument extends CIBlockDocument
 				}
 				elseif ($property['USER_TYPE'] == 'DiskFile')
 				{
-					$diskValues = current($property['VALUE']);
+					$diskValues = is_array($property['VALUE']) ? current($property['VALUE']) : null;
 					$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
 					if (is_array($diskValues))
 					{
@@ -3318,5 +3318,17 @@ class BizprocDocument extends CIBlockDocument
 	public static function isFeatureEnabled($documentType, $feature)
 	{
 		return in_array($feature, array(\CBPDocumentService::FEATURE_MARK_MODIFIED_FIELDS));
+	}
+
+	public static function getBizprocEditorUrl($documentType): ?string
+	{
+		$iblockId = intval(mb_substr($documentType[2], mb_strlen(self::DOCUMENT_TYPE_PREFIX)));
+		if ($iblockId > 0)
+		{
+
+			return sprintf('/bizproc/processes/%d/bp_edit/#ID#/', $iblockId);
+		}
+
+		return null;
 	}
 }

@@ -4,7 +4,6 @@ namespace Bitrix\MobileApp\Janative\Entity;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Context;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
@@ -31,6 +30,7 @@ class Component extends Base
 
 	/**
 	 * Component constructor.
+	 *
 	 * @param null $path
 	 * @throws Exception
 	 */
@@ -56,7 +56,7 @@ class Component extends Base
 		$directory = new Directory($this->path);
 		$this->isBundleEnabled = isset($this->getConfig()["packer"]) ?? false;
 		$this->baseFileName = 'component';
-		$path = $directory->getPath() . '/'.$this->baseFileName.'.js';
+		$path = $directory->getPath() . '/' . $this->baseFileName . '.js';
 		$file = new File($path);
 		$this->name = $directory->getName();
 		$this->namespace = $namespace;
@@ -79,8 +79,9 @@ class Component extends Base
 	 * @throws Exception
 	 */
 	public static function createInstanceByName($name, string $namespace = 'bitrix'): ?Component
-    {
+	{
 		$info = Utils::extractEntityDescription($name, $namespace);
+
 		return Manager::getComponentByName($info['defaultFullname']);
 	}
 
@@ -106,7 +107,6 @@ class Component extends Base
 		}
 	}
 
-
 	public function getResult(): ?array
 	{
 		$componentFile = new File($this->path . '/component.php');
@@ -118,6 +118,16 @@ class Component extends Base
 		return [];
 	}
 
+	private function shouldUseBundle(): bool
+	{
+		if (Manager::isBundleEnabled())
+		{
+			return $this->isBundleEnabled;
+		}
+
+		return false;
+	}
+
 	public function getContent(): string
 	{
 		$env = $this->getEnvContent();
@@ -125,7 +135,8 @@ class Component extends Base
 		$componentFilePath = "{$this->path}/{$this->baseFileName}.js";
 		$extensionContent = "";
 		$availableComponents = "";
-		if ($this->isBundleEnabled)
+
+		if ($this->shouldUseBundle())
 		{
 			$bundleConfig = new Config("{$this->path}/dist/deps.bundle.php");
 			foreach ($bundleConfig->dynamicData as $ext)
@@ -138,7 +149,7 @@ class Component extends Base
 		else
 		{
 			$extensionContent = $this->getExtensionsContent();
-			$availableComponents = "this.availableComponents = ".Utils::jsonEncode( $this->getComponentListInfo()).";";
+			$availableComponents = "this.availableComponents = " . Utils::jsonEncode($this->getComponentListInfo()) . ";";
 		}
 
 		$eventManager = EventManager::getInstance();
@@ -150,7 +161,8 @@ class Component extends Base
 			foreach ($events as $event)
 			{
 				$jsCode = ExecuteModuleEventEx($event, [$this]);
-				if (is_string($jsCode)) {
+				if (is_string($jsCode))
+				{
 					$additionalContent .= $jsCode;
 				}
 
@@ -175,7 +187,8 @@ class Component extends Base
 		return $content;
 	}
 
-	public function getEnvContent(): string {
+	public function getEnvContent(): string
+	{
 		global $USER;
 
 		$result = Utils::jsonEncode($this->getResult());
@@ -198,7 +211,6 @@ class Component extends Base
 			: SITE_ID
 		);
 
-
 		$siteDir = SITE_DIR;
 		if ($isExtranetUser)
 		{
@@ -216,6 +228,7 @@ class Component extends Base
 			ModuleManager::getInstalledModules(),
 			static function ($modulesCollection, $module) {
 				$modulesCollection[$module['ID']] = true;
+
 				return $modulesCollection;
 			},
 			[]
@@ -236,7 +249,7 @@ class Component extends Base
 			'isCollaber' => $this->isUserCollaber(),
 			'installedModules' => $installedModules,
 		]);
-		$file = new File(Application::getDocumentRoot()."/bitrix/js/mobileapp/platform.js");
+		$file = new File(Application::getDocumentRoot() . "/bitrix/js/mobileapp/platform.js");
 		$export = $file->getContents();
 		$inlineContent = <<<JS
 \n\n//-------- component '$this->name' ---------- 
@@ -270,14 +283,17 @@ JS;
 		return $container?->getCollaberService()?->isCollaberById($userId) ?? false;
 	}
 
-	public function getComponentListInfo(): array {
+	public function getComponentListInfo(): array
+	{
 		$relativeComponents = $this->getComponentDependencies();
 		$componentScope = Manager::getAvailableComponents();
-		if ($relativeComponents !== null) {
+		if ($relativeComponents !== null)
+		{
 			$relativeComponentsScope = [];
 			foreach ($relativeComponents as $scope)
 			{
-				if (isset($componentScope[$scope])) {
+				if (isset($componentScope[$scope]))
+				{
 					$relativeComponentsScope[$scope] = $componentScope[$scope];
 				}
 			}
@@ -291,12 +307,12 @@ JS;
 	}
 
 	public function getInfo(): array
-    {
+	{
 		return [
 			'path' => $this->getPath(),
 			'version' => $this->getVersion(),
 			'publicUrl' => $this->getPublicPath(),
-			'resultUrl' => $this->getPublicPath() . '&get_result=Y'
+			'resultUrl' => $this->getPublicPath() . '&get_result=Y',
 		];
 	}
 
@@ -311,11 +327,12 @@ JS;
 	}
 
 	public function getVersion(): string
-    {
+	{
 		if (!$this->version)
 		{
 			$this->version = "1";
-			if ( $this->isBundleEnabled )
+
+			if ($this->shouldUseBundle())
 			{
 				$bundleVersion = new File("{$this->path}/dist/version.bundle.php");
 				if ($bundleVersion->isExists())
@@ -342,9 +359,10 @@ JS;
 	}
 
 	public function getPublicPath(): string
-    {
+	{
 		$name = ($this->namespace !== "bitrix" ? $this->namespace . ":" : "") . $this->name;
 		$name = urlencode($name);
+
 		return "/mobileapp/jn/$name/?version=" . $this->getVersion();
 	}
 
@@ -354,7 +372,8 @@ JS;
 		$extensions = $this->getDependencies();
 		foreach ($extensions as $extension)
 		{
-			try {
+			try
+			{
 				$instance = Extension::getInstance($extension);
 				$extensionPhrases = $instance->getLangMessages();
 				$langPhrases = array_merge($langPhrases, $extensionPhrases);
@@ -370,26 +389,26 @@ JS;
 
 	public function getDependencies()
 	{
-		if (!$this->isBundleEnabled ) {
-			return parent::getDependencies();
-		}
-		else
+		if ($this->shouldUseBundle())
 		{
-			$bundleConfig = new Config("{$this->path}/dist/deps.bundle.php");
-			return $bundleConfig->extensions;
+			return (new Config("{$this->path}/dist/deps.bundle.php"))->extensions;
 		}
+
+		return parent::getDependencies();
 	}
 
 	public function getComponentDependencies(): ?array
 	{
 		$componentDependencies = parent::getComponentDependencies();
-		if (is_array($componentDependencies)) {
+		if (is_array($componentDependencies))
+		{
 			$dependencies = $this->getDependencies();
 
 			foreach ($dependencies as $dependency)
 			{
 				$list = (Extension::getInstance($dependency))->getComponentDependencies();
-				if ($list !== null) {
+				if ($list !== null)
+				{
 					$componentDependencies = array_merge($componentDependencies, $list);
 				}
 			}
@@ -404,7 +423,7 @@ JS;
 	 * @return array|null
 	 */
 	public function resolveDependencies(): ?array
-    {
+	{
 		$rootDeps = $this->getDependencyList();
 		$deps = [];
 
@@ -417,23 +436,25 @@ JS;
 	}
 
 	public function getExtensionsContent($excludeResult = false): string
-    {
+	{
 		$content = "\n//extension '{$this->name}'\n";
 		$deps = $this->getDependencies();
 		foreach ($deps as $ext)
 		{
-            try
-            {
-                $extension = Extension::getInstance($ext);
+			try
+			{
+				$extension = Extension::getInstance($ext);
 				$content .= "\n" . $extension->getContent($excludeResult);
-            } catch (SystemException $e)
-            {
-                echo "Janative: error while initialization of '{$ext}' extension\n\n";
-                throw $e;
-            }
-        }
-		$loadedExtensions = "this.loadedExtensions = ".Utils::jsonEncode(array_values($deps), true).";\n";
-		return $loadedExtensions.$content;
+			}
+			catch (SystemException $e)
+			{
+				echo "Janative: error while initialization of '{$ext}' extension\n\n";
+				throw $e;
+			}
+		}
+		$loadedExtensions = "this.loadedExtensions = " . Utils::jsonEncode(array_values($deps), true) . ";\n";
+
+		return $loadedExtensions . $content;
 	}
 
 	public function setVersion(string $version = "1")
@@ -441,7 +462,8 @@ JS;
 		$this->version = $version;
 	}
 
-	private function isHotreloadEnabled(): Bool {
+	private function isHotreloadEnabled(): bool
+	{
 		return (defined('JN_HOTRELOAD_ENABLED') && defined('JN_HOTRELOAD_HOST'));
 	}
 }

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CURRENCY_SAVE_ERR"] = "Ошибка при изменении валюты #ID#: #ERROR_TEXT#";
 $MESS["CURRENCY_SAVE_ERR2"] = "Ошибка при изменении валюты #ID#";
 $MESS["currency_err1"] = "Ошибка удаления валюты.";
@@ -28,4 +28,3 @@ $MESS["CURRENCY_SET_BASE"] = "Сделать базовой";
 $MESS["CURRENCY_SET_BASE_TITLE"] = "Использовать валюту в качестве базовой";
 $MESS["CONFIRM_SET_BASE_MESSAGE"] = "Вы действительно хотите использовать эту валюту в качестве базовой?";
 $MESS["CONFIRM_DEL_MESSAGE"] = "Вы действительно хотите удалить данную валюту?";
-?>

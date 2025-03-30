@@ -3,15 +3,16 @@ import { CopilotManager } from 'im.v2.lib.copilot';
 
 import { Avatar, AvatarSize } from './components/base/avatar';
 import { CollaberAvatar } from './components/collab/collaber';
+import { ExtranetUserAvatar } from './components/extranet/extranet-user-avatar';
 
 import type { BitrixVueComponentProps } from 'ui.vue3';
+import type { ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const MessageAvatar = {
 	name: 'MessageAvatar',
 	components: { Avatar, CollaberAvatar },
-	props:
-	{
+	props: {
 		messageId: {
 			type: [String, Number],
 			default: 0,
@@ -41,8 +42,7 @@ export const MessageAvatar = {
 			default: true,
 		},
 	},
-	computed:
-	{
+	computed: {
 		customAvatarUrl(): string
 		{
 			const copilotManager = new CopilotManager();
@@ -53,15 +53,18 @@ export const MessageAvatar = {
 
 			return copilotManager.getMessageRoleAvatar(this.messageId);
 		},
-		isCollaber(): boolean
+		user(): ImModelUser
 		{
-			const user = this.$store.getters['users/get'](this.authorId, true);
-
-			return user.type === UserType.collaber;
+			return this.$store.getters['users/get'](this.authorId, true);
 		},
 		avatarComponent(): BitrixVueComponentProps
 		{
-			return this.isCollaber ? CollaberAvatar : Avatar;
+			const avatarMap = {
+				[UserType.extranet]: ExtranetUserAvatar,
+				[UserType.collaber]: CollaberAvatar,
+			};
+
+			return avatarMap[this.user.type] ?? Avatar;
 		},
 	},
 	template: `

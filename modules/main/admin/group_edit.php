@@ -1,10 +1,4 @@
-<?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2015 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+<?php
 
 /**
  * @global CMain $APPLICATION
@@ -87,7 +81,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_REQUEST["save"]) || !empty(
 
 	if ($USER_COUNT <= $USER_COUNT_MAX)
 	{
-		$USER_ID_NUMBER = intval($_REQUEST["USER_ID_NUMBER"]);
+		$USER_ID_NUMBER = intval($_REQUEST["USER_ID_NUMBER"] ?? 0);
 		$USER_ID = array();
 		$ind = -1;
 		for ($i = 0; $i <= $USER_ID_NUMBER; $i++)
@@ -113,12 +107,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_REQUEST["save"]) || !empty(
 	}
 
 	if($ID>0 && $COPY_ID<=0)
+	{
 		$res = $group->Update($ID, $arFields);
+		$new = false;
+	}
 	else
 	{
 		$ID = $group->Add($arFields);
 		$res = ($ID>0);
-		$new="Y";
+		$new = true;
 	}
 
 	$strError .= $group->LAST_ERROR;
@@ -146,7 +143,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_REQUEST["save"]) || !empty(
 					if (isset(${"SITES_".$moduleName}))
 						$st = ${"SITES_".$moduleName};
 
-					$APPLICATION->DelGroupRight($MID, array($ID), false);
+					$APPLICATION->DelGroupRight($MID, array($ID));
 					foreach($arSites["reference_id"] as $site_id_tmp)
 					{
 						$APPLICATION->DelGroupRight($MID, array($ID), $site_id_tmp);
@@ -164,7 +161,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_REQUEST["save"]) || !empty(
 					}
 				}
 				elseif(!is_array($rt) && $rt <> '' && $rt != "NOT_REF")
-					$APPLICATION->SetGroupRight($MID, $ID, $rt, false);
+					$APPLICATION->SetGroupRight($MID, $ID, $rt);
 			}
 
 			$arTasksModules = CTask::GetTasksInModules(false, false, 'module');
@@ -193,24 +190,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_REQUEST["save"]) || !empty(
 				CGroup::SetSubordinateGroups($ID);
 			}
 
-			$old_arTasks = CGroup::GetTasks($ID, true);
+			$old_arTasks = CGroup::GetTasks($ID);
 			if (!empty(array_diff($old_arTasks, $arTasks)) || !empty(array_diff($arTasks, $old_arTasks)))
 				CGroup::SetTasks($ID, $arTasks);
 		}
 
-		if($USER->CanDoOperation('edit_groups') && $_REQUEST["save"] <> '')
+		if($USER->CanDoOperation('edit_groups') && !empty($_REQUEST["save"]))
 			LocalRedirect("group_admin.php?lang=".LANGUAGE_ID);
-		elseif($USER->CanDoOperation('edit_groups') && $_REQUEST["apply"] <> '')
+		elseif($USER->CanDoOperation('edit_groups') && !empty($_REQUEST["apply"]))
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ID=".$ID."&".$tabControl->ActiveTabParam());
-		elseif($new == "Y")
+		elseif($new)
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&ID=".$ID."&".$tabControl->ActiveTabParam());
 	}
 }
 
 $str_USER_ID = array();
 
-$z = CGroup::GetByID($ID, "N");
-if($z->ExtractFields("str_"))
+$z = CGroup::GetByID($ID);
+if($z->ExtractFields())
 {
 	if($USER_COUNT <= $USER_COUNT_MAX && $ID <> 2)
 	{
@@ -231,7 +228,7 @@ else
 
 if ($strError <> '')
 {
-	$DB->InitTableVarsForEdit("b_group", "", "str_");
+	$DB->InitTableVarsForEdit("b_group", "");
 
 	$USER_ID_NUMBER = intval($_REQUEST["USER_ID_NUMBER"]);
 	$str_USER_ID = array();
@@ -474,7 +471,7 @@ $arBXGroupPolicy = [
 			<script>var arSubordTasks = [];</script>
 			<?
 			$arTasksModules = CTask::GetTasksInModules(true,false,'module');
-			$arTasks = CGroup::GetTasks($ID,true);
+			$arTasks = CGroup::GetTasks($ID);
 			$nID = COperation::GetIDByName('edit_subordinate_users');
 			$nID2 = COperation::GetIDByName('view_subordinate_users');
 			if($strError <> '')
@@ -621,7 +618,7 @@ $arBXGroupPolicy = [
 					$v = $_REQUEST["RIGHTS_".$moduleName][$k_site];
 				}
 				else
-					$v = $APPLICATION->GetGroupRight($MID, array($ID), "N", "N", false);
+					$v = $APPLICATION->GetGroupRight($MID, array($ID), "N", "N");
 
 				?><tr><?
 				$use_padding = false;
@@ -698,7 +695,7 @@ $arBXGroupPolicy = [
 								?><td style="padding: 3px;"><?
 									echo SelectBoxFromArray("RIGHTS_".$moduleName."[]", $arRightsUseSites, htmlspecialcharsbx($v), GetMessage("DEFAULT"));
 								?></td>
-								<td style="padding: 3px;"><a href="javascript:void(0)" onClick="settingsDeleteRow(this)"><img src="/bitrix/themes/.default/images/actions/delete_button.gif" border="0" width="20" height="20"></a></td>
+								<td style="padding: 3px;"><a href="javascript:void(0)" onClick="settingsDeleteRow(this)"><img src="/bitrix/themes/.default/images/actions/delete_button.gif" border="0" width="20" height="20" alt=""></a></td>
 							</tr><?
 						}
 					}
@@ -707,7 +704,7 @@ $arBXGroupPolicy = [
 					<tr id="hidden-rights-row" style="display: none;">
 						<td style="padding: 3px;"><? echo SelectBoxFromArray("SITES_".$moduleName."[]", $arSites, "", GetMessage("SITE_SELECT")); ?></td>
 						<td style="padding: 3px;"><? echo SelectBoxFromArray("RIGHTS_".$moduleName."[]", $arRightsUseSites, "", GetMessage("DEFAULT"));?></td>
-						<td><a href="javascript:void(0)" onClick="settingsDeleteRow(this)"><img src="/bitrix/themes/.default/images/actions/delete_button.gif" border="0" width="20" height="20"></a></td>
+						<td><a href="javascript:void(0)" onClick="settingsDeleteRow(this)"><img src="/bitrix/themes/.default/images/actions/delete_button.gif" border="0" width="20" height="20" alt=""></a></td>
 					</tr>
 					<?
 				}

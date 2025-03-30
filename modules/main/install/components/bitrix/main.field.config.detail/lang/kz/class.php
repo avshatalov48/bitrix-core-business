@@ -1,0 +1,6 @@
+<?php
+$MESS["MAIN_FIELD_CONFIG_DETAIL_DEFAULT_LABEL"] = "Жаңа өріс";
+$MESS["MAIN_FIELD_CONFIG_DETAIL_FIELD_NOT_FOUND_ERROR"] = "Пайдаланушы өрісі табылмады";
+$MESS["MAIN_FIELD_CONFIG_DETAIL_NO_ENTITY_ID_ERROR"] = "Мән түрі көрсетілмеген";
+$MESS["MAIN_FIELD_CONFIG_DETAIL_TITLE_ADD"] = "Жаңа өріс";
+$MESS["MAIN_FIELD_CONFIG_DETAIL_TITLE_EDIT"] = "Өрісті редакциялау";

@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_feature,im_v2_lib_access,im_v2_provider_service,imopenlines_v2_lib_openlines,im_v2_lib_roleManager,im_v2_lib_uuid,im_v2_lib_layout,im_public,im_v2_lib_copilot,ui_vue3_vuex,ui_notification,main_core,im_v2_lib_user,rest_client,im_v2_lib_utils,main_core_events,ui_uploader_core,im_v2_lib_logger,im_v2_lib_analytics,im_v2_application_core,im_v2_lib_rest,im_v2_const) {
+(function (exports,im_v2_lib_feature,im_v2_provider_service,imopenlines_v2_lib_openlines,im_v2_lib_roleManager,im_v2_lib_uuid,im_v2_lib_layout,im_public,im_v2_lib_copilot,im_v2_lib_access,ui_vue3_vuex,ui_notification,main_core,im_v2_lib_user,rest_client,im_v2_lib_utils,main_core_events,ui_uploader_core,im_v2_lib_logger,im_v2_lib_analytics,im_v2_application_core,im_v2_lib_rest,im_v2_const) {
 	'use strict';
 
 	var _restResult = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restResult");
@@ -1397,6 +1397,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    }, READ_TIMEOUT);
 	  }
+	  async readChatQueuedMessages(chatId) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _messagesToRead)[_messagesToRead][chatId]) {
+	      return true;
+	    }
+	    clearTimeout(this.readTimeout);
+	    return babelHelpers.classPrivateFieldLooseBase(this, _readMessagesForChat)[_readMessagesForChat](chatId, babelHelpers.classPrivateFieldLooseBase(this, _messagesToRead)[_messagesToRead][chatId]);
+	  }
 	  clearDialogMark(dialogId) {
 	    im_v2_lib_logger.Logger.warn('ReadService: clear dialog mark', dialogId);
 	    const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$7)[_store$7].getters['chats/get'](dialogId);
@@ -1427,7 +1434,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  const queueChatId = Number.parseInt(rawChatId, 10);
 	  im_v2_lib_logger.Logger.warn('ReadService: readMessages', messageIds);
 	  if (messageIds.size === 0) {
-	    return;
+	    return true;
 	  }
 	  const copiedMessageIds = [...messageIds];
 	  delete babelHelpers.classPrivateFieldLooseBase(this, _messagesToRead)[_messagesToRead][queueChatId];
@@ -1439,6 +1446,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    console.error('ReadService: error reading message', error);
 	  });
 	  babelHelpers.classPrivateFieldLooseBase(this, _checkChatCounter)[_checkChatCounter](readResult);
+	  return true;
 	}
 	function _readMessageOnClient2(chatId, messageIds) {
 	  const maxMessageId = Math.max(...messageIds);
@@ -1899,6 +1907,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  readMessage(chatId, messageId) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _readService)[_readService].readMessage(chatId, messageId);
 	  }
+	  readChatQueuedMessages(chatId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _readService)[_readService].readChatQueuedMessages(chatId);
+	  }
 	  clearDialogMark(dialogId) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _readService)[_readService].clearDialogMark(dialogId);
 	  }
@@ -1942,14 +1953,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _userService)[_userService] = new UserService();
 	  babelHelpers.classPrivateFieldLooseBase(this, _deleteService)[_deleteService] = new DeleteService();
 	}
-
-	const AccessErrorCode = {
-	  accessDenied: 'ACCESS_DENIED',
-	  chatNotFound: 'CHAT_NOT_FOUND',
-	  messageNotFound: 'MESSAGE_NOT_FOUND',
-	  messageAccessDenied: 'MESSAGE_ACCESS_DENIED',
-	  messageAccessDeniedByTariff: 'MESSAGE_ACCESS_DENIED_BY_TARIFF'
-	};
 
 	var _store$9 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _chatId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("chatId");
@@ -2217,11 +2220,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const wasInitedBefore = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog]().inited;
 	    babelHelpers.classPrivateFieldLooseBase(this, _setDialogInited)[_setDialogInited](false);
 	    if (targetMessageId) {
-	      return this.loadContext(targetMessageId).catch(() => {}).finally(() => {
+	      return this.loadContext(targetMessageId).finally(() => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _setDialogInited)[_setDialogInited](true, wasInitedBefore);
 	      });
 	    }
-	    return this.loadInitialMessages().catch(() => {}).finally(() => {
+	    return this.loadInitialMessages().finally(() => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _setDialogInited)[_setDialogInited](true, wasInitedBefore);
 	    });
 	  }
@@ -2342,7 +2345,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return babelHelpers.classPrivateFieldLooseBase(this, _store$9)[_store$9].getters['chats/getByChatId'](babelHelpers.classPrivateFieldLooseBase(this, _chatId)[_chatId]);
 	}
 	function _handleLoadContextError2(error) {
-	  if (error.code !== AccessErrorCode.messageNotFound) {
+	  if (error.code !== im_v2_lib_access.AccessErrorCode.messageNotFound) {
 	    return;
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _showNotification$2)[_showNotification$2](main_core.Loc.getMessage('IM_CONTENT_CHAT_CONTEXT_MESSAGE_NOT_FOUND'));
@@ -2353,7 +2356,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	}
 	function _sendAnalytics2$1(error) {
-	  if (error.code !== AccessErrorCode.messageNotFound) {
+	  if (error.code !== im_v2_lib_access.AccessErrorCode.messageNotFound) {
 	    return;
 	  }
 	  const chat = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog]();
@@ -2896,6 +2899,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _buildForwardContextId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("buildForwardContextId");
 	var _logSendErrors = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("logSendErrors");
 	var _clearLastMessageViews = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clearLastMessageViews");
+	var _sendForwardRequest = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendForwardRequest");
 	class SendingService$$1 {
 	  static getInstance() {
 	    if (!this.instance) {
@@ -2904,6 +2908,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return this.instance;
 	  }
 	  constructor() {
+	    Object.defineProperty(this, _sendForwardRequest, {
+	      value: _sendForwardRequest2
+	    });
 	    Object.defineProperty(this, _clearLastMessageViews, {
 	      value: _clearLastMessageViews2
 	    });
@@ -3048,27 +3055,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      force: true,
 	      dialogId
 	    });
-	    try {
-	      const requestParams = babelHelpers.classPrivateFieldLooseBase(this, _prepareSendForwardRequest)[_prepareSendForwardRequest]({
-	        forwardUuidMap,
-	        commentMessage,
-	        dialogId
-	      });
-	      const response = await babelHelpers.classPrivateFieldLooseBase(this, _sendMessageToServer)[_sendMessageToServer](requestParams);
-	      im_v2_lib_logger.Logger.warn('SendingService: forwardMessage result -', response);
-	      babelHelpers.classPrivateFieldLooseBase(this, _handleForwardMessageResponse)[_handleForwardMessageResponse]({
-	        response,
-	        dialogId,
-	        commentMessage
-	      });
-	    } catch (errors) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _handleForwardMessageError)[_handleForwardMessageError]({
-	        commentMessage,
-	        forwardUuidMap
-	      });
-	      babelHelpers.classPrivateFieldLooseBase(this, _logSendErrors)[_logSendErrors](errors, 'forwardMessage');
-	    }
-	    return Promise.resolve();
+	    return babelHelpers.classPrivateFieldLooseBase(this, _sendForwardRequest)[_sendForwardRequest]({
+	      forwardUuidMap,
+	      commentMessage,
+	      dialogId
+	    });
 	  }
 	  async retrySendMessage(params) {
 	    const {
@@ -3086,6 +3077,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      tempMessageId: unsentMessage.id,
 	      replyId: unsentMessage.replyId
 	    });
+	    if (main_core.Type.isStringFilled(unsentMessage.forward.id)) {
+	      const [, forwardId] = unsentMessage.forward.id.split('/');
+	      const forwardUuidMap = {
+	        [unsentMessage.id]: forwardId
+	      };
+	      return babelHelpers.classPrivateFieldLooseBase(this, _sendForwardRequest)[_sendForwardRequest]({
+	        forwardUuidMap,
+	        dialogId
+	      });
+	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _sendAndProcessMessage)[_sendAndProcessMessage](message);
 	  }
 	  async sendCopilotPrompt(params) {
@@ -3447,6 +3448,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    dialogId
 	  });
 	}
+	async function _sendForwardRequest2({
+	  forwardUuidMap,
+	  commentMessage,
+	  dialogId
+	}) {
+	  try {
+	    const requestParams = babelHelpers.classPrivateFieldLooseBase(this, _prepareSendForwardRequest)[_prepareSendForwardRequest]({
+	      forwardUuidMap,
+	      commentMessage,
+	      dialogId
+	    });
+	    const response = await babelHelpers.classPrivateFieldLooseBase(this, _sendMessageToServer)[_sendMessageToServer](requestParams);
+	    im_v2_lib_logger.Logger.warn('SendingService: forwardMessage result -', response);
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleForwardMessageResponse)[_handleForwardMessageResponse]({
+	      response,
+	      dialogId,
+	      commentMessage
+	    });
+	  } catch (errors) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleForwardMessageError)[_handleForwardMessageError]({
+	      commentMessage,
+	      forwardUuidMap
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _logSendErrors)[_logSendErrors](errors, 'forwardMessage');
+	  }
+	  return Promise.resolve();
+	}
 	SendingService$$1.instance = null;
 
 	class NotificationService {
@@ -3611,18 +3639,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      file_id: fileId
 	    };
 	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient$9)[_restClient$9].callMethod(im_v2_const.RestMethod.imDiskFileDelete, queryParams).catch(error => {
-	      // eslint-disable-next-line no-console
 	      console.error('DiskService: error deleting file', error);
 	    });
 	  }
-	  save(fileId) {
-	    const queryParams = {
-	      file_id: fileId
-	    };
-	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient$9)[_restClient$9].callMethod(im_v2_const.RestMethod.imDiskFileSave, queryParams).catch(error => {
-	      // eslint-disable-next-line no-console
+	  async save(fileIds) {
+	    try {
+	      const normalizedIds = fileIds.map(id => Number.parseInt(id, 10));
+	      await im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2DiskFileSave, {
+	        data: {
+	          ids: normalizedIds
+	        }
+	      });
+	    } catch (error) {
 	      console.error('DiskService: error saving file on disk', error);
-	    });
+	    }
 	  }
 	}
 
@@ -3819,9 +3849,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _sendingService = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendingService");
 	var _uploaderFilesRegistry = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploaderFilesRegistry");
 	var _createUploader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createUploader");
+	var _registerSourceFilesCount = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("registerSourceFilesCount");
 	var _addFiles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFiles");
 	var _addFileFromDiskToModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addFileFromDiskToModel");
 	var _initUploader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initUploader");
+	var _isMediaFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isMediaFile");
 	var _setFileMapping = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setFileMapping");
 	var _requestDiskFolderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestDiskFolderId");
 	var _tryCommit = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tryCommit");
@@ -3840,6 +3872,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _getCurrentUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCurrentUser");
 	var _getChatId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getChatId");
 	var _registerFiles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("registerFiles");
+	var _unregisterFiles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("unregisterFiles");
 	var _setPreviewCreatedStatus = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setPreviewCreatedStatus");
 	var _setPreviewSentStatus = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setPreviewSentStatus");
 	var _setMessagesText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMessagesText");
@@ -3900,6 +3933,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _setPreviewCreatedStatus, {
 	      value: _setPreviewCreatedStatus2
 	    });
+	    Object.defineProperty(this, _unregisterFiles, {
+	      value: _unregisterFiles2
+	    });
 	    Object.defineProperty(this, _registerFiles, {
 	      value: _registerFiles2
 	    });
@@ -3954,6 +3990,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _setFileMapping, {
 	      value: _setFileMapping2
 	    });
+	    Object.defineProperty(this, _isMediaFile, {
+	      value: _isMediaFile2
+	    });
 	    Object.defineProperty(this, _initUploader, {
 	      value: _initUploader2
 	    });
@@ -3962,6 +4001,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _addFiles, {
 	      value: _addFiles2
+	    });
+	    Object.defineProperty(this, _registerSourceFilesCount, {
+	      value: _registerSourceFilesCount2
 	    });
 	    Object.defineProperty(this, _createUploader, {
 	      value: _createUploader2
@@ -4076,6 +4118,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    return uploaderId;
 	  }
+	  getSourceFilesCount(uploaderId) {
+	    var _babelHelpers$classPr;
+	    return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId].sourceFilesCount) != null ? _babelHelpers$classPr : 0;
+	  }
 	  getFiles(uploaderId) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].getFiles(uploaderId);
 	  }
@@ -4184,6 +4230,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _setAutoUpload)[_setAutoUpload](uploaderId, true);
 	    babelHelpers.classPrivateFieldLooseBase(this, _tryToSendMessage)[_tryToSendMessage](uploaderId);
 	  }
+	  removeFileFromUploader(options) {
+	    const {
+	      uploaderId,
+	      filesIds
+	    } = options;
+	    const files = babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].getFiles(uploaderId).filter(file => {
+	      return filesIds.includes(file.getId());
+	    });
+	    files.forEach(file => {
+	      file.remove();
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _unregisterFiles)[_unregisterFiles](uploaderId, files);
+	  }
 	  destroy() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].destroy();
 	  }
@@ -4206,6 +4265,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return uploaderId;
 	  });
 	}
+	function _registerSourceFilesCount2({
+	  uploaderId,
+	  filesCount
+	}) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId].sourceFilesCount = filesCount;
+	}
 	function _addFiles2(params) {
 	  const {
 	    files,
@@ -4224,6 +4289,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    const addedFiles = babelHelpers.classPrivateFieldLooseBase(this, _uploaderWrapper)[_uploaderWrapper].addFiles(filesForUploader);
 	    babelHelpers.classPrivateFieldLooseBase(this, _registerFiles)[_registerFiles](uploaderId, addedFiles, dialogId, autoUpload);
+	    babelHelpers.classPrivateFieldLooseBase(this, _registerSourceFilesCount)[_registerSourceFilesCount]({
+	      filesCount: files.length,
+	      uploaderId
+	    });
 	    return {
 	      uploaderFiles: addedFiles,
 	      uploaderId
@@ -4280,10 +4349,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } = event.getData();
 	    const serverFileId = file.getServerFileId().toString().slice(1);
 	    const temporaryFileId = file.getId();
-	    babelHelpers.classPrivateFieldLooseBase(this, _setFileMapping)[_setFileMapping]({
-	      serverFileId,
-	      temporaryFileId
-	    });
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isMediaFile)[_isMediaFile](temporaryFileId)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _setFileMapping)[_setFileMapping]({
+	        serverFileId,
+	        temporaryFileId
+	      });
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _updateFileProgress)[_updateFileProgress](temporaryFileId, file.getProgress(), im_v2_const.FileStatus.wait);
 	    await babelHelpers.classPrivateFieldLooseBase(this, _uploadPreview)[_uploadPreview](file);
 	    babelHelpers.classPrivateFieldLooseBase(this, _setPreviewSentStatus)[_setPreviewSentStatus](uploaderId, temporaryFileId);
@@ -4306,6 +4377,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } = event.getData();
 	    babelHelpers.classPrivateFieldLooseBase(this, _cancelUpload)[_cancelUpload](tempMessageId, tempFileId);
 	  });
+	}
+	function _isMediaFile2(fileId) {
+	  const mediaFileTypes = [im_v2_const.FileType.image, im_v2_const.FileType.video];
+	  const file = babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].getters['files/get'](fileId);
+	  return Boolean(file) && mediaFileTypes.includes(file.type);
 	}
 	function _setFileMapping2(options) {
 	  void babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('files/setTemporaryFileMapping', options);
@@ -4489,8 +4565,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].getters['users/get'](userId);
 	}
 	function _getChatId2(dialogId) {
-	  var _babelHelpers$classPr;
-	  return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId)) == null ? void 0 : _babelHelpers$classPr.chatId;
+	  var _babelHelpers$classPr2;
+	  return (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _getDialog$2)[_getDialog$2](dialogId)) == null ? void 0 : _babelHelpers$classPr2.chatId;
 	}
 	function _registerFiles2(uploaderId, files, dialogId, autoUpload) {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId]) {
@@ -4510,6 +4586,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId].previewCreatedStatus[fileId] = false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId].previewSentStatus[fileId] = false;
 	  });
+	}
+	function _unregisterFiles2(uploaderId, files) {
+	  const entry = babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId];
+	  if (entry) {
+	    files.forEach(file => {
+	      const fileId = file.getId();
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId].previewCreatedStatus) {
+	        delete babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId].previewCreatedStatus[fileId];
+	        delete babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId].previewSentStatus[fileId];
+	      }
+	    });
+	  }
 	}
 	function _setPreviewCreatedStatus2(uploaderId, fileId) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _uploaderFilesRegistry)[_uploaderFilesRegistry][uploaderId].previewCreatedStatus[fileId] = true;
@@ -4789,5 +4877,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.CopilotService = CopilotService$$1;
 	exports.CommentsService = CommentsService;
 
-}((this.BX.Messenger.v2.Service = this.BX.Messenger.v2.Service || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.OpenLines.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Event,BX.UI.Uploader,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Service = this.BX.Messenger.v2.Service || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.OpenLines.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Event,BX.UI.Uploader,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=registry.bundle.js.map

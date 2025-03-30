@@ -7,10 +7,8 @@ use Bitrix\Main\NotSupportedException;
 
 class RedisConnectionConfigurator
 {
-	/** @var array */
-	protected $config;
-	/** @var array */
-	protected $servers = [];
+	protected array $config;
+	protected array $servers = [];
 
 	public function __construct($config)
 	{
@@ -20,7 +18,6 @@ class RedisConnectionConfigurator
 		}
 
 		$this->config = $config;
-
 		$this->addServers($this->getConfig());
 	}
 
@@ -47,35 +44,35 @@ class RedisConnectionConfigurator
 		return $this;
 	}
 
-	public function getConfig()
+	public function getConfig(): array
 	{
 		return $this->config;
 	}
 
-	/**
-	 * @param \Redis|\RedisCluster $connection
-	 */
-	protected function configureConnection($connection): void
+	protected function configureConnection(\RedisCluster|\Redis $connection): void
 	{
 		$config = $this->getConfig();
 
 		if ($connection instanceof \Redis)
 		{
-			$connection->setOption(\Redis::OPT_SERIALIZER, $config['serializer'] ?? \Redis::SERIALIZER_IGBINARY);
+			if (isset($config['compression']) || defined('\Redis::COMPRESSION_LZ4'))
+			{
+				$connection->setOption(\Redis::OPT_COMPRESSION, $config['compression'] ?? \Redis::COMPRESSION_LZ4);
+				$connection->setOption(\Redis::OPT_COMPRESSION_LEVEL, $config['compression_level'] ?? \Redis::COMPRESSION_ZSTD_MAX);
+			}
+
+			if (isset($config['serializer']) || defined('\Redis::SERIALIZER_IGBINARY'))
+			{
+				$connection->setOption(\Redis::OPT_SERIALIZER, $config['serializer'] ?? \Redis::SERIALIZER_IGBINARY);
+			}
 		}
 		elseif ($connection instanceof \RedisCluster)
 		{
-			$connection->setOption(
-				\RedisCluster::OPT_SERIALIZER,
-				$config['serializer'] ?? \RedisCluster::SERIALIZER_IGBINARY
-			);
+			$connection->setOption(\RedisCluster::OPT_SERIALIZER, $config['serializer'] ?? \RedisCluster::SERIALIZER_IGBINARY);
 
 			if (count($this->servers) > 1)
 			{
-				$connection->setOption(
-					\RedisCluster::OPT_SLAVE_FAILOVER,
-					$config['failover'] ?? \RedisCluster::FAILOVER_NONE
-				);
+				$connection->setOption(\RedisCluster::OPT_SLAVE_FAILOVER, $config['failover'] ?? \RedisCluster::FAILOVER_NONE);
 			}
 		}
 	}
@@ -93,13 +90,22 @@ class RedisConnectionConfigurator
 			['host' => $host, 'port' => $port] = $this->servers[0];
 			$connection = new \Redis();
 
+			$params = [
+				$host,
+				$port,
+				$config['timeout'] ?? 0,
+				null,
+				0,
+				$config['readTimeout'] ?? 0
+			];
+
 			if ($config['persistent'])
 			{
-				$result = $connection->pconnect($host, $port);
+				$result = $connection->pconnect(...$params);
 			}
 			else
 			{
-				$result = $connection->connect($host, $port);
+				$result = $connection->connect(...$params);
 			}
 		}
 		else

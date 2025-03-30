@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CURRENCY_INSTALL_NAME"] = "Currency";
 $MESS["CURRENCY_INSTALL_DESCRIPTION"] = "The Currencies module provides for easy management of currencies and currency rates on the site.";
 $MESS["CURRENCY_INSTALL_TITLE"] = "Currencies module installation";
@@ -18,4 +18,3 @@ $MESS["CURRENCY_INSTALL_PUBLIC_SETUP"] = "Install";
 $MESS["CURRENCY_INSTALL_UNPOSSIBLE"] = "The module cannot be uninstalled.";
 $MESS["CURRENCY_BASE_EMPTY"] = "No base currency specified. The module cannot function as designed. Please specify the base currency on the <a href=\"#LINK#\">module settings page</a>.";
 $MESS["CURRENCY_BASE_ERROR"] = "No base currency specified; the exchange rate of some of the currencies is 1. The module cannot function as designed. Please specify the base currency on the <a href=\"#LINK#\">module settings page</a>.";
-?>

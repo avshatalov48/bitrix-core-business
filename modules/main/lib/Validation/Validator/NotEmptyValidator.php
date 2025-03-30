@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Main\Validation\Validator;
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 use Countable;
@@ -30,7 +30,7 @@ class NotEmptyValidator implements ValidatorInterface
 		if ($value instanceof Countable && count($value) === 0)
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_NOT_EMPTY_INVALID'),
+				new LocalizableMessage('MAIN_VALIDATION_NOT_EMPTY_INVALID'),
 				failedValidator: $this
 			));
 
@@ -45,7 +45,7 @@ class NotEmptyValidator implements ValidatorInterface
 		if (empty($value))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_NOT_EMPTY_INVALID'),
+				new LocalizableMessage('MAIN_VALIDATION_NOT_EMPTY_INVALID'),
 				failedValidator: $this
 			));
 		}

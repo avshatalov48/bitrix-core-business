@@ -4,7 +4,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/bitrix/header.php');
 
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 
-if (isset($request['documentSigned']))
+if (isset($request['documentSigned']) && \Bitrix\Main\Loader::includeModule('bizproc'))
 {
 	$unsignedDocument = CBPDocument::unSignParameters($request['documentSigned']);
 }

@@ -51,7 +51,7 @@ class SubscribeAccessTable extends Entity\DataManager
 			'DATE_FROM' => array(
 				'data_type' => 'datetime',
 				'required' => true,
-				'default_value' => new DateTime(),
+				'default_value' => fn() => new DateTime(),
 			),
 			'USER_CONTACT' => array(
 				'data_type' => 'string',

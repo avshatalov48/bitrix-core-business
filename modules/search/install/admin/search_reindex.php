@@ -1,3 +1,2 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/admin/search_reindex.php");
-?>
+<?php
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/search/admin/search_reindex.php';

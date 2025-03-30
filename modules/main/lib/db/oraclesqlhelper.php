@@ -352,12 +352,18 @@ class OracleSqlHelper extends SqlHelper
 			}
 			else
 			{
-				return 'varchar2('.max(mb_strlen($values[0]), mb_strlen($values[1])).' char)';
+				$falseLen = mb_strlen($values[0]);
+				$trueLen = mb_strlen($values[1]);
+				if ($falseLen === 1 && $trueLen === 1)
+				{
+					return 'char(1 char)';
+				}
+				return 'varchar2(' . max($falseLen, $trueLen) . ' char)';
 			}
 		}
 		elseif ($field instanceof ORM\Fields\EnumField)
 		{
-			return 'varchar2('.max(array_map('strlen', $field->getValues())).' char)';
+			return 'varchar2('.max(array_map('mb_strlen', $field->getValues())).' char)';
 		}
 		else
 		{

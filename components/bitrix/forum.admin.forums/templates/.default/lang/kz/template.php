@@ -1,0 +1,20 @@
+<?php
+$MESS["BUTTON_CLEAR_HTML"] = "Қызметтік деректерді тазалау";
+$MESS["FORUM_ADD_BUTTON"] = "Форум қосу";
+$MESS["FORUM_COLUMN_ACTIVE"] = "Бел.";
+$MESS["FORUM_COLUMN_DESCRIPTION"] = "Форумның сипаттамасы";
+$MESS["FORUM_COLUMN_FORUM_GROUP_ID"] = "Топ";
+$MESS["FORUM_COLUMN_INDEXATION"] = "Индекселетін";
+$MESS["FORUM_COLUMN_MODERATION"] = "Модерацияланатын";
+$MESS["FORUM_COLUMN_NAME"] = "Форум атауы";
+$MESS["FORUM_COLUMN_ORDER_BY"] = "Тақырыптарды сұрыптау";
+$MESS["FORUM_COLUMN_ORDER_DIRECTION"] = "Тақырыптарды сұрыптау бағыты";
+$MESS["FORUM_COLUMN_PERMISSIONS"] = "Қолжетімділік";
+$MESS["FORUM_COLUMN_POSTS"] = "Жауаптар";
+$MESS["FORUM_COLUMN_SITES"] = "Сайт";
+$MESS["FORUM_COLUMN_SORT"] = "Сұрыптау";
+$MESS["FORUM_COLUMN_TOPICS"] = "Тақырып";
+$MESS["FORUM_COLUMN_UNAPPROVED_POSTS"] = "Қабылданбаған жауаптар";
+$MESS["FORUM_DELETE_CONFIRM"] = "Форумды қалпына келтіру мүмкіндігінсіз жою керек пе?";
+$MESS["FORUM_SORT_ORDER_ASC"] = "кему бойынша";
+$MESS["FORUM_SORT_ORDER_DESC"] = "өсу бойынша";

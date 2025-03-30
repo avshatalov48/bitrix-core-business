@@ -6,4 +6,5 @@ export const LocalStorageKey = Object.freeze({
 	lastCallType: 'lastCallType',
 	lastNotificationId: 'lastNotificationId',
 	layoutConfig: 'layoutConfig',
+	audioPlaybackRate: 'audioPlaybackRate',
 });

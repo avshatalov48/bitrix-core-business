@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Authentication\Internal;
@@ -41,8 +42,8 @@ class UserDeviceTable extends Data\DataManager
 	{
 		return [
 			(new Fields\IntegerField('ID'))
-				->configurePrimary(true)
-				->configureAutocomplete(true),
+				->configurePrimary()
+				->configureAutocomplete(),
 
 			(new Fields\IntegerField('USER_ID'))
 				->addValidator(new Fields\Validators\ForeignValidator(Main\UserTable::getEntity()->getField('ID'))),
@@ -60,6 +61,8 @@ class UserDeviceTable extends Data\DataManager
 			(new Fields\BooleanField('COOKABLE'))
 				->configureValues('N', 'Y')
 				->configureDefaultValue('N'),
+
+			(new Fields\IntegerField('APP_PASSWORD_ID')),
 		];
 	}
 

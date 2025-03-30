@@ -16,3 +16,4 @@ DROP TABLE IF EXISTS b_rest_owner_entity;
 DROP TABLE IF EXISTS b_rest_integration;
 DROP TABLE IF EXISTS b_rest_configuration_storage;
 DROP TABLE IF EXISTS b_rest_stat_app;
+DROP TABLE IF EXISTS b_rest_free_app;

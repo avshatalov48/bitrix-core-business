@@ -1,7 +1,11 @@
 <?php
+
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-\Bitrix\Main\UI\Extension::load(['bizproc.script', 'ui.tooltip', 'ui.label', 'ui.dialogs.messagebox']);
+\Bitrix\Main\UI\Extension::load(['bizproc.script', 'bizproc.router', 'ui.tooltip', 'ui.label', 'ui.dialogs.messagebox']);
 
 
 $formatDocumentCell = function($row)
@@ -99,3 +103,12 @@ $APPLICATION->IncludeComponent(
 	]
 );
 ?>
+
+<script>
+	BX.ready(function(){
+		BX.message(<?= Json::encode(Loc::loadLanguageFile(__FILE__)) ?>);
+		BX.Bizproc.ScriptQueueDocumentListComponent.Instance = new BX.Bizproc.ScriptQueueDocumentListComponent(
+			{gridId: '<?=CUtil::JSEscape($arResult['GridId'])?>'}
+		);
+	});
+</script>

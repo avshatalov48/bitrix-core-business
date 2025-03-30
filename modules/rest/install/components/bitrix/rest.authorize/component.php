@@ -21,9 +21,14 @@ if(!Loader::includeModule('rest'))
 	return;
 }
 
+if (isset($_GET['oauth_proxy_params']) && Loader::includeModule('socialservices'))
+{
+	CSocServUtil::checkOAuthProxyParams();
+}
+
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-$clientId = $request['client_id'];
+$clientId = $request['client_id'] ?? $_GET['client_id'];
 if(!$clientId)
 {
 	ShowError(\Bitrix\Main\Localization\Loc::getMessage('REST_APP_NOT_FOUND'));
@@ -32,9 +37,9 @@ if(!$clientId)
 
 if($USER->IsAuthorized())
 {
-	if(isset($request['state']))
+	if (isset($request['state']) || isset($_GET['state']))
 	{
-		$state = $request['state'];
+		$state = $request['state'] ?? $_GET['state'];
 	}
 	else
 	{
@@ -81,9 +86,9 @@ if($USER->IsAuthorized())
 }
 else
 {
-	if(isset($request['client_id']))
+	if(isset($clientId))
 	{
-		$appInfo = \Bitrix\Rest\AppTable::getByClientId($request['client_id']);
+		$appInfo = \Bitrix\Rest\AppTable::getByClientId($clientId);
 		if($appInfo && $appInfo['ACTIVE'] === \Bitrix\Rest\AppTable::ACTIVE)
 		{
 			$APPLICATION->AuthForm(\Bitrix\Main\Localization\Loc::getMessage('REST_NEED_AUTHORIZE_A', array(

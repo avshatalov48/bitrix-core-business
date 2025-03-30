@@ -345,7 +345,7 @@ final class UserSenderDataProvider
 				'editHref' => $canEdit ? self::getMailboxConfigPath($sender['PARENT_ID'] ?? $mailbox['ID']) : null,
 				'avatar' => $avatar ?? null,
 				'userUrl' => $userUrl ?? null,
-				'showEditHint' => empty($sender)
+				'showEditHint' => empty($sender),
 			];
 		}
 
@@ -439,8 +439,12 @@ final class UserSenderDataProvider
 			$userId = Main\Engine\CurrentUser::get()->getId();
 		}
 
-		$userData = \CUser::GetByID($userId)->fetch();
+		if (!$userId)
+		{
+			return null;
+		}
 
+		$userData = self::getUserData($userId);
 		if (!$userData)
 		{
 			return null;
@@ -485,7 +489,7 @@ final class UserSenderDataProvider
 				'id' => $sender['ID'],
 				'name' => (strlen($sender['NAME'] ?? '') > 0) ? $sender['NAME'] : self::getUserFormattedName($sender['USER_ID']),
 				'email' => $sender['EMAIL'],
-				'type' => self::MAILBOX_SENDER_TYPE
+				'type' => self::MAILBOX_SENDER_TYPE,
 			];
 		}
 
@@ -519,7 +523,14 @@ final class UserSenderDataProvider
 
 	public static function getUserInfo(int $userId): ?array
 	{
-		$userData = \Bitrix\Main\UserTable::getById($userId)->fetch();
+		static $userInfo = [];
+
+		if (isset($userInfo[$userId]))
+		{
+			return $userInfo[$userId];
+		}
+
+		$userData = self::getUserData($userId);
 		if (!$userData)
 		{
 			return null;
@@ -543,10 +554,12 @@ final class UserSenderDataProvider
 			}
 		}
 
-		return [
+		$userInfo[$userId] = [
 			'userUrl' => $userUrl,
 			'userAvatar' => $userAvatar ?? null,
 		];
+
+		return $userInfo[$userId];
 	}
 
 	private static function canUseMailboxTable(): bool
@@ -567,5 +580,31 @@ final class UserSenderDataProvider
 		$currentUser = Main\Engine\CurrentUser::get();
 
 		return $currentUser->isAdmin() || $currentUser->canDoOperation('bitrix24_config');
+	}
+
+	private static function getUserData(int $userId): ?array
+	{
+		static $userData = [];
+		if (!empty($userData[$userId]))
+		{
+			return $userData[$userId];
+		}
+
+		$select = [
+			'ID',
+			'NAME',
+			'LAST_NAME',
+			'SECOND_NAME',
+			'PERSONAL_PHOTO',
+			'LOGIN',
+			'EMAIL',
+		];
+
+		$userData[$userId] = \Bitrix\Main\UserTable::getList([
+			'select' => $select,
+			'filter' => ['=ID' => $userId],
+		])->fetch();
+
+		return $userData[$userId] ?: null;
 	}
 }

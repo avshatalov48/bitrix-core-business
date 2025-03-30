@@ -31,6 +31,8 @@ export const AnalyticsEvent = Object.freeze({
 	clickCreateTask: 'click_create_task',
 	clickCreateEvent: 'click_create_event',
 	clickAttach: 'click_attach',
+	downloadFile: 'download_file',
+	saveToDisk: 'save_to_disk',
 });
 
 export const AnalyticsTool = Object.freeze({
@@ -82,6 +84,7 @@ export const AnalyticsSection = Object.freeze({
 	chatSidebar: 'chat_sidebar',
 	chatTextarea: 'chat_textarea',
 	editor: 'editor',
+	chatWindow: 'chat_window',
 });
 
 export const AnalyticsSubSection = Object.freeze({

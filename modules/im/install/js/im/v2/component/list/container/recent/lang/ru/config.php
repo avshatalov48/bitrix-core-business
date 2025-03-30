@@ -1,5 +1,5 @@
 <?
-$MESS["IM_RECENT_HEADER_MENU_READ_ALL"] = "Отметить все чаты как прочитанные";
+$MESS["IM_RECENT_HEADER_MENU_READ_ALL_MSGVER_1"] = "Прочитать всё";
 $MESS["IM_RECENT_HEADER_MENU_CHAT_GROUPS_TITLE"] = "Создать папки";
 $MESS["IM_RECENT_HEADER_MENU_CHAT_GROUPS_SUBTITLE"] = "Сгруппируйте чаты по папкам для быстрого доступа к нужному диалогу";
 $MESS["IM_RECENT_HEADER_MENU_SHOW_UNREAD_ONLY"] = "Показать непрочитанные чаты";

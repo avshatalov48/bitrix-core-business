@@ -1426,11 +1426,11 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 
 			$elementFields = [
 				'ID' => is_numeric($product['ID']) ? $product['ID'] : null,
-				'AMOUNT' => $product['AMOUNT'],
+				'AMOUNT' => $product['AMOUNT'] ?? null,
 				'ELEMENT_ID' => $product['SKU_ID'],
 				'PURCHASING_PRICE' => $product['PURCHASING_PRICE'],
 				'BASE_PRICE' => $product['BASE_PRICE'],
-				'BASE_PRICE_EXTRA' => $product['BASE_PRICE_EXTRA'],
+				'BASE_PRICE_EXTRA' => $product['BASE_PRICE_EXTRA'] ?? null,
 				'BASE_PRICE_EXTRA_RATE' => $product['BASE_PRICE_EXTRA_RATE'],
 				'COMMENT' => (string)($product['COMMENT'] ?? ''),
 			];

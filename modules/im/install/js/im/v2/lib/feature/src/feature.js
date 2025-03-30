@@ -19,6 +19,8 @@ export const Feature = {
 	inviteByLinkAvailable: 'inviteByLinkAvailable',
 	inviteByPhoneAvailable: 'inviteByPhoneAvailable',
 	documentSignAvailable: 'documentSignAvailable',
+	intranetInviteAvailable: 'intranetInviteAvailable',
+	voteCreationAvailable: 'voteCreationAvailable',
 };
 
 export const FeatureManager = {

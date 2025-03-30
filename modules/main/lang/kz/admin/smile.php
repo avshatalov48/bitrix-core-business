@@ -1,0 +1,27 @@
+<?php
+$MESS["ERROR_DEL_SMILE"] = "Смайлды жою қатесі.";
+$MESS["SMILE_BITRIX_SET_WARNING_DESC"] = "Назар аударыңыз! Сіз стандартты жиынтықтасыз. Жүйенің кезекті жаңартуын орнатқан кезде стандартты жиынтыққа енгізілген өзгертулер жойылуы мүмкін.<br>Өз жиынтығыңызды #LINK_START#құрып#LINK_END#, оған смайлдарды жүктеу арқылы пайдалану ұсынылады.";
+$MESS["SMILE_BITRIX_SET_WARNING_TITLE"] = "Стандартты жиынтық";
+$MESS["SMILE_BTN_ADD_NEW"] = "Жаңа смайл";
+$MESS["SMILE_BTN_ADD_NEW_ALT"] = "Жаңа смайлды қосу үшін басыңыз";
+$MESS["SMILE_BTN_BACK"] = "Жиынтықтар тізімі";
+$MESS["SMILE_BTN_CLEAR_FILTER"] = "Сүзгіні қалпына келтіру";
+$MESS["SMILE_BTN_IMPORT"] = "Импорттау";
+$MESS["SMILE_DELETE_DESCR"] = "Жою";
+$MESS["SMILE_DEL_CONF"] = "Бұл смайлды жойғыңыз келетініне сенімдісіз бе?";
+$MESS["SMILE_EDIT"] = "Өзгерту";
+$MESS["SMILE_EDIT_DESCR"] = "Өзгерту";
+$MESS["SMILE_ICON"] = "Кескін";
+$MESS["SMILE_ID"] = "ID";
+$MESS["SMILE_IMAGE_FILE"] = "Файл";
+$MESS["SMILE_NAME"] = "Атауы";
+$MESS["SMILE_NAV"] = "Смайлдар";
+$MESS["SMILE_NO_NAME"] = "Атаусыз";
+$MESS["SMILE_SET_NAME"] = "Жиынтық";
+$MESS["SMILE_SET_NO_NAME"] = "Жиынтық: #ID#";
+$MESS["SMILE_SORT"] = "Сұрыптау";
+$MESS["SMILE_TITLE"] = "Смайлдар тізімі";
+$MESS["SMILE_TYPE"] = "Түрі";
+$MESS["SMILE_TYPE_ICON"] = "Белгіше";
+$MESS["SMILE_TYPE_SMILE"] = "Смайл";
+$MESS["SMILE_TYPING"] = "Жазу";

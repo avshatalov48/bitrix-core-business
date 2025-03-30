@@ -41,7 +41,7 @@ $APPLICATION->IncludeComponent(
 			'CONTEXT' => $request->get('context') ?? [],
 			'PRESELECTED_PRODUCT_ID' => $preselectedProductId,
 		],
-		'RELOAD_GRID_AFTER_SAVE' => \CrmStoreDocumentListComponent::getGridId(),
+		'RELOAD_GRID_AFTER_SAVE' => 'all',
 		'USE_UI_TOOLBAR' => 'Y',
 		'PAGE_MODE' => false,
 		'PAGE_MODE_OFF_BACK_URL' => '/shop/documents/sales_order/',

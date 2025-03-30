@@ -1,10 +1,13 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 //You may customize user card fields to display
-$arResult['USER_PROPERTY'] = array(
-	"UF_DEPARTMENT",
-	"PERSONAL_PHOTO",
-);
+$arResult['USER_PROPERTY'] = [
+	'UF_DEPARTMENT',
+	'PERSONAL_PHOTO',
+];
 
 //Code below searches for appropriate icon for search index item.
 //All filenames should be lowercase.
@@ -61,78 +64,96 @@ $arResult['USER_PROPERTY'] = array(
 
 if (IsModuleInstalled('socialnetwork'))
 {
-	if (trim($arParams["NAME_TEMPLATE"]) == '')
-		$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
-	$arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";
+	if (trim($arParams['NAME_TEMPLATE']) == '')
+	{
+		$arParams['NAME_TEMPLATE'] = CSite::GetNameFormat();
+	}
+	$arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != 'N' ? 'Y' : 'N';
 
-	$arParams["PATH_TO_SONET_MESSAGES_CHAT"] = trim($arParams["PATH_TO_SONET_MESSAGES_CHAT"]);
-	if ($arParams["PATH_TO_SONET_MESSAGES_CHAT"] == '')
-		$arParams["PATH_TO_SONET_MESSAGES_CHAT"] = "/company/personal/messages/chat/#USER_ID#/";
+	$arParams['PATH_TO_SONET_MESSAGES_CHAT'] = trim($arParams['PATH_TO_SONET_MESSAGES_CHAT']);
+	if ($arParams['PATH_TO_SONET_MESSAGES_CHAT'] == '')
+	{
+		$arParams['PATH_TO_SONET_MESSAGES_CHAT'] = '/company/personal/messages/chat/#USER_ID#/';
+	}
 
 	if (IsModuleInstalled('intranet'))
 	{
-		$arParams["PATH_TO_CONPANY_DEPARTMENT"] = trim($arParams["PATH_TO_CONPANY_DEPARTMENT"]);
-		if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
-			$arParams["PATH_TO_CONPANY_DEPARTMENT"] = "/company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#";
+		$arParams['PATH_TO_CONPANY_DEPARTMENT'] = trim($arParams['PATH_TO_CONPANY_DEPARTMENT']);
+		if ($arParams['PATH_TO_CONPANY_DEPARTMENT'] == '')
+		{
+			$arParams['PATH_TO_CONPANY_DEPARTMENT'] = '/company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#';
+		}
 	}
 }
 
-$arIBlocks = array();
+$arIBlocks = [];
 
-$image_path = $this->GetFolder()."/images/";
-$abs_path = $_SERVER["DOCUMENT_ROOT"].$image_path;
+$image_path = $this->GetFolder() . '/images/';
+$abs_path = $_SERVER['DOCUMENT_ROOT'] . $image_path;
 
-foreach($arResult["SEARCH"] as $i=>$arItem)
+foreach ($arResult['SEARCH'] as $i => $arItem)
 {
 	$file = false;
-	switch($arItem["MODULE_ID"])
+	switch ($arItem['MODULE_ID'])
 	{
-		case "socialnetwork":
-		case "iblock":
-			if(mb_substr($arItem["ITEM_ID"], 0, 1) === "G")
+		case 'socialnetwork':
+		case 'iblock':
+			if (mb_substr($arItem['ITEM_ID'], 0, 1) === 'G')
 			{
-				if(file_exists($abs_path."socialnetwork_group.gif"))
-					$file = "socialnetwork_group.gif";
+				if (file_exists($abs_path . 'socialnetwork_group.gif'))
+				{
+					$file = 'socialnetwork_group.gif';
+				}
 			}
-			elseif(CModule::IncludeModule('iblock'))
+			elseif (CModule::IncludeModule('iblock'))
 			{
-				if(!array_key_exists($arItem["PARAM2"], $arIBlocks))
-					$arIBlocks[$arItem["PARAM2"]] = CIBlock::GetArrayByID($arItem["PARAM2"]);
+				if (!array_key_exists($arItem['PARAM2'], $arIBlocks))
+				{
+					$arIBlocks[$arItem['PARAM2']] = CIBlock::GetArrayByID($arItem['PARAM2']);
+				}
 
 				//section /element
-				if(mb_substr($arItem["ITEM_ID"], 0, 1) !== "S")
+				if (mb_substr($arItem['ITEM_ID'], 0, 1) !== 'S')
 				{
 					//Try to find gif by element proprety value xml id
-					$rsElement = CIBlockElement::GetList(array(), array(
-							"=ID" => $arItem["ITEM_ID"],
-							"IBLOCK_ID" => $arItem["PARAM2"],
-						),
-						false, false, array(
-							"ID",
-							"IBLOCK_ID",
-							"CODE",
-							"XML_ID",
-							"PROPERTY_DOC_TYPE",
-						)
+					$rsElement = CIBlockElement::GetList(
+						[],
+						[
+							'=ID' => $arItem['ITEM_ID'],
+							'IBLOCK_ID' => $arItem['PARAM2'],
+						],
+						false,
+						false,
+						[
+							'ID',
+							'IBLOCK_ID',
+							'CODE',
+							'XML_ID',
+							'PROPERTY_DOC_TYPE',
+						]
 					);
 					$arElement = $rsElement->Fetch();
-					if($arElement && $arElement["PROPERTY_DOC_TYPE_ENUM_ID"] <> '')
+					if ($arElement && $arElement['PROPERTY_DOC_TYPE_ENUM_ID'] <> '')
 					{
-						$arEnum = CIBlockPropertyEnum::GetByID($arElement["PROPERTY_DOC_TYPE_ENUM_ID"]);
-						if($arEnum && $arEnum["XML_ID"])
+						$arEnum = CIBlockPropertyEnum::GetByID($arElement['PROPERTY_DOC_TYPE_ENUM_ID']);
+						if ($arEnum && $arEnum['XML_ID'])
 						{
-							if(file_exists($abs_path."iblock_doc_type_".mb_strtolower($arEnum["XML_ID"]).".gif"))
-								$file = "iblock_doc_type_".mb_strtolower($arEnum["XML_ID"]).".gif";
+							if (file_exists($abs_path . 'iblock_doc_type_' . mb_strtolower($arEnum['XML_ID']) . '.gif'))
+							{
+								$file = 'iblock_doc_type_' . mb_strtolower($arEnum['XML_ID']) . '.gif';
+							}
 						}
 					}
 
 					//We failed. next try should be element section
-					if(!$file)
+					if (!$file)
 					{
-						$rsSection = CIBlockElement::GetElementGroups($arItem["ITEM_ID"], true);
+						$rsSection = CIBlockElement::GetElementGroups($arItem['ITEM_ID'], true);
 						$arSection = $rsSection->Fetch();
-						if($arSection)
-							$SECTION_ID = $arSection["ID"];
+						if ($arSection)
+						{
+							$SECTION_ID = $arSection['ID'];
+						}
 					}
 					else
 					{
@@ -141,119 +162,156 @@ foreach($arResult["SEARCH"] as $i=>$arItem)
 				}
 				else
 				{
-					$SECTION_ID = $arItem["ITEM_ID"];
+					$SECTION_ID = $arItem['ITEM_ID'];
 				}
 
 				//If no element icon was found. We'll take chances with section
-				if(!$file && $SECTION_ID)
+				if (!$file && $SECTION_ID)
 				{
-					$rsSection = CIBlockSection::GetList(array(), array(
-						"=ID" => $SECTION_ID,
-						"IBLOCK_ID" => $arItem["PARAM2"],
-						)
-					);
-					if($arSection = $rsSection->Fetch())
+					$rsSection = CIBlockSection::GetList([], [
+						'=ID' => $SECTION_ID,
+						'IBLOCK_ID' => $arItem['PARAM2'],
+					]);
+					if ($arSection = $rsSection->Fetch())
 					{
-						if(mb_strlen($arSection["CODE"]) && file_exists($abs_path."iblock_section_".mb_strtolower($arSection["CODE"]).".gif"))
-							$file = "iblock_section_".mb_strtolower($arSection["CODE"]).".gif";
-						elseif(file_exists($abs_path."iblock_section_".mb_strtolower($arSection["ID"]).".gif"))
-							$file = "iblock_section_".mb_strtolower($arSection["ID"]).".gif";
-						elseif(mb_strlen($arSection["XML_ID"]) && file_exists($abs_path."iblock_section_".mb_strtolower($arSection["XML_ID"]).".gif"))
-							$file = "iblock_section_".mb_strtolower($arSection["XML_ID"]).".gif";
+						if (mb_strlen($arSection['CODE']) && file_exists($abs_path . 'iblock_section_' . mb_strtolower($arSection['CODE']) . '.gif'))
+						{
+							$file = 'iblock_section_' . mb_strtolower($arSection['CODE']) . '.gif';
+						}
+						elseif (file_exists($abs_path . 'iblock_section_' . mb_strtolower($arSection['ID']) . '.gif'))
+						{
+							$file = 'iblock_section_' . mb_strtolower($arSection['ID']) . '.gif';
+						}
+						elseif (mb_strlen($arSection['XML_ID']) && file_exists($abs_path . 'iblock_section_' . mb_strtolower($arSection['XML_ID']) . '.gif'))
+						{
+							$file = 'iblock_section_' . mb_strtolower($arSection['XML_ID']) . '.gif';
+						}
 					}
 				}
 				//Try to detect by "extension"
-				$match = array();
-				if(!$file && preg_match("/\\.([a-z]+?)$/i", $arItem["TITLE"], $match))
+				$match = [];
+				if (!$file && preg_match('/\\.([a-z]+?)$/i', $arItem['TITLE'], $match))
 				{
-					if(file_exists($abs_path."iblock_type_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["IBLOCK_TYPE_ID"])."_".$match[1].".gif"))
-						$file = "iblock_type_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["IBLOCK_TYPE_ID"])."_".$match[1].".gif";
+					if (file_exists($abs_path . 'iblock_type_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['IBLOCK_TYPE_ID']) . '_' . $match[1] . '.gif'))
+					{
+						$file = 'iblock_type_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['IBLOCK_TYPE_ID']) . '_' . $match[1] . '.gif';
+					}
 				}
 				//We still failed to find icon? Try iblock itself
-				if(!$file)
+				if (!$file)
 				{
-					if(mb_strlen($arIBlocks[$arItem["PARAM2"]]["CODE"]) && file_exists($abs_path."iblock_iblock_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["CODE"]).".gif"))
-						$file = "iblock_iblock_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["CODE"]).".gif";
-					elseif(file_exists($abs_path."iblock_iblock_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["ID"]).".gif"))
-						$file = "iblock_iblock_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["ID"]).".gif";
-					elseif(mb_strlen($arIBlocks[$arItem["PARAM2"]]["XML_ID"]) && file_exists($abs_path."iblock_iblock_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["XML_ID"]).".gif"))
-						$file = "iblock_iblock_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["XML_ID"]).".gif";
-					elseif(file_exists($abs_path."iblock_type_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["IBLOCK_TYPE_ID"]).".gif"))
-						$file = "iblock_type_".mb_strtolower($arIBlocks[$arItem["PARAM2"]]["IBLOCK_TYPE_ID"]).".gif";
+					if (mb_strlen($arIBlocks[$arItem['PARAM2']]['CODE']) && file_exists($abs_path . 'iblock_iblock_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['CODE']) . '.gif'))
+					{
+						$file = 'iblock_iblock_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['CODE']) . '.gif';
+					}
+					elseif (file_exists($abs_path . 'iblock_iblock_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['ID']) . '.gif'))
+					{
+						$file = 'iblock_iblock_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['ID']) . '.gif';
+					}
+					elseif (mb_strlen($arIBlocks[$arItem['PARAM2']]['XML_ID']) && file_exists($abs_path . 'iblock_iblock_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['XML_ID']) . '.gif'))
+					{
+						$file = 'iblock_iblock_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['XML_ID']) . '.gif';
+					}
+					elseif (file_exists($abs_path . 'iblock_type_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['IBLOCK_TYPE_ID']) . '.gif'))
+					{
+						$file = 'iblock_type_' . mb_strtolower($arIBlocks[$arItem['PARAM2']]['IBLOCK_TYPE_ID']) . '.gif';
+					}
 				}
 
-				if(!$file)
+				if (!$file)
 				{
-					if(mb_substr($arItem["ITEM_ID"], 0, 1) !== "S")
+					if (mb_substr($arItem['ITEM_ID'], 0, 1) !== 'S')
 					{
-						if(file_exists($abs_path."iblock_element.gif"))
-							$file = "iblock_element.gif";
+						if (file_exists($abs_path . 'iblock_element.gif'))
+						{
+							$file = 'iblock_element.gif';
+						}
 					}
 					else
 					{
-						if(file_exists($abs_path."iblock_section.gif"))
-							$file = "iblock_section.gif";
+						if (file_exists($abs_path . 'iblock_section.gif'))
+						{
+							$file = 'iblock_section.gif';
+						}
 					}
 				}
 			}
 			break;
-		case "main":
-			$ext = end(explode('.', $arItem["ITEM_ID"]));
-			if(file_exists($abs_path."main_".mb_strtolower($ext).".gif"))
-				$file = "main_".mb_strtolower($ext).".gif";
+		case 'main':
+			$ext = end(explode('.', $arItem['ITEM_ID']));
+			if (file_exists($abs_path . 'main_' . mb_strtolower($ext) . '.gif'))
+			{
+				$file = 'main_' . mb_strtolower($ext) . '.gif';
+			}
 			break;
-		case "blog":
-			if(mb_substr($arItem["ITEM_ID"], 0, 1) === "P" && file_exists($abs_path."blog_post.gif"))
-				$file = "blog_post.gif";
-			elseif(mb_substr($arItem["ITEM_ID"], 0, 1) === "U" && file_exists($abs_path."blog_user.gif"))
-				$file = "blog_user.gif";
+		case 'blog':
+			if (mb_substr($arItem['ITEM_ID'], 0, 1) === 'P' && file_exists($abs_path . 'blog_post.gif'))
+			{
+				$file = 'blog_post.gif';
+			}
+			elseif (mb_substr($arItem['ITEM_ID'], 0, 1) === 'U' && file_exists($abs_path . 'blog_user.gif'))
+			{
+				$file = 'blog_user.gif';
+			}
 			break;
-		case "forum":
-			if(file_exists($abs_path."forum_message.gif"))
-				$file = "forum_message.gif";
+		case 'forum':
+			if (file_exists($abs_path . 'forum_message.gif'))
+			{
+				$file = 'forum_message.gif';
+			}
 			break;
-		case "intranet":
-			if(mb_substr($arItem["ITEM_ID"], 0, 1) === "U" && file_exists($abs_path."intranet_user.gif"))
-				$file = "intranet_user.gif";
+		case 'intranet':
+			if (mb_substr($arItem['ITEM_ID'], 0, 1) === 'U' && file_exists($abs_path . 'intranet_user.gif'))
+			{
+				$file = 'intranet_user.gif';
+			}
 			break;
 	}
 
-	if(!$file)
+	if (!$file)
 	{
-		if(file_exists($abs_path.$arItem["MODULE_ID"]."_default.gif"))
-			$file = $arItem["MODULE_ID"]."_default.gif";
+		if (file_exists($abs_path . $arItem['MODULE_ID'] . '_default.gif'))
+		{
+			$file = $arItem['MODULE_ID'] . '_default.gif';
+		}
 		else
-			$file = "default.gif";
+		{
+			$file = 'default.gif';
+		}
 	}
 
-	$arResult["SEARCH"][$i]["ICON"] = $image_path.$file;
+	$arResult['SEARCH'][$i]['ICON'] = $image_path . $file;
 }
 
-if(CModule::IncludeModule('intranet'))
+if (CModule::IncludeModule('intranet'))
 {
-	$arResult["STRUCTURE_PAGE"] = "";
-	$structure_iblock_id = COption::GetOptionInt("intranet", "iblock_structure", 0);
-	if($structure_iblock_id > 0)
+	$arResult['STRUCTURE_PAGE'] = '';
+	$structure_iblock_id = COption::GetOptionInt('intranet', 'iblock_structure', 0);
+	if ($structure_iblock_id > 0)
 	{
 		$arIBlock = CIBlock::GetArrayByID($structure_iblock_id);
-		if($arIBlock)
-			$arResult["STRUCTURE_PAGE"] = CIBlock::ReplaceDetailURL($arIBlock["LIST_PAGE_URL"], $arIBlock, true);
+		if ($arIBlock)
+		{
+			$arResult['STRUCTURE_PAGE'] = CIBlock::ReplaceDetailURL($arIBlock['LIST_PAGE_URL'], $arIBlock, true);
+		}
 	}
-	$arResult["STRUCTURE_FILTER"] = trim($arParams["STRUCTURE_FILTER"]);
-	if($arResult["STRUCTURE_FILTER"] == '')
-		$arResult["STRUCTURE_FILTER"] = "structure";
+	$arResult['STRUCTURE_FILTER'] = trim($arParams['STRUCTURE_FILTER']);
+	if ($arResult['STRUCTURE_FILTER'] == '')
+	{
+		$arResult['STRUCTURE_FILTER'] = 'structure';
+	}
 
 	$bSoNet = CModule::IncludeModule('socialnetwork');
-	$arDepCache = array();
-	$arDepCacheValue = array();
+	$arDepCache = [];
+	$arDepCacheValue = [];
 
-	foreach($arResult["SEARCH"] as $i=>$arItem)
+	foreach ($arResult['SEARCH'] as $i => $arItem)
 	{
-		if($arItem["MODULE_ID"] ===  "intranet" && mb_substr($arItem["ITEM_ID"], 0, 1) === "U")
+		if ($arItem['MODULE_ID'] === 'intranet' && mb_substr($arItem['ITEM_ID'], 0, 1) === 'U')
 		{
-			$rsUser = CUser::GetList('', '', array("ID_EQUAL_EXACT" => mb_substr($arItem["ITEM_ID"], 1), ), array('SELECT' => array('UF_*')));
+			$rsUser = CUser::GetList('', '', ['ID_EQUAL_EXACT' => mb_substr($arItem['ITEM_ID'], 1), ], ['SELECT' => ['UF_*']]);
 			$arUser = $rsUser->Fetch();
-			if($arUser)
+			if ($arUser)
 			{
 				if ($arUser['PERSONAL_PHOTO'])
 				{
@@ -261,14 +319,14 @@ if(CModule::IncludeModule('intranet'))
 					$arUser['PERSONAL_PHOTO'] = $arImage['IMG'];
 				}
 
-				$arDep = array();
+				$arDep = [];
 				if (is_array($arUser['UF_DEPARTMENT']) && count($arUser['UF_DEPARTMENT']) > 0)
 				{
 					$arNewDep = array_diff($arUser['UF_DEPARTMENT'], $arDepCache);
 
 					if (count($arNewDep) > 0)
 					{
-						$dbRes = CIBlockSection::GetList(array('SORT' => 'ASC'), array('ID' => $arNewDep));
+						$dbRes = CIBlockSection::GetList(['SORT' => 'ASC'], ['ID' => $arNewDep]);
 						while ($arSect = $dbRes->Fetch())
 						{
 							$arDepCache[] = $arSect['ID'];
@@ -284,7 +342,7 @@ if(CModule::IncludeModule('intranet'))
 
 				$arUser['UF_DEPARTMENT'] = $arDep;
 
-				$arUser["DETAIL_URL"] = $arItem["URL"];
+				$arUser['DETAIL_URL'] = $arItem['URL'];
 
 				$arUser['IS_ONLINE'] = $bSoNet && CSocNetUser::IsOnLine($arUser['ID']);
 
@@ -297,20 +355,19 @@ if(CModule::IncludeModule('intranet'))
 				$arUser['IS_FEATURED'] = CIntranetUtils::IsUserHonoured($arUser['ID']);
 				$arUser['IS_ABSENT'] = CIntranetUtils::IsUserAbsent($arUser['ID']);
 
-				$arResult["SEARCH"][$i]["USER"] = $arUser;
+				$arResult['SEARCH'][$i]['USER'] = $arUser;
 			}
 		}
 	}
 
-	$arResult['USER_PROP'] = array();
+	$arResult['USER_PROP'] = [];
 
-	$arRes = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("USER", 0, LANGUAGE_ID);
+	$arRes = $GLOBALS['USER_FIELD_MANAGER']->GetUserFields('USER', 0, LANGUAGE_ID);
 	if (!empty($arRes))
 	{
 		foreach ($arRes as $key => $val)
 		{
-			$arResult['USER_PROP'][$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+			$arResult['USER_PROP'][$val['FIELD_NAME']] = ($val['EDIT_FORM_LABEL'] <> '' ? $val['EDIT_FORM_LABEL'] : $val['FIELD_NAME']);
 		}
 	}
 }
-?>

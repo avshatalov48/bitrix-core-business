@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CC_BLL_ACCESS_DENIED"] = "Insufficient permission to view and edit the list.";
 $MESS["CC_BLL_ANY"] = "(any)";
 $MESS["CC_BLL_COLUMN_BIZPROC"] = "Business Processes";
@@ -29,5 +29,5 @@ $MESS["CT_BLL_BIZPROC_STOP"] = "Stop workflow";
 $MESS["CT_BLL_DOWNLOAD"] = "Download";
 $MESS["CT_BLL_ENLARGE"] = "Enlarge";
 $MESS["CT_BLL_GRID_PAGE_SIZES_ALL"] = "All";
+$MESS["CT_BLL_INTERNAL_DELETE_ERROR"] = "Could not delete item. Please try again.";
 $MESS["CT_BLL_UN_LOCK_ELEMENT"] = "Unlock";
-?>

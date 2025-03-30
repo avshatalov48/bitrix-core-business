@@ -460,7 +460,11 @@
 		var selectorEvents = {};
 		var dialogEvents = {};
 		var dialogSearchOptions = {};
-		const oldRecipientsMode = this.options.oldRecipientsMode;
+
+		const {
+			oldRecipientsMode,
+			ownerCategoryId,
+		} = this.options;
 
 		if (contextName === 'MAIL')
 		{
@@ -531,10 +535,52 @@
 
 			if (oldRecipientsMode)
 			{
+				if (ownerCategoryId === 0)
+				{
+					entitiesDialog.push(
+						{
+							id: 'contact',
+							dynamicSearch: true,
+							filters: [
+								{
+									id: 'mail.mailCrmRecipientAppearanceFilter',
+								},
+							],
+							options: {
+								onlyWithEmail: true,
+							},
+						},
+						{
+							id: 'company',
+							dynamicSearch: true,
+							filters: [
+								{
+									id: 'mail.mailCrmRecipientAppearanceFilter',
+								},
+							],
+							options: {
+								onlyWithEmail: true,
+							},
+						},
+						{
+							id: 'lead',
+							dynamicSearch: true,
+							filters: [
+								{
+									id: 'mail.mailCrmRecipientAppearanceFilter',
+								},
+							],
+							options: {
+								onlyWithEmail: true,
+							},
+						},
+					);
+				}
+
 				entitiesDialog.push(
 					{
 						id: 'address_book',
-						dynamicLoad: true,
+						dynamicSearch: true,
 					},
 				);
 			}

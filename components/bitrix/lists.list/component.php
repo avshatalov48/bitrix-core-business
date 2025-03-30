@@ -13,6 +13,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var string $parentComponentName */
 /** @var string $parentComponentPath */
 /** @var string $parentComponentTemplate */
+
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
+
 $this->setFrameMode(false);
 
 if(!CModule::IncludeModule('lists'))
@@ -350,21 +354,40 @@ if(
 				)
 			)
 			{
-				$DB->StartTransaction();
 				$APPLICATION->ResetException();
-				if(!$obElement->Delete($arElement["ID"]))
+				$conn = Application::getConnection();
+				$conn->startTransaction();
+				try
 				{
-					$DB->Rollback();
-					if($ex = $APPLICATION->GetException())
-						$strError = GetMessage("CC_BLL_DELETE_ERROR")." ".$ex->GetString();
-					else
-						$strError = GetMessage("CC_BLL_DELETE_ERROR")." ".GetMessage("CC_BLL_UNKNOWN_ERROR");
-					break;
+					$success = \CIBlockElement::Delete($arElement['ID']);
+					if (!$success)
+					{
+						$ex = $APPLICATION->GetException();
+						if ($ex)
+						{
+							$strError = GetMessage('CC_BLL_DELETE_ERROR') . ' ' . $ex->GetString();
+						}
+						else
+						{
+							$strError = GetMessage('CC_BLL_DELETE_ERROR') . ' ' . GetMessage('CC_BLL_UNKNOWN_ERROR');
+						}
+						unset($ex);
+					}
+				}
+				catch (SqlQueryException)
+				{
+					$success = false;
+					$strError = GetMessage('CT_BLL_INTERNAL_DELETE_ERROR');
+				}
+				if ($success)
+				{
+					$conn->commitTransaction();
 				}
 				else
 				{
-					$DB->Commit();
+					$conn->rollbackTransaction();
 				}
+				unset($conn);
 			}
 		}
 	}

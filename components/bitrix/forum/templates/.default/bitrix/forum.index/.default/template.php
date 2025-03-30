@@ -21,7 +21,7 @@ $arParams["TMPLT_SHOW_ADDITIONAL_MARKER"] = trim($arParams["TMPLT_SHOW_ADDITIONA
 /********************************************************************
 				/Input params
 ********************************************************************/
-if (!empty($arResult["NAV_STRING"]) && $arResult["NAV_RESULT"]->NavPageCount > 1):
+if (!empty($arResult["NAV_STRING"]) && $arResult["NAV_RESULT_PAGE_COUNT"] > 1):
 ?>
 <div class="forum-navigation-box forum-navigation-top">
 	<div class="forum-page-navigation">
@@ -52,7 +52,7 @@ endif;
 <div class="forum-block-container">
 	<div class="forum-block-outer">
 		<div class="forum-block-inner">
-			<table cellspacing="0" class="forum-table forum-forum-list<?=(!empty($arResult["NAV_STRING"]) && $arResult["NAV_RESULT"]->NavPageCount > 1 ?
+			<table cellspacing="0" class="forum-table forum-forum-list<?=(!empty($arResult["NAV_STRING"]) && $arResult["NAV_RESULT_PAGE_COUNT"] > 1 ?
 				"forum-forum-list-part" : "")?>">
 <?
 if (!empty($arResult["FORUMS"]["FORUMS"]) || (isset($arResult["GROUP"]["ID"]) && $arResult["GROUP"]["ID"] > 0 && !empty($arResult["FORUMS"]["GROUPS"][$arResult["GROUP"]["ID"]]["FORUMS"]))):
@@ -374,7 +374,7 @@ endif;
 </div>
 <?
 
-if (!empty($arResult["NAV_STRING"]) && $arResult["NAV_RESULT"]->NavPageCount > 1):
+if (!empty($arResult["NAV_STRING"]) && $arResult["NAV_RESULT_PAGE_COUNT"] > 1):
 ?>
 <div class="forum-navigation-box forum-navigation-bottom">
 	<div class="forum-page-navigation">

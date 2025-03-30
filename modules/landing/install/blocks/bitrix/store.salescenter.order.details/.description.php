@@ -25,9 +25,7 @@ $return = [
 					'SHOW_HEADER' => [
 						'style' => true,
 					],
-					'HEADER_TITLE' => [
-						'style' => true,
-					],
+					'HEADER_TITLE' => [],
 				],
 			],
 		],

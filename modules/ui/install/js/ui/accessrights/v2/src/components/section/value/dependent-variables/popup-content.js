@@ -205,7 +205,7 @@ export const PopupContent = {
 					:key="variableId"
 					class="ui-access-rights-v2-dv-popup--line"
 				>
-					<span class="ui-access-rights-v2-text-ellipsis">{{ variable.title }}</span>
+					<span class="ui-access-rights-v2-text-ellipsis" :title="variable.title">{{ variable.title }}</span>
 					<Switcher
 						:is-checked="notSavedValues.has(variable.id)"
 						@check="addValue(variable.id)"

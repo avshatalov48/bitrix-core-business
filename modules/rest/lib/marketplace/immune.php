@@ -2,9 +2,8 @@
 
 namespace Bitrix\Rest\Marketplace;
 
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Data\Cache;
-use Bitrix\Main\Web\Json;
+use Bitrix\Rest\Internals\FreeAppTable;
 
 /**
  * Class Immune
@@ -12,8 +11,6 @@ use Bitrix\Main\Web\Json;
  */
 class Immune
 {
-	private const OPTION_APP_IMMUNE_LIST = 'app_immune';
-	private const MODULE_ID = 'rest';
 	private const CACHE_TTL_TIMEOUT = 120;
 	private const CACHE_DIR = '/rest/';
 	private static $immuneAppList;
@@ -21,42 +18,54 @@ class Immune
 	/**
 	 * @return array
 	 */
-	public static function getList() : array
+	public static function getList(): array
 	{
 		if (!is_array(static::$immuneAppList))
 		{
 			static::$immuneAppList = [];
-			try
+			$cache = Cache::createInstance();
+
+			if ($cache->initCache(86400, 'immuneAppList', static::CACHE_DIR))
 			{
-				$option = Option::get(static::MODULE_ID, static::OPTION_APP_IMMUNE_LIST, null);
-
-				if ($option === null)
+				$result = $cache->getVars();
+				static::$immuneAppList = is_array($result) ? $result : [];
+			}
+			elseif ($cache->startDataCache())
+			{
+				try
 				{
-					$option = static::getExternal();
-				}
+					$appList = FreeAppTable::query()
+						->setSelect(['APP_CODE'])
+						->fetchAll();
 
-				if (!empty($option))
-				{
-					static::$immuneAppList = Json::decode($option);
+					if (empty($appList))
+					{
+						$appList = static::getExternal();
+					}
+					else
+					{
+						$appList = array_map(fn($app) => $app['APP_CODE'], $appList);
+					}
+
+					static::$immuneAppList = $appList;
 				}
-				else
+				catch (\Exception $exception)
 				{
 					static::$immuneAppList = [];
 				}
-			}
-			catch (\Exception $exception)
-			{
-				static::$immuneAppList = [];
+
+				$cache->endDataCache(is_array(static::$immuneAppList) ? static::$immuneAppList : []);
 			}
 		}
 
 		return static::$immuneAppList;
 	}
 
-	private static function getExternal()
+	private static function getExternal(): array
 	{
-		$result = false;
+		$result = [];
 		$cache = Cache::createInstance();
+
 		if ($cache->initCache(static::CACHE_TTL_TIMEOUT, 'immuneLoadsRepeatingTimeout', static::CACHE_DIR))
 		{
 			$result = $cache->getVars();
@@ -64,16 +73,23 @@ class Immune
 		elseif ($cache->startDataCache())
 		{
 			$res = Client::getImmuneApp();
+
 			if (!empty($res['ITEMS']))
 			{
-				$result = Json::encode($res['ITEMS']);
-				Option::set(static::MODULE_ID, static::OPTION_APP_IMMUNE_LIST, $result);
+				$result = $res['ITEMS'];
+				FreeAppTable::updateFreeAppTable($result);
+				$cache->clean('immuneAppList', static::CACHE_DIR);
 			}
 
 			$cache->endDataCache($result);
 		}
 
-		return $result;
+		if (is_array($result))
+		{
+			return $result;
+		}
+
+		return [];
 	}
 
 	/**

@@ -1,16 +1,15 @@
 import { Color } from 'im.v2.const';
 
 import { AvatarSize } from '../base/avatar';
-import { UiAvatarHexagon } from '../base/ui-avatar-hexagon';
+import { BaseUiAvatar, AvatarType } from '../base/base-ui-avatar';
 
 import type { ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const CollabChatAvatar = {
 	name: 'CollabChatAvatar',
-	components: { UiAvatarHexagon },
-	props:
-	{
+	components: { BaseUiAvatar },
+	props: {
 		dialogId: {
 			type: [String, Number],
 			default: 0,
@@ -40,8 +39,8 @@ export const CollabChatAvatar = {
 			default: true,
 		},
 	},
-	computed:
-	{
+	computed: {
+		AvatarType: () => AvatarType,
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -60,7 +59,8 @@ export const CollabChatAvatar = {
 		},
 	},
 	template: `
-		<UiAvatarHexagon
+		<BaseUiAvatar
+			:type="AvatarType.collab"
 			:key="dialogId"
 			:title="dialogName" 
 			:size="size" 

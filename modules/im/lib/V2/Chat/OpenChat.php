@@ -3,11 +3,10 @@
 namespace Bitrix\Im\V2\Chat;
 
 use Bitrix\Im\V2\Entity\User\User;
-use Bitrix\Im\V2\Message;
-use Bitrix\Im\V2\Message\PushFormat;
-use Bitrix\Im\V2\RelationCollection;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Loader;
+use CIMContactList;
 
 class OpenChat extends GroupChat
 {
@@ -90,6 +89,26 @@ class OpenChat extends GroupChat
 			}
 		}
 
+		$this->clearAllLegacyCache();
+
 		return $this;
+	}
+
+	protected function updateStateAfterUserDelete(int $deletedUserId, DeleteUserConfig $config): self
+	{
+		parent::updateStateAfterUserDelete($deletedUserId, $config);
+		$this->clearAllLegacyCache();
+
+		return $this;
+	}
+
+	protected function clearLegacyCache(int $userId): void
+	{
+		return;
+	}
+
+	protected function clearAllLegacyCache()
+	{
+		CIMContactList::CleanAllChatCache();
 	}
 }

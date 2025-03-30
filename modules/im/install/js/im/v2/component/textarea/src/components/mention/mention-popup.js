@@ -73,6 +73,7 @@ export const MentionPopup = {
 		config(): PopupOptions
 		{
 			return {
+				height: 200,
 				width: 426,
 				padding: 0,
 				bindElement: this.bindElement,

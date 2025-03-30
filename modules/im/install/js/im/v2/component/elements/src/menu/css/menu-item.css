@@ -124,10 +124,6 @@
 	background-image: url('./images/conference.svg');
 }
 
-.bx-im-menu_item__icon.--disk {
-	background-image: url('./images/disk.svg');
-}
-
 .bx-im-menu_item__icon.--upload {
 	background-image: url('./images/upload.svg');
 }
@@ -170,4 +166,8 @@
 
 .bx-im-menu_item__icon.--calendar-slot {
 	background-image: url('./images/calendar-slot.svg');
+}
+
+.bx-im-menu_item__icon.--b24 {
+	background-image: url('./images/b24-icon.svg');
 }

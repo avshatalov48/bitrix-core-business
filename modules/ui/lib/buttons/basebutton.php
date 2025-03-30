@@ -507,8 +507,8 @@ class BaseButton implements Contract\Renderable
 	}
 
 	/**
-	 * @param string $eventName
-	 * @param string|JsHandler $fn Link to js function which will be invoked.
+	 * @param string $eventName Event identifier.
+	 * @param string|JsHandler|JsCode $fn Link to js function which will be invoked.
 	 * @see in js BX.UI.BaseButton.handleEvent to know order of arguments in event handler.
 	 *
 	 * @return $this

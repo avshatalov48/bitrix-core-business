@@ -1389,7 +1389,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 	{
 		global $USER;
 
-		if (!($this->order) || ($this->order->getUserId() !== $USER->GetID() && empty($this->requestData['hash'])))
+		if (!($this->order) || ($this->order->getUserId() !== (int)$USER->GetID() && empty($this->requestData['hash'])))
 		{
 			$this->doCaseOrderIdNotSet();
 		}

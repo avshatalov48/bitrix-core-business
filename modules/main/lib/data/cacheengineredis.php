@@ -13,6 +13,48 @@ class CacheEngineRedis extends CacheEngine
 		return RedisConnection::class;
 	}
 
+	protected function modifyConfigByEngine(&$config, $cacheConfig, array $options = []): void
+	{
+		if (isset($cacheConfig['serializer']))
+		{
+			$config['serializer'] = (int) $cacheConfig['serializer'];
+		}
+
+		$config['persistent'] = true;
+		if (isset($cacheConfig['persistent']) && $cacheConfig['persistent'] == 0)
+		{
+			$config['persistent'] = false;
+		}
+
+		if (isset($cacheConfig['compression']))
+		{
+			$config['compression'] = $cacheConfig['compression'];
+		}
+
+		if (isset($cacheConfig['compression_level']))
+		{
+			$config['compression_level'] = $cacheConfig['compression_level'];
+		}
+
+		if (isset($cacheConfig['timeout']))
+		{
+			$cacheConfig['timeout'] = (float) $cacheConfig['timeout'];
+			if ($cacheConfig['timeout'] > 0)
+			{
+				$config['timeout'] = $cacheConfig['timeout'];
+			}
+		}
+
+		if (isset($cacheConfig['read_timeout']))
+		{
+			$cacheConfig['read_timeout'] = (float) $cacheConfig['read_timeout'];
+			if ($cacheConfig['read_timeout'] > 0)
+			{
+				$config['read_timeout'] = $cacheConfig['read_timeout'];
+			}
+		}
+	}
+
 	public function set($key, $ttl, $value) : bool
 	{
 		$ttl = (int) $ttl;
@@ -45,10 +87,8 @@ class CacheEngineRedis extends CacheEngine
 			{
 				self::$engine->expire($key, $ttl);
 			}
-
 			return true;
 		}
-
 		return false;
 	}
 
@@ -79,46 +119,20 @@ class CacheEngineRedis extends CacheEngine
 
 		if (is_array($list)  && !empty($list))
 		{
-			if ($this->useLock)
-			{
-				foreach ($list as $iKey)
-				{
-					$delKey = $prefix . $iKey;
-					$oldKey = $delKey . '|old';
-
-					if (self::$engine->rename($delKey, $oldKey))
-					{
-						self::$engine->expire($oldKey, $this->ttlOld);
-					}
-				}
-			}
-			else
-			{
-				if ($prefix != '')
-				{
-					$format = $prefix . '%s';
-					$list = array_map(function ($key) use ($format) {
-						return sprintf($format, $key);
-					}, $list);
-				}
-
-				self::$engine->del($list);
-			}
+			self::$engine->del($list);
 		}
 	}
 
 	public function delFromSet($key, $member)
 	{
-		if (is_array($member))
+		if (!is_array($member))
 		{
-			if (!empty($member))
-			{
-				self::$engine->sRem($key, ...$member);
-			}
+			$member = [0 => $member];
 		}
-		else
+
+		if (!empty($member))
 		{
-			self::$engine->sRem($key, $member);
+			self::$engine->sRem($key, ...$member);
 		}
 	}
 }

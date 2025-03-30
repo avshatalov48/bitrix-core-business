@@ -8,7 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Localization\Loc;
 
 $arActivityDescription = [
-	'NAME' => Loc::getMessage('BPLA_DESCR_NAME'),
+	'NAME' => Loc::getMessage('BPLA_DESCR_NAME_MSGVER_1'),
 	'DESCRIPTION' => Loc::getMessage('BPLA_DESCR_DESCR'),
 	'TYPE' => 'activity',
 	'CLASS' => 'ListenActivity',

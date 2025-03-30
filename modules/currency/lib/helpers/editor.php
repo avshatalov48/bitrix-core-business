@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Currency\Helpers;
 
 use Bitrix\Currency;
@@ -103,10 +104,10 @@ class Editor
 	/**
 	 * Parse money value in bcmath format.
 	 *
-	 * @param $value
+	 * @param mixed $value
 	 * @return array|null
 	 */
-	public static function parseValue($value): ?array
+	public static function parseValue(mixed $value): ?array
 	{
 		if (!is_string($value))
 		{

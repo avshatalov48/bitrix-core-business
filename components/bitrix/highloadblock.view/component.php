@@ -1,17 +1,27 @@
-<?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @global CUser $USER */
+
+use Bitrix\Highloadblock as HL;
+use Bitrix\Main\Entity;
+use Bitrix\Main\Loader;
 
 $requiredModules = array('highloadblock');
 foreach ($requiredModules as $requiredModule)
 {
-	if (!\Bitrix\Main\Loader::includeModule($requiredModule))
+	if (!Loader::includeModule($requiredModule))
 	{
 		ShowError(GetMessage('F_NO_MODULE'));
+
 		return 0;
 	}
 }
-
-use Bitrix\Highloadblock as HL;
-use Bitrix\Main\Entity;
 
 global $USER_FIELD_MANAGER;
 
@@ -20,6 +30,7 @@ $arResult['ERROR']  = '';
 // hlblock info
 $hlblock_id = $arParams['BLOCK_ID'];
 
+$hlblock = null;
 if (empty($hlblock_id))
 {
 	$arResult['ERROR'] = GetMessage('HLBLOCK_VIEW_NO_ID');

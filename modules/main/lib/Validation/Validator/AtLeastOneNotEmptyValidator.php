@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Bitrix\Main\Validation\Validator;
 
 use ArrayAccess;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 
@@ -25,7 +25,7 @@ class AtLeastOneNotEmptyValidator implements ValidatorInterface
 		if (!is_array($value) && !is_iterable($value) && !($value instanceof ArrayAccess))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_AT_AT_LEAST_ONE_PROPERTY_NOT_EMPTY_UNSUPPORTED_TYPE'),
+				new LocalizableMessage('MAIN_VALIDATION_AT_AT_LEAST_ONE_PROPERTY_NOT_EMPTY_UNSUPPORTED_TYPE'),
 				failedValidator: $this
 			));
 
@@ -60,7 +60,7 @@ class AtLeastOneNotEmptyValidator implements ValidatorInterface
 		if ($allEmpty)
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_AT_LEAST_ONE_PROPERTY_NOT_EMPTY_ALL_EMPTY'),
+				new LocalizableMessage('MAIN_VALIDATION_AT_LEAST_ONE_PROPERTY_NOT_EMPTY_ALL_EMPTY'),
 				failedValidator: $this
 			));
 		}

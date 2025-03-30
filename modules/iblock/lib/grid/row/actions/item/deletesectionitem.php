@@ -4,6 +4,8 @@ namespace Bitrix\Iblock\Grid\Row\Actions\Item;
 
 use Bitrix\Iblock\Grid\Access\IblockRightsChecker;
 use Bitrix\Main\AccessDeniedException;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Error;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Localization\Loc;
@@ -80,11 +82,38 @@ final class DeleteSectionItem extends BaseItem
 
 		$result = new Result();
 
-		$updateResult = CIBlockSection::Delete($id);
-		if (!$updateResult)
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		try
 		{
-			$message = (string)$APPLICATION->GetException() ?: 'Cannot delete element';
-			$result->addError(new Error($message));
+			$updateResult = CIBlockSection::Delete($id);
+			if (!$updateResult)
+			{
+				$ex = $APPLICATION->GetException();
+				$message =
+					$ex
+						? $ex->getString()
+						: Loc::getMessage('IBLOCK_GRID_ROW_ACTION_DELETE_SECTION_INTERNAL_ERROR')
+				;
+				$result->addError(new Error($message));
+				unset(
+					$message,
+					$ex,
+				);
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$result->addError(new Error(Loc::getMessage('IBLOCK_GRID_ROW_ACTION_DELETE_SECTION_INTERNAL_ERROR')));
+		}
+
+		if ($result->isSuccess())
+		{
+			$conn->commitTransaction();
+		}
+		else
+		{
+			$conn->rollbackTransaction();
 		}
 
 		return $result;

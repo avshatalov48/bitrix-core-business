@@ -48,17 +48,10 @@ if ($json)
 	$content = ob_get_clean();
 
 	[, $itemsContainer] = explode('<!-- items-container -->', $content);
-	[, $paginationContainer] = explode('<!-- pagination-container -->', $content);
 	[, $epilogue] = explode('<!-- component-end -->', $content);
-
-	if ($arParams['AJAX_MODE'] === 'Y')
-	{
-		$component->prepareLinks($paginationContainer);
-	}
 
 	$component::sendJsonAnswer([
 		'items' => $itemsContainer,
-		'pagination' => $paginationContainer,
 		'epilogue' => $epilogue,
 		'navParams' => $templateData['NAV_PARAMS'],
 		'parameters' => $templateData['SIGNED_PARAMETERS'],

@@ -16,7 +16,10 @@ use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorableImplementation;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Filter\Filter;
+use Bitrix\Main\Loader;
 use Bitrix\Main\UI\PageNavigation;
+
+Loader::includeModule('iblock');
 
 class IblockPropertyTypeListValues extends GridComponent implements Controllerable, Errorable
 {

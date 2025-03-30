@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web;
@@ -51,7 +51,7 @@ class IpAddress
 	 *
 	 * @return string
 	 */
-	public function get()
+	public function get(): string
 	{
 		return $this->ip;
 	}
@@ -71,9 +71,19 @@ class IpAddress
 	 *
 	 * @return bool
 	 */
-	public function isPrivate()
+	public function isPrivate(): bool
 	{
 		return (filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false);
+	}
+
+	/**
+	 * Retuns true if the address is IPv4.
+	 *
+	 * @return bool
+	 */
+	public function isIPv4(): bool
+	{
+		return (filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false);
 	}
 
 	/**
@@ -101,16 +111,17 @@ class IpAddress
 	 * Formats IP as an unsigned int and returns it as a sting.
 	 * @return string
 	 */
-	public function toUnsigned()
+	public function toUnsigned(): string
 	{
 		return sprintf('%u', ip2long($this->ip));
 	}
 
 	/**
 	 * Formats IP as a range (192.168.0.0/24).
+	 * @param int $prefixLen
 	 * @return string
 	 */
-	public function toRange(int $prefixLen)
+	public function toRange(int $prefixLen): string
 	{
 		return long2ip(ip2long($this->ip) & ~((1 << (32 - $prefixLen)) - 1)) . '/' . $prefixLen;
 	}

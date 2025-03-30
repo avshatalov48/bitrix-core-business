@@ -5,8 +5,6 @@ use Bitrix\Highloadblock\Integration\UI\EntitySelector\ElementProvider;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 
-Loc::loadMessages(__FILE__);
-
 /**
  * Class CIBlockPropertyDirectory
  */
@@ -16,11 +14,11 @@ class CIBlockPropertyDirectory
 
 	const USER_TYPE = 'directory';
 
-	protected static $arFullCache = array();
-	protected static $arItemCache = array();
-	protected static $directoryMap = array();
-	protected static $hlblockCache = array();
-	protected static $hlblockClassNameCache = array();
+	protected static array $arFullCache = [];
+	protected static array $arItemCache = [];
+	protected static array $directoryMap = [];
+	protected static array $hlblockCache = [];
+	protected static array $hlblockClassNameCache = [];
 
 	/**
 	 * Returns property type description.
@@ -92,32 +90,34 @@ class CIBlockPropertyDirectory
 		}
 
 		$extendedSettings = false;
-		$result = array(
+		$result = [
 			'size' =>  $size,
 			'width' => $width,
 			'group' => $group,
 			'multiple' => $multiple,
-			'TABLE_NAME' => $directoryTableName
-		);
+			'TABLE_NAME' => $directoryTableName,
+		];
 		$defaultValue = '';
 		if ($directoryTableName !== '')
 		{
-			$iterator = HL\HighloadBlockTable::getList([
-				'select' => ['ID'],
-				'filter' => ['=TABLE_NAME' => $directoryTableName]
-			]);
-			$row = $iterator->fetch();
-			if (!empty($row))
+			$hlblock = static::resolveHighloadblockByTableName($directoryTableName);
+			if ($hlblock)
 			{
-				$defaultValue = self::getDefaultXmlId($row['ID']);
+				$defaultValue = self::getDefaultXmlId($hlblock['ID']);
 				if ($defaultValue !== null)
+				{
 					$extendedSettings = true;
+				}
 			}
-			unset($row, $iterator);
+			unset(
+				$hlblock,
+			);
 		}
 
 		if (!$extendedSettings)
+		{
 			return $result;
+		}
 
 		$arProperty['USER_TYPE_SETTINGS'] = $result;
 		$arProperty['DEFAULT_VALUE'] = $defaultValue;
@@ -144,7 +144,7 @@ class CIBlockPropertyDirectory
 			$settings = $settings['USER_TYPE_SETTINGS'];
 		$arPropertyFields = array(
 			'HIDE' => ['ROW_COUNT', 'COL_COUNT', 'MULTIPLE_CNT', 'DEFAULT_VALUE', 'WITH_DESCRIPTION'],
-			'SET' => ['DEFAULT_VALUE' => '']
+			'SET' => ['DEFAULT_VALUE' => ''],
 		);
 
 		$directory = [];
@@ -152,7 +152,7 @@ class CIBlockPropertyDirectory
 
 		$rsData = HL\HighloadBlockTable::getList(array(
 			'select' => array('*', 'NAME_LANG' => 'LANG.NAME'),
-			'order' => array('NAME_LANG' => 'ASC', 'NAME' => 'ASC')
+			'order' => array('NAME_LANG' => 'ASC', 'NAME' => 'ASC'),
 		));
 		while($arData = $rsData->fetch())
 		{
@@ -452,7 +452,7 @@ HIBSELECT;
 				self::$arFullCache[$highLoadIBTableName] = self::getEntityFieldsByFilter(
 					$highLoadIBTableName,
 					array(
-						'select' => array('UF_XML_ID', 'UF_NAME', 'ID')
+						'select' => array('UF_XML_ID', 'UF_NAME', 'ID'),
 					)
 				);
 			}
@@ -532,7 +532,7 @@ HIBSELECT;
 				$arProperty['USER_TYPE_SETTINGS']['TABLE_NAME'],
 				array(
 					'select' => array('UF_XML_ID', 'UF_NAME'),
-					'filter' => array('=UF_XML_ID' => $value['VALUE'])
+					'filter' => array('=UF_XML_ID' => $value['VALUE']),
 				)
 			);
 
@@ -582,16 +582,12 @@ HIBSELECT;
 	/**
 	 * Returns admin list view html.
 	 *
-	 * @param array $arProperty				Property description.
-	 * @param array $value					Current value.
-	 * @param array $strHTMLControlName		Control description.
+	 * @param array $arProperty Property description.
+	 * @param array $value Current value.
+	 * @param array $strHTMLControlName Control description.
 	 * @return string
 	 */
-	public static function GetAdminListViewHTML(
-		$arProperty,
-		$value,
-		/** @noinspection PhpUnusedParameterInspection */$strHTMLControlName
-	): string
+	public static function GetAdminListViewHTML($arProperty, $value, $strHTMLControlName): string
 	{
 		$dataValue = self::GetExtendedValue($arProperty, $value);
 		if ($dataValue)
@@ -656,16 +652,12 @@ HIBSELECT;
 	/**
 	 * Return property value for search.
 	 *
-	 * @param array $arProperty				Property description.
-	 * @param array $value					Current value.
-	 * @param array $strHTMLControlName		Control description.
+	 * @param array $arProperty Property description.
+	 * @param array $value Current value.
+	 * @param array $strHTMLControlName Control description.
 	 * @return string
 	 */
-	public static function GetSearchContent(
-		$arProperty,
-		$value,
-		/** @noinspection PhpUnusedParameterInspection */$strHTMLControlName
-	): string
+	public static function GetSearchContent($arProperty, $value, $strHTMLControlName): string
 	{
 		if (!isset($value['VALUE']))
 			return '';
@@ -770,7 +762,7 @@ HIBSELECT;
 
 		$hlblock = \Bitrix\Highloadblock\HighloadBlockTable::getRow([
 			'select' => ['ID'],
-			'filter' => ['=TABLE_NAME' => $tableName]
+			'filter' => ['=TABLE_NAME' => $tableName],
 		]);
 		if ($hlblock)
 		{
@@ -811,20 +803,12 @@ HIBSELECT;
 			$listDescr = array();
 		if (!empty($tableName))
 		{
-			if (!isset(self::$hlblockCache[$tableName]))
-			{
-				self::$hlblockCache[$tableName] = HL\HighloadBlockTable::getList(
-					array(
-						'select' => array('TABLE_NAME', 'NAME', 'ID'),
-						'filter' => array('=TABLE_NAME' => $tableName)
-					)
-				)->fetch();
-			}
-			if (!empty(self::$hlblockCache[$tableName]))
+			$hlblock = static::resolveHighloadblockByTableName($tableName);
+			if ($hlblock)
 			{
 				if (!isset(self::$directoryMap[$tableName]))
 				{
-					$entity = HL\HighloadBlockTable::compileEntity(self::$hlblockCache[$tableName]);
+					$entity = HL\HighloadBlockTable::compileEntity($hlblock);
 					self::$hlblockClassNameCache[$tableName] = $entity->getDataClass();
 					self::$directoryMap[$tableName] = $entity->getFields();
 					unset($entity);
@@ -852,7 +836,6 @@ HIBSELECT;
 				else
 					$listDescr['order']['UF_XML_ID'] = 'ASC';
 				$listDescr['order']['ID'] = 'ASC';
-				/** @var \Bitrix\Main\DB\Result $rsData */
 				$rsData = $entityDataClass::getList($listDescr);
 				while($arData = $rsData->fetch())
 				{
@@ -864,6 +847,7 @@ HIBSELECT;
 				unset($arData, $rsData);
 			}
 		}
+
 		return $arResult;
 	}
 
@@ -939,7 +923,7 @@ HIBSELECT;
 				'select' => $select,
 				'filter' => ['=UF_DEF' => 1],
 				'order' => $order,
-				'limit' => 1
+				'limit' => 1,
 			]);
 			$row = $iterator->fetch();
 			if (!empty($row))
@@ -957,7 +941,7 @@ HIBSELECT;
 		if (!isset(self::$arFullCache[$hlTableName]))
 		{
 			self::$arFullCache[$hlTableName] = static::getEntityFieldsByFilter($hlTableName, [
-				'select' => ['UF_XML_ID', 'UF_NAME', 'ID']
+				'select' => ['UF_XML_ID', 'UF_NAME', 'ID'],
 			]);
 		}
 
@@ -1247,7 +1231,42 @@ HTML;
 			$viewHtml .= '</div>';
 		}
 
-
 		return $viewHtml;
+	}
+
+	protected static function resolveHighloadblockByTableName(string $tableName): ?array
+	{
+		if ($tableName === '')
+		{
+			return null;
+		}
+		if (!isset(self::$hlblockCache[$tableName]))
+		{
+			$row = HL\HighloadBlockTable::getRow([
+				'select' => [
+					'TABLE_NAME',
+					'NAME',
+					'ID',
+				],
+				'filter' => [
+					'=TABLE_NAME' => $tableName,
+				],
+				'cache' => [
+					'ttl' => 86400,
+				],
+			]);
+			self::$hlblockCache[$tableName] = $row ?? false;
+		}
+
+		return self::$hlblockCache[$tableName] ?: null;
+	}
+
+	public static function cleanCache(): void
+	{
+		self::$arFullCache = [];
+		self::$arItemCache = [];
+		self::$directoryMap = [];
+		self::$hlblockCache = [];
+		self::$hlblockClassNameCache = [];
 	}
 }

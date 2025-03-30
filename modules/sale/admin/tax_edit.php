@@ -28,6 +28,18 @@ ClearVars();
 
 $strError = "";
 $bInitVars = false;
+$save ??= null;
+$apply ??= null;
+$NAME ??= null;
+$LID ??= null;
+$CODE ??= null;
+$DESCRIPTION ??= null;
+$str_TIMESTAMP_X ??= null;
+$str_LID ??= null;
+$str_NAME ??= null;
+$str_CODE ??= null;
+$str_DESCRIPTION ??= null;
+
 if (($save <> '' || $apply <> '') && $request->isPost() && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
@@ -36,12 +48,12 @@ if (($save <> '' || $apply <> '') && $request->isPost() && $saleModulePermission
 
 	if ($strError == '')
 	{
-		$arFields = array(
-			"LID" => $LID,
-			"NAME" => trim($NAME),
-			"CODE" => ($CODE == '') ? False : $CODE,
-			"DESCRIPTION" => $DESCRIPTION
-			);
+		$arFields = [
+			'LID' => $LID,
+			'NAME' => $NAME ? trim($NAME) : '',
+			'CODE' => ($CODE == '') ? false : $CODE,
+			'DESCRIPTION' => $DESCRIPTION
+		];
 
 		if (intval($ID)>0)
 		{

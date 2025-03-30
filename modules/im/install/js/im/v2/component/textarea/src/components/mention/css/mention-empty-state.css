@@ -7,7 +7,8 @@
 	justify-content: center;
 	align-items: center;
 	gap: 4px;
-	height: 52px;
+	height: 24px;
+	margin-top: 28px;
 	padding: 0 2px;
 }
 

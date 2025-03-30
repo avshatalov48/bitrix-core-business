@@ -389,13 +389,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      if (Boolean((_this$imageCopilot = this.imageCopilot) === null || _this$imageCopilot === void 0 ? void 0 : _this$imageCopilot.isShown()) === false) {
 	        return;
 	      }
+	      this.copilotBindElement = this.aiButton.layout;
+	      var offsetY = 3;
+	      var copilotBindElementPosition = this.copilotBindElement.getBoundingClientRect();
+	      var imageCopilotPosition = {
+	        top: copilotBindElementPosition.bottom + offsetY,
+	        left: copilotBindElementPosition.left
+	      };
 	      if (this.imageCopilot.getPosition().inputField.top < 133) {
-	        this.imageCopilot.adjustPosition({
-	          hide: true
+	        this.imageCopilot.adjust({
+	          hide: true,
+	          position: imageCopilotPosition
 	        });
 	      } else {
-	        this.imageCopilot.adjustPosition({
-	          hide: false
+	        this.imageCopilot.adjust({
+	          hide: false,
+	          position: imageCopilotPosition
 	        });
 	      }
 	    }

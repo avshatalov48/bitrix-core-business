@@ -1,0 +1,26 @@
+<?php
+$MESS["REST_OPT_ACTIVE"] = "Логтаудың белсенділігі";
+$MESS["REST_OPT_ACTIVE_N"] = "Өшірулі";
+$MESS["REST_OPT_ACTIVE_TO"] = "Белсенділіктің аяқталуына ___ қалды";
+$MESS["REST_OPT_ACTIVE_Y"] = "Жұмыс істеп жатыр";
+$MESS["REST_OPT_CLEAR_DATA"] = "Бұған дейін жиналған деректерді жою";
+$MESS["REST_OPT_ENABLE_MOD_ZIP"] = "<a href=\"https://www.nginx.com/resources/wiki/modules/zip/\" target=\"_blank\">mod_zip</a> модулі қосылған және бапталған (экспорт үшін қажет)";
+$MESS["REST_OPT_INTERVAL_24_HOURS"] = "тәулікке";
+$MESS["REST_OPT_INTERVAL_600_SEC"] = "10 минутқа";
+$MESS["REST_OPT_INTERVAL_3600_SEC"] = "1 сағатқа";
+$MESS["REST_OPT_INTERVAL_NO"] = "жоқ";
+$MESS["REST_OPT_LOG_FILTERS"] = "Сүзу баптаулары";
+$MESS["REST_OPT_LOG_FILTER_CLIENT_ID"] = "Клиент сәйкестендіргіші";
+$MESS["REST_OPT_LOG_FILTER_METHOD"] = "Әдіс";
+$MESS["REST_OPT_LOG_FILTER_PASSWORD_ID"] = "Құпиясөз сәйкестендіргіші";
+$MESS["REST_OPT_LOG_FILTER_SCOPE"] = "Көру аймағы";
+$MESS["REST_OPT_LOG_FILTER_USER_ID"] = "Пайдаланушы сәйкестендіргіші";
+$MESS["REST_OPT_LOG_RECS_COUNT"] = "Деректер жиналды";
+$MESS["REST_OPT_MAX_IMPORT_SIZE"] = "Импортталатын файлдың максималды мөлшері (МБ)";
+$MESS["REST_OPT_MINUTES"] = "#HOURS#:#MINUTES#:#SECONDS# (сағат:минут:секунд)";
+$MESS["REST_OPT_SET_ACTIVE"] = "Логтауды қосу";
+$MESS["REST_OPT_SET_IN_ACTIVE"] = "Логтауды өшіру";
+$MESS["REST_TAB_LOG"] = "Логтау";
+$MESS["REST_TAB_SET"] = "Баптаулар";
+$MESS["REST_TAB_TITLE_LOG"] = "Логтау баптаулары";
+$MESS["REST_TAB_TITLE_SET"] = "Модуль параметрлерін баптау";

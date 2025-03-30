@@ -3,3 +3,4 @@ $MESS['IBLOCK_GRID_ROW_ACTIONS_DELETE_ELEMENT_NAME'] = 'Удалить';
 $MESS['IBLOCK_GRID_ROW_ACTIONS_DELETE_ELEMENT_CONFIRM_MESSAGE'] = 'Вы уверены, что хотите удалить запись и связанную с ней информацию?';
 $MESS['IBLOCK_GRID_ROW_ACTIONS_DELETE_ELEMENT_CONFIRM_BUTTON'] = 'Да, удалить';
 $MESS['IBLOCK_GRID_ROW_ACTIONS_DELETE_ELEMENT_BACK_BUTTON'] = 'Назад';
+$MESS['IBLOCK_GRID_ROW_ACTIONS_DELETE_ELEMENT_INTERNAL_ERROR'] = "Не удалось удалить элемент. Попробуйте ещё раз.";

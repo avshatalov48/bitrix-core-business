@@ -154,6 +154,7 @@ class UserFieldConfig extends Controller
 			'showFilter' => true,
 			'isSearchable' => true,
 			'settings' => true,
+			'editInList' => true,
 		];
 
 		$fields = array_intersect_key($fields, $allowedKeys);

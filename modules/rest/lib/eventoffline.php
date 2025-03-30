@@ -26,9 +26,9 @@ use Bitrix\Rest\Exceptions\ArgumentTypeException;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EventOffline_Query query()
- * @method static EO_EventOffline_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventOffline_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EventOffline_Result getById($id)
- * @method static EO_EventOffline_Result getList(array $parameters = array())
+ * @method static EO_EventOffline_Result getList(array $parameters = [])
  * @method static EO_EventOffline_Entity getEntity()
  * @method static \Bitrix\Rest\EO_EventOffline createObject($setDefaultValues = true)
  * @method static \Bitrix\Rest\EO_EventOffline_Collection createCollection()
@@ -351,5 +351,19 @@ class EventOfflineTable extends Main\Entity\DataManager
 		}
 
 		return null;
+	}
+
+	/**
+	 * Removes all application offline event handlers.
+	 *
+	 * @param int $appId Application ID.
+	 *
+	 * @return Main\DB\Result
+	 */
+	public static function deleteByApp(mixed $appId): Main\DB\Result
+	{
+		$connection = Main\Application::getConnection();
+
+		return $connection->query("DELETE FROM ".static::getTableName()." WHERE APP_ID='".$appId."'");
 	}
 }

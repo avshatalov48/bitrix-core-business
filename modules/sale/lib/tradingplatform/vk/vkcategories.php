@@ -37,13 +37,19 @@ class VkCategories
 	 */
 	public function createAgent()
 	{
-//		CREATE agent if not exist
-		if (!$agent = $this->getAgentId())
+		if (empty($this->exportId))
 		{
+			return null;
+		}
+
+		$agent = $this->getAgentId();
+		if (!$agent)
+		{
+			//		CREATE agent if not exist
 			$ttl = self::CACHE_TTL;
 			$timeToStart = ConvertTimeStamp(strtotime(date('Y-m-d H:i:s', time() + $ttl)), 'FULL');
 
-			$resultAgentAdd = \CAgent::AddAgent(
+			return \CAgent::AddAgent(
 				self::createAgentName($this->exportId),
 				'sale',
 				"N",
@@ -52,10 +58,7 @@ class VkCategories
 				"Y",
 				$timeToStart
 			);
-
-			return $resultAgentAdd;
 		}
-
 		else
 		{
 			return $agent;
@@ -181,6 +184,11 @@ class VkCategories
 	 */
 	private static function updateDataToCache($exportId)
 	{
+		if (empty($exportId))
+		{
+			return null;
+		}
+
 		$vkCategories = self::getDataFromVk($exportId);
 
 		if (is_array($vkCategories))

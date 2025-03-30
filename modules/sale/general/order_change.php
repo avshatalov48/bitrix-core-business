@@ -1855,7 +1855,7 @@ class CSaleOrderChangeFormat
 	 */
 	public static function getOrderResponsibleName($id = null)
 	{
-		if (intval($id) < 0)
+		if (intval($id) <= 0)
 			return false;
 
 		static $orderResponsibleList = array();

@@ -8,6 +8,7 @@
 
 namespace Bitrix\Main\ORM\Query\Filter;
 
+use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Query\Filter\Expressions\ColumnExpression;
@@ -676,6 +677,12 @@ class ConditionTree
 		// nulls
 		if ($value === null)
 		{
+			if ($field instanceof ArrayField
+				&& $field->getSerializationType() === ArrayField::SERIALIZATION_TYPE_PHP)
+			{
+				return  $field->convertValueToDb('N;');
+			}
+
 			return new Expressions\NullExpression;
 		}
 

@@ -111,7 +111,7 @@ class PrepaymentCheck extends Check
 
 		$rate = $paymentSum / $order->getPrice();
 
-		$countProductPositions = \count($result['PRODUCTS']);
+		$countProductPositions = $result['PRODUCTS'] ? \count($result['PRODUCTS']) : 0;
 		$countDeliveryPositions = $result['DELIVERY'] ? \count($result['DELIVERY']) : 0;
 
 		if ($countDeliveryPositions === 0)

@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 
@@ -205,9 +205,9 @@ $control->BeginPrologContent();
 $control->EndPrologContent();
 $control->BeginEpilogContent();
 ?>
-	<input type="hidden" name="lang" value="<? echo LANGUAGE_ID; ?>">
-	<input type="hidden" name="IBLOCK_ID" value="<? echo $iblockId; ?>">
-<?
+	<input type="hidden" name="lang" value="<?= LANGUAGE_ID ?>">
+	<input type="hidden" name="IBLOCK_ID" value="<?= $iblockId ?>">
+<?php
 echo bitrix_sessid_post();
 $control->EndEpilogContent();
 $control->Begin(array(
@@ -225,24 +225,24 @@ $control->AddViewField(
 );
 $control->BeginCustomField('CATALOG', Loc::getMessage('BX_CAT_IBLOCK_CATALOG_FIELD_CATALOG'), true);
 ?><tr id="tr_CATALOG">
-	<td style="width: 40%;"><? echo $control->GetCustomLabelHTML(); ?></td>
+	<td style="width: 40%;"><?= $control->GetCustomLabelHTML() ?></td>
 	<td style="width: 60%;">
 		<input type="hidden" name="CATALOG" value="N" id="CATALOG_N">
-		<input data-checkbox="Y" type="checkbox" name="CATALOG" value="Y" id="CATALOG_Y"<?
+		<input data-checkbox="Y" type="checkbox" name="CATALOG" value="Y" id="CATALOG_Y"<?php
 			echo ($catalog['CATALOG'] == 'Y' ? ' checked' : '').($catalog['CATALOG_TYPE'] == CCatalogSKU::TYPE_OFFERS ? ' disabled' : '');
 		?>>
 	</td>
-</tr><?
+</tr><?php
 $control->EndCustomField('CATALOG', '<input type="hidden" name="CATALOG" value="'.$catalog['CATALOG'].'">');
 $hiddenValue = '';
 $control->BeginCustomField('SKU', Loc::getMessage('BX_CAT_IBLOCK_CATALOG_FIELD_SKU'));
 ?><tr id="tr_SKU">
-	<td style="width: 40%; vertical-align: top;"><? echo $control->GetCustomLabelHTML(); ?></td>
-	<td style="width: 60%;"><?
+	<td style="width: 40%; vertical-align: top;"><?= $control->GetCustomLabelHTML(); ?></td>
+	<td style="width: 60%;"><?php
 		$productIblockId = 0;
 		if ($catalog['CATALOG_TYPE'] == CCatalogSKU::TYPE_OFFERS)
 		{
-			?><input type="hidden" name="USE_SKU" value="N" id="USE_SKU_N"><?
+			?><input type="hidden" name="USE_SKU" value="N" id="USE_SKU_N"><?php
 			$hiddenValue = '<input type="hidden" name="USE_SKU" value="N">';
 			if (empty($productIblock))
 			{
@@ -259,7 +259,7 @@ $control->BeginCustomField('SKU', Loc::getMessage('BX_CAT_IBLOCK_CATALOG_FIELD_S
 				);
 			}
 			$productIblockId = $catalog['PRODUCT_IBLOCK_ID'];
-			?><input type="hidden" name="SKU" value="<? echo $productIblockId; ?>"><?
+			?><input type="hidden" name="SKU" value="<?= $productIblockId ?>"><?php
 		}
 		else
 		{
@@ -268,9 +268,9 @@ $control->BeginCustomField('SKU', Loc::getMessage('BX_CAT_IBLOCK_CATALOG_FIELD_S
 			$showSku = ($productIblockId > 0);
 			$hiddenValue = '<input type="hidden" name="USE_SKU" value="'.($showSku ? 'Y' : 'N').'">';
 			?><input type="hidden" name="USE_SKU" value="N" id="USE_SKU_N">
-			<input data-checkbox="Y" type="checkbox" name="USE_SKU" value="Y" id="USE_SKU_Y"<? echo ($showSku ? ' checked' : ''); ?>>
-			<div id="sku_data" style="display: <? echo ($showSku ? 'block' : 'none'); ?>;">
-			<?
+			<input data-checkbox="Y" type="checkbox" name="USE_SKU" value="Y" id="USE_SKU_Y"<?= ($showSku ? ' checked' : '') ?>>
+			<div id="sku_data" style="display: <?= ($showSku ? 'block' : 'none') ?>;">
+			<?php
 			if (!empty($offerList))
 			{
 				echo GetIBlockDropDownListEx(
@@ -287,10 +287,10 @@ $control->BeginCustomField('SKU', Loc::getMessage('BX_CAT_IBLOCK_CATALOG_FIELD_S
 			{
 				echo Loc::getMessage('BX_CAT_IBLOCK_CATALOG_MESS_EMPTY_OFFERS_LIST');
 			}
-			?></div><?
+			?></div><?php
 		}
 	?></td>
-</tr><?
+</tr><?php
 $hiddenValue .= '<input type="hidden" name="SKU" value="'.$productIblockId.'">';
 $control->EndCustomField('SKU', $hiddenValue);
 unset($hiddenValue);
@@ -299,66 +299,67 @@ if ($showSubscription)
 	$hiddenValue = $catalog['SUBSCRIPTION'];
 	$control->BeginCustomField('SUBSCRIPTION', Loc::getMessage('BX_CAT_IBLOCK_CATALOG_FIELD_SUBSCRIPTION'));
 	?>
-	<tr id="tr_SUBSCRIPTION" style="display: <? echo $rowDisplay; ?>;">
-	<td style="width: 40%;"><? echo $control->GetCustomLabelHTML(); ?></td>
-	<td style="width: 60%;"><?
+	<tr id="tr_SUBSCRIPTION" style="display: <?= $rowDisplay ?>;">
+	<td style="width: 40%;"><?= $control->GetCustomLabelHTML(); ?></td>
+	<td style="width: 60%;"><?php
 	if ($enableSaleRecurring)
 	{
 		$subscriptionWithSku = ($catalog['CATALOG_TYPE'] == CCatalogSKU::TYPE_PRODUCT || $catalog['CATALOG_TYPE'] == CCatalogSKU::TYPE_FULL);
 		?><input type="hidden" name="SUBSCRIPTION" value="N" id="SUBSCRIPTION_N">
-		<input data-checkbox="Y" type="checkbox" name="SUBSCRIPTION" value="Y" id="SUBSCRIPTION_Y"<?
+		<input data-checkbox="Y" type="checkbox" name="SUBSCRIPTION" value="Y" id="SUBSCRIPTION_Y"<?php
 			echo ($catalog['SUBSCRIPTION'] == 'Y' ? ' checked' : '').(
 				$subscriptionWithSku ? ' disabled' : ''
 			);
-		?>><?
+		?>><?php
 		if ($subscriptionWithSku && $catalog['SUBSCRIPTION'] == 'Y')
 		{
 			$hiddenValue = 'N';
-			?><br><? echo Loc::getMessage('BX_CAT_IBLOCK_CATALOG_MESS_SUBSCRIPTION_WITH_SKU');
+			?><br><?php
+			echo Loc::getMessage('BX_CAT_IBLOCK_CATALOG_MESS_SUBSCRIPTION_WITH_SKU');
 		}
 		unset($subscriptionWithSku);
 	}
 	else
 	{
 		?><input data-checkbox="Y" type="checkbox" name="SUBSCRIPTION" value="Y" id="SUBSCRIPTION_Y" checked disabled>
-		<input type="hidden" name="SUBSCRIPTION" value="N" id="SUBSCRIPTION_N"><br><?
+		<input type="hidden" name="SUBSCRIPTION" value="N" id="SUBSCRIPTION_N"><br><?php
 		echo Loc::getMessage('BX_CAT_IBLOCK_CATALOG_MESS_SUBSCRIPTION_RESET');
 		$hiddenValue = 'N';
 	}
 	?></td>
-	</tr><?
+	</tr><?php
 	$control->EndCustomField('SUBSCRIPTION', '<input type="hidden" name="SUBSCRIPTION" value="'.$hiddenValue.'">');
 	unset($hiddenValue);
 }
 $control->BeginCustomField('YANDEX_EXPORT', Loc::getMessage('BX_CAT_IBLOCK_CATALOG_FIELD_YANDEX_EXPORT'));
 $hiddenValue = $catalog['YANDEX_EXPORT'];
 ?>
-<tr id="tr_YANDEX_EXPORT" style="display: <? echo $rowDisplay; ?>;">
-	<td style="width: 40%;"><? echo $control->GetCustomLabelHTML(); ?></td>
+<tr id="tr_YANDEX_EXPORT" style="display: <?= $rowDisplay ?>;">
+	<td style="width: 40%;"><?= $control->GetCustomLabelHTML() ?></td>
 	<td style="width: 60%;">
 		<input type="hidden" id="YANDEX_EXPORT_N" name="YANDEX_EXPORT" value="N">
-		<input type="checkbox" id="YANDEX_EXPORT_Y" name="YANDEX_EXPORT" value="Y"<? echo($catalog['YANDEX_EXPORT'] == 'Y' ? ' checked' : '');?>>
+		<input type="checkbox" id="YANDEX_EXPORT_Y" name="YANDEX_EXPORT" value="Y"<?= ($catalog['YANDEX_EXPORT'] == 'Y' ? ' checked' : '') ?>>
 	</td>
-</tr><?
+</tr><?php
 $control->EndCustomField('YANDEX_EXPORT', $hiddenValue);
 unset($hiddenValue);
 
 $control->BeginCustomField('VAT_ID', Loc::getMessage('BX_CAT_IBLOCK_CATALOG_FIELD_VAT_ID'));
 $hiddenValue = $catalog['VAT_ID'];
-?><tr id="tr_VAT_ID" style="display: <? echo $rowDisplay; ?>;">
-	<td style="width: 40%;"><? echo $control->GetCustomLabelHTML(); ?></td>
+?><tr id="tr_VAT_ID" style="display: <?= $rowDisplay ?>;">
+	<td style="width: 40%;"><?= $control->GetCustomLabelHTML(); ?></td>
 	<td style="width: 60%;">
 		<select name="VAT_ID">
-		<?
+		<?php
 		foreach ($vatList as $vatId => $vatName)
 		{
-			?><option value="<? echo $vatId; ?>"<? echo ($catalog['VAT_ID'] == $vatId ? ' selected' : ''); ?>><? echo htmlspecialcharsEx($vatName); ?></option><?
+			?><option value="<?= $vatId; ?>"<?= ($catalog['VAT_ID'] == $vatId ? ' selected' : ''); ?>><?= htmlspecialcharsEx($vatName); ?></option><?php
 		}
 		unset($vatId, $vatName);
 		?>
 		</select>
 	</td>
-</tr><?
+</tr><?php
 $control->EndCustomField('VAT_ID', $hiddenValue);
 
 $save = "{
@@ -411,11 +412,12 @@ $jsParams = array(
 	'ajaxSteps' => $ajaxSteps
 );
 ?><script>
-var iblockCatalogControl = new BX.Catalog.Admin.IblockCatalog(<? echo CUtil::PhpToJSObject($jsParams, false, false, true); ?>);
+var iblockCatalogControl = new BX.Catalog.Admin.IblockCatalog(<?= CUtil::PhpToJSObject($jsParams, false, false, true) ?>);
 BX.ready(function()
 {
 	top.BX.WindowManager.Get().adjustSizeEx();
 });
-</script><?
+</script><?php
 unset($jsParams);
+
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');

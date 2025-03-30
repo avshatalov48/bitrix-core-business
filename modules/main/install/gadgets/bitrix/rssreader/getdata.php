@@ -19,7 +19,7 @@ $idAttr = preg_replace('/[^a-z0-9\\-_]/i', '_', $id);
 
 $arGadgetParams = BXGadget::getGadgetSettings($id, $_REQUEST['params'] ?? []);
 
-$arGadgetParams["CNT"] = intval($arGadgetParams["CNT"]);
+$arGadgetParams["CNT"] = intval($arGadgetParams["CNT"] ?? 0);
 if($arGadgetParams["CNT"] > 50)
 {
 	$arGadgetParams["CNT"] = 0;
@@ -35,9 +35,7 @@ if(
 	CMain::FinalActions();
 }
 
-?>
-<?php
-if($arGadgetParams["RSS_URL"]=="")
+if (empty($arGadgetParams["RSS_URL"]))
 {
 	?><div class="gdrsserror"><?=GetMessage("GD_RSS_READER_NEW_RSS")?></div><?php
 

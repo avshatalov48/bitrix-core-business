@@ -321,7 +321,13 @@ class MssqlSqlHelper extends SqlHelper
 			}
 			else
 			{
-				return 'varchar('.max(mb_strlen($values[0]), mb_strlen($values[1])).')';
+				$falseLen = strlen($values[0]);
+				$trueLen = strlen($values[1]);
+				if ($falseLen === 1 && $trueLen === 1)
+				{
+					return 'char(1)';
+				}
+				return 'varchar(' . max($falseLen, $trueLen) . ')';
 			}
 		}
 		elseif ($field instanceof ORM\Fields\EnumField)

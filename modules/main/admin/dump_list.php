@@ -1,8 +1,10 @@
 <?php
 /**
- * @global \CUser $USER
- * @global \CMain $APPLICATION
- * @global \CDatabase $DB
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ * @global CDatabase $DB
+ * @global string $by
+ * @global string $order
  */
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -99,8 +101,8 @@ if (!empty($_REQUEST['action']))
 	}
 	elseif ($_REQUEST['action'] == 'restore')
 	{
-		$http = new CHTTP;
-		if (!$http->Download('https://www.1c-bitrix.ru/download/files/scripts/restore.php', DOCUMENT_ROOT.'/restore.php'))
+		$http = new \Bitrix\Main\Web\HttpClient();
+		if (!$http->download('https://www.1c-bitrix.ru/download/files/scripts/restore.php', DOCUMENT_ROOT.'/restore.php'))
 		{
 			if (file_exists(DOCUMENT_ROOT.'/restore.php'))
 				unlink(DOCUMENT_ROOT.'/restore.php');
@@ -134,9 +136,7 @@ if (!empty($_REQUEST['action']))
 		die();
 	}
 }
-######### Admin list #######
-#$arFilterFields = array();
-#$lAdmin->InitFilter($arFilterFields);
+
 $lAdmin->BeginPrologContent();
 
 if ($arID = $lAdmin->GroupAction())
@@ -238,14 +238,14 @@ if ($arID = $lAdmin->GroupAction())
 				}
 			break;
 			case "rename":
-				if (preg_match('#^[a-z0-9\-\._]+$#i',$_REQUEST['name'] ?? ''))
+				if (preg_match('#^[a-z0-9\-._]+$#i',$_REQUEST['name'] ?? ''))
 				{
 					$arName = ParseFileName($_REQUEST['ID'] ?? '');
 					$new_name = ($_REQUEST['name'] ?? '').'.'.$arName['ext'];
 
 					if ($BUCKET_ID = intval($_REQUEST['BUCKET_ID'] ?? 0))
 					{
-						// Not realized 'cos no cloud API
+						// Not realized because no cloud API
 					}
 					else
 					{
@@ -572,14 +572,12 @@ echo GetMessage("MAIN_DUMP_HEADER_MSG1", array('#EXPORT#' => 'https://www.1c-bit
 echo EndNote();
 
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
-#################################################
-################## FUNCTIONS
+
 function ParseFileName($name)
 {
 	if (preg_match('#^(.+)\.(tar.*)$#', $name, $regs))
 		return array('name' => $regs[1], 'ext' => $regs[2]);
-	elseif (preg_match('#^(.+)\.([^\.]+)$#', $name, $regs))
+	elseif (preg_match('#^(.+)\.([^.]+)$#', $name, $regs))
 		return array('name' => $regs[1], 'ext' => $regs[2]);
 	return array('name' => $name, 'ext' => '');
 }
-?>

@@ -6653,11 +6653,20 @@ window._main_polyfill_core = true;
 	          settingsScripts.forEach(function (entry) {
 	            document.body.insertAdjacentHTML('beforeend', entry.script);
 	          });
-	          inlineScripts.forEach(function (script) {
+	          var runScriptsBefore = inlineScripts.filter(function (script) {
+	            return !script.startsWith('BX.Runtime.registerExtension');
+	          });
+	          var runScriptsAfter = inlineScripts.filter(function (script) {
+	            return script.startsWith('BX.Runtime.registerExtension');
+	          });
+	          runScriptsBefore.forEach(function (script) {
 	            BX.evalGlobal(script);
 	          });
 	          void Promise.all([loadAll(externalScripts), loadAll(externalStyles)]).then(function () {
 	            babelHelpers.classPrivateFieldSet(_this, _state, Extension.State.LOADED);
+	            runScriptsAfter.forEach(function (script) {
+	              BX.evalGlobal(script);
+	            });
 	            if (babelHelpers.classPrivateFieldGet(_this, _namespace)) {
 	              return Reflection.getClass(babelHelpers.classPrivateFieldGet(_this, _namespace));
 	            }

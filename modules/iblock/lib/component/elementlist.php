@@ -1879,10 +1879,19 @@ abstract class ElementList extends Base
 					}
 				}
 
+				$variantKey = false;
+				if (isset($variantParam['VARIANT']) && is_scalar($variantParam['VARIANT']))
+				{
+					$variantKey = $variantParam['VARIANT'];
+					if (!is_string($variantKey) && !is_int($variantKey))
+					{
+						$variantKey = false;
+					}
+				}
 				if (
-					$variantParam === false
-					|| !isset($variantsMap[$variantParam['VARIANT']])
-					|| ($variantsMap[$variantParam['VARIANT']]['SHOW_ONLY_FULL'] && $variantsMap[$variantParam['VARIANT']]['COUNT'] > $itemsRemaining)
+					$variantKey === false
+					|| !isset($variantsMap[$variantKey])
+					|| ($variantsMap[$variantKey]['SHOW_ONLY_FULL'] && $variantsMap[$variantKey]['COUNT'] > $itemsRemaining)
 				)
 				{
 					// default variant

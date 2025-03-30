@@ -102,6 +102,11 @@ export class QuickAccessApplication
 			const dialogId = urlParams.get(GetParameter.openCopilotChat);
 			Messenger.openCopilot(dialogId);
 		}
+		else if (urlParams.has(GetParameter.openCollab))
+		{
+			const dialogId = urlParams.get(GetParameter.openCollab);
+			Messenger.openCollab(dialogId ?? '');
+		}
 	}
 
 	ready(): Promise

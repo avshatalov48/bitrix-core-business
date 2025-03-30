@@ -1,18 +1,18 @@
-<?
+<?php
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-define('STOP_STATISTICS', true);
-define('NO_AGENT_CHECK', true);
-define('PUBLIC_AJAX_MODE', true);
+const STOP_STATISTICS = true;
+const NO_AGENT_CHECK = true;
+const PUBLIC_AJAX_MODE = true;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Loader,
-	Bitrix\Catalog,
-	Bitrix\Catalog\Access\ActionDictionary,
-	Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
 
 Loc::loadMessages(__FILE__);
 
@@ -81,26 +81,26 @@ else
 	<div id="sets_error_div" style="margin:0; display: none;">
 		<div class="adm-info-message-wrap adm-info-message-red">
 			<div class="adm-info-message">
-				<div class="adm-info-message-title"><? echo Loc::getMessage('CAT_SETS_AVAILABLE_ERRORS_TITLE'); ?></div>
+				<div class="adm-info-message-title"><?= Loc::getMessage('CAT_SETS_AVAILABLE_ERRORS_TITLE') ?></div>
 				<div id="sets_error_cont"></div>
 				<div class="adm-info-message-icon"></div>
 			</div>
 		</div>
 	</div>
-	<form name="sets_available_form" action="<? echo $APPLICATION->GetCurPage(); ?>" method="POST"><?
+	<form name="sets_available_form" action="<?= $APPLICATION->GetCurPage() ?>" method="POST"><?php
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 	?><tr>
-	<td width="40%"><? echo Loc::getMessage('CAT_SETS_AVAILABLE_MAX_EXECUTION_TIME')?></td>
-	<td><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?echo $oneStepTime; ?>"></td>
-	</tr><?
+	<td width="40%"><?= Loc::getMessage('CAT_SETS_AVAILABLE_MAX_EXECUTION_TIME') ?></td>
+	<td><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?= $oneStepTime ?>"></td>
+	</tr><?php
 	$tabControl->Buttons();
 	?>
-	<input type="button" id="start_button" value="<? echo Loc::getMessage('CAT_SETS_AVAILABLE_UPDATE_BTN')?>"<? echo ($setsCounter > 0 ? '' : ' disabled'); ?>>
-	<input type="button" id="stop_button" value="<? echo Loc::getMessage('CAT_SETS_AVAILABLE_STOP_BTN')?>" disabled>
-	<?
+	<input type="button" id="start_button" value="<?= Loc::getMessage('CAT_SETS_AVAILABLE_UPDATE_BTN') ?>"<?= ($setsCounter > 0 ? '' : ' disabled') ?>>
+	<input type="button" id="stop_button" value="<?= Loc::getMessage('CAT_SETS_AVAILABLE_STOP_BTN') ?>" disabled>
+	<?php
 	$tabControl->End();
-	?></form><?
+	?></form><?php
 	$jsParams = array(
 		'url' => $APPLICATION->GetCurPage(),
 		'options' => array(
@@ -123,9 +123,8 @@ else
 	);
 	?>
 <script>
-var jsStepOperations = new BX.Catalog.StepOperations(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>);
+var jsStepOperations = new BX.Catalog.StepOperations(<?= CUtil::PhpToJSObject($jsParams, false, true) ?>);
 </script>
-	<?
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	<?php
+	require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php');
 }
-?>

@@ -33,7 +33,8 @@ $arParameters = Array(
 	);
 
 if (
-	is_array($arCurrentValues) 
+	is_array($arCurrentValues)
+	&& !empty($arCurrentValues["PREDEFINED_RSS"])
 	&& trim($arCurrentValues["PREDEFINED_RSS"]) != ""
 )
 {

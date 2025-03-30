@@ -3,22 +3,27 @@ namespace Bitrix\Main\Data;
 
 use Bitrix\Main\Config;
 use Bitrix\Main\Application;
+use Bitrix\Main\Data\Internal\CacheCleanPathTable;
 
 abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInterface, LocalStorage\Storage\CacheEngineInterface
 {
-	const BX_BASE_LIST = '|bx_base_list|';
-	const BX_DIR_LIST = '|bx_dir_list|';
+	const BX_BASE_LIST = 'BL:';
+	const BX_INIT_DIR_LIST = 'IL:';
 
-	protected static \Redis|\Memcache|null|\Memcached $engine = null;
+	protected static $engine = null;
 	protected static array $locks = [];
 	protected static bool $isConnected = false;
+	protected static array $cleanQueue = [];
 	protected static array $baseDirVersion = [];
+	protected static array $initDirPartitions = [];
 	protected string $sid = 'BX';
 	protected bool $useLock = false;
 	protected int $ttlMultiplier = 2;
 	protected int $ttlOld = 60;
 	protected bool $old = false;
 	protected bool $fullClean = false;
+	protected array $config;
+	protected static int $clusterGroup = 0;
 
 	/** Cache stat */
 	private int $written = 0;
@@ -46,26 +51,47 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 	 */
 	public function __construct(array $options = [])
 	{
-		$hash = sha1(serialize($options));
+		$this->config = $this->configure($options);
+		$this->connect($this->config);
 
-		static $config = [];
-		if (self::$engine == null || empty($config[$hash]))
+		static::$clusterGroup = (int) (defined('BX_CLUSTER_GROUP') ? BX_CLUSTER_GROUP : 0);
+		if (self::$isConnected)
 		{
-				$config[$hash] = $this->configure($options);
-		}
+			Application::getInstance()->addBackgroundJob(\Bitrix\Main\Data\Cache::class.'::addCleanPath', [], Application::JOB_PRIORITY_LOW);
 
-		$this->connect($config[$hash]);
+			if ($this->lock($this->sid . '|cacheClean', 600))
+			{
+				Application::getInstance()->addBackgroundJob(\Bitrix\Main\Data\Cache::class . '::delayedDelete', [], Application::JOB_PRIORITY_LOW);
+			}
+		}
+	}
+
+	public function getConfig(): array
+	{
+		return $this->config;
 	}
 
 	protected function connect($config)
 	{
-		$connectionPool = Application::getInstance()->getConnectionPool();
-		$connectionPool->setConnectionParameters($this->getConnectionName(), $config);
+		if (!self::$isConnected)
+		{
+			$connectionPool = Application::getInstance()->getConnectionPool();
+			$connectionPool->setConnectionParameters($this->getConnectionName(), $config);
 
-		/** @var RedisConnection|MemcacheConnection|MemcachedConnection $engineConnection */
-		$engineConnection = $connectionPool->getConnection($this->getConnectionName());
-		self::$engine = $engineConnection->getResource();
-		self::$isConnected = $engineConnection->isConnected();
+			/** @var RedisConnection|MemcacheConnection|MemcachedConnection $engineConnection */
+			$engineConnection = $connectionPool->getConnection($this->getConnectionName());
+
+			self::$engine = $engineConnection->getResource();
+			self::$isConnected = $engineConnection->isConnected();
+		}
+	}
+
+	protected function modifyConfigByEngine(array &$config, array $cacheConfig, array $options = []): void
+	{
+	}
+
+	protected function modifyConfigByClusterEngine(array &$config, array $cacheConfig, array $options = []): void
+	{
 	}
 
 	protected function configure($options = []): array
@@ -137,21 +163,9 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 			$this->sid = $cacheConfig['sid'];
 		}
 
-		// Only redis
-		if (isset($cacheConfig['serializer']))
+		if (isset($options['sid']) && ($options['sid'] != ''))
 		{
-			$config['serializer'] = (int) $cacheConfig['serializer'];
-		}
-
-		if (isset($cacheConfig['connectionTimeout']))
-		{
-			$config['connectionTimeout'] = (int) $cacheConfig['connectionTimeout'];
-		}
-
-		$config['persistent'] = true;
-		if (isset($cacheConfig['persistent']) && $cacheConfig['persistent'] == 0)
-		{
-			$config['persistent'] = false;
+			$this->sid = $options['sid'];
 		}
 
 		if (isset($cacheConfig['actual_data']) && !$this->useLock)
@@ -183,7 +197,11 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 			$this->ttlOld = (int) $cacheConfig['ttlOld'];
 		}
 
-		$this->sid .= '|v1|';
+		$this->modifyConfigByEngine($config, $cacheConfig);
+		$this->modifyConfigByClusterEngine($config, $cacheConfig);
+
+		$this->sid .= '|v1';
+		$config['sid'] = $this->sid;
 
 		return $config;
 	}
@@ -297,7 +315,17 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 
 	protected function getPartition($key): string
 	{
-		return '|' . substr(sha1($key), 0, 4) . '|';
+		return substr(sha1($key), 0, 2);
+	}
+
+	protected function getInitDirKey($baseDirVersion, $baseDir, $initDir): string
+	{
+		return $this->sid . '|BDV:' . $baseDirVersion  . '|IDH:' . sha1($baseDir . '|' . $initDir);
+	}
+
+	protected function getBaseDirKey($baseDir): string
+	{
+		return $this->sid . '|BDV:' . sha1($baseDir);
 	}
 
 	/**
@@ -307,9 +335,21 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 	 * @param bool|string $initDir Directory within base.
 	 * @return string
 	 */
-	protected function getInitDirVersion($baseDir, $initDir = false): string
+	protected function getInitDirVersion($baseDir, $initDir = false, bool $create = true ): string
 	{
-		return sha1($baseDir . '|' . $initDir);
+		$baseDirVersion = $this->getBaseDirVersion($baseDir);
+		$initDirHash = sha1($baseDir . '|' . $initDir);
+
+		$key = $this->getInitDirKey($baseDirVersion, $baseDir, $initDir);
+		$initDirVersion = $this->get($key);
+
+		if ($initDirVersion == '' && $create)
+		{
+			$initDirVersion = sha1($initDirHash . '|' . mt_rand() . '|' . microtime());
+			$this->set($key, 0, $initDirVersion);
+		}
+
+		return $initDirVersion;
 	}
 
 	/**
@@ -320,17 +360,16 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 	 */
 	protected function getBaseDirVersion($baseDir): string
 	{
-		$baseDirHash = sha1($baseDir);
-		$key = $this->sid . '|base_dir|' . $baseDirHash;
+		$key = $this->getBaseDirKey($baseDir);
 
 		if (!isset(static::$baseDirVersion[$key]))
 		{
 			static::$baseDirVersion[$key] = $this->get($key);
 		}
 
-		if (static::$baseDirVersion[$key] === false || (static::$baseDirVersion[$key] == ''))
+		if (static::$baseDirVersion[$key] == '')
 		{
-			static::$baseDirVersion[$key] = sha1($baseDirHash . '|' . mt_rand() . '|' . microtime());
+			static::$baseDirVersion[$key] = sha1(sha1($baseDir) . '|' . mt_rand() . '|' . microtime());
 			$this->set($key, 0, static::$baseDirVersion[$key]);
 		}
 
@@ -351,27 +390,36 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 	public function read(&$vars, $baseDir, $initDir, $filename, $ttl)
 	{
 		$baseDirVersion = $this->getBaseDirVersion($baseDir);
-		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir);
+		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir, false);
+
+		if ($initDirVersion == '')
+		{
+			if ($this->useLock)
+			{
+				$initDirVersion = $this->get($this->getInitDirKey($baseDirVersion, $baseDir, $initDir) . '~');
+				if ($initDirVersion == '')
+				{
+					$vars = false;
+					return false;
+				}
+				else
+				{
+					$this->old = true;
+				}
+			}
+			else
+			{
+				$vars = false;
+				return false;
+			}
+		}
 
 		$dir = sha1($baseDirVersion . '|' . $initDirVersion);
-		$key = $this->sid. '|' . $dir . '|' . $filename;
-
-		$initListKey = $this->sid . '|' . $dir . self::BX_DIR_LIST;
-		$initPartition = $this->getPartition($filename);
-		$initListKeyPartition = $initListKey . $initPartition;
+		$key = $this->sid . '|' . $dir . '|' . $filename;
 
 		if ($this->useLock)
 		{
 			$cachedData = $this->get($key);
-			if (
-				($cachedData !== null && $cachedData !== false)
-				&& !$this->checkInSet($initListKey, $initPartition)
-				&& !$this->checkInSet($initListKeyPartition, $filename)
-			)
-			{
-				$this->del($key);
-				return false;
-			}
 
 			if (!is_array($cachedData))
 			{
@@ -398,17 +446,6 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 		else
 		{
 			$vars = $this->get($key);
-			if ($vars !== null && $vars !== false)
-			{
-				if (
-					!$this->checkInSet($initListKey, $initPartition)
-					|| !$this->checkInSet($initListKeyPartition, $filename)
-				)
-				{
-					$this->del($key);
-					return false;
-				}
-			}
 		}
 
 		if (Cache::getShowCacheStat())
@@ -437,7 +474,9 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir);
 
 		$dir = sha1($baseDirVersion . '|' . $initDirVersion);
-		$key = $this->sid. '|' . $dir . '|' . $filename;
+		$keyPrefix = $this->sid . '|' . $dir;
+		$key = $keyPrefix . '|' . $filename;
+
 		$exp = $this->ttlMultiplier * (int) $ttl;
 
 		if ($this->useLock)
@@ -451,18 +490,22 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 			$this->set($key, $exp, $vars);
 		}
 
-		$initListKey = $this->sid . '|' . $dir . self::BX_DIR_LIST;
+		$initListKey = $keyPrefix . '|' . self::BX_INIT_DIR_LIST;
 		$initPartition = $this->getPartition($filename);
-		$initListKeyPartition = $initListKey . $initPartition;
+		$initListKeyPartition = $initListKey . '|' . $initPartition;
 
-		$this->addToSet($initListKeyPartition, $filename);
-		$this->addToSet($initListKey, $initPartition);
+		$this->addToSet($initListKeyPartition, $key);
+		if (empty(static::$initDirPartitions[$initListKey][$initPartition]))
+		{
+			static::$initDirPartitions[$initListKey][$initPartition] = true;
+			$this->addToSet($initListKey, $initPartition);
+		}
 
 		if ($this->fullClean)
 		{
-			$baseListKey = $this->sid . '|' . $baseDirVersion . self::BX_BASE_LIST;
+			$baseListKey = $this->sid . '|' . $baseDirVersion . '|' . self::BX_BASE_LIST;
 			$baseListKeyPartition = $this->getPartition($initListKeyPartition);
-			$this->addToSet($baseListKey . $baseListKeyPartition, $initListKeyPartition);
+			$this->addToSet($baseListKey . $baseListKeyPartition, $keyPrefix);
 			$this->addToSet($baseListKey, $baseListKeyPartition);
 		}
 
@@ -490,20 +533,21 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 		}
 
 		$baseDirVersion = $this->getBaseDirVersion($baseDir);
-		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir);
+		$initDirVersion = $this->getInitDirVersion($baseDir, $initDir, false);
+
+		if ($initDirVersion == '' && $initDir != '')
+		{
+			return;
+		}
 
 		$dir = sha1($baseDirVersion . '|' . $initDirVersion);
-		$initListKey = $this->sid . '|' .$dir . self::BX_DIR_LIST;
-
-		if ($this->fullClean)
-		{
-			$baseListKey = $this->sid . '|' .$baseDirVersion . self::BX_BASE_LIST;
-		}
+		$keyPrefix = $this->sid . '|' . $dir;
+		$initListKey = $keyPrefix . '|' . self::BX_INIT_DIR_LIST;
 
 		if ($filename <> '')
 		{
-			$key = $this->sid . '|' .$dir . '|' . $filename;
-			$this->delFromSet($initListKey . $this->getPartition($filename), $filename);
+			$key = $keyPrefix . '|' . $filename;
+			$this->delFromSet($initListKey . '|' . $this->getPartition($filename), $filename);
 
 			if ($this->useLock && $cachedData = $this->get($key))
 			{
@@ -518,57 +562,151 @@ abstract class CacheEngine implements CacheEngineInterface, CacheEngineStatInter
 		}
 		elseif ($initDir != '')
 		{
-			$keyPrefix = $this->sid . '|' .$dir . '|';
-			$partitionKeys = $this->getSet($initListKey);
+			$key = $this->getInitDirKey($baseDirVersion, $baseDir, $initDir);
+			$this->del($key);
 
-			// A temporary optimization solution
-			if ($this->getConnectionName() != 'cache.redis')
+			if ($this->useLock)
 			{
-				$this->delFromSet($initListKey, $partitionKeys);
+				$this->set($key . '~', $this->ttlOld, $initDirVersion);
+				$cleanFrom = (new \Bitrix\Main\Type\DateTime())->add('+' . $this->ttlOld . ' seconds');
 			}
-			$this->del($initListKey);
+			else
+			{
+				$cleanFrom = (new \Bitrix\Main\Type\DateTime());
+			}
 
-			foreach ($partitionKeys as $partition)
-			{
-				$delKey = $initListKey . $partition;
-				$this->deleteBySet($delKey, $keyPrefix);
-				if ($this->fullClean)
-				{
-					$this->delFromSet($baseListKey . $this->getPartition($delKey), $delKey);
-				}
-			}
+			static::$cleanQueue[$keyPrefix] = [
+				'PREFIX' => $keyPrefix,
+				'CLEAN_FROM' => $cleanFrom,
+				'CLUSTER_GROUP' => static::$clusterGroup
+			];
 		}
 		else
 		{
-			$baseDirKey = $this->sid . '|base_dir|' . sha1 ($baseDir);
-			$this->del($baseDirKey);
-			unset(static::$baseDirVersion[$baseDirKey]);
-
 			if ($this->fullClean)
 			{
 				$useLock = $this->useLock;
 				$this->useLock = false;
 
-				$keyPrefix = $this->sid . '|' .$dir . '|';
-				$partitionKeys = $this->getSet($baseListKey);
+				$baseDirVersion = $this->getBaseDirVersion($baseDir);
+				$baseListKey = $this->sid . '|' . $baseDirVersion . '|' . self::BX_BASE_LIST;
 
+				$partitionKeys = $this->getSet($baseListKey);
 				foreach ($partitionKeys as $partition)
 				{
 					$baseListKeyPartition = $baseListKey . $partition;
-					$keys = $this->getSet($baseListKeyPartition);
-
-					foreach ($keys as $initKey)
+					$paths = $this->getSet($baseListKeyPartition);
+					foreach ($paths as $path)
 					{
-						$this->deleteBySet($initKey, $keyPrefix);
+						static::$cleanQueue[$keyPrefix] = [
+							'PREFIX' => $path,
+							'CLEAN_FROM' =>  (new \Bitrix\Main\Type\DateTime()),
+							'CLUSTER_GROUP' => static::$clusterGroup
+						];
 					}
 
-					$this->del($baseListKeyPartition);
-					unset($keys);
+					unset($paths);
 				}
 
 				$this->del($baseListKey);
 				$this->useLock = $useLock;
 			}
+
+			$baseDirKey = $this->getBaseDirKey($baseDir);
+			$this->del($baseDirKey);
+			unset(static::$baseDirVersion[$baseDirKey]);
 		}
+
+		$this->set($this->sid . '|needClean', '3600', 'Y');
+	}
+
+	public function addCleanPath(): void
+	{
+		if (empty(static::$cleanQueue))
+		{
+			return;
+		}
+
+		foreach (array_chunk(static::$cleanQueue, 100) as $chunk)
+		{
+			CacheCleanPathTable::addMulti($chunk, true);
+		}
+
+		static::$cleanQueue = [];
+	}
+
+	public function delayedDelete(): void
+	{
+		$delta = 10;
+		$deleted = 0;
+		$etime = time() + 5;
+		$needClean = $this->get($this->sid . '|needClean');
+		if ($needClean !== 'Y')
+		{
+			$this->unlock($this->sid . '|cacheClean');
+			return;
+		}
+
+		$count = (int) $this->get($this->sid . '|delCount');
+		if ($count < 1)
+		{
+			$count = 1;
+		}
+
+		$paths = CacheCleanPathTable::query()
+			->setSelect(['ID', 'PREFIX'])
+			->where('CLEAN_FROM', '<=', new \Bitrix\Main\Type\DateTime())
+			->where('CLUSTER_GROUP', static::$clusterGroup)
+			->setLimit($count + $delta)
+			->exec();
+
+		while($path = $paths->fetch())
+		{
+			$finished = true;
+			$partitionKeys = $this->getSet($path['PREFIX'] . '|' . static::BX_INIT_DIR_LIST);
+			foreach ($partitionKeys as $partition)
+			{
+				if (time() > $etime)
+				{
+					$finished = false;
+					break;
+				}
+
+				$delKey = $path['PREFIX'] . '|' . static::BX_INIT_DIR_LIST . '|' . $partition;
+				$keys = $this->getSet($delKey);
+				if (!empty($keys))
+				{
+					$this->deleteBySet($delKey, $path['PREFIX']);
+					$this->del($delKey);
+				}
+			}
+
+			if ($finished)
+			{
+				CacheCleanPathTable::delete($path['ID']);
+				$this->del($partitionKeys);
+				$deleted++;
+			}
+			if (time() > $etime)
+			{
+				break;
+			}
+		}
+
+		if ($deleted > $count)
+		{
+			$this->set($this->sid . '|delCount', 604800, $deleted);
+		}
+		elseif ($deleted < $count && $count > 1)
+		{
+			$this->set($this->sid . '|delCount', 604800, --$count);
+		}
+
+		if ($deleted == 0)
+		{
+			$this->set($this->sid . '|needClean', '3600', 'N');
+		}
+
+		$this->unlock($this->sid . '|cacheClean');
 	}
 }

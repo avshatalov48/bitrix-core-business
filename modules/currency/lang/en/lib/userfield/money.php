@@ -1,4 +1,3 @@
-<?
+<?php
 $MESS["USER_TYPE_MONEY_DESCRIPTION"] = "Money";
 $MESS["USER_TYPE_MONEY_DEFAULT_VALUE"] = "Default value";
-?>

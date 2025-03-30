@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 class PHPParser
@@ -293,8 +293,14 @@ class PHPParser
 
 			$arIncludeParams = array();
 			$arFuncParams = array();
-			PHPParser::GetParamsRec($arParams[2] ?? '', $arAllStr, $arIncludeParams);
-			PHPParser::GetParamsRec($arParams[4] ?? '', $arAllStr, $arFuncParams);
+			if (!empty($arParams[2]))
+			{
+				PHPParser::GetParamsRec($arParams[2], $arAllStr, $arIncludeParams);
+			}
+			if (!empty($arParams[4]))
+			{
+				PHPParser::GetParamsRec($arParams[4], $arAllStr, $arFuncParams);
+			}
 
 			return array(
 				"COMPONENT_NAME" => PHPParser::ReplString($arParams[0] ?? '', $arAllStr),
@@ -711,7 +717,7 @@ class PHPParser
 	public static function ReturnPHPStr($arVals, $arParams)
 	{
 		$res = "";
-		$un = md5(uniqid(""));
+		$un = md5(uniqid());
 		$i=0;
 		foreach($arVals as $key=>$val)
 		{

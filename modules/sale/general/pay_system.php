@@ -50,9 +50,9 @@ class CAllSalePaySystem
 		$arResult = array();
 
 		$arFilter = array(
-			"ACTIVE" => "Y",
+			"=ACTIVE" => "Y",
 			"PERSON_TYPE_ID" => $personType,
-			"PSA_HAVE_PAYMENT" => "Y"
+			"=PSA_HAVE_PAYMENT" => "Y"
 		);
 
 		// $arDeliveryMap = array(array($deliveryId => 8), array($deliveryId => array(34, 22)), ...)

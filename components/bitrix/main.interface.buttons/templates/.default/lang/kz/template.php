@@ -1,0 +1,22 @@
+<?php
+$MESS["MIB_APPLY_SETTING_MENU_ITEM"] = "Баптауды аяқтау";
+$MESS["MIB_CANCEL_BUTTON"] = "Болдырмау";
+$MESS["MIB_DROPZONE_TEXT"] = "Элементті жасыру";
+$MESS["MIB_HIDDEN"] = "Жасырын";
+$MESS["MIB_LICENSE_BUY_BUTTON"] = "Сатып алу";
+$MESS["MIB_LICENSE_TRIAL_BUTTON"] = "Тегін пайдаланып көру";
+$MESS["MIB_LICENSE_WINDOW_HEADER_TEXT"] = "Қолжетімділік алу";
+$MESS["MIB_LICENSE_WINDOW_TEXT"] = "Лицензия сатып алу немесе тегін көру";
+$MESS["MIB_MAIN_BUTTONS_LOADING"] = "Жүктеу...";
+$MESS["MIB_MAIN_BUTTONS_MORE"] = "Тағы";
+$MESS["MIB_MANAGE"] = "Басқару";
+$MESS["MIB_NO_HIDDEN"] = "Жасыру үшін осы жерге сүйреп апарыңыз";
+$MESS["MIB_PIN_HINT"] = "Жоғарғы мәзірге апару";
+$MESS["MIB_RESET_ALERT"] = "Мәзірді бастапқы күйіне қайтару керек пе?";
+$MESS["MIB_RESET_BUTTON"] = "Қалпына келтіру";
+$MESS["MIB_RESET_SETTINGS"] = "Әдепкі бойынша мәзірді қайтару";
+$MESS["MIB_SETTING_MENU_ITEM"] = "Мәзірді баптау";
+$MESS["MIB_SET_HIDE"] = "Жасыру";
+$MESS["MIB_SET_HOME"] = "Бөлімнің бастысы етіп жасау";
+$MESS["MIB_SET_SHOW"] = "Көрсету";
+$MESS["MIB_UNPIN_ITEM"] = "\"#NAME#\" бөліміне оралу";

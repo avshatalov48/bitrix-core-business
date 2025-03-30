@@ -44,7 +44,11 @@ class ProviderOffline implements ProviderOfflineInterface
 		if (!$this->isFinaliseInit)
 		{
 			$this->isFinaliseInit = true;
-			Application::getInstance()->addBackgroundJob([__CLASS__, 'runFinalize']);
+			$application = Application::getInstance();
+			$application->addBackgroundJob(
+				job: [__CLASS__, 'runFinalize'],
+				priority: $application::JOB_PRIORITY_LOW
+			);
 		}
 	}
 
@@ -124,6 +128,9 @@ class ProviderOffline implements ProviderOfflineInterface
 		{
 			$this->sendOfflineEvent(array_keys($offlineEventsApp));
 		}
+
+		$this->eventList = [];
+		$this->isFinaliseInit = false;
 	}
 
 	protected function getServerAuthData()

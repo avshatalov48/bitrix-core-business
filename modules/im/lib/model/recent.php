@@ -37,6 +37,7 @@ class RecentTable extends Main\Entity\DataManager
 	use \Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 	use UpdateByFilterTrait;
 	use MultiplyInsertTrait;
+	use Main\ORM\Data\Internal\MergeTrait;
 	/**
 	 * Returns DB table name for entity.
 	 *

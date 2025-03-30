@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TITLE"] = "Add currency from code registry";
 $MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_SEARCH_AND_SETTINGS"] = "Search and settings";
 $MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_SEARCH_AND_SETTINGS_TITLE"] = "Currency settings and search preferences";
@@ -29,4 +29,3 @@ $MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_DECIMALS_NUMBER"] = "The number of decim
 $MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_HIDE_ZERO"] = "Specifies to hide insignificant zeros when showing a price. For example, for a product item costing 55.00&nbsp;USD this option will show 55&nbsp;USD, and for an item worth 45.50&nbsp;USD the visible price will be 45.50&nbsp;USD.";
 $MESS["ADMIN_CURRENCY_CLASSIFIER_UNKNOWN_ERROR_ADD"] = "Unknown error adding a currency.";
 $MESS["ADMIN_CURRENCY_CLASSIFIER_UNKNOWN_ERROR_UPDATE"] = "Unknown error editing a currency.";
-?>

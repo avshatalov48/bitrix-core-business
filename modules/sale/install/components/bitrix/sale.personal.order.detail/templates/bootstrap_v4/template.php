@@ -118,11 +118,11 @@ else
 										$userName = $arResult["USER_NAME"];
 										if ($userName <> '' || $arResult['FIO'] <> '')
 										{
-											echo Loc::getMessage('SPOD_LIST_FIO').':';
+											echo Loc::getMessage('SPOD_LIST_FIO_MSGVER_1');
 										}
 										else
 										{
-											echo Loc::getMessage('SPOD_LOGIN').':';
+											echo Loc::getMessage('SPOD_LOGIN_MSGVER_1');
 										}
 										?>
 									</div>
@@ -171,7 +171,7 @@ else
 								</div>
 
 								<div class="col-sm mb-3">
-									<div class="sale-order-detail-prop-name"><?= Loc::getMessage('SPOD_ORDER_PRICE')?>:</div>
+									<div class="sale-order-detail-prop-name"><?= Loc::getMessage('SPOD_ORDER_PRICE_MSGVER_1') ?></div>
 									<div class="sale-order-detail-prop-value"><?= $arResult["PRICE_FORMATED"]?></div>
 								</div>
 
@@ -207,7 +207,7 @@ else
 										{
 											?>
 											<tr>
-												<th><?= Loc::getMessage('SPOD_LOGIN')?>:</th>
+												<th><?= Loc::getMessage('SPOD_LOGIN_MSGVER_1') ?></th>
 												<td><?= htmlspecialcharsbx($arResult["USER"]["LOGIN"]) ?></td>
 											</tr>
 											<?php
@@ -216,7 +216,7 @@ else
 										{
 											?>
 											<tr>
-												<th><?= Loc::getMessage('SPOD_EMAIL')?>:</th>
+												<th><?= Loc::getMessage('SPOD_EMAIL_MSGVER_1') ?></th>
 												<td>
 													<a class="" href="mailto:<?= htmlspecialcharsbx($arResult["USER"]["EMAIL"]) ?>"><?= htmlspecialcharsbx($arResult["USER"]["EMAIL"]) ?></a>
 												</td>
@@ -227,7 +227,7 @@ else
 										{
 											?>
 											<tr>
-												<th><?= Loc::getMessage('SPOD_PERSON_TYPE_NAME') ?>:</th>
+												<th><?= Loc::getMessage('SPOD_PERSON_TYPE_NAME_MSGVER_1') ?></th>
 												<td><?= htmlspecialcharsbx($arResult["USER"]["PERSON_TYPE_NAME"]) ?></td>
 											</tr>
 											<?php
@@ -317,7 +317,7 @@ else
 										?>
 									</div>
 									<div class="sale-order-detail-payment-options-info-total-price">
-										<?=Loc::getMessage('SPOD_ORDER_PRICE_FULL')?>:
+										<?=Loc::getMessage('SPOD_ORDER_PRICE_FULL_MSGVER_1') ?>
 										<span><?=$arResult["PRICE_FORMATED"]?></span>
 									</div>
 									<?php
@@ -325,12 +325,24 @@ else
 									{
 										?>
 										<div class="sale-order-detail-payment-options-info-total-price">
-											<?=Loc::getMessage('SPOD_ORDER_SUM_PAID')?>:
-											<span><?=$arResult["SUM_PAID_FORMATED"]?></span>
+											<?=
+												Loc::getMessage(
+													'SPOD_ORDER_SUM_PAID_MSGVER_1',
+													[
+														"#SUM_PAID_FORMATED#" => '<span>' . $arResult["SUM_PAID_FORMATED"] . '</span>',
+													],
+												)
+											?>
 										</div>
 										<div class="sale-order-detail-payment-options-info-total-price">
-											<?=Loc::getMessage('SPOD_ORDER_SUM_REST')?>:
-											<span><?=$arResult["SUM_REST_FORMATED"]?></span>
+											<?=
+												Loc::getMessage(
+													'SPOD_ORDER_SUM_REST_MSGVER_1',
+													[
+														"#SUM_REST_FORMATED#" => '<span>' . $arResult["SUM_REST_FORMATED"] . '</span>',
+													],
+												)
+											?>
 										</div>
 										<?php
 									}
@@ -362,16 +374,28 @@ else
 																	"refresh_prices" => $arParams['REFRESH_PRICES'],
 																	"path_to_payment" => $arParams['PATH_TO_PAYMENT']
 																);
-																$paymentSubTitle = Loc::getMessage('SPOD_TPL_BILL')." ".Loc::getMessage('SPOD_NUM_SIGN').$payment['ACCOUNT_NUMBER'];
-																if(isset($payment['DATE_BILL']))
+																$paymentSubTitle = Loc::getMessage(
+																	'SPOD_TPL_BILL_MSGVER_1',
+																	[
+																		'#ACCOUNT_NUMBER#' => htmlspecialcharsbx($payment['ACCOUNT_NUMBER']),
+																		'#PAY_SYSTEM_NAME#' => '<span class="sale-order-list-payment-title-element">' . htmlspecialcharsbx($payment['PAY_SYSTEM_NAME']) . '</span>',
+																	]
+																);
+
+																if (isset($payment['DATE_BILL']))
 																{
-																	$paymentSubTitle .= " ".Loc::getMessage('SPOD_FROM')." ".$payment['DATE_BILL_FORMATED'];
+																	$paymentSubTitle = Loc::getMessage(
+																		'SPOD_TPL_BILL_WITH_DATE_BILL',
+																		[
+																			'#ACCOUNT_NUMBER#' => htmlspecialcharsbx($payment['ACCOUNT_NUMBER']),
+																			'#DATE_BILL_FORMATED#' => htmlspecialcharsbx($payment['DATE_BILL_FORMATED']),
+																			'#PAY_SYSTEM_NAME#' => '<span class="sale-order-list-payment-title-element">' . htmlspecialcharsbx($payment['PAY_SYSTEM_NAME']) . '</span>',
+																		]
+																	);
 																}
-																$paymentSubTitle .=",";
-																echo htmlspecialcharsbx($paymentSubTitle);
-																?>
-																<span class="sale-order-list-payment-title-element"><?=$payment['PAY_SYSTEM_NAME']?></span>
-																<?php
+
+																echo $paymentSubTitle;
+
 																if ($payment['PAID'] === 'Y')
 																{
 																	?>
@@ -400,7 +424,7 @@ else
 															</div>
 														</div>
 														<div class="mb-2 sale-order-detail-payment-options-methods-info-total-price">
-															<span class="sale-order-detail-sum-name"><?= Loc::getMessage('SPOD_ORDER_PRICE_BILL')?>:</span>
+															<span class="sale-order-detail-sum-name"><?= Loc::getMessage('SPOD_ORDER_PRICE_BILL_MSGVER_1') ?></span>
 															<span class="sale-order-detail-sum-number"><?=$payment['PRICE_FORMATED']?></span>
 														</div>
 														<?php
@@ -420,7 +444,7 @@ else
 															{
 																?>
 																<div class="sale-order-detail-payment-options-methods-info-total-check">
-																	<div class="sale-order-detail-sum-check-left"><?= Loc::getMessage('SPOD_CHECK_TITLE')?>:</div>
+																	<div class="sale-order-detail-sum-check-left"><?= Loc::getMessage('SPOD_CHECK_TITLE_MSGVER_1') ?></div>
 																	<div class="sale-order-detail-sum-check-left"><?=$listCheckLinks?></div>
 																</div>
 																<?php
@@ -554,15 +578,27 @@ else
 															{
 																$shipment['PRICE_DELIVERY_FORMATED'] = 0;
 															}
-															$shipmentRow = Loc::getMessage('SPOD_SUB_ORDER_SHIPMENT')." ".Loc::getMessage('SPOD_NUM_SIGN').$shipment["ACCOUNT_NUMBER"];
+
+															$shipmentRow = Loc::getMessage(
+																'SPOD_SUB_ORDER_SHIPMENT_MSGVER_1',
+																[
+																	'#ACCOUNT_NUMBER#' => htmlspecialcharsbx($shipment["ACCOUNT_NUMBER"]),
+																	'#PRICE_DELIVERY#' => $shipment['PRICE_DELIVERY_FORMATED'],
+																],
+															);
+
 															if ($shipment["DATE_DEDUCTED"])
 															{
-																$shipmentRow .= " ".Loc::getMessage('SPOD_FROM')." ".$shipment["DATE_DEDUCTED_FORMATED"];
+																$shipmentRow = Loc::getMessage(
+																	'SPOD_SUB_ORDER_SHIPMENT_WITH_DATE_DEDUCTED',
+																	[
+																		'#ACCOUNT_NUMBER#' => htmlspecialcharsbx($shipment["ACCOUNT_NUMBER"]),
+																		'#DATE_DEDUCTED_FORMATED#' => htmlspecialcharsbx($shipment["DATE_DEDUCTED_FORMATED"]),
+																		'#PRICE_DELIVERY#' => $shipment['PRICE_DELIVERY_FORMATED'],
+																	],
+																);
 															}
-															$shipmentRow = htmlspecialcharsbx($shipmentRow);
-															$shipmentRow .= ", ".Loc::getMessage('SPOD_SUB_PRICE_DELIVERY', array(
-																	'#PRICE_DELIVERY#' => $shipment['PRICE_DELIVERY_FORMATED']
-																));
+
 															echo $shipmentRow;
 														?>
 													</div>
@@ -572,15 +608,29 @@ else
 													{
 														?>
 														<div
-															class="mb-2 sale-order-detail-payment-options-methods-shipment-list-item"><?= Loc::getMessage('SPOD_ORDER_DELIVERY') ?>
-															: <?= htmlspecialcharsbx($shipment["DELIVERY_NAME"]) ?></div>
+															class="mb-2 sale-order-detail-payment-options-methods-shipment-list-item">
+															<?=
+																Loc::getMessage(
+																	'SPOD_ORDER_DELIVERY_MSGVER_1',
+																	[
+																		'#DELIVERY_NAME#' => htmlspecialcharsbx($shipment["DELIVERY_NAME"]),
+																	]
+																)
+															?>
+														</div>
 														<?php
 													}
 													?>
 
 													<div class="mb-2 sale-order-detail-payment-options-methods-shipment-list-item">
-														<?= Loc::getMessage('SPOD_ORDER_SHIPMENT_STATUS')?>:
-														<?= htmlspecialcharsbx($shipment['STATUS_NAME'])?>
+														<?=
+															Loc::getMessage(
+																'SPOD_ORDER_SHIPMENT_STATUS_MSGVER_1',
+																[
+																	'#STATUS_NAME#' => htmlspecialcharsbx($shipment["STATUS_NAME"]),
+																]
+															)
+														?>
 													</div>
 
 													<?php
@@ -590,7 +640,7 @@ else
 														<div
 															class="mb-2 sale-order-detail-payment-options-methods-shipment-list-item">
 															<span
-																class="sale-order-list-shipment-id-name"><?= Loc::getMessage('SPOD_ORDER_TRACKING_NUMBER') ?>:</span>
+																class="sale-order-list-shipment-id-name"><?= Loc::getMessage('SPOD_ORDER_TRACKING_NUMBER_MSGVER_1') ?></span>
 															<span
 																class="sale-order-detail-shipment-id"><?= htmlspecialcharsbx($shipment['TRACKING_NUMBER']) ?></span>
 															<span class="sale-order-detail-shipment-id-icon"></span>
@@ -680,7 +730,7 @@ else
 																<div class="row">
 																		<span
 																			class="col-md-2 sale-order-detail-payment-options-shipment-map-address-title">
-																			<?= Loc::getMessage('SPOD_STORE_ADDRESS') ?>:
+																			<?= Loc::getMessage('SPOD_STORE_ADDRESS_MSGVER_1') ?>
 																		</span>
 																	<span
 																		class="col sale-order-detail-payment-options-shipment-map-address-element"> <?= htmlspecialcharsbx($store['ADDRESS']) ?> </span>
@@ -740,7 +790,7 @@ else
 																					?>
 																				</td>
 																				<td class="sale-order-detail-order-item-properties">
-																					<?= Loc::getMessage('SPOD_QUANTITY')?>:
+																					<?= Loc::getMessage('SPOD_QUANTITY_MSGVER_1') ?>
 																					<?=$item['QUANTITY']?>&nbsp;<?=htmlspecialcharsbx($item['MEASURE_NAME'])?>
 																				</td>
 																			</tr>
@@ -789,8 +839,8 @@ else
 													<?php
 												}
 												?>
-												<th scope="col"><?= Loc::getMessage('SPOD_QUANTITY')?></th>
-												<th class="text-right"><?= Loc::getMessage('SPOD_ORDER_PRICE')?></th>
+												<th scope="col"><?= Loc::getMessage('SPOD_QUANTITY_TABLE_TITLE')?></th>
+												<th class="text-right"><?= Loc::getMessage('SPOD_ORDER_PRICE_TABLE_TITLE')?></th>
 											</tr>
 											</thead>
 											<tbody>
@@ -887,19 +937,19 @@ else
 									<?php
 									if (floatval($arResult["ORDER_WEIGHT"]))
 									{
-										?><li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_TOTAL_WEIGHT')?>:</li><?php
+										?><li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_TOTAL_WEIGHT_MSGVER_1') ?></li><?php
 									}
 
 									if ($arResult['PRODUCT_SUM_FORMATED'] != $arResult['PRICE_FORMATED'] && !empty($arResult['PRODUCT_SUM_FORMATED']))
 									{
-										?><li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_COMMON_SUM')?>:</li><?php
+										?><li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_COMMON_SUM_MSGVER_1') ?></li><?php
 									}
 
 									if($arResult["PRICE_DELIVERY_FORMATED"] <> '')
 									{
 										?>
-										<li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_DELIVERY') ?>
-											:
+										<li class="sale-order-detail-total-payment-list-left-item">
+											<?= Loc::getMessage('SPOD_DELIVERY_MSGVER_1') ?>
 										</li>
 										<?php
 									}
@@ -907,11 +957,11 @@ else
 									if ((float)$arResult["TAX_VALUE"] > 0)
 									{
 										?>
-										<li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_TAX') ?>:</li>
+										<li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_TAX_MSGVER_1') ?></li>
 										<?php
 									}
 									?>
-									<li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_SUMMARY')?>:</li>
+									<li class="sale-order-detail-total-payment-list-left-item"><?= Loc::getMessage('SPOD_SUMMARY_MSGVER_1') ?></li>
 								</ul>
 								<ul class="col-md-4 col sale-order-detail-total-payment-list-right">
 									<?php

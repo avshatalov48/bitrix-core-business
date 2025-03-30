@@ -1,9 +1,9 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 /**
@@ -15,10 +15,10 @@
 require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "settings/sites/template_import.php");
 
-if(!$USER->CanDoOperation('edit_php') && !$USER->CanDoOperation('view_other_settings'))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-
 $isAdmin = $USER->CanDoOperation('edit_php');
+
+if(!$isAdmin && !$USER->CanDoOperation('view_other_settings'))
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 IncludeModuleLangFile(__FILE__);
 
@@ -58,8 +58,9 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && isset($_POST["action"]) && $_POST["acti
 			}
 			else
 			{
-				require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/tar_gz.php");
 				$oArchiver = new CArchiver($_FILES["tpath_file"]["tmp_name"]);
+				$oArchiver->SetOptions(['CHECK_PERMISSIONS' => false]);
+
 				if($oArchiver->extractFiles($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$ID))
 				{
 					$strOK .= str_replace("#TEMPLATE_NAME#", $ID, GetMessage("MAIN_TEMPLATE_LOAD_OK"));
@@ -98,7 +99,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && isset($_POST["action"]) && $_POST["acti
 				else
 				{
 					$strError .= GetMessage("MAIN_T_EDIT_IMP_ERR");
-					$arErrors = &$oArchiver->GetErrors();
+					$arErrors = $oArchiver->GetErrors();
 					if(!empty($arErrors))
 					{
 						$strError .= ":<br>";
@@ -143,7 +144,6 @@ CAdminMessage::ShowMessage($strError);
 CAdminMessage::ShowNote($strOK);
 ?>
 <script>
-<!--
 function NewFileName(ob)
 {
 	var str_file = ob.value;
@@ -154,7 +154,6 @@ function NewFileName(ob)
 		filename = filename.substr(0, filename.lastIndexOf(".tar"));
 	document.getElementById("ID").value = filename;
 }
-//-->
 </script>
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="bform2" enctype="multipart/form-data">
 <?=bitrix_sessid_post()?>

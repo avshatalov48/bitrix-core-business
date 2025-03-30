@@ -800,11 +800,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  emits: ['change'],
+	  data() {
+	    return {
+	      formResult: null
+	    };
+	  },
 	  methods: {
 	    async onClick() {
 	      const sliderParams = {};
 	      if (this.collabId > 0) {
 	        sliderParams.collabId = this.collabId;
+	      }
+	      if (this.formResult) {
+	        sliderParams.formData = this.formResult;
 	      }
 	      this.form = await socialnetwork_collab_accessRights.AccessRights.openForm(sliderParams);
 	      this.bindEvents();
@@ -818,8 +826,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      main_core_events.EventEmitter.unsubscribe(this.form, 'cancel', this.onCancel);
 	    },
 	    onSave(event) {
-	      const formResult = event.getData();
-	      this.$emit('change', formResult);
+	      this.formResult = event.getData();
+	      this.$emit('change', this.formResult);
 	      this.unbindEvents();
 	    },
 	    onCancel() {

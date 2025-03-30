@@ -33,6 +33,7 @@ export const MessageComponent = Object.freeze({
 	generalChannelCreationMessage: 'GeneralChannelCreationMessage',
 	channelCreationMessage: 'ChannelCreationMessage',
 	callMessage: 'CallMessage',
+	voteMessage: 'VoteMessage',
 	...OpenLinesMessageComponent,
 });
 

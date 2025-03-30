@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Chat;
 
+use Bitrix\Im\V2\Message\Send\SendResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Im\Notify;
@@ -184,9 +185,9 @@ class NotifyChat extends Chat
 	 * @param SendingConfig|array|null $sendingConfig
 	 * @return Result
 	 */
-	public function sendMessage($message, $sendingConfig = null): Result
+	public function sendMessage($message, $sendingConfig = null): SendResult
 	{
-		return new Result();
+		return new SendResult();
 		/*$result = new Result;
 
 		if (!$this->getChatId())

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bitrix\Main\Validation\Rule;
 
 use Attribute;
+use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\Validator\RegExpValidator;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
@@ -14,7 +15,7 @@ class RegExp extends AbstractPropertyValidationAttribute
 		private readonly string $pattern,
 		private readonly int $flags = 0,
 		private readonly int $offset = 0,
-		protected ?string $errorMessage = null
+		protected string|LocalizableMessageInterface|null $errorMessage = null
 	)
 	{
 	}

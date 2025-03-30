@@ -329,7 +329,7 @@ class CommentChat extends GroupChat
 		return;
 	}
 
-	protected function sendMessageUserDelete(int $userId, bool $skipRecent = false): void
+	protected function sendMessageUserDelete(int $userId, Relation\DeleteUserConfig $config): void
 	{
 		return;
 	}
@@ -470,5 +470,15 @@ class CommentChat extends GroupChat
 	protected static function getLockName(int $messageId): string
 	{
 		return 'com_create_' . $messageId;
+	}
+
+	protected function sendPushOnChangeUsers(RelationCollection $relations, array $pushMessage): void
+	{
+		if (!\Bitrix\Main\Loader::includeModule('pull'))
+		{
+			return;
+		}
+
+		\CPullWatch::AddToStack('IM_PUBLIC_COMMENT_' . $this->getParentChatId(), $pushMessage);
 	}
 }

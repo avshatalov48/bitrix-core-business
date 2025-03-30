@@ -183,6 +183,7 @@ EOT;
 				'fieldNameForEvent' => $fieldNameForEvent,
 				'isMultiple' => ($isMultiple ? 'true' : 'false'),
 				'items' => $arResult['items'],
+				'emptyValueTitle' => ($arResult['userField']['USER_TYPE']['FIELDS'][''] ?? null),
 				'fieldTitle' => $arResult['userField']['EDIT_FORM_LABEL'],
 				'messages' => [
 					'addButtonCaption' => Loc::getMessage('MAIN_FIELD_ENUM_TAG_SELECTOR_SELECT_ELEMENT'),

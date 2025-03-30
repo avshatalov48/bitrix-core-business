@@ -34,6 +34,11 @@ class OtherUsersStage extends BaseStage
 
 	protected function getUsersWithExistingItems(array $users): array
 	{
+		if (empty($users))
+		{
+			return [];
+		}
+
 		$result = [];
 		$raw = RecentTable::query()
 			->setSelect(['USER_ID'])
@@ -52,8 +57,8 @@ class OtherUsersStage extends BaseStage
 		return $result;
 	}
 
-	protected function getItemByTargetAndUser(int $targetUserId, int $otherUserId, DateTime $date): array
+	protected function getItemByTargetAndUser(int $targetUserId, int $otherUserId): array
 	{
-		return $this->getItem($otherUserId, $targetUserId, $date);
+		return $this->getItem($otherUserId, $targetUserId);
 	}
 }

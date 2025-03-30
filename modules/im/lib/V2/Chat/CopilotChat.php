@@ -7,12 +7,12 @@ use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Error;
 use Bitrix\Im\V2\Integration\AI\Restriction;
 use Bitrix\Im\V2\Relation\AddUsersConfig;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Message\Params;
 use Bitrix\ImBot\Bot;
 use Bitrix\Imbot\Bot\CopilotChatBot;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -359,14 +359,14 @@ class CopilotChat extends GroupChat
 		return (new Restriction(Restriction::AI_COPILOT_CHAT))->isAvailable();
 	}
 
-	public function deleteUser(int $userId, bool $withMessage = true, bool $skipRecent = false, bool $withNotification = true, bool $skipCheckReason = false): Result
+	public function deleteUser(int $userId, DeleteUserConfig $config = new DeleteUserConfig()): Result
 	{
 		if (CopilotChatBot::getBotId() === $userId && $this->getContext()->getUserId() !== $userId)
 		{
 			return (new Result())->addError(new ChatError(ChatError::COPILOT_DELETE_ERROR));
 		}
 
-		return parent::deleteUser($userId, $withMessage, $skipRecent, $skipCheckReason);
+		return parent::deleteUser($userId, $config);
 	}
 
 	public function toPullFormat(): array

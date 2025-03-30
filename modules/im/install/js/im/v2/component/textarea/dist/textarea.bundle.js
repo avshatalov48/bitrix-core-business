@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_localStorage,im_v2_lib_soundNotification,im_v2_lib_channel,rest_client,im_v2_lib_desktopApi,im_v2_lib_smileManager,im_v2_lib_helpdesk,im_v2_lib_rest,calendar_sharing_interface,im_v2_lib_entityCreator,im_v2_lib_analytics,im_v2_lib_feature,im_v2_lib_permission,main_popup,im_v2_lib_draft,im_v2_lib_hotkey,im_v2_lib_textarea,im_v2_provider_service,ui_icons,main_core_events,im_v2_lib_textHighlighter,im_v2_lib_logger,im_v2_lib_search,im_v2_lib_utils,im_v2_application_core,im_v2_lib_parser,im_v2_const,main_core,im_v2_lib_market,im_v2_component_elements) {
+(function (exports,im_v2_lib_localStorage,im_v2_lib_soundNotification,im_v2_lib_channel,rest_client,im_v2_lib_desktopApi,im_v2_lib_smileManager,im_v2_lib_helpdesk,im_v2_lib_rest,calendar_sharing_interface,im_v2_lib_entityCreator,im_v2_lib_analytics,im_v2_lib_feature,im_v2_lib_permission,main_popup,im_v2_lib_draft,im_v2_lib_hotkey,im_v2_lib_textarea,im_v2_provider_service,im_v2_component_message_file,ui_icons,main_core_events,im_v2_lib_textHighlighter,im_v2_lib_logger,im_v2_lib_search,im_v2_lib_utils,im_v2_application_core,im_v2_lib_parser,im_v2_const,main_core,im_v2_lib_market,im_v2_component_elements) {
 	'use strict';
 
 	const MentionSymbols = new Set(['@', '+']);
@@ -4351,24 +4351,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  data() {
 	    return {
 	      showMenu: false,
-	      showDiskPopup: false,
-	      onlyPhotoOrVideo: false
+	      showDiskPopup: false
 	    };
 	  },
 	  computed: {
 	    menuItems() {
 	      return [{
-	        icon: im_v2_component_elements.MenuItemIcon.upload,
-	        title: this.loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO'),
-	        clickHandler: this.onSelectFromPhotoOrVideo
-	      }, {
 	        icon: im_v2_component_elements.MenuItemIcon.file,
-	        title: this.loc('IM_TEXTAREA_SELECT_FILE'),
-	        clickHandler: this.onSelectFromComputerClick
+	        title: this.loc('IM_TEXTAREA_SELECT_LOCAL_FILE'),
+	        clickHandler: this.onSelectLocalFile
 	      }, {
-	        icon: im_v2_component_elements.MenuItemIcon.disk,
-	        title: this.loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK_1'),
-	        clickHandler: this.onSelectFromDiskClick
+	        icon: im_v2_component_elements.MenuItemIcon.b24,
+	        title: this.loc('IM_TEXTAREA_SELECT_FILE_FROM_B24'),
+	        clickHandler: this.onSelectFromB24
 	      }, {
 	        icon: im_v2_component_elements.MenuItemIcon.task,
 	        title: this.loc('IM_TEXTAREA_SELECT_TASK'),
@@ -4387,6 +4382,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        title: this.loc('IM_TEXTAREA_SELECT_DOCUMENT_SIGN'),
 	        clickHandler: this.onCreateDocumentSignClick,
 	        showCondition: () => this.isDocumentSignAvailable
+	      }, {
+	        icon: im_v2_component_elements.MenuItemIcon.vote,
+	        title: this.loc('IM_TEXTAREA_SELECT_VOTE'),
+	        clickHandler: this.onCreateVoteClick,
+	        showCondition: () => this.isVoteCreationAvailable
 	      }];
 	    },
 	    availableMenuItems() {
@@ -4424,30 +4424,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    isCalendarSlotAvailable() {
 	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.createCalendarSlots, this.dialogId);
+	    },
+	    isVoteCreationAvailable() {
+	      return im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.voteCreationAvailable);
 	    }
 	  },
 	  methods: {
-	    onSelectFromPhotoOrVideo() {
-	      this.onlyPhotoOrVideo = true;
-	      const acceptedFormats = 'image/*, video/*';
-	      this.$refs.fileInput.setAttribute('accept', acceptedFormats);
+	    onSelectLocalFile() {
 	      this.$refs.fileInput.click();
 	      this.showMenu = false;
 	    },
-	    onSelectFromComputerClick() {
-	      this.onlyPhotoOrVideo = false;
-	      this.$refs.fileInput.removeAttribute('accept');
-	      this.$refs.fileInput.click();
-	      this.showMenu = false;
-	    },
-	    onSelectFromDiskClick() {
+	    onSelectFromB24() {
 	      this.showDiskPopup = true;
 	      this.showMenu = false;
 	    },
 	    onFileSelect(event) {
 	      this.$emit('fileSelect', {
-	        event,
-	        sendAsFile: !this.onlyPhotoOrVideo
+	        event
 	      });
 	      this.showMenu = false;
 	    },
@@ -4501,6 +4494,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      BX.SidePanel.Instance.open(preparedUrl, {
 	        cacheable: false
 	      });
+	    },
+	    onCreateVoteClick() {
+	      const preparedUrl = `/bitrix/components/bitrix/voting.im.edit/slider.php?chatId=${this.chatId}`;
+	      BX.SidePanel.Instance.open(preparedUrl, {
+	        cacheable: false,
+	        width: 800,
+	        allowChangeHistory: false
+	      });
+	      this.showMenu = false;
 	    },
 	    showNotification(content) {
 	      BX.UI.Notification.Center.notify({
@@ -4577,52 +4579,42 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	// @vue/component
-	const ErrorPreviewItem = {
-	  name: 'ErrorPreviewItem',
-	  template: `
-		<div class="bx-im-upload-preview-file-item__item-error">
-			<div class="bx-im-upload-preview-file-item__item-error-icon"></div>
-			<div class="bx-im-upload-preview-file-item__item-error-text">
-				{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_UPLOAD_ERROR') }}
-			</div>
-		</div>
-	`
-	};
-
-	// @vue/component
 	const FilePreviewItem = {
 	  name: 'FilePreviewItem',
 	  props: {
-	    item: {
+	    file: {
 	      type: Object,
 	      required: true
+	    },
+	    maxNameLength: {
+	      type: Number,
+	      default: 25
 	    }
 	  },
 	  computed: {
-	    file() {
-	      return this.item;
-	    },
-	    source() {
-	      return this.file.urlPreview;
-	    },
-	    name() {
-	      return this.file.name;
-	    },
 	    fileIconClass() {
 	      return `ui-icon ui-icon-file-${this.file.icon}`;
 	    },
 	    fileShortName() {
-	      const NAME_MAX_LENGTH = 25;
-	      return im_v2_lib_utils.Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
+	      return im_v2_lib_utils.Utils.file.getShortFileName(this.file.name, this.maxNameLength);
 	    },
 	    fileSize() {
 	      return im_v2_lib_utils.Utils.file.formatFileSize(this.file.size);
+	    },
+	    hasPreview() {
+	      return main_core.Type.isStringFilled(this.file.urlPreview);
+	    },
+	    imageStyles() {
+	      return {
+	        backgroundImage: `url(${this.file.urlPreview})`
+	      };
 	    }
 	  },
 	  template: `
 		<div class="bx-im-upload-preview-file-item__file-container">
 			<div class="bx-im-upload-preview-file-item__icon">
-				<div :class="fileIconClass"><i></i></div>
+				<div v-if="hasPreview" :style="imageStyles" class="bx-im-upload-preview-file-item__preview"></div>
+				<div v-else :class="fileIconClass"><i></i></div>
 			</div>
 			<div class="bx-im-upload-preview-file-item__info">
 				<div class="bx-im-upload-preview-file-item__name">{{ fileShortName }}</div>
@@ -4633,47 +4625,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	// @vue/component
-	const ImagePreviewItem = {
-	  name: 'ImagePreviewItem',
-	  components: {
-	    Spinner: im_v2_component_elements.Spinner
-	  },
-	  props: {
-	    item: {
-	      type: Object,
-	      required: true
-	    }
-	  },
-	  computed: {
-	    SpinnerSize: () => im_v2_component_elements.SpinnerSize,
-	    file() {
-	      return this.item;
-	    },
-	    source() {
-	      return this.file.urlPreview;
-	    },
-	    name() {
-	      return this.file.name;
-	    },
-	    hasPreview() {
-	      return main_core.Type.isStringFilled(this.file.urlPreview);
-	    },
-	    isVideo() {
-	      return this.file.type === im_v2_const.FileType.video;
-	    }
-	  },
+	const ErrorPreviewItem = {
+	  name: 'ErrorPreviewItem',
 	  template: `
-		<div class="bx-im-upload-preview-file-item__image-container">
-			<Spinner v-if="!hasPreview" :size="SpinnerSize.s" />
-			<img
-				v-else
-				:src="source"
-				:alt="name"
-				:title="name"
-				class="bx-im-upload-preview-file-item__item-image"
-			>
-			<div v-if="isVideo" class="bx-im-upload-preview-file-item__play-icon-container">
-				<div class="bx-im-upload-preview-file-item__play-icon"></div>
+		<div class="bx-im-upload-preview-file-item__item-error">
+			<div class="bx-im-upload-preview-file-item__item-error-icon"></div>
+			<div class="bx-im-upload-preview-file-item__item-error-text">
+				{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_FILE_UPLOAD_ERROR') }}
 			</div>
 		</div>
 	`
@@ -4683,61 +4641,64 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const FileItem = {
 	  name: 'FileItem',
 	  components: {
-	    ErrorPreviewItem,
-	    ImagePreviewItem,
-	    FilePreviewItem
+	    FilePreviewItem,
+	    ErrorPreviewItem
 	  },
 	  props: {
 	    file: {
 	      type: Object,
 	      required: true
+	    },
+	    removable: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
-	  data() {
-	    return {
-	      text: '',
-	      files: []
-	    };
-	  },
+	  emits: ['onRemoveItem'],
 	  computed: {
-	    fileFromStore() {
-	      return this.file;
-	    },
 	    hasError() {
-	      return this.fileFromStore.status === im_v2_const.FileStatus.error;
+	      return this.file.status === im_v2_const.FileStatus.error;
 	    },
 	    previewComponentName() {
 	      if (this.hasError) {
-	        return ErrorPreviewItem;
+	        return ErrorPreviewItem.name;
 	      }
-	      if (this.fileFromStore.type === im_v2_const.FileType.image || this.fileFromStore.type === im_v2_const.FileType.video) {
-	        return ImagePreviewItem;
-	      }
-	      return FilePreviewItem;
+	      return FilePreviewItem.name;
+	    }
+	  },
+	  methods: {
+	    onRemoveClick() {
+	      this.$emit('onRemoveItem', {
+	        file: this.file
+	      });
 	    }
 	  },
 	  template: `
 		<div class="bx-im-upload-preview-file-item__scope">
 			<component
 				:is="previewComponentName"
-				:item="fileFromStore"
+				:file="file"
 			/>
+			<div v-if="removable" class="bx-im-upload-preview-file-item__remove" @click="onRemoveClick">
+				<div class="bx-im-upload-preview-file-item__remove-icon"></div>
+			</div>
 		</div>
 	`
 	};
 
+	const MAX_FILES_COUNT = 10;
 	const BUTTONS_CONTAINER_HEIGHT = 74;
 	const TextareaHeight = {
 	  max: 208,
 	  min: 46
 	};
-
 	// @vue/component
 	const UploadPreviewContent = {
 	  name: 'UploadPreviewContent',
 	  components: {
-	    MessengerButton: im_v2_component_elements.Button,
-	    FileItem
+	    MediaContent: im_v2_component_message_file.MediaContent,
+	    FileItem,
+	    SendButton
 	  },
 	  props: {
 	    dialogId: {
@@ -4759,29 +4720,47 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return {
 	      text: '',
 	      sendAsFile: false,
-	      files: [],
+	      uploaderFiles: [],
 	      textareaHeight: TextareaHeight.min,
 	      textareaResizedHeight: 0
 	    };
 	  },
 	  computed: {
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
-	    ButtonColor: () => im_v2_component_elements.ButtonColor,
-	    filesFromStore() {
-	      const filesFromStore = [];
-	      this.files.forEach(file => {
-	        const fileFromStore = this.$store.getters['files/get'](file.getId());
-	        if (fileFromStore) {
-	          filesFromStore.push(fileFromStore);
-	        }
+	    files() {
+	      return this.uploaderFiles.map(file => {
+	        return this.$store.getters['files/get'](file.getId());
 	      });
-	      return filesFromStore;
+	    },
+	    fileIds() {
+	      return this.files.map(file => {
+	        return file.id;
+	      });
+	    },
+	    fakeMessage() {
+	      return {
+	        id: 'fake',
+	        files: this.fileIds,
+	        text: '',
+	        attach: [],
+	        forward: {}
+	      };
 	    },
 	    filesCount() {
 	      return this.files.length;
 	    },
 	    isSingleFile() {
-	      return this.filesFromStore.length === 1;
+	      return this.files.length === 1;
+	    },
+	    sourceFilesCount() {
+	      return this.getUploadingService().getSourceFilesCount(this.uploaderId);
+	    },
+	    isOverMaxFilesLimit() {
+	      return this.sourceFilesCount > MAX_FILES_COUNT;
+	    },
+	    isMediaOnly() {
+	      return this.files.every(file => {
+	        return file.type === im_v2_const.FileType.image || file.type === im_v2_const.FileType.video;
+	      });
 	    },
 	    inputMaxLength() {
 	      const settings = main_core.Extension.getSettings('im.v2.component.textarea');
@@ -4791,10 +4770,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.textareaHeight === 'auto' ? 'auto' : `${this.textareaHeight}px`;
 	    },
 	    title() {
-	      const onlyImages = this.filesFromStore.every(file => {
-	        return file.type === im_v2_const.FileType.image;
+	      return this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_COMPUTED_TITLE', {
+	        '#COUNT#': this.filesCount
 	      });
-	      return onlyImages ? this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE') : this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE_FILES');
 	    }
 	  },
 	  watch: {
@@ -4805,14 +4783,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.$emit('updateTitle', this.title);
 	    },
 	    sendAsFile(newValue) {
-	      this.files.forEach(file => {
+	      this.uploaderFiles.forEach(file => {
 	        file.setCustomData('sendAsFile', newValue);
 	      });
 	    }
 	  },
 	  created() {
 	    this.initResizeManager();
-	    this.files = this.getUploadingService().getFiles(this.uploaderId);
+	    this.getUploadingService().getFiles(this.uploaderId).forEach(file => {
+	      this.uploaderFiles.push(file);
+	    });
 	  },
 	  mounted() {
 	    this.text = this.textareaValue;
@@ -4857,9 +4837,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    },
 	    onSend() {
-	      if (this.sendAsFile) {
-	        this.files.forEach(file => {
-	          this.removePreview(file);
+	      if (this.sendAsFile || !this.isMediaOnly) {
+	        this.uploaderFiles.forEach(file => {
+	          this.removePreviewParams(file);
 	        });
 	      }
 	      this.$emit('sendFiles', {
@@ -4883,11 +4863,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        this.text = im_v2_lib_textarea.Textarea.addNewLine(this.$refs.messageText);
 	      }
 	    },
-	    removePreview(file) {
+	    removePreviewParams(file) {
 	      this.$store.dispatch('files/update', {
 	        id: file.getId(),
 	        fields: {
-	          urlPreview: '',
 	          image: false
 	        }
 	      });
@@ -4925,47 +4904,59 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    doesContentOverflowScreen(newMaxPoint) {
 	      const textareaTop = this.$refs.messageText.getBoundingClientRect().top;
 	      return textareaTop + newMaxPoint + BUTTONS_CONTAINER_HEIGHT > window.innerHeight;
+	    },
+	    onRemoveItem(event) {
+	      this.getUploadingService().removeFileFromUploader({
+	        uploaderId: this.uploaderId,
+	        filesIds: [event.file.id]
+	      });
+	      this.uploaderFiles = this.getUploadingService().getFiles(this.uploaderId);
+	      if (this.filesCount === 0) {
+	        this.$emit('close');
+	      }
 	    }
 	  },
 	  template: `
 		<div class="bx-im-upload-preview__container">
-			<div class="bx-im-upload-preview__upper-delimiter"></div>
 			<div class="bx-im-upload-preview__items-container">
-				<FileItem v-for="fileItem in filesFromStore" :file="fileItem" :class="{'--single': isSingleFile}" />
+				<MediaContent 
+					v-if="isMediaOnly && !sendAsFile" 
+					:item="fakeMessage" 
+					:previewMode="true" 
+					:removable="true"
+					@onRemoveItem="onRemoveItem"
+				/>
+				<FileItem 
+					v-else 
+					v-for="fileItem in files" 
+					:file="fileItem" 
+					:class="{'--single': isSingleFile}" 
+					:removable="true"
+					@onRemoveItem="onRemoveItem"
+				/>
 			</div>
-			<div class="bx-im-upload-preview__bottom-delimiter"></div>
 			<div class="bx-im-upload-preview__controls-container">
-				<!--<label class="bx-im-upload-preview__control-compress-image">-->
-				<!--<input type="checkbox" v-model="sendAsFile">-->
-				<!--{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_AS_FILE') }}-->
-				<!--</label>-->
-				<textarea
-					ref="messageText"
-					v-model="text"
-					:placeholder="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER')"
-					:maxlength="inputMaxLength"
-					:style="{'height': textareaHeightStyle}"
-					class="bx-im-upload-preview__message-text"
-					rows="1"
-					@keydown="onKeyDownHandler"
-				></textarea>
+				<div v-if="isOverMaxFilesLimit" class="ui-alert ui-alert-xs ui-alert-icon-warning bx-im-upload-preview__controls-files-limit-message">
+					<span class="ui-alert-message">{{ loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_FILES_LIMIT_MESSAGE_10') }}</span>
+				</div>
+				<label v-if="isMediaOnly" class="bx-im-upload-preview__control-compress-image">
+					<input type="checkbox" class="bx-im-upload-preview__control-compress-image-checkbox" v-model="sendAsFile">
+					{{ loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_WITHOUT_COMPRESSION') }}
+				</label>
+				<div class="bx-im-upload-preview__control-form">
+					<textarea
+						ref="messageText"
+						v-model="text"
+						:placeholder="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER_2')"
+						:maxlength="inputMaxLength"
+						:style="{'height': textareaHeightStyle}"
+						class="bx-im-upload-preview__message-text"
+						rows="1"
+						@keydown="onKeyDownHandler"
+					></textarea>
+					<SendButton :dialogId="dialogId" @click="onSend" />
+				</div>
 				<div @mousedown="onResizeStart" class="bx-im-upload-preview__drag-handle"></div>
-			</div>
-			<div class="bx-im-upload-preview__controls-buttons">
-				<MessengerButton
-					:color="ButtonColor.Primary"
-					:size="ButtonSize.L"
-					:isRounded="true"
-					:text="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_SEND')"
-					@click="onSend"
-				/>
-				<MessengerButton
-					:color="ButtonColor.LightBorder"
-					:size="ButtonSize.L"
-					:isRounded="true"
-					:text="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL')"
-					@click="onCancel"
-				/>
 			</div>
 		</div>
 	`
@@ -5006,14 +4997,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        draggable: {
 	          restrict: true
 	        },
-	        titleBar: this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE'),
+	        titleBar: ' ',
 	        offsetTop: 0,
 	        padding: 0,
 	        closeIcon: true,
 	        contentColor: 'transparent',
 	        contentPadding: 0,
 	        className: 'bx-im-upload-preview__scope',
-	        autoHide: false
+	        autoHide: true,
+	        overlay: true
 	      };
 	    }
 	  },
@@ -5484,7 +5476,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (this.isLoading) {
 	        return false;
 	      }
-	      return this.itemsToShow.length === 0 && this.preparedQuery.length > 0;
+	      return this.itemsToShow.length === 0;
 	    },
 	    searchConfig() {
 	      return {
@@ -5652,7 +5644,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			<ScrollWithGradient 
 				v-if="itemsToShow.length > 0" 
 				:gradientHeight="13" 
-				:containerMaxHeight="226"
+				:containerMaxHeight="200"
 				:withShadow="false"
 			>
 				<div class="bx-im-mention-popup-content__items">
@@ -5728,6 +5720,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    config() {
 	      return {
+	        height: 200,
 	        width: 426,
 	        padding: 0,
 	        bindElement: this.bindElement,
@@ -7202,5 +7195,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.ChatTextarea = ChatTextarea;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Calendar.Sharing,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Calendar.Sharing,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Component.Message,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=textarea.bundle.js.map

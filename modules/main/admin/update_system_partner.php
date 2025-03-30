@@ -597,7 +597,27 @@ $tabControl->BeginNextTab();
 											</tr>
 											<tr>
 												<td><?echo GetMessage("SUP_ACTIVE")?>&nbsp;&nbsp;</td>
-												<td><?echo GetMessage("SUP_ACTIVE_PERIOD", array("#DATE_TO#"=>(($arUpdateList["CLIENT"][0]["@"]["DATE_TO"] <> '') ? $arUpdateList["CLIENT"][0]["@"]["DATE_TO"] : "<i>N/A</i>"), "#DATE_FROM#" => (($arUpdateList["CLIENT"][0]["@"]["DATE_FROM"] <> '') ? $arUpdateList["CLIENT"][0]["@"]["DATE_FROM"] : "<i>N/A</i>")));?></td>
+											<td><?
+													$dateFrom = '';
+													$dateTo = '';
+													if (!empty($arUpdateList["CLIENT"][0]["@"]["DATE_FROM_SOURCE"]))
+													{
+														$dateFrom = (string)(new \Bitrix\Main\Type\Date($arUpdateList["CLIENT"][0]["@"]["DATE_FROM_SOURCE"], "Y-m-d"));
+													}
+													if (!empty($arUpdateList["CLIENT"][0]["@"]["DATE_TO_SOURCE"]))
+													{
+														$dateTo = (string)(new \Bitrix\Main\Type\Date($arUpdateList["CLIENT"][0]["@"]["DATE_TO_SOURCE"], "Y-m-d"));
+													}
+													if ($dateFrom == '' && !empty($arUpdateList["CLIENT"][0]["@"]["DATE_FROM"]))
+													{
+														$dateFrom = $arUpdateList["CLIENT"][0]["@"]["DATE_FROM"];
+													}
+													if ($dateTo == '' && !empty($arUpdateList["CLIENT"][0]["@"]["DATE_TO"]))
+													{
+														$dateTo = $arUpdateList["CLIENT"][0]["@"]["DATE_TO"];
+													}
+													echo GetMessage("SUP_ACTIVE_PERIOD", array("#DATE_TO#" => ($dateTo != '' ? $dateTo : "<i>N/A</i>"), "#DATE_FROM#" => ($dateFrom != '' ? $dateFrom : "<i>N/A</i>")));
+													?></td>
 											</tr>
 											<?if (is_array($arUpdateList) && array_key_exists("CLIENT", $arUpdateList)):?>
 												<tr>
@@ -1243,6 +1263,4 @@ $tabControl->End();
 <?echo EndNote(); ?>
 
 <?
-COption::SetOptionString("main", "update_system_check", Date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()));
-
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

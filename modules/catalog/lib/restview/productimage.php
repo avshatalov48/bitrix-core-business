@@ -27,7 +27,7 @@ final class ProductImage extends Base
 				]
 			],
 			'PRODUCT_ID' => [
-				'TYPE' => DataType::TYPE_STRING,
+				'TYPE' => DataType::TYPE_INT,
 				'ATTRIBUTES' => [
 					Attributes::REQUIRED
 				]

@@ -333,6 +333,18 @@ class Result extends BaseResult
 						else
 						{
 							$remoteObject = $collection->getByPrimary($remotePrimaryValues);
+
+							// it may be necessary to add new values to the object
+							foreach ($remoteObjectValues as $fieldName => $objectValue)
+							{
+								if (!$remoteObject->sysHasValue($fieldName))
+								{
+									$field = $remoteEntity->getField($fieldName);
+									$castValue = $field->cast($objectValue);
+
+									$remoteObject->sysSetActual($fieldName, $castValue);
+								}
+							}
 						}
 					}
 					else

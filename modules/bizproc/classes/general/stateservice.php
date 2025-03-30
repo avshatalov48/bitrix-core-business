@@ -591,73 +591,56 @@ class CBPStateService extends CBPRuntimeService
 
 	public function addStateParameter($workflowId, $arStateParameter)
 	{
-		global $DB;
-
 		$workflowId = trim($workflowId);
-		if ($workflowId == '')
-			throw new Exception("workflowId");
-
-		$dbResult = $DB->Query(
-			"SELECT STATE_PARAMETERS ".
-			"FROM b_bp_workflow_state ".
-			"WHERE ID = '".$DB->ForSql($workflowId)."' "
-		);
-
-		if ($arResult = $dbResult->Fetch())
+		if (empty($workflowId))
 		{
-			$stateParameters = array();
-			if ($arResult["STATE_PARAMETERS"] <> '')
-				$stateParameters = unserialize($arResult["STATE_PARAMETERS"], ['allowed_classes' => false]);
+			throw new Exception('workflowId');
+		}
+
+		$state = WorkflowStateTable::getByPrimary($workflowId, ['select' => ['STATE_PARAMETERS']])->fetch();
+		if ($state)
+		{
+			$stateParameters = [];
+			if (!empty($state['STATE_PARAMETERS']))
+			{
+				$stateParameters = unserialize($state['STATE_PARAMETERS'], ['allowed_classes' => false]);
+			}
 
 			$stateParameters[] = $arStateParameter;
 
-			$stateParameters = serialize($stateParameters);
-
-			$DB->Query(
-				"UPDATE b_bp_workflow_state SET ".
-				"	STATE_PARAMETERS = ".($stateParameters <> '' ? "'".$DB->ForSql($stateParameters)."'" : "NULL").", ".
-				"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
-				"WHERE ID = '".$DB->ForSql($workflowId)."' "
-			);
+			WorkflowStateTable::update($workflowId, ['STATE_PARAMETERS' => serialize($stateParameters)]);
 		}
 	}
 
 	public function deleteStateParameter($workflowId, $name)
 	{
-		global $DB;
-
 		$workflowId = trim($workflowId);
-		if ($workflowId == '')
-			throw new Exception("workflowId");
-
-		$dbResult = $DB->Query(
-			"SELECT STATE_PARAMETERS ".
-			"FROM b_bp_workflow_state ".
-			"WHERE ID = '".$DB->ForSql($workflowId)."' "
-		);
-
-		if ($arResult = $dbResult->Fetch())
+		if (empty($workflowId))
 		{
-			$stateParameters = array();
-			if ($arResult["STATE_PARAMETERS"] <> '')
-				$stateParameters = unserialize($arResult["STATE_PARAMETERS"], ['allowed_classes' => false]);
+			throw new Exception('workflowId');
+		}
 
-			$ar = array();
-			foreach ($stateParameters as $v)
+		$state = WorkflowStateTable::getByPrimary($workflowId, ['select' => ['STATE_PARAMETERS']])->fetch();
+		if ($state)
+		{
+			$stateParameters = [];
+			if (!empty($state['STATE_PARAMETERS']))
 			{
-				if ($v["NAME"] != $name)
-					$ar[] = $v;
+				$stateParameters = unserialize($state['STATE_PARAMETERS'], ['allowed_classes' => false]);
 			}
 
-			$stateParameters = "";
-			if (count($ar) > 0)
-				$stateParameters = serialize($ar);
+			$newStateParameters = [];
+			foreach ($stateParameters as $parameter)
+			{
+				if ($parameter['NAME'] !== $name)
+				{
+					$newStateParameters[] = $parameter;
+				}
+			}
 
-			$DB->Query(
-				"UPDATE b_bp_workflow_state SET ".
-				"	STATE_PARAMETERS = ".($stateParameters <> '' ? "'".$DB->ForSql($stateParameters)."'" : "NULL").", ".
-				"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
-				"WHERE ID = '".$DB->ForSql($workflowId)."' "
+			WorkflowStateTable::update(
+				$workflowId,
+				['STATE_PARAMETERS' => $newStateParameters ? serialize($newStateParameters) : null]
 			);
 		}
 	}

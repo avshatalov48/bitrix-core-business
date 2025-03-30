@@ -458,6 +458,23 @@ class CAllIBlockProperty
 			}
 		}
 
+		if (
+			$ID === false
+		)
+		{
+			$simpleType = true;
+			$userTypeId = (string)($arFields['USER_TYPE'] ?? '');
+			if ($userTypeId !== '')
+			{
+				$userType = CIBlockProperty::GetUserType($userTypeId);
+				$simpleType = empty($userType);
+			}
+			if ($simpleType && isset($arFields['DEFAULT_VALUE']) && !is_scalar($arFields['DEFAULT_VALUE']))
+			{
+				$this->LAST_ERROR .= GetMessage('IBLOCK_PROPERTY_BAD_DEFAULT_VALUE') . '<br>';
+			}
+		}
+
 		if(!$bFormValidate)
 		{
 			$APPLICATION->ResetException();

@@ -774,7 +774,7 @@ final class CatalogStoreDocumentProductListComponent
 				$availableAmountFrom = $this->getAvailableProductAmountOnStore($productStoreInfo, $productId, $document['STORE_FROM']);
 			}
 
-			$amount = (float)$document['AMOUNT'];
+			$amount = (float)($document['AMOUNT'] ?? 0);
 			$basePrice = $document['BASE_PRICE'] ?? null;
 			$taxRate = $document['TAX_RATE'] ?? null;
 			$taxIncluded = $document['TAX_INCLUDED'] ?? 'N';
@@ -1055,12 +1055,17 @@ final class CatalogStoreDocumentProductListComponent
 		$iblockProductOfferIds = [];
 		foreach ($rows as $row)
 		{
-			if (empty($row['SKU_ID']))
+			if (empty($row['SKU_ID']) || empty($row['IBLOCK_ID']))
 			{
 				continue;
 			}
 
-			$iblockProductOfferIds[$row['IBLOCK_ID']][$row['PRODUCT_ID']][] = (int)$row['SKU_ID'];
+			$iblockId = (int)$row['IBLOCK_ID'];
+			if ($iblockId <= 0)
+			{
+				continue;
+			}
+			$iblockProductOfferIds[$iblockId][$row['PRODUCT_ID']][] = (int)$row['SKU_ID'];
 		}
 		$skuTreeItems = [];
 		foreach ($iblockProductOfferIds as $iblockId => $productOfferIds)
@@ -2174,7 +2179,7 @@ final class CatalogStoreDocumentProductListComponent
 					,
 					'PURCHASING_PRICE' => \CCurrencyLang::formatValue($item['PURCHASING_PRICE_FORMATTED'], $this->currency['FORMAT']),
 					'TOTAL_PRICE' => \CCurrencyLang::formatValue($item['TOTAL_PRICE_FORMATTED'], $this->currency['FORMAT']),
-					'AMOUNT' => (float)$row['AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+					'AMOUNT' => (float)($row['AMOUNT'] ?? 0) . ' ' . htmlspecialcharsbx($row['MEASURE_NAME']),
 					'STORE_FROM_AMOUNT' => $this->formatRowStoreAmount($row, 'STORE_FROM_AMOUNT'),
 					'STORE_TO_AMOUNT' => $this->formatRowStoreAmount($row, 'STORE_TO_AMOUNT'),
 					'STORE_FROM_RESERVED' => $this->formatRowStoreAmount($row, 'STORE_FROM_RESERVED'),
@@ -2263,7 +2268,7 @@ final class CatalogStoreDocumentProductListComponent
 			'AMOUNT' => [
 				'PRICE' => [
 					'NAME' => $rowId .'_AMOUNT',
-					'VALUE' => $row['AMOUNT'],
+					'VALUE' => $row['AMOUNT'] ?? null,
 				],
 				'CURRENCY' => [
 					'NAME' => $rowId .'_MEASURE_CODE',

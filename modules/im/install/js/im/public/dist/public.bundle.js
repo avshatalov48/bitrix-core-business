@@ -344,11 +344,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!DiskService) {
 	      return;
 	    }
-	    await new DiskService().save(fileId).catch(error => {
+	    await new DiskService().save([fileId]).catch(error => {
 	      console.error('Messenger.saveFileToDisk error:', error);
 	    });
 	    BX.UI.Notification.Center.notify({
-	      content: main_core.Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS')
+	      content: main_core.Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS_MSGVER_1')
 	    });
 	  }
 	}

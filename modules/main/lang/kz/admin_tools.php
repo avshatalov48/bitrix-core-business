@@ -1,0 +1,20 @@
+<?php
+$MESS["MAIN_ADMIN_ADD_COPY"] = "Көшірмесін қосу";
+$MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "белсендіру";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Белгіленген:";
+$MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "өшіру";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "жою";
+$MESS["MAIN_ADMIN_LIST_EDIT"] = "редакциялау";
+$MESS["MAIN_ADMIN_LIST_FILTER_1ST"] = "Іздеу үшін жол енгізіңіз";
+$MESS["MAIN_ADMIN_LIST_FILTER_1ST_NAME"] = "Табу:";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Таңдалды:";
+$MESS["MAIN_ADMIN_MENU_ADD"] = "Қосу";
+$MESS["MAIN_ADMIN_MENU_CLOSE"] = "Жабу";
+$MESS["MAIN_ADMIN_MENU_COPY"] = "Көшіру";
+$MESS["MAIN_ADMIN_MENU_CREATE"] = "Жасау";
+$MESS["MAIN_ADMIN_MENU_DELETE"] = "Жою";
+$MESS["MAIN_ADMIN_MENU_EDIT"] = "Өзгерту";
+$MESS["MAIN_ADMIN_MENU_LIST"] = "Тізім";
+$MESS["MAIN_ADMIN_MENU_OPEN"] = "Ашу";
+$MESS["MAIN_ROOT_FOLDER"] = "түбір";
+$MESS["admin_tools_no_name"] = "<атауы жоқ>";

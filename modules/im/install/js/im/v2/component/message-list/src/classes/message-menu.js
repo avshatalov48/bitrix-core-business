@@ -1,6 +1,7 @@
 import { Loc, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
+import { PromoManager } from 'im.v2.lib.promo';
 import { Analytics } from 'im.v2.lib.analytics';
 import { ChannelManager } from 'im.v2.lib.channel';
 import { Core } from 'im.v2.application.core';
@@ -8,11 +9,11 @@ import { BaseMenu } from 'im.v2.lib.menu';
 import { Parser } from 'im.v2.lib.parser';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { MessageService, DiskService } from 'im.v2.provider.service';
-import { EventType, PlacementType, ActionByRole } from 'im.v2.const';
+import { EventType, PlacementType, ActionByRole, PromoId } from 'im.v2.const';
 import { MarketManager } from 'im.v2.lib.market';
 import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { showDeleteChannelPostConfirm } from 'im.v2.lib.confirm';
+import { showDeleteChannelPostConfirm, showDownloadAllFilesConfirm } from 'im.v2.lib.confirm';
 
 import '../css/message-menu.css';
 
@@ -61,7 +62,7 @@ export class MessageMenu extends BaseMenu
 			this.getCreateItem(),
 			this.getDelimiter(),
 			this.getDownloadFileItem(),
-			this.getSaveToDisk(),
+			this.getSaveToDiskItem(),
 			this.getDelimiter(),
 			this.getEditItem(),
 			this.getDeleteItem(),
@@ -145,7 +146,7 @@ export class MessageMenu extends BaseMenu
 	getCopyLinkItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_LINK'),
+			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_LINK_MSGVER_1'),
 			onclick: () => {
 				const textToCopy = Utils.text.getMessageLink(this.context.dialogId, this.context.id);
 				if (BX.clipboard?.copy(textToCopy))
@@ -183,7 +184,11 @@ export class MessageMenu extends BaseMenu
 
 	getPinItem(): ?MenuItem
 	{
-		const canPin = PermissionManager.getInstance().canPerformActionByRole(ActionByRole.pinMessage, this.context.dialogId);
+		const canPin = PermissionManager.getInstance().canPerformActionByRole(
+			ActionByRole.pinMessage,
+			this.context.dialogId,
+		);
+
 		if (this.#isDeletedMessage() || !canPin)
 		{
 			return null;
@@ -378,38 +383,45 @@ export class MessageMenu extends BaseMenu
 
 	getDownloadFileItem(): ?MenuItem
 	{
-		const file = this.#getMessageFile();
-		if (!file)
+		if (!Type.isArrayFilled(this.context.files))
 		{
 			return null;
 		}
 
-		return {
-			html: Utils.file.createDownloadLink(
-				Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILE'),
-				file.urlDownload,
-				file.name,
-			),
-			onclick: function() {
-				this.menuInstance.close();
-			}.bind(this),
-		};
+		if (this.#isSingleFile())
+		{
+			return this.#getDownloadSingleFileItem();
+		}
+
+		return this.#getDownloadSeveralFilesItem();
 	}
 
-	getSaveToDisk(): ?MenuItem
+	getSaveToDiskItem(): ?MenuItem
 	{
-		const file = this.#getMessageFile();
-		if (!file)
+		if (!Type.isArrayFilled(this.context.files))
 		{
 			return null;
 		}
 
+		const menuItemText = this.#isSingleFile()
+			? Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_MSGVER_1')
+			: Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ALL_ON_DISK');
+
+		const successNotification = this.#isSingleFile()
+			? Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS_MSGVER_1')
+			: Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ALL_ON_DISK_SUCCESS');
+
 		return {
-			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK'),
+			text: menuItemText,
 			onclick: function() {
-				void this.diskService.save(file.id).then(() => {
+				Analytics.getInstance().messageFiles.onClickSaveOnDisk({
+					messageId: this.context.id,
+					dialogId: this.context.dialogId,
+				});
+
+				void this.diskService.save(this.context.files).then(() => {
 					BX.UI.Notification.Center.notify({
-						content: Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS'),
+						content: successNotification,
 					});
 				});
 				this.menuInstance.close();
@@ -434,15 +446,14 @@ export class MessageMenu extends BaseMenu
 		return this.context.isDeleted;
 	}
 
-	#getMessageFile(): ?ImModelFile
+	#getFirstFile(): ?ImModelFile
 	{
-		if (this.context.files.length !== 1)
-		{
-			return null;
-		}
-
-		// for now, we have only one file in one message. In the future we need to change this logic.
 		return this.store.getters['files/get'](this.context.files[0]);
+	}
+
+	#isSingleFile(): boolean
+	{
+		return this.context.files.length === 1;
 	}
 
 	#isForwardedMessage(): boolean
@@ -487,5 +498,52 @@ export class MessageMenu extends BaseMenu
 		}
 
 		return false;
+	}
+
+	#getDownloadSingleFileItem(): MenuItem
+	{
+		const file = this.#getFirstFile();
+
+		return {
+			html: Utils.file.createDownloadLink(
+				Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILE'),
+				file.urlDownload,
+				file.name,
+			),
+			onclick: function() {
+				Analytics.getInstance().messageFiles.onClickDownload({
+					messageId: this.context.id,
+					dialogId: this.context.dialogId,
+				});
+				this.menuInstance.close();
+			}.bind(this),
+		};
+	}
+
+	#getDownloadSeveralFilesItem(): MenuItem
+	{
+		const files: ImModelFile[] = this.context.files.map((fileId) => {
+			return this.store.getters['files/get'](fileId);
+		});
+
+		return {
+			text: Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILES'),
+			onclick: async () => {
+				Analytics.getInstance().messageFiles.onClickDownload({
+					messageId: this.context.id,
+					dialogId: this.context.dialogId,
+				});
+				Utils.file.downloadFiles(files);
+
+				const needToShowPopup = PromoManager.getInstance().needToShow(PromoId.downloadSeveralFiles);
+				if (needToShowPopup && Utils.browser.isChrome() && !Utils.platform.isBitrixDesktop())
+				{
+					this.menuInstance?.close();
+					await showDownloadAllFilesConfirm();
+					void PromoManager.getInstance().markAsWatched(PromoId.downloadSeveralFiles);
+				}
+				this.menuInstance?.close();
+			},
+		};
 	}
 }

@@ -109,6 +109,7 @@ namespace Bitrix\Main\Analytics {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Analytics\EO_CounterData_Collection merge(?\Bitrix\Main\Analytics\EO_CounterData_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_CounterData_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Analytics\CounterDataTable */
@@ -123,10 +124,6 @@ namespace Bitrix\Main\Analytics {
 	 * @method EO_CounterData_Result exec()
 	 * @method \Bitrix\Main\Analytics\EO_CounterData fetchObject()
 	 * @method \Bitrix\Main\Analytics\EO_CounterData_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_CounterData_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -360,6 +357,7 @@ namespace Bitrix\Main\Authentication {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\EO_ApplicationPassword_Collection merge(?\Bitrix\Main\Authentication\EO_ApplicationPassword_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_ApplicationPassword_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\ApplicationPasswordTable */
@@ -374,10 +372,6 @@ namespace Bitrix\Main\Authentication {
 	 * @method EO_ApplicationPassword_Result exec()
 	 * @method \Bitrix\Main\Authentication\EO_ApplicationPassword fetchObject()
 	 * @method \Bitrix\Main\Authentication\EO_ApplicationPassword_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_ApplicationPassword_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -490,6 +484,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate_Collection merge(?\Bitrix\Main\Authentication\Internal\EO_GroupSubordinate_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_GroupSubordinate_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\GroupSubordinateTable */
@@ -504,10 +499,6 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method EO_GroupSubordinate_Result exec()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate fetchObject()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_GroupSubordinate_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -669,6 +660,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection merge(?\Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_ModuleGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\ModuleGroupTable */
@@ -683,10 +675,6 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method EO_ModuleGroup_Result exec()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup fetchObject()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_ModuleGroup_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -854,6 +842,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserAuthCode_Collection merge(?\Bitrix\Main\Authentication\Internal\EO_UserAuthCode_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserAuthCode_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserAuthCodeTable */
@@ -868,10 +857,6 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method EO_UserAuthCode_Result exec()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserAuthCode fetchObject()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserAuthCode_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserAuthCode_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -1080,6 +1065,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection merge(?\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserDeviceLogin_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable */
@@ -1094,10 +1080,6 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method EO_UserDeviceLogin_Result exec()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin fetchObject()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserDeviceLogin_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -1197,6 +1179,16 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetCookable()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetCookable()
 	 * @method \boolean fillCookable()
+	 * @method \int getAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setAppPasswordId(\int|\Bitrix\Main\DB\SqlExpression $appPasswordId)
+	 * @method bool hasAppPasswordId()
+	 * @method bool isAppPasswordIdFilled()
+	 * @method bool isAppPasswordIdChanged()
+	 * @method \int remindActualAppPasswordId()
+	 * @method \int requireAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetAppPasswordId()
+	 * @method \int fillAppPasswordId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -1255,6 +1247,8 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method \string[] fillUserAgent()
 	 * @method \boolean[] getCookableList()
 	 * @method \boolean[] fillCookable()
+	 * @method \int[] getAppPasswordIdList()
+	 * @method \int[] fillAppPasswordId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -1282,6 +1276,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection merge(?\Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserDevice_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceTable */
@@ -1296,10 +1291,6 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method EO_UserDevice_Result exec()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice fetchObject()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserDevice_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -1485,6 +1476,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection merge(?\Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserHitAuth_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserHitAuthTable */
@@ -1499,10 +1491,6 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method EO_UserHitAuth_Result exec()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth fetchObject()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserHitAuth_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -1652,6 +1640,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserPassword_Collection merge(?\Bitrix\Main\Authentication\Internal\EO_UserPassword_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserPassword_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserPasswordTable */
@@ -1666,10 +1655,6 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method EO_UserPassword_Result exec()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserPassword fetchObject()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserPassword_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserPassword_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -1842,6 +1827,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth_Collection merge(?\Bitrix\Main\Authentication\Internal\EO_UserStoredAuth_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserStoredAuth_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserStoredAuthTable */
@@ -1856,10 +1842,6 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method EO_UserStoredAuth_Result exec()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth fetchObject()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserStoredAuth_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -2068,6 +2050,7 @@ namespace Bitrix\Main\Component {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Component\EO_Parameters_Collection merge(?\Bitrix\Main\Component\EO_Parameters_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Parameters_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Component\ParametersTable */
@@ -2082,10 +2065,6 @@ namespace Bitrix\Main\Component {
 	 * @method EO_Parameters_Result exec()
 	 * @method \Bitrix\Main\Component\EO_Parameters fetchObject()
 	 * @method \Bitrix\Main\Component\EO_Parameters_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Parameters_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -2316,6 +2295,7 @@ namespace Bitrix\Main\Composite\Debug\Model {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Composite\Debug\Model\EO_Log_Collection merge(?\Bitrix\Main\Composite\Debug\Model\EO_Log_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Log_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Composite\Debug\Model\LogTable */
@@ -2330,10 +2310,6 @@ namespace Bitrix\Main\Composite\Debug\Model {
 	 * @method EO_Log_Result exec()
 	 * @method \Bitrix\Main\Composite\Debug\Model\EO_Log fetchObject()
 	 * @method \Bitrix\Main\Composite\Debug\Model\EO_Log_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Log_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -2554,6 +2530,7 @@ namespace Bitrix\Main\Composite\Internals\Model {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Composite\Internals\Model\EO_Page_Collection merge(?\Bitrix\Main\Composite\Internals\Model\EO_Page_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Page_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Composite\Internals\Model\PageTable */
@@ -2568,10 +2545,6 @@ namespace Bitrix\Main\Composite\Internals\Model {
 	 * @method EO_Page_Result exec()
 	 * @method \Bitrix\Main\Composite\Internals\Model\EO_Page fetchObject()
 	 * @method \Bitrix\Main\Composite\Internals\Model\EO_Page_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Page_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -2960,6 +2933,7 @@ namespace Bitrix\Main\Localization {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Localization\EO_Culture_Collection merge(?\Bitrix\Main\Localization\EO_Culture_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Culture_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Localization\CultureTable */
@@ -2974,10 +2948,6 @@ namespace Bitrix\Main\Localization {
 	 * @method EO_Culture_Result exec()
 	 * @method \Bitrix\Main\Context\Culture fetchObject()
 	 * @method \Bitrix\Main\Localization\EO_Culture_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Culture_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -2992,6 +2962,157 @@ namespace Bitrix\Main\Localization {
 	 * @method \Bitrix\Main\Localization\EO_Culture_Collection wakeUpCollection($rows)
 	 */
 	class EO_Culture_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\Data\Internal\CacheCleanPathTable:main/lib/data/internal/cachecleanpathtable.php */
+namespace Bitrix\Main\Data\Internal {
+	/**
+	 * EO_CacheCleanPath
+	 * @see \Bitrix\Main\Data\Internal\CacheCleanPathTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getPrefix()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath setPrefix(\string|\Bitrix\Main\DB\SqlExpression $prefix)
+	 * @method bool hasPrefix()
+	 * @method bool isPrefixFilled()
+	 * @method bool isPrefixChanged()
+	 * @method \string remindActualPrefix()
+	 * @method \string requirePrefix()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath resetPrefix()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath unsetPrefix()
+	 * @method \string fillPrefix()
+	 * @method \Bitrix\Main\Type\DateTime getCleanFrom()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath setCleanFrom(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $cleanFrom)
+	 * @method bool hasCleanFrom()
+	 * @method bool isCleanFromFilled()
+	 * @method bool isCleanFromChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCleanFrom()
+	 * @method \Bitrix\Main\Type\DateTime requireCleanFrom()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath resetCleanFrom()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath unsetCleanFrom()
+	 * @method \Bitrix\Main\Type\DateTime fillCleanFrom()
+	 * @method \int getClusterGroup()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath setClusterGroup(\int|\Bitrix\Main\DB\SqlExpression $clusterGroup)
+	 * @method bool hasClusterGroup()
+	 * @method bool isClusterGroupFilled()
+	 * @method bool isClusterGroupChanged()
+	 * @method \int remindActualClusterGroup()
+	 * @method \int requireClusterGroup()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath resetClusterGroup()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath unsetClusterGroup()
+	 * @method \int fillClusterGroup()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath set($fieldName, $value)
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath reset($fieldName)
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Data\Internal\EO_CacheCleanPath wakeUp($data)
+	 */
+	class EO_CacheCleanPath {
+		/* @var \Bitrix\Main\Data\Internal\CacheCleanPathTable */
+		static public $dataClass = '\Bitrix\Main\Data\Internal\CacheCleanPathTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Data\Internal {
+	/**
+	 * EO_CacheCleanPath_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getPrefixList()
+	 * @method \string[] fillPrefix()
+	 * @method \Bitrix\Main\Type\DateTime[] getCleanFromList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCleanFrom()
+	 * @method \int[] getClusterGroupList()
+	 * @method \int[] fillClusterGroup()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Data\Internal\EO_CacheCleanPath $object)
+	 * @method bool has(\Bitrix\Main\Data\Internal\EO_CacheCleanPath $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath getByPrimary($primary)
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath[] getAll()
+	 * @method bool remove(\Bitrix\Main\Data\Internal\EO_CacheCleanPath $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Data\Internal\EO_CacheCleanPath_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath_Collection merge(?\Bitrix\Main\Data\Internal\EO_CacheCleanPath_Collection $collection)
+	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
+	 */
+	class EO_CacheCleanPath_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Data\Internal\CacheCleanPathTable */
+		static public $dataClass = '\Bitrix\Main\Data\Internal\CacheCleanPathTable';
+	}
+}
+namespace Bitrix\Main\Data\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_CacheCleanPath_Result exec()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath fetchObject()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath_Collection fetchCollection()
+	 */
+	class EO_CacheCleanPath_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath fetchObject()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath_Collection fetchCollection()
+	 */
+	class EO_CacheCleanPath_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath_Collection createCollection()
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath wakeUpObject($row)
+	 * @method \Bitrix\Main\Data\Internal\EO_CacheCleanPath_Collection wakeUpCollection($rows)
+	 */
+	class EO_CacheCleanPath_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Main\Data\Internal\CacheTagTable:main/lib/data/internal/cachetagtable.php */
 namespace Bitrix\Main\Data\Internal {
@@ -3126,6 +3247,7 @@ namespace Bitrix\Main\Data\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Data\Internal\EO_CacheTag_Collection merge(?\Bitrix\Main\Data\Internal\EO_CacheTag_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_CacheTag_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Data\Internal\CacheTagTable */
@@ -3140,10 +3262,6 @@ namespace Bitrix\Main\Data\Internal {
 	 * @method EO_CacheTag_Result exec()
 	 * @method \Bitrix\Main\Data\Internal\EO_CacheTag fetchObject()
 	 * @method \Bitrix\Main\Data\Internal\EO_CacheTag_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_CacheTag_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -3388,6 +3506,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EventLog\Internal\EO_EventLog_Collection merge(?\Bitrix\Main\EventLog\Internal\EO_EventLog_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_EventLog_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\EventLog\Internal\EventLogTable */
@@ -3402,10 +3521,6 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method EO_EventLog_Result exec()
 	 * @method \Bitrix\Main\EventLog\Internal\EO_EventLog fetchObject()
 	 * @method \Bitrix\Main\EventLog\Internal\EO_EventLog_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_EventLog_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -3567,6 +3682,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EventLog\Internal\EO_LogNotificationAction_Collection merge(?\Bitrix\Main\EventLog\Internal\EO_LogNotificationAction_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_LogNotificationAction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\EventLog\Internal\LogNotificationActionTable */
@@ -3581,10 +3697,6 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method EO_LogNotificationAction_Result exec()
 	 * @method \Bitrix\Main\EventLog\Internal\EO_LogNotificationAction fetchObject()
 	 * @method \Bitrix\Main\EventLog\Internal\EO_LogNotificationAction_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_LogNotificationAction_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -3831,6 +3943,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EventLog\Internal\EO_LogNotification_Collection merge(?\Bitrix\Main\EventLog\Internal\EO_LogNotification_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_LogNotification_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\EventLog\Internal\LogNotificationTable */
@@ -3845,10 +3958,6 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method EO_LogNotification_Result exec()
 	 * @method \Bitrix\Main\EventLog\Internal\EO_LogNotification fetchObject()
 	 * @method \Bitrix\Main\EventLog\Internal\EO_LogNotification_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_LogNotification_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -3979,6 +4088,7 @@ namespace Bitrix\Main\File\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\File\Internal\EO_FileDuplicate_Collection merge(?\Bitrix\Main\File\Internal\EO_FileDuplicate_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_FileDuplicate_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\File\Internal\FileDuplicateTable */
@@ -3993,10 +4103,6 @@ namespace Bitrix\Main\File\Internal {
 	 * @method EO_FileDuplicate_Result exec()
 	 * @method \Bitrix\Main\File\Internal\EO_FileDuplicate fetchObject()
 	 * @method \Bitrix\Main\File\Internal\EO_FileDuplicate_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_FileDuplicate_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -4134,6 +4240,7 @@ namespace Bitrix\Main\File\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\File\Internal\EO_FileHash_Collection merge(?\Bitrix\Main\File\Internal\EO_FileHash_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_FileHash_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\File\Internal\FileHashTable */
@@ -4148,10 +4255,6 @@ namespace Bitrix\Main\File\Internal {
 	 * @method EO_FileHash_Result exec()
 	 * @method \Bitrix\Main\File\Internal\EO_FileHash fetchObject()
 	 * @method \Bitrix\Main\File\Internal\EO_FileHash_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_FileHash_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -4276,6 +4379,7 @@ namespace Bitrix\Main\File\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\File\Internal\EO_FileVersion_Collection merge(?\Bitrix\Main\File\Internal\EO_FileVersion_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_FileVersion_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\File\Internal\FileVersionTable */
@@ -4290,10 +4394,6 @@ namespace Bitrix\Main\File\Internal {
 	 * @method EO_FileVersion_Result exec()
 	 * @method \Bitrix\Main\File\Internal\EO_FileVersion fetchObject()
 	 * @method \Bitrix\Main\File\Internal\EO_FileVersion_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_FileVersion_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -4551,6 +4651,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_File_Collection merge(?\Bitrix\Main\EO_File_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_File_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\FileTable */
@@ -4565,10 +4666,6 @@ namespace Bitrix\Main {
 	 * @method EO_File_Result exec()
 	 * @method \Bitrix\Main\EO_File fetchObject()
 	 * @method \Bitrix\Main\EO_File_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_File_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -4798,6 +4895,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_FinderDest_Collection merge(?\Bitrix\Main\EO_FinderDest_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_FinderDest_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\FinderDestTable */
@@ -4812,10 +4910,6 @@ namespace Bitrix\Main {
 	 * @method EO_FinderDest_Result exec()
 	 * @method \Bitrix\Main\EO_FinderDest fetchObject()
 	 * @method \Bitrix\Main\EO_FinderDest_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_FinderDest_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -5045,6 +5139,7 @@ namespace Bitrix\Main\UI\EntitySelector {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection merge(?\Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_EntityUsage_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UI\EntitySelector\EntityUsageTable */
@@ -5059,10 +5154,6 @@ namespace Bitrix\Main\UI\EntitySelector {
 	 * @method EO_EntityUsage_Result exec()
 	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage fetchObject()
 	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_EntityUsage_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -5271,6 +5362,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_Group_Collection merge(?\Bitrix\Main\EO_Group_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Group_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\GroupTable */
@@ -5285,10 +5377,6 @@ namespace Bitrix\Main {
 	 * @method EO_Group_Result exec()
 	 * @method \Bitrix\Main\EO_Group fetchObject()
 	 * @method \Bitrix\Main\EO_Group_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Group_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -5433,6 +5521,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_GroupTask_Collection merge(?\Bitrix\Main\EO_GroupTask_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_GroupTask_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\GroupTaskTable */
@@ -5447,10 +5536,6 @@ namespace Bitrix\Main {
 	 * @method EO_GroupTask_Result exec()
 	 * @method \Bitrix\Main\EO_GroupTask fetchObject()
 	 * @method \Bitrix\Main\EO_GroupTask_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_GroupTask_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -5654,6 +5739,7 @@ namespace Bitrix\Main\Localization {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Localization\EO_Language_Collection merge(?\Bitrix\Main\Localization\EO_Language_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Language_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Localization\LanguageTable */
@@ -5668,10 +5754,6 @@ namespace Bitrix\Main\Localization {
 	 * @method EO_Language_Result exec()
 	 * @method \Bitrix\Main\Localization\EO_Language fetchObject()
 	 * @method \Bitrix\Main\Localization\EO_Language_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Language_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -5808,6 +5890,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_Blacklist_Collection merge(?\Bitrix\Main\Mail\Internal\EO_Blacklist_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Blacklist_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\BlacklistTable */
@@ -5822,10 +5905,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_Blacklist_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\EO_Blacklist fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_Blacklist_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Blacklist_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -6034,6 +6113,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_Event_Collection merge(?\Bitrix\Main\Mail\Internal\EO_Event_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Event_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventTable */
@@ -6048,10 +6128,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_Event_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\EO_Event fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_Event_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Event_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -6189,6 +6265,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventAttachment_Collection merge(?\Bitrix\Main\Mail\Internal\EO_EventAttachment_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_EventAttachment_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventAttachmentTable */
@@ -6203,10 +6280,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_EventAttachment_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventAttachment fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventAttachment_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_EventAttachment_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -6584,6 +6657,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessage_Collection merge(?\Bitrix\Main\Mail\Internal\EO_EventMessage_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_EventMessage_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventMessageTable */
@@ -6598,10 +6672,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_EventMessage_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessage fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessage_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_EventMessage_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -6708,6 +6778,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessageAttachment_Collection merge(?\Bitrix\Main\Mail\Internal\EO_EventMessageAttachment_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_EventMessageAttachment_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventMessageAttachmentTable */
@@ -6722,10 +6793,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_EventMessageAttachment_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessageAttachment fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessageAttachment_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_EventMessageAttachment_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -6832,6 +6899,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessageSite_Collection merge(?\Bitrix\Main\Mail\Internal\EO_EventMessageSite_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_EventMessageSite_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventMessageSiteTable */
@@ -6846,10 +6914,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_EventMessageSite_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessageSite fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessageSite_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_EventMessageSite_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -7022,6 +7086,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventType_Collection merge(?\Bitrix\Main\Mail\Internal\EO_EventType_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_EventType_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventTypeTable */
@@ -7036,10 +7101,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_EventType_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventType fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_EventType_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_EventType_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -7236,6 +7297,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_Sender_Collection merge(?\Bitrix\Main\Mail\Internal\EO_Sender_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Sender_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\SenderTable */
@@ -7250,10 +7312,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_Sender_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\Sender fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_Sender_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Sender_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -7372,6 +7430,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection merge(?\Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_SenderSendCounter_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\SenderSendCounterTable */
@@ -7386,10 +7445,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method EO_SenderSendCounter_Result exec()
 	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_SenderSendCounter_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -7502,6 +7557,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_Module_Collection merge(?\Bitrix\Main\EO_Module_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Module_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\ModuleTable */
@@ -7516,10 +7572,6 @@ namespace Bitrix\Main {
 	 * @method EO_Module_Result exec()
 	 * @method \Bitrix\Main\EO_Module fetchObject()
 	 * @method \Bitrix\Main\EO_Module_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Module_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -7728,6 +7780,7 @@ namespace Bitrix\Main\Numerator\Model {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Numerator\Model\EO_Numerator_Collection merge(?\Bitrix\Main\Numerator\Model\EO_Numerator_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Numerator_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Numerator\Model\NumeratorTable */
@@ -7742,10 +7795,6 @@ namespace Bitrix\Main\Numerator\Model {
 	 * @method EO_Numerator_Result exec()
 	 * @method \Bitrix\Main\Numerator\Model\EO_Numerator fetchObject()
 	 * @method \Bitrix\Main\Numerator\Model\EO_Numerator_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Numerator_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -7888,6 +7937,7 @@ namespace Bitrix\Main\Numerator\Model {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Numerator\Model\EO_NumeratorSequence_Collection merge(?\Bitrix\Main\Numerator\Model\EO_NumeratorSequence_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_NumeratorSequence_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Numerator\Model\NumeratorSequenceTable */
@@ -7902,10 +7952,6 @@ namespace Bitrix\Main\Numerator\Model {
 	 * @method EO_NumeratorSequence_Result exec()
 	 * @method \Bitrix\Main\Numerator\Model\EO_NumeratorSequence fetchObject()
 	 * @method \Bitrix\Main\Numerator\Model\EO_NumeratorSequence_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_NumeratorSequence_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -8054,6 +8100,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_Operation_Collection merge(?\Bitrix\Main\EO_Operation_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Operation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\OperationTable */
@@ -8068,10 +8115,6 @@ namespace Bitrix\Main {
 	 * @method EO_Operation_Result exec()
 	 * @method \Bitrix\Main\EO_Operation fetchObject()
 	 * @method \Bitrix\Main\EO_Operation_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Operation_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -8304,6 +8347,7 @@ namespace Bitrix\Main\Rating {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Rating\EO_Rating_Collection merge(?\Bitrix\Main\Rating\EO_Rating_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Rating_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Rating\RatingTable */
@@ -8318,10 +8362,6 @@ namespace Bitrix\Main\Rating {
 	 * @method EO_Rating_Result exec()
 	 * @method \Bitrix\Main\Rating\EO_Rating fetchObject()
 	 * @method \Bitrix\Main\Rating\EO_Rating_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Rating_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -8519,6 +8559,7 @@ namespace Bitrix\Main\Rating {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Rating\EO_Results_Collection merge(?\Bitrix\Main\Rating\EO_Results_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Results_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Rating\ResultsTable */
@@ -8533,10 +8574,6 @@ namespace Bitrix\Main\Rating {
 	 * @method EO_Results_Result exec()
 	 * @method \Bitrix\Main\Rating\EO_Results fetchObject()
 	 * @method \Bitrix\Main\Rating\EO_Results_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Results_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -8673,6 +8710,7 @@ namespace Bitrix\Main\Security\Notifications {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Security\Notifications\EO_VendorNotificationSign_Collection merge(?\Bitrix\Main\Security\Notifications\EO_VendorNotificationSign_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_VendorNotificationSign_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Security\Notifications\VendorNotificationSignTable */
@@ -8687,10 +8725,6 @@ namespace Bitrix\Main\Security\Notifications {
 	 * @method EO_VendorNotificationSign_Result exec()
 	 * @method \Bitrix\Main\Security\Notifications\EO_VendorNotificationSign fetchObject()
 	 * @method \Bitrix\Main\Security\Notifications\EO_VendorNotificationSign_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_VendorNotificationSign_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -8812,6 +8846,7 @@ namespace Bitrix\Main\Security\Notifications {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Security\Notifications\EO_VendorNotification_Collection merge(?\Bitrix\Main\Security\Notifications\EO_VendorNotification_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_VendorNotification_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Security\Notifications\VendorNotificationTable */
@@ -8826,10 +8861,6 @@ namespace Bitrix\Main\Security\Notifications {
 	 * @method EO_VendorNotification_Result exec()
 	 * @method \Bitrix\Main\Security\Notifications\EO_VendorNotification fetchObject()
 	 * @method \Bitrix\Main\Security\Notifications\EO_VendorNotification_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_VendorNotification_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -8966,6 +8997,7 @@ namespace Bitrix\Main\Security\W\Rules {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Security\W\Rules\EO_RuleRecord_Collection merge(?\Bitrix\Main\Security\W\Rules\EO_RuleRecord_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_RuleRecord_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Security\W\Rules\RuleRecordTable */
@@ -8980,10 +9012,6 @@ namespace Bitrix\Main\Security\W\Rules {
 	 * @method EO_RuleRecord_Result exec()
 	 * @method \Bitrix\Main\Security\W\Rules\EO_RuleRecord fetchObject()
 	 * @method \Bitrix\Main\Security\W\Rules\EO_RuleRecord_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_RuleRecord_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -9132,6 +9160,7 @@ namespace Bitrix\Main\Service\GeoIp {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Service\GeoIp\EO_Handler_Collection merge(?\Bitrix\Main\Service\GeoIp\EO_Handler_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Handler_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Service\GeoIp\HandlerTable */
@@ -9146,10 +9175,6 @@ namespace Bitrix\Main\Service\GeoIp {
 	 * @method EO_Handler_Result exec()
 	 * @method \Bitrix\Main\Service\GeoIp\EO_Handler fetchObject()
 	 * @method \Bitrix\Main\Service\GeoIp\EO_Handler_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Handler_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -9268,6 +9293,7 @@ namespace Bitrix\Main\Service\GeoIp\Internal {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname_Collection merge(?\Bitrix\Main\Service\GeoIp\Internal\EO_Geoname_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Geoname_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Service\GeoIp\Internal\GeonameTable */
@@ -9282,10 +9308,6 @@ namespace Bitrix\Main\Service\GeoIp\Internal {
 	 * @method EO_Geoname_Result exec()
 	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname fetchObject()
 	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Geoname_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -9410,6 +9432,7 @@ namespace Bitrix\Main\Session\Handlers\Table {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Session\Handlers\Table\EO_UserSession_Collection merge(?\Bitrix\Main\Session\Handlers\Table\EO_UserSession_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserSession_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Session\Handlers\Table\UserSessionTable */
@@ -9424,10 +9447,6 @@ namespace Bitrix\Main\Session\Handlers\Table {
 	 * @method EO_UserSession_Result exec()
 	 * @method \Bitrix\Main\Session\Handlers\Table\EO_UserSession fetchObject()
 	 * @method \Bitrix\Main\Session\Handlers\Table\EO_UserSession_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserSession_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -9612,6 +9631,7 @@ namespace Bitrix\Main\SidePanel {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem_Collection merge(?\Bitrix\Main\SidePanel\EO_ToolbarItem_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_ToolbarItem_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\SidePanel\ToolbarItemTable */
@@ -9626,10 +9646,6 @@ namespace Bitrix\Main\SidePanel {
 	 * @method EO_ToolbarItem_Result exec()
 	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem fetchObject()
 	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_ToolbarItem_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -9791,6 +9807,7 @@ namespace Bitrix\Main\SidePanel {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\SidePanel\EO_Toolbar_Collection merge(?\Bitrix\Main\SidePanel\EO_Toolbar_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Toolbar_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\SidePanel\ToolbarTable */
@@ -9805,10 +9822,6 @@ namespace Bitrix\Main\SidePanel {
 	 * @method EO_Toolbar_Result exec()
 	 * @method \Bitrix\Main\SidePanel\EO_Toolbar fetchObject()
 	 * @method \Bitrix\Main\SidePanel\EO_Toolbar_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Toolbar_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -10106,6 +10119,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_Site_Collection merge(?\Bitrix\Main\EO_Site_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Site_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\SiteTable */
@@ -10120,10 +10134,6 @@ namespace Bitrix\Main {
 	 * @method EO_Site_Result exec()
 	 * @method \Bitrix\Main\EO_Site fetchObject()
 	 * @method \Bitrix\Main\EO_Site_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Site_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -10252,6 +10262,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_SiteDomain_Collection merge(?\Bitrix\Main\EO_SiteDomain_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_SiteDomain_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\SiteDomainTable */
@@ -10266,10 +10277,6 @@ namespace Bitrix\Main {
 	 * @method EO_SiteDomain_Result exec()
 	 * @method \Bitrix\Main\EO_SiteDomain fetchObject()
 	 * @method \Bitrix\Main\EO_SiteDomain_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_SiteDomain_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -10440,6 +10447,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_SiteTemplate_Collection merge(?\Bitrix\Main\EO_SiteTemplate_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_SiteTemplate_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\SiteTemplateTable */
@@ -10454,10 +10462,6 @@ namespace Bitrix\Main {
 	 * @method EO_SiteTemplate_Result exec()
 	 * @method \Bitrix\Main\EO_SiteTemplate fetchObject()
 	 * @method \Bitrix\Main\EO_SiteTemplate_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_SiteTemplate_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -10644,6 +10648,7 @@ namespace Bitrix\Main\Sms {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Sms\EO_Template_Collection merge(?\Bitrix\Main\Sms\EO_Template_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Template_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Sms\TemplateTable */
@@ -10658,10 +10663,6 @@ namespace Bitrix\Main\Sms {
 	 * @method EO_Template_Result exec()
 	 * @method \Bitrix\Main\Sms\Template fetchObject()
 	 * @method \Bitrix\Main\Sms\EO_Template_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Template_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -10834,6 +10835,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_Task_Collection merge(?\Bitrix\Main\EO_Task_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Task_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\TaskTable */
@@ -10848,10 +10850,6 @@ namespace Bitrix\Main {
 	 * @method EO_Task_Result exec()
 	 * @method \Bitrix\Main\EO_Task fetchObject()
 	 * @method \Bitrix\Main\EO_Task_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Task_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -10984,6 +10982,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_TaskOperation_Collection merge(?\Bitrix\Main\EO_TaskOperation_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_TaskOperation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\TaskOperationTable */
@@ -10998,10 +10997,6 @@ namespace Bitrix\Main {
 	 * @method EO_TaskOperation_Result exec()
 	 * @method \Bitrix\Main\EO_TaskOperation fetchObject()
 	 * @method \Bitrix\Main\EO_TaskOperation_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_TaskOperation_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -11140,6 +11135,7 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Test\Typography\EO_Author_Collection merge(?\Bitrix\Main\Test\Typography\EO_Author_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Author_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\AuthorTable */
@@ -11154,10 +11150,6 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method EO_Author_Result exec()
 	 * @method \Bitrix\Main\Test\Typography\EO_Author fetchObject()
 	 * @method \Bitrix\Main\Test\Typography\EO_Author_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Author_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -11359,6 +11351,7 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Test\Typography\Books merge(?\Bitrix\Main\Test\Typography\Books $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Book_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\BookTable */
@@ -11373,10 +11366,6 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method EO_Book_Result exec()
 	 * @method \Bitrix\Main\Test\Typography\Book fetchObject()
 	 * @method \Bitrix\Main\Test\Typography\Books fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Book_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -11515,6 +11504,7 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Test\Typography\EO_Publisher_Collection merge(?\Bitrix\Main\Test\Typography\EO_Publisher_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Publisher_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\PublisherTable */
@@ -11529,10 +11519,6 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method EO_Publisher_Result exec()
 	 * @method \Bitrix\Main\Test\Typography\EO_Publisher fetchObject()
 	 * @method \Bitrix\Main\Test\Typography\EO_Publisher_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Publisher_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -11677,6 +11663,7 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Test\Typography\EO_StoreBook_Collection merge(?\Bitrix\Main\Test\Typography\EO_StoreBook_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_StoreBook_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\StoreBookTable */
@@ -11691,10 +11678,6 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method EO_StoreBook_Result exec()
 	 * @method \Bitrix\Main\Test\Typography\EO_StoreBook fetchObject()
 	 * @method \Bitrix\Main\Test\Typography\EO_StoreBook_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_StoreBook_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -11821,6 +11804,7 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Test\Typography\EO_Store_Collection merge(?\Bitrix\Main\Test\Typography\EO_Store_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Store_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\StoreTable */
@@ -11835,10 +11819,6 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method EO_Store_Result exec()
 	 * @method \Bitrix\Main\Test\Typography\EO_Store fetchObject()
 	 * @method \Bitrix\Main\Test\Typography\EO_Store_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Store_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -12038,6 +12018,7 @@ namespace Bitrix\Main\UI\Viewer {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UI\Viewer\EO_FilePreview_Collection merge(?\Bitrix\Main\UI\Viewer\EO_FilePreview_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_FilePreview_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UI\Viewer\FilePreviewTable */
@@ -12052,10 +12033,6 @@ namespace Bitrix\Main\UI\Viewer {
 	 * @method EO_FilePreview_Result exec()
 	 * @method \Bitrix\Main\UI\Viewer\EO_FilePreview fetchObject()
 	 * @method \Bitrix\Main\UI\Viewer\EO_FilePreview_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_FilePreview_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -12180,6 +12157,7 @@ namespace Bitrix\Main\Update {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\Update\EO_VersionHistory_Collection merge(?\Bitrix\Main\Update\EO_VersionHistory_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_VersionHistory_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Update\VersionHistoryTable */
@@ -12194,10 +12172,6 @@ namespace Bitrix\Main\Update {
 	 * @method EO_VersionHistory_Result exec()
 	 * @method \Bitrix\Main\Update\EO_VersionHistory fetchObject()
 	 * @method \Bitrix\Main\Update\EO_VersionHistory_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_VersionHistory_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -12346,6 +12320,7 @@ namespace Bitrix\Main\UrlPreview {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UrlPreview\EO_Route_Collection merge(?\Bitrix\Main\UrlPreview\EO_Route_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Route_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UrlPreview\RouteTable */
@@ -12360,10 +12335,6 @@ namespace Bitrix\Main\UrlPreview {
 	 * @method EO_Route_Result exec()
 	 * @method \Bitrix\Main\UrlPreview\EO_Route fetchObject()
 	 * @method \Bitrix\Main\UrlPreview\EO_Route_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Route_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -12584,6 +12555,7 @@ namespace Bitrix\Main\UrlPreview {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UrlPreview\EO_UrlMetadata_Collection merge(?\Bitrix\Main\UrlPreview\EO_UrlMetadata_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UrlMetadata_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UrlPreview\UrlMetadataTable */
@@ -12598,10 +12570,6 @@ namespace Bitrix\Main\UrlPreview {
 	 * @method EO_UrlMetadata_Result exec()
 	 * @method \Bitrix\Main\UrlPreview\EO_UrlMetadata fetchObject()
 	 * @method \Bitrix\Main\UrlPreview\EO_UrlMetadata_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UrlMetadata_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -13482,6 +13450,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_User_Collection merge(?\Bitrix\Main\EO_User_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_User_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserTable */
@@ -13496,10 +13465,6 @@ namespace Bitrix\Main {
 	 * @method EO_User_Result exec()
 	 * @method \Bitrix\Main\EO_User fetchObject()
 	 * @method \Bitrix\Main\EO_User_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_User_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -13612,6 +13577,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserAccess_Collection merge(?\Bitrix\Main\EO_UserAccess_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserAccess_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserAccessTable */
@@ -13626,10 +13592,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserAccess_Result exec()
 	 * @method \Bitrix\Main\EO_UserAccess fetchObject()
 	 * @method \Bitrix\Main\EO_UserAccess_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserAccess_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -13790,6 +13752,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserAuthAction_Collection merge(?\Bitrix\Main\EO_UserAuthAction_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserAuthAction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserAuthActionTable */
@@ -13804,10 +13767,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserAuthAction_Result exec()
 	 * @method \Bitrix\Main\EO_UserAuthAction fetchObject()
 	 * @method \Bitrix\Main\EO_UserAuthAction_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserAuthAction_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -14064,6 +14023,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Agreement_Collection merge(?\Bitrix\Main\UserConsent\Internals\EO_Agreement_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Agreement_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserConsent\Internals\AgreementTable */
@@ -14078,10 +14038,6 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method EO_Agreement_Result exec()
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Agreement fetchObject()
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Agreement_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Agreement_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -14293,6 +14249,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Consent_Collection merge(?\Bitrix\Main\UserConsent\Internals\EO_Consent_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Consent_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserConsent\Internals\ConsentTable */
@@ -14307,10 +14264,6 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method EO_Consent_Result exec()
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Consent fetchObject()
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Consent_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Consent_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -14447,6 +14400,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Field_Collection merge(?\Bitrix\Main\UserConsent\Internals\EO_Field_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_Field_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserConsent\Internals\FieldTable */
@@ -14461,10 +14415,6 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method EO_Field_Result exec()
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Field fetchObject()
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_Field_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_Field_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -14602,6 +14552,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_UserConsentItem_Collection merge(?\Bitrix\Main\UserConsent\Internals\EO_UserConsentItem_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserConsentItem_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserConsent\Internals\UserConsentItemTable */
@@ -14616,10 +14567,6 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method EO_UserConsentItem_Result exec()
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_UserConsentItem fetchObject()
 	 * @method \Bitrix\Main\UserConsent\Internals\EO_UserConsentItem_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserConsentItem_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -14817,6 +14764,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserCounter_Collection merge(?\Bitrix\Main\EO_UserCounter_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserCounter_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserCounterTable */
@@ -14831,10 +14779,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserCounter_Result exec()
 	 * @method \Bitrix\Main\EO_UserCounter fetchObject()
 	 * @method \Bitrix\Main\EO_UserCounter_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserCounter_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -15021,6 +14965,7 @@ namespace Bitrix\Main\UserField\Access\Permission {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\UserField\Access\Permission\EO_UserFieldPermission_Collection merge(?\Bitrix\Main\UserField\Access\Permission\EO_UserFieldPermission_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserFieldPermission_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserField\Access\Permission\UserFieldPermissionTable */
@@ -15035,10 +14980,6 @@ namespace Bitrix\Main\UserField\Access\Permission {
 	 * @method EO_UserFieldPermission_Result exec()
 	 * @method \Bitrix\Main\UserField\Access\Permission\UserFieldPermission fetchObject()
 	 * @method \Bitrix\Main\UserField\Access\Permission\EO_UserFieldPermission_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserFieldPermission_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -15283,6 +15224,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserField_Collection merge(?\Bitrix\Main\EO_UserField_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserField_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserFieldTable */
@@ -15297,10 +15239,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserField_Result exec()
 	 * @method \Bitrix\Main\EO_UserField fetchObject()
 	 * @method \Bitrix\Main\EO_UserField_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserField_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -15473,6 +15411,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserFieldConfirm_Collection merge(?\Bitrix\Main\EO_UserFieldConfirm_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserFieldConfirm_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserFieldConfirmTable */
@@ -15487,10 +15426,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserFieldConfirm_Result exec()
 	 * @method \Bitrix\Main\EO_UserFieldConfirm fetchObject()
 	 * @method \Bitrix\Main\EO_UserFieldConfirm_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserFieldConfirm_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -15670,6 +15605,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserFieldLang_Collection merge(?\Bitrix\Main\EO_UserFieldLang_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserFieldLang_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserFieldLangTable */
@@ -15684,10 +15620,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserFieldLang_Result exec()
 	 * @method \Bitrix\Main\EO_UserFieldLang fetchObject()
 	 * @method \Bitrix\Main\EO_UserFieldLang_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserFieldLang_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -15844,6 +15776,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserGroup_Collection merge(?\Bitrix\Main\EO_UserGroup_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserGroupTable */
@@ -15858,10 +15791,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserGroup_Result exec()
 	 * @method \Bitrix\Main\EO_UserGroup fetchObject()
 	 * @method \Bitrix\Main\EO_UserGroup_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserGroup_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -16058,6 +15987,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserIndex_Collection merge(?\Bitrix\Main\EO_UserIndex_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserIndex_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserIndexTable */
@@ -16072,10 +16002,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserIndex_Result exec()
 	 * @method \Bitrix\Main\EO_UserIndex fetchObject()
 	 * @method \Bitrix\Main\EO_UserIndex_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserIndex_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -16249,6 +16175,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserPhoneAuth_Collection merge(?\Bitrix\Main\EO_UserPhoneAuth_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserPhoneAuth_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserPhoneAuthTable */
@@ -16263,10 +16190,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserPhoneAuth_Result exec()
 	 * @method \Bitrix\Main\EO_UserPhoneAuth fetchObject()
 	 * @method \Bitrix\Main\EO_UserPhoneAuth_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserPhoneAuth_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -16451,6 +16374,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserProfileHistory_Collection merge(?\Bitrix\Main\EO_UserProfileHistory_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserProfileHistory_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserProfileHistoryTable */
@@ -16465,10 +16389,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserProfileHistory_Result exec()
 	 * @method \Bitrix\Main\EO_UserProfileHistory fetchObject()
 	 * @method \Bitrix\Main\EO_UserProfileHistory_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserProfileHistory_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
@@ -16618,6 +16538,7 @@ namespace Bitrix\Main {
 	 * @method int count() Countable
 	 * @method \Bitrix\Main\EO_UserProfileRecord_Collection merge(?\Bitrix\Main\EO_UserProfileRecord_Collection $collection)
 	 * @method bool isEmpty()
+	 * @method array collectValues(int $valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, int $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL, bool $recursive = false)
 	 */
 	class EO_UserProfileRecord_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserProfileRecordTable */
@@ -16632,10 +16553,6 @@ namespace Bitrix\Main {
 	 * @method EO_UserProfileRecord_Result exec()
 	 * @method \Bitrix\Main\EO_UserProfileRecord fetchObject()
 	 * @method \Bitrix\Main\EO_UserProfileRecord_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
 	 */
 	class EO_UserProfileRecord_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**

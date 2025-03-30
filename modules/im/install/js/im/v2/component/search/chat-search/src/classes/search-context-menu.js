@@ -72,7 +72,7 @@ export class SearchContextMenu extends BaseMenu
 		const isAnyChatOpened = this.store.getters['application/getLayout'].entityId.length > 0;
 
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER'),
+			text: Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER_MSGVER_1'),
 			onclick: async () => {
 				if (!isAnyChatOpened)
 				{

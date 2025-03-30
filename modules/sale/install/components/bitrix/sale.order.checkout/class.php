@@ -596,7 +596,7 @@ class SaleOrderCheckout extends \CBitrixComponent
 				'PRODUCT' => [
 					'ID' => $basketItem['CATALOG_PRODUCT']['ID'],
 					'DETAIL_PAGE_URL' => $basketItem['DETAIL_PAGE_URL'],
-					'PICTURE' => $basketItem['CATALOG_PRODUCT']['FRONT_IMAGE']['SRC'],
+					'PICTURE' => $basketItem['CATALOG_PRODUCT']['FRONT_IMAGE']['SRC'] ?? '',
 					'AVAILABLE_QUANTITY' => $basketItem['CATALOG_PRODUCT']['AVAILABLE_QUANTITY'],
 					'RATIO' => $basketItem['CATALOG_PRODUCT']['RATIO'],
 					'CHECK_MAX_QUANTITY' => $basketItem['CATALOG_PRODUCT']['CHECK_MAX_QUANTITY'],

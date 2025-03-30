@@ -7,32 +7,35 @@ use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Recent\Initializer\BaseSource;
 use Bitrix\Im\V2\Recent\Initializer\InitialiazerResult;
 use Bitrix\Im\V2\Recent\Initializer\SourceType;
+use Bitrix\Im\V2\Recent\Initializer\Stage;
+use Bitrix\Im\V2\Recent\Initializer\StageType;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\ORM\Query\Query;
 
-class Collabs extends BaseSource
+class Collabs extends BaseCollabSource
 {
-	protected function getUsersInternal(string $pointer, int $limit): InitialiazerResult
+	protected function getBaseQuery(string $pointer, int $limit): Query
 	{
 		$lastUserId = (int)$pointer;
 
 		$query = RelationTable::query()
 			->setDistinct()
-			->setSelect(['OTHER_USER_ID' => 'OTHER.USER_ID'])
+			->setSelect([self::USER_ID_FIELD_NAME => 'OTHER.USER_ID'])
 			->where('USER_ID', $this->targetId)
 			->where('MESSAGE_TYPE', Chat::IM_TYPE_COLLAB)
 			->registerRuntimeField($this->getSelfJoin())
 			->whereNotNull('OTHER.USER.LAST_ACTIVITY_DATE')
 			->setLimit($limit)
-			->setOrder(['OTHER_USER_ID' => 'DESC'])
+			->setOrder([self::USER_ID_FIELD_NAME => 'DESC'])
 		;
 
 		if ($lastUserId)
 		{
-			$query->where('OTHER_USER_ID', '<', $lastUserId);
+			$query->where(self::USER_ID_FIELD_NAME, '<', $lastUserId);
 		}
 
-		return $this->getResultByRaw($query->fetchAll(), $limit);
+		return $query;
 	}
 
 	public static function getType(): SourceType
@@ -40,7 +43,7 @@ class Collabs extends BaseSource
 		return SourceType::Collabs;
 	}
 
-	private function getResultByRaw(array $raw, int $limit): InitialiazerResult
+	protected function getResultByRaw(array $raw, int $limit): InitialiazerResult
 	{
 		$selectedItemsCount = count($raw);
 		$userIds = [];
@@ -49,7 +52,7 @@ class Collabs extends BaseSource
 
 		foreach ($raw as $row)
 		{
-			$userId = (int)($row['OTHER_USER_ID'] ?? 0);
+			$userId = (int)($row[self::USER_ID_FIELD_NAME] ?? 0);
 			$userIds[$userId] = $userId;
 			if ($userId < $nextId || $nextId === null)
 			{

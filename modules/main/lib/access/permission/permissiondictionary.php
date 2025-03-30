@@ -22,8 +22,10 @@ abstract class PermissionDictionary
 	public const TYPE_TOGGLER = 'toggler';
 	public const TYPE_VARIABLES = 'variables';
 	public const TYPE_MULTIVARIABLES = 'multivariables';
+	public const TYPE_DEPENDENT_VARIABLES = 'dependent_variables';
 
 	public const HINT_PREFIX = 'HINT_';
+	public const HINT_SUFFIX = '_MSGVER_1';
 
 	protected static $locLoaded = [];
 
@@ -63,7 +65,9 @@ abstract class PermissionDictionary
 			return $permission;
 		}
 		$permission['title'] = Loc::getMessage($name) ?? '';
-		$permission['hint'] = Loc::getMessage(self::HINT_PREFIX . $name) ?? '';
+		$permission['hint'] =
+			Loc::getMessage(self::HINT_PREFIX . $name)
+			?? (Loc::getMessage(self::HINT_PREFIX . $name . self::HINT_SUFFIX) ?? '');
 
 		return $permission;
 	}
@@ -93,6 +97,7 @@ abstract class PermissionDictionary
 				'DELIMITER',
 				'TYPE_VARIABLES',
 				'TYPE_MULTIVARIABLES',
+				'TYPE_DEPENDENT_VARIABLES',
 				'TYPE_TOGGLER',
 				'HINT_PREFIX'
 			]))

@@ -7,15 +7,15 @@ function JsSuggest(oHandler, sParams, sParser)
 	// Arrays for data
 	if (sParser)
 	{
-		t.sExp = new RegExp("["+sParser+"]+", "i");
+		t.sExp = new RegExp('[' + sParser + ']+', 'i');
 	}
 	else
 	{
-		t.sExp = new RegExp(",");
+		t.sExp = new RegExp(',');
 	}
-	t.oLast = {"str":false, "arr":false};
-	t.oThis = {"str":false, "arr":false};
-	t.oEl = {"start":false, "end":false};
+	t.oLast = { 'str': false, 'arr': false };
+	t.oThis = { 'str': false, 'arr': false };
+	t.oEl = { 'start': false, 'end': false };
 	t.oUnfinedWords = {};
 	// Flags
 	t.bReady = true;
@@ -39,48 +39,52 @@ function JsSuggest(oHandler, sParams, sParser)
 		if (!t.eFocus)
 		{
 			t.eFocus = true;
-			setTimeout(function(){t.CheckModif('focus')}, 500);
+			setTimeout(function() { t.CheckModif('focus'); }, 500);
 		}
 	};
 
-	t.oLast["arr"] = t.oObj.value.split(t.sExp);
-	t.oLast["str"] = t.oLast["arr"].join(":");
+	t.oLast['arr'] = t.oObj.value.split(t.sExp);
+	t.oLast['str'] = t.oLast['arr'].join(':');
 
-	setTimeout(function(){t.CheckModif('this')}, 500);
+	setTimeout(function() { t.CheckModif('this'); }, 500);
 
 	this.CheckModif = function(__data)
 	{
-		var
-			sThis = false, tmp = 0,
-			bUnfined = false, word = "",
-			cursor = {};
+		var sThis = false;
+		var tmp = 0;
+		var bUnfined = false;
+		var word = '';
+		var cursor = {};
 
 		if (!t.eFocus)
+		{
 			return;
+		}
 
 		if (t.bReady && t.oObj.value.length > 0)
 		{
 			// Preparing input data
-			t.oThis["arr"] = t.oObj.value.split(t.sExp);
-			t.oThis["str"] = t.oThis["arr"].join(":");
+			t.oThis['arr'] = t.oObj.value.split(t.sExp);
+			t.oThis['str'] = t.oThis['arr'].join(':');
 
 			// Getting modificated element
-			if (t.oThis["str"] && (t.oThis["str"] != t.oLast["str"]))
+			if (t.oThis['str'] && (t.oThis['str'] != t.oLast['str']))
 			{
 				cursor['position'] = TCJsUtils.getCursorPosition(t.oObj);
-				if (cursor['position']['end'] > 0 && !t.sExp.test(t.oObj.value.substr(cursor['position']['end']-1, 1)))
+				if (cursor['position']['end'] > 0 && !t.sExp.test(t.oObj.value.substr(cursor['position']['end'] - 1, 1)))
 				{
 					cursor['arr'] = t.oObj.value.substr(0, cursor['position']['end']).split(t.sExp);
-					sThis = t.oThis["arr"][cursor['arr'].length - 1];
+					sThis = t.oThis['arr'][cursor['arr'].length - 1];
 
 					t.oEl['start'] = cursor['position']['end'] - cursor['arr'][cursor['arr'].length - 1].length;
 					t.oEl['end'] = t.oEl['start'] + sThis.length;
 					t.oEl['content'] = sThis;
 
-					t.oLast["arr"] = t.oThis["arr"];
-					t.oLast["str"] = t.oThis["str"];
+					t.oLast['arr'] = t.oThis['arr'];
+					t.oLast['str'] = t.oThis['str'];
 				}
 			}
+
 			if (sThis)
 			{
 				// Checking for UnfinedWords
@@ -93,17 +97,22 @@ function JsSuggest(oHandler, sParams, sParser)
 						break;
 					}
 				}
+
 				if (!bUnfined)
+				{
 					t.Send(sThis);
+				}
 			}
 		}
-		setTimeout(function(){t.CheckModif('this')}, 500);
+		setTimeout(function() { t.CheckModif('this'); }, 500);
 	};
 
 	t.Send = function(sSearch)
 	{
 		if (!sSearch)
-			return false;
+		{
+			return;
+		}
 
 		var oError = [];
 		t.bReady = false;
@@ -114,7 +123,7 @@ function JsSuggest(oHandler, sParams, sParser)
 		}
 		BX.ajax.post(
 			'/bitrix/components/bitrix/search.suggest.input/search.php',
-			{"search":sSearch, "params":t.sParams},
+			{ 'search': sSearch, 'params': t.sParams },
 			function(data)
 			{
 				var result = {};
@@ -122,15 +131,17 @@ function JsSuggest(oHandler, sParams, sParser)
 
 				try
 				{
-					eval("result = " + data + ";");
+					eval('result = ' + data + ';');
 				}
-				catch(e)
+				catch (e)
 				{
 					oError['result_unval'] = e;
 				}
 
 				if (TCJsUtils.empty(result))
+				{
 					oError['result_empty'] = 'Empty result';
+				}
 
 				try
 				{
@@ -139,6 +150,7 @@ function JsSuggest(oHandler, sParams, sParser)
 						if (!(result.length == 1 && result[0]['NAME'] == t.oEl['content']))
 						{
 							t.Show(result);
+
 							return;
 						}
 					}
@@ -147,13 +159,15 @@ function JsSuggest(oHandler, sParams, sParser)
 						t.oUnfinedWords[t.oEl['content']] = '!fined';
 					}
 				}
-				catch(e)
+				catch (e)
 				{
 					oError['unknown_error'] = e;
 				}
 
-				if(BX('wait_container'))
+				if (BX('wait_container'))
+				{
 					BX.hide(BX('wait_container'));
+				}
 			}
 		);
 	};
@@ -161,18 +175,18 @@ function JsSuggest(oHandler, sParams, sParser)
 	t.Show = function(result)
 	{
 		t.Destroy();
-		t.oDiv = document.body.appendChild(document.createElement("DIV"));
-		t.oDiv.id = t.oObj.id+'_div';
+		t.oDiv = document.body.appendChild(document.createElement('DIV'));
+		t.oDiv.id = t.oObj.id + '_div';
 
-		t.oDiv.className = "search-popup";
+		t.oDiv.className = 'search-popup';
 		t.oDiv.style.position = 'absolute';
 
 		t.aDiv = t.Print(result);
 		var pos = TCJsUtils.GetRealPos(t.oObj);
-		t.oDiv.style.width = parseInt(pos["width"]) + "px";
-		TCJsUtils.show(t.oDiv, pos["left"], pos["bottom"]);
-		TCJsUtils.addEvent(document, "click", t.CheckMouse);
-		TCJsUtils.addEvent(document, "keydown", t.CheckKeyword);
+		t.oDiv.style.width = parseInt(pos['width'], 10) + 'px';
+		TCJsUtils.show(t.oDiv, pos['left'], pos['bottom']);
+		TCJsUtils.addEvent(document, 'click', t.CheckMouse);
+		TCJsUtils.addEvent(document, 'keydown', t.CheckKeyword);
 	};
 
 	t.Print = function(aArr)
@@ -184,12 +198,12 @@ function JsSuggest(oHandler, sParams, sParser)
 		var oSpan = null;
 		var sPrefix = t.oDiv.id;
 
-		for (var tmp_ in aArr)
+		for (var key in aArr)
 		{
-			if (aArr.hasOwnProperty(tmp_))
+			if (aArr.hasOwnProperty(key))
 			{
 				// Math
-				aEl = aArr[tmp_];
+				aEl = aArr[key];
 
 				var aRes = {};
 				aRes['ID'] = (aEl['ID'] && aEl['ID'].length > 0) ? aEl['ID'] : iCnt++;
@@ -200,29 +214,32 @@ function JsSuggest(oHandler, sParams, sParser)
 				aResult[aRes['GID']] = aRes;
 				t.oPointer.push(aRes['GID']);
 				// Graph
-				oDiv = t.oDiv.appendChild(document.createElement("DIV"));
+				oDiv = t.oDiv.appendChild(document.createElement('DIV'));
 				oDiv.id = aRes['GID'];
 				oDiv.name = sPrefix + '_div';
 
 				oDiv.className = 'search-popup-row';
 
-				oDiv.onmouseover = function(){t.Init(); this.className='search-popup-row-active';};
-				oDiv.onmouseout = function(){t.Init(); this.className='search-popup-row';};
-				oDiv.onclick = function(){t.oActive = this.id};
+				oDiv.onmouseover = function() { t.Init(); this.className = 'search-popup-row-active'; };
 
-				oSpan = oDiv.appendChild(document.createElement("DIV"));
+				oDiv.onmouseout = function() { t.Init(); this.className = 'search-popup-row'; };
+
+				oDiv.onclick = function() { t.oActive = this.id; };
+
+				oSpan = oDiv.appendChild(document.createElement('DIV'));
 				oSpan.id = oDiv.id + '_NAME';
-				oSpan.className = "search-popup-el search-popup-el-cnt";
+				oSpan.className = 'search-popup-el search-popup-el-cnt';
 				oSpan.innerHTML = aRes['CNT'];
 
-				oSpan = oDiv.appendChild(document.createElement("DIV"));
+				oSpan = oDiv.appendChild(document.createElement('DIV'));
 				oSpan.id = oDiv.id + '_NAME';
-				oSpan.className = "search-popup-el search-popup-el-name";
+				oSpan.className = 'search-popup-el search-popup-el-name';
 				oSpan.innerHTML = aRes['NAME'];
 			}
 		}
 		t.oPointer.push('input_field');
 		t.oPointer_default = t.oPointer;
+
 		return aResult;
 	};
 
@@ -233,8 +250,9 @@ function JsSuggest(oHandler, sParams, sParser)
 			TCJsUtils.hide(t.oDiv);
 			t.oDiv.parentNode.removeChild(t.oDiv);
 		}
-		catch(e)
-		{}
+		catch (e)
+		{
+}
 
 		t.aDiv = [];
 		t.oPointer = [];
@@ -244,8 +262,8 @@ function JsSuggest(oHandler, sParams, sParser)
 		t.eFocus = true;
 		t.oActive = null;
 
-		TCJsUtils.removeEvent(document, "click", t.CheckMouse);
-		TCJsUtils.removeEvent(document, "keydown", t.CheckKeyword);
+		TCJsUtils.removeEvent(document, 'click', t.CheckMouse);
+		TCJsUtils.removeEvent(document, 'keydown', t.CheckKeyword);
 	};
 
 	t.Replace = function()
@@ -256,16 +274,18 @@ function JsSuggest(oHandler, sParams, sParser)
 			var tmp1 = '';
 			if (typeof tmp == 'object')
 			{
-				var elEntities = document.createElement("span");
-				elEntities.innerHTML = tmp['NAME'].replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+				var elEntities = document.createElement('span');
+				elEntities.innerHTML = tmp['NAME'].replaceAll('&quot;', '"').replaceAll('&amp;', '&');
 				tmp1 = elEntities.innerHTML;
 			}
-			//this preserves leading spaces
+			// this preserves leading spaces
 			var start = t.oEl['start'];
-			while(start < t.oObj.value.length && t.oObj.value.substring(start, start+1) == " ")
+			while (start < t.oObj.value.length && t.oObj.value.substring(start, start + 1) == ' ')
+			{
 				start++;
+			}
 
-			t.oObj.value = t.oObj.value.substring(0, start) + tmp1.replace(/&lt;/g, '<').replace(/&gt;/g, '>') + t.oObj.value.substr(t.oEl['end']);
+			t.oObj.value = t.oObj.value.substring(0, start) + tmp1.replaceAll('&lt;', '<').replaceAll('&gt;', '>') + t.oObj.value.substr(t.oEl['end']);
 			TCJsUtils.setCursorPosition(t.oObj, start + tmp1.length);
 		}
 	};
@@ -280,7 +300,7 @@ function JsSuggest(oHandler, sParams, sParser)
 
 	t.Clear = function()
 	{
-		var oEl = t.oDiv.getElementsByTagName("div");
+		var oEl = t.oDiv.getElementsByTagName('div');
 		if (oEl.length > 0 && typeof oEl == 'object')
 		{
 			for (var ii in oEl)
@@ -290,7 +310,7 @@ function JsSuggest(oHandler, sParams, sParser)
 					var oE = oEl[ii];
 					if (oE && (typeof oE == 'object') && (oE.name == t.oDiv.id + '_div'))
 					{
-						oE.className = "search-popup-row";
+						oE.className = 'search-popup-row';
 					}
 				}
 			}
@@ -303,15 +323,13 @@ function JsSuggest(oHandler, sParams, sParser)
 		t.Destroy();
 	};
 
-	t.CheckKeyword = function(e)
+	t.CheckKeyword = function(event)
 	{
-		if (!e)
-			e = window.event;
-
+		var e = event || window.event;
 		var oP = null;
 		var oEl = null;
 
-		if ((37 < e.keyCode && e.keyCode <41) || (e.keyCode == 13))
+		if ((e.keyCode > 37 && e.keyCode < 41) || (e.keyCode == 13))
 		{
 			t.Clear();
 
@@ -331,7 +349,7 @@ function JsSuggest(oHandler, sParams, sParser)
 						oEl = document.getElementById(oP);
 						if (typeof oEl == 'object')
 						{
-							oEl.className = "search-popup-row-active";
+							oEl.className = 'search-popup-row-active';
 						}
 					}
 					t.oPointer.unshift(oP);
@@ -343,24 +361,24 @@ function JsSuggest(oHandler, sParams, sParser)
 						t.oPointer.push(oP);
 						oP = t.oPointer.shift();
 					}
+
 					if (oP != 'input_field')
 					{
 						t.oActive = oP;
 						oEl = document.getElementById(oP);
 						if (typeof oEl == 'object')
 						{
-							oEl.className = "search-popup-row-active";
+							oEl.className = 'search-popup-row-active';
 						}
 					}
 					t.oPointer.push(oP);
 					break;
 				case 39:
-					t.Replace();
-					t.Destroy();
-					break;
 				case 13:
 					t.Replace();
 					t.Destroy();
+					break;
+				default:
 					break;
 			}
 			t.oPointer_this = oP;
@@ -372,36 +390,50 @@ function JsSuggest(oHandler, sParams, sParser)
 	};
 }
 
-var TCJsUtils =
-{
+var TCJsUtils = {
 	arEvents: [],
 
 	addEvent: function(el, evname, func)
 	{
-		if(el.attachEvent) // IE
-			el.attachEvent("on" + evname, func);
-		else if(el.addEventListener) // Gecko / W3C
+		if (el.attachEvent)
+		{ // IE
+			el.attachEvent('on' + evname, func);
+		}
+		else if (el.addEventListener)
+		{ // Gecko / W3C
 			el.addEventListener(evname, func, false);
+		}
 		else
-			el["on" + evname] = func;
-		this.arEvents[this.arEvents.length] = {'element': el, 'event': evname, 'fn': func};
+		{
+			el['on' + evname] = func;
+		}
+		this.arEvents[this.arEvents.length] = { 'element': el, 'event': evname, 'fn': func };
 	},
 
 	removeEvent: function(el, evname, func)
 	{
-		if(el.detachEvent) // IE
-			el.detachEvent("on" + evname, func);
-		else if(el.removeEventListener) // Gecko / W3C
+		if (el.detachEvent)
+		{ // IE
+			el.detachEvent('on' + evname, func);
+		}
+		else if (el.removeEventListener)
+		{ // Gecko / W3C
 			el.removeEventListener(evname, func, false);
+		}
 		else
-			el["on" + evname] = null;
+		{
+			el['on' + evname] = null;
+		}
 	},
 
 	getCursorPosition: function(oObj)
 	{
-		var result = {'start': 0, 'end': 0};
+		var result = { 'start': 0, 'end': 0 };
 		if (!oObj || (typeof oObj != 'object'))
+		{
 			return result;
+		}
+
 		try
 		{
 			if (document.selection != null && oObj.selectionStart == null)
@@ -411,15 +443,15 @@ var TCJsUtils =
 				var oParent = oRange.parentElement();
 				var sBookmark = oRange.getBookmark();
 				var sContents = oObj.value;
-				var sContents_ = oObj.value;
+				var sContentSaved = oObj.value;
 				var sMarker = '__' + Math.random() + '__';
 
-				while(sContents.indexOf(sMarker) != -1)
+				while (sContents.indexOf(sMarker) != -1)
 				{
 					sMarker = '__' + Math.random() + '__';
 				}
 
-				if (!oParent || oParent == null || (oParent.type != "textarea" && oParent.type != "text"))
+				if (!oParent || oParent == null || (oParent.type != 'textarea' && oParent.type != 'text'))
 				{
 					return result;
 				}
@@ -427,29 +459,32 @@ var TCJsUtils =
 				oRange.text = sMarker + oRange.text + sMarker;
 				sContents = oObj.value;
 				result['start'] = sContents.indexOf(sMarker);
-				sContents = sContents.replace(sMarker, "");
+				sContents = sContents.replace(sMarker, '');
 				result['end'] = sContents.indexOf(sMarker);
-				oObj.value = sContents_;
+				oObj.value = sContentSaved;
 				oRange.moveToBookmark(sBookmark);
 				oRange.select();
+
 				return result;
 			}
-			else
-			{
-				return {
-					'start': oObj.selectionStart,
-					'end': oObj.selectionEnd
-				};
-			}
+
+			return {
+				'start': oObj.selectionStart,
+				'end': oObj.selectionEnd,
+			};
 		}
-		catch(e){}
-		return result;
+		catch
+		{
+			return result;
+		}
 	},
 
 	setCursorPosition: function(oObj, iPosition)
 	{
 		if (typeof oObj != 'object')
+		{
 			return false;
+		}
 
 		oObj.focus();
 
@@ -465,45 +500,12 @@ var TCJsUtils =
 				oObj.selectionStart = iPosition;
 				oObj.selectionEnd = iPosition;
 			}
+
 			return true;
 		}
-		catch(e)
+		catch
 		{
 			return false;
-		}
-
-	},
-
-	printArray: function (oObj, sParser, iLevel)
-	{
-		try
-		{
-			var result = '';
-			var space = '';
-
-			if (iLevel==undefined)
-				iLevel = 0;
-			if (!sParser)
-				sParser = "\n";
-
-			for (var j = 0; j <= iLevel; j++)
-				space += '  ';
-
-			for (var i in oObj)
-			{
-				if (oObj.hasOwnProperty(i))
-				{
-					if (typeof oObj[i] == 'object')
-						result += space+i + " = {"+ sParser + TCJsUtils.printArray(oObj[i], sParser, iLevel+1) + ", " + sParser + "}" + sParser;
-					else
-						result += space+i + " = " + oObj[i] + "; " + sParser;
-				}
-			}
-
-			return result;
-		}
-		catch(e)
-		{
 		}
 	},
 
@@ -521,59 +523,79 @@ var TCJsUtils =
 				}
 			}
 		}
+
 		return result;
 	},
 
 	show: function(oDiv, iLeft, iTop)
 	{
 		if (typeof oDiv != 'object')
+		{
 			return;
-		var zIndex = parseInt(oDiv.style.zIndex);
-		if(zIndex <= 0 || isNaN(zIndex))
+		}
+		var zIndex = parseInt(oDiv.style.zIndex, 10);
+		if (zIndex <= 0 || isNaN(zIndex))
+		{
 			zIndex = 100;
+		}
 		oDiv.style.zIndex = zIndex;
-		oDiv.style.left = iLeft + "px";
-		oDiv.style.top = iTop + "px";
-
-		return oDiv;
+		oDiv.style.left = iLeft + 'px';
+		oDiv.style.top = iTop + 'px';
 	},
 
 	hide: function(oDiv)
 	{
-		if(oDiv)
+		if (oDiv)
+		{
 			oDiv.style.display = 'none';
+		}
 	},
 
 	GetRealPos: function(el)
 	{
-		if(!el || !el.offsetParent)
+		if (!el || !el.offsetParent)
+		{
 			return false;
+		}
 
 		var res = {};
 		var objParent = el.offsetParent;
-		res["left"] = el.offsetLeft;
-		res["top"] = el.offsetTop;
-		while(objParent && objParent.tagName != "BODY")
+		res['left'] = el.offsetLeft;
+		res['top'] = el.offsetTop;
+		while (objParent && objParent.tagName != 'BODY')
 		{
-			res["left"] += objParent.offsetLeft;
-			res["top"] += objParent.offsetTop;
+			res['left'] += objParent.offsetLeft;
+			res['top'] += objParent.offsetTop;
 			objParent = objParent.offsetParent;
 		}
-		res["right"]=res["left"] + el.offsetWidth;
-		res["bottom"]=res["top"] + el.offsetHeight;
-		res["width"]=el.offsetWidth;
-		res["height"]=el.offsetHeight;
+		res['right'] = res['left'] + el.offsetWidth;
+		res['bottom'] = res['top'] + el.offsetHeight;
+		res['width'] = el.offsetWidth;
+		res['height'] = el.offsetHeight;
 
 		return res;
 	},
 
 	htmlspecialcharsEx: function(str)
 	{
-		return str.replace(/&amp;/g, '&amp;amp;').replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;').replace(/&quot;/g, '&amp;quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		return str
+			.replaceAll('&amp;', '&amp;amp;')
+			.replaceAll('&lt;', '&amp;lt;')
+			.replaceAll('&gt;', '&amp;gt;')
+			.replaceAll('&quot;', '&amp;quot;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+		;
 	},
 
 	htmlspecialcharsback: function(str)
 	{
-		return str.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-	}
+		return str
+			.replaceAll('&lt;', '<')
+			.replaceAll('&gt;', '>')
+			.replaceAll('&quot;', '"')
+			.replaceAll('&amp;', '&')
+		;
+	},
 };

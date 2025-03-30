@@ -20,19 +20,19 @@ final class PriceTypeLang extends Base
 			'CATALOG_GROUP_ID' => [
 				'TYPE' => DataType::TYPE_INT,
 				'ATTRIBUTES' => [
-					Attributes::REQUIRED,
+					Attributes::REQUIRED_ADD,
 				],
 			],
 			'LANG' => [
 				'TYPE' => DataType::TYPE_STRING,
 				'ATTRIBUTES' => [
-					Attributes::REQUIRED,
+					Attributes::REQUIRED_ADD,
 				],
 			],
 			'NAME'=>[
 				'TYPE' => DataType::TYPE_STRING,
 				'ATTRIBUTES' => [
-					Attributes::REQUIRED,
+					Attributes::REQUIRED_ADD,
 				],
 			]
 		];

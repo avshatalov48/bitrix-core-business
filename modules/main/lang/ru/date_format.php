@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MONTH_1"] = "Январь";
 $MESS["MONTH_2"] = "Февраль";
 $MESS["MONTH_3"] = "Март";
@@ -150,4 +150,6 @@ $MESS["FD_LAST_SEEN_NOW"] = "только что";
 $MESS["FD_LAST_SEEN_TODAY"] = "сегодня в #TIME#";
 $MESS["FD_LAST_SEEN_YESTERDAY"] = "вчера в #TIME#";
 $MESS["FD_LAST_SEEN_MORE_YEAR"] = "более года назад";
-?>
+$MESS["FD_UNIT_ORDER"] = "Y m d H i s";
+$MESS["FD_SEPARATOR"] = "&#32;";
+$MESS["FD_SEPARATOR_SHORT"] = "&#32;";

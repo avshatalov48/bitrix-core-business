@@ -24,6 +24,12 @@ export const RightsSection = {
 		},
 	},
 	emits: ['change'],
+	data(): JsonObject
+	{
+		return {
+			formResult: null,
+		};
+	},
 	methods:
 	{
 		async onClick()
@@ -32,6 +38,11 @@ export const RightsSection = {
 			if (this.collabId > 0)
 			{
 				sliderParams.collabId = this.collabId;
+			}
+
+			if (this.formResult)
+			{
+				sliderParams.formData = this.formResult;
 			}
 			this.form = await AccessRights.openForm(sliderParams);
 			this.bindEvents();
@@ -48,8 +59,8 @@ export const RightsSection = {
 		},
 		onSave(event: BaseEvent<AccessRightsFormResult>)
 		{
-			const formResult: AccessRightsFormResult = event.getData();
-			this.$emit('change', formResult);
+			this.formResult = event.getData();
+			this.$emit('change', this.formResult);
 			this.unbindEvents();
 		},
 		onCancel()

@@ -111,6 +111,13 @@ export class CallManager
 		this.#controller.closeCallNotification();
 	}
 
+	deleteRecentCall(dialogId: string)
+	{
+		this.#store.dispatch('recent/calls/deleteActiveCall', {
+			dialogId,
+		});
+	}
+
 	foldCurrentCall()
 	{
 		if (!this.isAvailable() || !this.#controller.hasActiveCall() || !this.#controller.hasVisibleCall())
@@ -298,9 +305,7 @@ export class CallManager
 	#onCallCreated(event)
 	{
 		const { call } = event.getData()[0];
-		call.addEventListener(BX.Call.Event.onJoin, this.#onCallJoin.bind(this));
-		call.addEventListener(BX.Call.Event.onLeave, this.#onCallLeave.bind(this));
-		call.addEventListener(BX.Call.Event.onDestroy, this.#onCallDestroy.bind(this));
+		const isNewCall = !this.#store.getters['recent/calls/getCallByDialog'](call.associatedEntity.id);
 
 		const state = (
 			call.state === CallState.Connected || call.state === CallState.Proceeding
@@ -308,11 +313,27 @@ export class CallManager
 				: RecentCallStatus.waiting
 		);
 
-		this.#store.dispatch('recent/calls/addActiveCall', {
+		if (isNewCall)
+		{
+			call.addEventListener(BX.Call.Event.onJoin, this.#onCallJoin.bind(this));
+			call.addEventListener(BX.Call.Event.onLeave, this.#onCallLeave.bind(this));
+			call.addEventListener(BX.Call.Event.onDestroy, this.#onCallDestroy.bind(this));
+			this.#store.dispatch('recent/calls/addActiveCall', {
+				dialogId: call.associatedEntity.id,
+				name: call.associatedEntity.name,
+				call,
+				state,
+			});
+			return;
+		}
+
+		this.#store.dispatch('recent/calls/updateActiveCall', {
 			dialogId: call.associatedEntity.id,
-			name: call.associatedEntity.name,
-			call,
-			state,
+			fields: {
+				name: call.associatedEntity.name,
+				state,
+				call,
+			},
 		});
 	}
 

@@ -24,8 +24,8 @@ class PaymentItemBasket extends ControllerBase
 		return new ExactParameter(
 			PayableBasketItem::class,
 			'paymentItem',
-			function($className, $id) {
-
+			function($className, $id)
+			{
 				$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
 
 				/** @var PayableItemCollection $payableItemCollection */
@@ -38,7 +38,7 @@ class PaymentItemBasket extends ControllerBase
 					],
 				]);
 
-				if($piRow = $pi->fetch())
+				if ($piRow = $pi->fetch())
 				{
 					$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
 					/** @var \Bitrix\Sale\Payment $paymentClass */
@@ -73,6 +73,7 @@ class PaymentItemBasket extends ControllerBase
 				}
 
 				$this->addError(new Error('payment item is not exists', 201240400001));
+
 				return null;
 			}
 		);
@@ -155,39 +156,47 @@ class PaymentItemBasket extends ControllerBase
 			/** @var \Bitrix\Sale\Order $orderClass */
 			$orderClass = $registry->getOrderClassName();
 
-			$order = $orderClass::load($row['ORDER_ID']);
-			$basketItem = $order->getBasket()->getItemByBasketCode($basketId);
-			if($basketItem instanceof BasketItem)
+			$orderId = (int)$row['ORDER_ID'];
+			if ($orderId > 0)
 			{
-				/** @var PaymentCollection $collection */
-				$collection = $order->getPaymentCollection();
-				$payment = $collection->getItemById($paymentId);
-				if($payment instanceof \Bitrix\Sale\Payment)
+				$order = $orderClass::load($orderId);
+				$basketItem = $order->getBasket()->getItemByBasketCode($basketId);
+				if ($basketItem instanceof BasketItem)
 				{
-					$paymentItems = $payment->getPayableItemCollection()->getBasketItems();
-					if($this->isExistBasketItem($paymentItems, $basketItem) == false)
+					/** @var PaymentCollection $collection */
+					$collection = $order->getPaymentCollection();
+					$payment = $collection->getItemById($paymentId);
+					if ($payment instanceof \Bitrix\Sale\Payment)
 					{
-						/** @var PayableBasketItem $paymentItem */
-						$paymentItem = $payment->getPayableItemCollection()->createItemByBasketItem($basketItem);
-						$result = $paymentItem->setFields($fields);
-						if($result->isSuccess() && $result->hasWarnings() == false)
+						$paymentItems = $payment->getPayableItemCollection()->getBasketItems();
+						if ($this->isExistBasketItem($paymentItems, $basketItem) == false)
 						{
-							$r = $this->save($paymentItem);
-							if(!$r->isSuccess())
+							/** @var PayableBasketItem $paymentItem */
+							$paymentItem = $payment->getPayableItemCollection()->createItemByBasketItem($basketItem);
+							$result = $paymentItem->setFields($fields);
+							if ($result->isSuccess() && $result->hasWarnings() == false)
 							{
-								$result->addErrors($r->getErrors());
+								$r = $this->save($paymentItem);
+								if (!$r->isSuccess())
+								{
+									$result->addErrors($r->getErrors());
+								}
 							}
+						}
+						else
+						{
+							$result->addError(new Error('Duplicate entry for key [basketId, paymentId]', 201250000001));
 						}
 					}
 					else
 					{
-						$result->addError(new Error('Duplicate entry for key [basketId, paymentId]', 201250000001));
+						$result->addError(new Error('payment not exists', 201240400002));
 					}
 				}
-				else
-				{
-					$result->addError(new Error('payment not exists', 201240400002));
-				}
+			}
+			else
+			{
+				$result->addError(new Error('basket item is not linked to the order', 201240400004));
 			}
 		}
 		else

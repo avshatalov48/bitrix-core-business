@@ -9,6 +9,8 @@ use Bitrix\Catalog\Model\Event;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2;
 use Bitrix\Iblock;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
@@ -386,18 +388,28 @@ class Product extends Controller implements EventBindInterface
 
 		$productService = new v2\Internal\ProductInternalService(true);
 
-		$result = $productService->add(array_merge($productFields, $elementFieldsAdd));
-
-		$id = $result->getData()['ID'];
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		try
+		{
+			$result = $productService->add(array_merge($productFields, $elementFieldsAdd));
+		}
+		catch (SqlQueryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('Internal error adding product. Try adding again.'));
+		}
 
 		if (!$result->isSuccess())
 		{
-			$element = new \CIBlockElement();
-			$element::Delete($id);
+			$conn->rollbackTransaction();
 			$this->addErrors($result->getErrors());
 
 			return null;
 		}
+		$conn->commitTransaction();
+
+		$id = $result->getData()['ID'];
 
 		return [
 			'ELEMENT' => $this->get($id),
@@ -482,17 +494,29 @@ class Product extends Controller implements EventBindInterface
 		{
 			$productService = new v2\Internal\ProductInternalService(true);
 
-			$result = $productService->update(
-				$id,
-				array_merge($productFields, $elementFieldsUpdate)
-			);
+			$conn = Application::getConnection();
+			$conn->startTransaction();
+			try
+			{
+				$result = $productService->update(
+					$id,
+					array_merge($productFields, $elementFieldsUpdate)
+				);
+			}
+			catch (SqlQueryException)
+			{
+				$result = new Result();
+				$result->addError(new Error('Internal error updating product. Try updating again.'));
+			}
 
 			if (!$result->isSuccess())
 			{
+				$conn->rollbackTransaction();
 				$this->addErrors($result->getErrors());
 
 				return null;
 			}
+			$conn->commitTransaction();
 		}
 
 		return [
@@ -512,7 +536,16 @@ class Product extends Controller implements EventBindInterface
 		$element = $result->getData();
 		$result = $this->checkPermissionDelete($element['IBLOCK_ID'], $element['ID']);
 
-		if ($result->isSuccess())
+		if (!$result->isSuccess())
+		{
+			$this->addErrors($result->getErrors());
+
+			return null;
+		}
+
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		try
 		{
 			if (!\CIBlockElement::Delete($id))
 			{
@@ -527,13 +560,21 @@ class Product extends Controller implements EventBindInterface
 				}
 			}
 		}
+		catch (SqlQueryException)
+		{
+			$result = new Result();
+			$result->addError(new Error('Internal error deleting product. Try deleting again.'));
+		}
 
 		if ($result->isSuccess())
 		{
+			$conn->commitTransaction();
+
 			return true;
 		}
 		else
 		{
+			$conn->rollbackTransaction();
 			$this->addErrors($result->getErrors());
 
 			return null;

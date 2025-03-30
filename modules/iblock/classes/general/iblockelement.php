@@ -1,11 +1,13 @@
 <?php
 
+use Bitrix\Iblock\FullIndex\FullText;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Iblock;
 use Bitrix\Iblock\ElementTable;
 use Bitrix\Catalog;
+use Bitrix\Main\ORM\Query\Filter\Helper;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -1072,6 +1074,16 @@ class CAllIBlockElement
 			'BS' => [],
 		];
 
+		$specialFilterKeys = [
+			'MIN_PERMISSION' => true,
+			'PERMISSIONS_BY' => true,
+			'INCLUDE_SUBSECTIONS' => true,
+			'SECTION_SCOPE' => true,
+			'SHOW_NEW' => true,
+			'SHOW_BP_NEW' => true,
+			'SHOW_HISTORY' => true,
+		];
+
 		if (!is_array($arFilter))
 		{
 			$arFilter = [];
@@ -1166,18 +1178,65 @@ class CAllIBlockElement
 				$arSqlSearch[] = CIBlock::FilterCreateEx("BE.".$key, $val, "string", $bFullJoinTmp, $cOperationType);
 				break;
 			case "SEARCHABLE_CONTENT":
-				if ($DB->IndexExists("b_iblock_element", array("SEARCHABLE_CONTENT")))
+				$iblockId = 0;
+
+				if (
+					!empty($arFilter['IBLOCK_ID'])
+					&& is_scalar($arFilter['IBLOCK_ID'])
+				)
 				{
-					$arSqlSearch[] = CIBlock::FilterCreateEx("BE.".$key, $val, "fulltext", $bFullJoinTmp, $cOperationType);
+					$iblockId = (int)$arFilter['IBLOCK_ID'];
+				}
+				elseif (
+					!empty($arFilter['~IBLOCK_ID'])
+					&& is_scalar($arFilter['~IBLOCK_ID'])
+				)
+				{
+					$iblockId = (int)$arFilter['~IBLOCK_ID'];
+				}
+
+				// TODO: temporary shutdown until request is corrected
+				if (false && !empty($iblockId) && FullText::canUseFulltextSearch($iblockId))
+				{
+					$tableName = FullText::getTableName($iblockId);
+					$alias = "BESI" . $iblockId;
+
+					if (!is_scalar($val))
+					{
+						break;
+					}
+
+					$val = (string)$val;
+
+					if (mb_strlen($val) < Helper::getMinTokenSize())
+					{
+						break;
+					}
+
+					$where = CIBlock::FilterCreateEx($alias . ".SEARCH_CONTENT", $val, "fulltext", $bFullJoinTmp, 'FT');
+
+					if (!empty($where))
+					{
+						$arSqlSearch[] = $where;
+						$arJoinProps["BESI"] = " INNER JOIN " . $tableName . " " . $alias . " ON " . $alias . ".ELEMENT_ID = BE.ID ";
+					}
 				}
 				else
 				{
-					if ($cOperationType == "FT")
-						$cOperationType = "FTL";
-					elseif ($cOperationType == "FTI")
-						$cOperationType = "E";
-					$arSqlSearch[] = CIBlock::FilterCreateEx("BE.".$key, $val, "string", $bFullJoinTmp, $cOperationType);
+					if ($DB->IndexExists("b_iblock_element", array("SEARCHABLE_CONTENT")))
+					{
+						$arSqlSearch[] = CIBlock::FilterCreateEx("BE.".$key, $val, "fulltext", $bFullJoinTmp, $cOperationType);
+					}
+					else
+					{
+						if ($cOperationType == "FT")
+							$cOperationType = "FTL";
+						elseif ($cOperationType == "FTI")
+							$cOperationType = "E";
+						$arSqlSearch[] = CIBlock::FilterCreateEx("BE.".$key, $val, "string", $bFullJoinTmp, $cOperationType);
+					}
 				}
+
 				break;
 			case "ID":
 				if(is_object($val))
@@ -1758,10 +1817,13 @@ class CAllIBlockElement
 						}
 					}
 				}
-				elseif ($catalogIncluded && \CProductQueryBuilder::isValidField($key))
+				elseif ($catalogIncluded && !isset($specialFilterKeys[$key]))
 				{
-					$catalogFields[$orig_key] = $val;
-					$arAddWhereFields[$orig_key] = $val;
+					if (CProductQueryBuilder::isValidField($key))
+					{
+						$catalogFields[$orig_key] = $val;
+						$arAddWhereFields[$orig_key] = $val;
+					}
 				}
 				break;
 			}
@@ -3330,6 +3392,7 @@ class CAllIBlockElement
 			'RVU' => false,
 			'RVV' => false,
 			'FC' => '',
+			'BESI' => false,
 		];
 
 		$this->arIBlockMultProps = [];
@@ -4166,16 +4229,25 @@ class CAllIBlockElement
 			if (isset($arFields["PREVIEW_TEXT"]))
 			{
 				if (isset($arFields["PREVIEW_TEXT_TYPE"]) && $arFields["PREVIEW_TEXT_TYPE"] == "html")
+				{
 					$arFields["SEARCHABLE_CONTENT"] .= "\r\n".HTMLToTxt($arFields["PREVIEW_TEXT"]);
+				}
 				else
+				{
 					$arFields["SEARCHABLE_CONTENT"] .= "\r\n".$arFields["PREVIEW_TEXT"];
+				}
 			}
+
 			if (isset($arFields["DETAIL_TEXT"]))
 			{
 				if (isset($arFields["DETAIL_TEXT_TYPE"]) && $arFields["DETAIL_TEXT_TYPE"] == "html")
+				{
 					$arFields["SEARCHABLE_CONTENT"] .= "\r\n".HTMLToTxt($arFields["DETAIL_TEXT"]);
+				}
 				else
+				{
 					$arFields["SEARCHABLE_CONTENT"] .= "\r\n".$arFields["DETAIL_TEXT"];
+				}
 			}
 			$arFields["SEARCHABLE_CONTENT"] = mb_strtoupper($arFields["SEARCHABLE_CONTENT"]);
 		}
@@ -4255,6 +4327,17 @@ class CAllIBlockElement
 			if (!$this->searchIncluded)
 			{
 				$arFields['SEARCHABLE_CONTENT'] = $this->getSearchableContent($ID, $arFields, $arIBlock);
+
+				if (FullText::doesIblockSupportByData($arIBlock))
+				{
+					$searchIndexParams = [
+						'ELEMENT_ID' => $ID,
+						'SEARCH_CONTENT' => $arFields['SEARCHABLE_CONTENT'],
+					];
+
+					FullText::add($arIBlock['ID'], $searchIndexParams);
+				}
+
 				$updateFields['SEARCHABLE_CONTENT'] = $arFields['SEARCHABLE_CONTENT'];
 			}
 
@@ -4647,7 +4730,8 @@ class CAllIBlockElement
 				$VERSION = CIBlockElement::GetIBVersion($zr["IBLOCK_ID"]);
 				$db_res = CIBlockElement::GetProperty($zr["IBLOCK_ID"], $zr["ID"], "sort", "asc", array("PROPERTY_TYPE"=>"F"));
 
-				$arIBlockFields = CIBlock::GetArrayByID($zr["IBLOCK_ID"], "FIELDS");
+				$arIblock = CIBlock::GetArrayByID($zr['IBLOCK_ID']);
+				$arIBlockFields = $arIblock["FIELDS"];
 				if(
 					(int)$zr["WF_PARENT_ELEMENT_ID"]<=0
 					&& $arIBlockFields["LOG_ELEMENT_DELETE"]["IS_REQUIRED"] == "Y"
@@ -4659,7 +4743,6 @@ class CAllIBlockElement
 					{
 						$rsElement = CIBlockElement::GetList(array(), array("=ID"=>$ID), false, false, array("LIST_PAGE_URL", "NAME", "CODE"));
 						$arElement = $rsElement->GetNext();
-						$arIblock = CIBlock::GetArrayByID($zr['IBLOCK_ID']);
 						$res_log = array(
 							"ID" => $ID,
 							"CODE" => $arElement["CODE"],
@@ -4790,6 +4873,11 @@ class CAllIBlockElement
 				$DB->Query("DELETE FROM b_iblock_element_lock WHERE IBLOCK_ELEMENT_ID=".$elementId);
 				$DB->Query("DELETE FROM b_rating_vote WHERE ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND ENTITY_ID = ".$elementId);
 				$DB->Query("DELETE FROM b_rating_voting WHERE ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND ENTITY_ID = ".$elementId);
+
+				if (FullText::doesIblockSupportByData($arIblock))
+				{
+					FullText::delete($arIblock["ID"], $elementId);
+				}
 
 				if(!$DB->Query("DELETE FROM b_iblock_element WHERE ID=".$elementId))
 					return false;

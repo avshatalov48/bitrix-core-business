@@ -156,7 +156,7 @@ abstract class Cashbox
 	 */
 	public function getField($name)
 	{
-		return $this->fields[$name];
+		return $this->fields[$name] ?? null;
 	}
 
 	/**
@@ -225,12 +225,23 @@ abstract class Cashbox
 	 */
 	public function getCheckLink(array $linkParams)
 	{
-		if ($linkParams)
+		if (!$linkParams)
+		{
+			return '';
+		}
+
+		if (static::isSupportedDirectCheckLink() && isset($linkParams[Check::PARAM_OFD_RECEIPT_URL]))
+		{
+			return $linkParams[Check::PARAM_OFD_RECEIPT_URL];
+		}
+		else
 		{
 			/** @var Ofd $ofd */
 			$ofd = $this->getOfd();
 			if ($ofd !== null)
+			{
 				return $ofd->generateCheckLink($linkParams);
+			}
 		}
 
 		return '';
@@ -496,5 +507,20 @@ abstract class Cashbox
 	public static function isSupportedFFD105()
 	{
 		return static::getFfdVersion() >= 1.05;
+	}
+
+	protected static function isSupportedDirectCheckLink(): bool
+	{
+		return false;
+	}
+
+	public static function isOfdSettingsNeeded(): bool
+	{
+		if (static::isSupportedDirectCheckLink())
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

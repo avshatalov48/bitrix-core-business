@@ -3230,6 +3230,8 @@ class CIMRestService extends IRestService
 			$arMessageFields['PARAMS']['REPLY_ID'] = $message->getId();
 		}
 
+		$arMessageFields['WAIT_FULL_EXECUTION'] = 'N';
+
 		$id = CIMMessenger::Add($arMessageFields);
 		if (!$id)
 		{
@@ -4225,6 +4227,7 @@ class CIMRestService extends IRestService
 			'FILE_TEMPLATE_ID' => $arParams['FILE_TEMPLATE_ID']?:'',
 			'SYMLINK' => $arParams['SYMLINK']?:false,
 			'AS_FILE' => $arParams['AS_FILE'] ?? 'N',
+			'WAIT_FULL_EXECUTION' => 'N',
 		]);
 		if (!$result)
 		{

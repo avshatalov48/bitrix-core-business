@@ -157,7 +157,7 @@ export const ChatTitle = {
 		},
 		isDialogSpecialTypeWithLeftIcon(): boolean
 		{
-			if (this.isCollaber)
+			if (this.isCollaber || this.isExtranet)
 			{
 				return false;
 			}

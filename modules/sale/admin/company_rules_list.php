@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Bitrix\Sale\Company\AdminPage\CompanyRules
 {
 	use Bitrix\Main\Application;
@@ -29,7 +29,7 @@ namespace Bitrix\Sale\Company\AdminPage\CompanyRules
 
 	$id = (int)$_GET['ID'];
 	$tableId = 'table_company_rules';
-	$oSort = new \CAdminSorting($tableId);
+	$oSort = new \CAdminSubSorting($tableId);
 	$lAdmin = new \CAdminSubList($tableId, $oSort, '/bitrix/admin/sale_company_rules_list.php?ID='.$id);
 
 	$ruleClassNames = Company\Restrictions\Manager::getClassesList();
@@ -159,8 +159,10 @@ namespace Bitrix\Sale\Company\AdminPage\CompanyRules
 		$lAdmin->AddAdminContextMenu($aContext, false);
 	}
 
-	if ($_REQUEST['table_id'] == $tableId)
+	if (($_REQUEST['table_id'] ?? '') === $tableId)
+	{
 		$lAdmin->CheckListMode();
+	}
 
 	$lAdmin->DisplayList();
 }

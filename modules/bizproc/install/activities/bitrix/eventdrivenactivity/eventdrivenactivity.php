@@ -31,7 +31,7 @@ class CBPEventDrivenActivity extends CBPSequenceActivity
 	public static function validateChild($childActivity, $bFirstChild = false)
 	{
 		$arErrors = [];
-		$messageSuffix = CBPHelper::getDistrName() == CBPHelper::DISTR_B24 ? '_B24' : '';
+		$messageSuffix = CBPHelper::getDistrName() == CBPHelper::DISTR_B24 ? '_B24_MSGVER_1' : '';
 
 		if ($bFirstChild)
 		{

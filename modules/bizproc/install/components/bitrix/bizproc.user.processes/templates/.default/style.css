@@ -418,3 +418,8 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	display: inline-block;
 	text-align: center;
 }
+
+.bizproc-file-not-found {
+	text-decoration: line-through;
+	cursor: not-allowed;
+}

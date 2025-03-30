@@ -3,6 +3,9 @@
 	--im-upload-preview__border-color_delimeter: #f1f2f3;
 	--im-upload-preview__border-color_message-input: var(--im-color-palette-gray-10);
 	--im-upload-preview__border-color_message-input-focused: #00ace3;
+	--im-textarea__background-color_send-button: var(--im-color-accent-blue);
+	--ui-alert-background: #FFF5E3;
+	--ui-alert-color: #7A5100;
 }
 
 .bx-im-upload-preview__container {
@@ -18,12 +21,12 @@
 }
 
 .bx-im-upload-preview__items-container {
-	max-height: 360px;
+	max-height: 361px;
 	overflow: hidden scroll;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	margin: 0 8px 0 20px;
+	margin: 0 6px 0 12px;
 }
 
 .bx-im-upload-preview__upper-delimiter {
@@ -36,15 +39,31 @@
 	margin: 11px 20px 0;
 }
 
+.bx-im-upload-preview__control-form {
+	display: flex;
+	align-items: flex-end;
+	margin-top: 23px;
+	margin-bottom: 3px;
+}
+
+.bx-im-upload-preview__control-compress-image + .bx-im-upload-preview__control-form {
+	margin-top: 15px;
+}
+
+.bx-im-upload-preview__controls-files-limit-message {
+	margin-top: 24px;
+	margin-bottom: 0;
+}
+
 .bx-im-upload-preview__message-text {
+	flex-grow: 1;
 	height: 46px;
 	min-height: 46px;
 	max-height: 208px;
 	border-radius: 8px;
 	border: 1px solid var(--im-upload-preview__border-color_message-input);
 	padding: 13px;
-	margin: 0;
-	display: block;
+	margin-right: 8px;
 	font: var(--im-font-size-lg)/var(--im-font-line-height-3xs) var(--im-font-family-system);
 	color: var(--im-textarea__font-color_primary);
 	outline: none;
@@ -58,17 +77,24 @@
 .bx-im-upload-preview__controls-container {
 	display: flex;
 	flex-direction: column;
-	padding: 0 20px;
-	margin: 16px 0 20px;
+	margin: 0 12px;
 }
 
 .bx-im-upload-preview__control-compress-image {
-	margin: 15px 0;
+	display: inline-flex;
+	align-items: center;
+	margin: 23px 0 0 2px;
 	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-color-palette-gray-80);
 	max-width: 360px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.bx-im-upload-preview__control-compress-image-checkbox {
+	margin-right: 8px;
+	margin-bottom: 1px;
 }
 
 .bx-im-upload-preview__controls-buttons {
@@ -91,11 +117,18 @@
 	border-radius: 32px;
 }
 
+.bx-im-upload-preview__scope .popup-window-titlebar {
+	height: 72px;
+	padding-top: 5px;
+}
+
 .bx-im-upload-preview__scope .popup-window-titlebar-text {
-	font-size: var(--im-font-size-lg);
+	font-size: var(--ui-font-size-xl);
 	font-weight: var(--im-font-weight-semi-bold);
 	color: var(--im-upload-preview__color_title);
+	width: 100%;
 	padding-left: 20px;
+	text-align: center;
 }
 
 .bx-im-upload-preview__container .bx-im-elements-spinner__spinner {
@@ -118,4 +151,20 @@
 
 .bx-im-upload-preview__drag-handle:hover {
 	background-image: url("../images/resize-active.svg");
+}
+
+
+.bx-im-upload-preview__container .bx-im-send-panel__button_container.--channel,
+.bx-im-upload-preview__container .bx-im-send-panel__button_container.--openChannel,
+.bx-im-upload-preview__container .bx-im-send-panel__button_container.--generalChannel {
+	background-color: var(--im-textarea__background-color_send-button);
+}
+
+.bx-im-upload-preview__container .bx-im-message-media-content__single-image,
+.bx-im-upload-preview__container .bx-im-message-media-content__single-video {
+	min-height: 344px;
+}
+
+.bx-im-upload-preview__container .bx-im-message-media-content__single-video {
+	background-color: rgba(var(--im-color-palette-gray-04-rgb), 0.8);
 }

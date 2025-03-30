@@ -1,22 +1,24 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
 
-$arComponentDescription = array(
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+$arComponentDescription = [
 	"NAME" => GetMessage('HLLIST_COMPONENT_NAME'),
 	"DESCRIPTION" => GetMessage('HLLIST_COMPONENT_DESCRIPTION'),
 	"ICON" => "images/hl_list.gif",
 	"CACHE_PATH" => "Y",
 	"SORT" => 10,
-	"PATH" => array(
+	"PATH" => [
 		"ID" => "content",
-		"CHILD" => array(
+		"CHILD" => [
 			"ID" => "hlblock",
 			"NAME" => GetMessage('HLLIST_COMPONENT_CATEGORY_TITLE'),
-			"CHILD" => array(
+			"CHILD" => [
 				"ID" => "hlblock_list",
-			),
-		),
-	),
-);
-
-?>
+			],
+		],
+	],
+];

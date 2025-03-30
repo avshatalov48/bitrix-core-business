@@ -640,13 +640,27 @@ export class Image extends TextField
 			return;
 		}
 
+		this.copilotBindElement = this.aiButton.layout;
+		const offsetY = 3;
+		const copilotBindElementPosition = this.copilotBindElement.getBoundingClientRect();
+		const imageCopilotPosition = {
+			top: copilotBindElementPosition.bottom + offsetY,
+			left: copilotBindElementPosition.left,
+		};
+
 		if (this.imageCopilot.getPosition().inputField.top < 133)
 		{
-			this.imageCopilot.adjustPosition({ hide: true });
+			this.imageCopilot.adjust({
+				hide: true,
+				position: imageCopilotPosition,
+			});
 		}
 		else
 		{
-			this.imageCopilot.adjustPosition({ hide: false });
+			this.imageCopilot.adjust({
+				hide: false,
+				position: imageCopilotPosition,
+			});
 		}
 	}
 

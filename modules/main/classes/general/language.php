@@ -176,6 +176,11 @@ class CAllLanguage
 
 		Localization\LanguageTable::cleanCache();
 
+		foreach (GetModuleEvents('main', 'OnAfterLanguageAdd', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$arFields]);
+		}
+
 		return $arFields["LID"];
 	}
 

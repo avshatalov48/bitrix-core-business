@@ -9,8 +9,6 @@ use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\SiteTable;
 use Bitrix\Currency\CurrencyClassifier;
 
-Loc::loadMessages(__FILE__);
-
 class currency extends CModule
 {
 	var $MODULE_ID = 'currency';
@@ -140,15 +138,12 @@ class currency extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/currency", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/currency/install/tools", $_SERVER['DOCUMENT_ROOT']."/bitrix/tools", true, true);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/currency", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/currency/install/tools", $_SERVER['DOCUMENT_ROOT']."/bitrix/tools", true, true);
 		return true;
 	}
 
@@ -182,23 +177,29 @@ class currency extends CModule
 			return;
 
 		$baseCurrency = '';
-		$b24Area = null;
+		$region = null;
 		if ($bitrix24 && Loader::includeModule('bitrix24'))
 		{
 			$bitrix24Zone = CBitrix24::getCurrentAreaConfig();
 			if (!empty($bitrix24Zone) && is_array($bitrix24Zone))
 			{
 				$baseCurrency = $bitrix24Zone['CURRENCY'];
-				$b24Area = $bitrix24Zone['ID'];
+				$region = $bitrix24Zone['ID'];
 			}
 			unset($bitrix24Zone);
 		}
+		elseif (Loader::includeModule('intranet'))
+		{
+			$region = Main\Application::getInstance()->getLicense()->getRegion();
+		}
 		if ($baseCurrency == '')
 		{
+			/** @todo Use SiteTable::getDefaultLanguageId() */
 			$languageId = '';
 			$site = SiteTable::getList(array(
 				'select' => array('LID', 'LANGUAGE_ID'),
-				'filter' => array('=DEF' => 'Y', '=ACTIVE' => 'Y')
+				'filter' => array('=DEF' => 'Y', '=ACTIVE' => 'Y'),
+				'cache' => ['ttl' => 86400],
 			))->fetch();
 			if (!empty($site))
 				$languageId = (string)$site['LANGUAGE_ID'];
@@ -207,14 +208,15 @@ class currency extends CModule
 			if ($languageId == '')
 				$languageId = 'en';
 
-			$currencyList = array();
-			$distrCurrency = array(
+			$currencyList = [];
+			$distrCurrency = [
 				'ua' => 'UAH',
 				'kz' => 'KZT',
 				'by' => 'BYN',
 				'de' => 'EUR',
 				'en' => 'USD',
 				'la' => 'USD',
+				'ae' => 'USD',
 				'br' => 'BRL',
 				'tc' => 'TWD',
 				'sc' => 'CNY',
@@ -224,8 +226,8 @@ class currency extends CModule
 				'vn' => 'VND',
 				'id' => 'IDR',
 				'ms' => 'MYR',
-				'th' => 'THB'
-			);
+				'th' => 'THB',
+			];
 			if (isset($distrCurrency[$languageId]))
 			{
 				$baseCurrency = $distrCurrency[$languageId];
@@ -257,7 +259,7 @@ class currency extends CModule
 			unset($distrCurrency, $languageId);
 		}
 		$datetimeEntity = new Main\DB\SqlExpression(Main\Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction());
-		$addCurrency = self::getCurrencyListForInstall($baseCurrency);
+		$addCurrency = self::getCurrencyListForInstall($baseCurrency, $region);
 		foreach ($addCurrency as $fields)
 		{
 			$fields['CREATED_BY'] = null;
@@ -291,7 +293,7 @@ class currency extends CModule
 			];
 			foreach($currencyList as $oneCurrency)
 			{
-				$data = CurrencyClassifier::getCurrency($oneCurrency, array_keys($languages), $b24Area);
+				$data = CurrencyClassifier::getCurrency($oneCurrency, array_keys($languages), $region);
 				if (empty($data))
 					continue;
 				foreach ($languages as $languageId => $upperLanguageId)
@@ -332,8 +334,24 @@ class currency extends CModule
 	 * @param string $baseCurrency
 	 * @return array
 	 */
-	private static function getCurrencyListForInstall(string $baseCurrency): array
+	private static function getCurrencyListForInstall(string $baseCurrency, ?string $region): array
 	{
+		if ($region !== null)
+		{
+			$list = match ($region)
+			{
+				'ae' => [
+					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+					['CURRENCY' => 'AED', 'NUMCODE' => '784', 'AMOUNT' => 0.27, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.27],
+				],
+				default => null,
+			};
+			if ($list)
+			{
+				return $list;
+			}
+		}
+
 		return match ($baseCurrency)
 		{
 			'BYN' => [

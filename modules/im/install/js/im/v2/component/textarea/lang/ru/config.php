@@ -19,14 +19,13 @@ $MESS["IM_TEXTAREA_EDIT_MESSAGE_TITLE"] = "Редактировать сообщ
 
 $MESS["IM_TEXTAREA_CREATE_AND_SEND_FILE"] = "Создать и отправить файл";
 
-$MESS["IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO"] = "Фото или видео";
-$MESS["IM_TEXTAREA_SELECT_FILE"] = "Файл";
-$MESS["IM_TEXTAREA_SELECT_FILE_FROM_DISK"] = "Мой Диск";
-$MESS["IM_TEXTAREA_SELECT_FILE_FROM_DISK_1"] = "Недавние файлы";
+$MESS["IM_TEXTAREA_SELECT_LOCAL_FILE"] = "Файл с компьютера";
+$MESS["IM_TEXTAREA_SELECT_FILE_FROM_B24"] = "Файл в Битрикс24";
 $MESS["IM_TEXTAREA_SELECT_TASK"] = "Задача";
 $MESS["IM_TEXTAREA_SELECT_MEETING"] = "Встреча";
 $MESS["IM_TEXTAREA_SELECT_CALENDAR_SLOT"] = "Слоты";
 $MESS["IM_TEXTAREA_SELECT_DOCUMENT_SIGN"] = "Документ на подпись";
+$MESS["IM_TEXTAREA_SELECT_VOTE"] = "Опрос";
 
 $MESS["IM_TEXTAREA_CREATE_DOCUMENT"] = "Документ";
 $MESS["IM_TEXTAREA_CREATE_PRESENTATION"] = "Презентация";
@@ -41,13 +40,13 @@ $MESS["IM_TEXTAREA_MARKET_OTHER_APPS"] = "Остальные приложени�
 $MESS["IM_TEXTAREA_MARKET_APPS_EMPTY_STATE"] = "Вы пока не добавили приложение, установите его в Маркете";
 $MESS["IM_TEXTAREA_SMILE_SELECTOR_SMILES_TAB"] = "Смайлы";
 
-$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE"] = "Загрузка изображений";
-$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE_FILES"] = "Загрузка файлов";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_COMPUTED_TITLE"] = "Выбрано: #COUNT#";
 $MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_SEND"] = "Отправить";
 $MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL"] = "Отменить";
-$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER"] = "Добавить комментарий";
-$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_AS_FILE"] = "Отправить как файл";
-$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_UPLOAD_ERROR"] = "Не удалось загрузить изображение";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER_2"] = "Добавить подпись";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_FILE_UPLOAD_ERROR"] = "Не удалось загрузить файл";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_WITHOUT_COMPRESSION"] = "Отправить без сжатия";
+$MESS["IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_FILES_LIMIT_MESSAGE_10"] = "Можно отправить не больше 10 файлов за раз";
 
 $MESS["IM_TEXTAREA_GIPHY_EMPTY_STATE"] = "По вашему запросу ничего не найдено";
 $MESS["IM_TEXTAREA_GIPHY_UNAVAILABLE_STATE"] = "Интеграция с Giphy недоступна";

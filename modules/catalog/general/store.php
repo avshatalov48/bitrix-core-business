@@ -109,6 +109,10 @@ class CAllCatalogStore
 			self::prepareImage($arFields, 'IMAGE_ID');
 		}
 
+		if(isset($arFields["ACTIVE"]) && ($arFields["ACTIVE"]) !== 'Y')
+		{
+			$arFields["ACTIVE"] = 'N';
+		}
 		if(isset($arFields["ISSUING_CENTER"]) && ($arFields["ISSUING_CENTER"]) !== 'Y')
 		{
 			$arFields["ISSUING_CENTER"] = 'N';

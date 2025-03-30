@@ -31,7 +31,16 @@ $frame = $this->createFrame($idCompareCount)->begin('');
 if ($itemCount > 0)
 {
 	?><div class="bx_catalog_compare_count">
-	<p><?=GetMessage('CP_BCCL_TPL_MESS_COMPARE_COUNT'); ?>&nbsp;<span data-block="count"><?=$itemCount; ?></span></p>
+	<p>
+		<?=
+			GetMessage(
+				'CP_BCCL_TPL_MESS_COMPARE_COUNT_MSGVER_2',
+				[
+					'#COUNT_NUMBER#' => '<span data-block="count">' . $itemCount . '</span>',
+				]
+			);
+		?>
+	</p>
 	<p class="compare-redirect"><a href="<?=$arParams["COMPARE_URL"]; ?>"><?=GetMessage('CP_BCCL_TPL_MESS_COMPARE_PAGE'); ?></a></p>
 	</div>
 	<div class="bx_catalog_compare_form">

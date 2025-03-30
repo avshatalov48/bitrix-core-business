@@ -1,0 +1,18 @@
+:root {
+	--ui-font-family-inter: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/*  */
+@font-face {
+	font-family: 'Inter';
+	src: url('./inter-variable.ttf');
+	font-weight: 100 900;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Inter';
+	src: url('./inter-italic-variable.ttf');
+	font-weight: 100 900;
+	font-style: italic;
+}

@@ -1,11 +1,11 @@
-<?
+<?php
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-define('STOP_STATISTICS', true);
-define('DisableEventsCheck', true);
-define('BX_SECURITY_SHOW_MESSAGE', true);
-define("PUBLIC_AJAX_MODE", true);
-define("NOT_CHECK_PERMISSIONS", true);
+const STOP_STATISTICS = true;
+const DisableEventsCheck = true;
+const BX_SECURITY_SHOW_MESSAGE = true;
+const PUBLIC_AJAX_MODE = true;
+const NOT_CHECK_PERMISSIONS = true;
 
 use Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc;

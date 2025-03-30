@@ -251,6 +251,14 @@ class RelationCollection extends Collection
 			);
 		}
 
+		if (isset($filter['ONLY_INTRANET']) && $filter['ONLY_INTRANET'])
+		{
+			if (\Bitrix\Main\Loader::includeModule('extranet'))
+			{
+				$query->where('USER.IS_INTRANET_USER', true);
+			}
+		}
+
 		if (isset($filter['REASON']))
 		{
 			$query->where('REASON', (string)$filter['REASON']);

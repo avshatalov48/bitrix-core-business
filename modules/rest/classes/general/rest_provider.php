@@ -159,7 +159,7 @@ class CRestProvider
 				),
 			);
 
-			if(!\Bitrix\Main\ModuleManager::isModuleInstalled('oauth'))
+			if(!\Bitrix\Rest\Integration\OAuthModule::isSupported())
 			{
 				$ownMethods[\CRestUtil::GLOBAL_SCOPE]['app.info'] = array(__CLASS__, 'appInfo');
 				$ownMethods[\CRestUtil::GLOBAL_SCOPE]['feature.get'] = array(__CLASS__, 'getFeature');
@@ -935,7 +935,10 @@ class CRestProvider
 	{
 		if(self::$arApp == null)
 		{
-			if(CModule::IncludeModule('oauth'))
+			if (
+				\Bitrix\Rest\Integration\OAuthModule::isSupported()
+				&& CModule::IncludeModule('oauth')
+			)
 			{
 				$client = OAuth\Base::instance($server->getClientId());
 

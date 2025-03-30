@@ -363,7 +363,7 @@ class Service
 			{
 				$queryDomain = preg_replace('/^([-\.\w]+)\.bitrix24\.([-\.\w]+)/', '$2.$1', $domain);
 				$subdomain = rtrim(mb_substr(str_replace('.','-', $queryDomain), 0, 63), '-');
-				$domain = "$subdomain.mailinetservice.net/$queryDomain";
+				$domain = "$subdomain.mailinetservice.com/$queryDomain";
 			}
 
 			$uri = "https://$domain$uri";

@@ -5,7 +5,7 @@ use Bitrix\Main\Loader,
 
 Loc::loadMessages(__FILE__);
 
-$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
+$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 
 $licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : '';
 $portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : '';

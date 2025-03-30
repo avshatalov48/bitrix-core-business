@@ -64,7 +64,6 @@ export const ChatSearch = {
 			isRecentLoading: false,
 			isServerLoading: false,
 
-			queryWasDeleted: false,
 			currentServerQueries: 0,
 			result: {
 				recent: [],
@@ -87,11 +86,6 @@ export const ChatSearch = {
 	{
 		cleanQuery(newQuery: string, previousQuery: string)
 		{
-			if (newQuery.length > 0)
-			{
-				this.queryWasDeleted = false;
-			}
-
 			if (newQuery.length === 0)
 			{
 				this.searchService.clearSessionResult();
@@ -254,11 +248,6 @@ export const ChatSearch = {
 			{
 				this.onPressEnterKey(event);
 			}
-
-			if (Utils.key.isCombination(keyboardEvent, 'Backspace'))
-			{
-				this.onPressBackspaceKey();
-			}
 		},
 		onPressEnterKey(keyboardEvent: KeyboardEvent)
 		{
@@ -272,27 +261,6 @@ export const ChatSearch = {
 				dialogId: firstItem.dialogId,
 				nativeEvent: keyboardEvent,
 			});
-		},
-		onPressBackspaceKey()
-		{
-			if (this.searchQuery.length > 0)
-			{
-				this.queryWasDeleted = false;
-
-				return;
-			}
-
-			if (!this.queryWasDeleted)
-			{
-				this.queryWasDeleted = true;
-
-				return;
-			}
-
-			if (this.queryWasDeleted)
-			{
-				EventEmitter.emit(EventType.search.close);
-			}
 		},
 		getFirstItemFromSearchResults(): ?SearchResultItem
 		{

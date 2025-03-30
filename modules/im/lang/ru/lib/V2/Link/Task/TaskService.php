@@ -5,5 +5,5 @@ $MESS['IM_CHAT_TASK_SERVICE_FROM_PRIVATE_MESSAGE_NEW_TITLE_MSGVER_1'] = 'Зад�
 $MESS['IM_CHAT_TASK_SERVICE_FROM_PRIVATE_CHAT_NEW_TITLE_MSGVER_1'] = 'Задача из персонального чата "#CHAT_TITLE#"';
 $MESS['IM_CHAT_TASK_REGISTER_FROM_CHAT_NOTIFICATION_MSGVER_1'] = '[USER=#USER_ID#][/USER] создал [URL=#LINK#]задачу[/URL] "#TASK_TITLE#"';
 $MESS['IM_CHAT_TASK_REGISTER_FROM_CHAT_NOTIFICATION_F_MSGVER_1'] = '[USER=#USER_ID#][/USER] создала [URL=#LINK#]задачу[/URL] "#TASK_TITLE#"';
-$MESS['IM_CHAT_TASK_REGISTER_FROM_MESSAGE_NOTIFICATION'] = '[USER=#USER_ID#][/USER] создал [URL=#LINK#]задачу[/URL] на основании [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщения[/CONTEXT]';
-$MESS['IM_CHAT_TASK_REGISTER_FROM_MESSAGE_NOTIFICATION_F'] = '[USER=#USER_ID#][/USER] создала [URL=#LINK#]задачу[/URL] на основании [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщения[/CONTEXT]';
+$MESS['IM_CHAT_TASK_REGISTER_FROM_MESSAGE_NOTIFICATION_MSGVER_1'] = '[USER=#USER_ID#][/USER] создал [URL=#LINK#]задачу[/URL] на основании [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщения[/CONTEXT]';
+$MESS['IM_CHAT_TASK_REGISTER_FROM_MESSAGE_NOTIFICATION_F_MSGVER_1'] = '[USER=#USER_ID#][/USER] создала [URL=#LINK#]задачу[/URL] на основании [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщения[/CONTEXT]';

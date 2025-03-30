@@ -1,0 +1,9 @@
+<?php
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_ACCESS_DENIED"] = "Қолжетімділік қатесі";
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_ACCESS_PLACEMENT"] = "#PLACEMENT_CODE# виджетін пайдалану үшін жеткілікті құқықтар жоқ ";
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_BOT_CREATE"] = "Бот құру қатесі";
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_BOT_REQUIRED_FIELD_EMPTY"] = "Бот жасау үшін міндетті өрістерді толтырыңыз";
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_DELETE_WEBHOOK"] = "Вебхукты жою қатесі";
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_EMPTY_SCOPE"] = "Қолжетімділік құқықтары көрсетілмеген.";
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_INCORRECT_URL"] = "Қосымшаға қате сілтеме.";
+$MESS["INTEGRATION_PRESET_PROVIDER_TITLE_PREFIX"] = "№#ID# интеграция";

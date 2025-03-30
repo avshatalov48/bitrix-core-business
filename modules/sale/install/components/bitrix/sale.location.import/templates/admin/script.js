@@ -302,7 +302,7 @@ if(typeof BX.Sale.component.location.import == 'undefined' && typeof BX.ui != 'u
 			BX.bindDelegate(this.getControl('mode-switch'), 'change', {tag: 'input'}, function(){
 				setState(this.value);
 			});
-			setState('remote', true);
+			setState(so.defaultState, true);
 		},
 
 		askRemove: function(){

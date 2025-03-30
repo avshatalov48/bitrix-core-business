@@ -4,19 +4,20 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\Context;
 use Bitrix\Main\Event;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Loader;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Web;
+use Bitrix\Main\Web\IpAddress;
 use Bitrix\Main\Diag;
 use Psr\Log;
 
@@ -26,22 +27,18 @@ use Psr\Log;
  */
 class Manager
 {
-	/** @var Base[] | null  */
-	protected static $handlers = null;
-
-	/** @var Data[][] */
-	protected static $data = [];
-
-	/** @var bool */
-	protected static $logErrors = false;
-
-    /** @var Log\LoggerInterface|null  */
-    protected static $logger;
-
 	/** @deprecated */
 	const INFO_NOT_AVAILABLE = null;
-
 	protected const CACHE_DIR = 'geoip_manager';
+
+	/** @var Base[] | null */
+	protected static $handlers = null;
+	/** @var Data[][] */
+	protected static $data = [];
+	/** @var bool */
+	protected static $logErrors = false;
+	/** @var Log\LoggerInterface|null */
+	protected static $logger;
 
 	/**
 	 * Get the two letters country code.
@@ -51,7 +48,7 @@ class Manager
 	 */
 	public static function getCountryCode($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('countryCode'));
+		$resultData = self::getDataResult($ip, $lang, ['countryCode']);
 		return $resultData !== null ? $resultData->getGeoData()->countryCode : '';
 	}
 
@@ -63,7 +60,7 @@ class Manager
 	 */
 	public static function getCountryName($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('countryName'));
+		$resultData = self::getDataResult($ip, $lang, ['countryName']);
 		return $resultData !== null ? $resultData->getGeoData()->countryName : '';
 	}
 
@@ -75,7 +72,7 @@ class Manager
 	 */
 	public static function getCityName($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('cityName'));
+		$resultData = self::getDataResult($ip, $lang, ['cityName']);
 		return $resultData !== null ? $resultData->getGeoData()->cityName : '';
 	}
 
@@ -87,7 +84,7 @@ class Manager
 	 */
 	public static function getCityPostCode($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('zipCode'));
+		$resultData = self::getDataResult($ip, $lang, ['zipCode']);
 		return $resultData !== null ? $resultData->getGeoData()->zipCode : '';
 	}
 
@@ -99,24 +96,24 @@ class Manager
 	 */
 	public static function getGeoPosition($ip = '', $lang = '')
 	{
-		$data = self::getDataResult($ip, $lang, array('latitude', 'longitude'));
+		$data = self::getDataResult($ip, $lang, ['latitude', 'longitude']);
 
 		if (
 			$data !== null
 			&& $data->getGeoData()->latitude != null
-			&&  $data->getGeoData()->longitude != null
+			&& $data->getGeoData()->longitude != null
 		)
 		{
-			$result = Array(
+			$result = [
 				'latitude' => $data->getGeoData()->latitude,
 				'longitude' => $data->getGeoData()->longitude,
-			);
+			];
 		}
 		else
 		{
 			$result = null;
 		}
-		
+
 		return $result;
 	}
 
@@ -128,10 +125,10 @@ class Manager
 	 */
 	public static function getGeoPositionLatitude($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('latitude'));
+		$resultData = self::getDataResult($ip, $lang, ['latitude']);
 		return $resultData !== null ? $resultData->getGeoData()->latitude : '';
 	}
-	
+
 	/**
 	 * Get the Longitude as signed double.
 	 * @param string $ip Ip address.
@@ -140,10 +137,10 @@ class Manager
 	 */
 	public static function getGeoPositionLongitude($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('longitude'));
+		$resultData = self::getDataResult($ip, $lang, ['longitude']);
 		return $resultData !== null ? $resultData->getGeoData()->longitude : '';
 	}
-	
+
 	/**
 	 * Get the organization name.
 	 * @param string $ip Ip address.
@@ -152,10 +149,10 @@ class Manager
 	 */
 	public static function getOrganizationName($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('organizationName'));
+		$resultData = self::getDataResult($ip, $lang, ['organizationName']);
 		return $resultData !== null ? $resultData->getGeoData()->organizationName : '';
 	}
-	
+
 	/**
 	 * Get the Internet Service Provider (ISP) name.
 	 * @param string $ip Ip address.
@@ -164,7 +161,7 @@ class Manager
 	 */
 	public static function getIspName($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('ispName'));
+		$resultData = self::getDataResult($ip, $lang, ['ispName']);
 		return $resultData !== null ? $resultData->getGeoData()->ispName : '';
 	}
 
@@ -176,10 +173,10 @@ class Manager
 	 */
 	public static function getTimezoneName($ip = '', $lang = '')
 	{
-		$resultData = self::getDataResult($ip, $lang, array('timezone'));
+		$resultData = self::getDataResult($ip, $lang, ['timezone']);
 		return $resultData !== null ? $resultData->getGeoData()->timezone : '';
 	}
-	
+
 	/**
 	 * Get the all available information about geolocation.
 	 *
@@ -209,7 +206,7 @@ class Manager
 
 		if (!$result)
 		{
-			if(self::$handlers === null)
+			if (self::$handlers === null)
 			{
 				self::initHandlers();
 			}
@@ -231,7 +228,7 @@ class Manager
 					continue;
 				}
 
-				$ipAddress = new Web\IpAddress($ip);
+				$ipAddress = new IpAddress($ip);
 
 				// get from cache
 				$records = self::getFromStore($ipAddress, $class);
@@ -309,13 +306,18 @@ class Manager
 		return $result;
 	}
 
-	protected static function getCacheId(Web\IpAddress $ipAddress, string $handler): string
+	protected static function getCacheId(IpAddress $ipAddress, string $handler): string
 	{
 		return $ipAddress->toRange(24) . ':v1:' . $handler;
 	}
 
-	protected static function getFromStore(Web\IpAddress $ipAddress, string $handler): array
+	protected static function getFromStore(IpAddress $ipAddress, string $handler): array
 	{
+		if (!$ipAddress->isIPv4())
+		{
+			return [];
+		}
+
 		$cacheTtl = static::getCacheTtl();
 
 		if ($cacheTtl > 0)
@@ -337,7 +339,7 @@ class Manager
 		return [];
 	}
 
-	protected static function findForIp(Web\IpAddress $ipAddress, array $records, string $lang): ?Data
+	protected static function findForIp(IpAddress $ipAddress, array $records, string $lang): ?Data
 	{
 		foreach ($records as $range => $data)
 		{
@@ -362,20 +364,20 @@ class Manager
 		return null;
 	}
 
-	protected static function saveToStore(Web\IpAddress $ipAddress, array $records, Data $geoData, string $lang): void
+	protected static function saveToStore(IpAddress $ipAddress, array $records, Data $geoData, string $lang): void
 	{
+		if (!$ipAddress->isIPv4())
+		{
+			return;
+		}
+
 		$cacheTtl = static::getCacheTtl();
 
 		if ($cacheTtl > 0)
 		{
-			$storedData = [];
-			foreach (get_object_vars($geoData) as $attr => $value)
-			{
-				if ($value !== null)
-				{
-					$storedData[$attr] = $value;
-				}
-			}
+			$storedData = array_filter(get_object_vars($geoData), function ($value) {
+				return $value !== null;
+			});
 
 			$network = $geoData->ipNetwork ?? $ipAddress->toRange(32);
 			$records[$network][$lang] = $storedData;
@@ -399,16 +401,16 @@ class Manager
 	 */
 	private static function hasDataAllRequiredFields(array $required, $geoData)
 	{
-		if(empty($required))
+		if (empty($required))
 		{
 			return true;
 		}
 
 		$vars = get_object_vars($geoData);
 
-		foreach($required as $field)
+		foreach ($required as $field)
 		{
-			if($vars[$field] === null)
+			if ($vars[$field] === null)
 			{
 				return false;
 			}
@@ -419,29 +421,33 @@ class Manager
 
 	private static function initHandlers()
 	{
-		if(self::$handlers !== null)
+		if (self::$handlers !== null)
+		{
 			return;
+		}
 
-		self::$handlers = array();
-		$handlersList = array();
-		$buildInHandlers = array(
+		self::$handlers = [];
+		$handlersList = [];
+		$buildInHandlers = [
 			'\Bitrix\Main\Service\GeoIp\GeoIP2' => 'lib/service/geoip/geoip2.php',
 			'\Bitrix\Main\Service\GeoIp\MaxMind' => 'lib/service/geoip/maxmind.php',
 			'\Bitrix\Main\Service\GeoIp\Extension' => 'lib/service/geoip/extension.php',
-			'\Bitrix\Main\Service\GeoIp\SypexGeo' => 'lib/service/geoip/sypexgeo.php'
-		);
+			'\Bitrix\Main\Service\GeoIp\SypexGeo' => 'lib/service/geoip/sypexgeo.php',
+		];
 
 		Loader::registerAutoLoadClasses('main', $buildInHandlers);
 
-		$handlersFields = array();
+		$handlersFields = [];
 		$res = HandlerTable::getList(['cache' => ['ttl' => static::getCacheTtl()]]);
 
-		while($row = $res->fetch())
-			$handlersFields[$row['CLASS_NAME']] = $row;
-
-		foreach($buildInHandlers as $class => $file)
+		while ($row = $res->fetch())
 		{
-			if(self::isHandlerClassValid($class))
+			$handlersFields[$row['CLASS_NAME']] = $row;
+		}
+
+		foreach ($buildInHandlers as $class => $file)
+		{
+			if (self::isHandlerClassValid($class))
 			{
 				$fields = $handlersFields[$class] ?? [];
 				$handlersList[$class] = new $class($fields);
@@ -455,31 +461,35 @@ class Manager
 
 		if (is_array($resultList) && !empty($resultList))
 		{
-			$customClasses = array();
+			$customClasses = [];
 
 			foreach ($resultList as $eventResult)
 			{
 				if ($eventResult->getType() != EventResult::SUCCESS)
+				{
 					continue;
+				}
 
 				$params = $eventResult->getParameters();
 
-				if(!empty($params) && is_array($params))
+				if (!empty($params) && is_array($params))
+				{
 					$customClasses = array_merge($customClasses, $params);
+				}
 			}
 
-			if(!empty($customClasses))
+			if (!empty($customClasses))
 			{
 				Loader::registerAutoLoadClasses(null, $customClasses);
 
-				foreach($customClasses as $class => $file)
+				foreach ($customClasses as $class => $file)
 				{
-					if(!File::isFileExists(Application::getDocumentRoot().'/'.$file))
+					if (!File::isFileExists(Application::getDocumentRoot() . '/' . $file))
 					{
 						continue;
 					}
 
-					if(self::isHandlerClassValid($class))
+					if (self::isHandlerClassValid($class))
 					{
 						$fields = $handlersFields[$class] ?? [];
 						$handlersList[$class] = new $class($fields);
@@ -491,8 +501,10 @@ class Manager
 
 		asort($handlersSort, SORT_NUMERIC);
 
-		foreach($handlersSort as $class => $sort)
+		foreach ($handlersSort as $class => $sort)
+		{
 			self::$handlers[$class] = $handlersList[$class];
+		}
 	}
 
 	/**
@@ -501,44 +513,42 @@ class Manager
 	 */
 	private static function isHandlerClassValid($className)
 	{
-		if(!class_exists($className))
+		if (!class_exists($className))
+		{
 			return false;
+		}
 
-		if(!is_subclass_of($className, '\Bitrix\Main\Service\GeoIp\Base'))
+		if (!is_subclass_of($className, '\Bitrix\Main\Service\GeoIp\Base'))
+		{
 			return false;
+		}
 
 		return true;
 	}
 
 	/**
-	 * @return string | false Ip address.
+	 * @return string IPv4 address.
 	 */
 	public static function getRealIp()
 	{
-		$ip = false;
-		$xForwarded = Application::getInstance()->getContext()->getServer()->get('HTTP_X_FORWARDED_FOR');
+		$context = Context::getCurrent();
+		$xForwarded = $context->getServer()->get('HTTP_X_FORWARDED_FOR');
 
 		if (!empty($xForwarded))
 		{
-			$ips = explode (", ", $xForwarded);
-			$fCount = count($ips);
+			$ips = explode(", ", $xForwarded);
 
-			for ($i = 0; $i < $fCount; $i++)
+			foreach ($ips as $forwarded)
 			{
-				if (!preg_match("/^(10|172\\.16|192\\.168)\\./", $ips[$i]))
+				$ipAddress = new IPAddress($forwarded);
+				if ($ipAddress->isIPv4() && !$ipAddress->isPrivate())
 				{
-					$ip = $ips[$i];
-					break;
+					return (string)$ipAddress;
 				}
 			}
 		}
 
-		if(!$ip)
-		{
-			$ip = trim(Application::getInstance()->getContext()->getRequest()->getRemoteAddress());
-		}
-
-		return $ip;
+		return trim($context->getRequest()->getRemoteAddress());
 	}
 
 	/**
@@ -547,20 +557,24 @@ class Manager
 
 	public static function getHandlers()
 	{
-		if(self::$handlers === null)
+		if (self::$handlers === null)
+		{
 			self::initHandlers();
+		}
 
 		return self::$handlers;
 	}
 
 	/**
-	 * @param string $className. Class name of handler.
+	 * @param string $className . Class name of handler.
 	 * @return Base | null Handler.
 	 */
 	public static function getHandlerByClassName($className)
 	{
-		if(self::$handlers === null)
+		if (self::$handlers === null)
+		{
 			self::initHandlers();
+		}
 
 		return self::$handlers[$className] ?? null;
 	}
@@ -588,26 +602,26 @@ class Manager
 			if ($field['TYPE'] == 'COLSPAN2')
 			{
 				$heading = isset($field['HEADING']) && $field['HEADING'] ? ' class="heading"' : '';
-				$result .= '<tr'.$heading.'><td colspan="2">'.$field['TITLE'];
+				$result .= '<tr' . $heading . '><td colspan="2">' . $field['TITLE'];
 			}
 			elseif ($field['TYPE'] == 'TEXT' || $field['TYPE'] == 'CHECKBOX' || $field['TYPE'] == 'LIST')
 			{
 				$required = isset($field['REQUIRED']) && $field['REQUIRED'] ? ' class="adm-detail-required-field"' : '';
 				$disabled = isset($field['DISABLED']) && $field['DISABLED'] ? ' disabled' : '';
-				$value = isset($field['VALUE']) ? ' value="'.$field['VALUE'].'"' : '';
-				$name = isset($field['NAME']) ? ' name="'.$field['NAME'].'"' : '';
-				$title = isset($field['TITLE']) ? ' title="'.$field['TITLE'].'"' : '';
+				$value = isset($field['VALUE']) ? ' value="' . $field['VALUE'] . '"' : '';
+				$name = isset($field['NAME']) ? ' name="' . $field['NAME'] . '"' : '';
+				$title = isset($field['TITLE']) ? ' title="' . $field['TITLE'] . '"' : '';
 
-				$result .= '<tr'.$required.'><td width="40%">'.$field['TITLE'].':</td><td width="60%">';
+				$result .= '<tr' . $required . '><td width="40%">' . $field['TITLE'] . ':</td><td width="60%">';
 
 				if ($field['TYPE'] == 'TEXT')
 				{
-					$result .= '<input type="text" size="45" maxlength="255"'.$name.$value.$disabled.$title.'>';
+					$result .= '<input type="text" size="45" maxlength="255"' . $name . $value . $disabled . $title . '>';
 				}
 				elseif ($field['TYPE'] == 'CHECKBOX')
 				{
 					$checked = isset($field['CHECKED']) && $field['CHECKED'] ? ' checked' : '';
-					$result .= '<input type="checkbox"'.$name.$value.$checked.$disabled.$title.'>';
+					$result .= '<input type="checkbox"' . $name . $value . $checked . $disabled . $title . '>';
 				}
 				else
 				{
@@ -631,14 +645,8 @@ class Manager
 
 	protected static function getCacheTtl(): int
 	{
-		static $cacheTtl = null;
-
-		if($cacheTtl === null)
-		{
-			$cacheFlags = Configuration::getValue('cache_flags');
-			$cacheTtl = $cacheFlags['geoip_manager'] ?? 604800; // a week
-		}
-		return $cacheTtl;
+		$cacheFlags = Configuration::getValue('cache_flags');
+		return $cacheFlags['geoip_manager'] ?? 604800; // a week
 	}
 
 	public static function cleanCache(): void

@@ -1,7 +1,10 @@
 <?php
 /** @global \CMain $APPLICATION */
-define('STOP_STATISTICS', true);
-define('NOT_CHECK_PERMISSIONS', true);
+
+use Bitrix\Main\Security\Sign;
+
+const STOP_STATISTICS = true;
+const NOT_CHECK_PERMISSIONS = true;
 
 $siteId = isset($_REQUEST['siteId']) && is_string($_REQUEST['siteId']) ? $_REQUEST['siteId'] : '';
 $siteId = mb_substr(preg_replace('/[^a-z0-9_]/i', '', $siteId), 0, 2);
@@ -17,13 +20,13 @@ $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 if (!\Bitrix\Main\Loader::includeModule('iblock'))
 	return;
 
-$signer = new \Bitrix\Main\Security\Sign\Signer;
+$signer = new Sign\Signer;
 try
 {
 	$template = $signer->unsign($request->get('template') ?: '', 'catalog.section') ?: '.default';
 	$paramString = $signer->unsign($request->get('parameters') ?: '', 'catalog.section');
 }
-catch (\Bitrix\Main\Security\Sign\BadSignatureException $e)
+catch (Sign\BadSignatureException | \Bitrix\Main\ArgumentTypeException)
 {
 	die();
 }

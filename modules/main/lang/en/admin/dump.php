@@ -21,6 +21,8 @@ By default, the backup copy is saved to Bitrix Cloud in encrypted form in multip
 
 If Bitrix Cloud services are inaccessible but the agents are scheduled using cron, the backup copy will be created locally.";
 $MESS["DUMP_AUTO_TAB"] = "Autorun";
+$MESS["DUMP_BITRIXCLOUD_IS_IN_PROGRESS_CHANGE_ERROR"] = "Cannot change backup parameters because the cloud service is currently creating a backup. Please wait until the backup is completed.";
+$MESS["DUMP_BITRIXCLOUD_IS_IN_PROGRESS_CHANGE_WARNING"] = "Cannot change backup parameters because the cloud service is currently creating a backup.";
 $MESS["DUMP_BTN_AUTO_DISABLE"] = "Disable auto backup";
 $MESS["DUMP_BTN_AUTO_ENABLE"] = "Enable auto backup";
 $MESS["DUMP_BXCLOUD_NA"] = "Bitrix Cloud Storage is unavailable";

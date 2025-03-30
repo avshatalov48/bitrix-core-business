@@ -812,9 +812,6 @@ abstract class CBPActivity
 	{
 		$rootActivity = $ownerActivity->getRootActivity();
 		$documentType = $rootActivity->getDocumentType();
-		$documentId = $rootActivity->getDocumentId();
-		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
-		$documentFields = $documentService->GetDocumentFields($documentType);
 
 		$result = null;
 		$property = null;
@@ -850,6 +847,9 @@ abstract class CBPActivity
 		}
 		elseif ($object === Bizproc\Workflow\Template\SourceType::DocumentField)
 		{
+			$documentService = CBPRuntime::getRuntime()->getDocumentService();
+			$documentFields = $documentService->GetDocumentFields($documentType);
+			$documentId = $rootActivity->getDocumentId();
 			$property = $documentFields[$field] ?? null;
 			$result = $documentService->getFieldValue($documentId, $field, $documentType);
 		}

@@ -248,6 +248,13 @@ class im extends \CModule
 				"TEMPLATE" => "call_app"
 			];
 
+			$callExtranetAppFound = false;
+			$arCallExtranetTempalate = [
+				"SORT" => 55,
+				"CONDITION" => 'preg_match("#^/extranet/video/([\.\-0-9a-zA-Z]+)(/?)([^/]*)#", $GLOBALS[\'APPLICATION\']->GetCurPage(0))',
+				"TEMPLATE" => "call_app"
+			];
+
 			$callDesktopAppFound = false;
 			$arCallTempalateForDesktop = [
 				"SORT" => 60,
@@ -275,6 +282,11 @@ class im extends \CModule
 				{
 					$callAppFound = true;
 					$template = $arCallTempalate;
+				}
+				elseif ($template["CONDITION"] == 'preg_match("#^/extranet/video/([\.\-0-9a-zA-Z]+)(/?)([^/]*)#", $GLOBALS[\'APPLICATION\']->GetCurPage(0))')
+				{
+					$callExtranetAppFound = true;
+					$template = $arCallExtranetTempalate;
 				}
 				elseif ($template["CONDITION"] == 'preg_match("#^/desktop_app/router.php\?alias=([\.\-0-9a-zA-Z]+)&videoconf#", $GLOBALS[\'APPLICATION\']->GetCurPage(0))')
 				{
@@ -307,6 +319,10 @@ class im extends \CModule
 			if (!$callAppFound)
 			{
 				$arFields["TEMPLATE"][] = $arCallTempalate;
+			}
+			if (!$callExtranetAppFound)
+			{
+				$arFields["TEMPLATE"][] = $arCallExtranetTempalate;
 			}
 
 			$obSite = new \CSite;

@@ -206,6 +206,36 @@ class MailMessageUidTable extends Entity\DataManager
 		return true;
 	}
 
+	public static function getFirstLocalUID(int $mailboxId, string $dirPath, string $dirUIDv): int
+	{
+		$row = self::getRow(
+			[
+				'select' => [
+					'MSG_UID'
+				],
+				'filter' => [
+					'=MAILBOX_ID' => $mailboxId,
+					'=DIR_MD5'  => md5($dirPath),
+					'=DIR_UIDV' => $dirUIDv,
+					'>MSG_UID'  => 0,
+					'=IS_OLD' => 'N',
+					'!=MESSAGE_ID' => 0,
+					'==DELETE_TIME' => 0,
+				],
+				'order' => [
+					'MSG_UID' => 'ASC',
+				],
+			]
+		);
+
+		if (!isset($row['MSG_UID']))
+		{
+			return 0;
+		}
+
+		return (int)$row['MSG_UID'];
+	}
+
 	public static function getMessage(
 		int $mailboxId,
 		$select,

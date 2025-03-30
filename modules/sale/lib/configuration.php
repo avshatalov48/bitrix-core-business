@@ -1,9 +1,10 @@
 <?php
 namespace Bitrix\Sale;
 
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Loader,
-	Bitrix\Catalog;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Config;
+use Bitrix\Catalog;;
 use Bitrix\Sale\Reservation\Configuration\ReservationSettings;
 use Bitrix\Sale\Reservation\Configuration\ReservationSettingsService;
 use Bitrix\Sale\Reservation\Configuration\ReserveCondition;
@@ -191,10 +192,7 @@ class Configuration
 	 */
 	public static function needShipOnAllowDelivery()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
-		return ((string)$optionClassName::get('sale', 'allow_deduction_on_delivery') === 'Y');
+		return Config\Option::get('sale', 'allow_deduction_on_delivery') === 'Y';
 	}
 
 	/**
@@ -215,10 +213,7 @@ class Configuration
 	 */
 	public static function getAllowDeliveryOnPayCondition()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
-		return $optionClassName::get('sale', 'status_on_change_allow_delivery_after_paid');
+		return Config\Option::get('sale', 'status_on_change_allow_delivery_after_paid');
 	}
 
 	/**
@@ -246,10 +241,7 @@ class Configuration
 	 */
 	public static function getStatusPaidCondition()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
-		return $optionClassName::get('sale', 'status_on_paid_condition');
+		return Config\Option::get('sale', 'status_on_paid_condition');
 	}
 
 	/**
@@ -257,10 +249,7 @@ class Configuration
 	 */
 	public static function getStatusAllowDeliveryCondition()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
-		return $optionClassName::get('sale', 'status_on_paid_condition');
+		return Config\Option::get('sale', 'status_on_paid_condition');
 	}
 
 	/**
@@ -301,10 +290,7 @@ class Configuration
 	 */
 	public static function isEnabledReservation()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
-		return ((string)$optionClassName::get('catalog', 'enable_reservation') === 'Y');
+		return Config\Option::get('catalog', 'enable_reservation') === 'Y';
 	}
 
 	/**
@@ -313,9 +299,6 @@ class Configuration
 	 */
 	public static function isAllowedSeparatelyDiscountCalculation()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
-		return $optionClassName::get('sale', 'discount_separately_calculation') === 'Y';
+		return Config\Option::get('sale', 'discount_separately_calculation') === 'Y';
 	}
 }

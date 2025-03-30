@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Bitrix\Main\Validation\Rule;
 
+use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 use Bitrix\Main\Validation\Validator\ValidatorInterface;
 
 trait ValidationErrorTrait
 {
-	protected ?string $errorMessage = null;
+	protected string|LocalizableMessageInterface|null $errorMessage = null;
 
 	protected function getError(): ?ValidationError
 	{

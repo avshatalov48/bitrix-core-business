@@ -1,5 +1,7 @@
 <?php
 $MESS['IM_LIB_CONFIRM_USER_KICK'] = "Вы уверены, что хотите исключить пользователя?";
+$MESS['IM_LIB_CONFIRM_USER_CHANNEL_KICK'] = "Исключить подписчика из канала?";
+$MESS['IM_LIB_CONFIRM_USER_KICK_MSGVER_1'] = "Исключить участника из чата?";
 $MESS['IM_LIB_CONFIRM_USER_KICK_YES'] = "Да, исключить";
 $MESS['IM_LIB_CONFIRM_LEAVE_CHAT_MSGVER_1'] = "Выйти из чата?";
 $MESS['IM_LIB_CONFIRM_LEAVE_CHAT_YES_MSGVER_1'] = "Да, выйти";
@@ -31,3 +33,6 @@ $MESS['IM_LIB_CONFIRM_USER_KICK_FROM_COLLAB_TITLE'] = "Исключить уча
 $MESS['IM_LIB_CONFIRM_USER_KICK_FROM_COLLAB_TEXT'] = "Участнику будет закрыт доступ к чату, задачам, файлам и встречам коллабы";
 $MESS['IM_LIB_CONFIRM_DELETE_COLLAB_TITLE'] = "Удалить коллабу?";
 $MESS['IM_LIB_CONFIRM_DELETE_COLLAB_TEXT'] = "Коллаба удалится со всей историей общения. Восстановить коллабу будет нельзя";
+$MESS['IM_LIB_DOWNLOAD_ALL_FILES_TITLE'] = "Проверьте настройки скачивания в браузере";
+$MESS['IM_LIB_DOWNLOAD_ALL_FILES_TEXT'] = "Чтобы сохранить несколько файлов одновременно, разрешите автоматическое скачивание в настройках вашего браузера. [helpdesk]Подробнее[/helpdesk]";
+$MESS['IM_LIB_DOWNLOAD_ALL_FILES_BUTTON'] = "Понятно";

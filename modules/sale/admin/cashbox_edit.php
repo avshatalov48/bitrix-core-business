@@ -79,9 +79,14 @@ if ($server->getRequestMethod() == "POST"
 		'OFD_SETTINGS' => $request->getPost('OFD_SETTINGS') ?: array(),
 	);
 
-	if ($request->getPost('OFD'))
+	$ofdHandler = $request->getPost('OFD');
+	if (!$ofdHandler || (is_string($ofdHandler) && Cashbox\Ofd::doesHandlerExist($ofdHandler)))
 	{
-		$cashbox['OFD'] = $request->getPost('OFD');
+		$cashbox['OFD'] = $ofdHandler;
+	}
+	else
+	{
+		$errorMessage .= GetMessage('ERROR_NO_OFD_HANDLER_EXIST')."<br>\n";
 	}
 
 	/** @var Cashbox\Cashbox $handler */
@@ -290,6 +295,7 @@ echo bitrix_sessid_post();
 <input type="hidden" name="Update" value="Y">
 <input type="hidden" name="lang" value="<?=$context->getLanguage();?>">
 <input type="hidden" name="ID" value="<?=$id;?>" id="ID">
+<input type="hidden" name="LAST_USED_OFD" value="<?= $cashbox['OFD'] ?? '' ?>" id="LAST_USED_OFD">
 
 <?
 $tabControl->EndEpilogContent();
@@ -340,10 +346,10 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 					{
 						continue;
 					}
-					
+
 					if (
 						in_array(
-							$handler, 
+							$handler,
 							[
 								'\Bitrix\Sale\Cashbox\CashboxBitrixV2',
 								'\Bitrix\Sale\Cashbox\CashboxBitrixV3',
@@ -449,19 +455,12 @@ elseif (Loader::includeModule('intranet'))
 }
 
 $needOfdSettings = true;
-if ($zone !== 'ru')
+if (isset($cashboxObject))
 {
-	$needOfdSettings = false;
-}
-elseif ($isCashboxPaySystem)
-{
-	if (!is_a($cashboxObject->getField('HANDLER'), Cashbox\CashboxYooKassa::class, true))
-	{
-		$needOfdSettings = false;
-	}
+	$needOfdSettings = $cashboxObject::isOfdSettingsNeeded();
 }
 
-if ($needOfdSettings)
+if ($zone === 'ru')
 {
 	$tabControl->BeginCustomField('OFD', GetMessage("SALE_CASHBOX_OFD"));
 	?>
@@ -598,7 +597,7 @@ $tabControl->BeginCustomField('CASHBOX_SETTINGS', GetMessage("CASHBOX_SETTINGS")
 	<tbody id="sale-cashbox-settings-container"><?=$cashboxSettings?></tbody>
 <?$tabControl->EndCustomField('CASHBOX_SETTINGS');
 
-if ($needOfdSettings)
+if ($zone === 'ru')
 {
 	$tabControl->BeginNextFormTab();
 
@@ -619,6 +618,14 @@ $tabControl->Buttons(array("disabled" => ($saleModulePermissions < "W"), "back_u
 $tabControl->Show();
 ?>
 <script>
+	BX.ready(function ()
+	{
+		<?php if (!$needOfdSettings): ?>
+			tabControl.Init();
+			tabControl.DisableTab('edit4');
+			tabControl.form['OFD'].disabled = true;
+		<?php endif ?>
+	});
 
 	BX.message({
 		CASHBOX_CHECK_CONNECTION_TITLE: '<?=Loc::getMessage("CASHBOX_CHECK_CONNECTION_TITLE")?>',

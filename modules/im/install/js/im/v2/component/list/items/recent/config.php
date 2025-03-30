@@ -20,6 +20,7 @@ return [
 		'call.lib.analytics',
 		'im.v2.lib.create-chat',
 		'im.v2.component.elements',
+		'im.v2.lib.feature',
 		'main.core',
 		'im.v2.lib.utils',
 		'main.core.events',

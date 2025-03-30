@@ -320,9 +320,10 @@ class CBPTaskChangedStatus
 
 class CBPTaskDelegationType
 {
-	const Subordinate = 0; // default value
-	const AllEmployees = 1;
-	const None = 2;
+	public const Subordinate = 0; // default value
+	public const AllEmployees = 1;
+	public const None = 2;
+	public const ExactlyNone = 3; // not public type
 
 	public static function getSelectList()
 	{

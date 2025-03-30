@@ -32,10 +32,10 @@ class ForumStatTable extends Entity\DataManager
 	public static function getMap()
 	{
 		return [
-			new Entity\IntegerField('ID', ['primary' => true, 'autocomplete' => true]),
-			new Entity\IntegerField('USER_ID'),
+			new Entity\IntegerField('ID', ['autocomplete' => true]),
+			new Entity\IntegerField('USER_ID', ['primary' => true]),
 			new Entity\StringField('IP_ADDRESS', ['size' => 128]),
-			new Entity\StringField('PHPSESSID', ['size' => 255]),
+			new Entity\StringField('PHPSESSID', ['primary' => true, 'size' => 255]),
 			new Entity\DatetimeField('LAST_VISIT'),
 			new Entity\StringField('SITE_ID', ['size' => 2]),
 			new Entity\IntegerField('FORUM_ID'),

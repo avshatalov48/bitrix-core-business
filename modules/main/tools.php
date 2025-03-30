@@ -1121,7 +1121,7 @@ function FormatDate($format = "", $timestamp = false, $now = false, ?string $lan
 	$arFormatParts = preg_split("/(?<!\\\\)(
 		sago|iago|isago|Hago|dago|mago|Yago|
 		sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|
-		sshort|ishort|Hshort|dshort|mhort|Yshort|
+		sshort|ishort|Hshort|dshort|mshort|Yshort|
 		yesterday|today|tomorrow|tommorow|
 		X|x|j|F|f|Y|Q|M|l|D
 	)/x", $format, 0, PREG_SPLIT_DELIM_CAPTURE);
@@ -4196,6 +4196,7 @@ function FormDecode()
 		'_GET' => 1, '_SESSION' => 1, '_POST' => 1, '_COOKIE' => 1, '_REQUEST' => 1, '_FILES' => 1, '_SERVER' => 1, 'GLOBALS' => 1, '_ENV' => 1,
 		'DBType' => 1, 'DBDebug' => 1, 'DBDebugToFile' => 1, 'DBHost' => 1, 'DBName' => 1, 'DBLogin' => 1, 'DBPassword' => 1,
 		'HTTP_ENV_VARS' => 1, 'HTTP_GET_VARS' => 1, 'HTTP_POST_VARS' => 1, 'HTTP_POST_FILES' => 1, 'HTTP_COOKIE_VARS' => 1, 'HTTP_SERVER_VARS' => 1,
+		'this' => 1,
 	];
 
 	foreach ($superglobals as $gl => $t)

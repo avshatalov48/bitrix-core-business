@@ -199,12 +199,14 @@ class SaleAdminPageStub extends \CBitrixComponent
 		}
 		else
 		{
+			/** @todo Use SiteTable::getDefaultSite() */
 			$site = Main\SiteTable::getList([
 				"select" => ["SERVER_NAME"],
-				"filter" => ["=DEF" => "Y"]
+				"filter" => ["=DEF" => "Y", '=ACTIVE' => 'Y'],
+				'cache' => ['ttl' => 86400],
 			])->fetch();
 
-			if ($site && isset($site["SERVER_NAME"]) && !empty($site["SERVER_NAME"]))
+			if (!empty($site["SERVER_NAME"]))
 			{
 				return $site["SERVER_NAME"];
 			}

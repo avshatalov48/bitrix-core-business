@@ -1,0 +1,4 @@
+<?php
+$MESS['LANDING_WIDGET_EXAMPLE_TITLE'] = 'Заголовок';
+$MESS['LANDING_WIDGET_EXAMPLE_USER_AMOUNT'] = 'Количество пользователей';
+$MESS['LANDING_WIDGET_EXAMPLE_TITLE_DEFAULT_VALUE'] = 'Дни рождения';

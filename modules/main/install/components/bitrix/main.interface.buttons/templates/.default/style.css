@@ -52,6 +52,13 @@
 	--mib-item-menu-arrow-margin-left: 8px;
 	--mib-item-menu-arrow-image: url("data:image/svg+xml,%3Csvg width='10' height='7' viewBox='0 0 10 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8.74487 0.411011L5.75298 3.4029L4.99922 4.14499L4.25975 3.4029L1.26786 0.411011L0.212108 1.46676L5.00632 6.26098L9.80054 1.46676L8.74487 0.411011Z' fill='%23525C69'/%3E%3C/svg%3E");
 	--mib-item-menu-arrow-image-white: url("data:image/svg+xml,%3Csvg width='10' height='7' viewBox='0 0 10 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8.74487 0.411011L5.75298 3.4029L4.99922 4.14499L4.25975 3.4029L1.26786 0.411011L0.212108 1.46676L5.00632 6.26098L9.80054 1.46676L8.74487 0.411011Z' fill='%23FFF'/%3E%3C/svg%3E");
+
+	--mib-item-sublink-size: 14px;
+	--mib-item-sublink-mask-image: var(--ui-icon-set__path_plus-50);
+	--mib-item-sublink-bg-color: #1058D0;
+	--mib-item-sublink-fore-color: #fff;
+	--mib-item-sublink-bg-color-hover: #2FC7F7;
+	--mib-item-sublink-fore-color-hover: #fff;
 }
 
 .main-buttons,
@@ -137,6 +144,98 @@
 
 	--mib-item-edit-button-right: -15px;
 	--mib-item-edit-button-top: 0;
+}
+
+.main-buttons.--air {
+	--mib-height: 58px;
+	--mib-padding-left: 10px;
+	--mib-padding-right: 18px;
+	--mib-margin-bottom: 8px;
+	--mib-radius: 0;
+	--mib-background: transparent;
+
+	--mib-item-spacing: 24px;
+	--mib-item-font-size: 15px;
+	--mib-item-font-family: var(--ui-font-family-secondary, var(--ui-font-family-system));
+	--mib-item-font-weight: var(--ui-font-weight-normal);
+
+	--mib-item-underline-size: 0;
+	--mib-item-underline-color: transparent;
+	--mib-item-underline-bottom: 0;
+	--mib-item-hover-underline-size: 0;
+
+	--mib-item-color: rgba(255, 255, 255, 0.72);
+	--mib-item-active-color: rgba(255, 255, 255, 0.96);
+	--mib-item-hover-color: var(--mib-item-active-color);
+
+	--mib-item-super-title-color: rgba(255, 255, 255, 0.72);
+
+	--mib-item-edit-button-opacity: 0.8;
+	--mib-item-drag-button-opacity: 0.8;
+	--mib-item-menu-arrow-margin-left: 3px;
+	--mib-item-drag-button-image-opacity: 0;
+
+	--mib-item-drag-button-image: var(--mib-item-drag-button-image-white);
+	--mib-item-lock-icon-image: var(--mib-item-lock-icon-image-white);
+	--mib-item-edit-button-image: var(--mib-item-edit-button-image-white);
+	--mib-item-menu-arrow-image: var(--mib-item-menu-arrow-image-white);
+
+	--mib-item-sublink-mask-image: var(--ui-icon-set__path_plus-30);
+	--mib-item-sublink-bg-color: var(--mib-item-color);
+	--mib-item-sublink-fore-color: rgba(113, 122, 132, 0.72);
+	--mib-item-sublink-bg-color-hover: var(--mib-item-hover-color);
+	--mib-item-sublink-fore-color-hover: rgba(113, 122, 132, 1);
+}
+
+.main-buttons.--air .main-buttons-item::before {
+	display: block;
+	content: '';
+	position: absolute;
+	left: -10px;
+	right: -10px;
+	top: 14px;
+	bottom: 14px;
+	border-radius: 8px;
+	opacity: 0;
+	transition: opacity 100ms;
+	z-index: -1;
+}
+
+.main-buttons.--air .main-buttons-item.--over::before,
+.main-buttons.--air .main-buttons-item-active::before {
+	opacity: 1;
+	background-color: rgba(255, 255, 255, 0.24);
+}
+
+.main-buttons.--air .main-buttons-item.--has-menu.--menu-shown::before {
+	opacity: 1;
+	background-color: rgba(255, 255, 255, 0.24);
+}
+
+.main-buttons.--air .main-buttons-item.--has-menu.--menu-shown {
+	--mib-item-color: var(--mib-item-hover-color);
+}
+
+.main-buttons.--air .main-buttons-item-edit-button {
+	right: -14px;
+}
+
+.main-buttons.--air .main-buttons-item.--has-menu .main-buttons-item-edit-button {
+	right: -3px;
+}
+
+.main-buttons.--air .main-buttons-item-super-title {
+	top: 30px;
+}
+
+.main-buttons.--air .main-buttons-item.--over .main-buttons-item-super-title,
+.main-buttons.--air .main-buttons-item-active .main-buttons-item-super-title,
+.main-buttons.--air .main-buttons-item.--menu-shown .main-buttons-item-super-title {
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.main-buttons.--air .main-buttons-item-child {
+	display: none;
 }
 
 .main-buttons {
@@ -379,6 +478,10 @@
 	display: none;
 }
 
+.main-buttons-item.--hidden {
+	display: none;
+}
+
 .main-buttons-item-link {
 	position: relative;
 	display: flex;
@@ -537,25 +640,37 @@
 	z-index: 3;
 }
 
-.main-buttons-item-sublink:before {
+.main-buttons-item-sublink:before,
+.main-buttons-item-sublink:after {
 	content: '';
 	position: absolute;
 	top: 1px;
 	left: 50%;
-	height: 14px;
-	width: 14px;
+	height: var(--mib-item-sublink-size);
+	width: var(--mib-item-sublink-size);
 	margin-left: -8px;
-	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%227%22%20fill%3D%22%231058D0%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M8%206V3H6v3H3v2h3v3h2V8h3V6H8z%22/%3E%3C/g%3E%3C/svg%3E');
-	background-repeat: no-repeat;
-	background-position: center;
-	-webkit-transition: background-image .3s;
-	transition: background-image .3s;
+}
+
+.main-buttons-item-sublink:before {
+	z-index: 1;
+	mask-image: var(--mib-item-sublink-mask-image);
+	mask-size: var(--mib-item-sublink-size);
+	mask-position: center;
+	background-color: var(--mib-item-sublink-fore-color);
+}
+
+.main-buttons-item-sublink:after {
+	background-color: var(--mib-item-sublink-bg-color);
+	border-radius: 50%;
+	transition: background-color .3s;
 }
 
 .main-buttons-item-sublink:hover:before {
-	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%227%22%20fill%3D%22%232FC7F7%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M8%206V3H6v3H3v2h3v3h2V8h3V6H8z%22/%3E%3C/g%3E%3C/svg%3E');
-	background-repeat: no-repeat;
-	background-position: center;
+	background-color: var(--mib-item-sublink-fore-color-hover);
+}
+
+.main-buttons-item-sublink:hover:after {
+	background-color: var(--mib-item-sublink-bg-color-hover);
 }
 
 .main-buttons-item:hover .main-buttons-item-sublink {

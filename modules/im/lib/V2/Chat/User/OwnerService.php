@@ -2,6 +2,7 @@
 namespace Bitrix\Im\V2\Chat\User;
 
 use Bitrix\Im\Model\ChatTable;
+use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Main\UserAccessTable;
@@ -10,6 +11,7 @@ use Bitrix\Main\UserTable;
 class OwnerService
 {
 	protected const DELAY_AFTER_USER_FIRED = 10;
+	protected const CHAT_LIMIT = 1000;
 
 	public static function onAfterUserUpdate(array $fields): void
 	{
@@ -19,7 +21,7 @@ class OwnerService
 		}
 
 		\CAgent::AddAgent(
-			__CLASS__. "::changeChatsOwnerAfterUserFiredAgent({$fields['ID']});",
+			self::getAgentName((int)$fields['ID'], 0),
 			'im',
 			'N',
 			self::DELAY_AFTER_USER_FIRED,
@@ -30,53 +32,77 @@ class OwnerService
 		);
 	}
 
-	public static function changeChatsOwnerAfterUserFiredAgent(int $ownerId): string
+	public static function changeChatsOwnerAfterUserFiredAgent(int $ownerId, int $targetId = 0): string
 	{
-		$ownerChats = ChatTable::getList([
-			'filter' => [
-				'AUTHOR_ID' => $ownerId,
-				'TYPE' => [Chat::IM_TYPE_OPEN, Chat::IM_TYPE_CHAT]
-			]
-		]);
+		$chatTypes = [Chat::IM_TYPE_OPEN, Chat::IM_TYPE_CHAT, Chat::IM_TYPE_OPEN_CHANNEL, Chat::IM_TYPE_CHANNEL];
 
-		foreach ($ownerChats as $ownerChat)
+		$query = ChatTable::query()
+			->setSelect(['ID'])
+			->where('AUTHOR_ID', $ownerId)
+			->whereIn('TYPE', $chatTypes)
+			->setLimit(self::CHAT_LIMIT)
+			->setOrder(['ID'])
+		;
+
+		if ($targetId > 0)
 		{
-			$chat = Chat\ChatFactory::getInstance()->getChat($ownerChat['ID']);
+			$query->where('ID', '>', $targetId);
+		}
 
-			$ownerRelation = $chat->getRelationByUserId($ownerId);
-			if ($ownerRelation)
+		$chatCount = 0;
+		foreach ($query->fetchAll() as $row)
+		{
+			$chatCount++;
+			$chatId = (int)$row['ID'];
+
+			$chat = Chat::getInstance($chatId);
+			if (!isset($chat))
 			{
-				$ownerRelation->setManager(false);
-				$ownerRelation->save();
+				continue;
 			}
 
-			$relations = RelationCollection::find(['CHAT_ID' => $chat->getId(), '!USER_ID' => $ownerId]);
-			if ($relations->count())
+			RelationTable::updateByFilter(
+				['=CHAT_ID' => $chatId, '=USER_ID' => $chat->getAuthorId()],
+				['MANAGER' => 'N']
+			);
+
+			$relationFilter = [
+				'CHAT_ID' => $chatId,
+				'!USER_ID' => $chat->getAuthorId(),
+				'ACTIVE' => true,
+				'ONLY_INTERNAL_TYPE' => true,
+				'ONLY_INTRANET' => true,
+			];
+
+			$relations = RelationCollection::find($relationFilter, ['USER_ID' => 'ASC'], 1);
+			foreach ($relations as $relation)
 			{
-				foreach ($relations as $relation)
+				$user = $relation->getUser();
+				if ($user->isExist())
 				{
-					$user = $relation->getUser();
-					if (
-						$user->isExist()
-						&& $user->isActive()
-						&& !$user->isBot()
-						&& !$user->isExtranet()
-						&& !$user->isConnector()
-					)
-					{
-						$chat->setAuthorId($relation->getUserId());
-						$chat->save();
+					$chat->setAuthorId($user->getId());
+					$relation->setManager(true);
 
-						$relation->setManager(true);
-						$relation->save();
-
-						break;
-					}
+					break;
 				}
 			}
+
+			$chat->save();
+			$relations->save();
+			$targetId = $chatId;
+		}
+
+		if ($chatCount === self::CHAT_LIMIT)
+		{
+			return self::getAgentName($ownerId, $targetId);
 		}
 
 		return '';
+	}
+
+	private static function getAgentName(int $userId, int $chatId): string
+	{
+		return "\Bitrix\Im\V2\Chat\User\OwnerService::changeChatsOwnerAfterUserFiredAgent({$userId}, {$chatId});";
 	}
 
 	public static function changeChatsOwnerForAllFiredUsersAgent(): string
@@ -93,7 +119,7 @@ class OwnerService
 		foreach ($firedUsers as $key => $user)
 		{
 			\CAgent::AddAgent(
-				__CLASS__. '::changeChatsOwnerAfterUserFiredAgent(' . (int)$user['ID'] . ');',
+				self::getAgentName((int)$user['ID'], 0),
 				'im',
 				'N',
 				self::DELAY_AFTER_USER_FIRED,

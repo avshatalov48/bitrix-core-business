@@ -1,0 +1,14 @@
+<?php
+$MESS["MAIN_KANBAN_CANCEL_BUTTON"] = "Болдырмау";
+$MESS["MAIN_KANBAN_COLUMN_TITLE_PLACEHOLDER"] = "Атауы";
+$MESS["MAIN_KANBAN_COLUMN_TITLE_PLACEHOLDER2"] = "Тақырыпаты";
+$MESS["MAIN_KANBAN_DROPZONE_CANCEL"] = "Болдырмау";
+$MESS["MAIN_KANBAN_ERROR"] = "Қате";
+$MESS["MAIN_KANBAN_ERROR_CLOSE"] = "Жабу";
+$MESS["MAIN_KANBAN_ERROR_OK"] = "OK";
+$MESS["MAIN_KANBAN_ITEM_TITLE_PLACEHOLDER"] = "Атауы";
+$MESS["MAIN_KANBAN_NO_DATA"] = "Әзірге бұл парақшада деректер жоқ";
+$MESS["MAIN_KANBAN_RELOAD"] = "Парақшаны қайта жүктеу";
+$MESS["MAIN_KANBAN_REMOVE_BUTTON"] = "Жою";
+$MESS["MAIN_KANBAN_REMOVE_COLUMN_CONFIRM_DESC"] = "Шынымен бағанды жойғыңыз келеді ме?";
+$MESS["MAIN_KANBAN_REMOVE_COLUMN_CONFIRM_TITLE"] = "Жоюды растау";

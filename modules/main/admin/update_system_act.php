@@ -1,4 +1,4 @@
-<?
+<?php
 //**********************************************************************/
 //**    DO NOT MODIFY THIS FILE                                       **/
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
@@ -513,4 +513,3 @@ if (!defined("UPD_INTERNAL_CALL") || UPD_INTERNAL_CALL != "Y")
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_after.php");
 }
-?>

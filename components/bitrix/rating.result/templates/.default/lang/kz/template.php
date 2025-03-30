@@ -1,0 +1,4 @@
+<?php
+$MESS["RATING_COMPONENT_CURRENT_POSITION"] = "Рейтингтегі орын: ";
+$MESS["RATING_COMPONENT_PREVIOUS_POSITION"] = "алдыңғы: ";
+$MESS["RATING_COMPONENT_PROGRESS"] = "өзгеру: ";

@@ -7,4 +7,4 @@ $MESS["IM_MESSAGE_SERVICE_LEAVE_CHAT_DEFAULT_ERROR"] = "Cannot leave the chat. P
 $MESS["IM_MESSAGE_SERVICE_LEAVE_CHAT_STRUCTURE_ERROR"] = "You cannot leave this chat because your department has been added to it.";
 $MESS["IM_MESSAGE_SERVICE_LEAVE_COLLAB_DEFAULT_ERROR"] = "Cannot leave the collab. Please try again later.";
 $MESS["IM_MESSAGE_SERVICE_SAVE_MESSAGE_SUCCESS"] = "Message saved to Favorites. You can access Favorites on the sidebar.";
-$MESS["IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS"] = "File has been saved to your Drive.";
+$MESS["IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS_MSGVER_1"] = "File has been saved to Drive.";

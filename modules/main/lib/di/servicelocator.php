@@ -3,6 +3,7 @@
 namespace Bitrix\Main\DI;
 
 use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\DI\Exception\ServiceNotFoundException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\SystemException;
 use Psr\Container\ContainerExceptionInterface;
@@ -122,22 +123,16 @@ final class ServiceLocator implements \Psr\Container\ContainerInterface
 
 		if (!isset($this->services[$id]))
 		{
-			throw $this->buildNotFoundException($id);
-		}
+			if (!class_exists($id))
+			{
+				throw $this->buildNotFoundException("Could not find service by code {$id}.");
+			}
 
-		[$class, $args] = $this->services[$id];
-
-		if ($class instanceof \Closure)
-		{
-			$object = $class();
+			$object = $this->createItemByClassName($id);
 		}
 		else
 		{
-			if ($args instanceof \Closure)
-			{
-				$args = $args();
-			}
-			$object = new $class(...array_values($args));
+			$object = $this->createItemByServiceName($id);
 		}
 
 		$this->instantiated[$id] = $object;
@@ -145,9 +140,9 @@ final class ServiceLocator implements \Psr\Container\ContainerInterface
 		return $object;
 	}
 
-	private function buildNotFoundException(string $id): ObjectNotFoundException|NotFoundExceptionInterface
+	private function buildNotFoundException(string $msg): ObjectNotFoundException|NotFoundExceptionInterface
 	{
-		return new class("Could not find service by code {$id}.") extends ObjectNotFoundException
+		return new class($msg) extends ObjectNotFoundException
 			implements NotFoundExceptionInterface {}
 		;
 	}
@@ -160,5 +155,109 @@ final class ServiceLocator implements \Psr\Container\ContainerInterface
 		;
 
 		return new class($message) extends SystemException implements ContainerExceptionInterface {};
+	}
+
+	/**
+	 * Create object by className with all dependencies on construct
+	 *
+	 * @param string $className
+	 * @return object|mixed|string
+	 * @throws NotFoundExceptionInterface
+	 * @throws ObjectNotFoundException
+	 */
+	private function createItemByClassName(string $className): object
+	{
+		try
+		{
+			return $this->createObjectWithFullConstruct($className);
+		}
+		catch (\ReflectionException $exception)
+		{
+			throw new ServiceNotFoundException(
+				$exception->getMessage()
+			);
+		}
+	}
+
+	/**
+	 * Returns object from service config
+	 */
+	private function createItemByServiceName(string $serviceName): mixed
+	{
+		[$class, $args] = $this->services[$serviceName];
+
+		if ($class instanceof \Closure)
+		{
+			return $class();
+		}
+
+		if ($args instanceof \Closure)
+		{
+			$args = $args();
+		}
+
+		return new $class(...array_values($args));
+	}
+
+	/**
+	 * Returns object with dependencies on construct and save all dependencies and this object in container
+	 *
+	 * @param string $className
+	 * @return object|mixed|string
+	 * @throws NotFoundExceptionInterface
+	 * @throws ObjectNotFoundException
+	 * @throws \ReflectionException
+	 */
+	private function createObjectWithFullConstruct(string $className): object
+	{
+		$class = new \ReflectionClass($className);
+
+		$constructor = $class->getConstructor();
+		if (!empty($constructor) && !$constructor->isPublic())
+		{
+			throw new ServiceNotFoundException(
+				$className . ' constructor must be is public'
+			);
+		}
+
+		$params = $constructor?->getParameters();
+
+		if (empty($params))
+		{
+			return new $className();
+		}
+
+		$paramsForClass = [];
+		foreach ($params as $param)
+		{
+			$type = $param->getType();
+			if (empty($type) || ($type instanceof \ReflectionNamedType) === false)
+			{
+				throw new ServiceNotFoundException(
+					$className . ' All parameters in the constructor must have real class type'
+				);
+			}
+
+			$classNameInParams = $type->getName();
+			if (!class_exists($classNameInParams))
+			{
+				throw new ServiceNotFoundException(
+					"For {$className} error in params: {$classNameInParams} must be an existing class"
+				);
+			}
+
+			$paramsForClass[] = $this->get($classNameInParams);
+		}
+
+		$object = $class->newInstanceArgs($paramsForClass);
+
+		if (empty($object))
+		{
+			throw new ServiceNotFoundException(
+				'Failed to create component ' . $className
+			);
+		}
+
+		return $object;
 	}
 }

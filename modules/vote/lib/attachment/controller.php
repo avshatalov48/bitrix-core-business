@@ -6,10 +6,9 @@ use Bitrix\Main\AccessDeniedException;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Vote\EventTable;
-use Bitrix\Vote\User;
+use Bitrix\Main;
 
 
 Loc::loadMessages(__FILE__);
@@ -132,6 +131,11 @@ class Controller extends \Bitrix\Vote\Base\Controller
 
 	protected function processActionGetBallot()
 	{
+		if (!$this->attach->canRead($this->getUser()->getId()))
+		{
+			throw new AccessDeniedException();
+		}
+
 		$attach = $this->attach;
 		$eventId = 0;
 		$userId = 0;
@@ -326,7 +330,9 @@ class Controller extends \Bitrix\Vote\Base\Controller
 				$departments = array();
 				if (IsModuleInstalled("extranet") &&
 					($iblockId = \COption::GetOptionInt("intranet", "iblock_structure", 0)) &&
-					$iblockId > 0)
+					$iblockId > 0 &&
+					Main\Loader::includeModule('iblock')
+				)
 				{
 					$dbRes = \CIBlockSection::GetList(
 						array("LEFT_MARGIN" => "DESC"),

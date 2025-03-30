@@ -104,4 +104,11 @@ export const EventType = Object.freeze({
 	{
 		onAuthError: 'IM.request:onAuthError',
 	},
+	audioPlayer:
+	{
+		play: 'im:audioplayer:play',
+		pause: 'im:audioplayer:pause',
+		stop: 'im:audioplayer:stop',
+		preload: 'im:audioplayer:preload',
+	},
 });

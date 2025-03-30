@@ -3,9 +3,9 @@
 namespace Bitrix\MobileApp\Janative;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory;
-use Bitrix\Main\IO\File;
 use Bitrix\Main\IO\FileNotFoundException;
 use Bitrix\MobileApp\Janative\Entity\Component;
 use Bitrix\MobileApp\Janative\Entity\Extension;
@@ -16,6 +16,7 @@ class Manager
 	private static ?array $workspaces = null;
 	private static ?array $availableComponents = null;
 	private static array $extensionPaths = [];
+	private static ?bool $isBundleEnabled = null;
 
 	private static function getWorkspaces(): array
 	{
@@ -199,4 +200,13 @@ class Manager
 		return $components[$name] ?? null;
 	}
 
+	public static function isBundleEnabled(): bool
+	{
+		if (self::$isBundleEnabled === null)
+		{
+			self::$isBundleEnabled = Option::get('mobileapp', 'jn_bundle_enabled', 'Y') === 'Y';
+		}
+
+		return self::$isBundleEnabled;
+	}
 }

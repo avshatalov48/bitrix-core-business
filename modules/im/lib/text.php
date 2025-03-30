@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\Integration\Socialnetwork\Extranet;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -530,5 +531,36 @@ class Text
 		}
 
 		return $data;
+	}
+
+	public static function filterUserBbCodes(string $text, int $currentUserId): string
+	{
+		$pattern = "/\[USER=(\d+)(?: REPLACE)?](.*?)\[\/USER]/is";
+
+		do
+		{
+			$previousText = $text;
+			$text = preg_replace_callback($pattern, function ($matches) use($currentUserId) {
+				return self::replaceUserBbCodeByAccess($matches, $currentUserId);
+			}, $text);
+		}
+		while ($previousText !== $text);
+
+		return $text;
+	}
+
+	private static function replaceUserBbCodeByAccess($matches, int $currentUserId): string
+	{
+		$userId = $matches[1];
+
+		$currentUser = \Bitrix\Im\V2\Entity\User\User::getInstance($currentUserId);
+		$result = $currentUser->checkAccess((int)$userId);
+
+		if ($result->isSuccess())
+		{
+			return $matches[0] ?? '';
+		}
+
+		return $matches[2] ?? '';
 	}
 }

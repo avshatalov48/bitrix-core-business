@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["curr_rates_flt_date"] = "Дата:";
 $MESS["curr_rates_flt_btn"] = "Установить";
 $MESS["curr_rates_nav"] = "Курсы";
@@ -45,4 +45,3 @@ $MESS["BX_CURRENCY_RATE_EDIT_MESS_AMOUNT"] = "Модуль валют работ
 $MESS["BX_CURRENCY_RATE_BASE_CURRENCY"] = "Базовая валюта";
 $MESS["BX_CURRENCY_RATE_BASE_BASE_CURRENCY_FIELD_ABSENT"] = "не указана";
 $MESS["ERROR_BASE_CURRENCY_RATE"] = "Отсутствует базовая валюта";
-?>

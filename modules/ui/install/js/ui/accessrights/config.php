@@ -21,6 +21,7 @@ return [
 		'ui.design-tokens',
 		'ui.icon-set.main',
 		'ui.icon-set.actions',
+		'ui.vue.components.hint',
 	],
 	'skip_core' => false,
 ];

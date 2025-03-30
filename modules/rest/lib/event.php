@@ -25,9 +25,9 @@ use Bitrix\Main\ORM\Fields\ArrayField;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Event_Query query()
- * @method static EO_Event_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Event_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Event_Result getById($id)
- * @method static EO_Event_Result getList(array $parameters = array())
+ * @method static EO_Event_Result getList(array $parameters = [])
  * @method static EO_Event_Entity getEntity()
  * @method static \Bitrix\Rest\EO_Event createObject($setDefaultValues = true)
  * @method static \Bitrix\Rest\EO_Event_Collection createCollection()

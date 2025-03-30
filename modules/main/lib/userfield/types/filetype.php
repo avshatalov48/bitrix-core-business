@@ -6,6 +6,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\Main\UserField\File\ManualUploadRegistry;
+use Bitrix\Main\UserField\File\UploadedFilesRegistry;
 use CUserTypeManager;
 
 Loc::loadMessages(__FILE__);
@@ -321,7 +322,7 @@ class FileType extends BaseType
 		$checkResult = $fileInputUtility->checkFiles($controlId, [$value]);
 		if (in_array($value, $checkResult))
 		{
-			return true;
+			return self::tryMakeFilePersistent($userField, $value);
 		}
 
 		return null;
@@ -429,6 +430,32 @@ class FileType extends BaseType
 
 	public static function canUseArrayValueForSingleField(): bool
 	{
+		return true;
+	}
+
+	private static function tryMakeFilePersistent(array $userField, int $fileId): bool
+	{
+		$uploaderContextGenerator = (new \Bitrix\Main\UserField\File\UploaderContextGenerator(FileInputUtility::instance(), $userField));
+		$controlId = $uploaderContextGenerator->getControlId();
+
+		$uploadedFilesRegistry = UploadedFilesRegistry::getInstance();
+		$tempFileToken = $uploadedFilesRegistry->getTokenByFileId($controlId, $fileId);
+		if ($tempFileToken) // if token found, assume file was uploaded via \Bitrix\Main\FileUploader\FieldFileUploaderController
+		{
+			$cid = $uploadedFilesRegistry->getCidByFileId($controlId, $fileId);
+
+			if (!FileInputUtility::instance()->isCidRegistered($cid)) // cid not found, so $fileId cannot be made persistent. This case is not allowed to save due to possible data loss.
+			{
+				return false;
+			}
+
+			(new \Bitrix\Crm\Integration\UI\FileUploader(
+				new \Bitrix\Main\FileUploader\FieldFileUploaderController($uploaderContextGenerator->getContextInEditMode($cid))
+			))->makePersistentFiles([$tempFileToken]);
+
+			$uploadedFilesRegistry->unregisterFile($controlId, $fileId);
+		}
+
 		return true;
 	}
 }

@@ -1,0 +1,26 @@
+<?php
+$MESS["ACTION"] = "Әрекеттер";
+$MESS["ACTIVE"] = "Белс.";
+$MESS["ADD_SITE"] = "Сайтты қосу";
+$MESS["ADD_SITE_TITLE"] = "Жаңа сайтты қосу";
+$MESS["CHANGE"] = "Өзгерту";
+$MESS["CHANGE_HINT"] = "Сайтты редакциялауға өту";
+$MESS["CONFIRM_DEL"] = "Сайтты жойғыңыз келетініне сенімдісіз бе?";
+$MESS["COPY"] = "Көшіру";
+$MESS["COPY_HINT"] = "Сайтты көшіру";
+$MESS["DEF"] = "Әдепкі бойынша";
+$MESS["DELETE"] = "Жою";
+$MESS["DELETE_ERROR"] = "Жазбаны жою қатесі";
+$MESS["DELETE_HINT"] = "Сайтты жою";
+$MESS["DIR"] = "Бума";
+$MESS["EDIT_ERROR"] = "Жазбаны өзгертудің қатесі:";
+$MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "белсендіру";
+$MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "өшіру";
+$MESS["NAME"] = "Атауы";
+$MESS["PAGES"] = "Сайттар";
+$MESS["SAVE"] = "Өзгертулерді сақтау";
+$MESS["SAVE_ERROR"] = "Сайтты өзгерту кезінде қате ";
+$MESS["SITE_EDIT"] = "Сайтты редакциялауға өту";
+$MESS["SITE_EDIT_TITLE"] = "Сайтты редакциялауға өту";
+$MESS["SORT"] = "Сұрыптау";
+$MESS["TITLE"] = "Сайттар тізімі";

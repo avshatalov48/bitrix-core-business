@@ -67,7 +67,8 @@
 	overflow-y: scroll;
 }
 
-.bizproc-workflow-instances-popup-list-item + .bizproc-workflow-instances-popup-list-item {
+.bizproc-workflow-instances-popup-list-item + .bizproc-workflow-instances-popup-list-item,
+.bizproc-workflow-instances-popup-list-page + .bizproc-workflow-instances-popup-list-page {
 	margin-top: 2px;
 }
 
@@ -88,4 +89,12 @@
 }
 .bizproc-workflow-instances-popup-list-item-time-skeleton {
 	width: 85px;
+}
+
+.bizproc-workflow-instances-popup-list-item-faces .ui-image-stack-steps-step {
+	align-items: flex-start;
+}
+
+.bizproc-workflow-instances-popup-list-item-faces .ui-image-stack-steps-step:last-child:before {
+	width: 25px;
 }

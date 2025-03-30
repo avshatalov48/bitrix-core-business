@@ -485,6 +485,12 @@ class CIBlockElement extends CAllIBlockElement
 			$countFrom .= "\t\t\t".$arJoinProps["BES"]."\n";
 		}
 
+		if(!empty($arJoinProps["BESI"]))
+		{
+			$sFrom .= "\t\t\t".$arJoinProps["BESI"]."\n";
+			$countFrom .= "\t\t\t".$arJoinProps["BESI"]."\n";
+		}
+
 		if($arJoinProps["FC"] !== '')
 		{
 			$sFrom .= "\t\t\t".$arJoinProps["FC"]."\n";
@@ -1701,6 +1707,16 @@ class CIBlockElement extends CAllIBlockElement
 					}
 					$arFields['SEARCHABLE_CONTENT'] = $this->getSearchableContent($ID, $elementFields, $arIBlock);
 					unset($elementFields);
+
+					if (Iblock\FullIndex\FullText::doesIblockSupportByData($arIBlock))
+					{
+						$searchIndexParams = [
+							"SEARCH_CONTENT" => $arFields['SEARCHABLE_CONTENT'],
+						];
+
+						Iblock\FullIndex\FullText::update($arIBlock['ID'], $ID, $searchIndexParams);
+					}
+
 					$updateFields = array(
 						'SEARCHABLE_CONTENT' => $arFields['SEARCHABLE_CONTENT']
 					);

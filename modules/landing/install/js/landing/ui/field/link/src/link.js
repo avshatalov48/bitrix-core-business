@@ -535,6 +535,11 @@ export class Link extends BaseField
 					this.targetInput.setValue(Link.TARGET_BLANK);
 				}
 			}
+			else if (type === 'MAINPAGE')
+			{
+				this.targetInput.disable();
+				this.targetInput.setValue(Link.TARGET_BLANK);
+			}
 			else
 			{
 				if (value.href.startsWith('#crmFormPopup'))

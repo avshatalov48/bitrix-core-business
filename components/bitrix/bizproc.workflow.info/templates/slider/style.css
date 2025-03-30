@@ -338,3 +338,8 @@
 .block-hidden {
 	display: none;
 }
+
+.bizproc-file-not-found {
+	text-decoration: line-through;
+	cursor: not-allowed;
+}

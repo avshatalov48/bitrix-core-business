@@ -15,9 +15,10 @@ export class UserFieldSelector
 	#params: string;
 	#fieldName: string;
 	#value: Array;
-	#isMultiple: string;
+	#isMultiple: boolean;
 	#iblockId: number;
 	#type: string;
+	#activeFilter: boolean;
 
 	#tagSelector: ?TagSelector;
 
@@ -33,7 +34,7 @@ export class UserFieldSelector
 
 	#init(): void
 	{
-		const { fieldName, value, isMultiple, iblockId, type } = this.#params;
+		const { fieldName, value, isMultiple, iblockId, type, activeFilter } = this.#params;
 
 		if (!Type.isStringFilled(fieldName))
 		{
@@ -53,6 +54,7 @@ export class UserFieldSelector
 		this.#fieldName = fieldName;
 		this.#value = (Type.isArray(value) ? value : []).filter((item) => !Number.isNaN(item) && item > 0);
 		this.#isMultiple = isMultiple === true;
+		this.#activeFilter = activeFilter === true;
 		this.#iblockId = iblockId;
 		this.#type = type;
 	}
@@ -140,6 +142,7 @@ export class UserFieldSelector
 							dynamicSearch: true,
 							options: {
 								iblockId: this.#iblockId,
+								activeFilter: this.#activeFilter,
 							},
 						},
 					],

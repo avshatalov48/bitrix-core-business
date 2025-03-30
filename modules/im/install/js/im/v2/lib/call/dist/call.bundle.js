@@ -206,6 +206,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  onJoinFromRecentItem() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].closeCallNotification();
 	  }
+	  deleteRecentCall(dialogId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/calls/deleteActiveCall', {
+	      dialogId
+	    });
+	  }
 	  foldCurrentCall() {
 	    if (!this.isAvailable() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasVisibleCall()) {
 	      return;
@@ -352,15 +357,27 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  const {
 	    call
 	  } = event.getData()[0];
-	  call.addEventListener(BX.Call.Event.onJoin, babelHelpers.classPrivateFieldLooseBase(this, _onCallJoin)[_onCallJoin].bind(this));
-	  call.addEventListener(BX.Call.Event.onLeave, babelHelpers.classPrivateFieldLooseBase(this, _onCallLeave)[_onCallLeave].bind(this));
-	  call.addEventListener(BX.Call.Event.onDestroy, babelHelpers.classPrivateFieldLooseBase(this, _onCallDestroy)[_onCallDestroy].bind(this));
+	  const isNewCall = !babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/calls/getCallByDialog'](call.associatedEntity.id);
 	  const state = call.state === call_core.State.Connected || call.state === call_core.State.Proceeding ? im_v2_const.RecentCallStatus.joined : im_v2_const.RecentCallStatus.waiting;
-	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/calls/addActiveCall', {
+	  if (isNewCall) {
+	    call.addEventListener(BX.Call.Event.onJoin, babelHelpers.classPrivateFieldLooseBase(this, _onCallJoin)[_onCallJoin].bind(this));
+	    call.addEventListener(BX.Call.Event.onLeave, babelHelpers.classPrivateFieldLooseBase(this, _onCallLeave)[_onCallLeave].bind(this));
+	    call.addEventListener(BX.Call.Event.onDestroy, babelHelpers.classPrivateFieldLooseBase(this, _onCallDestroy)[_onCallDestroy].bind(this));
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/calls/addActiveCall', {
+	      dialogId: call.associatedEntity.id,
+	      name: call.associatedEntity.name,
+	      call,
+	      state
+	    });
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/calls/updateActiveCall', {
 	    dialogId: call.associatedEntity.id,
-	    name: call.associatedEntity.name,
-	    call,
-	    state
+	    fields: {
+	      name: call.associatedEntity.name,
+	      state,
+	      call
+	    }
 	  });
 	}
 	function _onCallJoin2(event) {

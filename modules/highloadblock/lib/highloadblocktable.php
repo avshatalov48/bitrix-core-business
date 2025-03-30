@@ -390,7 +390,7 @@ class HighloadBlockTable extends Entity\DataManager
 
 	/**
 	 * @param array|int|string $hlblock Could be a block, ID or NAME of block.
-	 * @param bool $force force recompile if entity already exists
+	 * @param bool $force Force recompile if entity already exists.
 	 *
 	 * @return Main\ORM\Entity
 	 * @throws \Bitrix\Main\SystemException
@@ -827,5 +827,17 @@ class HighloadBlockTable extends Entity\DataManager
 		}
 
 		return true;
+	}
+
+	/**
+	 * Cleans the tablet cache after data modifications.
+	 * Additionally, cleans cache of the Directory type property.
+	 *
+	 * @return void
+	 */
+	public static function cleanCache(): void
+	{
+		parent::cleanCache();
+		\CIBlockPropertyDirectory::cleanCache();
 	}
 }

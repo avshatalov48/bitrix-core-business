@@ -19,3 +19,5 @@ $MESS["IM_CHAT_LEAVE_F"] = "#USER_NAME# покинула чат";
 $MESS["IM_CHAT_LEAVE_M"] = "#USER_NAME# покинул чат";
 $MESS["IM_CHAT_AVATAR_CHANGE_M"] = "#USER_NAME# изменил иконку чата";
 $MESS["IM_CHAT_AVATAR_CHANGE_F"] = "#USER_NAME# изменила иконку чата";
+$MESS["IM_CHANNEL_AVATAR_CHANGE_M"] = "#USER_NAME# изменил иконку канала";
+$MESS["IM_CHANNEL_AVATAR_CHANGE_F"] = "#USER_NAME# изменила иконку канала";

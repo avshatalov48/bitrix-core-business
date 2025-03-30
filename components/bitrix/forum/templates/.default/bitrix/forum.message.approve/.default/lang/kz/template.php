@@ -1,0 +1,27 @@
+<?php
+$MESS["F_ANCHOR"] = "Бұл хабарламаға сілтеме";
+$MESS["F_ANCHOR_TITLE"] = "Осы хабарламаға сілтеме мекенжайын айырбастау буферіне көшіріңіз";
+$MESS["F_ATTACH_FILES"] = "Тіркелген файлдар";
+$MESS["F_AUTHOR_PROFILE"] = "Автор профилі";
+$MESS["F_DATE_REGISTER"] = "Тіркеу:";
+$MESS["F_DELETE"] = "Жою";
+$MESS["F_DELETE_CONFIRM"] = "Рұқсат етілген файл кеңейтілімдері: #EXTENSION#. Жою керек пе? ";
+$MESS["F_DELETE_MESSAGES"] = "Хабарламаларды жою";
+$MESS["F_DELETE_MESSAGES_CONFIRM"] = "Хабарламалар қалпына келтіру мүмкіндігінсіз жойылады. Жою керек пе?";
+$MESS["F_EDIT"] = "Өзгерту";
+$MESS["F_EDIT_HEAD"] = "Өзгертілді:";
+$MESS["F_EMAIL_TITLE"] = "Хабарлама авторының E-Mail-іне хат жіберу";
+$MESS["F_EMPTY_RESULT"] = "Жасырын хабарламалар табылған жоқ.";
+$MESS["F_MANAGE_MESSAGES"] = "Хабарламаларды басқару";
+$MESS["F_NUM_MESS"] = "Хабарлама:";
+$MESS["F_POINTS"] = "Балл:";
+$MESS["F_PRIVATE_MESSAGE"] = "Хабарлама";
+$MESS["F_PRIVATE_MESSAGE_TITLE"] = "Авторға жеке хабарлама жіберу";
+$MESS["F_REAL_IP"] = "/ шынайы";
+$MESS["F_SHOW"] = "Көрсету";
+$MESS["F_SHOW_MESSAGES"] = "Хабарламаларды көрсету";
+$MESS["F_TITLE"] = "Жасырын хабарламалар";
+$MESS["F_USER_ID"] = "Келушінің ID-і";
+$MESS["F_USER_ID_USER"] = "Пайдаланушының ID-і";
+$MESS["JS_NO_ACTION"] = "Әрекет таңдалмаған. Әрекетті таңдаңыз.";
+$MESS["JS_NO_MESSAGES"] = "Хабарламалар тізімі көрсетілмеген. Хабарламаларды таңдаңыз.";

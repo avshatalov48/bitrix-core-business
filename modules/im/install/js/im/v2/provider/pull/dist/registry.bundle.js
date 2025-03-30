@@ -362,13 +362,14 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	}
 	function _handleAddingMessageToModel2(params) {
 	  const dialog = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog](params.dialogId, true);
-	  if (dialog.inited && dialog.hasNextPage) {
+	  if (dialog.hasNextPage) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/store', params.message);
 	    return;
 	  }
 	  const chatIsOpened = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['application/isChatOpen'](params.dialogId);
 	  const unreadMessages = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['messages/getChatUnreadMessages'](params.chatId);
-	  if (!chatIsOpened && unreadMessages.length > im_v2_provider_service.MessageService.getMessageRequestLimit()) {
+	  const RELOAD_LIMIT = im_v2_provider_service.MessageService.getMessageRequestLimit() * 5;
+	  if (dialog.inited && !chatIsOpened && unreadMessages.length > RELOAD_LIMIT) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('messages/store', params.message);
 	    const messageService = new im_v2_provider_service.MessageService({
 	      chatId: params.chatId
@@ -578,6 +579,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    const chatHasCall = im_v2_lib_call.CallManager.getInstance().getCurrentCallDialogId() === params.dialogId;
 	    if (currentUserIsKicked && chatHasCall) {
 	      im_v2_lib_call.CallManager.getInstance().leaveCurrentCall();
+	    }
+	    if (currentUserIsKicked) {
+	      im_v2_lib_call.CallManager.getInstance().deleteRecentCall(params.dialogId);
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _updateChatUsers)[_updateChatUsers](params);
 	  }
@@ -1439,6 +1443,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      });
 	    });
 	    this.updateCounterDebounced(params.counter);
+	  }
+	  handleNotifyReadAll() {
+	    void this.store.dispatch('notifications/readAll');
 	  }
 	  handleNotifyDelete(params) {
 	    const idsToDelete = Object.keys(params.id).map(id => Number.parseInt(id, 10));

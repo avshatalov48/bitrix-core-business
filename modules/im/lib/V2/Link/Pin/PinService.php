@@ -174,10 +174,21 @@ class PinService
 
 	protected function getMessageText(PinItem $pin): string
 	{
+		if (Chat::getInstance($pin->getChatId()) instanceof Chat\ChannelChat)
+		{
+			$type = 'CHANNEL';
+			$versionPostfix = '';
+		}
+		else
+		{
+			$type = 'CHAT';
+			$versionPostfix = '_MSGVER_1';
+		}
+
 		$genderModifier = ($this->getContext()->getUser()->getGender() === 'F') ? '_F' : '';
 		$text = (new Message($pin->getMessageId()))->getQuotedMessage() . "\n";
 		$text .= Loc::getMessage(
-			'IM_CHAT_PIN_ADD_NOTIFICATION' . $genderModifier,
+			"IM_{$type}_PIN_ADD_NOTIFICATION" . $genderModifier . $versionPostfix,
 			[
 				'#MESSAGE_ID#' => $pin->getMessageId(),
 				'#USER_ID#' => $this->getContext()->getUserId(),

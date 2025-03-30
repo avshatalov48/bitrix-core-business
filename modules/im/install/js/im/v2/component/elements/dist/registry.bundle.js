@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_channel,ui_avatar,im_v2_lib_copilot,ui_icons_disk,im_v2_lib_parser,rest_client,ui_loader,im_v2_model,main_core_events,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,main_popup,ui_forms,ui_vue3_components_audioplayer,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_lib_permission,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_lib_user,im_v2_lib_logger,im_v2_const,ui_lottie,ai_rolesDialog,ui_vue3_components_hint,ui_fonts_opensans,main_polyfill_intersectionobserver,ui_vue3_directives_lazyload,im_v2_component_animation,main_core) {
+(function (exports,im_v2_lib_channel,im_v2_component_elements,ui_avatar,im_v2_lib_copilot,ui_icons_disk,im_v2_lib_parser,rest_client,ui_loader,im_v2_model,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,main_popup,ui_forms,main_core_events,im_v2_lib_localStorage,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_lib_permission,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_lib_user,im_v2_lib_logger,im_v2_const,ui_lottie,ai_rolesDialog,ui_vue3_components_hint,ui_fonts_opensans,main_polyfill_intersectionobserver,ui_vue3_directives_lazyload,im_v2_component_animation,main_core) {
 	'use strict';
 
 	const AvatarSize = Object.freeze({
@@ -58,6 +58,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    withTooltip: {
 	      type: Boolean,
 	      default: true
+	    },
+	    backgroundColor: {
+	      type: String,
+	      default: ''
 	    }
 	  },
 	  data() {
@@ -92,6 +96,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return classes;
 	    },
 	    backgroundColorStyle() {
+	      if (this.backgroundColor) {
+	        return {
+	          backgroundColor: this.backgroundColor
+	        };
+	      }
 	      return {
 	        backgroundColor: this.dialog.color
 	      };
@@ -151,10 +160,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	const AvatarType = {
+	  extranet: 'extranet',
+	  collaber: 'collaber',
+	  collab: 'collab',
+	  default: 'default'
+	};
+
 	// @vue/component
-	const UiAvatarHexagon = {
-	  name: 'UiAvatarHexagon',
+	const BaseUiAvatar = {
 	  props: {
+	    type: {
+	      type: String,
+	      required: true,
+	      validator(value) {
+	        return Object.values(AvatarType).includes(value);
+	      }
+	    },
 	    size: {
 	      type: String,
 	      default: AvatarSize.M
@@ -187,7 +209,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  created() {
-	    this.avatar = new ui_avatar.AvatarHexagonGuest({
+	    const classMap = {
+	      extranet: ui_avatar.AvatarRoundExtranet,
+	      collaber: ui_avatar.AvatarRoundGuest,
+	      collab: ui_avatar.AvatarHexagonGuest,
+	      default: ui_avatar.AvatarBase
+	    };
+	    const AvatarClass = classMap[this.type] || classMap.default;
+	    this.avatar = new AvatarClass({
 	      size: this.calculatedSize,
 	      title: this.title
 	    });
@@ -195,7 +224,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.setBackgroundColor();
 	  },
 	  mounted() {
-	    this.avatar.renderTo(this.$refs['im-hexagon-avatar']);
+	    if (this.avatar && this.$refs.avatarContainer) {
+	      this.avatar.renderTo(this.$refs.avatarContainer);
+	    }
 	  },
 	  methods: {
 	    setAvatarImage() {
@@ -212,7 +243,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-ui-avatar-hexagon__container" ref="im-hexagon-avatar"></div>
+		<div class="bx-im-base-ui-avatar__container" ref="avatarContainer"></div>
 	`
 	};
 
@@ -220,7 +251,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const CollabChatAvatar = {
 	  name: 'CollabChatAvatar',
 	  components: {
-	    UiAvatarHexagon
+	    BaseUiAvatar
 	  },
 	  props: {
 	    dialogId: {
@@ -253,6 +284,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
+	    AvatarType: () => AvatarType,
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
@@ -267,7 +299,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<UiAvatarHexagon
+		<BaseUiAvatar
+			:type="AvatarType.collab"
 			:key="dialogId"
 			:title="dialogName" 
 			:size="size" 
@@ -278,75 +311,73 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	// @vue/component
-	const UiAvatarGuest = {
-	  name: 'UiAvatarGuest',
+	const CollaberAvatar = {
+	  name: 'CollaberAvatar',
+	  components: {
+	    BaseUiAvatar
+	  },
 	  props: {
+	    dialogId: {
+	      type: [String, Number],
+	      default: 0
+	    },
 	    size: {
 	      type: String,
 	      default: AvatarSize.M
 	    },
-	    url: {
+	    withAvatarLetters: {
+	      type: Boolean,
+	      default: true
+	    },
+	    customSource: {
 	      type: String,
 	      default: ''
 	    },
-	    title: {
-	      type: String,
-	      default: ''
+	    withSpecialTypes: {
+	      type: Boolean,
+	      default: true
 	    },
-	    backgroundColor: {
-	      type: String,
-	      default: ''
+	    withSpecialTypeIcon: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withTooltip: {
+	      type: Boolean,
+	      default: true
 	    }
 	  },
 	  computed: {
-	    AvatarSize: () => AvatarSize,
-	    calculatedSize() {
-	      return AvatarSizeMap[this.size];
-	    }
-	  },
-	  watch: {
-	    title() {
-	      this.avatar.setTitle(this.title);
+	    AvatarType: () => AvatarType,
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    url() {
-	      this.setAvatarImage();
-	    }
-	  },
-	  created() {
-	    this.avatar = new ui_avatar.AvatarRoundGuest({
-	      size: this.calculatedSize,
-	      title: this.title
-	    });
-	    this.setAvatarImage();
-	    this.setBackgroundColor();
-	  },
-	  mounted() {
-	    this.avatar.renderTo(this.$refs['im-guest-avatar']);
-	  },
-	  methods: {
-	    setAvatarImage() {
-	      if (!this.url) {
-	        return;
-	      }
-	      this.avatar.setUserPic(this.url);
+	    dialogName() {
+	      return this.dialog.name;
 	    },
-	    setBackgroundColor() {
-	      if (!this.backgroundColor) {
-	        return;
-	      }
-	      this.avatar.setBaseColor(this.backgroundColor);
+	    dialogAvatarUrl() {
+	      return this.dialog.avatar;
+	    },
+	    collaberBackgroundColor() {
+	      return im_v2_const.Color.collab60;
 	    }
 	  },
 	  template: `
-		<div class="bx-im-ui-avatar-guest__container" ref="im-guest-avatar"></div>
+		<BaseUiAvatar
+			:type="AvatarType.collaber"
+			:key="dialogId"
+			:title="dialogName" 
+			:size="size" 
+			:url="dialogAvatarUrl"
+			:backgroundColor="collaberBackgroundColor" 
+		/>
 	`
 	};
 
 	// @vue/component
-	const CollaberAvatar = {
-	  name: 'CollaberAvatar',
+	const ExtranetChatAvatar = {
+	  name: 'ExtranetChatAvatar',
 	  components: {
-	    UiAvatarGuest
+	    Avatar
 	  },
 	  props: {
 	    dialogId: {
@@ -388,17 +419,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    dialogAvatarUrl() {
 	      return this.dialog.avatar;
 	    },
-	    collaberBackgroundColor() {
-	      return im_v2_const.Color.collab60;
+	    extranetBackgroundColor() {
+	      return im_v2_const.Color.orange50;
 	    }
 	  },
 	  template: `
-		<UiAvatarGuest 
-			:key="dialogId"
+		<Avatar
+			:dialogId="dialogId"
 			:title="dialogName" 
 			:size="size" 
-			:url="dialogAvatarUrl"
-			:backgroundColor="collaberBackgroundColor" 
+			:url="dialogAvatarUrl" 
+			:backgroundColor="extranetBackgroundColor" 
 		/>
 	`
 	};
@@ -409,7 +440,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    Avatar,
 	    CollabAvatar: CollabChatAvatar,
-	    CollaberAvatar
+	    CollaberAvatar,
+	    ExtranetUserAvatar: im_v2_component_elements.ExtranetUserAvatar
 	  },
 	  props: {
 	    avatarDialogId: {
@@ -442,6 +474,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
+	    isUser() {
+	      return this.avatarDialog.type === im_v2_const.ChatType.user;
+	    },
+	    user() {
+	      return this.$store.getters['users/get'](this.avatarDialogId, true);
+	    },
 	    customAvatarUrl() {
 	      const copilotManager = new im_v2_lib_copilot.CopilotManager();
 	      if (!copilotManager.isCopilotChatOrBot(this.avatarDialogId)) {
@@ -459,18 +497,27 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.avatarDialog.type === im_v2_const.ChatType.collab;
 	    },
 	    isCollaber() {
-	      const isUser = this.avatarDialog.type === im_v2_const.ChatType.user;
-	      if (!isUser) {
-	        return false;
-	      }
-	      const user = this.$store.getters['users/get'](this.avatarDialogId, true);
-	      return user.type === im_v2_const.UserType.collaber;
+	      var _this$user;
+	      return ((_this$user = this.user) == null ? void 0 : _this$user.type) === im_v2_const.UserType.collaber;
+	    },
+	    isExtranetChat() {
+	      return this.avatarDialog.extranet;
+	    },
+	    isExtranet() {
+	      var _this$user2;
+	      return ((_this$user2 = this.user) == null ? void 0 : _this$user2.type) === im_v2_const.UserType.extranet;
 	    },
 	    avatarComponent() {
+	      if (this.isExtranet) {
+	        return im_v2_component_elements.ExtranetUserAvatar;
+	      }
 	      if (this.isCollaber) {
 	        return CollaberAvatar;
 	      }
-	      return this.isCollabChat ? CollabChatAvatar : Avatar;
+	      if (this.isCollabChat) {
+	        return CollabChatAvatar;
+	      }
+	      return this.isExtranetChat ? ExtranetChatAvatar : Avatar;
 	    }
 	  },
 	  template: `
@@ -483,6 +530,64 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			:withSpecialTypes="withSpecialTypes"
 			:withSpecialTypeIcon="withSpecialTypeIcon"
 			:withTooltip="withTooltip"
+		/>
+	`
+	};
+
+	// @vue/component
+	const ExtranetUserAvatar = {
+	  name: 'ExtranetUserAvatar',
+	  components: {
+	    BaseUiAvatar
+	  },
+	  props: {
+	    dialogId: {
+	      type: [String, Number],
+	      default: 0
+	    },
+	    size: {
+	      type: String,
+	      default: AvatarSize.M
+	    },
+	    withAvatarLetters: {
+	      type: Boolean,
+	      default: true
+	    },
+	    customSource: {
+	      type: String,
+	      default: ''
+	    },
+	    withSpecialTypes: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withSpecialTypeIcon: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withTooltip: {
+	      type: Boolean,
+	      default: true
+	    }
+	  },
+	  computed: {
+	    AvatarType: () => AvatarType,
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    dialogName() {
+	      return this.dialog.name;
+	    },
+	    dialogAvatarUrl() {
+	      return this.dialog.avatar;
+	    }
+	  },
+	  template: `
+		<BaseUiAvatar
+			:type="AvatarType.extranet"
+			:title="dialogName"
+			:size="size"
+			:url="dialogAvatarUrl"
 		/>
 	`
 	};
@@ -532,12 +637,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      return copilotManager.getMessageRoleAvatar(this.messageId);
 	    },
-	    isCollaber() {
-	      const user = this.$store.getters['users/get'](this.authorId, true);
-	      return user.type === im_v2_const.UserType.collaber;
+	    user() {
+	      return this.$store.getters['users/get'](this.authorId, true);
 	    },
 	    avatarComponent() {
-	      return this.isCollaber ? CollaberAvatar : Avatar;
+	      var _avatarMap$this$user$;
+	      const avatarMap = {
+	        [im_v2_const.UserType.extranet]: ExtranetUserAvatar,
+	        [im_v2_const.UserType.collaber]: CollaberAvatar
+	      };
+	      return (_avatarMap$this$user$ = avatarMap[this.user.type]) != null ? _avatarMap$this$user$ : Avatar;
 	    }
 	  },
 	  template: `
@@ -565,7 +674,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const EmptyAvatar = {
 	  name: 'EmptyAvatar',
 	  components: {
-	    UiAvatarHexagon
+	    BaseUiAvatar
 	  },
 	  props: {
 	    url: {
@@ -592,6 +701,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  computed: {
 	    AvatarSize: () => AvatarSize,
+	    AvatarType: () => AvatarType,
 	    Color: () => im_v2_const.Color,
 	    isSquared() {
 	      return this.type === EmptyAvatarType.squared;
@@ -614,7 +724,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<UiAvatarHexagon 
+		<BaseUiAvatar
+			:type="AvatarType.collab"
 			v-if="isCollabType" 
 			:url="collabEmptyAvatarUrl" 
 			:size="size"
@@ -742,7 +853,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return '';
 	    },
 	    isDialogSpecialTypeWithLeftIcon() {
-	      if (this.isCollaber) {
+	      if (this.isCollaber || this.isExtranet) {
 	        return false;
 	      }
 	      return main_core.Type.isStringFilled(this.dialogSpecialType);
@@ -979,7 +1090,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	          backgroundColor: '',
 	          iconColor: '',
 	          textColor: '',
-	          hoverColor: ''
+	          hoverColor: '',
+	          textHoverColor: ''
 	        };
 	      }
 	    },
@@ -1009,10 +1121,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    buttonStyles() {
 	      const result = {};
 	      if (this.hasCustomColorScheme) {
-	        result.borderColor = this.customColorScheme.borderColor;
-	        result.backgroundColor = this.customColorScheme.backgroundColor;
-	        result.color = this.customColorScheme.textColor;
+	        var _this$customColorSche;
+	        result['--im-button__border-color'] = this.customColorScheme.borderColor;
+	        result['--im-button__background-color'] = this.customColorScheme.backgroundColor;
+	        result['--im-button__color'] = this.customColorScheme.textColor;
 	        result['--im-button__background-color_hover'] = this.customColorScheme.hoverColor;
+	        result['--im-button__color_hover'] = (_this$customColorSche = this.customColorScheme.textHoverColor) != null ? _this$customColorSche : this.customColorScheme.textColor;
 	      }
 	      return result;
 	    },
@@ -1203,7 +1317,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  channel: 'channel',
 	  collab: 'collab',
 	  conference: 'conference',
-	  disk: 'disk',
 	  upload: 'upload',
 	  file: 'file',
 	  task: 'task',
@@ -1214,7 +1327,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  aiImage: 'ai-image',
 	  copilot: 'copilot',
 	  calendarSlot: 'calendar-slot',
-	  documentSign: 'document-sign'
+	  documentSign: 'document-sign',
+	  b24: 'b24'
 	};
 
 	// @vue/component
@@ -3262,13 +3376,36 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	function formatTime(seconds) {
+	  const hours = Math.floor(seconds / 3600);
+	  const minutes = Math.floor(seconds % 3600 / 60);
+	  const remainingSeconds = Math.floor(seconds % 60);
+	  const formattedHours = hours > 0 ? `${hours}:` : '';
+	  const formattedMinutes = hours > 0 ? padZero(minutes) : minutes.toString();
+	  const formattedSeconds = padZero(remainingSeconds);
+	  return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
+	}
+	function padZero(num) {
+	  return num.toString().padStart(2, '0');
+	}
+
+	const ID_KEY = 'im:audioplayer:id';
+
 	// @vue/component
-	const AudioPlayer$$1 = ui_vue3.BitrixVue.cloneComponent(ui_vue3_components_audioplayer.AudioPlayer, {
+	const AudioPlayer$$1 = {
 	  name: 'AudioPlayer',
 	  components: {
 	    MessageAvatar
 	  },
 	  props: {
+	    id: {
+	      type: Number,
+	      default: 0
+	    },
+	    src: {
+	      type: String,
+	      default: ''
+	    },
 	    file: {
 	      type: Object,
 	      required: true
@@ -3292,24 +3429,56 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    withAvatar: {
 	      type: Boolean,
 	      default: true
+	    },
+	    withPlaybackRateControl: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  data() {
 	    return {
-	      ...this.parentData(),
-	      showContextButton: false
+	      preload: 'none',
+	      loaded: false,
+	      loading: false,
+	      state: im_v2_const.AudioPlaybackState.none,
+	      progress: 0,
+	      progressInPixel: 0,
+	      seek: 0,
+	      timeCurrent: 0,
+	      timeTotal: 0,
+	      showContextButton: false,
+	      currentRate: im_v2_const.AudioPlaybackRate['1']
 	    };
 	  },
 	  computed: {
+	    State: () => im_v2_const.AudioPlaybackState,
+	    seekPosition() {
+	      if (!this.loaded && !this.seek) {
+	        return 'display: none';
+	      }
+	      return `left: ${this.seek}px;`;
+	    },
+	    isPlaying() {
+	      return this.state === im_v2_const.AudioPlaybackState.play;
+	    },
+	    labelTime() {
+	      if (!this.loaded && !this.timeTotal) {
+	        return '--:--';
+	      }
+	      let time = 0;
+	      if (this.isPlaying) {
+	        time = this.timeTotal - this.timeCurrent;
+	      } else {
+	        time = this.timeTotal;
+	      }
+	      return formatTime(time);
+	    },
 	    AvatarSize: () => AvatarSize,
 	    fileSize() {
 	      return im_v2_lib_utils.Utils.file.formatFileSize(this.file.size);
 	    },
-	    fileAuthorDialogId() {
-	      return this.authorId.toString();
-	    },
 	    progressPosition() {
-	      if (!this.loaded || this.state === ui_vue3_components_audioplayer.AudioPlayerState.none) {
+	      if (!this.loaded || this.state === im_v2_const.AudioPlaybackState.none) {
 	        return {
 	          width: '100%'
 	        };
@@ -3333,6 +3502,279 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return {
 	        'background-position-y': `-${shift}px`
 	      };
+	    },
+	    getAudioPlayerIds() {
+	      return this.$Bitrix.Data.get(ID_KEY, []);
+	    },
+	    currentRateLabel() {
+	      return this.isPlaying ? `${this.currentRate}x` : '';
+	    },
+	    metaInfo() {
+	      return `${this.fileSize}, ${this.labelTime}`;
+	    }
+	  },
+	  watch: {
+	    id(value) {
+	      this.registerPlayer(value);
+	    },
+	    progress(value) {
+	      if (value > 70) {
+	        this.preloadNext();
+	      }
+	    }
+	  },
+	  created() {
+	    this.localStorageInst = im_v2_lib_localStorage.LocalStorageManager.getInstance();
+	    this.currentRate = this.getRateFromLS();
+	    this.preloadRequestSent = false;
+	    this.registeredId = 0;
+	    this.registerPlayer(this.id);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.audioPlayer.play, this.onPlay);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.audioPlayer.stop, this.onStop);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.audioPlayer.pause, this.onPause);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.audioPlayer.preload, this.onPreload);
+	  },
+	  mounted() {
+	    this.getObserver().observe(this.$refs.body);
+	  },
+	  beforeUnmount() {
+	    this.unregisterPlayer();
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.audioPlayer.play, this.onPlay);
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.audioPlayer.stop, this.onStop);
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.audioPlayer.pause, this.onPause);
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.audioPlayer.preload, this.onPreload);
+	    this.getObserver().unobserve(this.$refs.body);
+	  },
+	  methods: {
+	    loadFile(play = false) {
+	      if (this.loaded || this.loading && !play) {
+	        return;
+	      }
+	      this.preload = 'auto';
+	      if (!play) {
+	        return;
+	      }
+	      this.loading = true;
+	      if (this.source()) {
+	        void this.source().play();
+	      }
+	    },
+	    clickToButton() {
+	      if (!this.src) {
+	        return;
+	      }
+	      if (this.isPlaying) {
+	        this.pause();
+	      } else {
+	        this.play();
+	      }
+	    },
+	    play() {
+	      this.updateRate(this.getRateFromLS());
+	      if (!this.loaded) {
+	        this.loadFile(true);
+	        return;
+	      }
+	      void this.source().play();
+	    },
+	    pause() {
+	      this.source().pause();
+	    },
+	    stop() {
+	      this.state = im_v2_const.AudioPlaybackState.stop;
+	      this.source().pause();
+	    },
+	    setPosition() {
+	      if (!this.loaded) {
+	        this.loadFile(true);
+	        return;
+	      }
+	      const pixelPerPercent = this.$refs.track.offsetWidth / 100;
+	      this.setProgress(this.seek / pixelPerPercent, this.seek);
+	      if (this.state !== im_v2_const.AudioPlaybackState.play) {
+	        this.state = im_v2_const.AudioPlaybackState.pause;
+	      }
+	      this.play();
+	      this.source().currentTime = this.timeTotal / 100 * this.progress;
+	    },
+	    getRateFromLS() {
+	      return this.localStorageInst.get(im_v2_const.LocalStorageKey.audioPlaybackRate) || im_v2_const.AudioPlaybackRate['1'];
+	    },
+	    setRateInLS(newRate) {
+	      this.localStorageInst.set(im_v2_const.LocalStorageKey.audioPlaybackRate, newRate);
+	    },
+	    getNextPlaybackRate(currentRate) {
+	      const rates = Object.values(im_v2_const.AudioPlaybackRate).sort();
+	      const currentIndex = rates.indexOf(currentRate);
+	      const nextIndex = (currentIndex + 1) % rates.length;
+	      return rates[nextIndex];
+	    },
+	    changeRate() {
+	      if ([im_v2_const.AudioPlaybackState.pause, im_v2_const.AudioPlaybackState.none].includes(this.state)) {
+	        return;
+	      }
+	      const commonCurrentRate = this.getRateFromLS();
+	      const newRate = this.getNextPlaybackRate(commonCurrentRate);
+	      this.setRateInLS(newRate);
+	      this.updateRate(newRate);
+	    },
+	    updateRate(newRate) {
+	      this.currentRate = newRate;
+	      this.source().playbackRate = newRate;
+	    },
+	    seeking(event) {
+	      if (!this.loaded) {
+	        return;
+	      }
+	      this.seek = event.offsetX > 0 ? event.offsetX : 0;
+	    },
+	    setProgress(percent, pixel = -1) {
+	      this.progress = percent;
+	      this.progressInPixel = pixel > 0 ? pixel : Math.round(this.$refs.track.offsetWidth / 100 * percent);
+	    },
+	    registerPlayer(id) {
+	      if (id <= 0) {
+	        return;
+	      }
+	      this.unregisterPlayer();
+	      const audioIdArray = [...new Set([...this.getAudioPlayerIds, id])];
+	      this.$Bitrix.Data.set(ID_KEY, audioIdArray.sort((a, b) => a - b));
+	      this.registeredId = id;
+	    },
+	    unregisterPlayer() {
+	      if (!this.registeredId) {
+	        return;
+	      }
+	      this.$Bitrix.Data.get(ID_KEY, this.getAudioPlayerIds.filter(id => id !== this.registeredId));
+	      this.registeredId = 0;
+	    },
+	    playNext() {
+	      if (!this.registeredId) {
+	        return;
+	      }
+	      const nextId = this.getAudioPlayerIds.filter(id => id > this.registeredId).slice(0, 1)[0];
+	      if (nextId) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.audioPlayer.play, {
+	          id: nextId,
+	          start: true
+	        });
+	      }
+	    },
+	    preloadNext() {
+	      if (this.preloadRequestSent || !this.registeredId) {
+	        return;
+	      }
+	      this.preloadRequestSent = true;
+	      const nextId = this.getAudioPlayerIds.filter(id => id > this.registeredId).slice(0, 1)[0];
+	      if (nextId) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.audioPlayer.preload, {
+	          id: nextId
+	        });
+	      }
+	    },
+	    onPlay(event) {
+	      const data = event.getData();
+	      if (data.id !== this.id) {
+	        return;
+	      }
+	      if (data.start) {
+	        this.stop();
+	      }
+	      this.play();
+	    },
+	    onStop(event) {
+	      const data = event.getData();
+	      if (data.initiator === this.id) {
+	        return;
+	      }
+	      this.stop();
+	    },
+	    onPause(event) {
+	      const data = event.getData();
+	      if (data.initiator === this.id) {
+	        return;
+	      }
+	      this.pause();
+	    },
+	    onPreload(event) {
+	      const data = event.getData();
+	      if (data.id !== this.id) {
+	        return;
+	      }
+	      this.loadFile();
+	    },
+	    source() {
+	      return this.$refs.source;
+	    },
+	    audioEventRouter(eventName, event) {
+	      // eslint-disable-next-line default-case
+	      switch (eventName) {
+	        case 'durationchange':
+	        case 'loadeddata':
+	        case 'loadedmetadata':
+	          if (!this.source()) {
+	            return;
+	          }
+	          this.timeTotal = this.source().duration;
+	          break;
+	        case 'abort':
+	        case 'error':
+	          console.error('BxAudioPlayer: load failed', this.id, event);
+	          this.loading = false;
+	          this.state = im_v2_const.AudioPlaybackState.none;
+	          this.timeTotal = 0;
+	          this.preload = 'none';
+	          break;
+	        case 'canplaythrough':
+	          this.loading = false;
+	          this.loaded = true;
+	          break;
+	        case 'timeupdate':
+	          if (!this.source()) {
+	            return;
+	          }
+	          this.timeCurrent = this.source().currentTime;
+	          this.setProgress(Math.round(100 / this.timeTotal * this.timeCurrent));
+	          if (this.isPlaying && this.timeCurrent >= this.timeTotal) {
+	            this.playNext();
+	          }
+	          break;
+	        case 'pause':
+	          if (this.state !== im_v2_const.AudioPlaybackState.stop) {
+	            this.state = im_v2_const.AudioPlaybackState.pause;
+	          }
+	          break;
+	        case 'play':
+	          this.state = im_v2_const.AudioPlaybackState.play;
+	          if (this.state === im_v2_const.AudioPlaybackState.stop) {
+	            this.progress = 0;
+	            this.timeCurrent = 0;
+	          }
+	          if (this.id > 0) {
+	            main_core_events.EventEmitter.emit(im_v2_const.EventType.audioPlayer.pause, {
+	              initiator: this.id
+	            });
+	          }
+	          break;
+	        // No default
+	      }
+	    },
+
+	    getObserver() {
+	      if (this.observer) {
+	        return this.observer;
+	      }
+	      this.observer = new IntersectionObserver(entries => {
+	        entries.forEach(entry => {
+	          if (entry.isIntersecting && this.preload === 'none') {
+	            this.preload = 'metadata';
+	            this.observer.unobserve(entry.target);
+	          }
+	        });
+	      }, {
+	        threshold: [0, 1]
+	      });
+	      return this.observer;
 	    }
 	  },
 	  template: `
@@ -3343,11 +3785,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			@mouseleave="showContextButton = false"
 		>
 			<div class="bx-im-audio-player__control-container">
-				<button :class="['bx-im-audio-player__control-button', {
-					'bx-im-audio-player__control-loader': loading,
-					'bx-im-audio-player__control-play': !loading && state !== State.play,
-					'bx-im-audio-player__control-pause': !loading && state === State.play,
-				}]" @click="clickToButton"></button>
+				<button
+					class="bx-im-audio-player__control-button"
+					:class="{
+						'bx-im-audio-player__control-loader': loading,
+						'bx-im-audio-player__control-play': !loading && !this.isPlaying,
+						'bx-im-audio-player__control-pause': !loading && this.isPlaying,
+					}"
+					@click="clickToButton"
+				></button>
 				<div v-if="withAvatar" class="bx-im-audio-player__author-avatar-container">
 					<MessageAvatar 
 						:messageId="messageId"
@@ -3363,9 +3809,22 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					<div class="bx-im-audio-player__track-seek" :style="seekPosition"></div>
 					<div class="bx-im-audio-player__track-event" @mousemove="seeking"></div>
 				</div>
-				<div class="bx-im-audio-player__timer-container">
-					{{fileSize}}, {{labelTime}}
+				<div class="bx-im-audio-player__timer-container --ellipsis">
+					{{metaInfo}}
 				</div>
+			</div>
+			<div
+				v-if="!withPlaybackRateControl"
+				class="bx-im-audio-player__rate-button-container"
+			>
+				<button
+					:class="{'--active': isPlaying}"
+					@click="changeRate"
+				>
+					<span :class="{'bx-im-audio-player__rate-icon': !isPlaying}">
+						{{currentRateLabel}}
+					</span>
+				</button>
 			</div>
 			<button
 				v-if="showContextButton && withContextMenu"
@@ -3393,7 +3852,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			></audio>
 		</div>
 	`
-	});
+	};
 
 	// @vue/component
 	const ChatTitleWithHighlighting$$1 = ui_vue3.BitrixVue.cloneComponent(ChatTitle, {
@@ -3894,6 +4353,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    lastMessageViews() {
 	      return this.dialog.lastMessageViews;
+	    },
+	    additionalUsersLinkElementSelector() {
+	      return `.${MORE_USERS_CSS_CLASS}[data-id="${this.dialogId}"]`;
 	    }
 	  },
 	  methods: {
@@ -3917,19 +4379,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      return this.loc('IM_ELEMENTS_STATUS_READ_CHAT_PLURAL', {
 	        '#USERS#': main_core.Text.encode(firstViewer.userName),
-	        '#LINK_START#': `<span class="${MORE_USERS_CSS_CLASS}" ref="moreUsersLink">`,
+	        '#LINK_START#': `<span class="${MORE_USERS_CSS_CLASS}" data-id="${this.dialogId}">`,
 	        '#COUNT#': countOfViewers - 1,
 	        '#LINK_END#': '</span>'
 	      });
 	    },
 	    onClick(event) {
-	      if (!event.target.matches(`.${MORE_USERS_CSS_CLASS}`)) {
+	      if (!event.target.matches(this.additionalUsersLinkElementSelector)) {
 	        return;
 	      }
 	      this.onMoreUsersClick();
 	    },
 	    onMoreUsersClick() {
-	      this.additionalUsersLinkElement = document.querySelector(`.${MORE_USERS_CSS_CLASS}`);
+	      this.additionalUsersLinkElement = document.querySelector(this.additionalUsersLinkElementSelector);
 	      this.showAdditionalUsers = true;
 	    },
 	    loc(phraseCode, replacements = {}) {
@@ -38679,19 +39141,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	function formatTime(seconds) {
-	  const hours = Math.floor(seconds / 3600);
-	  const minutes = Math.floor(seconds % 3600 / 60);
-	  const remainingSeconds = Math.floor(seconds % 60);
-	  const formattedHours = hours > 0 ? `${hours}:` : '';
-	  const formattedMinutes = hours > 0 ? padZero(minutes) : minutes.toString();
-	  const formattedSeconds = padZero(remainingSeconds);
-	  return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
-	}
-	function padZero(num) {
-	  return num.toString().padStart(2, '0');
-	}
-
 	const State = Object.freeze({
 	  play: 'play',
 	  pause: 'pause',
@@ -39025,6 +39474,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.AvatarSize = AvatarSize;
 	exports.ChatAvatar = ChatAvatar;
+	exports.CollaberAvatar = CollaberAvatar;
+	exports.CollabChatAvatar = CollabChatAvatar;
+	exports.ExtranetUserAvatar = ExtranetUserAvatar;
+	exports.ExtranetChatAvatar = ExtranetChatAvatar;
 	exports.MessageAvatar = MessageAvatar;
 	exports.EmptyAvatar = EmptyAvatar;
 	exports.EmptyAvatarType = EmptyAvatarType;
@@ -39067,5 +39520,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.VideoPlayer = VideoPlayer;
 	exports.SegmentButton = SegmentButton;
 
-}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.UI,BX.Messenger.v2.Model,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Main,BX,BX.Vue3.Components,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.UI,BX.AI,BX.Vue3.Components,BX,BX,BX.Vue3.Directives,BX.Messenger.v2.Component.Animation,BX));
+}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.UI,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.UI,BX.Messenger.v2.Model,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Main,BX,BX.Event,BX.Messenger.v2.Lib,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.UI,BX.AI,BX.Vue3.Components,BX,BX,BX.Vue3.Directives,BX.Messenger.v2.Component.Animation,BX));
 //# sourceMappingURL=registry.bundle.js.map

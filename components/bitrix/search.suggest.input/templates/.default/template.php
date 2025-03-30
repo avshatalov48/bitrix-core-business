@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -12,27 +16,27 @@
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
 
-CJSCore::Init(array("ajax"));
+CJSCore::Init(['ajax']);
 ?>
 <script>
 	BX.ready(function(){
-		var input = BX("<?echo $arResult["ID"]?>");
+		var input = BX("<?php echo $arResult['ID']?>");
 		if (input)
-			new JsSuggest(input, '<?echo $arResult["ADDITIONAL_VALUES"]?>');
+			new JsSuggest(input, '<?php echo $arResult['ADDITIONAL_VALUES']?>');
 	});
 </script>
 <IFRAME
 	style="width:0px; height:0px; border: 0px;"
 	src="javascript:''"
-	name="<?echo $arResult["ID"]?>_div_frame"
-	id="<?echo $arResult["ID"]?>_div_frame"
+	name="<?php echo $arResult['ID']?>_div_frame"
+	id="<?php echo $arResult['ID']?>_div_frame"
 ></IFRAME><input
-	<?if($arParams["INPUT_SIZE"] > 0):?>
-		size="<?echo $arParams["INPUT_SIZE"]?>"
-	<?endif?>
-	name="<?echo $arParams["NAME"]?>"
-	id="<?echo $arResult["ID"]?>"
-	value="<?echo $arParams["VALUE"]?>"
+	<?php if ($arParams['INPUT_SIZE'] > 0):?>
+		size="<?php echo $arParams['INPUT_SIZE']?>"
+	<?php endif?>
+	name="<?php echo $arParams['NAME']?>"
+	id="<?php echo $arResult['ID']?>"
+	value="<?php echo $arParams['VALUE']?>"
 	class="search-suggest"
 	type="text"
 	autocomplete="off"

@@ -23,6 +23,8 @@ use Bitrix\Currency\Integration\IblockMoneyProperty;
 use Bitrix\Iblock\ElementTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\Model\PropertyFeature;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Entity\AddResult;
@@ -33,7 +35,9 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM;
+use Bitrix\Main\Result;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Type;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
@@ -1163,6 +1167,14 @@ class CatalogProductDetailsComponent
 	{
 		$sectionFields = $fields['IBLOCK_SECTION'] ?? null;
 		unset($fields['IBLOCK_SECTION']);
+		if (is_array($sectionFields))
+		{
+			Type\Collection::normalizeArrayValuesByInt($sectionFields);
+			if (empty($sectionFields))
+			{
+				$sectionFields = null;
+			}
+		}
 
 		return $sectionFields;
 	}
@@ -1952,6 +1964,10 @@ class CatalogProductDetailsComponent
 		if ($sectionFields !== null)
 		{
 			$product->getSectionCollection()->setValues($sectionFields);
+			if ($product->isNew() && !isset($fields['IBLOCK_SECTION_ID']))
+			{
+				$product->setField('IBLOCK_SECTION_ID', reset($sectionFields));
+			}
 		}
 
 		if (!empty($propertyFields))
@@ -2179,10 +2195,25 @@ class CatalogProductDetailsComponent
 
 	private function saveInternal(BaseProduct $product, bool $notifyAboutNewVariation = false): ?array
 	{
-		$result = $product->save();
-
-		if (!$result->isSuccess())
+		$connection = Application::getConnection();
+		$connection->startTransaction();
+		try
 		{
+			$result = $product->save();
+		}
+		catch (SqlQueryException)
+		{
+			$result = new Result();
+			$result->addError(new Error(Loc::getMessage('CPD_ERROR_SAVE')));
+		}
+
+		if ($result->isSuccess())
+		{
+			$connection->commitTransaction();
+		}
+		else
+		{
+			$connection->rollbackTransaction();
 			$this->errorCollection->add($result->getErrors());
 
 			return null;

@@ -1,8 +1,8 @@
 <?php
+
 namespace Bitrix\Main\Type;
 
-class Dictionary
-	implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable
+class Dictionary implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable
 {
 	/**
 	 * @var array
@@ -112,7 +112,7 @@ class Dictionary
 	 */
 	public function valid(): bool
 	{
-		return ($this->key() !== null);
+		return (key($this->values) !== null);
 	}
 
 	/**
@@ -126,7 +126,7 @@ class Dictionary
 	}
 
 	/**
-	 * Whether a offset exists
+	 * Whether an offset exists
 	 * @internal
 	 * @deprecated
 	 */
@@ -217,4 +217,12 @@ class Dictionary
 	{
 		return $this->values;
     }
+
+	public function __unserialize(array $data): void
+	{
+		if (isset($data['values']) && is_array($data['values']))
+		{
+			$this->values = $data['values'];
+		}
+	}
 }

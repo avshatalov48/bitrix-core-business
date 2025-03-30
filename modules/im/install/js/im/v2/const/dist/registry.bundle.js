@@ -59,6 +59,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  imV2ChatCopilotUpdateRole: 'im.v2.Chat.Copilot.updateRole',
 	  imV2AccessCheck: 'im.v2.Access.check',
 	  imV2ChatMemberEntitiesList: 'im.v2.Chat.MemberEntities.list',
+	  imV2DiskFileSave: 'im.v2.Disk.File.save',
 	  imV2CallZoomCreate: 'im.v2.Call.Zoom.create',
 	  imCallBetaCreateRoom: 'im.call.beta.createRoom',
 	  imMessageAdd: 'im.message.add',
@@ -220,6 +221,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  request: {
 	    onAuthError: 'IM.request:onAuthError'
+	  },
+	  audioPlayer: {
+	    play: 'im:audioplayer:play',
+	    pause: 'im:audioplayer:pause',
+	    stop: 'im:audioplayer:stop',
+	    preload: 'im:audioplayer:preload'
 	  }
 	});
 
@@ -287,6 +294,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  attach: 'attach',
 	  quote: 'quote'
 	});
+	const AudioPlaybackRate = Object.freeze({
+	  1: 1,
+	  1.5: 1.5,
+	  2: 2
+	});
+	const AudioPlaybackState = Object.freeze({
+	  play: 'play',
+	  pause: 'pause',
+	  stop: 'stop',
+	  none: 'none'
+	});
 
 	const MessageType = Object.freeze({
 	  self: 'self',
@@ -320,6 +338,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  generalChannelCreationMessage: 'GeneralChannelCreationMessage',
 	  channelCreationMessage: 'ChannelCreationMessage',
 	  callMessage: 'CallMessage',
+	  voteMessage: 'VoteMessage',
 	  ...imopenlines_v2_const.OpenLinesMessageComponent
 	});
 	const MessageMentionType = Object.freeze({
@@ -499,9 +518,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  base: '#17a3ea',
 	  transparent: 'transparent',
 	  white: '#fff',
+	  gray90: '#525c69',
+	  collab70: '#00a94e',
 	  collab60: '#19cc45',
 	  collab50: '#6be860',
-	  collab10: '#f2fee2'
+	  collab10: '#f2fee2',
+	  orange50: '#ffa900'
 	});
 	const ColorToken = Object.freeze({
 	  base: 'base',
@@ -580,7 +602,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  textareaHeight: 'textareaHeight',
 	  lastCallType: 'lastCallType',
 	  lastNotificationId: 'lastNotificationId',
-	  layoutConfig: 'layoutConfig'
+	  layoutConfig: 'layoutConfig',
+	  audioPlaybackRate: 'audioPlaybackRate'
 	});
 
 	const PlacementType = Object.freeze({
@@ -676,7 +699,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  createCollabDescription: 'im:collab-create:12092024:all',
 	  addUsersToCopilotChat: 'im:add-users-to-copilot-chat:09042024:all',
 	  changeRoleCopilot: 'im:change-role-copilot-chat:09042024:all',
-	  collabHelpdeskSidebar: 'im:collab-helpdesk-sidebar:30102024:all'
+	  collabHelpdeskSidebar: 'im:collab-helpdesk-sidebar:30102024:all',
+	  downloadSeveralFiles: 'im:download-several-files:22112024:all'
 	});
 
 	const ActionByRole = Object.freeze({
@@ -759,6 +783,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  openLines: 'IM_LINES',
 	  openSettings: 'IM_SETTINGS',
 	  openCopilotChat: 'IM_COPILOT',
+	  openCollab: 'IM_COLLAB',
 	  desktopChatTabMode: 'IM_TAB',
 	  backgroundType: 'IM_BACKGROUND'
 	};
@@ -823,6 +848,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.FileStatus = FileStatus;
 	exports.FileType = FileType;
 	exports.FileIconType = FileIconType;
+	exports.AudioPlaybackRate = AudioPlaybackRate;
+	exports.AudioPlaybackState = AudioPlaybackState;
 	exports.MessageType = MessageType;
 	exports.MessageComponent = MessageComponent;
 	exports.MessageMentionType = MessageMentionType;

@@ -110,7 +110,7 @@ export const MentionPopupContent = {
 				return false;
 			}
 
-			return this.itemsToShow.length === 0 && this.preparedQuery.length > 0;
+			return this.itemsToShow.length === 0;
 		},
 		searchConfig(): JsonObject
 		{
@@ -329,7 +329,7 @@ export const MentionPopupContent = {
 			<ScrollWithGradient 
 				v-if="itemsToShow.length > 0" 
 				:gradientHeight="13" 
-				:containerMaxHeight="226"
+				:containerMaxHeight="200"
 				:withShadow="false"
 			>
 				<div class="bx-im-mention-popup-content__items">

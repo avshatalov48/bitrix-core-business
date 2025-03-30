@@ -35,7 +35,20 @@ export const GalleryItem = {
 			type: Boolean,
 			default: false,
 		},
+		handleLoading: {
+			type: Boolean,
+			default: true,
+		},
+		removable: {
+			type: Boolean,
+			default: false,
+		},
+		previewMode: {
+			type: Boolean,
+			default: false,
+		},
 	},
+	emits: ['onRemoveClick'],
 	computed:
 	{
 		messageItem(): ImModelMessage
@@ -77,6 +90,14 @@ export const GalleryItem = {
 				width: Math.max(newWidth, MIN_WIDTH),
 				height: Math.max(newHeight, MIN_HEIGHT),
 			};
+
+			if (this.previewMode && sizes.width > sizes.height)
+			{
+				return {
+					width: `${sizes.width}px`,
+					'object-fit': (sizes.width < 100 || sizes.height < 100) ? 'cover' : 'contain',
+				};
+			}
 
 			return {
 				width: `${sizes.width}px`,
@@ -144,6 +165,10 @@ export const GalleryItem = {
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 		},
+		onRemoveClick()
+		{
+			this.$emit('onRemoveClick', { file: this.file });
+		},
 	},
 	template: `
 		<div 
@@ -169,9 +194,12 @@ export const GalleryItem = {
 				:alt="file.name"
 				class="bx-im-gallery-item__source"
 			/>
-			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageItem.id" :withLabels="!isGallery" />
+			<ProgressBar v-if="handleLoading && !isLoaded" :item="file" :messageId="messageItem.id" :withLabels="!isGallery" />
 			<div v-if="isVideo" class="bx-im-gallery-item__play-icon-container">
 				<div class="bx-im-gallery-item__play-icon"></div>
+			</div>
+			<div v-if="removable" class="bx-im-gallery-item__remove" @click="onRemoveClick">
+				<div class="bx-im-gallery-item__remove-icon"></div>
 			</div>
 		</div>
 	`,

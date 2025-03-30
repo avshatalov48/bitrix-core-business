@@ -1,0 +1,20 @@
+<?php
+$MESS["INTERFACE_FILTER_ADD"] = "Жаңа сүзгі құру";
+$MESS["INTERFACE_FILTER_ADD_FIELD"] = "Іздеудің қосымша шарттары";
+$MESS["INTERFACE_FILTER_CANCEL"] = "Болдырмау";
+$MESS["INTERFACE_FILTER_CURRENT"] = "Сүзгі";
+$MESS["INTERFACE_FILTER_DAYS_SUFFIX"] = "күндер";
+$MESS["INTERFACE_FILTER_DELETE"] = "Жою";
+$MESS["INTERFACE_FILTER_DELETE_FIELD"] = "Іздеу шартын жасыру";
+$MESS["INTERFACE_FILTER_FIND"] = "Табу";
+$MESS["INTERFACE_FILTER_HIDE_ALL"] = "Барлық шартты жасыру";
+$MESS["INTERFACE_FILTER_LIST_VALUE_NOT_SELECTED"] = "(жоқ)";
+$MESS["INTERFACE_FILTER_MAXIMIZE"] = "Сүзгіні ашу";
+$MESS["INTERFACE_FILTER_MINIMIZE"] = "Сүзгіні орау";
+$MESS["INTERFACE_FILTER_SAVE"] = "Сақтау";
+$MESS["INTERFACE_FILTER_SAVE_AS"] = "...ретінде сақтау";
+$MESS["INTERFACE_FILTER_SAVE_AS_DIALOG_FIELD_NAME"] = "Сүзгі атауы";
+$MESS["INTERFACE_FILTER_SAVE_AS_DIALOG_FIELD_NAME_DEFAULT"] = "Жаңа сүзгі";
+$MESS["INTERFACE_FILTER_SAVE_AS_DIALOG_TITLE"] = "Сүзгіні сақтау";
+$MESS["INTERFACE_FILTER_SETTINGS"] = "Сүзгімен әрекеттер";
+$MESS["INTERFACE_FILTER_SHOW_ALL"] = "Барлық шартты көрсету";

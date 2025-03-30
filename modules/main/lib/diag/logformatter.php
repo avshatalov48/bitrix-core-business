@@ -302,8 +302,6 @@ class LogFormatter implements LogFormatterInterface
 				return 'E_USER_WARNING';
 			case 1024:
 				return 'E_USER_NOTICE';
-			case 2048:
-				return 'E_STRICT';
 			case 4096:
 				return 'E_RECOVERABLE_ERROR';
 			case 8192:

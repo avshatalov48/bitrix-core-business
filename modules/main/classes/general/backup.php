@@ -1992,8 +1992,8 @@ class CloudDownload
 				if (!haveTime()) // Сохраняется путь файла, который еще предстоит сохранить, TODO: пошаговое скачивание больших файлов
 					return false;
 
-				$HTTP = new CHTTP;
-				if ($HTTP->Download($this->obBucket->GetFileSRC(array("URN" => $name)), DOCUMENT_ROOT.BX_ROOT.'/backup/clouds/'.$this->id.$name))
+				$http = new \Bitrix\Main\Web\HttpClient();
+				if ($http->download($this->obBucket->GetFileSRC(array("URN" => $name)), DOCUMENT_ROOT.BX_ROOT.'/backup/clouds/'.$this->id.$name))
 				{
 					$this->download_size += $arCloudFiles['file_size'][$k];
 					$this->download_cnt++;

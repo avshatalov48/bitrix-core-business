@@ -156,7 +156,7 @@ class CSaleOrderProps
 						// if we came from places like CRM, we got location in CODEs, because CRM knows nothing about location IDs.
 						// so, CRM sends LOCATION_IN_CODES in options array. In the other case, we assume we got locations as IDs
 						$res = CSaleLocation::GetById($curVal);
-						if(intval($res['ID']))
+						if ($res)
 						{
 							$curVal = $res['ID'];
 							$locId = $res['ID'];

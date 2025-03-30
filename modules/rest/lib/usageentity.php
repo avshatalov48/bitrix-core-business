@@ -23,9 +23,9 @@ use \Bitrix\Main\DB\SqlQueryException;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UsageEntity_Query query()
- * @method static EO_UsageEntity_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UsageEntity_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UsageEntity_Result getById($id)
- * @method static EO_UsageEntity_Result getList(array $parameters = array())
+ * @method static EO_UsageEntity_Result getList(array $parameters = [])
  * @method static EO_UsageEntity_Entity getEntity()
  * @method static \Bitrix\Rest\EO_UsageEntity createObject($setDefaultValues = true)
  * @method static \Bitrix\Rest\EO_UsageEntity_Collection createCollection()

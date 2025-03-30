@@ -38,7 +38,7 @@ final class ControllerCommand extends Command
 {
 	private ControllerService $service;
 
-	protected function configure()
+	protected function configure(): void
 	{
 		$this->service = new ControllerService();
 
@@ -54,7 +54,7 @@ final class ControllerCommand extends Command
 		;
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output)
+	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$name = $input->getArgument('name');
 		if (!is_string($name))

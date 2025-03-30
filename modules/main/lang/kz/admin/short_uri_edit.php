@@ -1,0 +1,20 @@
+<?php
+$MESS["SU_EF_LAST_USED"] = "Соңғы пайдалану күні:";
+$MESS["SU_EF_NUMBER_USED"] = "Пайдалану саны:";
+$MESS["SU_EF_SHORT_URI"] = "Қысқа сілтеме:";
+$MESS["SU_EF_STATUS"] = "HTTP мәртебе коды:";
+$MESS["SU_EF_URI"] = "Сілтеме:";
+$MESS["SU_EF_add_text"] = "Қосу";
+$MESS["SU_EF_date_add"] = "Өзгерту күні:";
+$MESS["SU_EF_del_text"] = "Жою";
+$MESS["SU_EF_list"] = "Жазбалар тізімі";
+$MESS["SU_EF_list_text"] = "Тізім";
+$MESS["SU_EF_mnu_add"] = "Жаңа жазбаны қосу";
+$MESS["SU_EF_mnu_del"] = "Жазбаны жою";
+$MESS["SU_EF_mnu_del_conf"] = "Жазбаны жою керек пе?";
+$MESS["SU_EF_save_error"] = "Жазбаны сақтау кезінде қате.";
+$MESS["SU_EF_saved"] = "Жазба сәтті сақталды.";
+$MESS["SU_EF_tab_1"] = "Қысқа сілтеме";
+$MESS["SU_EF_tab_1_title"] = "Жазу параметрлері";
+$MESS["SU_EF_title_add"] = "Жазбаны қосу";
+$MESS["SU_EF_title_edit"] = "# жазбаны редакциялау";

@@ -1183,4 +1183,15 @@ abstract class SqlHelper
 
 		return $tables;
 	}
+
+	/**
+	 * Checks is the field type is BIG
+	 *
+	 * @param $type
+	 * @return bool
+	 */
+	public function isBigType($type): bool
+	{
+		return false;
+	}
 }

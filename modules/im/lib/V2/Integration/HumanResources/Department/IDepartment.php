@@ -13,6 +13,12 @@ interface IDepartment
 	public function getList(): array;
 
 	/**
+	 * @param int[] $ids
+	 * @return Entity[]
+	 */
+	public function getListByIds(array $ids): array;
+
+	/**
 	 * @return Entity[]
 	 */
 	public function getListByXml(string $xmlId): array;
@@ -21,4 +27,6 @@ interface IDepartment
 	 * @return int[]
 	 */
 	public function getColleagues(): array;
+
+	public function getEmployeeIdsWithLimit(array $ids, int $limit = 50): array;
 }

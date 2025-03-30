@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -12,17 +16,17 @@
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);?>
 <div class="search-form">
-<form action="<?=$arResult["FORM_ACTION"]?>">
-	<?$APPLICATION->IncludeComponent(
-		"bitrix:search.suggest.input",
-		"",
-		array(
-			"NAME" => "q",
-			"VALUE" => "",
-			"INPUT_SIZE" => 15,
-			"DROPDOWN_SIZE" => 10,
-		),
-		$component, array("HIDE_ICONS" => "Y")
-	);?>&nbsp;<input name="s" type="submit" value="<?=GetMessage("BSF_T_SEARCH_BUTTON");?>" />
+<form action="<?=$arResult['FORM_ACTION']?>">
+	<?php $APPLICATION->IncludeComponent(
+		'bitrix:search.suggest.input',
+		'',
+		[
+			'NAME' => 'q',
+			'VALUE' => '',
+			'INPUT_SIZE' => 15,
+			'DROPDOWN_SIZE' => 10,
+		],
+		$component, ['HIDE_ICONS' => 'Y']
+	);?>&nbsp;<input name="s" type="submit" value="<?=GetMessage('BSF_T_SEARCH_BUTTON');?>" />
 </form>
 </div>

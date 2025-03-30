@@ -1,0 +1,23 @@
+<?php
+$MESS["MAIN_ADMIN_ADD_SITE_SELECTOR"] = "Басқа сайт үшін баптау";
+$MESS["MAIN_ADMIN_ADD_SITE_SELECTOR_1"] = "Басқа сайт үшін баптау";
+$MESS["MAIN_ADMIN_SET_CONTROLLER_ALT"] = "Бұл мән Бақылағышпен қайта анықталады";
+$MESS["MAIN_ADMIN_SET_PASS_DEL"] = "Жою";
+$MESS["MAIN_ADMIN_SET_PASS_DEL_TITLE"] = "Сақталған құпиясөзді жою";
+$MESS["MAIN_ADMIN_SET_PASS_SET"] = "(орнатылған)";
+$MESS["MAIN_ADMIN_SITE_ALL_SELECT"] = "Барлық сайттарға";
+$MESS["MAIN_ADMIN_SITE_DEFAULT_VALUE_SELECT"] = "(сайтты таңдаңыз)";
+$MESS["MAIN_BY_DEFAULT"] = "Әдепкі бойынша:";
+$MESS["MAIN_DEFAULT"] = "< әдепкі бойынша >";
+$MESS["MAIN_GROUP_RIGHTS"] = "Модульге қол жеткізу деңгейі";
+$MESS["MAIN_HINT_RESTORE_DEFAULTS"] = "Әдепкі мәндерді орнату";
+$MESS["MAIN_HINT_RESTORE_DEFAULTS_WARNING"] = "Назар аударыңыз! Барлық баптаулар әдепкі бойынша қайта жазылады. Жалғастыру керек пе?";
+$MESS["MAIN_KERNEL"] = "Басты модуль";
+$MESS["MAIN_SELECT"] = "Таңдау";
+$MESS["MAIN_SUPER_ADMIN_RIGHTS_COMMENT"] = "(осы топтың модуль беттеріне<br> қолжетімділікке және деректерді өзгертуге<br> құқықтар шектелмейді)";
+$MESS["MAIN_TAB_RIGHTS"] = "Қолжетімділік";
+$MESS["MAIN_TAB_SET"] = "Баптаулар";
+$MESS["MAIN_TAB_TITLE_RIGHTS"] = "Модульге қол жеткізу деңгейі";
+$MESS["MAIN_TAB_TITLE_SET"] = "Модуль параметрлерін баптау";
+$MESS["MAIN_TITLE"] = "Модуль баптаулары";
+$MESS["MAIN_USER_GROUP_TITLE"] = "Пайдаланушылар тобының параметрлерін қарау";

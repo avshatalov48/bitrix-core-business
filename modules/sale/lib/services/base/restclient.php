@@ -227,10 +227,10 @@ class RestClient
 
 	public static function signLicenseRequest(array $request, $licenseKey)
 	{
-		if(Loader::includeModule('bitrix24'))
+		if (Loader::includeModule('bitrix24'))
 		{
 			$request['BX_TYPE'] = 'B24';
-			$request['BX_LICENCE'] = BX24_HOST_NAME;
+			$request['BX_LICENCE'] = defined('BX24_HOST_NAME') ? BX24_HOST_NAME : '';
 			$request['BX_HASH'] = \CBitrix24::RequestSign(md5(implode("|", $request)));
 		}
 		else

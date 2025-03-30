@@ -31,6 +31,8 @@ class RestService extends \IRestService
 	const ERROR_WRONG_WORKFLOW_ID = 'ERROR_WRONG_WORKFLOW_ID';
 
 	const ERROR_TEMPLATE_VALIDATION_FAILURE = 'ERROR_TEMPLATE_VALIDATION_FAILURE';
+	const ERROR_TEMPLATE_NOT_FOUND = 'ERROR_TEMPLATE_NOT_FOUND';
+	const ERROR_TEMPLATE_NOT_OWNER = 'ERROR_TEMPLATE_NOT_OWNER';
 
 	const ERROR_TASK_VALIDATION = 'ERROR_TASK_VALIDATION';
 	const ERROR_TASK_NOT_FOUND = 'ERROR_TASK_NOT_FOUND';
@@ -645,7 +647,7 @@ class RestService extends \IRestService
 	 * @param array $params Input params.
 	 * @param int $n Offset.
 	 * @param \CRestServer $server Rest server instance.
-	 * @return array
+	 * @return \Countable
 	 * @throws AccessException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\SystemException
@@ -667,17 +669,18 @@ class RestService extends \IRestService
 			'TEMPLATE_ID' => 'WORKFLOW_TEMPLATE_ID',
 		];
 
-		$select = static::getSelect($params['SELECT'], $fields, ['ID', 'MODIFIED', 'OWNED_UNTIL']);
-		$filter = static::getFilter($params['FILTER'], $fields, ['MODIFIED', 'OWNED_UNTIL', 'STARTED']);
-		$order = static::getOrder($params['ORDER'], $fields, ['MODIFIED' => 'DESC']);
+		$select = static::getSelect($params['SELECT'] ?? null, $fields, ['ID', 'MODIFIED', 'OWNED_UNTIL']);
+		$filter = static::getFilter($params['FILTER'] ?? null, $fields, ['MODIFIED', 'OWNED_UNTIL', 'STARTED']);
+		$order = static::getOrder($params['ORDER'] ?? null, $fields, ['MODIFIED' => 'DESC']);
+		$shouldCountTotal = ($n >= 0);
 
 		$iterator = WorkflowInstanceTable::getList([
 			'select' => $select,
 			'filter' => $filter,
 			'order' => $order,
 			'limit' => static::LIST_LIMIT,
-			'offset' => (int)$n,
-			'count_total' => true,
+			'offset' => max(0, (int)$n),
+			'count_total' => $shouldCountTotal,
 		]);
 
 		$result = [];
@@ -698,7 +701,9 @@ class RestService extends \IRestService
 			$result[] = $row;
 		}
 
-		return static::setNavData($result, ['count' => $iterator->getCount(), 'offset' => $n]);
+		$count = $shouldCountTotal ? $iterator->getCount() : 0;
+
+		return static::setNavData($result, ['count' => $count, 'offset' => $n]);
 	}
 
 	/**
@@ -853,7 +858,7 @@ class RestService extends \IRestService
 	 * @param array $params Input params.
 	 * @param int $n Offset.
 	 * @param \CRestServer $server Rest server instance.
-	 * @return mixed Templates collection.
+	 * @return \Countable Templates collection.
 	 * @throws AccessException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
@@ -882,22 +887,23 @@ class RestService extends \IRestService
 			'SYSTEM_CODE' => 'SYSTEM_CODE',
 		);
 
-		$select = static::getSelect($params['SELECT'], $fields, array('ID'));
-		$filter = static::getFilter($params['FILTER'], $fields, array('MODIFIED'));
+		$select = static::getSelect($params['SELECT'] ?? null, $fields, ['ID']);
+		$filter = static::getFilter($params['FILTER'] ?? null, $fields, ['MODIFIED']);
 		$filter['<AUTO_EXECUTE'] = \CBPDocumentEventType::Automation;
 
-		$order = static::getOrder($params['ORDER'], $fields, array('ID' => 'ASC'));
+		$order = static::getOrder($params['ORDER'] ?? null, $fields, ['ID' => 'ASC']);
+		$shouldCountTotal = ($n >= 0);
 
 		$iterator = WorkflowTemplateTable::getList(array(
 			'select' => $select,
 			'filter' => $filter,
 			'order' => $order,
 			'limit' => static::LIST_LIMIT,
-			'offset' => (int) $n,
-			'count_total' => true,
+			'offset' => max(0, (int)$n),
+			'count_total' => $shouldCountTotal,
 		));
 
-		$countTotal = $iterator->getCount();
+		$countTotal = $shouldCountTotal ? $iterator->getCount() : 0;
 
 		$iterator = new \CBPWorkflowTemplateResult($iterator, \CBPWorkflowTemplateLoader::useGZipCompression());
 
@@ -977,7 +983,7 @@ class RestService extends \IRestService
 
 		if (!$fields)
 		{
-			throw new RestException("No fields to update.");
+			throw new RestException("No fields to update.", self::ERROR_TEMPLATE_VALIDATION_FAILURE);
 		}
 
 		$tpl = WorkflowTemplateTable::getList(array(
@@ -987,12 +993,15 @@ class RestService extends \IRestService
 
 		if (!$tpl)
 		{
-			throw new RestException("Workflow template not found.");
+			throw new RestException("Workflow template not found.", self::ERROR_TEMPLATE_NOT_FOUND);
 		}
 
 		if ($tpl['SYSTEM_CODE'] !== self::generateTemplateSystemCode($server))
 		{
-			throw new RestException("You can update ONLY templates created by current application");
+			throw new RestException(
+				"You can update ONLY templates created by current application",
+				self::ERROR_TEMPLATE_NOT_OWNER,
+			);
 		}
 
 		if (isset($fields['NAME']))
@@ -1060,7 +1069,7 @@ class RestService extends \IRestService
 
 		if (!$tpl)
 		{
-			throw new RestException("Workflow template not found.");
+			throw new RestException("Workflow template not found.", self::ERROR_TEMPLATE_NOT_FOUND);
 		}
 
 		if ($tpl['SYSTEM_CODE'] !== self::generateTemplateSystemCode($server))
@@ -1765,7 +1774,7 @@ class RestService extends \IRestService
 	{
 		if (empty($name))
 		{
-			throw new RestException('Empty activity code!', self::ERROR_TEMPLATE_VALIDATION_FAILURE);
+			throw new RestException('Empty template name!', self::ERROR_TEMPLATE_VALIDATION_FAILURE);
 		}
 	}
 

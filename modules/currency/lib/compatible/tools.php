@@ -1,11 +1,8 @@
 <?php
+
 namespace Bitrix\Currency\Compatible;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Currency;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
 
 /**
  * Class Tools
@@ -15,7 +12,7 @@ Loc::loadMessages(__FILE__);
  */
 class Tools
 {
-	protected static $datetimeTemplate = null;
+	protected static string $datetimeTemplate;
 
 	/**
 	 * Return datetime template for old api emulation.
@@ -24,30 +21,31 @@ class Tools
 	 *
 	 * @return string
 	 */
-	public static function getDatetimeExpressionTemplate()
+	public static function getDatetimeExpressionTemplate(): string
 	{
-		if (self::$datetimeTemplate === null)
+		if (!isset(self::$datetimeTemplate))
 		{
 			$helper = Main\Application::getConnection()->getSqlHelper();
 			$format = Main\Context::getCurrent()->getCulture()->getDateTimeFormat();
 			$datetimeFieldName = '#FIELD#';
 			$datetimeField = $datetimeFieldName;
-			/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 			if (\CTimeZone::enabled())
 			{
-				/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 				$diff = \CTimeZone::getOffset();
-				if ($diff <> 0)
+				if ($diff !== 0)
+				{
 					$datetimeField = $helper->addSecondsToDateTime($diff, $datetimeField);
+				}
 				unset($diff);
 			}
 			self::$datetimeTemplate = str_replace(
-				array('%', $datetimeFieldName),
-				array('%%', '%1$s'),
+				['%', $datetimeFieldName],
+				['%%', '%1$s'],
 				$helper->formatDate($format, $datetimeField)
 			);
 			unset($datetimeField, $datetimeFieldName, $format, $helper);
 		}
+
 		return self::$datetimeTemplate;
 	}
 }

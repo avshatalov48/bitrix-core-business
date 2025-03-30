@@ -11,7 +11,7 @@ if (ini_get('short_open_tag') == 0 && strtoupper(ini_get('short_open_tag')) != '
 	die("Error: short_open_tag parameter must be turned on in php.ini\n");
 }
 
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING);
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_WARNING);
 define('START_TIME', microtime(1));
 define('BX_FORCE_DISABLE_SEPARATED_SESSION_MODE', true);
 define('CLI', defined('BX_CRONTAB') && BX_CRONTAB === true || !$_SERVER['DOCUMENT_ROOT']);

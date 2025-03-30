@@ -1,0 +1,24 @@
+<?php
+$MESS["CMDESKTOP_TDEF_ADD_BUTTON"] = "Гаджетті қосу";
+$MESS["CMDESKTOP_TDEF_ADMIN_TITLE"] = "Жұмыс үстелі: #TITLE#";
+$MESS["CMDESKTOP_TDEF_ADMIN_TITLE_DEFAULT"] = "Жұмыс үстелі #NUM#";
+$MESS["CMDESKTOP_TDEF_CANCEL"] = "Болдырмау";
+$MESS["CMDESKTOP_TDEF_CLEAR"] = "Ағымдағы баптауларды қалпына келтіру";
+$MESS["CMDESKTOP_TDEF_CLEAR_CONF"] = "Әдепкі бойынша баптаулар жұмыс үстеліңіз үшін қолданылады. Жалғастыру керек пе?";
+$MESS["CMDESKTOP_TDEF_COLUMN_WIDTH"] = "Баған ені (px немесе %) #";
+$MESS["CMDESKTOP_TDEF_CONF"] = "Жұмыс үстелініздің баптаулары әдепкі бойынша барлық жаңа, сондай-ақ бұрын бапталмаған жұмыс үстелдеріне қолданылады. Жалғастыру керек пе?";
+$MESS["CMDESKTOP_TDEF_DELETE"] = "Жою";
+$MESS["CMDESKTOP_TDEF_DESKTOPS"] = "Жұмыс үстелдері: ";
+$MESS["CMDESKTOP_TDEF_DESKTOP_ADD"] = "Жаңа жұмыс үстелін құру";
+$MESS["CMDESKTOP_TDEF_DESKTOP_ALL_SETTINGS"] = "Барлық жұмыс үстелдерін баптау";
+$MESS["CMDESKTOP_TDEF_DESKTOP_SETTINGS"] = "Ағымдағы жұмыс үстелін баптау";
+$MESS["CMDESKTOP_TDEF_DESKTOP_SETTINGS_BUTTON"] = "Баптаулар";
+$MESS["CMDESKTOP_TDEF_ERR1"] = "Серверде гаджеттің позициясын сақтау қатесі.";
+$MESS["CMDESKTOP_TDEF_ERR2"] = "Серверге гаджет қосу қатесі.";
+$MESS["CMDESKTOP_TDEF_GADGET_SETTINGS_DIALOG_TITLE"] = "Гаджет баптаулары";
+$MESS["CMDESKTOP_TDEF_HIDE"] = "Жасыру/көрсету";
+$MESS["CMDESKTOP_TDEF_PUBLIC"] = "Admin қалыбын сайттың жария бөлігінде қолдануға болмайды";
+$MESS["CMDESKTOP_TDEF_SET"] = "Әдепкі бойынша баптаулар ретінде сақтау";
+$MESS["CMDESKTOP_TDEF_SETTINGS"] = "Баптау";
+$MESS["CMDESKTOP_TDEF_SETTINGS_ALL_DIALOG_TITLE"] = "Жұмыс үстелдерін басқару";
+$MESS["CMDESKTOP_TDEF_SETTINGS_DIALOG_TITLE"] = "Жұмыс үстелінің баптаулары";

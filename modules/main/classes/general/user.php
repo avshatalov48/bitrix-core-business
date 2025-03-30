@@ -25,6 +25,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Security\Password;
 use Bitrix\Main\GroupTable;
+use Bitrix\Main\DB\SqlExpression;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -264,23 +265,12 @@ class CAllUser extends CDBResult
 
 			CFile::SaveForDB($arFields, "WORK_LOGO", 'main');
 
-			$arInsert = $DB->PrepareInsert("b_user", $arFields);
-
 			if (!is_set($arFields, "DATE_REGISTER"))
 			{
-				$arInsert[0] .= ", DATE_REGISTER";
-				$arInsert[1] .= ", " . $DB->GetNowFunction();
+				$arFields["~DATE_REGISTER"] = $DB->GetNowFunction();
 			}
 
-			$strSql = "
-				INSERT INTO b_user (
-					" . $arInsert[0] . "
-				) VALUES (
-					" . $arInsert[1] . "
-				)
-			";
-			$DB->Query($strSql);
-			$ID = $DB->LastID();
+			$ID = $DB->Add('b_user', $arFields);
 
 			$USER_FIELD_MANAGER->Update("USER", $ID, $arFields);
 
@@ -343,7 +333,7 @@ class CAllUser extends CDBResult
 	public static function GetDropDownList($strSqlSearch = "and ACTIVE='Y'", $strSqlOrder = "ORDER BY ID, NAME, LAST_NAME")
 	{
 		global $DB;
-		$connection = \Bitrix\Main\Application::getConnection();
+		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
 		$strSql = "
@@ -1443,6 +1433,8 @@ class CAllUser extends CDBResult
 
 		if ($arUser = $result->Fetch())
 		{
+			$groups = Main\UserTable::getUserGroupIds($arUser["ID"]);
+
 			$data = [
 				"LOGIN" => $arUser["LOGIN"],
 				"EMAIL" => $arUser["EMAIL"],
@@ -1456,10 +1448,10 @@ class CAllUser extends CDBResult
 				"EXTERNAL_AUTH_ID" => $arUser["EXTERNAL_AUTH_ID"],
 				"XML_ID" => $arUser["XML_ID"],
 				"ADMIN" => false,
-				"POLICY" => static::getPolicy($arUser["ID"])->getValues(),
+				"POLICY" => static::getPolicy($groups)->getValues(),
 				"AUTO_TIME_ZONE" => trim((string)$arUser["AUTO_TIME_ZONE"]),
 				"TIME_ZONE" => $arUser["TIME_ZONE"],
-				"GROUPS" => Main\UserTable::getUserGroupIds($arUser["ID"]),
+				"GROUPS" => $groups,
 				"CONTEXT" => json_encode($context),
 			];
 
@@ -2154,16 +2146,15 @@ class CAllUser extends CDBResult
 						// only intranet AND extranet users are countable
 						if ($license->isExtraCountable() && Main\Loader::includeModule('extranet'))
 						{
-							if (
-								Extranet\Service\ServiceContainer::getInstance()
-									->getCollaberService()
-									->isCollaberById($user_id)
-							)
+							$extranetServiceContainer = Extranet\Service\ServiceContainer::getInstance();
+
+							if ($extranetServiceContainer->getCollaberService()->isCollaberById($user_id))
 							{
 								return true;
 							}
 
 							$groupId = (int)Option::get('extranet', 'extranet_group');
+
 							if ($groupId > 0 && in_array($groupId, static::GetUserGroup($user_id)))
 							{
 								return false;
@@ -4438,8 +4429,6 @@ class CAllUser extends CDBResult
 	 */
 	public static function getPolicy($userId)
 	{
-		global $DB;
-
 		static $cache = [];
 
 		$cacheId = md5(serialize(is_array($userId) ? $userId : (int)$userId));
@@ -4475,30 +4464,48 @@ class CAllUser extends CDBResult
 			}
 			if ($arGroups)
 			{
-				$sql =
-					"SELECT G.ID GROUP_ID, G.SECURITY_POLICY " .
-					"FROM b_group G " .
-					"WHERE G.ID in (" . implode(", ", $arGroups) . ")";
-				$rs = $DB->Query($sql);
-				while ($ar = $rs->Fetch())
+				$result = GroupTable::getList([
+					'select' => ['GROUP_ID' => 'ID', 'SECURITY_POLICY'],
+					'filter' => [
+						'=ID' => $arGroups,
+						'=ACTIVE' => 'Y',
+					],
+					'cache' => ['ttl' => 86400],
+				]);
+
+				while ($row = $result->fetch())
 				{
-					$arPolicies[] = $ar;
+					$arPolicies[] = $row;
 				}
 			}
 		}
 		elseif (intval($userId) > 0)
 		{
-			$sql =
-				"SELECT UG.GROUP_ID, G.SECURITY_POLICY " .
-				"FROM b_user_group UG, b_group G " .
-				"WHERE UG.USER_ID = " . intval($userId) . ' ' .
-				"AND UG.GROUP_ID = G.ID " .
-				"AND ((UG.DATE_ACTIVE_FROM IS NULL) OR (UG.DATE_ACTIVE_FROM <= " . $DB->CurrentTimeFunction() . ")) " .
-				"AND ((UG.DATE_ACTIVE_TO IS NULL) OR (UG.DATE_ACTIVE_TO >= " . $DB->CurrentTimeFunction() . ")) ";
-			$rs = $DB->Query($sql);
-			while ($ar = $rs->Fetch())
+			$nowTimeExpression = new SqlExpression(
+				Main\Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction()
+			);
+
+			$result = GroupTable::getList([
+				'select' => ['GROUP_ID' => 'ID', 'SECURITY_POLICY'],
+				'filter' => [
+					'=UserGroup:GROUP.USER_ID' => $userId,
+					'=ACTIVE' => 'Y',
+					[
+						'LOGIC' => 'OR',
+						'=UserGroup:GROUP.DATE_ACTIVE_FROM' => null,
+						'<=UserGroup:GROUP.DATE_ACTIVE_FROM' => $nowTimeExpression,
+					],
+					[
+						'LOGIC' => 'OR',
+						'=UserGroup:GROUP.DATE_ACTIVE_TO' => null,
+						'>=UserGroup:GROUP.DATE_ACTIVE_TO' => $nowTimeExpression,
+					],
+				],
+			]);
+
+			while ($row = $result->fetch())
 			{
-				$arPolicies[] = $ar;
+				$arPolicies[] = $row;
 			}
 		}
 

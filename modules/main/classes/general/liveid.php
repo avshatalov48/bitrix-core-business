@@ -1782,7 +1782,10 @@ class WindowsLiveLogin
 		//$str = $url."\n\n".$contents."\n\n\n";
 		//file_put_contents(__FILE__ . '.ftech.log', $str, FILE_APPEND);
 
-		$contents = CHTTP::sGet($url, false);
+		$http = new \Bitrix\Main\Web\HttpClient([
+			"redirect" => false,
+		]);
+		$contents = $http->get($url);
 
 		return $contents;
 	}

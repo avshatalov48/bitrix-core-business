@@ -1,10 +1,17 @@
-<?
+<?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
 
 if (!empty($arResult['ERROR']))
 {
 	ShowError($arResult['ERROR']);
+
 	return false;
 }
 
@@ -16,7 +23,7 @@ $listUrl = str_replace('#BLOCK_ID#', intval($arParams['BLOCK_ID']),	$arParams['L
 
 ?>
 
-<a href="<?=htmlspecialcharsbx($listUrl)?>"><?=GetMessage('HLBLOCK_ROW_VIEW_BACK_TO_LIST')?></a><br><br>
+<a href="<?=htmlspecialcharsbx($listUrl)?>"><?= GetMessage('HLBLOCK_ROW_VIEW_BACK_TO_LIST') ?></a><br><br>
 
 <div class="reports-result-list-wrap">
 	<div class="report-table-wrap">
@@ -26,29 +33,31 @@ $listUrl = str_replace('#BLOCK_ID#', intval($arParams['BLOCK_ID']),	$arParams['L
 			<!-- head -->
 			<tr>
 				<th class="reports-first-column" style="cursor: default">
-					<div class="reports-head-cell"><span class="reports-head-cell-title"><?=GetMessage('HLBLOCK_ROW_VIEW_NAME_COLUMN')?></span></div>
+					<div class="reports-head-cell"><span class="reports-head-cell-title"><?= GetMessage('HLBLOCK_ROW_VIEW_NAME_COLUMN') ?></span></div>
 				</th>
 				<th class="reports-last-column" style="cursor: default">
-					<div class="reports-head-cell"><span class="reports-head-cell-title"><?=GetMessage('HLBLOCK_ROW_VIEW_VALUE_COLUMN')?></span></div>
+					<div class="reports-head-cell"><span class="reports-head-cell-title"><?= GetMessage('HLBLOCK_ROW_VIEW_VALUE_COLUMN') ?></span></div>
 				</th>
 			</tr>
 
 			<tr>
 				<td class="reports-first-column">ID</td>
-				<td class="reports-last-column"><?=$arResult['row']['ID']?></td>
+				<td class="reports-last-column"><?= $arResult['row']['ID'] ?></td>
 			</tr>
-
-			<? foreach($arResult['fields'] as $field): ?>
-				<? $title = $field["LIST_COLUMN_LABEL"]? $field["LIST_COLUMN_LABEL"]: $field['FIELD_NAME']; ?>
+			<?php
+			foreach($arResult['fields'] as $field):
+				$title = $field["LIST_COLUMN_LABEL"]?: $field['FIELD_NAME']; ?>
 				<tr>
 					<td class="reports-first-column"><?=htmlspecialcharsEx($title)?></td>
-					<?
+					<?php
 					$valign = "";
 					$html = $USER_FIELD_MANAGER->getListView($field, $arResult['row'][$field['FIELD_NAME']]);
 					?>
-					<td class="reports-last-column"><?=$html?></td>
+					<td class="reports-last-column"><?= $html ?></td>
 				</tr>
-			<? endforeach; ?>
+				<?php
+			endforeach;
+			?>
 		</table>
 	</div>
 </div>

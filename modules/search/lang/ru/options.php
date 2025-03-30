@@ -24,17 +24,27 @@ $MESS["SEARCH_OPTIONS_TAB_TITLE_SEARCH"] = "Настройки параметр�
 $MESS["SEARCH_OPTIONS_TAB_STATISTIC"] = "Статистика";
 $MESS["SEARCH_OPTIONS_TAB_TITLE_STATISTIC"] = "Настройки времени хранения статистики";
 $MESS["SEARCH_OPTIONS_USE_WORD_DISTANCE"] = "При ранжировании результатов учитывать расстояние между словами:";
-$MESS["SEARCH_OPTIONS_REINSTALL_MODULE"] = "Для включения этой настройки требуется переустановка модуля без сохранения таблиц с последующей полной переиндексацией.";
 $MESS["SEARCH_OPTIONS_USE_SOCIAL_RATING"] = "При ранжировании результатов учитывать рейтинг:";
 $MESS["SEARCH_OPTIONS_AGENT_STEMMING"] = "Отложить выполнение морфологического анализа (на агента):";
 $MESS["SEARCH_OPTIONS_AGENT_DURATION"] = "Максимальная длительность выполнения агента (секунд):";
 $MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE"] = "Полнотекстовый поиск с помощью:";
 $MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE_BITRIX"] = "Bitrix";
 $MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE_SPHINX"] = "Sphinx";
+$MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE_OPENSEARCH"] = "OpenSearch";
 $MESS["SEARCH_OPTIONS_SPHINX_CONNECTION"] = "Строка подключения для управления индексом (протокол MySql):";
 $MESS["SEARCH_OPTIONS_SPHINX_INDEX_NAME"] = "Идентификатор индекса:";
 $MESS["SEARCH_OPTIONS_SPHINX_ERROR"] = "Ошибка подключения к серверу Sphinx:";
 $MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE_MYSQL"] = "Полнотекстовый поиск MySql";
+$MESS["SEARCH_OPTIONS_OPENSEARCH_CONNECTION"] = "Сервер OpensSearch (https://myserver:9200):";
+$MESS["SEARCH_OPTIONS_OPENSEARCH_USER"] = "Пользователь:";
+$MESS["SEARCH_OPTIONS_OPENSEARCH_PASSWORD"] = "Пароль:";
+$MESS["SEARCH_OPTIONS_OPENSEARCH_INDEX"] = "Название индекса (будет создан при необходимости):";
+$MESS["SEARCH_OPTIONS_OPENSEARCH_ANALYZER_NOTE"] = "Подробнее об анализаторах языка: <a href=\"https://opensearch.org/docs/latest/analyzers/language-analyzers/index\">https://opensearch.org/docs/latest/analyzers/language-analyzers/index</a>";
+$MESS["SEARCH_OPTIONS_OPENSEARCH_ANALYZER_FOR_SITE"] = "Анализатор поисковых запросов для сайта #SITE_ID#:";
 $MESS["SEARCH_OPTIONS_MYSQL_ERROR"] = "Ошибка включения полнотекстового поиска:";
 $MESS["SEARCH_OPTIONS_MYSQL_NOTE"] = "Если при включении индекса вы увидите ошибку с кодом 1214, то нужно обновить MySql до версии >=5.6.4.";
+$MESS["SEARCH_OPTIONS_FULL_TEXT_ENGINE_PGSQL"] = "Полнотекстовый поиск PostgreSQL";
+$MESS["SEARCH_OPTIONS_PGSQL_ERROR"] = "Ошибка включения полнотекстового поиска:";
+$MESS["SEARCH_OPTIONS_OPENSEARCH_ERROR"] = "Ошибка подключения к серверу OpenSearch.";
+$MESS["SEARCH_OPTIONS_FULL_REINDEX"] = "Изменился способ полнотекстового поиска. Требуется выполнить полную <a href=\"#LINK#\">переиндексацию</a> модулем поиска.";
 ?>

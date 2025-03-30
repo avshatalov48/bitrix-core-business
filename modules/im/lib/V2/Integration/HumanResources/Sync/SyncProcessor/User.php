@@ -144,9 +144,10 @@ class User extends Base
 			return;
 		}
 
+		$config = New Relation\DeleteUserConfig(false, false, false, true);
 		$chat
 			->withContextUser(0)
-			->deleteUser($userId, false, false,false, true)
+			->deleteUser($userId,$config)
 		;
 	}
 

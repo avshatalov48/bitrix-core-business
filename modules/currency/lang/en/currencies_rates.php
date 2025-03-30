@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["curr_rates_flt_date"] = "Date:";
 $MESS["curr_rates_flt_btn"] = "Set Filter";
 $MESS["curr_rates_nav"] = "Rates";
@@ -45,4 +45,3 @@ $MESS["BX_CURRENCY_RATE_EDIT_MESS_AMOUNT"] = "The Currency module uses the <b>di
 $MESS["BX_CURRENCY_RATE_BASE_CURRENCY"] = "Base currency";
 $MESS["BX_CURRENCY_RATE_BASE_BASE_CURRENCY_FIELD_ABSENT"] = "not specified";
 $MESS["ERROR_BASE_CURRENCY_RATE"] = "Base currency is missing";
-?>

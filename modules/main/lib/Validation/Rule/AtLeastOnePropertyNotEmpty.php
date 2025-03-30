@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Bitrix\Main\Validation\Rule;
 
 use Attribute;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
+use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 use Bitrix\Main\Validation\Validator\AtLeastOneNotEmptyValidator;
@@ -19,7 +20,7 @@ final class AtLeastOnePropertyNotEmpty extends AbstractClassValidationAttribute
 		private readonly array $fields,
 		private readonly bool $allowZero = false,
 		private readonly bool $allowEmptyString = false,
-		protected ?string $errorMessage = null,
+		protected string|LocalizableMessageInterface|null $errorMessage = null,
 	)
 	{
 	}
@@ -33,7 +34,7 @@ final class AtLeastOnePropertyNotEmpty extends AbstractClassValidationAttribute
 		if (empty($properties))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_AT_LEAST_ONE_PROPERTY_NOT_EMPTY_EMPTY')
+				new LocalizableMessage('MAIN_VALIDATION_AT_LEAST_ONE_PROPERTY_NOT_EMPTY_EMPTY')
 			));
 
 			return $this->replaceWithCustomError($result);

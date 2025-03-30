@@ -76,6 +76,7 @@ export const Button = {
 					iconColor: '',
 					textColor: '',
 					hoverColor: '',
+					textHoverColor: '',
 				};
 			},
 		},
@@ -108,10 +109,11 @@ export const Button = {
 			const result = {};
 			if (this.hasCustomColorScheme)
 			{
-				result.borderColor = this.customColorScheme.borderColor;
-				result.backgroundColor = this.customColorScheme.backgroundColor;
-				result.color = this.customColorScheme.textColor;
+				result['--im-button__border-color'] = this.customColorScheme.borderColor;
+				result['--im-button__background-color'] = this.customColorScheme.backgroundColor;
+				result['--im-button__color'] = this.customColorScheme.textColor;
 				result['--im-button__background-color_hover'] = this.customColorScheme.hoverColor;
+				result['--im-button__color_hover'] = this.customColorScheme.textHoverColor ?? this.customColorScheme.textColor;
 			}
 
 			return result;

@@ -176,36 +176,47 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 $adminContext->Show();
 
 if (!empty($errorMessage))
+{
 	CAdminMessage::ShowMessage(implode('<br>', $errorMessage));
+}
 ?>
 
-<form method="post" action="<?$APPLICATION->GetCurPage()?>" name="admin_currency_classifier">
-	<?= bitrix_sessid_post()?>
-	<?$tabControl->Begin()?>
-	<?$tabControl->BeginNextTab();?>
+<form method="post" action="<?= $APPLICATION->GetCurPage() ?>" name="admin_currency_classifier">
+	<?= bitrix_sessid_post() ?>
+	<?= $tabControl->Begin() ?>
+	<?php
+	$tabControl->BeginNextTab();
+	?>
 	<tr class="heading">
 		<td colspan="2">
 			<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FORM_SECTION_SEARCH_AND_CHOICE')?></label>
 		</td>
 	</tr>
 	<tr>
-		<td width="40%">
+		<td style="width: 40%;">
 			<label><?= HtmlFilter::encode(Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_SEARCH'));?>:</label>
 		</td>
-		<td width="60%">
+		<td style="width: 60%;">
 			<input id="admin_classifier_currency_needle" name="admin_classifier_currency_needle" type="text" style="width: 300px"
 				placeholder="<?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_SEARCH_PLACEHOLDER')?>"
 				value="<?= HtmlFilter::encode($lastValues['NEEDLE']);?>">
 		</td>
 	</tr>
 	<tr>
-		<td width="40%">
+		<td style="width: 40%;">
 			<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_CHOICE')?>:</label>
 		</td>
-		<td width="60%">
+		<td style="width: 60%;">
 			<select id="admin_classifier_currency_id" name="admin_classifier_currency_id" size="10" style="width: 312px">
-				<?foreach ($classifier as $key => $value)
-					echo "<option value=".HtmlFilter::encode($key).">".HtmlFilter::encode($value[mb_strtoupper(LANGUAGE_ID)]['FULL_NAME'])."</option>";?>
+				<?php
+				$nameKey = mb_strtoupper(LANGUAGE_ID);
+				foreach ($classifier as $key => $value):
+					echo '<option value="' . HtmlFilter::encode($key) . '">'
+						. HtmlFilter::encode($value[$nameKey]['FULL_NAME'])
+						. '</option>'
+					;
+				endforeach;
+				?>
 			</select>
 		</td>
 	</tr>
@@ -215,28 +226,28 @@ if (!empty($errorMessage))
 		</td>
 	</tr>
 	<tr>
-		<td width="40%">
+		<td style="width: 40%;">
 			<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_NUM_CODE')?>:</label>
 		</td>
-		<td width="60%" style="height: 25px">
+		<td style="width: 60%; height: 25px">
 			<label id="num_code" name="num_code" style="width: 300px"></label>
 		</td>
 	</tr>
 	<tr>
-		<td width="40%">
+		<td style="width: 40%;">
 			<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_SYM_CODE')?>:</label>
 		</td>
-		<td width="60%" style="height: 25px">
+		<td style="width: 60%; height: 25px">
 			<input hidden id="hidden_sym_code" name="sym_code">
 			<label id="sym_code" name="sym_code" style="width: 300px"></label>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td width="40%">
+		<td style="width: 40%;">
 			<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_EXCHANGE_RATE')?>:</label>
 			<span class="required" style="vertical-align: super; font-size: smaller">1</span>
 		</td>
-		<td width="60%" style="padding-left: 1px">
+		<td style="width: 60%; padding-left: 1px;">
 			<table>
 				<tr>
 					<td>
@@ -253,72 +264,74 @@ if (!empty($errorMessage))
 		</td>
 	</tr>
 	<tr>
-		<td width="40%">
+		<td style="width: 40%;">
 			<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_SORT_INDEX')?>:</label>
 		</td>
-		<td width="60%">
+		<td style="width: 60%;">
 			<input id="sort_index" name="sort_index" type="text" style="width: 300px" value="<?= HtmlFilter::encode($lastValues['SORT_INDEX']);?>">
 		</td>
 	</tr>
-	<?$tabControl->BeginNextTab();
-		foreach ($languages as $key => $value)
-		{?>
+	<?php
+	$tabControl->BeginNextTab();
+		foreach ($languages as $key => $value):
+			?>
 			<tr class="heading">
 				<td colspan="2">
 					<label><?= HtmlFilter::encode($value);?></label>
 				</td>
 			</tr>
 			<tr>
-				<td width="40%">
+				<td style="width: 40%;">
 					<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_FULL_NAME')?>:</label>
 				</td>
-				<td width="60%" style="height: 25px">
+				<td style="width: 60%; height: 25px">
 					<label id="full_name_<?= HtmlFilter::encode($key);?>" name="full_name_<?= HtmlFilter::encode($key);?>"></label>
 				</td>
 			</tr>
 			<tr>
-				<td width="40%">
+				<td style="width: 40%;">
 					<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_FORMAT_STRING')?>:</label>
 				</td>
-				<td width="60%" style="height: 25px">
+				<td style="width: 60%; height: 25px">
 					<label id="format_string_<?= HtmlFilter::encode($key);?>" name="format_string_<?= HtmlFilter::encode($key);?>"></label>
 				</td>
 			</tr>
 			<tr>
-				<td width="40%">
+				<td style="width: 40%;">
 					<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_DEC_POINT')?>:</label>
 				</td>
-				<td width="60%" style="height: 25px">
+				<td style="width: 60%; height: 25px">
 					<label id="dec_point_<?= HtmlFilter::encode($key);?>" name="dec_point_<?= HtmlFilter::encode($key);?>"></label>
 				</td>
 			</tr>
 			<tr>
-				<td width="40%">
+				<td style="width: 40%;">
 					<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_THOUSANDS_SEPARATOR')?>:</label>
 				</td>
-				<td width="60%" style="height: 25px">
+				<td style="width: 60%; height: 25px">
 					<label id="thousands_sep_<?= HtmlFilter::encode($key);?>" name="thousands_sep_<?= HtmlFilter::encode($key);?>"></label>
 				</td>
 			</tr>
 			<tr>
-				<td width="40%">
+				<td style="width: 40%;">
 					<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_DECIMALS')?>:</label>
 					<span class="required" style="vertical-align: super; font-size: smaller">2</span>
 				</td>
-				<td width="60%" style="height: 25px">
+				<td style="width: 60%; height: 25px">
 					<label id="decimals_<?= HtmlFilter::encode($key);?>" name="decimals_<?= HtmlFilter::encode($key);?>"></label>
 				</td>
 			</tr>
 			<tr>
-				<td width="40%">
+				<td style="width: 40%;">
 					<label><?= Loc::getMessage('ADMIN_CURRENCY_CLASSIFIER_FIELD_HIDE_ZERO')?>:</label>
 					<span class="required" style="vertical-align: super; font-size: smaller">3</span>
 				</td>
-				<td width="60%" style="height: 25px">
+				<td style="width: 60%; height: 25px">
 					<input id="hide_zero_<?= HtmlFilter::encode($key);?>" name="hide_zero_<?= HtmlFilter::encode($key);?>" type="checkbox" checked onclick="return false;">
 				</td>
 			</tr>
-		<?}
+			<?php
+		endforeach;
 	$tabControl->EndTab();
 	$tabControl->Buttons(array("disabled" => $currencyRights < "W", "back_url" =>"/bitrix/admin/currencies.php?lang=".LANGUAGE_ID));
 	$tabControl->End();?>

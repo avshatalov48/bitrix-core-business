@@ -67,7 +67,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 
 		$email = $data['client_email'] ?? '';
 
-		$phone = \NormalizePhone($data['client_phone']);
+		$phone = \NormalizePhone($data['client_phone'] ?? null);
 		if (is_string($phone))
 		{
 			if ($phone[0] !== '7')

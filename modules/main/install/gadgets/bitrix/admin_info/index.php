@@ -18,8 +18,8 @@ $sProduct = str_replace("#VERSION#", $sVer, $sProduct);
 			<td align="left" valign="top" style="padding-bottom: 20px; line-height: 28px;"><span><?
 				if ($GLOBALS['USER']->CanDoOperation('view_other_settings'))
 				{
-					$last_updated = COption::GetOptionString("main", "update_system_update", "-");
-					?><div><?=str_replace("#VALUE#", $last_updated, GetMessage("GD_INFO_LASTUPDATE"));?></div><?
+					$last_updated = COption::GetOptionInt("main", "update_system_update_time");
+					?><div><?=str_replace("#VALUE#", $last_updated ? \Bitrix\Main\Type\DateTime::createFromTimestamp($last_updated) : '-', GetMessage("GD_INFO_LASTUPDATE"));?></div><?
 				}
 
 				if(IsModuleInstalled("perfmon") && $GLOBALS["APPLICATION"]->GetGroupRight("perfmon") != "D")

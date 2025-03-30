@@ -170,7 +170,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 		{
 			foreach ($arResult['ITEMS'] as $item)
 			{
-				$uniqueId = $item['ID'].'_'.md5($this->randString().$component->getAction()).$arResult['AREA_ID_ADDITIONAL_SALT'];
+				$uniqueId = $item['ID'] . '_' . md5($this->randString() . $component->getAction());
 				$this->addEditAction($uniqueId, $item['EDIT_LINK'], $elementEdit);
 				$this->addDeleteAction($uniqueId, $item['DELETE_LINK'], $elementDelete, $elementDeleteParams);
 

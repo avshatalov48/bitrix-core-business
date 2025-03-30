@@ -22,7 +22,7 @@ $MESS["IM_LIB_INVITE_RESEND_DONE"] = "Приглашение отправлен�
 $MESS['IM_LIB_INVITE_CANCEL'] = "Отменить приглашение";
 $MESS['IM_LIB_INVITE_CANCEL_CONFIRM'] = "Вы уверены, что хотите отменить приглашение?";
 $MESS['IM_LIB_INVITE_CANCEL_DONE'] = "Приглашение отменено";
-$MESS['IM_LIB_MENU_FIND_CHATS_WITH_USER'] = "Найти чаты с сотрудником";
+$MESS['IM_LIB_MENU_FIND_CHATS_WITH_USER_MSGVER_1'] = "Найти общие чаты";
 
 $MESS['IM_LIB_MENU_USER_KICK_FROM_CHAT'] = "Исключить из чата";
 $MESS['IM_LIB_MENU_USER_KICK_FROM_COLLAB'] = "Исключить из коллабы";

@@ -81,7 +81,7 @@ class SenderTable extends Entity\DataManager
 
 			(new Fields\ArrayField("OPTIONS"))
 				->configureSerializationPhp()
-				->configureRequired(true)
+				->configureRequired(false)
 				->configureTitle(Loc::getMessage("main_mail_sender_options_title"))
 				->addSaveDataModifier(function($value)
 					{

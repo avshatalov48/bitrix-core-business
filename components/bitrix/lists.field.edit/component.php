@@ -215,6 +215,22 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 				$strError = GetMessage("CC_BLFE_WRONG_LINK_IBLOCK")."<br>";
 		}
 
+		if (!str_contains($arField['TYPE'], ':'))
+		{
+			$simpleField = true;
+		}
+		else
+		{
+			[$baseType, $userType] = explode(':', $arField['TYPE']);
+			$simpleField = empty($userType);
+		}
+		if ($simpleField)
+		{
+			if (isset($arField['DEFAULT_VALUE']) && !is_scalar($arField['DEFAULT_VALUE']))
+			{
+				$arField['DEFAULT_VALUE'] = '';
+			}
+		}
 
 		if(isset($_POST["ROW_COUNT"]) && $_POST["ROW_COUNT"] > 0)
 			$arField["ROW_COUNT"] = intval($_POST["ROW_COUNT"]);

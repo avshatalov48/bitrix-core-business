@@ -26,6 +26,10 @@ class ArrayField extends ScalarField
 	/** @var callable */
 	protected $decodeFunction;
 
+	const SERIALIZATION_TYPE_PHP = 'php';
+
+	const SERIALIZATION_TYPE_JSON = 'json';
+
 	public function __construct($name, $parameters = [])
 	{
 		$this->configureSerializationJson();
@@ -43,7 +47,7 @@ class ArrayField extends ScalarField
 	 */
 	public function configureSerializationJson()
 	{
-		$this->serializationType = 'json';
+		$this->serializationType = static::SERIALIZATION_TYPE_JSON;
 		$this->encodeFunction = [$this, 'encodeJson'];
 		$this->decodeFunction = [$this, 'decodeJson'];
 
@@ -57,7 +61,7 @@ class ArrayField extends ScalarField
 	 */
 	public function configureSerializationPhp()
 	{
-		$this->serializationType = 'php';
+		$this->serializationType = static::SERIALIZATION_TYPE_PHP;
 		$this->encodeFunction = [$this, 'encodePhp'];
 		$this->decodeFunction = [$this, 'decodePhp'];
 
@@ -210,6 +214,21 @@ class ArrayField extends ScalarField
 		return $value === null && $this->is_nullable
 			? $value
 			: $this->getConnection()->getSqlHelper()->convertToDbString($value);
+	}
+
+	public function isValueEmpty($value)
+	{
+		if (is_array($value))
+		{
+			return empty($value);
+		}
+
+		return parent::isValueEmpty($value);
+	}
+
+	public function getSerializationType(): string
+	{
+		return $this->serializationType;
 	}
 
 	/**

@@ -52,6 +52,7 @@ export const RestMethod = Object.freeze({
 	imV2ChatCopilotUpdateRole: 'im.v2.Chat.Copilot.updateRole',
 	imV2AccessCheck: 'im.v2.Access.check',
 	imV2ChatMemberEntitiesList: 'im.v2.Chat.MemberEntities.list',
+	imV2DiskFileSave: 'im.v2.Disk.File.save',
 
 	imV2CallZoomCreate: 'im.v2.Call.Zoom.create',
 	imCallBetaCreateRoom: 'im.call.beta.createRoom',

@@ -7,11 +7,12 @@ use Bitrix\Main\NotSupportedException;
 
 class MemcacheConnectionConfigurator
 {
-	/** @var array */
-	protected $config;
-	/** @var array */
-	protected $servers = [];
+	protected array $config;
+	protected array $servers = [];
 
+	/**
+	 * @throws NotSupportedException
+	 */
 	public function __construct($config)
 	{
 		if (!extension_loaded('memcache'))
@@ -20,11 +21,10 @@ class MemcacheConnectionConfigurator
 		}
 
 		$this->config = $config;
-
 		$this->addServers($this->getConfig());
 	}
 
-	protected function addServers($config)
+	protected function addServers($config): MemcacheConnectionConfigurator
 	{
 		$servers = $config['servers'] ?? [];
 
@@ -53,12 +53,12 @@ class MemcacheConnectionConfigurator
 		return $this;
 	}
 
-	public function getConfig()
+	public function getConfig(): array
 	{
 		return $this->config;
 	}
 
-	public function createConnection()
+	public function createConnection(): ?\Memcache
 	{
 		if (!$this->servers)
 		{
@@ -66,13 +66,22 @@ class MemcacheConnectionConfigurator
 		}
 
 		$connectionTimeout = $this->getConfig()['connectionTimeout'] ?? 1;
+		$persistent = $this->getConfig()['persistent'] ?? true;
+
 		$connection = new \Memcache();
 
 		$result = false;
 		if (count($this->servers) === 1)
 		{
 			['host' => $host, 'port' => $port] = $this->servers[0];
-			$result = $connection->pconnect($host, $port, $connectionTimeout);
+			if ($persistent)
+			{
+				$result = $connection->pconnect($host, $port, $connectionTimeout);
+			}
+			else
+			{
+				$result = $connection->connect($host, $port, $connectionTimeout);
+			}
 		}
 		else
 		{
@@ -81,7 +90,7 @@ class MemcacheConnectionConfigurator
 				$success = $connection->addServer(
 					$server['host'],
 					$server['port'],
-					true,
+					$persistent,
 					$server['weight'],
 					$connectionTimeout
 				);

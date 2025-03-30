@@ -32,7 +32,7 @@ abstract class CorrectionCheck extends AbstractCheck
 	 */
 	public function save()
 	{
-		$isNew = (int)$this->fields['ID'] === 0;
+		$isNew = !isset($this->fields['ID']) || (int)$this->fields['ID'] === 0;
 
 		$result = parent::save();
 		if (!$result->isSuccess())

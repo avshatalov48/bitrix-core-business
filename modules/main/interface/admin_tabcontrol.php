@@ -566,7 +566,7 @@ else if(!!window.'.$this->name.')
 				}
 			}
 
-			if (isset($aTabOpt["fix_top"]) && $aTabOpt["fix_top"] == "off" && $aEditOpt["expand"] != "on")
+			if (($aTabOpt["fix_top"] ?? '') === "off" && ($aEditOpt["expand"] ?? '') !== "on")
 			{
 				echo '
 '.$this->name.'.ToggleFix(\'top\');';

@@ -844,7 +844,7 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	public function getUserId()
 	{
-		return $this->getField('USER_ID');
+		return (int)$this->getField('USER_ID');
 	}
 
 	/**

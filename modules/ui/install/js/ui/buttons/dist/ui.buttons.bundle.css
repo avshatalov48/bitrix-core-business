@@ -579,6 +579,30 @@ a.ui-btn-split:focus,
 	--ui-btn-color-active: var(--ui-color-palette-white-base);
 }
 
+.ui-btn-primary-curtain {
+	--ui-btn-background: #34B6DF;
+	--ui-btn-background-hover: #37aed4;
+	--ui-btn-background-active: #328ba9;
+	--ui-btn-border-color: rgba(255, 255, 255, 0.8);
+	--ui-btn-border-color-hover: rgba(255, 255, 255, 1);
+	--ui-btn-border-color-active: rgba(255, 255, 255, 1);
+	--ui-btn-color: var(--ui-color-on-primary);
+	--ui-btn-color-hover: var(--ui-color-on-primary);
+	--ui-btn-color-active: var(--ui-color-on-primary);
+}
+
+.ui-btn-primary-warning {
+	--ui-btn-background: rgba(255, 255, 255, 0.15);
+	--ui-btn-background-hover: rgba(255, 255, 255, 0.44);
+	--ui-btn-background-active: rgba(255, 255, 255, 0.6);
+	--ui-btn-border-color: rgba(255, 255, 255, 0.44);
+	--ui-btn-border-color-hover: rgba(255, 255, 255, 1);
+	--ui-btn-border-color-active: rgba(255, 255, 255, 1);
+	--ui-btn-color: rgba(255, 255, 255, 1);
+	--ui-btn-color-hover: rgba(255, 255, 255, 1);
+	--ui-btn-color-active: rgba(255, 255, 255, 1);
+}
+
 .ui-btn-primary-border {
 	--ui-btn-background: var(--ui-color-background-transparent);
 	--ui-btn-background-hover: #cfd4d8;

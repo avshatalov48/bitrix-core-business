@@ -26,11 +26,19 @@ class CashboxYooKassa extends CashboxPaySystem
 	private const CODE_VAT_0 = 2;
 	private const CODE_VAT_10 = 3;
 	private const CODE_VAT_20 = 4;
+	private const CODE_VAT_5 = 7;
+	private const CODE_VAT_7 = 8;
+
+	private const MARK_CODE_BASE64 = 1;
+	private const MARK_CODE_NOT_ENCODING = 2;
 
 	private const SETTLEMENT_TYPE_PREPAYMENT = 'prepayment';
 	private const CHECK_TYPE_PAYMENT = 'payment';
 
 	private const MARK_CODE_TYPE_GS1M = 'gs_1m';
+
+	// https://yookassa.ru/developers/api mark_mode is needed for product marking. It should take the value equal to 0
+	private const MARK_MODE = '0';
 
 	public static function getName(): string
 	{
@@ -101,9 +109,20 @@ class CashboxYooKassa extends CashboxPaySystem
 				'payment_mode' => $paymentMode,
 			];
 
+			$markCodeEncoding = $this->getValueFromSettings('MARK', 'CODE') ?? self::MARK_CODE_BASE64;
+
 			if (!empty($item['marking_code']))
 			{
-				$receiptItem['mark_code_info'] = $this->buildPositionMarkCode($item);
+				$receiptItem['mark_mode'] = self::MARK_MODE;
+
+				if ((int)$markCodeEncoding === self::MARK_CODE_BASE64)
+				{
+					$receiptItem['mark_code_info'] = $this->buildPositionMarkCodeInBase64($item);
+				}
+				else
+				{
+					$receiptItem['mark_code_info'] = $this->buildPositionMarkCode($item);
+				}
 			}
 
 			$fields['items'][] = $receiptItem;
@@ -135,6 +154,13 @@ class CashboxYooKassa extends CashboxPaySystem
 	{
 		return [
 			self::MARK_CODE_TYPE_GS1M => $item['marking_code'],
+		];
+	}
+
+	private function buildPositionMarkCodeInBase64(array $item): array
+	{
+		return [
+			self::MARK_CODE_TYPE_GS1M => base64_encode($item['marking_code']),
 		];
 	}
 
@@ -399,6 +425,22 @@ class CashboxYooKassa extends CashboxPaySystem
 			],
 		];
 
+		$settings['MARK'] = [
+			'LABEL' => Loc::getMessage('SALE_CASHBOX_YOOKASSA_SETTINGS_MARKING'),
+			'REQUIRED' => 'Y',
+			'ITEMS' => [
+				'CODE' => [
+					'TYPE' => 'ENUM',
+					'LABEL' => Loc::getMessage('SALE_CASHBOX_YOOKASSA_SETTINGS_MARKING_LABEL'),
+					'VALUE' => self::MARK_CODE_BASE64,
+					'OPTIONS' => [
+						self::MARK_CODE_BASE64 => 'base64',
+						self::MARK_CODE_NOT_ENCODING => Loc::getMessage('SALE_CASHBOX_YOOKASSA_SETTINGS_MARKING_NOT_ENCODE'),
+					],
+				],
+			],
+		];
+
 		$settings['VAT'] = [
 			'LABEL' => Loc::getMessage('SALE_CASHBOX_YOOKASSA_SETTINGS_VAT'),
 			'REQUIRED' => 'Y',
@@ -423,6 +465,8 @@ class CashboxYooKassa extends CashboxPaySystem
 			{
 				$defaultVatList = [
 					0 => self::CODE_VAT_0,
+					5 => self::CODE_VAT_5,
+					7 => self::CODE_VAT_7,
 					10 => self::CODE_VAT_10,
 					20 => self::CODE_VAT_20,
 				];
@@ -640,5 +684,10 @@ class CashboxYooKassa extends CashboxPaySystem
 	private static function encode(array $data)
 	{
 		return Main\Web\Json::encode($data, JSON_UNESCAPED_UNICODE);
+	}
+
+	public static function isOfdSettingsNeeded(): bool
+	{
+		return true;
 	}
 }

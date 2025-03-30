@@ -1,0 +1,20 @@
+<?php
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_AGREEMENT_TEXT"] = "Келісім мәтіні";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_AGREEMENT_TEXT_1"] = "Келісім мәтіні";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_AGREEMENT_TEXT_HINT"] = "Қағидалардың немесе келісімнің мәтіні";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_FORM_FIELD_NAMES"] = "Нысан өрістерінің тізімі";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_IS_AGREEMENT_TEXT_HTML"] = "Келісімнің html пішіміндегі мәтіні";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_IS_AGREEMENT_TEXT_HTML_1"] = "Келісімнің html пішіміндегі мәтіні";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_TEXT"] = "Келісім құсбелгісінің қолтаңбасы";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_TEXT_DEFAULT_VALUE"] = "Батырманы басу арқылы мен келісім шарттарын қабылдаймын.";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_TEXT_HINT"] = "Келісім құсбелгісінің шығарылатын қолтаңбасы";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_URL"] = "Сыртқы сілтеме немесе файл";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_USE_URL"] = "Сілтемені басқан кезде сыртқы сілтемені немесе файлды ашу";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_LIST"] = "Келісімдер тізімі";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_LIST_1"] = "Келісімдер тізімі";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_SETTINGS_1"] = "Қолтаңбасы және әрекет";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_TEXT"] = "Келісім мәтіні";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TAB_TEXT_1"] = "Келісім мәтіні";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TITLE_ADD"] = "Келісім жасау";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TITLE_EDIT"] = "Келісімді редакциялау";
+$MESS["MAIN_USER_CONSENT_EDIT_COMP_TITLE_EDIT_1"] = "Келісімді редакциялау";

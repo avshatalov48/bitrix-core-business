@@ -234,9 +234,13 @@ class RestIntegrationGridComponent extends CBitrixComponent implements Controlle
 		$eventList = array_column(Webhook::getList(), 'name', 'id');
 		$widgetList = array_column(Placement::getList(), 'name', 'id');
 
+		$availabilityTool = \Bitrix\Rest\Infrastructure\IntegrationAvailabilityTool::createByDefault();
+		$mapper = new Bitrix\Rest\Model\Mapper\Integration();
 		$items = [];
+
 		while ($item = $res->Fetch())
 		{
+			$integrationEntity = $mapper->mapArrayToEntity($item);
 			$item['TITLE'] = htmlspecialcharsbx($item['TITLE']);
 			$item['USER_DATA_NAME'] = htmlspecialcharsbx(
 				implode(
@@ -303,10 +307,20 @@ class RestIntegrationGridComponent extends CBitrixComponent implements Controlle
 			);
 
 			$actions = [];
+			$isAvailable = $availabilityTool->isAvailable($integrationEntity);
+			if ($isAvailable)
+			{
+				$click = "BX.SidePanel.Instance.open('" . $item['URL'] . "', " . $paramsSidePanel . ");";
+			}
+			else
+			{
+				$click = 'top.BX.UI.InfoHelper.show("limit_subscription_market_access_buy_marketplus");';
+			}
 			$actions[] = [
 				'TEXT' => Loc::getMessage('REST_INTEGRATION_GRID_ACTION_EDIT'),
-				'ONCLICK' => "BX.SidePanel.Instance.open('" . $item['URL'] . "', " . $paramsSidePanel . ");",
+				'ONCLICK' => $click,
 				'DEFAULT' => true,
+				'ICONCLASS' => !$isAvailable ? 'main-dropdown-item-locked' : null,
 			];
 			if ($isAdmin && $item['APP_ID'] > 0)
 			{

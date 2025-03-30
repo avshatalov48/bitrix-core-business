@@ -9,6 +9,7 @@ use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\QueueItem;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\SyncDirection;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Result\IterationResult;
 use Bitrix\Im\V2\Relation\AddUsersConfig;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\Relation\Reason;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Config\Option;
@@ -85,7 +86,8 @@ class Chat extends Base
 				continue;
 			}
 
-			$chat->deleteUser($user, false, false, false, true);
+			$config = new DeleteUserConfig(false, false, false, true);
+			$chat->deleteUser($user, $config);
 		}
 	}
 
@@ -152,6 +154,8 @@ class Chat extends Base
 		$node = $this->nodeService->getNodeInformation($item->syncInfo->nodeId);
 		$nodeName = $node->name;
 		$postfix = $item->syncInfo->direction === SyncDirection::ADD ? 'ADD' : 'DELETE';
+		$postfix .= ($postfix === 'ADD') ? '_MSGVER_1' : '';
+
 		\CIMMessenger::Add([
 			'MESSAGE' => Loc::getMessage("IM_HR_INTEGRATION_CHAT_FINISH_{$postfix}", ['#DEPARTMENT_NAME#' => $nodeName]),
 			'FROM_USER_ID' => 0,

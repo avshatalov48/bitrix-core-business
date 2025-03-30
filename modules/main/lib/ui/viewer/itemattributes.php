@@ -2,11 +2,12 @@
 
 namespace Bitrix\Main\UI\Viewer;
 
-
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\File\Image\Rectangle;
 use Bitrix\Main\UI\Viewer\Transformation\Transformation;
 use Bitrix\Main\UI\Viewer\Transformation\TransformerManager;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
 
 class ItemAttributes
 {
@@ -64,6 +65,24 @@ class ItemAttributes
 			->setViewerType(static::getViewerTypeByFile($this->fileData))
 			->setAttribute('data-src', $this->sourceUri)
 		;
+
+		if ($this->getViewerType() === Renderer\Image::getJsType())
+		{
+			$sourceImageWidth = $this->fileData['WIDTH'] ?? 0;
+			$sourceImageHeight = $this->fileData['HEIGHT'] ?? 0;
+			if ($sourceImageWidth > 0 && $sourceImageHeight > 0)
+			{
+				$sourceUri = $this->sourceUri instanceof Uri ? $this->sourceUri : new Uri((string)$this->sourceUri);
+				$imageRenderer = new Renderer\Image($this->fileData['ORIGINAL_NAME'] ?? '', $sourceUri);
+				$sourceRectangle = new Rectangle($sourceImageWidth, $sourceImageHeight);
+				$destinationRectangle = new Rectangle($imageRenderer->getWidth(), $imageRenderer->getHeight());
+				$needResize = $sourceRectangle->resize($destinationRectangle, $imageRenderer->getResizeType());
+				if (!$needResize)
+				{
+					$this->setAttribute('data-viewer-resized');
+				}
+			}
+		}
 	}
 
 	/**

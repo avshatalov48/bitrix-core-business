@@ -10,6 +10,7 @@ export const MainPanelType = {
 	comment: [ChatType.comment],
 	generalChannel: [ChatType.generalChannel],
 	collab: [ChatType.collab],
+	lines: [ChatType.lines],
 };
 
 export const MainPanelBlock = Object.freeze({
@@ -93,5 +94,10 @@ export const MainPanels = {
 		[MainPanelBlock.file]: 30,
 		[MainPanelBlock.fileUnsorted]: 30,
 		[MainPanelBlock.collabHelpdesk]: 40,
+	},
+	[MainPanelType.lines]: {
+		[MainPanelBlock.chat]: 10,
+		[MainPanelBlock.info]: 20,
+		[MainPanelBlock.file]: 30,
 	},
 };

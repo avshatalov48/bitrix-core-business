@@ -321,6 +321,7 @@ class CIBlock extends CAllIBlock
 				'ID' => (new Fields\IntegerField('ID'))
 					->configurePrimary()
 					->configureAutocomplete()
+					->configureSize(8)
 				,
 				'IBLOCK_ELEMENT_ID' => (new Fields\IntegerField('IBLOCK_ELEMENT_ID')),
 				'IBLOCK_PROPERTY_ID' => (new Fields\IntegerField('IBLOCK_PROPERTY_ID')),
@@ -383,7 +384,7 @@ class CIBlock extends CAllIBlock
 		$rs = $DB->DDL($strSql, false, $err_mess.__LINE__);
 		$strSql = '
 			CREATE TABLE IF NOT EXISTS b_iblock_element_prop_m' . $ID . ' (
-				ID int(11) not null auto_increment,
+				ID bigint not null auto_increment,
 				IBLOCK_ELEMENT_ID int(11) not null,
 				IBLOCK_PROPERTY_ID int(11) not null,
 				VALUE text not null,

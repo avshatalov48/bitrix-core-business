@@ -7,3 +7,4 @@ $MESS['LISTS_ELEMENT_CREATION_GUIDE_AJAX_IM_NOT_INSTALLED_1'] = 'Модуль «
 $MESS['LISTS_ELEMENT_CREATION_GUIDE_AJAX_UNSUPPORTED_IBLOCK_TYPE_ID'] = 'Переданный тип инфоблока не поддерживается';
 $MESS['LISTS_ELEMENT_CREATION_GUIDE_AJAX_EMPTY_REQUIRED_TEMPLATE_IDS'] = 'Не передан обязательный параметр templateIds';
 $MESS['LISTS_ELEMENT_CREATION_GUIDE_AJAX_INCORRECT_ADMIN_ID'] = 'У пользователя недостаточно прав для настройки констант бизнес-процесса';
+$MESS['LISTS_ELEMENT_CREATION_GUIDE_AJAX_ADD_INTERNAL_ERROR'] = "Не удалось запустить бизнес-процесс, попробуйте ещё раз";

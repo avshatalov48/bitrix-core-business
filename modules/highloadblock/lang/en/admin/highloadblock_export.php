@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ADMIN_TOOLS_ACCESS_DENIED"] = "Access denied";
 $MESS["ADMIN_TOOLS_TITLE_EXPORT"] = "Export Highload Block";
 $MESS["ADMIN_TOOLS_TAB_EXPORT"] = "Export Highload Block";
@@ -19,4 +19,3 @@ $MESS["ADMIN_TOOLS_PROCESS_FINISH_DELETE"] = "Remember to delete exported files 
 $MESS["XML_FILE_NOT_ACCESSIBLE"] = "Export file was not found or write access denied.";
 $MESS["XML_FILENAME_HAS_ERROR"] = "File or folder name can include only Latin characters, numbers, whitespaces and the following characters: !#\$%&()[]{}+-.;=@^_~";
 $MESS["XML_FILENAME_IS_NOT_XML"] = "Export file must have a .xml extension";
-?>

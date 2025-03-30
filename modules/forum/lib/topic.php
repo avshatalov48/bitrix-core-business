@@ -448,7 +448,7 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 	public function remove()
 	{
 		Forum\Statistic\User::runForTopic($this->getId());
-		if (self::delete($this->getId())->isSuccess())
+		if (self::deleteTopic($this->getId(), $this->data)->isSuccess())
 		{
 			Forum\Integration\Search\Topic::deleteIndex($this);
 			Forum\Forum::getById($this->getForumId())->calculateStatistic();
@@ -741,13 +741,20 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 		return $result;
 	}
 
-	public static function delete(int $id)
+	public static function delete(int $id): Main\Orm\Data\DeleteResult
 	{
 		$result = new Main\Orm\Data\DeleteResult();
 		if (!($topicData = Forum\TopicTable::getById($id)->fetch()))
 		{
 			return $result;
 		}
+
+		return self::deleteTopic($id, $topicData);
+	}
+
+	private static function deleteTopic(int $id, array $topicData): Main\Orm\Data\DeleteResult
+	{
+		$result = new Main\Orm\Data\DeleteResult();
 
 		/***************** Event onBeforeTopicDelete ***********************/
 		foreach (GetModuleEvents("forum", "onBeforeTopicDelete", true) as $arEvent)

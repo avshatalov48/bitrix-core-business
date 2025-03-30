@@ -1,0 +1,13 @@
+<?php
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_APPLY"] = "Қолдану";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_BACK_TO_LIST"] = "Тізімге қайту";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_CLOSE"] = "Жабу";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_SAVE"] = "Сақтау";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_TUNE"] = "Баптау";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_VIEW"] = "Қарау";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_DATA_PROVIDER"] = "Дереккөз";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_DATA_PROVIDER_DEF"] = "(қолмен көрсетіледі)";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_ERROR_ACCESS_EDIT"] = "Сізге тек қарап шығу қолжетімді. Редакциялау сұрақтары бойынша әкімшіге хабарласыңыз.";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_NAME"] = "Атауы";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_POPUP_TITLE"] = "Мәтінді қарап шығу ";
+$MESS["MAIN_USER_CONSENT_EDIT_TMPL_TYPE"] = "Түрі - меншікті/стандартты";

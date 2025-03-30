@@ -341,7 +341,7 @@ class Messenger
 		CallManager?.getInstance().toggleDebugFlag(debug);
 	}
 
-	async saveFileToDisk(fileId: number): Promise<void>
+	async saveFileToDisk(fileId: number | string): Promise<void>
 	{
 		const { DiskService } = Reflection.getClass('BX.Messenger.v2.Service');
 		if (!DiskService)
@@ -349,12 +349,12 @@ class Messenger
 			return;
 		}
 
-		await (new DiskService()).save(fileId).catch((error) => {
+		await (new DiskService()).save([fileId]).catch((error) => {
 			console.error('Messenger.saveFileToDisk error:', error);
 		});
 
 		BX.UI.Notification.Center.notify({
-			content: Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS'),
+			content: Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS_MSGVER_1'),
 		});
 	}
 }

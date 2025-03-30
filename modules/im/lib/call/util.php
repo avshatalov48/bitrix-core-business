@@ -15,8 +15,13 @@ class Util
 			$user = \Bitrix\Im\User::getInstance($userId)->getArray(['JSON' => 'Y', 'HR_PHOTO' => true]);
 			$result[$userId] = [
 				'id' => $user['id'],
+				'first_name' => $user['first_name'],
+				'last_name' => $user['last_name'],
 				'name' => $user['name'],
 				'work_position' => $user['work_position'],
+				'extranet' => $user['extranet'],
+				'invited' => $user['invited'],
+				'last_activity_date' => $user['last_activity_date'],
 				'avatar' => $user['avatar'],
 				'avatar_hr' => $user['avatar_hr'],
 				'gender' => $user['gender'],

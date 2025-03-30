@@ -1566,13 +1566,13 @@ final class CheckManager
 		{
 			if ($entity instanceof Sale\Payment)
 			{
-				$filter['ENTITY_REGISTRY_TYPE'] = $entity::getRegistryType();
-				$filter['PAYMENT_ID'] = $entity->getId();
+				$filter['=ENTITY_REGISTRY_TYPE'] = $entity::getRegistryType();
+				$filter['=PAYMENT_ID'] = $entity->getId();
 			}
 			elseif ($entity instanceof Sale\Shipment)
 			{
-				$filter['ENTITY_REGISTRY_TYPE'] = $entity::getRegistryType();
-				$filter['SHIPMENT_ID'] = $entity->getId();
+				$filter['=ENTITY_REGISTRY_TYPE'] = $entity::getRegistryType();
+				$filter['=SHIPMENT_ID'] = $entity->getId();
 			}
 
 			return self::collectInfo($filter);

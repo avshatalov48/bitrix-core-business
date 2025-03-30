@@ -370,7 +370,7 @@ export class MessagePullHandler
 	#handleAddingMessageToModel(params: MessageAddParams)
 	{
 		const dialog = this.#getDialog(params.dialogId, true);
-		if (dialog.inited && dialog.hasNextPage)
+		if (dialog.hasNextPage)
 		{
 			this.#store.dispatch('messages/store', params.message);
 
@@ -379,7 +379,8 @@ export class MessagePullHandler
 
 		const chatIsOpened = this.#store.getters['application/isChatOpen'](params.dialogId);
 		const unreadMessages: ImModelMessage[] = this.#store.getters['messages/getChatUnreadMessages'](params.chatId);
-		if (!chatIsOpened && unreadMessages.length > MessageService.getMessageRequestLimit())
+		const RELOAD_LIMIT = MessageService.getMessageRequestLimit() * 5;
+		if (dialog.inited && !chatIsOpened && unreadMessages.length > RELOAD_LIMIT)
 		{
 			this.#store.dispatch('messages/store', params.message);
 			const messageService = new MessageService({ chatId: params.chatId });

@@ -485,7 +485,7 @@ class CPgUserStep extends CBasePgWizardStep
 
 			if (
 				$config['login'] !== mb_strtolower($config['login'])
-				|| $wizard->GetVar('user') !== mb_strtolower($wizard->GetVar('user'))
+				|| (string)$wizard->GetVar('user') !== mb_strtolower($wizard->GetVar('user'))
 			)
 			{
 				$this->SetError(GetMessage('PGWIZ_ERROR_WRONG_LOGIN'));

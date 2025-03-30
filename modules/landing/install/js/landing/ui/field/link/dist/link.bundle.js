@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -433,6 +434,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        } else {
 	          this.targetInput.setValue(Link.TARGET_BLANK);
 	        }
+	      } else if (type === 'MAINPAGE') {
+	        this.targetInput.disable();
+	        this.targetInput.setValue(Link.TARGET_BLANK);
 	      } else {
 	        if (value.href.startsWith('#crmFormPopup')) {
 	          this.targetInput.disable();

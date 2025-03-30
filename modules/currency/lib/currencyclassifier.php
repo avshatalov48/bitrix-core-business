@@ -6,8 +6,6 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Collection;
 
-Loc::loadMessages(__FILE__);
-
 /**
  * Class CurrencyClassifier
  */

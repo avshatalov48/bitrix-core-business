@@ -5,8 +5,6 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Currency;
 
-Loc::loadMessages(__FILE__);
-
 class CAllCurrency
 {
 	protected static array $currencyCache = [];

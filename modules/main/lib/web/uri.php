@@ -367,7 +367,7 @@ class Uri implements \JsonSerializable, UriInterface
 	}
 
 	/**
-	 * Converts the host to unicode.
+	 * Converts the host to Unicode.
 	 * @return string|Main\Error
 	 */
 	public function convertToUnicode()
@@ -401,11 +401,11 @@ class Uri implements \JsonSerializable, UriInterface
 	public static function urnEncode($str, $charset = 'UTF-8')
 	{
 		$result = '';
-		$arParts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		if ($charset === false)
 		{
-			foreach ($arParts as $i => $part)
+			foreach ($parts as $i => $part)
 			{
 				$result .= ($i % 2) ? $part : rawurlencode($part);
 			}
@@ -413,7 +413,7 @@ class Uri implements \JsonSerializable, UriInterface
 		else
 		{
 			$currentCharset = Main\Context::getCurrent()->getCulture()->getCharset();
-			foreach ($arParts as $i => $part)
+			foreach ($parts as $i => $part)
 			{
 				$result .= ($i % 2)	? $part	: rawurlencode(Encoding::convertEncoding($part, $currentCharset, $charset));
 			}
@@ -430,11 +430,11 @@ class Uri implements \JsonSerializable, UriInterface
 	public static function urnDecode($str, $charset = false)
 	{
 		$result = '';
-		$arParts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		if ($charset === false)
 		{
-			foreach ($arParts as $i => $part)
+			foreach ($parts as $i => $part)
 			{
 				$result .= ($i % 2) ? $part : rawurldecode($part);
 			}
@@ -442,7 +442,7 @@ class Uri implements \JsonSerializable, UriInterface
 		else
 		{
 			$currentCharset = Main\Context::getCurrent()->getCulture()->getCharset();
-			foreach ($arParts as $i => $part)
+			foreach ($parts as $i => $part)
 			{
 				$result .= ($i % 2) ? $part : rawurldecode(Encoding::convertEncoding($part, $charset, $currentCharset));
 			}
@@ -472,6 +472,61 @@ class Uri implements \JsonSerializable, UriInterface
 				$this->host = $request->getHttpHost();
 			}
 		}
+		return $this;
+	}
+
+	/**
+	 * Converts the relative URI to the absolute one within a context of a base URI.
+	 *
+	 * @see https://www.rfc-editor.org/rfc/rfc3986#section-5
+	 * @param Uri $base
+	 * @return $this
+	 */
+	public function resolveRelativeUri(Uri $base): Uri
+	{
+		if (empty($this->scheme))
+		{
+			if (empty($this->getAuthority()))
+			{
+				if (empty($this->getPath()))
+				{
+					$this->setPath($base->getPath());
+
+					if (empty($this->getQuery()))
+					{
+						$this->query = $base->getQuery();
+					}
+				}
+				else
+				{
+					if (!str_starts_with($this->getPath(), '/'))
+					{
+						$basePath = $base->getPath();
+
+						if (!empty($base->getAuthority()) && empty($basePath))
+						{
+							$this->setPath('/' . $this->getPath());
+						}
+						else
+						{
+							if (($p = strrpos($basePath, '/')) !== false)
+							{
+								$this->setPath(substr($basePath, 0, $p + 1) . $this->getPath());
+							}
+						}
+					}
+				}
+
+				// authority
+				$this->setUser($base->getUser());
+				$this->setPass($base->getPass());
+				$this->setHost($base->getHost());
+				$this->port = $base->getPort();
+			}
+
+			$this->scheme = $base->getScheme();
+		}
+
 		return $this;
 	}
 

@@ -246,6 +246,16 @@ class SaleDomainVerificationForm extends CBitrixComponent
 	 */
 	public function executeComponent()
 	{
+		global $APPLICATION;
+
+		$saleModulePermissions = $APPLICATION->GetGroupRight('sale');
+		if ($saleModulePermissions < 'W')
+		{
+			ShowError(Loc::getMessage('SALE_DVF_COMPONENT_ACCESS_DENIED'));
+
+			return;
+		}
+
 		if (!$this->errors->isEmpty())
 		{
 			$this->printErrors();

@@ -21,6 +21,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\UI\PageNavigation;
 
+Loader::includeModule('iblock');
+
 class IblockPropertyTypeDirectorySettings extends GridComponent implements Controllerable, Errorable
 {
 	use ErrorableImplementation;

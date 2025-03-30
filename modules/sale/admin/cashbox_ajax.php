@@ -192,6 +192,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 				ob_end_clean();
 
 				$arResult['GENERAL_REQUIRED_FIELDS'] = $handler::getGeneralRequiredFields();
+				$arResult['ENABLE_OFD_SETTINGS'] = $handler::isOfdSettingsNeeded();
 
 				$kkmList = $handler::getSupportedKkmModels();
 				if ($kkmList)
@@ -243,7 +244,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 					break;
 				}
 
-				$userId = $USER->GetID();
+				$userId = (int)$USER->GetID();
 				$userCompanyList = \Bitrix\Sale\Services\Company\Manager::getUserCompanyList($userId);
 
 				if ($saleModulePermissions == 'P')
@@ -303,7 +304,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 					break;
 				}
 
-				$userId = $USER->GetID();
+				$userId = (int)$USER->GetID();
 				$userCompanyList = \Bitrix\Sale\Services\Company\Manager::getUserCompanyList($userId);
 
 				if ($saleModulePermissions == 'P')
@@ -373,14 +374,14 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 			$formData = $request->get('formData');
 			$typeId = $formData['data']['CHECK_TYPE'];
 			$orderId = (int)$formData['data']['ORDER_ID'];
-			$paymentData = $formData['data']['PAYMENTS'];
-			$shipmentData = $formData['data']['SHIPMENTS'];
+			$paymentData = $formData['data']['PAYMENTS'] ?? null;
+			$shipmentData = $formData['data']['SHIPMENTS'] ?? null;
 			$entityCode = $formData['data']['ENTITY_CODE'];
 			list($entityType, $entityId) = explode('_', $entityCode);
 
 			$order = $orderClass::load($orderId);
 
-			$userId = $USER->GetID();
+			$userId = (int)$USER->GetID();
 			$userCompanyList = \Bitrix\Sale\Services\Company\Manager::getUserCompanyList($userId);
 
 			if ($saleModulePermissions == 'P')

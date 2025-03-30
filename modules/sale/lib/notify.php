@@ -1227,15 +1227,14 @@ class Notify
 	{
 		$userEmail = "";
 
-		if (!empty(static::$cacheUserData[$order->getId()]))
+		if (!empty(static::$cacheUserData[$order->getUserId()]))
 		{
-			$userData = static::$cacheUserData[$order->getId()];
+			$userData = static::$cacheUserData[$order->getUserId()];
 			if (!empty($userData['EMAIL']))
 			{
 				$userEmail = $userData['EMAIL'];
 			}
 		}
-
 
 		if (empty($userEmail))
 		{
@@ -1245,30 +1244,18 @@ class Notify
 				if ($propUserEmail = $propertyCollection->getUserEmail())
 				{
 					$userEmail = $propUserEmail->getValue();
-					static::$cacheUserData[$order->getId()]['EMAIL'] = $userEmail;
+					static::$cacheUserData[$order->getUserId()]['EMAIL'] = $userEmail;
 				}
 			}
 		}
 
 		if (empty($userEmail))
 		{
-			$userRes = Main\UserTable::getList([
-				'select' => [
-					'ID',
-					'LOGIN',
-					'NAME',
-					'LAST_NAME',
-					'SECOND_NAME',
-					'EMAIL',
-				],
-				'filter' => [
-					'=ID' => $order->getUserId(),
-				],
-			]);
-			if ($userData = $userRes->fetch())
+			$userData = self::getUserById($order->getUserId());
+			if ($userData)
 			{
-				static::$cacheUserData[$order->getId()] = $userData;
 				$userEmail = $userData['EMAIL'];
+				static::$cacheUserData[$order->getUserId()]['EMAIL'] = $userData['EMAIL'];
 			}
 		}
 
@@ -1288,12 +1275,11 @@ class Notify
 		if (!empty(static::$cacheUserData[$order->getUserId()]))
 		{
 			$userData = static::$cacheUserData[$order->getUserId()];
-			if (!empty($userData['USER_NAME']))
+			if (!empty($userData['PAYER_NAME']))
 			{
-				$userName = $userData['USER_NAME'];
+				$userName = $userData['PAYER_NAME'];
 			}
 		}
-
 
 		if (empty($userName))
 		{
@@ -1310,28 +1296,43 @@ class Notify
 
 		if (empty($userName))
 		{
-			$userRes = Main\UserTable::getList([
-				'select' => [
-					'ID',
-					'LOGIN',
-					'NAME',
-					'LAST_NAME',
-					'SECOND_NAME',
-					'EMAIL',
-				],
-				'filter' => [
-					'=ID' => $order->getUserId(),
-				],
-			]);
-			if ($userData = $userRes->fetch())
+			$userData = self::getUserById($order->getUserId());
+			if ($userData)
 			{
-				$userData['PAYER_NAME'] = \CUser::FormatName(\CSite::GetNameFormat(null, $order->getSiteId()), $userData, true);
-				static::$cacheUserData[$order->getUserId()]['PAYER_NAME'] = $userData['PAYER_NAME'];
-				$userName = $userData['PAYER_NAME'];
+				$userName = \CUser::FormatName(\CSite::GetNameFormat(null, $order->getSiteId()), $userData, true);
+				static::$cacheUserData[$order->getUserId()]['PAYER_NAME'] = $userName;
 			}
 		}
 
 		return $userName;
+	}
+
+	private static function getUserById(int $userId)
+	{
+		static $userData = array();
+
+		if (isset($userData[$userId]))
+		{
+			return $userData[$userId];
+		}
+
+		$row = Main\UserTable::getRow([
+			'select' => [
+				'ID',
+				'LOGIN',
+				'NAME',
+				'LAST_NAME',
+				'SECOND_NAME',
+				'EMAIL',
+			],
+			'filter' => [
+				'=ID' => $userId,
+			],
+		]);
+
+		$userData[$userId] = $row ?: [];
+
+		return $userData[$userId];
 	}
 
 	/**

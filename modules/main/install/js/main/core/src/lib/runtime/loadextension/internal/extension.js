@@ -95,7 +95,14 @@ export default class Extension
 						document.body.insertAdjacentHTML('beforeend', entry.script);
 					});
 
-					inlineScripts.forEach((script: string) => {
+					const runScriptsBefore: Array<string> = inlineScripts.filter((script: string) => {
+						return !script.startsWith('BX.Runtime.registerExtension');
+					});
+					const runScriptsAfter: Array<string> = inlineScripts.filter((script: string) => {
+						return script.startsWith('BX.Runtime.registerExtension');
+					});
+
+					runScriptsBefore.forEach((script: string) => {
 						BX.evalGlobal(script);
 					});
 
@@ -106,6 +113,9 @@ export default class Extension
 						])
 						.then(() => {
 							this.#state = Extension.State.LOADED;
+							runScriptsAfter.forEach((script: string) => {
+								BX.evalGlobal(script);
+							});
 
 							if (this.#namespace)
 							{

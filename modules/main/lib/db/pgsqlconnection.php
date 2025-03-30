@@ -14,6 +14,7 @@ use Bitrix\Main\ORM\Fields\IntegerField;
 class PgsqlConnection extends Connection
 {
 	protected int $transactionLevel = 0;
+	const FULLTEXT_MAXIMUM_LENGTH = 900000;
 
 	public function connectionErrorHandler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
 	{
@@ -304,6 +305,41 @@ class PgsqlConnection extends Connection
 		return null;
 	}
 
+	public function getTableFullTextFields($tableName)
+	{
+		$sqlHelper = $this->getSqlHelper();
+		$fullTextColumns = [];
+
+		$sql = "
+			SELECT relname, indkey, pg_get_expr(pg_index.indexprs, pg_index.indrelid) full_text
+			FROM pg_class, pg_index
+			WHERE pg_class.oid = pg_index.indexrelid
+			AND pg_class.oid IN (
+				SELECT indexrelid
+				FROM pg_index, pg_class
+				WHERE pg_class.relname = '" . $sqlHelper->forSql(mb_strtolower($tableName)) . "'
+				AND pg_class.oid = pg_index.indrelid
+			)
+		";
+		$res = $this->query($sql);
+		while ($row = $res->fetch())
+		{
+			if ($row['FULL_TEXT'])
+			{
+				$match = [];
+				if (preg_match_all('/,\s*([a-z0-9_]+)/i', $row['FULL_TEXT'], $match))
+				{
+					foreach ($match[1] as $i => $colName)
+					{
+						$fullTextColumns[mb_strtoupper($colName)] = true;
+					}
+				}
+			}
+		}
+
+		return $fullTextColumns;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -314,6 +350,9 @@ class PgsqlConnection extends Connection
 			$this->connectInternal();
 
 			$sqlHelper = $this->getSqlHelper();
+
+			$fullTextColumns = $this->getTableFullTextFields($tableName);
+
 			$query = $this->query("
 				SELECT
 					column_name,
@@ -335,12 +374,38 @@ class PgsqlConnection extends Connection
 				$fieldName = mb_strtoupper($fieldInfo['COLUMN_NAME']);
 				$fieldType = $fieldInfo['DATA_TYPE'];
 				$field = $sqlHelper->getFieldByColumnType($fieldName, $fieldType);
-				if (
-					$fieldInfo['CHARACTER_MAXIMUM_LENGTH']
-					&& is_a($field, '\Bitrix\Main\ORM\Fields\StringField')
-				)
+				if (is_a($field, '\Bitrix\Main\ORM\Fields\StringField'))
 				{
-					$field->configureSize($fieldInfo['CHARACTER_MAXIMUM_LENGTH']);
+					if (!$fieldInfo['CHARACTER_MAXIMUM_LENGTH'])
+					{
+						if (array_key_exists($fieldName, $fullTextColumns))
+						{
+							$maximumLength = static::FULLTEXT_MAXIMUM_LENGTH;
+						}
+						else
+						{
+							$maximumLength = false; // "Infinite"
+						}
+					}
+					else
+					{
+						if (
+							array_key_exists($fieldName, $fullTextColumns)
+							&& $fieldInfo['CHARACTER_MAXIMUM_LENGTH'] > static::FULLTEXT_MAXIMUM_LENGTH
+						)
+						{
+							$maximumLength = static::FULLTEXT_MAXIMUM_LENGTH;
+						}
+						else
+						{
+							$maximumLength = $fieldInfo['CHARACTER_MAXIMUM_LENGTH'];
+						}
+					}
+
+					if ($maximumLength)
+					{
+						$field->configureSize($maximumLength);
+					}
 				}
 
 				$this->tableColumnsCache[$tableName][$fieldName] = $field;

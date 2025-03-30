@@ -2,16 +2,9 @@
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Im as IM;
-use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat;
-use Bitrix\Im\V2\Chat\Param\Params;
+use Bitrix\Im\V2\Entity\User\UserError;
 use Bitrix\Imopenlines\Model\SessionTable;
-use Bitrix\Im\V2\Entity\User\User;
-use Bitrix\Im\V2\Entity\User\UserCollaber;
-use Bitrix\Main\Application;
-use Bitrix\Main\DB\SqlExpression;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Im\V2\Sync;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\Type\DateTime;
@@ -2458,11 +2451,26 @@ class CIMChat
 			{
 				if ($checkPermission)
 				{
+					if (
+						$arRes['CHAT_TYPE'] === Chat::IM_TYPE_CHANNEL
+						|| $arRes['CHAT_TYPE'] === Chat::IM_TYPE_OPEN_CHANNEL
+					)
+					{
+						$type = 'CHANNEL';
+						$messageCodeVersion = '';
+					}
+					else
+					{
+						$type = 'CHAT';
+						$messageCodeVersion = '_MSGVER_1';
+					}
+
 					CIMChat::AddSystemMessage(Array(
 						'CHAT_ID' => $chatId,
 						'USER_ID' => $this->user_id,
-						'MESSAGE_CODE' => 'IM_CHAT_CHANGE_TITLE_',
-						'MESSAGE_REPLACE' => Array('#CHAT_TITLE#' => $title)
+						'MESSAGE_CODE' => "IM_{$type}_CHANGE_TITLE_",
+						'MESSAGE_REPLACE' => Array('#CHAT_TITLE#' => $title),
+						'MESSAGE_CODE_VERSION' => $messageCodeVersion,
 					));
 				}
 				else
@@ -2730,21 +2738,6 @@ class CIMChat
 		return true;
 	}
 
-	private function getChatActiveUserCount($chatId): int
-	{
-		return IM\Model\RelationTable::getCount([
-			'=CHAT_ID' => $chatId,
-			'=USER.ACTIVE' => 'Y'
-		]);
-	}
-
-	private function updateChatUserCount($chatId, $newCount): \Bitrix\Main\ORM\Data\UpdateResult
-	{
-		return IM\Model\ChatTable::update($chatId, [
-			'USER_COUNT' => $newCount
-		]);
-	}
-
 	public function MuteNotify($chatId, $mute = true)
 	{
 		return \Bitrix\Im\Chat::mute($chatId, $mute, $this->user_id);
@@ -2760,379 +2753,63 @@ class CIMChat
 		$additionalParams = []
 	)
 	{
-		global $DB;
-		$chatId = intval($chatId);
-		$userId = intval($userId);
+		$chatId = (int)$chatId;
+		$userId = (int)$userId;
+
 		if ($chatId <= 0 || $userId <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_EMPTY_USER_OR_CHAT"), "EMPTY_USER_OR_CHAT");
+
 			return false;
 		}
 
-		if (
-			!\Bitrix\Im\Chat::isActionAllowed('chat' . $chatId, 'LEAVE_OWNER')
-			&& \Bitrix\Im\Chat::getOwnerById('chat' . $chatId) === $userId
-		)
+		$chat = Chat::getInstance($chatId)->withContextUser($this->user_id);
+
+		if ($this->user_id !== 0 && !$chat->canDo(IM\V2\Permission\Action::Kick, $userId))
 		{
-			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_LEAVE_OWNER_FORBIDDEN"), "LEAVE_OWNER_FORBIDDEN");
-			return false;
-		}
-
-		$pullLoad = CModule::IncludeModule('pull');
-		$groupTypes = self::implodeTypesForQuery(self::getGroupTypes());
-
-		$strSql = "
-			SELECT
-				R.CHAT_ID,
-				C.PARENT_ID as CHAT_PARENT_ID,
-				C.PARENT_MID as CHAT_PARENT_MID,
-				C.TITLE as CHAT_TITLE,
-				C.AUTHOR_ID as CHAT_AUTHOR_ID,
-				C.EXTRANET as CHAT_EXTRANET,
-				C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
-				C.ENTITY_ID as CHAT_ENTITY_ID,
-				C.TYPE as CHAT_TYPE,
-				C.MANAGE_UI,
-				C.MANAGE_USERS_ADD,
-				C.MANAGE_USERS_DELETE,
-				C.MANAGE_SETTINGS 
-			FROM b_im_relation R LEFT JOIN b_im_chat C ON R.CHAT_ID = C.ID
-			WHERE 
-				R.USER_ID = ".$userId." 
-				AND R.MESSAGE_TYPE IN ({$groupTypes}) 
-				AND R.CHAT_ID = ".$chatId;
-		$dbRes = $DB->Query($strSql);
-		$arRes = $dbRes->Fetch();
-		if (!$arRes)
-		{
-			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_USER_NOT_FOUND"), "USER_NOT_FOUND");
-			return false;
-		}
-
-		$arOldRelation = CIMChat::GetRelationById($chatId, false, true, false);
-
-		if (!isset($additionalParams['SKIP_RIGHTS']) && $this->user_id !== 0)
-		{
-			if (!self::canDo($arRes, $arOldRelation, IM\V2\Permission\Action::Kick, $userId))
+			if ($this->user_id === $userId && $chat->getAuthorId() === $userId)
+			{
+				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_LEAVE_OWNER_FORBIDDEN"), "LEAVE_OWNER_FORBIDDEN");
+			}
+			else
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_CHAT_ACCESS_DENIED_KICK_USERS"), "ACCESS_DENIED_KICK");
-				return false;
-			}
-		}
-
-		$chatParentMessageId = $arRes['CHAT_PARENT_MID'];
-
-		$arRes['CHAT_TYPE'] = trim($arRes['CHAT_TYPE']);
-		$chatEntityType = trim($arRes['CHAT_ENTITY_TYPE']);
-		$chatEntityId = trim($arRes['CHAT_ENTITY_ID']);
-
-		if (
-			$arRes['CHAT_TYPE'] !== Chat::IM_TYPE_OPEN_LINE
-			&& !in_array($arRes['CHAT_ENTITY_TYPE'], ['LINES', 'LIVECHAT'], true)
-			&& $chatId !== self::GetGeneralChatId()
-		)
-		{
-			$skipMessage = true;
-		}
-
-		$extranetFlag = false;
-		if (!in_array($arRes['CHAT_ENTITY_TYPE'], Array('LINES', 'LIVECHAT')))
-		{
-			$extranetFlag = $arRes["CHAT_EXTRANET"] == ""? "": ($arRes["CHAT_EXTRANET"] == "Y"? true: false);
-		}
-		$chatTitle = \Bitrix\Im\Text::decodeEmoji($arRes['CHAT_TITLE']);
-		$chatType = $arRes['CHAT_TYPE'];
-		$chatAuthorId = intval($arRes['CHAT_AUTHOR_ID']);
-		if ($chatAuthorId == $userId)
-		{
-			$strSql = "
-				SELECT R.USER_ID
-				FROM b_im_relation R
-				WHERE R.CHAT_ID = ".$chatId." AND R.USER_ID <> ".$chatAuthorId;
-			$strSql = $DB->TopSql($strSql, 1);
-			$dbRes = $DB->Query($strSql);
-			if ($res = $dbRes->Fetch())
-			{
-				self::SetOwner($chatId, $res['USER_ID']);
-			}
-		}
-
-		$bSelf = true;
-		$arUsers = Array($userId);
-		if($this->user_id != $userId)
-		{
-			if (
-				$chatEntityType === 'VIDEOCONF'
-				&& !IM\User::getInstance($this->user_id)->isExtranet()
-				&& IM\User::getInstance($userId)->isExtranet()
-			)
-			{
-			}
-			else if ($checkPermission && $chatAuthorId != $this->user_id)
-			{
-				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_KICK"), "IM_ERROR_KICK");
-				return false;
 			}
 
-			$bSelf = false;
-			$arUsers[] = $this->user_id;
+			return false;
 		}
 
-		$arUsers = CIMContactList::GetUserData(array(
-			'ID' => array_keys($arOldRelation),
-			'DEPARTMENT' => 'N',
-			'USE_CACHE' => 'N'
-		));
-		$arUsers = $arUsers['users'];
-
-		if ($chatEntityType === 'VIDEOCONF')
+		if ($checkPermission && $this->user_id !== $userId && $chat->getAuthorId() !== $this->user_id)
 		{
-			$externalAuthId = IM\User::getInstance($userId)->getExternalAuthId();
-			if ($externalAuthId === 'call')
-			{
-				IM\Model\BlockUserTable::add(
-					[
-						'CHAT_ID' => $chatId,
-						'USER_ID' => $userId,
-						'BLOCK_DATE' => new SqlExpression(Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction())
-					]
-				);
-			}
+			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_KICK"), "IM_ERROR_KICK");
+
+			return false;
 		}
 
-		$message = '';
-
-
-		if ($skipMessage)
-		{
-			$message = '';
-		}
-		else if ($bSelf)
-		{
-			if (in_array($chatEntityType, ['ANNOUNCEMENT']))
-			{
-				$message = '';
-			}
-			else if ($chatId == self::GetGeneralChatId())
-			{
-				if (self::GetGeneralChatAutoMessageStatus(self::GENERAL_MESSAGE_TYPE_LEAVE))
-				{
-					$message = GetMessage("IM_CHAT_GENERAL_LEAVE_".$arUsers[$userId]['gender'], Array('#USER_NAME#' => htmlspecialcharsback($arUsers[$userId]['name'])));
-				}
-			}
-			else
-			{
-				$message = GetMessage("IM_CHAT_LEAVE_".$arUsers[$userId]['gender'], Array('#USER_NAME#' => htmlspecialcharsback($arUsers[$userId]['name'])));
-			}
-		}
-		else
-		{
-			$message = GetMessage("IM_CHAT_KICK_".$arUsers[$this->user_id]['gender'], Array('#USER_1_NAME#' => htmlspecialcharsback($arUsers[$this->user_id]['name']), '#USER_2_NAME#' => htmlspecialcharsback($arUsers[$userId]['name'])));
-		}
-
-		CIMContactList::DeleteRecent($chatId, true, $userId, $withoutRead);
-
-		\Bitrix\Im\LastSearch::delete('chat'.$chatId, $userId);
-
-		$relationList = IM\Model\RelationTable::getList(array(
-			"select" => array("ID", "USER_ID"),
-			"filter" => array(
-				"=CHAT_ID" => $chatId,
-				"=USER_ID" => $userId,
-			),
-		));
-
-		while ($relation = $relationList->fetch())
-		{
-			IM\Model\RelationTable::delete($relation["ID"]);
-
-			if ($extranetFlag !== false)
-			{
-				$isExtranet = false;
-				foreach ($arUsers as $userData)
-				{
-					if ($userData['id'] == $userId)
-						continue;
-
-					if ($userData['extranet'])
-					{
-						$isExtranet = true;
-						break;
-					}
-				}
-				if (!$isExtranet || $extranetFlag === "")
-				{
-					IM\Model\ChatTable::update($chatId, Array('EXTRANET' => $isExtranet? "Y":"N"));
-				}
-				$extranetFlag = $isExtranet;
-			}
-		}
-
-		if (IM\User::getInstance($userId)->isBot())
-		{
-			if (IM\V2\Integration\AI\AIHelper::containsCopilotBot([$userId]))
-			{
-				Params::getInstance((int)$chatId)->deleteParam(Params::IS_COPILOT);
-			}
-
-			IM\Bot::changeChatMembers($chatId, $userId, false);
-			IM\Bot::onLeaveChat('chat'.$chatId, Array(
-				'CHAT_TYPE' => $chatType,
-				'MESSAGE_TYPE' => $chatType,
-				'BOT_ID' => $userId,
-				'USER_ID' => $this->user_id,
-				"CHAT_AUTHOR_ID"	=> $chatAuthorId,
-				"CHAT_ENTITY_TYPE" => $chatEntityType,
-				"CHAT_ENTITY_ID" => $chatEntityId,
-			));
-		}
-
-		CIMDisk::ChangeFolderMembers($chatId, $userId, false);
-
-		if ($message)
-		{
-			self::AddMessage(Array(
-				"TO_CHAT_ID" => $chatId,
-				"MESSAGE" 	 => $message,
-				"FROM_USER_ID" => $this->user_id,
-				"SYSTEM"	 => 'Y',
-				"RECENT_ADD" => $skipRecent? 'N': 'Y',
-				"PARAMS" => Array(
-					"CODE" => 'CHAT_LEAVE',
-					"NOTIFY" => $chatEntityType == 'LINES'? 'Y': 'N',
-				),
-				"PUSH" => 'N',
-				"SKIP_USER_CHECK" => "Y",
-			));
-		}
-
-		if (!$bSelf && $chatType !== IM_MESSAGE_OPEN_LINE && $this->user_id !== 0)
-		{
-			$gender = \Bitrix\Im\User::getInstance($this->user_id)->getGender();
-			$userName = \Bitrix\Im\User::getInstance($this->user_id)->getFullName(false);
-			$userName = '[USER='.$this->user_id.']'.$userName.'[/USER]';
-			$notificationCallback = fn (?string $languageId = null) => Loc::getMessage(
-				'IM_CHAT_KICK_NOTIFICATION_'. $gender,
-				["#USER_NAME#" => $userName],
-				$languageId
-			);
-
-			$notificationFields = [
-				'TO_USER_ID' => $userId,
-				'FROM_USER_ID' => 0,
-				'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
-				'NOTIFY_MODULE' => 'im',
-				'NOTIFY_TITLE' => htmlspecialcharsback(\Bitrix\Main\Text\Emoji::decode($arRes['CHAT_TITLE'])),
-				'NOTIFY_MESSAGE' => $notificationCallback,
-			];
-			CIMNotify::Add($notificationFields);
-		}
-
-		if ($chatType == IM_MESSAGE_OPEN)
-		{
-			CIMContactList::CleanAllChatCache();
-		}
-		else
-		{
-			CIMContactList::CleanChatCache($userId);
-		}
-
-		$newUsersCount = $this->getChatActiveUserCount($chatId);
-		$this->updateChatUserCount($chatId, $newUsersCount);
-
-		$pushMessage = Array(
-			'module_id' => 'im',
-			'command' => 'chatUserLeave',
-			'params' => Array(
-				'dialogId' => 'chat'.$chatId,
-				'chatId' => (int)$chatId,
-				'chatTitle' => $chatTitle,
-				'userId' => (int)$userId,
-				'message' => $bSelf? '': htmlspecialcharsbx($message),
-				'userCount' => $newUsersCount
-			),
-			'extra' => \Bitrix\Im\Common::getPullExtra()
+		$config = new IM\V2\Relation\DeleteUserConfig(
+			!$skipMessage,
+			$skipRecent,
+			true,
+			false,
+			$withoutRead
 		);
-		if ($arRes['CHAT_ENTITY_TYPE'] == 'LINES' )
-		{
-			foreach ($arOldRelation as $rel)
-			{
-				if ($rel["EXTERNAL_AUTH_ID"] == 'imconnector')
-				{
-					unset($arOldRelation[$rel["USER_ID"]]);
-				}
-			}
-		}
+		$result = $chat->deleteUser($userId, $config);
 
-		if ($pullLoad)
+		if ($result->getError() !== null)
 		{
-			if ($arRes['CHAT_TYPE'] === Chat::IM_TYPE_COMMENT)
+			if ($result->getError()?->getCode() === UserError::NOT_FOUND)
 			{
-				CPullWatch::AddToStack('IM_PUBLIC_COMMENT_'.$arRes['CHAT_PARENT_ID'], $pushMessage);
-			}
-			else
-			{
-				\Bitrix\Pull\Event::add(array_keys($arOldRelation), $pushMessage);
-			}
-		}
+				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_USER_NOT_FOUND"), UserError::NOT_FOUND);
 
-		if (
-			in_array($arRes['CHAT_TYPE'], [\Bitrix\Im\Chat::TYPE_OPEN, \Bitrix\Im\Chat::TYPE_GROUP])
-			&& $arRes['CHAT_ENTITY_TYPE'] != 'LIVECHAT'
-		)
-		{
-			self::updateChatIndex($chatId);
-		}
-
-		if (!empty($chatEntityType))
-		{
-			$eventCode = str_replace('_', '', ucfirst(ucwords(mb_strtolower($chatEntityType), '_')));
-			foreach(GetModuleEvents("im", "OnChatUserDeleteEntityType".$eventCode, true) as $arEvent)
-			{
-				ExecuteModuleEventEx($arEvent, array([
-					'CHAT_ID' => $chatId,
-					'USER_ID' => $userId,
-				]));
+				return false;
 			}
-		}
 
-		IM\V2\Chat::cleanAccessCache($chatId);
-		IM\V2\Relation\ChatRelations::getInstance($chatId)->cleanCache();
-		(new Im\V2\Analytics\ChatAnalytics(Chat::getInstance($chatId)))->addDeleteUser();
-		$this->sendPushCollabGuestCount($userId, $chatId, $chatType, $arOldRelation);
+			$GLOBALS["APPLICATION"]->ThrowException($result->getError()->getMessage(), $result->getError()->getCode());
+
+			return false;
+		}
 
 		return true;
-	}
-
-	private function sendPushCollabGuestCount(int $userId, int $chatId, $chatType, $oldRelations): void
-	{
-		//TODO: refactor CIMChat::DeleteUser()
-		if (empty($oldRelations))
-		{
-			return;
-		}
-
-		if ($chatType === Chat::IM_TYPE_COLLAB)
-		{
-			$chat = Chat::getInstance($chatId);
-			if ($chat instanceof Chat\CollabChat && User::getInstance($userId) instanceof UserCollaber)
-			{
-				$userIdsInChat = [];
-				foreach ($oldRelations as $relation)
-				{
-					if ($userId === (int)$relation['USER_ID'])
-					{
-						continue;
-					}
-
-					$userIdsInChat[] = (int)$relation['USER_ID'];
-				}
-
-				$fakeRelations = IM\V2\RelationCollection::createFake($userIdsInChat, $chat);
-				Chat\Collab\GuestCounter::cleanCache($chatId);
-				(new Chat\Collab\GuestCounter($chat))->setRelations($fakeRelations)->sendPushGuestCount();
-			}
-		}
 	}
 
 	public static function GetAvatarImage($id, $size = 200, $addBlankPicture = true)
@@ -3179,11 +2856,12 @@ class CIMChat
 
 		if (isset($params['MESSAGE_CODE']))
 		{
+			$messageCodeVersion = $params['MESSAGE_CODE_VERSION'] ?? '';
 			$messageReplace = is_array($params['MESSAGE_REPLACE'])? $params['MESSAGE_REPLACE']: Array();
 			if ($arUser)
 			{
 				$messageReplace['#USER_NAME#'] = $arUser['NAME'];
-				$message = GetMessage($params['MESSAGE_CODE'].$arUser['PERSONAL_GENDER'], $messageReplace);
+				$message = GetMessage($params['MESSAGE_CODE'].$arUser['PERSONAL_GENDER'].$messageCodeVersion, $messageReplace);
 			}
 			else
 			{

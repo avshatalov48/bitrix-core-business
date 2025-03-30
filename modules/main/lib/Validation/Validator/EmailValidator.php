@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Main\Validation\Validator;
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 
@@ -24,7 +24,7 @@ class EmailValidator implements ValidatorInterface
 		if (!check_email($value, $this->strict, $this->domainCheck))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_EMAIL_INVALID'),
+				new LocalizableMessage('MAIN_VALIDATION_EMAIL_INVALID'),
 				failedValidator: $this
 			));
 		}

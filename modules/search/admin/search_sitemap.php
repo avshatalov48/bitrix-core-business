@@ -1,136 +1,146 @@
-<?
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/prolog.php");
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/search/prolog.php';
 IncludeModuleLangFile(__FILE__);
 /** @global CMain $APPLICATION */
 global $APPLICATION;
 /** @var CAdminMessage $message */
 $searchDB = CDatabase::GetModuleConnection('search');
 
-$POST_RIGHT = $APPLICATION->GetGroupRight("search");
-if($POST_RIGHT=="D")
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-
-$arSiteMap=false;
-if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Generate"]=="Y")
+$POST_RIGHT = $APPLICATION->GetGroupRight('search');
+if ($POST_RIGHT == 'D')
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
+}
 
-	if(check_bitrix_sessid())
+$arSiteMap = false;
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_REQUEST['Generate'] == 'Y')
+{
+	require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_js.php';
+
+	if (check_bitrix_sessid())
 	{
-		if(array_key_exists("NS", $_POST) && is_array($_POST["NS"]))
+		if (array_key_exists('NS', $_POST) && is_array($_POST['NS']))
 		{
-			$NS = $_POST["NS"];
+			$NS = $_POST['NS'];
 		}
 		else
 		{
-			$NS = array();
+			$NS = [];
 
-			$sm_max_execution_time = intval($_REQUEST["sm_max_execution_time"]);
-			if($sm_max_execution_time < 1)
+			$sm_max_execution_time = intval($_REQUEST['sm_max_execution_time']);
+			if ($sm_max_execution_time < 1)
+			{
 				$sm_max_execution_time = 30;
-			COption::SetOptionString("search", "sm_max_execution_time", $sm_max_execution_time);
+			}
+			COption::SetOptionString('search', 'sm_max_execution_time', $sm_max_execution_time);
 
-			$sm_record_limit = intval($_REQUEST["sm_record_limit"]);
-			if($sm_record_limit < 1)
+			$sm_record_limit = intval($_REQUEST['sm_record_limit']);
+			if ($sm_record_limit < 1)
+			{
 				$sm_record_limit = 5000;
-			COption::SetOptionString("search", "sm_record_limit", $sm_record_limit);
+			}
+			COption::SetOptionString('search', 'sm_record_limit', $sm_record_limit);
 
-			COption::SetOptionString("search", "sm_forum_topics_only", ($_REQUEST["sm_forum_topics_only"] == "Y"? "Y": "N"));
-			COption::SetOptionString("search", "sm_blog_no_comments", ($_REQUEST["sm_blog_no_comments"] == "Y"? "Y": "N"));
-			COption::SetOptionString("search", "sm_use_https", ($_REQUEST["sm_use_https"] == "Y"? "Y": "N"));
+			COption::SetOptionString('search', 'sm_forum_topics_only', ($_REQUEST['sm_forum_topics_only'] == 'Y' ? 'Y' : 'N'));
+			COption::SetOptionString('search', 'sm_blog_no_comments', ($_REQUEST['sm_blog_no_comments'] == 'Y' ? 'Y' : 'N'));
+			COption::SetOptionString('search', 'sm_use_https', ($_REQUEST['sm_use_https'] == 'Y' ? 'Y' : 'N'));
 		}
 
 
 		$cSiteMap = new CSiteMap;
-		$arOptions = array(
-			"FORUM_TOPICS_ONLY" => COption::GetOptionString("search", "sm_forum_topics_only"),
-			"BLOG_NO_COMMENTS" => COption::GetOptionString("search", "sm_blog_no_comments"),
-			"USE_HTTPS" => COption::GetOptionString("search", "sm_use_https"),
-		);
+		$arOptions = [
+			'FORUM_TOPICS_ONLY' => COption::GetOptionString('search', 'sm_forum_topics_only'),
+			'BLOG_NO_COMMENTS' => COption::GetOptionString('search', 'sm_blog_no_comments'),
+			'USE_HTTPS' => COption::GetOptionString('search', 'sm_use_https'),
+		];
 
-		$sm_max_execution_time = COption::GetOptionString("search", "sm_max_execution_time");
-		$sm_record_limit = COption::GetOptionString("search", "sm_record_limit");
+		$sm_max_execution_time = COption::GetOptionString('search', 'sm_max_execution_time');
+		$sm_record_limit = COption::GetOptionString('search', 'sm_record_limit');
 
-		$arSiteMap=$cSiteMap->Create($SM_SITE_ID, array($sm_max_execution_time, $sm_record_limit), $NS, $arOptions);
-		if(is_array($arSiteMap)):
-			CAdminMessage::ShowMessage(array(
-				"TYPE" => "PROGRESS",
-				"HTML" => true,
-				"DETAILS" => GetMessage("SEARCH_SITEMAP_DOC_COUNT").": <b>".intval($arSiteMap["CNT"])."</b>.<br>"
-					.GetMessage("SEARCH_SITEMAP_ERR_COUNT").": <b>".intval($arSiteMap["ERROR_CNT"])."</b>.<br>",
-			));
+		$arSiteMap = $cSiteMap->Create($SM_SITE_ID, [$sm_max_execution_time, $sm_record_limit], $NS, $arOptions);
+		if (is_array($arSiteMap)):
+			CAdminMessage::ShowMessage([
+				'TYPE' => 'PROGRESS',
+				'HTML' => true,
+				'DETAILS' => GetMessage('SEARCH_SITEMAP_DOC_COUNT') . ': <b>' . intval($arSiteMap['CNT']) . '</b>.<br>'
+					. GetMessage('SEARCH_SITEMAP_ERR_COUNT') . ': <b>' . intval($arSiteMap['ERROR_CNT']) . '</b>.<br>',
+			]);
 			?>
 			<script>
 				CloseWaitWindow();
-				DoNext(<?echo CUtil::PhpToJSObject(array("NS"=>$arSiteMap))?>);
+				DoNext(<?php echo CUtil::PhpToJSObject(['NS' => $arSiteMap])?>);
 			</script>
-		<?elseif($arSiteMap===true):?>
-			<?echo BeginNote()?>
-			<p><?echo GetMessage("SEARCH_SITEMAP_CREATED")?>: <b><a href="<?=htmlspecialcharsbx($cSiteMap->m_href)?>"><?=$cSiteMap->m_href?></a></b></p>
-			<p><?echo GetMessage("SEARCH_SITEMAP_INSTR1")?>:</p>
+		<?php elseif ($arSiteMap === true):?>
+			<?php echo BeginNote()?>
+			<p><?php echo GetMessage('SEARCH_SITEMAP_CREATED')?>: <b><a href="<?=htmlspecialcharsbx($cSiteMap->m_href)?>"><?=$cSiteMap->m_href?></a></b></p>
+			<p><?php echo GetMessage('SEARCH_SITEMAP_INSTR1')?>:</p>
 			<ol>
 				<li>
-					<?echo GetMessage("SEARCH_SITEMAP_INSTR2")?> <a href="https://www.google.com/webmasters/tools/home">Google Sitemaps</a>
-					<?echo GetMessage("SEARCH_SITEMAP_INSTR3")?> <a href="https://www.google.com/accounts/ManageAccount"><?echo GetMessage("SEARCH_SITEMAP_INSTR7")?></a>
+					<?php echo GetMessage('SEARCH_SITEMAP_INSTR2')?> <a href="https://www.google.com/webmasters/tools/home">Google Sitemaps</a>
+					<?php echo GetMessage('SEARCH_SITEMAP_INSTR3')?> <a href="https://www.google.com/accounts/ManageAccount"><?php echo GetMessage('SEARCH_SITEMAP_INSTR7')?></a>
 				</li>
 				<li>
-					<?echo GetMessage("SEARCH_SITEMAP_INSTR4")?> <strong>"<? echo GetMessage("SEARCH_SITEMAP_INSTR8")?>"</strong>.
+					<?php echo GetMessage('SEARCH_SITEMAP_INSTR4')?> <strong>"<?php echo GetMessage('SEARCH_SITEMAP_INSTR8')?>"</strong>.
 				</li>
 				<li>
-					<?echo GetMessage("SEARCH_SITEMAP_INSTR5")?>.
+					<?php echo GetMessage('SEARCH_SITEMAP_INSTR5')?>.
 				</li>
 			</ol>
-			<p><?echo GetMessage("SEARCH_SITEMAP_INSTR6")?></p>
-			<?if($cSiteMap->m_errors_count>0):?>
+			<p><?php echo GetMessage('SEARCH_SITEMAP_INSTR6')?></p>
+			<?php if ($cSiteMap->m_errors_count > 0):?>
 				<p>
-				<?echo GetMessage("SEARCH_SITEMAP_WARN")?> <a href="<?=htmlspecialcharsbx($cSiteMap->m_errors_href)?>"><?=$cSiteMap->m_errors_href?></a>.
-				<br><?echo GetMessage("SEARCH_SITEMAP_WARN1")?>.
+				<?php echo GetMessage('SEARCH_SITEMAP_WARN')?> <a href="<?=htmlspecialcharsbx($cSiteMap->m_errors_href)?>"><?=$cSiteMap->m_errors_href?></a>.
+				<br><?php echo GetMessage('SEARCH_SITEMAP_WARN1')?>.
 				</p>
-			<?endif;?>
-			<?echo EndNote()?>
+			<?php endif;?>
+			<?php echo EndNote()?>
 			<script>
 				CloseWaitWindow();
 				EndReindex();
 			</script>
-		<?elseif($arSiteMap===false):?>
-			<?CAdminMessage::ShowMessage(array(
-				"MESSAGE" => GetMessage("SEARCH_SITEMAP_ERR"),
-				"DETAILS" => $cSiteMap->m_error,
-				"TYPE" => "ERROR",
-				"HTML" => "Y",
-			));?>
+		<?php elseif ($arSiteMap === false):?>
+			<?php
+			CAdminMessage::ShowMessage([
+				'MESSAGE' => GetMessage('SEARCH_SITEMAP_ERR'),
+				'DETAILS' => $cSiteMap->m_error,
+				'TYPE' => 'ERROR',
+				'HTML' => 'Y',
+			]);
+			?>
 			<script>
 				CloseWaitWindow();
 				EndReindex();
 			</script>
-		<?endif;
+		<?php endif;
 	}
 	else
 	{
-		CAdminMessage::ShowMessage(GetMessage("SEARCH_SITEMAP_SESSION_ERR"));
+		CAdminMessage::ShowMessage(GetMessage('SEARCH_SITEMAP_SESSION_ERR'));
 		?>
 		<script>
 			CloseWaitWindow();
 			EndReindex();
 		</script>
-		<?
+		<?php
 	}
-	require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_js.php");
+	require $_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/main/include/epilog_admin_js.php';
 }
 else
 {
-$APPLICATION->SetTitle(GetMessage("SEARCH_SITEMAP_TITLE"));
+$APPLICATION->SetTitle(GetMessage('SEARCH_SITEMAP_TITLE'));
 
-$aTabs = array(
-	array("DIV" => "edit1", "TAB" => "Google Sitemap", "ICON"=>"main_user_edit", "TITLE"=>GetMessage("SEARCH_SITEMAP_TAB_TITLE")),
-);
-$tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
+$aTabs = [
+	['DIV' => 'edit1', 'TAB' => 'Google Sitemap', 'ICON' => 'main_user_edit', 'TITLE' => GetMessage('SEARCH_SITEMAP_TAB_TITLE')],
+];
+$tabControl = new CAdminTabControl('tabControl', $aTabs, true, true);
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 
-if(is_object($message))
+if (is_object($message))
+{
 	echo $message->Show();
+}
 ?>
 <script>
 var savedNS;
@@ -148,8 +158,8 @@ function StartReindex()
 function DoNext(NS)
 {
 	var queryString = 'Generate=Y'
-		+ '&lang=<?echo urlencode(LANGUAGE_ID)?>'
-		+ '&<?echo bitrix_sessid_get()?>';
+		+ '&lang=<?php echo urlencode(LANGUAGE_ID)?>'
+		+ '&<?php echo bitrix_sessid_get()?>';
 
 	var ck = document.getElementById('sm_forum_topics_only');
 	if(ck && ck.checked)
@@ -213,67 +223,79 @@ function EndReindex()
 <div id="reindex_result_div">
 </div>
 
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialcharsbx(LANG)?>" name="fs2">
-<?
+<form method="POST" action="<?php echo $APPLICATION->GetCurPage()?>?lang=<?php echo htmlspecialcharsbx(LANG)?>" name="fs2">
+<?php
 
-$sm_max_execution_time = intval(COption::GetOptionInt("search", "sm_max_execution_time"));
-if($sm_max_execution_time < 1)
+$sm_max_execution_time = intval(COption::GetOptionInt('search', 'sm_max_execution_time'));
+if ($sm_max_execution_time < 1)
+{
 	$sm_max_execution_time = 30;
+}
 
-$sm_record_limit = intval(COption::GetOptionInt("search", "sm_record_limit"));
-if($sm_record_limit < 1)
+$sm_record_limit = intval(COption::GetOptionInt('search', 'sm_record_limit'));
+if ($sm_record_limit < 1)
+{
 	$sm_record_limit = 5000;
+}
 
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
 	<tr>
-		<td width="40%"><?echo GetMessage("SEARCH_SITEMAP_SITE")?></td>
-		<td width="60%"><?echo CLang::SelectBox("SM_SITE_ID", SITE_ID);?></td>
+		<td width="40%"><?php echo GetMessage('SEARCH_SITEMAP_SITE')?></td>
+		<td width="60%"><?php echo CLang::SelectBox('SM_SITE_ID', SITE_ID);?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("SEARCH_SITEMAP_STEP")?></td>
-		<td><input type="text" name="sm_max_execution_time" id="sm_max_execution_time" size="5" value="<?echo $sm_max_execution_time?>"> <?echo GetMessage("SEARCH_SITEMAP_STEP_sec")?></td>
+		<td><?php echo GetMessage('SEARCH_SITEMAP_STEP')?></td>
+		<td><input type="text" name="sm_max_execution_time" id="sm_max_execution_time" size="5" value="<?php echo $sm_max_execution_time?>"> <?php echo GetMessage('SEARCH_SITEMAP_STEP_sec')?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("SEARCH_SITEMAP_RECORD_LIMIT")?></td>
-		<td><input type="text" name="sm_record_limit" id="sm_record_limit" size="5" value="<?echo $sm_record_limit?>"></td>
+		<td><?php echo GetMessage('SEARCH_SITEMAP_RECORD_LIMIT')?></td>
+		<td><input type="text" name="sm_record_limit" id="sm_record_limit" size="5" value="<?php echo $sm_record_limit?>"></td>
 	</tr>
-	<?if(IsModuleInstalled("forum")):?>
+	<?php if (IsModuleInstalled('forum')):?>
 	<tr>
-		<td><label for="sm_forum_topics_only"><?echo GetMessage("SEARCH_SITEMAP_FORUM_TOPICS_ONLY")?>:</label></td>
-		<td><input type="checkbox" id="sm_forum_topics_only" name="sm_forum_topics_only" value="Y"<?
-			if(COption::GetOptionString("search", "sm_forum_topics_only")=="Y") echo ' checked="checked"'?>></td>
+		<td><label for="sm_forum_topics_only"><?php echo GetMessage('SEARCH_SITEMAP_FORUM_TOPICS_ONLY')?>:</label></td>
+		<td><input type="checkbox" id="sm_forum_topics_only" name="sm_forum_topics_only" value="Y"<?php
+			if (COption::GetOptionString('search', 'sm_forum_topics_only') == 'Y')
+			{
+				echo ' checked="checked"';
+			}?>></td>
 	</tr>
-	<?endif?>
-	<?if(IsModuleInstalled("blog")):?>
+	<?php endif?>
+	<?php if (IsModuleInstalled('blog')):?>
 	<tr>
-		<td><label for="sm_blog_no_comments"><?echo GetMessage("SEARCH_SITEMAP_BLOG_NO_COMMENTS")?>:</label></td>
-		<td><input type="checkbox" id="sm_blog_no_comments" name="sm_blog_no_comments" value="Y"<?
-			if(COption::GetOptionString("search", "sm_blog_no_comments")=="Y") echo ' checked="checked"'?>></td>
+		<td><label for="sm_blog_no_comments"><?php echo GetMessage('SEARCH_SITEMAP_BLOG_NO_COMMENTS')?>:</label></td>
+		<td><input type="checkbox" id="sm_blog_no_comments" name="sm_blog_no_comments" value="Y"<?php
+			if (COption::GetOptionString('search', 'sm_blog_no_comments') == 'Y')
+			{
+				echo ' checked="checked"';
+			}?>></td>
 	</tr>
-	<?endif?>
+	<?php endif?>
 	<tr>
-		<td><label for="sm_use_https"><?echo GetMessage("SEARCH_SITEMAP_USE_HTTPS")?>:</label></td>
-		<td><input type="checkbox" id="sm_use_https" name="sm_use_https" value="Y"<?
-			if(COption::GetOptionString("search", "sm_use_https")=="Y") echo ' checked="checked"'?>></td>
+		<td><label for="sm_use_https"><?php echo GetMessage('SEARCH_SITEMAP_USE_HTTPS')?>:</label></td>
+		<td><input type="checkbox" id="sm_use_https" name="sm_use_https" value="Y"<?php
+			if (COption::GetOptionString('search', 'sm_use_https') == 'Y')
+			{
+				echo ' checked="checked"';
+			}?>></td>
 	</tr>
-<?
+<?php
 $tabControl->Buttons();
 ?>
-	<input type="button" id="start_button" value="<?=GetMessage("SEARCH_SITEMAP_CREATE")?>" OnClick="StartReindex();" class="adm-btn-save">
-	<input type="button" id="stop_button" value="<?=GetMessage("SEARCH_SITEMAP_STOP")?>" OnClick="StopReindex();" disabled>
-	<input type="button" id="continue_button" value="<?=GetMessage("SEARCH_SITEMAP_CONTINUE")?>" OnClick="ContinueReindex();" disabled>
-<?
+	<input type="button" id="start_button" value="<?=GetMessage('SEARCH_SITEMAP_CREATE')?>" OnClick="StartReindex();" class="adm-btn-save">
+	<input type="button" id="stop_button" value="<?=GetMessage('SEARCH_SITEMAP_STOP')?>" OnClick="StopReindex();" disabled>
+	<input type="button" id="continue_button" value="<?=GetMessage('SEARCH_SITEMAP_CONTINUE')?>" OnClick="ContinueReindex();" disabled>
+<?php
 $tabControl->End();
 ?>
 </form>
 
-<?echo BeginNote();?>
-<?echo GetMessage("SEARCH_SITEMAP_NOTE")?>
-<?echo EndNote();?>
+<?php echo BeginNote();?>
+<?php echo GetMessage('SEARCH_SITEMAP_NOTE')?>
+<?php echo EndNote();?>
 
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+<?php
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';
 }
-?>

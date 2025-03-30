@@ -18,7 +18,7 @@ export class ChannelMessageMenu extends MessageMenu
 			this.getFavoriteItem(),
 			this.getDelimiter(),
 			this.getDownloadFileItem(),
-			this.getSaveToDisk(),
+			this.getSaveToDiskItem(),
 			this.getDelimiter(),
 			this.getEditItem(),
 			this.getDeleteItem(),

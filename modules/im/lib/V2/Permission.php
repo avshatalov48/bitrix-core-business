@@ -220,6 +220,14 @@ class Permission
 			Action::Delete->value => Chat::ROLE_OWNER,
 		];
 
+		self::$permissionsByChatTypes[Type::Lines->value] = [
+			Action::LeaveOwner->value => Chat::ROLE_NONE,
+			Action::Call->value => Chat::ROLE_NONE,
+			Action::ChangeOwner->value => Chat::ROLE_NONE,
+			Action::ChangeManagers->value => Chat::ROLE_NONE,
+			Action::Mute->value => Chat::ROLE_NONE,
+		];
+
 		foreach (self::$permissionsByChatTypes as $code => $value)
 		{
 			self::$permissionsByChatTypes[$code] = array_merge($default, $value);

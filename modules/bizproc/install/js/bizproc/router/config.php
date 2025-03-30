@@ -8,8 +8,8 @@ return [
 	'css' => 'dist/router.bundle.css',
 	'js' => 'dist/router.bundle.js',
 	'rel' => [
+		'main.polyfill.core',
 		'sidepanel',
-		'main.core',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

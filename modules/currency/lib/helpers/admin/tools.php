@@ -27,7 +27,7 @@ class Tools
 
 		$currencyLinkTitle = Main\Text\HtmlFilter::encode(
 			($APPLICATION->getGroupRight('currency') < 'W')
-				? Loc::getMessage('CURRENCY_HELPERS_ADMIN_TOOLS_MESS_CURRENCY_VIEW_TITLE')
+				? Loc::getMessage('CURRENCY_HELPERS_ADMIN_TOOLS_MESS_CURRENCY_VIEW_TITLE_MSGVER_1')
 				: Loc::getMessage('CURRENCY_HELPERS_ADMIN_TOOLS_MESS_CURRENCY_EDIT_TITLE')
 		);
 

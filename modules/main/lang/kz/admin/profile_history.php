@@ -1,0 +1,26 @@
+<?php
+$MESS["ACCESS_DENIED"] = "Қолжетімділікке тыйым салынған.";
+$MESS["main_profile_history_adding"] = "Қосу";
+$MESS["main_profile_history_browser"] = "Браузер";
+$MESS["main_profile_history_changes"] = "Не өзгертілді";
+$MESS["main_profile_history_date"] = "Күні";
+$MESS["main_profile_history_deleting"] = "Жою";
+$MESS["main_profile_history_error_date1"] = "Кезеңнің дұрыс емес басталу күні.";
+$MESS["main_profile_history_error_date2"] = "Кезеңнің дұрыс емес аяқталу күні.";
+$MESS["main_profile_history_event"] = "Оқиға";
+$MESS["main_profile_history_filter_all"] = "Барлығы";
+$MESS["main_profile_history_filter_browser"] = "Браузер";
+$MESS["main_profile_history_filter_date"] = "Құжаттарды";
+$MESS["main_profile_history_filter_event"] = "Оқиға түрі";
+$MESS["main_profile_history_filter_field"] = "Профиль өрісі";
+$MESS["main_profile_history_filter_id"] = "Пайдаланушының ID-і";
+$MESS["main_profile_history_filter_ip"] = "IP-мекенжай";
+$MESS["main_profile_history_filter_url"] = "Парақшаның URL";
+$MESS["main_profile_history_ip"] = "IP-мекенжай";
+$MESS["main_profile_history_note"] = "Пайдаланушы профилін өзгерту тарихын сақтауды негізгі модуль баптауларында қосуға немесе өшіруге болады.";
+$MESS["main_profile_history_records"] = "Жазбалар";
+$MESS["main_profile_history_title"] = "Профиль тарихы";
+$MESS["main_profile_history_updated_by"] = "Кім өзгертті";
+$MESS["main_profile_history_updating"] = "Өзгерту";
+$MESS["main_profile_history_url"] = "Парақшаның URL";
+$MESS["main_profile_history_user"] = "Пайдаланушы";

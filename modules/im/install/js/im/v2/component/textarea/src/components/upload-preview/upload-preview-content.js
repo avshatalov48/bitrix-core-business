@@ -1,7 +1,6 @@
 import { Extension } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
 import { EventType, FileType } from 'im.v2.const';
 import { DraftManager } from 'im.v2.lib.draft';
 import { isNewLineCombination, isSendMessageCombination } from 'im.v2.lib.hotkey';
@@ -9,6 +8,8 @@ import { Textarea } from 'im.v2.lib.textarea';
 import { UploadingService } from 'im.v2.provider.service';
 
 import { ResizeDirection, ResizeManager } from '../../classes/resize-manager';
+import { MediaContent } from 'im.v2.component.message.file';
+import { SendButton } from '../send-button';
 import { FileItem } from './file-item';
 
 import '../../css/upload-preview/upload-preview-content.css';
@@ -17,16 +18,25 @@ import type { JsonObject } from 'main.core';
 import type { ImModelFile } from 'im.v2.model';
 import type { UploaderFile } from 'ui.uploader.core';
 
+const MAX_FILES_COUNT = 10;
 const BUTTONS_CONTAINER_HEIGHT = 74;
 const TextareaHeight = {
 	max: 208,
 	min: 46,
 };
 
+type FakeMessage = {
+	id: string,
+	files: Array<string>,
+	text: string,
+	attach: Array<any>,
+	forward: { [keys: string]: any },
+};
+
 // @vue/component
 export const UploadPreviewContent = {
 	name: 'UploadPreviewContent',
-	components: { MessengerButton, FileItem },
+	components: { MediaContent, FileItem, SendButton },
 	props: {
 		dialogId: {
 			type: String,
@@ -48,27 +58,34 @@ export const UploadPreviewContent = {
 		return {
 			text: '',
 			sendAsFile: false,
-			files: [],
+			uploaderFiles: [],
 			textareaHeight: TextareaHeight.min,
 			textareaResizedHeight: 0,
 		};
 	},
 	computed:
 	{
-		ButtonSize: () => ButtonSize,
-		ButtonColor: () => ButtonColor,
-		filesFromStore(): ImModelFile[]
+		files(): Array<ImModelFile>
 		{
-			const filesFromStore = [];
-			this.files.forEach((file) => {
-				const fileFromStore = this.$store.getters['files/get'](file.getId());
-				if (fileFromStore)
-				{
-					filesFromStore.push(fileFromStore);
-				}
+			return this.uploaderFiles.map((file: UploaderFile) => {
+				return this.$store.getters['files/get'](file.getId());
 			});
-
-			return filesFromStore;
+		},
+		fileIds(): number | string
+		{
+			return this.files.map((file: ImModelFile) => {
+				return file.id;
+			});
+		},
+		fakeMessage(): FakeMessage
+		{
+			return {
+				id: 'fake',
+				files: this.fileIds,
+				text: '',
+				attach: [],
+				forward: {},
+			};
 		},
 		filesCount(): number
 		{
@@ -76,7 +93,21 @@ export const UploadPreviewContent = {
 		},
 		isSingleFile(): boolean
 		{
-			return this.filesFromStore.length === 1;
+			return this.files.length === 1;
+		},
+		sourceFilesCount(): number
+		{
+			return this.getUploadingService().getSourceFilesCount(this.uploaderId);
+		},
+		isOverMaxFilesLimit(): boolean
+		{
+			return this.sourceFilesCount > MAX_FILES_COUNT;
+		},
+		isMediaOnly(): boolean
+		{
+			return this.files.every((file: ImModelFile) => {
+				return (file.type === FileType.image || file.type === FileType.video);
+			});
 		},
 		inputMaxLength(): number
 		{
@@ -90,13 +121,10 @@ export const UploadPreviewContent = {
 		},
 		title(): string
 		{
-			const onlyImages = this.filesFromStore.every((file) => {
-				return file.type === FileType.image;
-			});
-
-			return onlyImages
-				? this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE')
-				: this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE_FILES');
+			return this.$Bitrix.Loc.getMessage(
+				'IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_COMPUTED_TITLE',
+				{ '#COUNT#': this.filesCount },
+			);
 		},
 	},
 	watch:
@@ -111,7 +139,7 @@ export const UploadPreviewContent = {
 		},
 		sendAsFile(newValue: boolean)
 		{
-			this.files.forEach((file: UploaderFile) => {
+			this.uploaderFiles.forEach((file: UploaderFile) => {
 				file.setCustomData('sendAsFile', newValue);
 			});
 		},
@@ -119,7 +147,9 @@ export const UploadPreviewContent = {
 	created()
 	{
 		this.initResizeManager();
-		this.files = this.getUploadingService().getFiles(this.uploaderId);
+		this.getUploadingService().getFiles(this.uploaderId).forEach((file) => {
+			this.uploaderFiles.push(file);
+		});
 	},
 	mounted()
 	{
@@ -180,10 +210,10 @@ export const UploadPreviewContent = {
 		},
 		onSend()
 		{
-			if (this.sendAsFile)
+			if (this.sendAsFile || !this.isMediaOnly)
 			{
-				this.files.forEach((file: UploaderFile) => {
-					this.removePreview(file);
+				this.uploaderFiles.forEach((file: UploaderFile) => {
+					this.removePreviewParams(file);
 				});
 			}
 
@@ -214,12 +244,11 @@ export const UploadPreviewContent = {
 				this.text = Textarea.addNewLine(this.$refs.messageText);
 			}
 		},
-		removePreview(file: UploaderFile)
+		removePreviewParams(file: UploaderFile)
 		{
 			this.$store.dispatch('files/update', {
 				id: file.getId(),
 				fields: {
-					urlPreview: '',
 					image: false,
 				},
 			});
@@ -260,46 +289,62 @@ export const UploadPreviewContent = {
 
 			return textareaTop + newMaxPoint + BUTTONS_CONTAINER_HEIGHT > window.innerHeight;
 		},
+		onRemoveItem(event)
+		{
+			this.getUploadingService().removeFileFromUploader({
+				uploaderId: this.uploaderId,
+				filesIds: [event.file.id],
+			});
+
+			this.uploaderFiles = this.getUploadingService().getFiles(this.uploaderId);
+
+			if (this.filesCount === 0)
+			{
+				this.$emit('close');
+			}
+		},
 	},
 	template: `
 		<div class="bx-im-upload-preview__container">
-			<div class="bx-im-upload-preview__upper-delimiter"></div>
 			<div class="bx-im-upload-preview__items-container">
-				<FileItem v-for="fileItem in filesFromStore" :file="fileItem" :class="{'--single': isSingleFile}" />
+				<MediaContent 
+					v-if="isMediaOnly && !sendAsFile" 
+					:item="fakeMessage" 
+					:previewMode="true" 
+					:removable="true"
+					@onRemoveItem="onRemoveItem"
+				/>
+				<FileItem 
+					v-else 
+					v-for="fileItem in files" 
+					:file="fileItem" 
+					:class="{'--single': isSingleFile}" 
+					:removable="true"
+					@onRemoveItem="onRemoveItem"
+				/>
 			</div>
-			<div class="bx-im-upload-preview__bottom-delimiter"></div>
 			<div class="bx-im-upload-preview__controls-container">
-				<!--<label class="bx-im-upload-preview__control-compress-image">-->
-				<!--<input type="checkbox" v-model="sendAsFile">-->
-				<!--{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_AS_FILE') }}-->
-				<!--</label>-->
-				<textarea
-					ref="messageText"
-					v-model="text"
-					:placeholder="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER')"
-					:maxlength="inputMaxLength"
-					:style="{'height': textareaHeightStyle}"
-					class="bx-im-upload-preview__message-text"
-					rows="1"
-					@keydown="onKeyDownHandler"
-				></textarea>
+				<div v-if="isOverMaxFilesLimit" class="ui-alert ui-alert-xs ui-alert-icon-warning bx-im-upload-preview__controls-files-limit-message">
+					<span class="ui-alert-message">{{ loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_FILES_LIMIT_MESSAGE_10') }}</span>
+				</div>
+				<label v-if="isMediaOnly" class="bx-im-upload-preview__control-compress-image">
+					<input type="checkbox" class="bx-im-upload-preview__control-compress-image-checkbox" v-model="sendAsFile">
+					{{ loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_WITHOUT_COMPRESSION') }}
+				</label>
+				<div class="bx-im-upload-preview__control-form">
+					<textarea
+						ref="messageText"
+						v-model="text"
+						:placeholder="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER_2')"
+						:maxlength="inputMaxLength"
+						:style="{'height': textareaHeightStyle}"
+						class="bx-im-upload-preview__message-text"
+						rows="1"
+						@keydown="onKeyDownHandler"
+					></textarea>
+					<SendButton :dialogId="dialogId" @click="onSend" />
+				</div>
 				<div @mousedown="onResizeStart" class="bx-im-upload-preview__drag-handle"></div>
-			</div>
-			<div class="bx-im-upload-preview__controls-buttons">
-				<MessengerButton
-					:color="ButtonColor.Primary"
-					:size="ButtonSize.L"
-					:isRounded="true"
-					:text="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_SEND')"
-					@click="onSend"
-				/>
-				<MessengerButton
-					:color="ButtonColor.LightBorder"
-					:size="ButtonSize.L"
-					:isRounded="true"
-					:text="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL')"
-					@click="onCancel"
-				/>
 			</div>
 		</div>
 	`,

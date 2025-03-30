@@ -105,8 +105,10 @@
 }
 
 .bx-im-button__container:hover {
+	--im-button__border-color_hover: var(--im-button__background-color_hover);
+
 	color: var(--im-button__color_hover);
-	background-color: var(--im-button__background-color_hover) !important;
+	background-color: var(--im-button__background-color_hover);
 	border-color: var(--im-button__border-color_hover);
 }
 

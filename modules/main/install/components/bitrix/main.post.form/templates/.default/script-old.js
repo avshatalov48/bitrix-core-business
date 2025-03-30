@@ -996,6 +996,7 @@ window.MPFcreateSelectorDialog = function(dialogParams)
 						item: {
 							name: selectedItem.getTitle(),
 							entityId: selectedItem.getId(),
+							entityType: selectedItem.getEntityType(),
 						},
 						entityType: selectedItem.getEntityId(),
 					});
@@ -1072,16 +1073,19 @@ window.MPFMentionInit = function(formId, params)
 				}
 			}
 
-			selectorInstance.addItem({
-				avatar: item.avatar,
-				customData: {
-					email: (BX.Type.isStringFilled(item.email) ? item.email : ''),
-				},
-				entityId: type,
-				entityType: entityType,
-				id: item.entityId,
-				title: item.name
-			}).select();
+			if (item.entityType !== 'collaber')
+			{
+				selectorInstance.addItem({
+					avatar: item.avatar,
+					customData: {
+						email: (BX.Type.isStringFilled(item.email) ? item.email : ''),
+					},
+					entityId: type,
+					entityType: entityType,
+					id: item.entityId,
+					title: item.name
+				}).select();
+			}
 		});
 	}
 
@@ -1323,9 +1327,11 @@ window.BXfpdOnDialogClose = function (params)
 					{
 						id: 'user',
 						options: {
+							collabers: (BX.type.isBoolean(params.collabers) ? params.collabers : true),
 							emailUsers: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
 							inviteGuestLink: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
-							myEmailUsers: true
+							myEmailUsers: true,
+							footerInviteIntranetOnly: true,
 						}
 					},
 					{
@@ -1333,7 +1339,8 @@ window.BXfpdOnDialogClose = function (params)
 						options: {
 							features: {
 								blog:  [ 'premoderate_post', 'moderate_post', 'write_post', 'full_post' ]
-							}
+							},
+							'!type': ['collab'],
 						}
 					},
 					{

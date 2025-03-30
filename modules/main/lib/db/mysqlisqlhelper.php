@@ -322,12 +322,18 @@ class MysqliSqlHelper extends SqlHelper
 			}
 			else
 			{
-				return 'varchar('.max(mb_strlen($values[0]), mb_strlen($values[1])).')';
+				$falseLen = mb_strlen($values[0]);
+				$trueLen = mb_strlen($values[1]);
+				if ($falseLen === 1 && $trueLen === 1)
+				{
+					return 'char(1)';
+				}
+				return 'varchar(' . max($falseLen, $trueLen) . ')';
 			}
 		}
 		elseif ($field instanceof ORM\Fields\EnumField)
 		{
-			return 'varchar('.max(array_map('strlen', $field->getValues())).')';
+			return 'varchar('.max(array_map('mb_strlen', $field->getValues())).')';
 		}
 		else
 		{
@@ -638,5 +644,24 @@ class MysqliSqlHelper extends SqlHelper
 		$values = implode(',', array_map($callback, $values));
 
 		return "FIELD({$field}, {$values})";
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function isBigType($type): bool
+	{
+		$result = match ($type)
+		{
+			MYSQLI_TYPE_TINY_BLOB, MYSQLI_TYPE_MEDIUM_BLOB, MYSQLI_TYPE_LONG_BLOB, MYSQLI_TYPE_BLOB => true,
+			default => false,
+		};
+
+		if (!$result && defined('MYSQLI_TYPE_JSON'))
+		{
+			$result = ($type === MYSQLI_TYPE_JSON);
+		}
+
+		return $result;
 	}
 }

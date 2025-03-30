@@ -63,6 +63,7 @@ create table if not exists b_iblock
 	SECTION_NAME varchar(100) null,
 	ELEMENTS_NAME varchar(100) null,
 	ELEMENT_NAME varchar(100) null,
+	FULLTEXT_INDEX varchar(1) default 'N' not null,
 	PRIMARY KEY(ID),
 	INDEX ix_iblock (IBLOCK_TYPE_ID, LID, ACTIVE),
 	UNIQUE INDEX ix_iblock_api_code (API_CODE),
@@ -230,7 +231,7 @@ create table if not exists b_iblock_element
 
 create table if not exists b_iblock_element_property
 (
-	ID int(11) not null  auto_increment,
+	ID bigint not null auto_increment,
 	IBLOCK_PROPERTY_ID int(11) not null,
 	IBLOCK_ELEMENT_ID int(11) not null,
 	VALUE text not null,

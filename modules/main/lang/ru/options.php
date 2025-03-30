@@ -273,3 +273,4 @@ $MESS['MAIN_UPDATE_USE_HTTPS'] = 'Использовать защищенное 
 $MESS['MAIN_OPTION_CONTROLLER_PROXY_PASS_SET'] = '(установлен)';
 $MESS['MAIN_OPTION_CONTROLLER_PROXY_PASS_DEL_TITLE'] = 'Удалить сохраненный пароль';
 $MESS['MAIN_OPTION_CONTROLLER_PROXY_PASS_DEL'] = 'Удалить';
+$MESS["SUP_MENU_TURN_EXPERT_MODE_ON"] = "Включить экспертный режим:";

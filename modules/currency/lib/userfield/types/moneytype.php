@@ -9,8 +9,6 @@ use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UserField\Types\BaseType;
 use CUserTypeManager;
 
-Loc::loadLanguageFile(__FILE__);
-
 class MoneyType extends BaseType
 {
 	public const
@@ -138,7 +136,9 @@ class MoneyType extends BaseType
 	}
 
 	/**
-	 * @param array $userField
+	 * Returns normalized user field parameters.
+	 *
+	 * @param array $userField User field parameters.
 	 * @return array
 	 */
 	public static function prepareSettings(array $userField): array
@@ -159,8 +159,10 @@ class MoneyType extends BaseType
 	}
 
 	/**
-	 * @param string $value
-	 * @param string|null $currency
+	 * Returns assembled value for database.
+	 *
+	 * @param string $value Property value.
+	 * @param string|null $currency Property currency.
 	 * @return string
 	 */
 	public static function formatToDb(string $value, ?string $currency): string
@@ -179,7 +181,9 @@ class MoneyType extends BaseType
 	}
 
 	/**
-	 * @param string|null $value
+	 * Returns parsed money value.
+	 *
+	 * @param string|null $value Raw value from database.
 	 * @return array
 	 */
 	public static function unFormatFromDb(?string $value): array

@@ -1,13 +1,16 @@
 <?php
 
-use Bitrix\Bizproc\Result\RenderedResult;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Bizproc\Result\Entity\ResultTable;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Localization\Loc;
 
 class CBPViewHelper
 {
 	private static $cachedTasks = array();
+
+	public const DESKTOP_CONTEXT = 'desktop';
+	public const MOBILE_CONTEXT = 'mobile';
 
 	public static function renderUserSearch($ID, $searchInputID, $dataInputID, $componentName, $siteID = '', $nameFormat = '', $delay = 0)
 	{
@@ -279,13 +282,19 @@ class CBPViewHelper
 			{
 				try
 				{
-					$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::tryBuildByFileId(
+					$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::buildByFileId(
 						$query['i'],
 						$matches[1].$matches[2]
 					);
 					return "<a href=\"".$matches[1].$matches[2]."\" ".$attributes.">";
 				}
-				catch (ArgumentException $e) {}
+				catch (ArgumentException $e)
+				{
+					return sprintf(
+						'<a class="bizproc-file-not-found" data-hint="%s" data-hint-no-icon data-hint-center>',
+						Loc::getMessage('BIZPROC_VIEW_HELPER_FILE_NOT_FOUND')
+					);
+				}
 			}
 
 			return $matches[0];
@@ -340,13 +349,19 @@ class CBPViewHelper
 				{
 					try
 					{
-						$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::tryBuildByFileId(
+						$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::buildByFileId(
 							$attach->getFileId(),
 							$matches[1].$matches[2]
 						);
 						return "<a href=\"".$matches[1].$matches[2]."\" ".$attributes.">".$matches[3];
 					}
-					catch (ArgumentException $e) {}
+					catch (ArgumentException $e)
+					{
+						return sprintf(
+							'<a class="bizproc-file-not-found" data-hint="%s" data-hint-no-icon data-hint-center>',
+							Loc::getMessage('BIZPROC_VIEW_HELPER_FILE_NOT_FOUND')
+						);
+					}
 				}
 			}
 
@@ -369,11 +384,15 @@ class CBPViewHelper
 		};
 	}
 
-	public static function getWorkflowResult(string $workflowId, int $userId): ?array
+	public static function getWorkflowResult(
+		string $workflowId,
+		int $userId,
+		string $context = self::DESKTOP_CONTEXT
+	): ?array
 	{
 		static $cache = [];
 
-		$cacheKey = $workflowId . '|' . $userId;
+		$cacheKey = $workflowId . '|' . $userId . '|' . $context;
 
 		if (array_key_exists($cacheKey, $cache))
 		{
@@ -398,34 +417,16 @@ class CBPViewHelper
 					$userId,
 				],
 			);
-			switch ($renderedResult->status)
+
+			if ($context === self::MOBILE_CONTEXT)
 			{
-				case RenderedResult::BB_CODE_RESULT:
-					return [
-						'text' => \CBPViewHelper::prepareTaskDescription(
-							\CBPHelper::convertBBtoText(
-								preg_replace('|\n+|', "\n", trim($renderedResult->text)),
-							)),
-						'status' => $renderedResult->status,
-					];
-
-				case RenderedResult::USER_RESULT:
-					return [
-						'text' => \CBPHelper::convertBBtoText(
-							preg_replace('|\n+|', "\n", trim($renderedResult->text)),
-						),
-						'status' => $renderedResult->status,
-					];
-
-				case RenderedResult::NO_RIGHTS:
-					return [
-						'text' => $renderedResult->text,
-						'status' => $renderedResult->status,
-					];
+				return $cache[$cacheKey] = (new \Bitrix\Bizproc\Result\MobileResultHandler())->handle($renderedResult);
 			}
+
+			return $cache[$cacheKey] = (new \Bitrix\Bizproc\Result\WebResultHandler())->handle($renderedResult);
 		}
 
-		return null;
+		return $cache[$cacheKey] = null;
 	}
 
 	public static function formatDateTime(?DateTime $date): string

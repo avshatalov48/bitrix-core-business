@@ -33,6 +33,83 @@ BX.MailClientConfig.Edit = {
 			{
 				this.isSuccessSyncStatus = params.isSuccessSyncStatus;
 			}
+
+			const {
+				crmSyncIntervals = {},
+				leadSourceList = {},
+				crmEntityList = {},
+				messageSyncIntervals = {},
+				defaultMaxCrmSyncKey = '',
+				defaultMaxAgeMessageSyncKey = '',
+				defaultLeadSourceKey = '',
+				defaultNewEntityInKey = '',
+				defaultNewEntityOutKey = '',
+			} = params;
+
+			const connectCrmAllowEntityInSelectorWrapper = BX('mail-connect-crm-allow-entity-in');
+
+			if (connectCrmAllowEntityInSelectorWrapper !== null)
+			{
+				const connectCrmAllowEntityInSelector = new BX.Mail.SettingSelector({
+					settingsMap: crmEntityList,
+					selectedOptionKey: defaultNewEntityInKey,
+					inputName: 'fields[crm_entity_in]',
+				});
+				connectCrmAllowEntityInSelector.renderTo(connectCrmAllowEntityInSelectorWrapper);
+			}
+
+			const connectCrmAllowEntityOutSelectorWrapper = BX('mail-connect-crm-allow-entity-out');
+
+			if (connectCrmAllowEntityOutSelectorWrapper !== null)
+			{
+				const connectCrmAllowEntityOutSelector = new BX.Mail.SettingSelector({
+					settingsMap: crmEntityList,
+					selectedOptionKey: defaultNewEntityOutKey,
+					inputName: 'fields[crm_entity_out]',
+				});
+				connectCrmAllowEntityOutSelector.renderTo(connectCrmAllowEntityOutSelectorWrapper);
+			}
+
+			const connectCrmLeadSourceSelectorWrapper = BX('mail-connect-crm-lead-source');
+
+			if (connectCrmLeadSourceSelectorWrapper !== null)
+			{
+				const connectCrmLeadSourceSelector = new BX.Mail.SettingSelector({
+					settingsMap: leadSourceList,
+					selectedOptionKey: defaultLeadSourceKey,
+					inputName: 'fields[crm_lead_source]',
+					dialogOptions: {
+						width: 300,
+						height: 300,
+						enableSearch: true,
+					},
+				});
+				connectCrmLeadSourceSelector.renderTo(connectCrmLeadSourceSelectorWrapper);
+			}
+
+			const mailMessageMaxAgeSelectorWrapper = BX('mail-message-max-age');
+
+			if (mailMessageMaxAgeSelectorWrapper !== null)
+			{
+				const mailMessageMaxAgeSelector = new BX.Mail.SettingSelector({
+					settingsMap: messageSyncIntervals,
+					selectedOptionKey: defaultMaxAgeMessageSyncKey,
+					inputName: 'fields[msg_max_age]',
+				});
+				mailMessageMaxAgeSelector.renderTo(mailMessageMaxAgeSelectorWrapper);
+			}
+
+			const mailCrmMaxAgeSelectorWrapper = BX('mail-crm-max-age');
+
+			if (mailCrmMaxAgeSelectorWrapper !== null)
+			{
+				const mailCrmMaxAgeSelector = new BX.Mail.SettingSelector({
+					settingsMap: crmSyncIntervals,
+					selectedOptionKey: defaultMaxCrmSyncKey,
+					inputName: 'fields[crm_max_age]',
+				});
+				mailCrmMaxAgeSelector.renderTo(mailCrmMaxAgeSelectorWrapper);
+			}
 		}
 
 		if (this.isOauthMode && this.oauthUserIsEmpty)

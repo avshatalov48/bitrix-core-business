@@ -22,7 +22,7 @@ class TaggedCache
 	protected array $cacheTag = [];
 	protected string $salt = '';
 	protected bool $wasTagged = false;
-	protected bool|ConnectionPool $pool = false;
+	protected ConnectionPool $pool;
 
 	public function __construct()
 	{
@@ -110,6 +110,8 @@ class TaggedCache
 				}
 			}
 
+			array_shift($this->cacheStack);
+
 			if (!empty($tags))
 			{
 				CacheTagTable::addMulti($tags, true);
@@ -128,7 +130,13 @@ class TaggedCache
 	{
 		if (!empty($this->cacheStack))
 		{
-			$this->cacheStack[0][1][$tag] = true;
+			$this->cacheStack = array_map(
+				function($val) use ($tag) {
+					$val[1][$tag] = true;
+					return $val;
+				}, $this->cacheStack
+			);
+
 			$this->wasTagged = true;
 		}
 	}

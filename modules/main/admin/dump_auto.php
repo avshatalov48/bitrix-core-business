@@ -63,6 +63,22 @@ $url = (CMain::IsHTTPS() ? "https://" : "http://").$server_name;
 define('LOCK_FILE', $_SERVER['DOCUMENT_ROOT'].'/bitrix/backup/auto_lock');
 
 $dump_auto_enable = IntOption('dump_auto_enable');
+$isBitrixCloudBackupInProgress = false;
+if ($bBitrixCloud && $dump_auto_enable == 2)
+{
+	$arJobs = CBitrixCloudBackup::getInstance()->getBackupJob();
+	if (is_array($arJobs))
+	{
+		foreach ($arJobs as $jobInfo)
+		{
+			if ($jobInfo['STATUS'] === 'PROCESS')
+			{
+				$isBitrixCloudBackupInProgress = true;
+			}
+		}
+	}
+}
+
 if(!empty($_REQUEST['save']))
 {
 	if (!check_bitrix_sessid())
@@ -72,6 +88,18 @@ if(!empty($_REQUEST['save']))
 			"DETAILS" => GetMessage("DUMP_MAIN_SESISON_ERROR"),
 			"TYPE" => "ERROR",
 			"HTML" => true));
+	}
+	elseif (
+		intval($_REQUEST['dump_auto_enable'] ?? 0) === 2
+		&& $isBitrixCloudBackupInProgress
+	)
+	{
+		CAdminMessage::ShowMessage([
+			'MESSAGE' => GetMessage('MAIN_DUMP_ERROR'),
+			'DETAILS' => GetMessage('DUMP_BITRIXCLOUD_IS_IN_PROGRESS_CHANGE_ERROR'),
+			'TYPE' => 'ERROR',
+			'HTML' => true,
+		]);
 	}
 	else
 	{
@@ -279,6 +307,15 @@ if (!$encrypt)
 		"HTML" => true));
 }
 
+if ($isBitrixCloudBackupInProgress && empty($_REQUEST['save']))
+{
+	CAdminMessage::ShowMessage([
+		'DETAILS' => GetMessage('DUMP_BITRIXCLOUD_IS_IN_PROGRESS_CHANGE_WARNING'),
+		'TYPE' => 'OK',
+		'HTML' => true,
+	]);
+}
+
 $aMenu = array(
 	array(
 		"TEXT"	=> GetMessage("MAIN_DUMP_LIST_PAGE_TITLE"),
@@ -394,7 +431,9 @@ function CheckEnabled()
 
 	document.fd1.dump_auto_time.disabled = !on;
 	document.fd1.dump_auto_interval.disabled = !on;
-
+	<?php if ($isBitrixCloudBackupInProgress): ?>
+		BX('save_button').disabled = BX('dump_auto_bitrix').checked;
+	<?php endif; ?>
 	return on;
 }
 BX.ready(CheckEnabled);
@@ -745,7 +784,7 @@ if ($DB->type == 'MYSQL')
 <?
 $editTab->Buttons();
 ?>
-<input type="button" class="adm-btn-save" value="<?=GetMessage("DUMP_MAIN_SAVE")?>" onclick="SaveSettings()">
+<input type="button" class="adm-btn-save" value="<?=GetMessage("DUMP_MAIN_SAVE")?>" id="save_button" onclick="SaveSettings()">
 <?
 $editTab->End();
 ?>
@@ -777,4 +816,3 @@ function IntOptionSet($name, $val)
 	$val = intval($val);
 	COption::SetOptionInt('main', $name.'_auto', $val);
 }
-?>

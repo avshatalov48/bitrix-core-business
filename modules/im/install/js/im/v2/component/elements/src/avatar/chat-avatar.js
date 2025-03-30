@@ -1,19 +1,20 @@
+import { ExtranetUserAvatar } from 'im.v2.component.elements';
 import { ChatType, UserType } from 'im.v2.const';
 import { CopilotManager } from 'im.v2.lib.copilot';
 
 import { Avatar, AvatarSize } from './components/base/avatar';
 import { CollabChatAvatar } from './components/collab/collab-chat';
 import { CollaberAvatar } from './components/collab/collaber';
+import { ExtranetChatAvatar } from './components/extranet/extranet-chat-avatar';
 
 import type { BitrixVueComponentProps } from 'ui.vue3';
-import type { ImModelChat } from 'im.v2.model';
+import type { ImModelChat, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const ChatAvatar = {
 	name: 'ChatAvatar',
-	components: { Avatar, CollabAvatar: CollabChatAvatar, CollaberAvatar },
-	props:
-	{
+	components: { Avatar, CollabAvatar: CollabChatAvatar, CollaberAvatar, ExtranetUserAvatar },
+	props: {
 		avatarDialogId: {
 			type: [String, Number],
 			default: 0,
@@ -43,8 +44,15 @@ export const ChatAvatar = {
 			default: true,
 		},
 	},
-	computed:
-	{
+	computed: {
+		isUser(): boolean
+		{
+			return this.avatarDialog.type === ChatType.user;
+		},
+		user(): ImModelUser
+		{
+			return this.$store.getters['users/get'](this.avatarDialogId, true);
+		},
 		customAvatarUrl(): string
 		{
 			const copilotManager = new CopilotManager();
@@ -68,24 +76,34 @@ export const ChatAvatar = {
 		},
 		isCollaber(): boolean
 		{
-			const isUser = this.avatarDialog.type === ChatType.user;
-			if (!isUser)
-			{
-				return false;
-			}
-
-			const user = this.$store.getters['users/get'](this.avatarDialogId, true);
-
-			return user.type === UserType.collaber;
+			return this.user?.type === UserType.collaber;
+		},
+		isExtranetChat(): boolean
+		{
+			return this.avatarDialog.extranet;
+		},
+		isExtranet(): boolean
+		{
+			return this.user?.type === UserType.extranet;
 		},
 		avatarComponent(): BitrixVueComponentProps
 		{
+			if (this.isExtranet)
+			{
+				return ExtranetUserAvatar;
+			}
+
 			if (this.isCollaber)
 			{
 				return CollaberAvatar;
 			}
 
-			return this.isCollabChat ? CollabChatAvatar : Avatar;
+			if (this.isCollabChat)
+			{
+				return CollabChatAvatar;
+			}
+
+			return this.isExtranetChat ? ExtranetChatAvatar : Avatar;
 		},
 	},
 	template: `

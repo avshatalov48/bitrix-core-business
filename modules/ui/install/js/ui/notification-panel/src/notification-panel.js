@@ -7,14 +7,19 @@ import './style.css';
 
 export type NotificationPanelOptions = {
 	id: ?string,
+	styleClass: ?string,
 	content: string | HTMLElement,
+	textColor: ?string,
+	crossColor: ?string,
 	backgroundColor: ?string,
 	leftIcon: ?Icon,
 	rightButtons: ?Array,
 	showCloseIcon: ?boolean,
+	zIndex: ?number,
 	events: ?{
 		onShow: ?func,
 		onHide: ?func,
+		onHideByButton: ?func,
 	},
 };
 
@@ -36,10 +41,14 @@ export class NotificationPanel extends EventEmitter
 	getDefaultOptions(): NotificationPanelOptions
 	{
 		return {
+			styleClass: '',
 			backgroundColor: '#F2FEE2',
+			textColor: null,
+			crossColor: null,
 			leftIcon: null,
 			rightButtons: [],
 			showCloseIcon: true,
+			zIndex: null,
 			events: {},
 		};
 	}
@@ -92,8 +101,9 @@ export class NotificationPanel extends EventEmitter
 		}
 		else if (Type.isString(this.options.content))
 		{
+			const textColor = this.options.textColor;
 			Dom.append(
-				Tag.render`<div class="ui-notification-panel__text">${this.options.content}</div>`,
+				Tag.render`<div class="ui-notification-panel__text" ${textColor ? 'style="color: ' + textColor + '"' : ''}>${this.options.content}</div>`,
 				content,
 			);
 		}
@@ -122,10 +132,12 @@ export class NotificationPanel extends EventEmitter
 
 	getCloseButton(): HTMLElement
 	{
+		const crossColor = this.options.crossColor;
 		return Tag.render`
 			<div 
 				class="ui-notification-panel__close-button ui-icon-set --cross-45"
-				onclick="${this.hide.bind(this)}"
+				onclick="${this.hideByButton.bind(this)}"
+				${crossColor ? 'style="--ui-icon-set__icon-color: ' + crossColor + '"' : ''}
 			>
 			</div>
 		`;
@@ -163,7 +175,12 @@ export class NotificationPanel extends EventEmitter
 			this.#createPanel();
 		}
 
-		this.getPopup().show();
+		const popup = this.getPopup();
+		popup.show();
+		if (this.options.zIndex)
+		{
+			popup.getZIndexComponent().setZIndex(this.options.zIndex);
+		}
 	}
 
 	hide(): void
@@ -171,10 +188,21 @@ export class NotificationPanel extends EventEmitter
 		this.getPopup().close();
 	}
 
+	hideByButton(): void
+	{
+		this.options.events?.onHideByButton?.();
+		this.emit('onHideByButton');
+		this.hide();
+	}
+
 	#createPanel(): void
 	{
-		this.#panel = Tag.render`<div class="ui-notification-panel" id="notification-panel-${this.options.id}"></div>`;
-		const mainTable = document.body.querySelector('.bx-layout-table');
+		this.#panel = Tag.render`<div class="ui-notification-panel ${this.options.styleClass}" id="notification-panel-${this.options.id}"></div>`;
+		let mainTable = document.body.querySelector('.bx-layout-table');
+		if (!mainTable)
+		{
+			mainTable = document.body.querySelector('.ui-slider-page');
+		}
 		Dom.insertBefore(this.#panel, mainTable);
 	}
 

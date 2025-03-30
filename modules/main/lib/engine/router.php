@@ -49,9 +49,22 @@ final class Router
 
 		$this->component = $this->request->getQuery('c') ?: null;
 		$this->mode = $this->request->getQuery('mode') ?: null;
-
 		$this->action = $this->request->getQuery('action');
-		if ($this->action && is_string($this->action) && !$this->component)
+
+		if (!\is_string($this->component))
+		{
+			$this->component = null;
+		}
+		if (!\is_string($this->mode))
+		{
+			$this->component = null;
+		}
+		if (!\is_string($this->action))
+		{
+			$this->action = null;
+		}
+
+		if ($this->action && !$this->component)
 		{
 			list($this->vendor, $this->action) = $this->resolveVendor($this->action);
 			list($module, $this->action) = $this->resolveModuleAndAction($this->action);

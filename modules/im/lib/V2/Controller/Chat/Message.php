@@ -333,8 +333,9 @@ class Message extends BaseController
 
 		$fields = $result->getResult();
 		$fields['SKIP_USER_CHECK'] = 'Y';
+		$fields['WAIT_FULL_EXECUTION'] = 'N';
 
-		$massageId = \CIMMessenger::Add($fields);
+		$messageId = \CIMMessenger::Add($fields);
 
 		if (isset($forwardMessages) && $forwardMessages->count() > 0)
 		{
@@ -352,8 +353,15 @@ class Message extends BaseController
 			}
 		}
 
+		if ($messageId === false && !isset($forwardResult))
+		{
+			$this->addError(new MessageError(MessageError::SENDING_FAILED));
+
+			return null;
+		}
+
 		return [
-			'id' => $massageId ?: null,
+			'id' => $messageId ?: null,
 			'uuidMap' => isset($forwardResult) ? $forwardResult->getResult() : []
 		];
 	}

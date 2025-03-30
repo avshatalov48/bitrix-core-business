@@ -567,13 +567,19 @@ class Service implements RestrictableService
 		$cashboxClass = $this->getCashboxClass();
 		$kkm = $cashboxClass::getKkmValue($service);
 
+		$filter = [
+			'=ACTIVE' => 'Y',
+			'=HANDLER' => $cashboxClass,
+		];
+
+		if (!empty($kkm))
+		{
+			$filter['=KKM_ID'] = $kkm;
+		}
+
 		return (bool)Cashbox\Manager::getList([
 			'select' => ['ID'],
-			'filter' => [
-				'=ACTIVE' => 'Y',
-				'=HANDLER' => $cashboxClass,
-				'=KKM_ID' => $kkm,
-			],
+			'filter' => $filter,
 		])->fetch();
 	}
 

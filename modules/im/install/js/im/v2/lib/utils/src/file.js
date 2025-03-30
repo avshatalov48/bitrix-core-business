@@ -1,6 +1,8 @@
 import { Text, Loc, Dom, Event, Type } from 'main.core';
 import { FileType } from 'im.v2.const';
 
+import type { ImModelFile } from 'im.v2.model';
+
 export const FileUtil = {
 	getFileExtension(fileName: string): string
 	{
@@ -282,5 +284,34 @@ export const FileUtil = {
 		}
 
 		return { height: newHeight, width: newWidth };
+	},
+
+	downloadFiles(files: ImModelFile[])
+	{
+		const a = Dom.create('a');
+		Dom.style(a, {
+			display: 'none',
+		});
+		Dom.append(a, document.body);
+
+		// we need delay for some browsers, like Safari
+		const downloadFileWithDelay = (index) => {
+			if (index >= files.length)
+			{
+				return;
+			}
+
+			Dom.attr(a, 'download', files[index].name);
+			a.setAttribute('href', files[index].urlDownload);
+
+			a.click();
+
+			setTimeout(() => {
+				downloadFileWithDelay(index + 1);
+			}, 500);
+		};
+
+		downloadFileWithDelay(0);
+		Dom.remove(a);
 	},
 };

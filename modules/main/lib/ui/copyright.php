@@ -709,31 +709,23 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl("http://nivo.dev7studios.com")
 				->setLicence(static::LICENCE_MIT),
 
-			// fileman/install/js/fileman/player/videojs
-			(new static("Video.js v5.16.0"))
+			// ui/install/js/ui/player/video-js
+			(new static("Video.js 8.18.1"))
 				->setCopyright("Copyright Brightcove, Inc. <https://www.brightcove.com/>")
 				->setProductUrl("http://videojs.com/")
 				->setLicence(static::LICENCE_APACHE2),
 
-			// fileman/install/js/fileman/player/videojs
-			(new static("videojs-contrib-hls v5.2.1"))
-				->setCopyright("Copyright 2017 Brightcove, Inc. <https://www.brightcove.com/>")
+			// ui/install/js/ui/player/video-js/plugins/playlist
+			(new static("Video.js Playlist 6.0.0"))
+				->setCopyright("Copyright Brightcove, Inc. <https://www.brightcove.com/>")
+				->setProductUrl("https://github.com/videojs/videojs-playlist")
 				->setLicence(static::LICENCE_APACHE2),
 
-			// fileman/install/js/fileman/player/videojs
-			(new static("videojs-playlist-thumbs v0.1.5"))
-				->setCopyright("Copyright 2016 Emmanuel Alves <manel.pb@gmail.com>")
-				->setLicence(static::LICENCE_MIT),
-
-			// fileman/install/js/fileman/player/videojs
-			(new static("videojs-vimeo v2.0.2"))
-				->setCopyright("Copyright Benoit Tremblay <trembl.ben@gmail.com>")
-				->setLicence(static::LICENCE_MIT),
-
-			// fileman/install/js/fileman/player/videojs
-			(new static("videojs-youtube v2.0.2"))
-				->setCopyright("Copyright Benoit Tremblay <trembl.ben@gmail.com>")
-				->setLicence(static::LICENCE_MIT),
+			// ui/install/js/ui/player/video-js/plugins/playlist
+			(new static("Video.js Playlist UI 5.0.0"))
+				->setCopyright("Copyright Brightcove, Inc. <https://www.brightcove.com/>")
+				->setProductUrl("https://github.com/videojs/videojs-playlist-ui")
+				->setLicence(static::LICENCE_APACHE2),
 
 			// documentgenerator/lib/external
 			(new static("Petrovich v1.0.0"))

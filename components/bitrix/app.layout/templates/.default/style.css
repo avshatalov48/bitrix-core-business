@@ -463,6 +463,15 @@
 	overflow: auto;
 }
 
+.app-layout-subscribe-slider-modifier #workarea-content .app-frame-layout {
+	height: calc(100% - 4px);
+}
+
+.app-layout-subscribe-slider-modifier #workarea-content.ui-side-panel-wrap-workarea,
+.app-layout-subscribe-slider-modifier #workarea-content .app-frame {
+	border-radius: unset;
+}
+
 .ui-page-slider-wrapper {
 	overflow: auto;
 }

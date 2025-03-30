@@ -1258,18 +1258,18 @@ class CIBlockDocument
 	public static function GetDocumentType($documentId)
 	{
 		if (mb_substr($documentId, 0, mb_strlen("iblock_")) == "iblock_")
+		{
 			return $documentId;
+		}
 
-		$documentId = intval($documentId);
-		if ($documentId <= 0)
+		$documentId = (int)$documentId;
+		$iblockId = CIBlockElement::GetIBlockByID($documentId);
+		if ($iblockId === false)
+		{
 			throw new CBPArgumentNullException("documentId");
+		}
 
-		$dbResult = CIBlockElement::GetList(array(), array("ID" => $documentId, "SHOW_NEW" => "Y", "SHOW_HISTORY" => "Y"), false, false, array("ID", "IBLOCK_ID"));
-		$arResult = $dbResult->Fetch();
-		if (!$arResult)
-			throw new Exception("Element is not found");
-
-		return "iblock_".$arResult["IBLOCK_ID"];
+		return "iblock_$iblockId";
 	}
 
 	public static function GetDocumentFields($documentType)

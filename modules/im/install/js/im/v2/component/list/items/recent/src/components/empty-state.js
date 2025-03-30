@@ -1,5 +1,6 @@
 import { Core } from 'im.v2.application.core';
 import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
 
 import '../css/empty-state.css';
 
@@ -17,6 +18,10 @@ export const EmptyState = {
 	{
 		ButtonSize: () => ButtonSize,
 		ButtonColor: () => ButtonColor,
+		canInviteUsers(): boolean
+		{
+			return FeatureManager.isFeatureAvailable(Feature.intranetInviteAvailable);
+		},
 		inviteUsersLink(): string
 		{
 			const AJAX_PATH = '/bitrix/services/main/ajax.php';
@@ -48,7 +53,7 @@ export const EmptyState = {
 			<div class="bx-im-list-recent-empty-state__image"></div>
 			<div class="bx-im-list-recent-empty-state__title">{{ loc('IM_LIST_RECENT_EMPTY_STATE_TITLE') }}</div>
 			<div class="bx-im-list-recent-empty-state__subtitle">{{ loc('IM_LIST_RECENT_EMPTY_STATE_SUBTITLE') }}</div>
-			<div class="bx-im-list-recent-empty-state__button">
+			<div v-if="canInviteUsers" class="bx-im-list-recent-empty-state__button">
 				<MessengerButton
 					:size="ButtonSize.L"
 					:isRounded="true"

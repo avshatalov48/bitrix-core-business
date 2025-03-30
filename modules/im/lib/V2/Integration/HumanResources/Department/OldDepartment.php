@@ -65,6 +65,22 @@ class OldDepartment extends BaseDepartment
 		return $this->structureDepartments;
 	}
 
+	public function getListByIds(array $ids): array
+	{
+		$departments = $this->getList();
+
+		$departmentsByIds = [];
+		foreach ($departments as $department)
+		{
+			if (in_array($department->id, $ids, true))
+			{
+				$departmentsByIds[$department->id] = $department;
+			}
+		}
+
+		return $departmentsByIds;
+	}
+
 	public function getListByXml(string $xmlId): array
 	{
 		if (!Loader::includeModule('iblock'))
@@ -94,6 +110,53 @@ class OldDepartment extends BaseDepartment
 		}
 
 	return $result;
+	}
+
+	public function getEmployeeIdsWithLimit(array $ids, int $limit = 50): array
+	{
+		if (!Loader::includeModule('intranet'))
+		{
+			return [];
+		}
+
+		$structure = \CIntranetUtils::GetStructure();
+
+		if (!$structure || !isset($structure['DATA']))
+		{
+			return [];
+		}
+
+		$employees = $managers = [];
+		foreach ($structure['DATA'] as $department)
+		{
+			if (!in_array((int)$department['ID'], $ids, true))
+			{
+				continue;
+			}
+
+			if (!is_array($department['EMPLOYEES']))
+			{
+				$employees[$department['ID']] = [];
+				continue;
+			}
+
+			foreach ($department['EMPLOYEES'] as $value)
+			{
+				$value = (int)$value;
+				if ($department['UF_HEAD'] === $value)
+				{
+					$managers[$value] = $value;
+				}
+				else
+				{
+					$employees[$value] = $value;
+				}
+			}
+		}
+
+		$allUsers = $managers + $employees;
+
+		return array_splice($allUsers, 0, $limit);
 	}
 
 	protected function formatDepartment(array $department): Entity

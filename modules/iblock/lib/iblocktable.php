@@ -374,6 +374,13 @@ class IblockTable extends DataManager
 				'reference' => ['=this.IBLOCK_TYPE_ID' => 'ref.ID'],
 			],
 
+			'FULLTEXT_INDEX' => [
+				'data_type' => 'boolean',
+				'values' => ['N', 'Y'],
+				'default' => 'N',
+				'title' => Loc::getMessage('IBLOCK_ENTITY_FULLTEXT_INDEX'),
+			],
+
 			new OneToMany('PROPERTIES', PropertyTable::class, 'IBLOCK')
 		];
 	}

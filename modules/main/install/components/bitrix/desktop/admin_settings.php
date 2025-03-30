@@ -317,14 +317,14 @@ elseif (isset($_POST["type"]) && $_POST["type"] == "gadget")
 						}
 						elseif($arGadgetParam["TYPE"] == "CHECKBOX")
 						{
-							if ($_REQUEST['refresh'] == "Y" && $_REQUEST["GP_".$input_id] <> '')
+							if (isset($_REQUEST['refresh']) && $_REQUEST['refresh'] == "Y" && $_REQUEST["GP_".$input_id] <> '')
 								$val_tmp = $_REQUEST["GP_".$input_id];
-							elseif ($arGadgetParam["VALUE"] <> '')
+							elseif (!empty($arGadgetParam["VALUE"]))
 								$val_tmp = $arGadgetParam["VALUE"];
 							else
 								$val_tmp = $arGadgetParam["DEFAULT"];
 
-							?><input type="checkbox" name="GP_<?=$input_id?>" value="Y"<?=($val_tmp=="Y"?' checked':'')?><?php if($arGadgetParam["REFRESH"] == "Y"):?> onchange="BX.WindowManager.Get().PostParameters('refresh=Y')"<?php endif;?>><?php
+							?><input type="checkbox" name="GP_<?=$input_id?>" value="Y"<?=($val_tmp=="Y"?' checked':'')?><?php if(isset($arGadgetParam["REFRESH"]) && $arGadgetParam["REFRESH"] == "Y"):?> onchange="BX.WindowManager.Get().PostParameters('refresh=Y')"<?php endif;?>><?php
 						}
 						?>
 						</td>

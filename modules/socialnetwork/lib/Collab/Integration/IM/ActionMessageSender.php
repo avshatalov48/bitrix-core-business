@@ -9,6 +9,7 @@ use Bitrix\Main\Analytics\AnalyticsEvent;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectException;
+use Bitrix\SocialNetwork\Collab\Analytics\CollabAnalytics;
 use Bitrix\Socialnetwork\Collab\Collab;
 use Bitrix\Socialnetwork\Collab\Control\Option\Type\ShowHistoryOption;
 use Bitrix\Socialnetwork\Collab\Registry\CollabRegistry;
@@ -105,7 +106,7 @@ class ActionMessageSender
 				return $this->getLeaveUserMessage();
 
 			case ActionType::CopyLink:
-				$this->sendCopyInvitationLinkAnalytics();
+				CollabAnalytics::getInstance()->onCopyLink($this->senderId, $this->collab->getId());
 				return $this->getCopyLinkMessage();
 
 			case ActionType::RegenerateLink:
@@ -113,32 +114,6 @@ class ActionMessageSender
 		}
 
 		return '';
-	}
-
-	private function sendCopyInvitationLinkAnalytics()
-	{
-		$p2 = 'user_intranet';
-		$isCollaber = Loader::includeModule('extranet')
-			&& \Bitrix\Extranet\Service\ServiceContainer::getInstance()->getCollaberService()->isCollaberById($this->senderId);
-		if ($isCollaber)
-		{
-			$p2 = 'user_collaber';
-		}
-		else
-		{
-			$isExtranet = \Bitrix\Intranet\Util::isExtranetUser($this->senderId);
-			if ($isExtranet)
-			{
-				$p2 = 'user_extranet';
-			}
-		}
-
-		$analyticsEvent = new AnalyticsEvent('copy_invitation_link', 'Invitation', 'invitation');
-		$analyticsEvent
-			->setP2($p2)
-			->setP4('collabId_' . $this->collab->getChatId())
-			->setP5('userId_' . $this->senderId)
-			->send();
 	}
 
 	private function sendAcceptUserAnalytics()

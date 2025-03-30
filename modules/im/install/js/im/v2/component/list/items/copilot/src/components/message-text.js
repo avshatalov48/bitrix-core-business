@@ -1,3 +1,5 @@
+import { Text } from 'main.core';
+
 import { Core } from 'im.v2.application.core';
 import { Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
@@ -89,10 +91,11 @@ export const MessageText = {
 			const phrase = this.loc('IM_LIST_RECENT_MESSAGE_DRAFT_2');
 			const PLACEHOLDER_LENGTH = '#TEXT#'.length;
 			const prefix = phrase.slice(0, -PLACEHOLDER_LENGTH);
+			const text = Text.encode(this.formattedDraftText);
 
 			return `
 				<span class="bx-im-list-copilot-item__message_draft-prefix">${prefix}</span>
-				<span class="bx-im-list-copilot-item__message_text_content">${this.formattedDraftText}</span>
+				<span class="bx-im-list-copilot-item__message_text_content">${text}</span>
 			`;
 		},
 		formattedDraftText(): string

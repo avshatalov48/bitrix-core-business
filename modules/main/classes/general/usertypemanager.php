@@ -5,6 +5,7 @@ use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\Main\UserField\Types\BaseType;
 use Bitrix\Main\UserField\Types\DateTimeType;
 
@@ -1717,7 +1718,10 @@ class CUserTypeManager
 					}
 					elseif (is_numeric($arFields[$FIELD_NAME]))
 					{
-						$files = [$arFields[$FIELD_NAME] => 0];
+						if (!$this->isFileValueDeleted($arUserField, (int)$arFields[$FIELD_NAME]))
+						{
+							$files = [$arFields[$FIELD_NAME] => 0];
+						}
 					}
 
 					if ($isSingleValue)
@@ -1736,8 +1740,11 @@ class CUserTypeManager
 						}
 						elseif ($value > 0)
 						{
-							$isNewFilePresent = true;
-							$files[$value] = $value;
+							if (!$this->isFileValueDeleted($arUserField, (int)$value))
+							{
+								$isNewFilePresent = true;
+								$files[$value] = $value;
+							}
 						}
 					}
 					else
@@ -1759,8 +1766,11 @@ class CUserTypeManager
 								}
 								elseif ($value > 0)
 								{
-									$isNewFilePresent = true;
-									$files[$value] = $value;
+									if (!$this->isFileValueDeleted($arUserField, (int)$value))
+									{
+										$isNewFilePresent = true;
+										$files[$value] = $value;
+									}
 								}
 							}
 						}
@@ -2671,5 +2681,37 @@ class CUserTypeManager
 	protected static function normalizeId(string $id): string
 	{
 		return preg_replace("/[^0-9A-Z_]+/", "", $id);
+	}
+
+	protected function isFileValueDeleted(array $userField, int $fileId): bool
+	{
+		$fieldName = $userField['FIELD_NAME'] ?? '';
+
+		if (is_string($fieldName) && $fieldName !== '')
+		{
+			$deletedValues = Application::getInstance()->getContext()->getRequest()->get($fieldName . '_del');
+
+			if (!is_array($deletedValues))
+			{
+				$deletedValues = [$deletedValues];
+			}
+
+			foreach ($deletedValues as $deletedValue)
+			{
+				if ($fileId === (int)$deletedValue)
+				{
+					return true;
+				}
+			}
+
+			$fileInputUtility = FileInputUtility::instance();
+			$delResult = $fileInputUtility->checkDeletedFiles($fileInputUtility->getUserFieldCid($userField));
+			if (in_array($fileId, $delResult))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

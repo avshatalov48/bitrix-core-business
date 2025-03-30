@@ -15,6 +15,8 @@ use Bitrix\Bizproc;
 
 class Workflow extends Base
 {
+	private const PAGE_SIZE = 20;
+
 	private function getWorkflowEfficiency(int $currentDuration, ?int $averageDuration): string
 	{
 		if (null === $averageDuration)
@@ -160,7 +162,7 @@ class Workflow extends Base
 		return false;
 	}
 
-	public function getTemplateInstancesAction(int $templateId): ?array
+	public function getTemplateInstancesAction(int $templateId, int $offset = 0): ?array
 	{
 		$template = Bizproc\Workflow\Template\Entity\WorkflowTemplateTable::getById($templateId)->fetchObject();
 		$hasPermission = false;
@@ -184,9 +186,9 @@ class Workflow extends Base
 		$query = Bizproc\Workflow\Entity\WorkflowInstanceTable::query();
 		$query->addFilter('WORKFLOW_TEMPLATE_ID', $templateId)
 			->addSelect('ID')
-			->setOrder(['STARTED' => 'DESC'])
-			->setLimit(20)
-			//->setCacheTtl(3600)
+			->setOrder(['STARTED' => 'ASC'])
+			->setLimit(self::PAGE_SIZE + 1)
+			->setOffset($offset)
 		;
 		$result = $query->exec();
 		$ids = array_column($result->fetchAll(), 'ID');
@@ -198,11 +200,19 @@ class Workflow extends Base
 			return null;
 		}
 
+		$hasNextPage = count($ids) > self::PAGE_SIZE;
+
+		if ($hasNextPage)
+		{
+			$ids = array_slice($ids, 0, self::PAGE_SIZE);
+		}
+
 		return [
 			'list' => array_map(
 				static fn($id) => new Bizproc\UI\WorkflowFacesView($id),
 				$ids,
 			),
+			'hasNextPage' => $hasNextPage,
 		];
 	}
 }

@@ -142,7 +142,7 @@ class TaskService
 		$taskList = [];
 		while ($task = $tasksIterator->fetch())
 		{
-			$taskList[] = $this->prepareTaskInfo($task);
+			$taskList[] = $this->prepareTaskInfo($task, $tasksToGet->getTargetUserId());
 		}
 
 		return $getTasksResponse->setData(['tasks' => $taskList]);
@@ -304,7 +304,7 @@ class TaskService
 			return $response;
 		}
 
-		$task = $this->prepareTaskInfo($task);
+		$task = $this->prepareTaskInfo($task, $request->userId);
 
 		return $response->setTask($task);
 	}
@@ -336,7 +336,7 @@ class TaskService
 			return $response;
 		}
 
-		$controls = \CBPDocument::getTaskControls($task);
+		$controls = \CBPDocument::getTaskControls($task, $request->userId);
 
 		$task['BUTTONS'] = $controls['BUTTONS'] ?? null;
 		$task['FIELDS'] = $controls['FIELDS'] ?? null;
@@ -416,7 +416,7 @@ class TaskService
 		);
 	}
 
-	private function prepareTaskInfo(array $task): array
+	private function prepareTaskInfo(array $task, int $userId = 0): array
 	{
 		$task['STATUS'] = (int)$task['STATUS'];
 
@@ -446,7 +446,7 @@ class TaskService
 			$task['WORKFLOW_STARTED'] = FormatDateFromDB($task['WORKFLOW_STARTED']);
 		}
 
-		$controls = \CBPDocument::getTaskControls($task);
+		$controls = \CBPDocument::getTaskControls($task, $userId);
 
 		$task['BUTTONS'] = $controls['BUTTONS'] ?? null;
 		$task['FIELDS'] = $controls['FIELDS'] ?? null;

@@ -28,8 +28,6 @@ class UpdateTools
 			{
 				if($USER->CanDoOperation('install_updates'))
 				{
-					require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
-
 					$result = CUpdateClient::IsUpdateAvailable($arModules, $strError);
 
 					$modules = array();

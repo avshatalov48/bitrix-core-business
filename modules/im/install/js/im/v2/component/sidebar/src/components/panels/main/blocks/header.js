@@ -22,7 +22,7 @@ const HeaderTitleByChatType = {
 	default: Loc.getMessage('IM_SIDEBAR_HEADER_TITLE'),
 };
 
-const ChatTypesWithMenuDisabled = new Set([ChatType.comment]);
+const ChatTypesWithMenuDisabled = new Set([ChatType.comment, ChatType.lines]);
 
 // @vue/component
 export const MainHeader = {

@@ -52,7 +52,11 @@ if (!isset($_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]]) || !is_array($_
 if (!isset($_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]]["ITEMS"]) || !is_array($_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]]["ITEMS"]))
 	$_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]]["ITEMS"] = array();
 
-if (isset($_REQUEST[$arParams['ACTION_VARIABLE']]) && isset($_REQUEST[$arParams['PRODUCT_ID_VARIABLE']]))
+if (
+	isset($_REQUEST[$arParams['ACTION_VARIABLE']])
+	&& is_string($_REQUEST[$arParams['ACTION_VARIABLE']])
+	&& isset($_REQUEST[$arParams['PRODUCT_ID_VARIABLE']])
+)
 {
 	$successfulAction = true;
 	$actionMessage = '';

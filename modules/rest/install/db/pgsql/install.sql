@@ -57,6 +57,7 @@ CREATE TABLE b_rest_ap (
   USER_ID int NOT NULL,
   PASSWORD varchar(50) NOT NULL,
   ACTIVE char(1) DEFAULT 'Y',
+  TYPE varchar(15) NOT NULL DEFAULT 'user',
   TITLE varchar(255) DEFAULT '',
   COMMENT varchar(255) DEFAULT '',
   DATE_CREATE timestamp,
@@ -280,4 +281,10 @@ CREATE TABLE b_rest_placement_lang (
   GROUP_NAME varchar(255),
   PRIMARY KEY (ID),
   UNIQUE (PLACEMENT_ID, LANGUAGE_ID)
+);
+
+CREATE TABLE IF NOT EXISTS b_rest_free_app
+(
+	APP_CODE varchar(128) NOT NULL UNIQUE,
+	PRIMARY KEY (APP_CODE)
 );

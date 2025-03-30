@@ -1890,6 +1890,8 @@ abstract class BaseForm
 		if ($description['propertyCode'] === self::MORE_PHOTO)
 		{
 			$description['optionFlags'] = 1; // showAlways
+			$description['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_MORE_PHOTO_SIZE');
+			$description['hintHtml'] = true;
 		}
 
 		if ($description['multiple'] && !is_array($description['defaultValue']))

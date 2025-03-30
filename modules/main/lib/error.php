@@ -3,11 +3,12 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2015 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main;
 
+use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Throwable;
 
 class Error implements \JsonSerializable
@@ -15,7 +16,7 @@ class Error implements \JsonSerializable
 	/** @var int|string */
 	protected $code;
 
-	/** @var string */
+	/** @var string|LocalizableMessageInterface */
 	protected $message;
 	/**
 	 * @var null
@@ -61,7 +62,12 @@ class Error implements \JsonSerializable
 	 */
 	public function getMessage()
 	{
-		return $this->message;
+		return (string) $this->message;
+	}
+
+	public function getLocalizableMessage(): ?LocalizableMessageInterface
+	{
+		return $this->message instanceof LocalizableMessageInterface ? $this->message : null;
 	}
 
 	/**
@@ -92,5 +98,12 @@ class Error implements \JsonSerializable
 			'code' => $this->getCode(),
 			'customData' => $this->getCustomData(),
 		];
+	}
+
+	/**
+	 * Disables deserialization.
+	 */
+	public function __unserialize(array $data): void
+	{
 	}
 }

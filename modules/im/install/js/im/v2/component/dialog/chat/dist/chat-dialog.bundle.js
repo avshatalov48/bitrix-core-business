@@ -778,15 +778,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        }
 	      });
 	    },
-	    handleMessagesOnExit() {
+	    async handleMessagesOnExit() {
 	      if (this.resetOnExit) {
-	        this.getChatService().resetChat(this.dialogId);
+	        void this.getChatService().resetChat(this.dialogId);
 	        return;
 	      }
-	      const LOAD_MESSAGE_ON_EXIT_DELAY = 200;
-	      setTimeout(() => {
+	      await this.getChatService().readChatQueuedMessages(this.dialog.chatId);
+	      const LOAD_MESSAGES_ON_EXIT_DELAY = 200;
+	      setTimeout(async () => {
 	        void this.getMessageService().reloadMessageList();
-	      }, LOAD_MESSAGE_ON_EXIT_DELAY);
+	      }, LOAD_MESSAGES_ON_EXIT_DELAY);
 	    },
 	    /* region Reading */
 	    readQueuedMessages() {

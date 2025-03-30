@@ -64,6 +64,14 @@ export class WorkflowRenderer
 		const collapsedDescription = Dom.create('span', { html: description?.replace(/(<br \/>)+/gm, ' ') }).textContent.replace(/\n+/, ' ').slice(0, lengthLimit);
 		const collapsed = description?.length > lengthLimit;
 
+		const descriptionNode = Tag.render`
+			<span class="bp-user-processes__description">
+				${description}
+			</span>
+		`;
+
+		BX.UI.Hint.init(descriptionNode);
+
 		return Tag.render`
 				<div class="bp-user-processes">
 					<a class="bp-user-processes__title-link ui-typography-text-lg"
@@ -75,9 +83,7 @@ export class WorkflowRenderer
 							${Text.encode(collapsedDescription)}
 							...<a href="#" onclick="this.closest('div').classList.add('--expanded'); return false;" class="bp-user-processes__description-link">${Loc.getMessage('BIZPROC_USER_PROCESSES_TEMPLATE_DESCRIPTION_MORE')}</a>
 						</span>
-						<span class="bp-user-processes__description">
-							${description}
-						</span>
+						${descriptionNode}
 					</div>
 			</div>
 		`;

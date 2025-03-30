@@ -4,9 +4,7 @@ namespace Bitrix\Im\V2\Entity\File;
 
 use Bitrix\Disk\Document\OnlyOffice\Templates\CreateDocumentByCallTemplateScenario;
 use Bitrix\Disk\File;
-use Bitrix\Disk\Driver;
 use Bitrix\Disk\Folder;
-use Bitrix\Disk\Storage;
 use Bitrix\Disk\TypeFile;
 use Bitrix\Disk\Ui\FileAttributes;
 use Bitrix\Im\V2\Chat;
@@ -17,6 +15,7 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\RestEntity;
+use Bitrix\Im\V2\Result;
 use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -137,38 +136,28 @@ class FileItem implements RestEntity, PopupDataAggregatable
 		return $this;
 	}
 
-	public function getCopy(?Storage $storage = null): ?self
+	/**
+	 * @return Result<FileItem>
+	 */
+	public function copyTo(Folder $folder): Result
 	{
+		$result = new Result();
 		$userId = $this->getContext()->getUserId();
-		$storage = $storage ?? Driver::getInstance()->getStorageByUserId($userId);
-
-		if ($storage === null)
-		{
-			return null;
-		}
-
-		$folder = $storage->getFolderForUploadedFiles();
-
-		if ($folder === null)
-		{
-			return null;
-		}
-
 		$diskFile = $this->getDiskFile();
 
 		if ($diskFile === null)
 		{
-			return null;
+			return $result->addError(new FileError(FileError::NOT_FOUND));
 		}
 
 		$copy = $diskFile->copyTo($folder, $userId, true);
 
 		if (!$copy instanceof File)
 		{
-			return null;
+			return $result->addError(new FileError(FileError::COPY_ERROR));
 		}
 
-		return new static($copy, $this->getChatId());
+		return $result->setResult(new static($copy, $this->getChatId()));
 	}
 
 	public function getCopyToChat(Chat $chat): ?self

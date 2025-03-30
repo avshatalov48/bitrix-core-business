@@ -468,8 +468,7 @@ abstract class Mailbox
 		);
 	}
 
-	//Finds completely missing messages
-	private function findIncompleteMessages(int $count)
+	private function findIncompleteMessages(int $count, array $additionalFilters = []): Main\ORM\Query\Result
 	{
 		$resyncTime = new Main\Type\DateTime();
 		$resyncTime->add('- '.static::MESSAGE_RESYNCHRONIZATION_TIME.' seconds');
@@ -479,39 +478,61 @@ abstract class Mailbox
 				'MSG_UID',
 				'DIR_MD5',
 			),
-			'filter' => array(
+			'filter' => array_merge([
 				'=MAILBOX_ID' => $this->mailbox['ID'],
 				'=MESSAGE_ID' => '0',
 				'=IS_OLD' => 'D',
-				/*We give the message time to load.
-				In order not to catch the message that are in the process of downloading*/
 				'<=DATE_INSERT' => $resyncTime,
-			),
+			], $additionalFilters),
 			'limit' => $count,
 		]);
 	}
 
-	private function syncIncompleteMessages($messages)
+	private function syncIncompleteMessages(Main\ORM\Query\Result $messages): void
 	{
+		$mailboxId = $this->mailbox['ID'];
+
 		while ($item = $messages->fetch())
 		{
 			$dirPath = $this->getDirsHelper()->getDirPathByHash($item['DIR_MD5']);
-			$this->syncMessages($this->mailbox['ID'], $dirPath, [$item['MSG_UID']]);
+			$this->syncMessages($mailboxId, $dirPath, [$item['MSG_UID']]);
+
+			if(Main\Loader::includeModule('pull'))
+			{
+				\CPullWatch::addToStack(
+					'mail_mailbox_' . $mailboxId,
+					[
+						'params' => [
+							'dir' => $dirPath,
+							'mailboxId' => $mailboxId,
+						],
+						'module_id' => 'mail',
+						'command' => 'new_message_is_synchronized',
+					]
+				);
+				\Bitrix\Pull\Event::send();
+			}
 		}
 	}
 
-	public function reSyncStartPage()
+	public function reSyncStartPage(): void
 	{
 		$this->resyncDir($this->getDirsHelper()->getDefaultDirPath(),25);
 	}
 
-	public function restoringConsistency()
+	public function restoringConsistency(): void
 	{
-		$this->syncIncompleteMessages($this->findIncompleteMessages(static::NUMBER_OF_BROKEN_MESSAGES_TO_RESYNCHRONIZE));
-		\Bitrix\Mail\Helper\Message::reSyncBody($this->mailbox['ID'],$this->findMessagesWithAnEmptyBody(static::NUMBER_OF_BROKEN_MESSAGES_TO_RESYNCHRONIZE, $this->mailbox['ID']));
+		$dirsSync = $this->getDirsHelper()->getSyncDirsOrderByTime();
+
+		foreach ($dirsSync as $dir)
+		{
+			$this->syncIncompleteMessages($this->findIncompleteMessages(static::NUMBER_OF_BROKEN_MESSAGES_TO_RESYNCHRONIZE, $this->getMessageInFolderFilter($dir)));
+		}
+
+		\Bitrix\Mail\Helper\Message::reSyncBody($this->mailbox['ID'], $this->findMessagesWithAnEmptyBody(static::NUMBER_OF_BROKEN_MESSAGES_TO_RESYNCHRONIZE, $this->mailbox['ID']));
 	}
 
-	public function syncCounters()
+	public function syncCounters(): void
 	{
 		Helper::setMailboxUnseenCounter($this->mailbox['ID'],Helper::updateMailCounters($this->mailbox));
 
@@ -979,7 +1000,7 @@ abstract class Mailbox
 		]);
 	}
 
-	protected function registerMessage(&$fields, $replaces = null, $isOutgoing = false, string $idFromHeaderMessage = ''): bool
+	protected function registerMessage(&$fields, $replaces = null, $isOutgoing = false, string $idFromHeaderMessage = '', $redefineInsertDate = true): bool
 	{
 		$now = new Main\Type\DateTime();
 
@@ -1078,9 +1099,13 @@ abstract class Mailbox
 					'MAILBOX_ID'  => $this->mailbox['ID'],
 					'SESSION_ID'  => $this->session,
 					'TIMESTAMP_X' => $now,
-					'DATE_INSERT' => $now,
 				]
 			);
+
+			if ($redefineInsertDate || !array_key_exists('DATE_INSERT', $fields))
+			{
+				$addFields['DATE_INSERT'] = $now;
+			}
 
 			MailMessageUidTable::checkFields($checkResult, null, $addFields);
 			if (!$checkResult->isSuccess())
@@ -1155,7 +1180,6 @@ abstract class Mailbox
 				'filter' => $filterForCheck,
 				'limit' => 100,
 			])->fetchAll();
-
 
 			if (!empty($messagesForRemove))
 			{

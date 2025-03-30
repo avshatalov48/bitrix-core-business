@@ -199,28 +199,7 @@ abstract class BaseEntity
 			return $parent->save();
 		}
 
-		$connection = Application::getConnection();
-		try
-		{
-			$connection->startTransaction();
-			$result = $this->saveInternal();
-			if ($result->isSuccess())
-			{
-				$connection->commitTransaction();
-			}
-			else
-			{
-				$connection->rollbackTransaction();
-			}
-		}
-		catch (SqlException $exception)
-		{
-			$result = new Result();
-			$connection->rollbackTransaction();
-			$result->addError(new Error($exception->getMessage()));
-		}
-
-		return $result;
+		return $this->saveInternal();
 	}
 
 	protected function getFieldsMap(): ?array

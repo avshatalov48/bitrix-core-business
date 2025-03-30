@@ -12,6 +12,7 @@
 }
 
 .lists-lock-status-widget-red {
+	display: flex;
 	color: darkred;
 }
 

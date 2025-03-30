@@ -7,19 +7,19 @@
 		var d = function(params) {
 			try {
 				this.params = params;
-				this.controller = BX("mfi-" + params.controlId);
-				this.button = BX("mfi-" + params.controlId + "-button");
+				this.controller = BX("mfi-" + params.controlUniqueId);
+				this.button = BX("mfi-" + params.controlUniqueId + "-button");
 				this.editor = null;
-				if(BX("mfi-" + params.controlId + "-editor")) {
+				if(BX("mfi-" + params.controlUniqueId + "-editor")) {
 					this.editor = new BX.AvatarEditor({enableCamera : params.enableCamera});
 					BX.addCustomEvent(this.editor, "onApply", BX.delegate(this.addFile, this));
-					BX.bind(BX("mfi-" + params.controlId + "-editor"), "click", BX.delegate(this.editor.click, this.editor));
+					BX.bind(BX("mfi-" + params.controlUniqueId + "-editor"), "click", BX.delegate(this.editor.click, this.editor));
 				}
 				this.init(params);
-				repo[params.controlId] = this;
+				repo[params.controlUniqueId] = this;
 				this.template = BX.message('MFI_THUMB2').replace("#input_name#", this.params.inputName);
-				window["FILE_INPUT_" + params.controlId] = this; // for compatibility. Do not use
-				this.INPUT = BX("file_input_" + params['controlId']); // for compatibility. Do not use
+				window["FILE_INPUT_" + params.controlUniqueId] = this; // for compatibility. Do not use
+				this.INPUT = BX("file_input_" + params.controlUniqueId); // for compatibility. Do not use
 			}
 			catch (e) {
 				BX.debug(e);
@@ -39,7 +39,7 @@
 					uploadMaxFilesize : params["uploadMaxFilesize"],
 					showImage : false,
 					sortItems : false,
-					input : BX("file_input_" + params['controlId']),
+					input : BX("file_input_" + params.controlUniqueId),
 					dropZone : this.controller.parentNode,
 					placeHolder : this.controller,
 					fields : {

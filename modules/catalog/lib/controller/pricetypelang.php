@@ -69,7 +69,7 @@ class PriceTypeLang extends Controller
 		$existsResult = $this->exists($id);
 		if (!$existsResult->isSuccess())
 		{
-			$this->addErrors($existsResult->getErrors());
+			$this->addErrorEntityNotExists();
 
 			return null;
 		}
@@ -102,7 +102,7 @@ class PriceTypeLang extends Controller
 		$existsResult = $this->exists($id);
 		if (!$existsResult->isSuccess())
 		{
-			$this->addErrors($existsResult->getErrors());
+			$this->addErrorEntityNotExists();
 
 			return null;
 		}
@@ -175,20 +175,31 @@ class PriceTypeLang extends Controller
 	{
 		$result = new Result();
 
-		$priceTypeId = (int)$fields['CATALOG_GROUP_ID'];
-		$priceType = \Bitrix\Catalog\GroupTable::getById($priceTypeId)->fetch();
-		if (!$priceType)
+		if (isset($fields['CATALOG_GROUP_ID']))
 		{
-			$result->addError(new Error('The specified price type does not exist'));
+			$priceTypeId = (int)$fields['CATALOG_GROUP_ID'];
+			$priceType = \Bitrix\Catalog\GroupTable::getById($priceTypeId)->fetch();
+			if (!$priceType)
+			{
+				$result->addError(new Error('The specified price type does not exist', ErrorCode::PRICE_TYPE_ENTITY_NOT_EXISTS));
+			}
 		}
 
-		$languageId = $fields['LANG'];
-		$language = LanguageTable::getById($languageId)->fetch();
-		if (!$language)
+		if (isset($fields['LANG']))
 		{
-			$result->addError(new Error('The specified language does not exist'));
+			$language = LanguageTable::getById($fields['LANG'])->fetch();
+
+			if (!$language)
+			{
+				$result->addError(new Error('The specified language does not exist', ErrorCode::PRICE_TYPE_LANG_LANGUAGE_NOT_EXISTS));
+			}
 		}
 
 		return $result;
+	}
+
+	protected function getErrorCodeEntityNotExists(): string
+	{
+		return ErrorCode::PRICE_TYPE_LANG_ENTITY_NOT_EXISTS;
 	}
 }

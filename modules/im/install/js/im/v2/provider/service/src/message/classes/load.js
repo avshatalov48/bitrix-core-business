@@ -8,9 +8,9 @@ import { Logger } from 'im.v2.lib.logger';
 import { RestMethod } from 'im.v2.const';
 import { CopilotManager } from 'im.v2.lib.copilot';
 import { Analytics } from 'im.v2.lib.analytics';
+import { AccessErrorCode } from 'im.v2.lib.access';
 
 import type { ImModelChat, ImModelMessage } from 'im.v2.model';
-import { AccessErrorCode } from '../../../../../lib/access/src/classes/access-service';
 import type { PaginationRestResult } from '../types/message';
 import type { RawMessage, RawCommentInfo, RawTariffRestrictions } from '../../types/rest';
 
@@ -275,14 +275,12 @@ export class LoadService
 		if (targetMessageId)
 		{
 			return this.loadContext(targetMessageId)
-				.catch(() => {})
 				.finally(() => {
 					this.#setDialogInited(true, wasInitedBefore);
 				});
 		}
 
 		return this.loadInitialMessages()
-			.catch(() => {})
 			.finally(() => {
 				this.#setDialogInited(true, wasInitedBefore);
 			});

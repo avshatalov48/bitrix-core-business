@@ -6,25 +6,23 @@ use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\V2\Recent\Initializer\BaseSource;
 use Bitrix\Im\V2\Recent\Initializer\InitialiazerResult;
 use Bitrix\Im\V2\Recent\Initializer\SourceType;
+use Bitrix\Im\V2\Recent\Initializer\Stage;
+use Bitrix\Im\V2\Recent\Initializer\StageType;
+use Bitrix\Main\ORM\Query\Query;
 
-class Collab extends BaseSource
+class Collab extends BaseCollabSource
 {
-	public function __construct(int $targetId, int $collabChatId)
-	{
-		parent::__construct($targetId, $collabChatId);
-	}
-
 	public static function getType(): SourceType
 	{
 		return SourceType::Collab;
 	}
 
-	protected function getUsersInternal(string $pointer, int $limit): InitialiazerResult
+	protected function getBaseQuery(string $pointer, int $limit): Query
 	{
 		$lastId = (int)$pointer;
 		$query = RelationTable::query()
 			->setDistinct()
-			->setSelect(['ID', 'USER_ID'])
+			->setSelect(['ID', self::USER_ID_FIELD_NAME => 'USER_ID'])
 			->where('CHAT_ID', $this->sourceId)
 			->whereNotNull('USER.LAST_ACTIVITY_DATE')
 			->setLimit($limit)
@@ -36,10 +34,10 @@ class Collab extends BaseSource
 			$query->where('ID', '<', $lastId);
 		}
 
-		return $this->getResultByRaw($query->fetchAll(), $limit);
+		return $query;
 	}
 
-	private function getResultByRaw(array $raw, int $limit): InitialiazerResult
+	protected function getResultByRaw(array $raw, int $limit): InitialiazerResult
 	{
 		$selectedItemsCount = count($raw);
 		$userIds = [];
@@ -49,7 +47,7 @@ class Collab extends BaseSource
 		foreach ($raw as $row)
 		{
 			$id = (int)($row['ID']);
-			$userId = (int)($row['USER_ID'] ?? 0);
+			$userId = (int)($row[self::USER_ID_FIELD_NAME] ?? 0);
 			$userIds[$userId] = $userId;
 			if ($id < $nextId || $nextId === null)
 			{

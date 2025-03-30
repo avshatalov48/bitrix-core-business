@@ -18,6 +18,7 @@ return [
 		'im.v2.lib.quote',
 		'im.v2.component.animation',
 		'im.v2.lib.message-component-manager',
+		'im.v2.lib.promo',
 		'im.v2.lib.channel',
 		'im.v2.lib.menu',
 		'im.v2.lib.parser',
@@ -66,6 +67,7 @@ return [
 		'imopenlines.v2.component.message.hidden',
 		'imopenlines.v2.component.message.feedback-form',
 		'im.v2.component.message.call',
+		'im.v2.component.message.vote',
 	],
 	'skip_core' => false,
 	'settings' => [

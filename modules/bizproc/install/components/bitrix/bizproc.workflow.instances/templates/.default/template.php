@@ -132,6 +132,8 @@ else
 			BX.message({
 				BPWI_DELETE_BTN_LABEL: '<?= CUtil::JSEscape(getMessage('BPWI_DELETE_LABEL')) ?>',
 				BPWI_DELETE_MESS_CONFIRM: '<?= CUtil::JSEscape(getMessage('BPWI_DELETE_CONFIRM')) ?>',
+				BPWIT_TERMINATE_NOTIFICATION: '<?= CUtil::JSEscape(getMessage('BPWIT_TERMINATE_NOTIFICATION')) ?>',
+				BPWIT_DELETE_NOTIFICATION: '<?= CUtil::JSEscape(getMessage('BPWIT_DELETE_NOTIFICATION')) ?>',
 			});
 
 			BX.Bizproc.Component.WorkflowInstances.Instance = new BX.Bizproc.Component.WorkflowInstances({

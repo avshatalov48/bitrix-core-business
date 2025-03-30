@@ -6,12 +6,12 @@
  * @copyright 2001-2023 Bitrix
  */
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\Uri;
 use Bitrix\Main\UrlPreview\UrlPreview;
-use Bitrix\Main\Application;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\Collab\Url\UrlManager;
 use Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup;
 use Bitrix\Socialnetwork\Item\Workgroup\Type;
@@ -660,12 +660,9 @@ class CTextParser
 						$text = preg_replace_callback(
 							"/\\[p](.*?)\\[\\/p](([ \r\t]*)\n?)/isu",
 							function($matches) {
-								if ($this->useTypography)
-								{
-									return '<p class="' . $this->tagClasses['p'] . '">' . self::trimLineBreaks($matches[1]) . '</p>';
-								}
+								$className = $this->useTypography ? ' class="' . $this->tagClasses['p'] . '"' : '';
 
-								return '<p>'. $matches[1] . '</p>';
+								return "<p$className>". self::trimLineBreaks($matches[1]) . '</p>';
 							},
 							$text,
 							-1,
@@ -2209,7 +2206,7 @@ class CTextParser
 
 			$className = $this->useTypography ? ' class="' . $this->tagClasses['url'] . '"' : '';
 
-			$link = '<a ' . $className . 'href="' . $url . '" target="' . $this->link_target . '"' . $noFollowAttribute . $this->convertAttributes($attributes) . ' >' . $text . '</a>';
+			$link = '<a' . $className . ' href="' . $url . '" target="' . $this->link_target . '"' . $noFollowAttribute . $this->convertAttributes($attributes) . ' >' . $text . '</a>';
 
 			if ($noFollowAttribute)
 			{
@@ -2482,7 +2479,7 @@ class CTextParser
 
 	private static function trimLineBreaks(string $text): string
 	{
-		return preg_replace("/^\n|\n$/", '', $text);
+		return preg_replace("/^\r?\n|\r?\n$/", '', $text);
 	}
 
 	private function getExternalGroupType(int $groupId): string

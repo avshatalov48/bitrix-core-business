@@ -273,3 +273,4 @@ $MESS["main_sett_add_users"] = "Add users";
 $MESS["main_sett_public_panel"] = "Public Section Toolbar";
 $MESS["main_sett_public_panel_hide"] = "Never show the toolbar to users:";
 $MESS["main_sett_public_panel_show"] = "Always show toolbar for users:";
+$MESS["SUP_MENU_TURN_EXPERT_MODE_ON"] = "Enable expert mode:";

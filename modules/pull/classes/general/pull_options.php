@@ -169,6 +169,7 @@ class CPullOptions
 	{
 		Option::set("pull", "server_mode", $mode);
 	}
+
 	public static function IsServerShared()
 	{
 		return static::GetQueueServerMode() == static::SERVER_MODE_SHARED;
@@ -189,6 +190,16 @@ class CPullOptions
 			CAgent::RemoveAgent("CPushManager::SendAgent();", "pull");
 
 		return true;
+	}
+
+	public static function SetSharedWorkerAllowed(bool $val): void
+	{
+		Option::set('pull', 'shared_worker_allowed', $val ? 'Y' : 'N') ;
+	}
+
+	public static function IsSharedWorkerAllowed(): bool
+	{
+		return Option::get('pull', 'shared_worker_allowed', 'Y') === 'Y';
 	}
 
 	public static function GetPushMessagePerHit()

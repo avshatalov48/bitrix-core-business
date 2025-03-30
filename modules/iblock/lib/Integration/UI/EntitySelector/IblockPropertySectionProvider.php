@@ -3,9 +3,9 @@
 namespace Bitrix\Iblock\Integration\UI\EntitySelector;
 
 use Bitrix\Iblock\Component\Tools;
+use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
-use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\SearchQuery;
 
 class IblockPropertySectionProvider extends BaseProvider
@@ -171,6 +171,12 @@ class IblockPropertySectionProvider extends BaseProvider
 		if (!empty($iblockId))
 		{
 			$filter['IBLOCK_ID'] = $iblockId;
+		}
+
+		$activeFilter = $this->getOption('activeFilter', false);
+		if ($activeFilter)
+		{
+			$filter['ACTIVE'] = 'Y';
 		}
 
 		return $filter;

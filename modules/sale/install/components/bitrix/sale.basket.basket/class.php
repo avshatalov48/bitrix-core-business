@@ -4100,13 +4100,21 @@ class CBitrixBasketComponent extends CBitrixComponent
 		$clearProperties = [];
 		foreach ($codeList as $code)
 		{
-			if (isset($propertyValues[$code]) && is_string($propertyValues[$code]) && $propertyValues[$code] !== '')
-				$clearProperties[$code] = $propertyValues[$code];
-			else
-				unset($properties[$code]);
-			if ($clearProperties[$code] === '-')
+			if (
+				isset($propertyValues[$code])
+				&& is_string($propertyValues[$code])
+				&& $propertyValues[$code] !== ''
+			)
 			{
-				$clearProperties[$code] = '';
+				$clearProperties[$code] = $propertyValues[$code];
+				if ($clearProperties[$code] === '-')
+				{
+					$clearProperties[$code] = '';
+				}
+			}
+			else
+			{
+				unset($properties[$code]);
 			}
 		}
 		unset($code);
@@ -4122,7 +4130,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			[
 				'ACTIVE' => 'Y',
 				'ACTIVE_DATE' => 'Y',
-				'CATALOG_AVAILABLE' => 'Y',
+				'AVAILABLE' => 'Y',
 				'CHECK_PERMISSIONS' => 'Y',
 				'MIN_PERMISSION' => 'R',
 			],
@@ -4140,6 +4148,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 				'ID' => $offers[$productId][$offerId]['ID'],
 				'IBLOCK_ID' => $offers[$productId][$offerId]['IBLOCK_ID'],
 				'XML_ID' => $offers[$productId][$offerId]['XML_ID'],
+				'NAME' => $offers[$productId][$offerId]['NAME'],
 				'PROPERTIES' => $offers[$productId][$offerId]['PROPERTIES'],
 			];
 		}

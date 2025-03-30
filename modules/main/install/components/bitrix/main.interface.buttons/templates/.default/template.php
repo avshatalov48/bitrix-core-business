@@ -34,7 +34,7 @@ $this->addExternalJs($templateFolder."/utils.js");
  */
 ?>
 
-<div class="main-buttons<?=$arParams["THEME_ID"]?>">
+<div class="main-buttons ui-icon-set__scope<?=$arParams["THEME_ID"]?>">
 	<div class="main-buttons-box">
 		<div class="main-buttons-inner-container" id="<?=$arResult["ID"]?>">
 		<? foreach ($arResult["ITEMS"] as $key => $arItem) :
@@ -281,7 +281,6 @@ $this->addExternalJs($templateFolder."/utils.js");
 		<? endif; ?>
 	</div>
 	</div>
-	<iframe height="100%" width="100%" id="maininterfacebuttons-tmp-frame-<?=$arResult["ID"]?>" name="maininterfacebuttonstmpframe-<?=$arResult["ID"]?>" style="position: absolute; z-index: -1; opacity: 0;"></iframe>
 </div>
 
 <script>

@@ -11,14 +11,23 @@ use Bitrix\Socialnetwork\Helper\Analytics;
 class CollabAnalytics extends Analytics
 {
 	public const EVENT_SETTINGS_CHANGED = 'edit_permissions';
+
+	public const EVENT_COPY_LINK = 'copy_invitation_link';
+	public const EVENT_INVITATION = 'invitation';
 	public const EVENT_USER_ADDED = 'add_user';
 	public const EVENT_USER_DELETED = 'delete_user';
 
 	public const TOOL_IM = 'im';
 
+	public const TOOL_INVITATION = 'invitation';
+
 	public const CATEGORY_COLLAB = 'collab';
 
+	public const CATEGORY_INVITATION = 'invitation';
+
 	public const SECTION_EDITOR = 'editor';
+
+	public const SECTION_COLLAB = 'collab';
 
 	public const TYPE_OWNER = 'owner';
 	public const TYPE_MODERATOR = 'moderator';
@@ -111,11 +120,59 @@ class CollabAnalytics extends Analytics
 		return 'collabId_' . $collabId;
 	}
 
+	public function getUserParameter(int $userId): string
+	{
+		return 'userId_' . $userId;
+	}
+
 	private function getParameters(int $userId, int $collabId): array
 	{
 		return [
 			'p2' => $this->getUserTypeParameter($userId),
 			'p4' => $this->getCollabParameter($collabId),
 		];
+	}
+
+	public function onCopyLink(int $userId, int $collabId): void
+	{
+		$analyticsEvent = new AnalyticsEvent(
+			static::EVENT_COPY_LINK,
+			static::TOOL_INVITATION,
+			static::CATEGORY_INVITATION,
+		);
+
+		$parameters = [
+			'p2' => $this->getUserTypeParameter($userId),
+			'p4' => $this->getCollabParameter($collabId),
+			'p5' => $this->getUserParameter($userId),
+		];
+
+		$this->sendAnalytics(
+			analyticsEvent: $analyticsEvent,
+			section: static::SECTION_COLLAB,
+			params: $parameters,
+		);
+	}
+
+	public function onUserInvitation(int $userId, int $collabId, string $type): void
+	{
+		$analyticsEvent = new AnalyticsEvent(
+			static::EVENT_INVITATION,
+			static::TOOL_INVITATION,
+			static::CATEGORY_INVITATION,
+		);
+
+		$parameters = [
+			'p2' => $this->getUserTypeParameter($userId),
+			'p4' => $this->getCollabParameter($collabId),
+			'p5' => $this->getUserParameter($userId),
+		];
+
+		$this->sendAnalytics(
+			analyticsEvent: $analyticsEvent,
+			type: $type,
+			section: static::SECTION_COLLAB,
+			params: $parameters,
+		);
 	}
 }

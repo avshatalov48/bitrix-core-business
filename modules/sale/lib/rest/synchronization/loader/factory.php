@@ -23,7 +23,6 @@ class Factory
 			|| $typeName === Registry::ENTITY_SHIPMENT_ITEM_STORE
 			|| $typeName === Registry::ENTITY_SHIPMENT_ITEM_STORE_COLLECTION
 			|| $typeName === Registry::ENTITY_PROPERTY_VALUE_COLLECTION
-			|| $typeName === Registry::ENTITY_OPTIONS
 			|| $typeName === Registry::ENTITY_DISCOUNT
 			|| $typeName === Registry::ENTITY_DISCOUNT_COUPON
 			|| $typeName === Registry::ENTITY_ORDER_DISCOUNT
@@ -34,7 +33,11 @@ class Factory
 			|| $typeName === Registry::ENTITY_ORDER_HISTORY
 			|| $typeName === Registry::ENTITY_NOTIFY
 			|| $typeName === Registry::ENTITY_TRADE_BINDING_ENTITY
-			|| $typeName === ENTITY_CRM_CONTACT_COMPANY_COLLECTION)
+			|| (
+				defined('ENTITY_CRM_CONTACT_COMPANY_COLLECTION')
+				&& $typeName === ENTITY_CRM_CONTACT_COMPANY_COLLECTION
+			)
+		)
 		{
 			return new Entity($typeName);
 		}

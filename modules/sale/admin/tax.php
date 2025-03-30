@@ -49,7 +49,7 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 {
-	if ($_REQUEST['action_target']=='selected')
+	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target'] === 'selected')
 	{
 		$arID = Array();
 		$dbResultList = CSaleTax::GetList(

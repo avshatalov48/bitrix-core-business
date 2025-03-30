@@ -236,7 +236,12 @@ if($diskEnabled)
 
 	if (\Bitrix\Main\Config\Option::get('disk', 'documents_enabled', 'N') === 'Y')
 	{
+		$arDefaultUrlTemplates404["user_disk_all"] = "user/#user_id#/disk/all/";
 		$arDefaultUrlTemplates404["user_disk_documents"] = "user/#user_id#/disk/documents/";
+		if (\Bitrix\Main\Config\Option::get('disk', 'boards_enabled', 'N') === 'Y')
+		{
+			$arDefaultUrlTemplates404["user_disk_boards"] = "user/#user_id#/disk/boards/";
+		}
 	}
 }
 

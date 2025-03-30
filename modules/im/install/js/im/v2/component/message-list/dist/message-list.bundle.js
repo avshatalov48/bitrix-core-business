@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_quote,im_v2_component_animation,im_v2_lib_messageComponentManager,im_v2_lib_channel,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_entityCreator,im_v2_provider_service,im_v2_lib_market,im_v2_lib_utils,im_v2_lib_confirm,ui_notification,main_polyfill_intersectionobserver,im_v2_component_elements,im_v2_lib_copilot,im_v2_lib_permission,main_core,main_core_events,im_v2_lib_analytics,im_v2_lib_feature,im_v2_application_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_copilot_creation,im_v2_component_message_copilot_answer,im_v2_component_message_copilot_addedUsers,im_v2_component_message_support_vote,im_v2_component_message_support_sessionNumber,im_v2_component_message_support_chatCreation,im_v2_component_message_conferenceCreation,im_v2_component_message_supervisor_updateFeature,im_v2_component_message_supervisor_enableFeature,im_v2_component_message_sign,im_v2_component_message_checkIn,im_v2_component_message_ownChatCreation,im_v2_component_message_zoomInvite,im_v2_component_message_generalChatCreation,im_v2_component_message_generalChannelCreation,im_v2_component_message_channelCreation,imopenlines_v2_component_message_startDialog,imopenlines_v2_component_message_hidden,imopenlines_v2_component_message_feedbackForm,im_v2_component_message_call) {
+(function (exports,im_v2_lib_quote,im_v2_component_animation,im_v2_lib_messageComponentManager,im_v2_lib_promo,im_v2_lib_channel,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_entityCreator,im_v2_provider_service,im_v2_lib_market,im_v2_lib_utils,im_v2_lib_confirm,ui_notification,main_polyfill_intersectionobserver,im_v2_component_elements,im_v2_lib_copilot,im_v2_lib_permission,main_core,main_core_events,im_v2_lib_analytics,im_v2_lib_feature,im_v2_application_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_copilot_creation,im_v2_component_message_copilot_answer,im_v2_component_message_copilot_addedUsers,im_v2_component_message_support_vote,im_v2_component_message_support_sessionNumber,im_v2_component_message_support_chatCreation,im_v2_component_message_conferenceCreation,im_v2_component_message_supervisor_updateFeature,im_v2_component_message_supervisor_enableFeature,im_v2_component_message_sign,im_v2_component_message_checkIn,im_v2_component_message_ownChatCreation,im_v2_component_message_zoomInvite,im_v2_component_message_generalChatCreation,im_v2_component_message_generalChannelCreation,im_v2_component_message_channelCreation,imopenlines_v2_component_message_startDialog,imopenlines_v2_component_message_hidden,imopenlines_v2_component_message_feedbackForm,im_v2_component_message_call,im_v2_component_message_vote) {
 	'use strict';
 
 	// @vue/component
@@ -50,14 +50,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	var _isOwnMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOwnMessage");
 	var _isDeletedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletedMessage");
-	var _getMessageFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessageFile");
+	var _getFirstFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFirstFile");
+	var _isSingleFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isSingleFile");
 	var _isForwardedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isForwardedMessage");
 	var _isRealMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isRealMessage");
 	var _onDelete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onDelete");
 	var _isDeletionCancelled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletionCancelled");
+	var _getDownloadSingleFileItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDownloadSingleFileItem");
+	var _getDownloadSeveralFilesItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDownloadSeveralFilesItem");
 	class MessageMenu extends im_v2_lib_menu.BaseMenu {
 	  constructor() {
 	    super();
+	    Object.defineProperty(this, _getDownloadSeveralFilesItem, {
+	      value: _getDownloadSeveralFilesItem2
+	    });
+	    Object.defineProperty(this, _getDownloadSingleFileItem, {
+	      value: _getDownloadSingleFileItem2
+	    });
 	    Object.defineProperty(this, _isDeletionCancelled, {
 	      value: _isDeletionCancelled2
 	    });
@@ -70,8 +79,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _isForwardedMessage, {
 	      value: _isForwardedMessage2
 	    });
-	    Object.defineProperty(this, _getMessageFile, {
-	      value: _getMessageFile2
+	    Object.defineProperty(this, _isSingleFile, {
+	      value: _isSingleFile2
+	    });
+	    Object.defineProperty(this, _getFirstFile, {
+	      value: _getFirstFile2
 	    });
 	    Object.defineProperty(this, _isDeletedMessage, {
 	      value: _isDeletedMessage2
@@ -92,7 +104,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getMenuItems() {
-	    return [this.getReplyItem(), this.getCopyItem(), this.getCopyLinkItem(), this.getCopyFileItem(), this.getPinItem(), this.getForwardItem(), this.getDelimiter(), this.getMarkItem(), this.getFavoriteItem(), this.getDelimiter(), this.getCreateItem(), this.getDelimiter(), this.getDownloadFileItem(), this.getSaveToDisk(), this.getDelimiter(), this.getEditItem(), this.getDeleteItem(), this.getDelimiter(), this.getSelectItem()];
+	    return [this.getReplyItem(), this.getCopyItem(), this.getCopyLinkItem(), this.getCopyFileItem(), this.getPinItem(), this.getForwardItem(), this.getDelimiter(), this.getMarkItem(), this.getFavoriteItem(), this.getDelimiter(), this.getCreateItem(), this.getDelimiter(), this.getDownloadFileItem(), this.getSaveToDiskItem(), this.getDelimiter(), this.getEditItem(), this.getDeleteItem(), this.getDelimiter(), this.getSelectItem()];
 	  }
 	  getSelectItem() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]() || !babelHelpers.classPrivateFieldLooseBase(this, _isRealMessage)[_isRealMessage]()) {
@@ -152,7 +164,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getCopyLinkItem() {
 	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_LINK'),
+	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_LINK_MSGVER_1'),
 	      onclick: () => {
 	        var _BX$clipboard;
 	        const textToCopy = im_v2_lib_utils.Utils.text.getMessageLink(this.context.dialogId, this.context.id);
@@ -334,28 +346,30 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return marketMenuItem.slice(0, itemLimit);
 	  }
 	  getDownloadFileItem() {
-	    const file = babelHelpers.classPrivateFieldLooseBase(this, _getMessageFile)[_getMessageFile]();
-	    if (!file) {
+	    if (!main_core.Type.isArrayFilled(this.context.files)) {
 	      return null;
 	    }
-	    return {
-	      html: im_v2_lib_utils.Utils.file.createDownloadLink(main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILE'), file.urlDownload, file.name),
-	      onclick: function () {
-	        this.menuInstance.close();
-	      }.bind(this)
-	    };
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isSingleFile)[_isSingleFile]()) {
+	      return babelHelpers.classPrivateFieldLooseBase(this, _getDownloadSingleFileItem)[_getDownloadSingleFileItem]();
+	    }
+	    return babelHelpers.classPrivateFieldLooseBase(this, _getDownloadSeveralFilesItem)[_getDownloadSeveralFilesItem]();
 	  }
-	  getSaveToDisk() {
-	    const file = babelHelpers.classPrivateFieldLooseBase(this, _getMessageFile)[_getMessageFile]();
-	    if (!file) {
+	  getSaveToDiskItem() {
+	    if (!main_core.Type.isArrayFilled(this.context.files)) {
 	      return null;
 	    }
+	    const menuItemText = babelHelpers.classPrivateFieldLooseBase(this, _isSingleFile)[_isSingleFile]() ? main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_MSGVER_1') : main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ALL_ON_DISK');
+	    const successNotification = babelHelpers.classPrivateFieldLooseBase(this, _isSingleFile)[_isSingleFile]() ? main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS_MSGVER_1') : main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ALL_ON_DISK_SUCCESS');
 	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK'),
+	      text: menuItemText,
 	      onclick: function () {
-	        void this.diskService.save(file.id).then(() => {
+	        im_v2_lib_analytics.Analytics.getInstance().messageFiles.onClickSaveOnDisk({
+	          messageId: this.context.id,
+	          dialogId: this.context.dialogId
+	        });
+	        void this.diskService.save(this.context.files).then(() => {
 	          BX.UI.Notification.Center.notify({
-	            content: main_core.Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS')
+	            content: successNotification
 	          });
 	        });
 	        this.menuInstance.close();
@@ -374,13 +388,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function _isDeletedMessage2() {
 	  return this.context.isDeleted;
 	}
-	function _getMessageFile2() {
-	  if (this.context.files.length !== 1) {
-	    return null;
-	  }
-
-	  // for now, we have only one file in one message. In the future we need to change this logic.
+	function _getFirstFile2() {
 	  return this.store.getters['files/get'](this.context.files[0]);
+	}
+	function _isSingleFile2() {
+	  return this.context.files.length === 1;
 	}
 	function _isForwardedMessage2() {
 	  return main_core.Type.isStringFilled(this.context.forward.id);
@@ -424,6 +436,43 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return true;
 	  }
 	  return false;
+	}
+	function _getDownloadSingleFileItem2() {
+	  const file = babelHelpers.classPrivateFieldLooseBase(this, _getFirstFile)[_getFirstFile]();
+	  return {
+	    html: im_v2_lib_utils.Utils.file.createDownloadLink(main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILE'), file.urlDownload, file.name),
+	    onclick: function () {
+	      im_v2_lib_analytics.Analytics.getInstance().messageFiles.onClickDownload({
+	        messageId: this.context.id,
+	        dialogId: this.context.dialogId
+	      });
+	      this.menuInstance.close();
+	    }.bind(this)
+	  };
+	}
+	function _getDownloadSeveralFilesItem2() {
+	  const files = this.context.files.map(fileId => {
+	    return this.store.getters['files/get'](fileId);
+	  });
+	  return {
+	    text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILES'),
+	    onclick: async () => {
+	      var _this$menuInstance2;
+	      im_v2_lib_analytics.Analytics.getInstance().messageFiles.onClickDownload({
+	        messageId: this.context.id,
+	        dialogId: this.context.dialogId
+	      });
+	      im_v2_lib_utils.Utils.file.downloadFiles(files);
+	      const needToShowPopup = im_v2_lib_promo.PromoManager.getInstance().needToShow(im_v2_const.PromoId.downloadSeveralFiles);
+	      if (needToShowPopup && im_v2_lib_utils.Utils.browser.isChrome() && !im_v2_lib_utils.Utils.platform.isBitrixDesktop()) {
+	        var _this$menuInstance;
+	        (_this$menuInstance = this.menuInstance) == null ? void 0 : _this$menuInstance.close();
+	        await im_v2_lib_confirm.showDownloadAllFilesConfirm();
+	        void im_v2_lib_promo.PromoManager.getInstance().markAsWatched(im_v2_const.PromoId.downloadSeveralFiles);
+	      }
+	      (_this$menuInstance2 = this.menuInstance) == null ? void 0 : _this$menuInstance2.close();
+	    }
+	  };
 	}
 
 	var _dialogId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogId");
@@ -1218,7 +1267,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  CallMessage: im_v2_component_message_call.CallMessage,
 	  StartDialogMessage: imopenlines_v2_component_message_startDialog.StartDialogMessage,
 	  FeedbackFormMessage: imopenlines_v2_component_message_feedbackForm.FeedbackFormMessage,
-	  HiddenMessage: imopenlines_v2_component_message_hidden.HiddenMessage
+	  HiddenMessage: imopenlines_v2_component_message_hidden.HiddenMessage,
+	  VoteMessage: im_v2_component_message_vote.VoteMessage
 	};
 
 	// @vue/component
@@ -1464,5 +1514,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.MessageComponents = MessageComponents;
 	exports.CollectionManager = CollectionManager;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.OpenLines.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
 //# sourceMappingURL=message-list.bundle.js.map

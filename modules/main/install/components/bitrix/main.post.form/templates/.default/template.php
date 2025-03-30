@@ -256,8 +256,9 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 			)?>',
 			tagNodeId: 'entity-selector-<?=CUtil::JSescape($arParams["divId"])?>',
 			inputNodeId: 'entity-selector-data-<?=CUtil::JSescape($arParams["divId"])?>',
-			preselectedItems: <?= Json::encode($arResult['DESTINATION']['ENTITIES_PRESELECTED']) ?>,
+			preselectedItems: <?= CUtil::PhpToJSObject($arResult['DESTINATION']['ENTITIES_PRESELECTED']) ?>,
 			allowSearchEmailUsers: <?=($arResult['ALLOW_EMAIL_INVITATION'] ? 'true' : 'false')?>,
+			collabers: false,
 			allowToAll: <?=($arResult['ALLOW_TO_ALL'] ? 'true' : 'false')?>,
 			messages: {
 				allUsersTitle: '<?= CUtil::JSescape(ModuleManager::isModuleInstalled('intranet') ? Loc::getMessage('MPF_DESTINATION_3') : Loc::getMessage('MPF_DESTINATION_4')) ?>',

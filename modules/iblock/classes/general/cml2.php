@@ -3662,8 +3662,10 @@ class CIBlockCMLImport
 			{
 				foreach($arXMLElement[$this->mess["IBLOCK_XML2_PROPERTIES_VALUES"]] as $value)
 				{
-					if(!array_key_exists($this->mess["IBLOCK_XML2_ID"], $value))
+					if (!isset($value[$this->mess['IBLOCK_XML2_ID']]))
+					{
 						continue;
+					}
 
 					$prop_id = $value[$this->mess["IBLOCK_XML2_ID"]];
 					unset($value[$this->mess["IBLOCK_XML2_ID"]]);

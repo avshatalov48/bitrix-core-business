@@ -264,6 +264,11 @@
 	line-height: 17px;
 }
 
+.mail-connect-crm-selector-wrapper
+{
+	display: inline;
+}
+
 .mail-set-singleselect input,
 .mail-set-singleselect label {
 	display: none;

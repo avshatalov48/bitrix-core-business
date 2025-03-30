@@ -1,0 +1,20 @@
+<?php
+$MESS["AVTOR_PREF"] = "Автор:";
+$MESS["FG_ERROR_CONTENT_FORUM"] = "#GROUP_NAME# тобы [#GROUP_ID#] форумдарды қамтиды.";
+$MESS["FG_ERROR_CONTENT_GROUP"] = "#GROUP_NAME# [#GROUP_ID#] тобы топтарды қамтиды.";
+$MESS["FG_ERROR_EMPTY_LID"] = "#LID_NAME# тілі үшін топ атаулары көрсетілмеген [#LID#].";
+$MESS["FG_ERROR_EMPTY_PARENT_ID"] = "Ата-аналар тобы табылмады.";
+$MESS["FG_ERROR_PARENT_ID_IS_CHILD"] = "Еншілес топ ата-аналық топ бола алмайды.";
+$MESS["FG_ERROR_SELF_PARENT_ID"] = "Топтама өз ата-анасы бола алмайды.";
+$MESS["FS_ERROR_EMPTY_IMAGE"] = "Смайл суреті көрсетілмеген.";
+$MESS["FS_ERROR_EMPTY_NAME"] = "#LID_NAME# тілі үшін смайл атаулары көрсетілмеген [#LID#].";
+$MESS["FS_ERROR_EMPTY_TYPE"] = "Смайл түрі көрсетілмеген.";
+$MESS["FS_ERROR_TYPING"] = "Смайлик жазуында тыйым салынған символдар бар (&gt; &lt; \" ').";
+$MESS["FS_ERROR_UNKNOWN_TYPE"] = "#TYPE# смайлының түрі белгісіз.";
+$MESS["F_ERROR_EMPTY_NAME"] = "Форумның атауы көрсетілмеген.";
+$MESS["F_ERROR_EMPTY_SITES"] = "Форум ешқандай сайтқа байланбаған. ";
+$MESS["F_ERROR_EMPTY_SITE_PATH"] = "#SITE_NAME# [#SITE_ID#] сайты үшін жол қалыбы көрсетілмеген.";
+$MESS["F_FORUM"] = "Форум";
+$MESS["F_FORUMS_LIST"] = "Форумдар тізіміне өту";
+$MESS["F_FORUM_EDIT"] = "Форум параметрлерін өзгерту";
+$MESS["F_FORUM_TITLE"] = "Форумдарды басқару";

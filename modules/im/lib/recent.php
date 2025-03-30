@@ -628,6 +628,7 @@ class Recent
 			'CHAT_COLOR' => 'CHAT.COLOR',
 			'CHAT_ENTITY_TYPE' => 'CHAT.ENTITY_TYPE',
 			'CHAT_CAN_POST' => 'CHAT.CAN_POST',
+			'CHAT_EXTRANET' => 'CHAT.EXTRANET',
 			'USER_LAST_ACTIVITY_DATE' => 'USER.LAST_ACTIVITY_DATE',
 		];
 
@@ -648,7 +649,6 @@ class Recent
 			'RELATION_LAST_ID' => 'RELATION.LAST_ID',
 			'CHAT_PARENT_ID' => 'CHAT.PARENT_ID',
 			'CHAT_PARENT_MID' => 'CHAT.PARENT_MID',
-			'CHAT_EXTRANET' => 'CHAT.EXTRANET',
 			'CHAT_ENTITY_ID' => 'CHAT.ENTITY_ID',
 			'CHAT_ENTITY_DATA_1' => 'CHAT.ENTITY_DATA_1',
 			'CHAT_ENTITY_DATA_2' => 'CHAT.ENTITY_DATA_2',
@@ -1016,6 +1016,7 @@ class Recent
 			return [
 				'ID' => (int)$row['ITEM_CID'],
 				'NAME' => $row['CHAT_TITLE'],
+				'EXTRANET' => $row['CHAT_EXTRANET'] == 'Y',
 				'AVATAR' => $avatar,
 				'COLOR' => $color,
 				'TYPE' => $chatType,
@@ -1579,18 +1580,10 @@ class Recent
 		foreach ($usersAlreadyInRecentRows as $row)
 		{
 			$userId = (int)$row['USER_ID'];
-			$usersAlreadyInRecent[$userId] = $userId;
-		}
-		$usersToAdd = [];
-		foreach ($users as $userId)
-		{
-			if (!isset($usersAlreadyInRecent[$userId]))
-			{
-				$usersToAdd[$userId] = $userId;
-			}
+			unset($users[$userId]);
 		}
 
-		return $usersToAdd;
+		return $users;
 	}
 
 	public static function unread($dialogId, $unread, $userId = null, ?int $markedId = null, ?string $itemTypes = null)
@@ -1992,8 +1985,15 @@ class Recent
 
 		foreach ($rows as $row)
 		{
-			$messageIds[] = (int)($row['ITEM_MID'] ?? 0);
-			$chatIds[] = (int)($row['ITEM_CID'] ?? 0);
+			if (isset($row['ITEM_MID']) && $row['ITEM_MID'] > 0)
+			{
+				$messageIds[] = (int)$row['ITEM_MID'];
+			}
+
+			if (isset($row['ITEM_CID']) && $row['ITEM_CID'] > 0)
+			{
+				$chatIds[] = (int)$row['ITEM_CID'];
+			}
 		}
 
 		return [$messageIds, $chatIds];

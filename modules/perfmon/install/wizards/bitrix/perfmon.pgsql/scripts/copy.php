@@ -73,7 +73,8 @@ else
 				}
 			}
 
-			$tableInfo['COLUMNS'] = GetTableColumns($myConnection, $tableInfo['TABLE_NAME']);
+			$tableColumns = GetTableColumns($myConnection, $tableInfo['TABLE_NAME']);
+			$fullTextColumns = GetFullTextColumns($pgConnection, $tableInfo['TABLE_NAME']);
 
 			$i = intval($tableInfo['REC_COUNT']);
 			$di = 0;
@@ -110,11 +111,11 @@ else
 					{
 						$arSource[$key] = 'NULL';
 					}
-					elseif ($tableInfo['COLUMNS'][$key] == 0)
+					elseif ($tableColumns[$key] == 0)
 					{
 						$arSource[$key] = $value;
 					}
-					elseif ($tableInfo['COLUMNS'][$key] == 1)
+					elseif ($tableColumns[$key] == 1)
 					{
 						if (empty($value) && $value != '0')
 						{
@@ -125,14 +126,21 @@ else
 							$arSource[$key] = "decode('" . bin2hex($value) . "', 'hex')";
 						}
 					}
-					elseif ($tableInfo['COLUMNS'][$key] == 2)
+					elseif ($tableColumns[$key] == 2)
 					{
 						$value = str_replace('0000-00-00', '0001-01-01', $value);
 						$arSource[$key] = "'" . $pgConnection->getSqlHelper()->forSql($value) . "'";
 					}
-					elseif ($tableInfo['COLUMNS'][$key] == 3)
+					elseif ($tableColumns[$key] == 3)
 					{
-						$arSource[$key] = "'" . $pgConnection->getSqlHelper()->forSql($value) . "'";
+						if (array_key_exists($key, $fullTextColumns))
+						{
+							$arSource[$key] = "'" . $pgConnection->getSqlHelper()->forSql($value, 900000) . "'";
+						}
+						else
+						{
+							$arSource[$key] = "'" . $pgConnection->getSqlHelper()->forSql($value) . "'";
+						}
 					}
 				}
 				$insertValues[] = '(' . implode(',', $arSource) . ')';
@@ -261,6 +269,40 @@ function GetTableColumns($myConnection, $tableName)
 	}
 
 	return $columns;
+}
+
+function GetFullTextColumns($pgConnection, $tableName)
+{
+	$fullTextColumns = [];
+
+	$sql = "
+		SELECT relname, indkey, pg_get_expr(pg_index.indexprs, pg_index.indrelid) full_text
+		FROM pg_class, pg_index
+		WHERE pg_class.oid = pg_index.indexrelid
+		AND pg_class.oid IN (
+			SELECT indexrelid
+			FROM pg_index, pg_class
+			WHERE pg_class.relname = '" . $pgConnection->getSqlHelper()->forSql($tableName) . "'
+			AND pg_class.oid = pg_index.indrelid
+		)
+	";
+	$res = $pgConnection->query($sql);
+	while ($row = $res->fetch())
+	{
+		if ($row['FULL_TEXT'])
+		{
+			$match = [];
+			if (preg_match_all('/,\s*([a-z0-9_]+)/i', $row['FULL_TEXT'], $match))
+			{
+				foreach ($match[1] as $i => $colName)
+				{
+					$fullTextColumns[mb_strtoupper($colName)] = true;
+				}
+			}
+		}
+	}
+
+	return $fullTextColumns;
 }
 
 function unquote($identifier)

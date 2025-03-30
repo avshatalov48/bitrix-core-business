@@ -211,7 +211,6 @@ Loader::registerAutoLoadClasses(
 		'WLL_ConsentToken' => 'classes/general/liveid.php',
 		'WindowsLiveLogin' => 'classes/general/liveid.php',
 		'CFile' => 'classes/general/file.php',
-		'CAllFile' => 'classes/general/file.php',
 		'CTempFile' => 'classes/general/file_temp.php',
 		'CFavorites' => 'classes/general/favorites.php',
 		'CBXFavAdmMenu' => 'classes/general/favorites.php',
@@ -343,6 +342,7 @@ Loader::registerAutoLoadClasses(
 		'CDesktopMenu' => 'interface/desktop_menu.php',
 		'CAdminTopPanel' => 'interface/top_panel.php',
 		'CUpdateClient' => 'classes/general/update_client.php',
+		'CUpdateExpertMode' => 'classes/general/update_client.php',
 
 		//deprecated
 		'CUrlRewriter' => 'classes/general/urlrewriter.php',

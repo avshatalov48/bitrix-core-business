@@ -772,6 +772,11 @@ class GridVariationForm extends VariationForm
 			{
 				$header['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_OFFER_TREE_HINT_MSGVER_1');
 			}
+			if ($property['propertyCode'] === self::MORE_PHOTO)
+			{
+				$header['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_MORE_PHOTO_SIZE');
+				$header['hintHtml'] = true;
+			}
 
 			if (
 				$property['settings']['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE

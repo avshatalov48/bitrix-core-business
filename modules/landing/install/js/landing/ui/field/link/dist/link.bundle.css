@@ -225,3 +225,10 @@
 	color: #A9ADB2;
 	text-decoration: none;
 }
+
+.landing-ui-field-link-right .landing-ui-disabled {
+	opacity: 1;
+}
+.landing-ui-field-link-right .landing-ui-disabled .landing-ui-field-input {
+	opacity: .5;
+}

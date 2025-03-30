@@ -79,7 +79,8 @@ class EntityMarker
 			$fields['SUCCESS'] = static::ENTITY_SUCCESS_CODE_FAIL;
 			static::addItem($order, $entityType, $fields);
 		}
-		$lastWarning = end($result->getWarnings());
+		$resultWarnings = $result->getWarnings();
+		$lastWarning = end($resultWarnings);
 		$order->setField('REASON_MARKED', $lastWarning->getMessage());
 
 		if (
@@ -467,8 +468,8 @@ class EntityMarker
 					}
 				}
 			}
-			
-			
+
+
 			if (!empty($filter['filter']['=ENTITY_TYPE']))
 			{
 				$res = static::getList($filter);
@@ -674,7 +675,7 @@ class EntityMarker
 		{
 			$filter['filter']['!=SUCCESS'] = static::ENTITY_SUCCESS_CODE_DONE;
 		}
-		
+
 		$res = static::getList($filter);
 		while($markerData = $res->fetch())
 		{

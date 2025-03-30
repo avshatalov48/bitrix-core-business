@@ -1,0 +1,27 @@
+<?php
+$MESS["F_ALL_FORUMS"] = "Барлық форумдар";
+$MESS["F_AUTHOR"] = "автор:";
+$MESS["F_CLOSED"] = "Жабық";
+$MESS["F_CLOSED_TOPIC"] = "Тақырып жабық";
+$MESS["F_FILTER_FORUM"] = "Форум";
+$MESS["F_FILTER_LAST_MESSAGE_DATE"] = "Жаңарту";
+$MESS["F_HAVE_NEW_MESS"] = "Жаңа хабарламалар бар!";
+$MESS["F_HEAD_LAST_POST"] = "Жаңарту";
+$MESS["F_HEAD_POSTS"] = "Жауаптар";
+$MESS["F_HEAD_TOPICS"] = "Тақырыптар";
+$MESS["F_HEAD_VIEWS"] = "Қаралымдар";
+$MESS["F_MESSAGE_NOT_APPROVED"] = "Жасырын хабарламалар";
+$MESS["F_MOVED"] = "Ауыстырылды";
+$MESS["F_MOVED_TOPIC"] = "Тақырып басқа форумға ауыстырылды";
+$MESS["F_PINNED"] = "Маңызды";
+$MESS["F_PINNED_CLOSED_TOPIC"] = "Маңызды тақырып жабық";
+$MESS["F_PINNED_TOPIC"] = "Маңызды тақырып";
+$MESS["F_SET_READ"] = "Форумдарды оқылған деп белгілеу";
+$MESS["F_SET_READ_ON_THIS_PAGE"] = "Тақырыптарды оқылған деп белгілеу.";
+$MESS["F_SET_READ_ON_THIS_PAGE_TITLE"] = "Осы беттегі тақырыптарды оқылған деп белгілеу";
+$MESS["F_SET_READ_THIS_FORUM"] = "Форумды оқылған деп белгілеу";
+$MESS["F_SET_READ_THIS_FORUM_TITLE"] = "Ағымдағы форумды оқылған деп белгілеу";
+$MESS["F_SET_READ_TITLE"] = "Барлық форумдарды оқылған деп белгілеу";
+$MESS["F_TITLE"] = "Жаңа тақырыптар";
+$MESS["F_TOPICS_LIST_IS_EMPTY"] = "Жаңартылған тақырыптар тізімі бос.";
+$MESS["F_TOPIC_START"] = "Тақырып басталды";

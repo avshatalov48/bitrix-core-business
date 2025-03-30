@@ -21,9 +21,9 @@ use Bitrix\Rest\Preset\EventController;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_AppLang_Query query()
- * @method static EO_AppLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_AppLang_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_AppLang_Result getById($id)
- * @method static EO_AppLang_Result getList(array $parameters = array())
+ * @method static EO_AppLang_Result getList(array $parameters = [])
  * @method static EO_AppLang_Entity getEntity()
  * @method static \Bitrix\Rest\EO_AppLang createObject($setDefaultValues = true)
  * @method static \Bitrix\Rest\EO_AppLang_Collection createCollection()

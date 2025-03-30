@@ -1,0 +1,7 @@
+<?php
+$MESS["MARKETPLACE_APP_FREE"] = "Тегін";
+$MESS["MARKETPLACE_APP_PRICE"] = "#PRICE#/ай";
+$MESS["MARKETPLACE_INSTALLED"] = "орнатылған";
+$MESS["MARKETPLACE_PRICE_FREE"] = "Тегін";
+$MESS["MARKETPLACE_PRICE_PAID"] = "Ақылы";
+$MESS["MARKETPLACE_SHOW_APP"] = "Қарап шығу";

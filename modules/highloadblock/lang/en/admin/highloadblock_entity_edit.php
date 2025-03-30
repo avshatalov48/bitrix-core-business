@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["HLBLOCK_ADMIN_ENTITY_TITLE"] = "Entity";
 $MESS["HLBLOCK_ADMIN_ENTITY_EDIT_NAME"] = "Name";
 $MESS["HLBLOCK_ADMIN_ENTITY_EDIT_TABLE_NAME"] = "Database table name";
@@ -9,4 +9,3 @@ $MESS["HLBLOCK_ADMIN_ENTITY_EDIT_ROWS_COUNT"] = "Records";
 $MESS["HLBLOCK_ADMIN_ENTITY_EDIT_LANGS"] = "Language-dependent name titles:";
 $MESS["HLBLOCK_ADMIN_ENTITY_RIGHTS"] = "Access permissions";
 $MESS["HLBLOCK_ADMIN_ENTITY_RIGHTS_ADD"] = "Add";
-?>

@@ -4,8 +4,13 @@ namespace Bitrix\Rest\APAuth;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
+use Bitrix\Main\ORM\Fields\EnumField;
 use Bitrix\Main\Security\Random;
+use Bitrix\Main\ORM;
 use Bitrix\Rest\Preset\EventController;
+use Bitrix\Rest\Enum;
+use Bitrix\Rest\Service\ServiceContainer;
 
 Loc::loadMessages(__FILE__);
 
@@ -31,17 +36,19 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Password_Query query()
- * @method static EO_Password_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Password_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Password_Result getById($id)
- * @method static EO_Password_Result getList(array $parameters = array())
+ * @method static EO_Password_Result getList(array $parameters = [])
  * @method static EO_Password_Entity getEntity()
  * @method static \Bitrix\Rest\APAuth\EO_Password createObject($setDefaultValues = true)
  * @method static \Bitrix\Rest\APAuth\EO_Password_Collection createCollection()
  * @method static \Bitrix\Rest\APAuth\EO_Password wakeUpObject($row)
  * @method static \Bitrix\Rest\APAuth\EO_Password_Collection wakeUpCollection($rows)
  */
-class PasswordTable extends Main\Entity\DataManager
+class PasswordTable extends ORM\Data\DataManager
 {
+	use DeleteByFilterTrait;
+
 	const ACTIVE = 'Y';
 	const INACTIVE = 'N';
 
@@ -82,6 +89,10 @@ class PasswordTable extends Main\Entity\DataManager
 				'data_type' => 'boolean',
 				'values' => array(static::INACTIVE, static::ACTIVE),
 			),
+			(new EnumField('TYPE'))
+				->configureTitle('Type')
+				->configureValues(Enum\APAuth\PasswordType::getValues())
+				->configureDefaultValue(Enum\APAuth\PasswordType::User->value),
 			'TITLE' => array(
 				'data_type' => 'string',
 			),
@@ -158,5 +169,23 @@ class PasswordTable extends Main\Entity\DataManager
 	public static function onAfterAdd(Main\Entity\Event $event)
 	{
 		EventController::onAfterAddAp($event);
+	}
+
+	public static function onAfterDelete(ORM\Event $event)
+	{
+		self::clearServiceCache((int)$event->getParameter('id'));
+	}
+
+	public static function onAfterUpdate(ORM\Event $event)
+	{
+		self::clearServiceCache((int)$event->getParameter('id'));
+	}
+
+	private static function clearServiceCache(int $id): void
+	{
+		ServiceContainer::getInstance()
+			->getAPAuthPasswordService()
+			->clearCacheById($id)
+		;
 	}
 }

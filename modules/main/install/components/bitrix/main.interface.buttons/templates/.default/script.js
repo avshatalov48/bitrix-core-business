@@ -221,7 +221,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			this.adjustMoreButtonPosition();
 			this.bindEventsOnMoreButton();
-			this.bindOnResizeFrame();
+			this.bindOnResize();
 
 			BX.Event.bind(this.getContainer(), 'click', BX.delegate(this._onDocumentClick, this));
 			BX.addCustomEvent("onPullEvent-main", BX.delegate(this._onPush, this));
@@ -1257,13 +1257,16 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		},
 
 		/**
-		 * Binds on tmp frame resize
-		 * @method bindOnResizeFrame
+		 * Binds on container/window resize
+		 * @method bindOnResize
 		 * @private
 		 */
-		bindOnResizeFrame: function()
+		bindOnResize: function()
 		{
-			window.frames["maininterfacebuttonstmpframe-"+this.getId()].onresize = BX.throttle(this._onResizeHandler, 20, this);
+			const onResize = BX.Runtime.throttle(this._onResizeHandler, 100, this);
+			const resizeObserver = new ResizeObserver(onResize);
+			resizeObserver.observe(this.listContainer.closest('.main-buttons'));
+			BX.Event.bind(window, 'resize', onResize);
 		},
 
 		/**
@@ -1414,6 +1417,14 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		adjustMoreButtonPosition: function()
 		{
 			this.updateMoreButtonCounter();
+
+			this.getHiddenItems().forEach((item) => {
+				BX.Dom.removeClass(item, '--hidden');
+			});
+
+			this.getHiddenItems().forEach((item) => {
+				BX.Dom.addClass(item, '--hidden');
+			});
 
 			if (this.getMoreMenu())
 			{
@@ -2047,41 +2058,61 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			const moreButton = this.moreButton;
 			const menuItems = this.getMoreMenuItems();
 
-			let params;
-			const maxHeight = 800;
+			const commonParams = {
+				autoHide: false,
+				compatibleMode: false,
+				maxHeight: 800,
+				offsetTop: 4,
+				cacheable: false,
+				bindOptions: {
+					position: 'bottom',
+					forceTop: true,
+				},
+				events: {
+					onClose: this.handleMoreMenuClose.bind(this),
+					onDestroy: this.handleMoreMenuClose.bind(this),
+					onFirstShow: this.handleMoreMenuFirstShow.bind(this),
+					onShow: this.handleMoreMenuShow.bind(this),
+				},
+				subMenuOptions: {
+					events: {
+						onFirstShow: this.handleMoreMenuFirstShow.bind(this),
+					},
+				},
+			};
+
+			let params = null;
 			if (this.theme === 'default')
 			{
 				const maxWidth = 350;
 				const activeItemMargin = 25;
 				params = {
-					autoHide: false,
-					compatibleMode: false,
-					offsetLeft: -activeItemMargin,
-					offsetTop: 4,
-					cacheable: false,
 					className: 'main-buttons-menu-popup main-buttons-more-menu-popup',
+					offsetLeft: -activeItemMargin,
 					minWidth: 240,
-					maxWidth: maxWidth,
-					maxHeight: maxHeight,
+					maxWidth,
 					subMenuOptions: {
 						className: 'main-buttons-menu-popup main-buttons-more-menu-popup --sub-menu',
 						minWidth: 150,
-						maxWidth: maxWidth,
-						events: {
-							onFirstShow: this.handleMoreMenuFirstShow.bind(this),
-						}
-					},
-					bindOptions: {
-						position: 'bottom',
-						forceTop: true
+						maxWidth,
 					},
 					events: {
-						onClose: this.handleMoreMenuClose.bind(this),
-						onDestroy: this.handleMoreMenuClose.bind(this),
-						onFirstShow: this.handleMoreMenuFirstShow.bind(this),
-						onShow: this.handleMoreMenuShow.bind(this),
-						onBeforeAdjustPosition: this.handleAdjustPosition.bind(this, moreButton)
-					}
+						onBeforeAdjustPosition: this.handleAdjustPosition.bind(this, moreButton),
+					},
+				};
+			}
+			else if (this.theme === 'air')
+			{
+				const maxWidth = 350;
+				params = {
+					className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup',
+					offsetLeft: -10,
+					offsetTop: -5,
+					minWidth: 240,
+					maxWidth,
+					subMenuOptions: {
+						className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup --sub-menu',
+					},
 				};
 			}
 			else
@@ -2094,38 +2125,21 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				const angleOffset = popupWidth / 2 - angleShift;
 
 				params = {
-					autoHide: false,
-					compatibleMode: false,
-					offsetTop: 4,
-					offsetLeft: offsetLeft,
+					className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup',
+					offsetLeft,
 					minWidth: popupWidth,
 					maxWidth: popupWidth,
-					maxHeight: maxHeight,
 					angle: {
 						position: 'top',
-						offset: angleOffset
+						offset: angleOffset,
 					},
-					className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup',
 					subMenuOptions: {
 						className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup --sub-menu',
-						minWidth: null,
-						events: {
-							onFirstShow: this.handleMoreMenuFirstShow.bind(this),
-						}
 					},
-					cacheable: false,
-					bindOptions: {
-						position: 'bottom',
-						forceTop: true
-					},
-					events: {
-						onClose: this.handleMoreMenuClose.bind(this),
-						onDestroy: this.handleMoreMenuClose.bind(this),
-						onFirstShow: this.handleMoreMenuFirstShow.bind(this),
-						onShow: this.handleMoreMenuShow.bind(this)
-					}
 				};
 			}
+
+			params = BX.Runtime.merge(commonParams, params);
 
 			if (this.isEditEnabled())
 			{
@@ -2137,73 +2151,75 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		getChildMenuArgs: function(item)
 		{
-			const maxHeight = 800;
+			const commonParams = {
+				autoHide: false,
+				compatibleMode: false,
+				offsetTop: 4,
+				cacheable: false,
+				maxHeight: 800,
+				bindOptions: {
+					position: 'bottom',
+					forceTop: true,
+				},
+				events: {
+					onFirstShow: this._onChildMenuFirstShow.bind(this),
+					onShow: this._onChildMenuShow.bind(this, item),
+					onClose: this._onChildMenuClose.bind(this, item),
+					onDestroy: this._onChildMenuClose.bind(this, item),
+				},
+				subMenuOptions: {
+					minWidth: null,
+					events: {
+						onFirstShow: this._onChildMenuFirstShow.bind(this),
+					},
+				},
+			};
+
+			let params = null;
 			if (this.theme === 'default')
 			{
 				const activeItemMargin = 25;
-				const maxWidth = 350;
 
-				return {
-					autoHide: false,
-					compatibleMode: false,
-					offsetLeft: -activeItemMargin,
-					offsetTop: 4,
-					cacheable: false,
+				params = {
 					className: 'main-buttons-menu-popup',
-					maxWidth: maxWidth,
+					maxWidth: 350,
 					minWidth: item.offsetWidth + activeItemMargin * 2 + 30,
-					maxHeight: maxHeight,
+					offsetLeft: -activeItemMargin,
+					events: {
+						onBeforeAdjustPosition: this.handleAdjustPosition.bind(this, item),
+					},
 					subMenuOptions: {
 						className: 'main-buttons-menu-popup --sub-menu',
-						minWidth: null,
-						events: {
-							onFirstShow: this._onChildMenuFirstShow.bind(this)
-						}
 					},
-					bindOptions: {
-						position: 'bottom',
-						forceTop: true
+				};
+			}
+			else if (this.theme === 'air')
+			{
+				params = {
+					className: 'main-buttons-default-menu-popup',
+					offsetTop: -5,
+					offsetLeft: -10,
+					maxWidth: 350,
+					minWidth: 200,
+					subMenuOptions: {
+						className: 'main-buttons-default-menu-popup --sub-menu',
 					},
-					events: {
-						onFirstShow: this._onChildMenuFirstShow.bind(this),
-						onShow: this._onChildMenuShow.bind(this, item),
-						onClose: this._onChildMenuClose.bind(this, item),
-						onDestroy: this._onChildMenuClose.bind(this, item),
-						onBeforeAdjustPosition: this.handleAdjustPosition.bind(this, item)
-					}
 				};
 			}
 			else
 			{
 				const maxWidth = 250;
-				return {
-					autoHide: false,
-					compatibleMode: false,
-					offsetTop: 4,
-					cacheable: false,
+				params = {
 					className: 'main-buttons-default-menu-popup',
+					maxWidth,
 					minWidth: Math.min(item.offsetWidth + 25 * 2 + 30, maxWidth),
-					maxWidth: maxWidth,
-					maxHeight: maxHeight,
-					bindOptions: {
-						position: 'bottom',
-						forceTop: true
-					},
 					subMenuOptions: {
 						className: 'main-buttons-default-menu-popup --sub-menu',
-						minWidth: null,
-						events: {
-							onFirstShow: this._onChildMenuFirstShow.bind(this)
-						}
 					},
-					events: {
-						onFirstShow: this._onChildMenuFirstShow.bind(this),
-						onShow: this._onChildMenuShow.bind(this, item),
-						onClose: this._onChildMenuClose.bind(this, item),
-						onDestroy: this._onChildMenuClose.bind(this, item)
-					}
 				};
 			}
+
+			return BX.Runtime.merge(commonParams, params);
 		},
 
 		centerPopupArrow(popup, item)
@@ -3641,6 +3657,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				const rootItemData = this.getItemData(rootNode);
 				this.recalculateItemsCounters([rootItemData]);
 
+				this.adjustMoreButtonPosition();
 				this.showMoreMenu();
 				this.updateMoreButtonCounter();
 				this.showChildMenu(rootNode);
@@ -3675,6 +3692,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			const finalize = () => {
 				BX.Dom.remove(rootNode);
+				this.adjustMoreButtonPosition();
 				this.showMoreMenu();
 				this.updateMoreButtonCounter();
 				this.saveSettings();
@@ -4232,7 +4250,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			BX.Event.EventEmitter.emit('BX.Main.InterfaceButtons:onMenuShow');
 			BX.Event.EventEmitter.emit(this, 'BX.Main.InterfaceButtons:onSubMenuShow', {item, event});
 
-			if (this.theme !== 'default')
+			if (this.theme !== 'default' && this.theme !== 'air')
 			{
 				this.centerPopupArrow(event.getTarget(), item);
 			}
@@ -4550,7 +4568,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				return false;
 			}
 
-			return item.offsetTop === 0;
+			return item.offsetTop === 0 && !BX.Dom.hasClass(item, '--hidden');
 		},
 
 		/**

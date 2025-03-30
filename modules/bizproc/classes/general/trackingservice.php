@@ -210,7 +210,7 @@ class CBPTrackingService extends CBPRuntimeService
 		global $pPERIOD;
 		if ($result->getSelectedRowsCount() === $limit)
 		{
-			$pPERIOD = 3600;
+			$pPERIOD = 900; // 15 min
 		}
 		else
 		{

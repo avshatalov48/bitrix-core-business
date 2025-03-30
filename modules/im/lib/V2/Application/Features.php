@@ -7,6 +7,7 @@ use Bitrix\Im\Integration\Disk\Documents;
 use Bitrix\Im\Settings;
 use Bitrix\Im\V2\Chat\CopilotChat;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
+use Bitrix\Im\V2\Integration\Intranet\Invitation;
 use Bitrix\Im\V2\Integration\Sign\DocumentSign;
 use Bitrix\Im\V2\Integration\Socialnetwork\Collab;
 use Bitrix\ImBot\Bot\Giphy;
@@ -31,7 +32,9 @@ class Features
 		public readonly bool $collabCreationAvailable,
 		public readonly bool $inviteByPhoneAvailable,
 		public readonly bool $inviteByLinkAvailable,
-		public readonly bool $documentSignAvailable
+		public readonly bool $documentSignAvailable,
+		public readonly bool $intranetInviteAvailable,
+		public readonly bool $voteCreationAvailable,
 	){}
 
 	public static function get(): self
@@ -53,6 +56,8 @@ class Features
 			self::isInviteByPhoneAvailable(),
 			self::isInviteByLinkAvailable(),
 			DocumentSign::isAvailable(),
+			Invitation::isAvailable(),
+			self::isVoteCreationAvailable(),
 		);
 	}
 
@@ -84,5 +89,13 @@ class Features
 		}
 
 		return false;
+	}
+
+	private static function isVoteCreationAvailable(): bool
+	{
+		return Loader::includeModule('vote')
+			&& class_exists('\\Bitrix\\Vote\\Config\\Feature')
+			&& \Bitrix\Vote\Config\Feature::instance()->isImIntegrationEnabled()
+		;
 	}
 }

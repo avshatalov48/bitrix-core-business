@@ -1,8 +1,7 @@
-import {Dialog as EntitySelector, Item, TagSelector} from 'ui.entity-selector';
-import {Dom, Event, Tag, Runtime} from "main.core";
-import {BaseEvent} from "main.core.events";
-import type {DialogOptions} from "ui.entity-selector";
-import TagItem from "/ui/install/js/ui/entity-selector/src/tag-selector/tag-item";
+import { Dom, Event, Runtime, Tag } from 'main.core';
+import { BaseEvent } from 'main.core.events';
+import type { DialogOptions } from 'ui.entity-selector';
+import { Dialog as EntitySelector, Item, TagItem, TagSelector } from 'ui.entity-selector';
 
 type Element = {
 	VALUE: string,
@@ -16,6 +15,7 @@ type Params = {
 	fieldNameForEvent: string,
 	isMultiple: string,
 	items: [],
+	emptyValueTitle: ?string,
 	fieldTitle: string,
 	context: string,
 	messages: string[],
@@ -37,6 +37,7 @@ export class Dialog
 	fieldName: string;
 	fieldNameForEvent: string;
 	context: string;
+	emptyValueTitle: ?string;
 	fieldTitle: string;
 	isMultiple: boolean;
 	dialogSelector: EntitySelector = null;
@@ -56,6 +57,7 @@ export class Dialog
 
 		this.fieldName = params.fieldName.toLowerCase();
 		this.fieldNameForEvent = params.fieldNameForEvent;
+		this.emptyValueTitle = params.emptyValueTitle;
 		this.fieldTitle = params.fieldTitle;
 		this.context = params.context;
 		this.messages = params.messages;
@@ -128,6 +130,7 @@ export class Dialog
 				type="text" 
 				class="ui-ctl-element main-ui-control main-enum-dialog-input" 
 				autocomplete="off"
+				placeholder="${this.emptyValueTitle}"
 			/>
 		`;
 		Dom.append(this.input, node);

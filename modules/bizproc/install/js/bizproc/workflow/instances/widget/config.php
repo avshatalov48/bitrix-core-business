@@ -15,6 +15,7 @@ return [
 		'ui.image-stack-steps',
 		'ui.label',
 		'main.date',
+		'main.polyfill.intersectionobserver',
 		'ui.design-tokens',
 		'ui.icons',
 		'ui.icon-set.main',

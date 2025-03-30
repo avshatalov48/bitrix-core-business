@@ -13,11 +13,6 @@ class AddResult extends Result
 	/** @var array */
 	protected $primary;
 
-	public function __construct()
-	{
-		parent::__construct();
-	}
-
 	public function setId($id)
 	{
 		$this->primary = array('ID' => $id);

@@ -1,6 +1,7 @@
 <?
 use Bitrix\Im\Integration\Imopenlines;
 use Bitrix\Im\Message;
+use Bitrix\Im\Text;
 use Bitrix\Im\V2\Analytics\MessageAnalytics;
 use Bitrix\Im\V2\Message\Params;
 use Bitrix\Im\V2\Sync;
@@ -128,14 +129,19 @@ class CIMMessenger
 
 			$config = new \Bitrix\Im\V2\Message\Send\SendingConfig($arFields);
 
-			$chat = $messageObject->getChat()->withContextUser($messageObject->getAuthorId());
+			$chat = $messageObject->getChat()->withContextUser($messageObject->getContext()->getUserId());
 
 			if ($chat instanceof \Bitrix\Im\V2\Chat\NullChat || $chat === null)
 			{
 				return false;
 			}
 
-			if (!$config->skipUserCheck() && $messageObject->getAuthorId() && !$chat->canDo(\Bitrix\Im\V2\Permission\Action::Send))
+			if (
+				!$messageObject->isSystem()
+				&& !$config->skipUserCheck()
+				&& $messageObject->getAuthorId()
+				&& !$chat->canDo(\Bitrix\Im\V2\Permission\Action::Send)
+			)
 			{
 				return false;
 			}
@@ -147,7 +153,12 @@ class CIMMessenger
 				return false;
 			}
 
-			return $result->getResult()['messageId'] ?? false;
+			if (($arFields['WAIT_FULL_EXECUTION'] ?? 'Y') === 'Y')
+			{
+				$result->getPromise()?->wait();
+			}
+
+			return $result->getMessageId() ?? false;
 		}
 
 		global $DB;
@@ -212,6 +223,11 @@ class CIMMessenger
 			{
 				$arFields['MESSAGE'] = mb_substr($arFields['MESSAGE'], 0, self::MESSAGE_LIMIT).' (...)';
 			}
+		}
+
+		if (isset($arFields['MESSAGE']) && ($arFields['SYSTEM'] ?? 'N') !== 'Y')
+		{
+			$arFields['MESSAGE'] = Text::filterUserBbCodes((string)$arFields['MESSAGE'], (int)$arFields['FROM_USER_ID']);
 		}
 
 		$isImportant = isset($arFields['IS_IMPORTANT']) && $arFields['IS_IMPORTANT'] === 'Y' ? 'Y' : 'N';
@@ -441,7 +457,7 @@ class CIMMessenger
 			$message = $arFields['MESSAGE'] ?? null;
 			if ($arFields['URL_PREVIEW'] === 'Y')
 			{
-				$results = \Bitrix\Im\Text::getDateConverterParams($message);
+				$results = Text::getDateConverterParams($message);
 				foreach ($results as $result)
 				{
 					$arFields['PARAMS']['DATE_TEXT'][] = $result->getText();
@@ -449,7 +465,7 @@ class CIMMessenger
 				}
 			}
 
-			if (\Bitrix\Im\Text::isOnlyEmoji($message))
+			if (Text::isOnlyEmoji($message))
 			{
 				$arFields['PARAMS']['LARGE_FONT'] = 'Y';
 			}
@@ -901,7 +917,7 @@ class CIMMessenger
 			if ($arRes = $dbRes->Fetch())
 			{
 				$chatId = intval($arRes['CHAT_ID']);
-				$chatTitle = htmlspecialcharsbx(\Bitrix\Im\Text::decodeEmoji($arRes['CHAT_TITLE']));
+				$chatTitle = htmlspecialcharsbx(Text::decodeEmoji($arRes['CHAT_TITLE']));
 				$chatAuthorId = intval($arRes['CHAT_AUTHOR_ID']);
 				$chatParentId = intval($arRes['CHAT_PARENT_ID']);
 				$chatParentMid = intval($arRes['CHAT_PARENT_MID']);
@@ -913,7 +929,8 @@ class CIMMessenger
 
 				if ($arFields['SKIP_USER_CHECK'] == 'N')
 				{
-					if ((int)$arFields['FROM_USER_ID'] !== 0)
+					$isSystem = ($arFields['SYSTEM'] ?? 'N') === 'Y';
+					if ((int)$arFields['FROM_USER_ID'] !== 0 && !$isSystem)
 					{
 						$userRole = \Bitrix\Im\V2\Chat::ROLE_MEMBER;
 						if ($arRes['IS_MANAGER'] === 'Y')
@@ -1467,10 +1484,10 @@ class CIMMessenger
 					);
 
 					(new \Bitrix\Im\V2\Link\File\FileService())->saveFilesFromMessage($allFiles, $message);
+					(new MessageAnalytics($message))->addSendMessage();
 				}
 
 				\Bitrix\Im\Model\MessageTable::indexRecord($messageID);
-				(new MessageAnalytics($message))->addSendMessage();
 
 				return $messageID;
 			}
@@ -1543,7 +1560,7 @@ class CIMMessenger
 
 			if ($chatId > 0)
 			{
-				$arFields['MESSAGE'] = \Bitrix\Im\Text::convertHtmlToBbCode($arFields['MESSAGE']);
+				$arFields['MESSAGE'] = Text::convertHtmlToBbCode($arFields['MESSAGE']);
 				if (isset($arFields['PUSH_MESSAGE']))
 				{
 					$arFields['PUSH_MESSAGE'] = $html = str_replace('&nbsp;', ' ', $arFields['PUSH_MESSAGE']);;
@@ -1990,7 +2007,7 @@ class CIMMessenger
 
 		if ($urlPreview)
 		{
-			$results = \Bitrix\Im\Text::getDateConverterParams($text);
+			$results = Text::getDateConverterParams($text);
 			foreach ($results as $result)
 			{
 				$dateText[] = $result->getText();
@@ -2017,7 +2034,7 @@ class CIMMessenger
 			}
 		}
 
-		$isOnlyEmoji = \Bitrix\Im\Text::isOnlyEmoji($arUpdate['MESSAGE']);
+		$isOnlyEmoji = Text::isOnlyEmoji($arUpdate['MESSAGE']);
 		$newParams = [
 			'IS_EDITED' => $editFlag ?'Y' : 'N',
 			'URL_ID' => $urlId,
@@ -2044,7 +2061,7 @@ class CIMMessenger
 			$arFields['MESSAGE'] = $arUpdate['MESSAGE'];
 			$arFields['DATE_MODIFY'] = new \Bitrix\Main\Type\DateTime();
 
-			$pullMessage = \Bitrix\Im\Text::parse($arFields['MESSAGE']);
+			$pullMessage = Text::parse($arFields['MESSAGE']);
 
 			$relations = CIMMessenger::GetRelationById($message['ID']);
 
@@ -2052,7 +2069,7 @@ class CIMMessenger
 				'id' => (int)$arFields['ID'],
 				'type' => $arFields['MESSAGE_TYPE'] == IM_MESSAGE_PRIVATE? 'private': 'chat',
 				'text' => $pullMessage,
-				'textLegacy' => \Bitrix\Im\Text::parseLegacyFormat($arFields['MESSAGE']),
+				'textLegacy' => Text::parseLegacyFormat($arFields['MESSAGE']),
 			);
 			$arBotInChat = Array();
 
@@ -4132,7 +4149,7 @@ class CIMMessenger
 			return self::SendMention([
 				'CHAT_ID' => $parentChat->getId(),
 				'PARENT_MID' => $chat->getParentMessageId(),
-				'CHAT_TITLE' => htmlspecialcharsbx(\Bitrix\Im\Text::decodeEmoji($parentChat->getTitle())),
+				'CHAT_TITLE' => htmlspecialcharsbx(Text::decodeEmoji($parentChat->getTitle())),
 				'CHAT_RELATION' => self::getChatRelationForMention($parentChat, $mentionUsers),
 				'CHAT_TYPE' => $parentChat->getType(),
 				'CHAT_ENTITY_TYPE' => $parentChat->getEntityType(),
@@ -4655,7 +4672,7 @@ class CIMMessenger
 				$attachText = $message['message']['params']['ATTACH'][0]['DESCRIPTION'];
 				if (!$attachText)
 				{
-					$attachText = \Bitrix\Im\Text::getEmoji('attach').' '.GetMessage('IM_MESSAGE_ATTACH');
+					$attachText = Text::getEmoji('attach').' '.GetMessage('IM_MESSAGE_ATTACH');
 				}
 
 				if ($attachText === \CIMMessageParamAttach::SKIP_MESSAGE)
@@ -4675,27 +4692,27 @@ class CIMMessenger
 
 				if ($file['type'] === 'image')
 				{
-					$fileName = \Bitrix\Im\Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_IMAGE');
+					$fileName = Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_IMAGE');
 				}
 				else if ($file['type'] === 'audio')
 				{
-					$fileName = \Bitrix\Im\Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_AUDIO');
+					$fileName = Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_AUDIO');
 				}
 				else if ($file['type'] === 'video')
 				{
-					$fileName = \Bitrix\Im\Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_VIDEO');
+					$fileName = Text::getEmoji($file['type']).' '.GetMessage('IM_MESSAGE_VIDEO');
 				}
 				else
 				{
-					$fileName = \Bitrix\Im\Text::getEmoji('file', GetMessage('IM_MESSAGE_FILE').":")." ".$file['name'];
+					$fileName = Text::getEmoji('file', GetMessage('IM_MESSAGE_FILE').":")." ".$file['name'];
 				}
 
 				$message['message']['text'] .= trim($fileName);
 			}
 		}
 
-		$codeIcon = \Bitrix\Im\Text::getEmoji('code', "[".GetMessage('IM_MESSAGE_CODE')."]");
-		$quoteIcon = \Bitrix\Im\Text::getEmoji('quote', "[".GetMessage('IM_QUOTE')."]");
+		$codeIcon = Text::getEmoji('code', "[".GetMessage('IM_MESSAGE_CODE')."]");
+		$quoteIcon = Text::getEmoji('quote', "[".GetMessage('IM_QUOTE')."]");
 
 		$message['message']['text'] = str_replace("\n", " ", $message['message']['text']);
 
@@ -5347,7 +5364,7 @@ class CIMMessenger
 
 		if ($dialogId)
 		{
-			$chatId = \Bitrix\Im\Dialog::getChatId($fields['DIALOG_ID']);
+			$chatId = \Bitrix\Im\Dialog::getChatId($dialogId, $message->getContext()->getUserId());
 			if ($chatId)
 			{
 				$message->setChatId($chatId);

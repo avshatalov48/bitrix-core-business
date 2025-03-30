@@ -138,6 +138,7 @@ export class ProductSearchInputPlacement extends ProductSearchInputBase
 			&& item.getCustomData().has('appSid')
 		)
 		{
+			this.clearErrors();
 			this.selector.emitOnProductSelectEvents();
 			this.#onExternalCatalogProductSelect(item);
 

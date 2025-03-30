@@ -6,7 +6,7 @@
 // region environment initialization
 if (!defined("UPDATE_SYSTEM_VERSION"))
 {
-	define("UPDATE_SYSTEM_VERSION", "24.200.300");
+	define("UPDATE_SYSTEM_VERSION", "25.100.100");
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -46,26 +46,7 @@ function _32763223666625($_1298151432){static $_1853221997=false;$_2734875482="d
 $curPhpVer = phpversion();
 
 $expertTabFile = dirname(__FILE__) . '/update_system_expert.php';
-$isExpertTabEnabled = false;
-if (
-	CUpdateExpertMode::isAvailable()
-	&& file_exists($expertTabFile)
-)
-{
-	$isExpertTabEnabled = true;
-
-	if (isset($_REQUEST["expertMode"]))
-	{
-		if ($_REQUEST["expertMode"] !== 'Y')
-		{
-			CUpdateExpertMode::disable();
-		}
-		else
-		{
-			CUpdateExpertMode::enable();
-		}
-	}
-}
+$isExpertTabEnabled = CUpdateExpertMode::isEnabled() && file_exists($expertTabFile);
 
 $arMenu = array(
 	array(
@@ -85,28 +66,6 @@ $arMenu = array(
 		"ICON"=>"btn_update_log",
 	)
 );
-
-if ($isExpertTabEnabled)
-{
-	$arMenu[] = array("SEPARATOR" => "Y");
-	if (COption::GetOptionString('main', 'update_system_expert_mode', 'N') === 'Y')
-	{
-		$arMenu[] = array(
-			"TEXT" => GetMessage("SUP_MENU_TURN_EXPERT_MODE_OFF"),
-			"LINK" => "/bitrix/admin/update_system.php?expertMode=N&lang=".LANGUAGE_ID,
-			"ICON" => "",
-		);
-	}
-	else
-	{
-		$arMenu[] = array(
-			"TEXT" => GetMessage("SUP_MENU_TURN_EXPERT_MODE_ON"),
-			"LINK" => "/bitrix/admin/update_system.php?expertMode=Y&lang=".LANGUAGE_ID,
-			"ICON" => "",
-		);
-		$isExpertTabEnabled = false;
-	}
-}
 
 $context = new CAdminContextMenu($arMenu);
 $context->Show();
@@ -424,8 +383,6 @@ $countModuleUpdates = 0;
 $countLangUpdatesInst = 0;
 $countLangUpdatesOther = 0;
 $countTotalImportantUpdates = 0;
-$countHelpUpdatesInst = 0;
-$countHelpUpdatesOther = 0;
 $bLockControls = !empty($errorMessage);
 
 //region render html parts functions
@@ -697,13 +654,28 @@ function UpdateSystemRenderServerResponse($arUpdateList)
 								<tr>
 									<td nowrap><?echo GetMessage("SUP_ACTIVE")?>&nbsp;&nbsp;</td>
 									<td><?
-										$dateFrom = !empty($arUpdateList["CLIENT"][0]["@"]["DATE_FROM"]) ? $arUpdateList["CLIENT"][0]["@"]["DATE_FROM"] : "<i>N/A</i>";
+										$dateFrom = '';
 										$dateTo = '';
-										if (isset($arUpdateList["CLIENT"][0]["@"]["DATE_TO"]))
+										if (class_exists('\Bitrix\Main\Type\Date'))
+										{
+											if (!empty($arUpdateList["CLIENT"][0]["@"]["DATE_FROM_SOURCE"]))
+											{
+												$dateFrom = (string)(new \Bitrix\Main\Type\Date($arUpdateList["CLIENT"][0]["@"]["DATE_FROM_SOURCE"], "Y-m-d"));
+											}
+											if (!empty($arUpdateList["CLIENT"][0]["@"]["DATE_TO_SOURCE"]))
+											{
+												$dateTo = (string)(new \Bitrix\Main\Type\Date($arUpdateList["CLIENT"][0]["@"]["DATE_TO_SOURCE"], "Y-m-d"));
+											}
+										}
+										if ($dateFrom == '' && !empty($arUpdateList["CLIENT"][0]["@"]["DATE_FROM"]))
+										{
+											$dateFrom =  $arUpdateList["CLIENT"][0]["@"]["DATE_FROM"];
+										}
+										if ($dateTo == '' && !empty($arUpdateList["CLIENT"][0]["@"]["DATE_TO"]))
 										{
 											$dateTo = $arUpdateList["CLIENT"][0]["@"]["DATE_TO"];
 										}
-										elseif (method_exists('\Bitrix\Main\License', 'getExpireDate'))
+										if ($dateTo == '' && method_exists('\Bitrix\Main\License', 'getExpireDate'))
 										{
 											$license = new \Bitrix\Main\License();
 											$dateTo = (string)$license->getExpireDate();
@@ -713,7 +685,7 @@ function UpdateSystemRenderServerResponse($arUpdateList)
 												$dateTo = (string)$license->getSupportExpireDate();
 											}
 										}
-										echo GetMessage("SUP_ACTIVE_PERIOD", array("#DATE_FROM#" => $dateFrom, "#DATE_TO#" => ($dateTo != '' ? $dateTo : "<i>N/A</i>")));
+										echo GetMessage("SUP_ACTIVE_PERIOD", array("#DATE_FROM#" => ($dateFrom != '' ? $dateFrom : "<i>N/A</i>"), "#DATE_TO#" => ($dateTo != '' ? $dateTo : "<i>N/A</i>")));
 									?></td>
 								</tr>
 								<?if(!empty($arUpdateList["CLIENT"][0]["@"]["B24SUBSC_DATE"])):?>
@@ -729,12 +701,18 @@ function UpdateSystemRenderServerResponse($arUpdateList)
 										echo $updateHost != '' ? $updateHost : '<i>N/A</i>';
 									?></td>
 								</tr>
+								<?php
+									if (class_exists('\Bitrix\Main\Type\DateTime')):
+								?>
 								<tr>
 									<td valign="top" nowrap>
 										<?= GetMessage("SUP_SUBI_CHECK") ?>:&nbsp;&nbsp;
 									</td>
 									<td valign="top">
-										<?= COption::GetOptionString("main", "update_system_check", "-") ?>
+										<?php
+											$checkTime = COption::GetOptionInt("main", "update_system_check_time");
+											echo $checkTime ? \Bitrix\Main\Type\DateTime::createFromTimestamp($checkTime) : COption::GetOptionString("main", "update_system_check", '-');
+										?>
 									</td>
 								</tr>
 								<tr>
@@ -742,9 +720,13 @@ function UpdateSystemRenderServerResponse($arUpdateList)
 										<?= GetMessage("SUP_SUBI_UPD") ?>:&nbsp;&nbsp;
 									</td>
 									<td valign="top">
-										<?= COption::GetOptionString("main", "update_system_update", "-") ?>
+										<?php
+											$updateTime = COption::GetOptionInt("main", "update_system_update_time");
+											echo $updateTime ? \Bitrix\Main\Type\DateTime::createFromTimestamp($updateTime) : COption::GetOptionString("main", "update_system_update", '-');
+										?>
 									</td>
 								</tr>
+								<?php endif; ?>
 							</table>
 
 						</td>
@@ -830,12 +812,6 @@ $tabControl->BeginNextTab();
 							$countTotalImportantUpdates += 1;
 					}
 				}
-
-				if (isset($arUpdateList["HELPS"][0]["#"]["INST"]) && is_array($arUpdateList["HELPS"][0]["#"]["INST"]) && is_array($arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"]))
-					$countHelpUpdatesInst = count($arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"]);
-
-				if (isset($arUpdateList["HELPS"][0]["#"]["OTHER"]) && is_array($arUpdateList["HELPS"][0]["#"]["OTHER"]) && is_array($arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"]))
-					$countHelpUpdatesOther = count($arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"]);
 
 				$newLicenceSignedKey = CUpdateClient::getNewLicenseSignedKey();
 				$newLicenceSigned = COption::GetOptionString("main", $newLicenceSignedKey, "N");
@@ -997,7 +973,7 @@ $tabControl->BeginNextTab();
 								if ($countModuleUpdates <= 0 && $countLangUpdatesInst <= 0)
 									echo GetMessage("SUP_SU_RECOMEND_NO");
 
-								if ($countLangUpdatesOther > 0 || $countHelpUpdatesOther > 0 || $countHelpUpdatesInst > 0)
+								if ($countLangUpdatesOther > 0)
 								{
 									echo "<br>";
 									echo "<b>".GetMessage("SUP_SU_OPTION").":</b> ";
@@ -1006,12 +982,6 @@ $tabControl->BeginNextTab();
 									{
 										echo str_replace("#NUM#", $countLangUpdatesOther, GetMessage("SUP_SU_OPTION_LAN"));
 										$bComma = true;
-									}
-									if ($countHelpUpdatesOther > 0 || $countHelpUpdatesInst > 0)
-									{
-										if ($bComma)
-											echo ", ";
-										echo str_replace("#NUM#", $countHelpUpdatesOther + $countHelpUpdatesInst, GetMessage("SUP_SU_OPTION_HELP"));
 									}
 								}
 								?>
@@ -1086,10 +1056,10 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td colspan="2">
 
-			<table border="0" cellspacing="1" cellpadding="3" width="100%">
+			<table border="0" cellspacing="0" cellpadding="0" width="100%">
 				<tr>
 					<td>
-						<?= GetMessage("SUP_SULL_CNT") ?>: <?= $countModuleUpdates + $countLangUpdatesInst + $countLangUpdatesOther + $countHelpUpdatesOther + $countHelpUpdatesInst ?><BR><BR>
+						<?= GetMessage("SUP_SULL_CNT") ?>: <?= $countModuleUpdates + $countLangUpdatesInst + $countLangUpdatesOther ?><BR><BR>
 						<input TYPE="button" ID="install_updates_sel_button" NAME="install_updates"<?= (($countModuleUpdates <= 0 && $countLangUpdatesInst <= 0) ? " disabled" : "") ?> value="<?= GetMessage("SUP_SULL_BUTTON") ?>" onclick="InstallUpdatesSel()">
 					</td>
 				</tr>
@@ -1113,7 +1083,7 @@ $tabControl->BeginNextTab();
 					{
 						?>
 						<tr>
-							<td colspan="5"><?= GetMessage("SUP_SU_RECOMEND") ?></td>
+							<td colspan="5"><b><?= GetMessage("SUP_SU_RECOMEND") ?></b></td>
 						</tr>
 						<?
 					}
@@ -1125,16 +1095,11 @@ $tabControl->BeginNextTab();
 							$arModuleTmp["@"]["ID"] = preg_replace("#[^A-Za-z0-9._-]#", "", $arModuleTmp["@"]["ID"]);
 
 							$strTitleTmp = $arModuleTmp["@"]["NAME"]." (".$arModuleTmp["@"]["ID"].")\n".$arModuleTmp["@"]["DESCRIPTION"]."\n";
-							if (isset($arModuleTmp["#"]["VERSION"]) && is_array($arModuleTmp["#"]["VERSION"]))
-							{
-								for ($j = 0, $cntj = count($arModuleTmp["#"]["VERSION"]); $j < $cntj; $j++)
-									$strTitleTmp .= str_replace("#VER#", $arModuleTmp["#"]["VERSION"][$j]["@"]["ID"], GetMessage("SUP_SULL_VERSION"))."\n".$arModuleTmp["#"]["VERSION"][$j]["#"]["DESCRIPTION"][0]["#"]."\n";
-							}
 							$strTitleTmp = htmlspecialcharsbx(preg_replace("/<.+?>/i", "", $strTitleTmp));
 							?>
 							<tr title="<?= $strTitleTmp ?>" ondblclick="ShowDescription('<?= CUtil::JSEscape(htmlspecialcharsbx($arModuleTmp["@"]["ID"])) ?>')">
 								<td><INPUT TYPE="checkbox" NAME="select_module_<?= CUtil::JSEscape(htmlspecialcharsbx($arModuleTmp["@"]["ID"])) ?>" value="Y" onClick="ModuleCheckboxClicked(this, '<?= CUtil::JSEscape(htmlspecialcharsbx($arModuleTmp["@"]["ID"])) ?>', new Array());" checked id="id_select_module_<?= CUtil::JSEscape(htmlspecialcharsbx($arModuleTmp["@"]["ID"])) ?>"></td>
-								<td><label for="id_select_module_<?= CUtil::JSEscape(htmlspecialcharsbx($arModuleTmp["@"]["ID"])) ?>"><?= str_replace("#NAME#", htmlspecialcharsbx($arModuleTmp["@"]["NAME"]), GetMessage("SUP_SULL_MODULE")) ?></label></td>
+								<td><label for="id_select_module_<?= CUtil::JSEscape(htmlspecialcharsbx($arModuleTmp["@"]["ID"])) ?>"><?= str_replace("#NAME#", htmlspecialcharsbx($arModuleTmp["@"]["NAME"] ), GetMessage("SUP_SULL_MODULE")) . " (" . htmlspecialcharsbx($arModuleTmp["@"]["ID"]) . ")" ?></label></td>
 								<td><?= (array_key_exists($arUpdateList["MODULES"][0]["#"]["MODULE"][$i]["@"]["ID"], $arClientModules) ? GetMessage("SUP_SULL_REF_O") : GetMessage("SUP_SULL_REF_N")) ?></td>
 								<td><?= (isset($arModuleTmp["#"]["VERSION"]) ? $arModuleTmp["#"]["VERSION"][count($arModuleTmp["#"]["VERSION"]) - 1]["@"]["ID"] : "") ?></td>
 								<td><a href="javascript:ShowDescription('<?= CUtil::JSEscape(htmlspecialcharsbx($arModuleTmp["@"]["ID"])) ?>')"><?= GetMessage("SUP_SULL_NOTE_D") ?></a></td>
@@ -1158,32 +1123,13 @@ $tabControl->BeginNextTab();
 							<?
 						}
 					}
-					if (isset($arUpdateList["LANGS"][0]["#"]["OTHER"]) || isset($arUpdateList["HELPS"][0]["#"]["OTHER"]) || isset($arUpdateList["HELPS"][0]["#"]["INST"]))
+					if (isset($arUpdateList["LANGS"][0]["#"]["OTHER"]))
 					{
 						?>
 						<tr>
-							<td colspan="5"><?= GetMessage("SUP_SU_OPTION") ?></td>
+							<td colspan="5"><b><?= GetMessage("SUP_SU_OPTION") ?></b></td>
 						</tr>
 						<?
-					}
-					if (isset($arUpdateList["HELPS"][0]["#"]["INST"]))
-					{
-						for ($i = 0, $cnt = count($arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"]); $i < $cnt; $i++)
-						{
-							$arHelpTmp = $arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"][$i];
-							?>
-							<tr>
-								<td><INPUT TYPE="checkbox" NAME="select_help_<?= htmlspecialcharsbx($arHelpTmp["@"]["ID"]) ?>" value="Y" onClick="EnableInstallButton(this);" id="id_select_help_<?= htmlspecialcharsbx($arHelpTmp["@"]["ID"]) ?>"></td>
-								<td><label for="id_select_help_<?= htmlspecialcharsbx($arHelpTmp["@"]["ID"]) ?>"><?= str_replace("#NAME#", htmlspecialcharsbx($arHelpTmp["@"]["NAME"]), GetMessage("SUP_SULL_HELP")) ?></label></td>
-								<td><?= GetMessage("SUP_SULL_REF_O") ?></td>
-								<td><?= $arHelpTmp["@"]["DATE"] ?></td>
-								<td>&nbsp;</td>
-							</tr>
-							<?
-						}
-					}
-					if (isset($arUpdateList["LANGS"][0]["#"]["OTHER"]))
-					{
 						for ($i = 0, $cnt = count($arUpdateList["LANGS"][0]["#"]["OTHER"][0]["#"]["LANG"]); $i < $cnt; $i++)
 						{
 							$arLangTmp = $arUpdateList["LANGS"][0]["#"]["OTHER"][0]["#"]["LANG"][$i];
@@ -1193,22 +1139,6 @@ $tabControl->BeginNextTab();
 								<td><label for="id_select_lang_<?= htmlspecialcharsbx($arLangTmp["@"]["ID"]) ?>"><?= str_replace("#NAME#", htmlspecialcharsbx($arLangTmp["@"]["NAME"]), GetMessage("SUP_SULL_LANG")) ?></label></td>
 								<td><?= GetMessage("SUP_SULL_ADD") ?></td>
 								<td><?= $arLangTmp["@"]["DATE"] ?></td>
-								<td>&nbsp;</td>
-							</tr>
-							<?
-						}
-					}
-					if (isset($arUpdateList["HELPS"][0]["#"]["OTHER"]))
-					{
-						for ($i = 0, $cnt = count($arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"]); $i < $cnt; $i++)
-						{
-							$arHelpTmp = $arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"][$i];
-							?>
-							<tr>
-								<td><INPUT TYPE="checkbox" NAME="select_help_<?= htmlspecialcharsbx($arHelpTmp["@"]["ID"]) ?>" value="Y" onClick="EnableInstallButton(this);" id="id_select_help_<?= htmlspecialcharsbx($arHelpTmp["@"]["ID"]) ?>"></td>
-								<td><label for="id_select_help_<?= htmlspecialcharsbx($arHelpTmp["@"]["ID"]) ?>"><?= str_replace("#NAME#", htmlspecialcharsbx($arHelpTmp["@"]["NAME"]), GetMessage("SUP_SULL_HELP")) ?></label></td>
-								<td><?= GetMessage("SUP_SULL_ADD1") ?></td>
-								<td><?= $arHelpTmp["@"]["DATE"] ?></td>
 								<td>&nbsp;</td>
 							</tr>
 							<?
@@ -2471,7 +2401,6 @@ $tabControl->End();
 
 	var cycleModules = <?= ($countModuleUpdates > 0) ? "true" : "false" ?>;
 	var cycleLangs = <?= ($countLangUpdatesInst > 0) ? "true" : "false" ?>;
-	var cycleHelps = false;
 
 	var bStopUpdates = false;
 
@@ -2547,11 +2476,6 @@ $tabControl->End();
 			{
 				param = "L";
 			}
-			else
-			{
-				if (cycleHelps)
-					param = "H";
-			}
 		}
 
 		updRand++;
@@ -2585,14 +2509,6 @@ $tabControl->End();
 			if (globalCounter > globalQuantity)
 				globalCounter = 0;
 			SetProgress(globalCounter * 100 / globalQuantity);
-
-			if (
-				typeof(UpdateSystemExpertHelper) !== "undefined"
-				&& UpdateSystemExpertHelper.getInstance().isExpertModeEnabled()
-			)
-			{
-				UpdateSystemExpertHelper.getInstance().processInstallationStep(data);
-			}
 		}
 
 		__InstallUpdates();
@@ -2622,7 +2538,6 @@ $tabControl->End();
 			code = "FIN";
 			cycleModules = false;
 			cycleLangs = false;
-			cycleHelps = false;
 		}
 
 		if (code == "FIN")
@@ -2637,14 +2552,9 @@ $tabControl->End();
 				{
 					cycleLangs = false;
 				}
-				else
-				{
-					if (cycleHelps)
-						cycleHelps = false;
-				}
 			}
 
-			if (cycleModules || cycleLangs || cycleHelps)
+			if (cycleModules || cycleLangs)
 			{
 				InstallUpdatesDoStep(data);
 			}
@@ -2724,7 +2634,6 @@ $tabControl->End();
 
 		var moduleList = "";
 		var langList = "";
-		var helpList = "";
 
 		globalQuantity = 0;
 
@@ -2754,16 +2663,6 @@ $tabControl->End();
 							langList += box.name.substring(12);
 							globalQuantity += 1;
 						}
-						else
-						{
-							if (box.name.substring(0, 12) == "select_help_")
-							{
-								if (helpList.length > 0)
-									helpList += ",";
-								helpList += box.name.substring(12);
-								globalQuantity += 1;
-							}
-						}
 					}
 				}
 			}
@@ -2772,7 +2671,6 @@ $tabControl->End();
 		var additionalParams = "";
 		cycleModules = false;
 		cycleLangs = false;
-		cycleHelps = false;
 		if (moduleList.length > 0)
 		{
 			cycleModules = true;
@@ -2786,13 +2684,6 @@ $tabControl->End();
 			if (additionalParams.length > 0)
 				additionalParams += "&";
 			additionalParams += "requested_langs=" + langList;
-		}
-		if (helpList.length > 0)
-		{
-			cycleHelps = true;
-			if (additionalParams.length > 0)
-				additionalParams += "&";
-			additionalParams += "requested_helps=" + helpList;
 		}
 
 		aStrParams = additionalParams;
@@ -3003,7 +2894,7 @@ $tabControl->End();
 	}
 </style>
 <?
-COption::SetOptionString("main", "update_system_check", Date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()));
+COption::SetOptionString("main", "update_system_check_time", time());
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 //endregion

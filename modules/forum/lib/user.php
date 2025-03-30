@@ -409,7 +409,6 @@ class User implements \ArrayAccess {
 		if ($this->getId() > 0)
 		{
 			$fields['PHPSESSID'] = $primaryFields['PHPSESSID'];
-			unset($primaryFields['PHPSESSID']);
 		}
 
 		$merge = $helper->prepareMerge(

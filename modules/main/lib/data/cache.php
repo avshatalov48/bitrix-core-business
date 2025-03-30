@@ -15,8 +15,7 @@ use Bitrix\Main\Diag;
 
 class Cache
 {
-	/** @var ICacheEngine | \ICacheBackend */
-	protected $cacheEngine;
+	protected CacheEngineInterface $cacheEngine;
 
 	protected $content;
 	protected $vars;
@@ -142,6 +141,11 @@ class Cache
 	public function __construct($cacheEngine)
 	{
 		$this->cacheEngine = $cacheEngine;
+	}
+
+	public function getConfig(): array
+	{
+		return $this->cacheEngine->getConfig();
 	}
 
 	public static function setShowCacheStat($showCacheStat)
@@ -310,14 +314,6 @@ class Cache
 				$read = $this->cacheEngine->getReadBytes();
 				$path = $this->cacheEngine->getCachePath();
 			}
-			elseif ($this->cacheEngine instanceof \ICacheBackend)
-			{
-				/** @noinspection PhpUndefinedFieldInspection */
-				$read = $this->cacheEngine->read;
-
-				/** @noinspection PhpUndefinedFieldInspection */
-				$path = $this->cacheEngine->path;
-			}
 
 			Diag\CacheTracker::addCacheStatBytes($read);
 			Diag\CacheTracker::add($read, $path, $this->baseDir, $this->initDir, $this->filename, 'R');
@@ -430,14 +426,7 @@ class Cache
 				$written = $this->cacheEngine->getWrittenBytes();
 				$path = $this->cacheEngine->getCachePath();
 			}
-			elseif ($this->cacheEngine instanceof \ICacheBackend)
-			{
-				/** @noinspection PhpUndefinedFieldInspection */
-				$written = $this->cacheEngine->written;
 
-				/** @noinspection PhpUndefinedFieldInspection */
-				$path = $this->cacheEngine->path;
-			}
 			Diag\CacheTracker::addCacheStatBytes($written);
 			Diag\CacheTracker::add($written, $path, $this->baseDir, $this->initDir, $this->filename, 'W');
 		}
@@ -480,8 +469,8 @@ class Cache
 
 		if ($full === true)
 		{
-			$obCache = static::createInstance();
-			$obCache->cleanDir($initDir, 'cache');
+			$cache = static::createInstance();
+			$cache->cleanDir($initDir, 'cache');
 		}
 	}
 
@@ -492,5 +481,15 @@ class Cache
 	public function forceRewriting($mode)
 	{
 		$this->forceRewriting = (bool) $mode;
+	}
+
+	public static function delayedDelete(): void
+	{
+		static::createInstance()->cacheEngine->delayedDelete();
+	}
+
+	public static function addCleanPath(): void
+	{
+		static::createInstance()->cacheEngine->addCleanPath();
 	}
 }

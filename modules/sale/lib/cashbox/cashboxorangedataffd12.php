@@ -118,13 +118,13 @@ class CashboxOrangeDataFfd12 extends CashboxOrangeData
 	{
 		$map = parent::getVatToCalcVatMap();
 
-		return array_merge(
-			$map,
+		return
+			$map +
 			[
 				self::CODE_VAT_5 => self::CODE_CALC_VAT_5,
 				self::CODE_VAT_7 => self::CODE_CALC_VAT_7,
 			]
-		);
+		;
 	}
 
 	protected static function getDefaultVatList(): array

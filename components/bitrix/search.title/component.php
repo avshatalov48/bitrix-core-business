@@ -1,56 +1,67 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-$isSearchInstalled = CModule::IncludeModule("search");
+$isSearchInstalled = CModule::IncludeModule('search');
 
-if(!isset($arParams["PAGE"]) || $arParams["PAGE"] == '')
-	$arParams["PAGE"] = "#SITE_DIR#search/index.php";
+if (!isset($arParams['PAGE']) || $arParams['PAGE'] == '')
+{
+	$arParams['PAGE'] = '#SITE_DIR#search/index.php';
+}
 
-$arResult["CATEGORIES"] = array();
+$arResult['CATEGORIES'] = [];
 
-$query = ltrim($_POST["q"] ?? '');
-if(
+$query = ltrim($_POST['q'] ?? '');
+if (
 	!empty($query)
-	&& $_REQUEST["ajax_call"] === "y"
+	&& $_REQUEST['ajax_call'] === 'y'
 	&& (
-		!isset($_REQUEST["INPUT_ID"])
-		|| $_REQUEST["INPUT_ID"] == $arParams["INPUT_ID"]
+		!isset($_REQUEST['INPUT_ID'])
+		|| $_REQUEST['INPUT_ID'] == $arParams['INPUT_ID']
 	)
 )
 {
 	if (!$isSearchInstalled)
 	{
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/tools/language.php");
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/tools/stemming.php");
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/search/tools/language.php';
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/search/tools/stemming.php';
 	}
 
-	$arResult["alt_query"] = "";
-	if($arParams["USE_LANGUAGE_GUESS"] !== "N")
+	$arResult['alt_query'] = '';
+	if ($arParams['USE_LANGUAGE_GUESS'] !== 'N')
 	{
 		$arLang = CSearchLanguage::GuessLanguage($query);
-		if(is_array($arLang) && $arLang["from"] != $arLang["to"])
-			$arResult["alt_query"] = CSearchLanguage::ConvertKeyboardLayout($query, $arLang["from"], $arLang["to"]);
+		if (is_array($arLang) && $arLang['from'] != $arLang['to'])
+		{
+			$arResult['alt_query'] = CSearchLanguage::ConvertKeyboardLayout($query, $arLang['from'], $arLang['to']);
+		}
 	}
 
-	$arResult["query"] = $query;
-	$arResult["phrase"] = stemming_split($query, LANGUAGE_ID);
+	$arResult['query'] = $query;
+	$arResult['phrase'] = stemming_split($query, LANGUAGE_ID);
 
-	$arParams["NUM_CATEGORIES"] = intval($arParams["NUM_CATEGORIES"]);
-	if($arParams["NUM_CATEGORIES"] <= 0)
-		$arParams["NUM_CATEGORIES"] = 1;
+	$arParams['NUM_CATEGORIES'] = intval($arParams['NUM_CATEGORIES']);
+	if ($arParams['NUM_CATEGORIES'] <= 0)
+	{
+		$arParams['NUM_CATEGORIES'] = 1;
+	}
 
-	$arParams["TOP_COUNT"] = intval($arParams["TOP_COUNT"]);
-	if($arParams["TOP_COUNT"] <= 0)
-		$arParams["TOP_COUNT"] = 5;
+	$arParams['TOP_COUNT'] = intval($arParams['TOP_COUNT']);
+	if ($arParams['TOP_COUNT'] <= 0)
+	{
+		$arParams['TOP_COUNT'] = 5;
+	}
 
-	$arOthersFilter = array("LOGIC"=>"OR");
+	$arOthersFilter = ['LOGIC' => 'OR'];
 
-	for($i = 0; $i < $arParams["NUM_CATEGORIES"]; $i++)
+	for ($i = 0; $i < $arParams['NUM_CATEGORIES']; $i++)
 	{
 		$bCustom = true;
-		if(is_array($arParams["CATEGORY_".$i]))
+		if (is_array($arParams['CATEGORY_' . $i]))
 		{
-			foreach($arParams["CATEGORY_".$i] as $categoryCode)
+			foreach ($arParams['CATEGORY_' . $i] as $categoryCode)
 			{
 				if ((mb_strpos($categoryCode, 'custom_') !== 0))
 				{
@@ -61,88 +72,98 @@ if(
 		}
 		else
 		{
-			$bCustom = (mb_strpos($arParams["CATEGORY_".$i], 'custom_') === 0);
+			$bCustom = (mb_strpos($arParams['CATEGORY_' . $i], 'custom_') === 0);
 		}
 
 		if ($bCustom)
-			continue;
-
-		$category_title = trim($arParams["CATEGORY_".$i."_TITLE"]);
-		if(empty($category_title))
 		{
-			if(is_array($arParams["CATEGORY_".$i]))
-				$category_title = implode(", ", $arParams["CATEGORY_".$i]);
-			else
-				$category_title = trim($arParams["CATEGORY_".$i]);
-		}
-		if(empty($category_title))
 			continue;
+		}
 
-		$arResult["CATEGORIES"][$i] = array(
-			"TITLE" => htmlspecialcharsbx($category_title),
-			"ITEMS" => array()
-		);
+		$category_title = trim($arParams['CATEGORY_' . $i . '_TITLE']);
+		if (empty($category_title))
+		{
+			if (is_array($arParams['CATEGORY_' . $i]))
+			{
+				$category_title = implode(', ', $arParams['CATEGORY_' . $i]);
+			}
+			else
+			{
+				$category_title = trim($arParams['CATEGORY_' . $i]);
+			}
+		}
+		if (empty($category_title))
+		{
+			continue;
+		}
+
+		$arResult['CATEGORIES'][$i] = [
+			'TITLE' => htmlspecialcharsbx($category_title),
+			'ITEMS' => []
+		];
 
 		if ($isSearchInstalled)
 		{
-			$exFILTER = array(
-				0 => CSearchParameters::ConvertParamsToFilter($arParams, "CATEGORY_".$i),
-			);
-			$exFILTER[0]["LOGIC"] = "OR";
+			$exFILTER = [
+				0 => CSearchParameters::ConvertParamsToFilter($arParams, 'CATEGORY_' . $i),
+			];
+			$exFILTER[0]['LOGIC'] = 'OR';
 
-			if($arParams["CHECK_DATES"] === "Y")
-				$exFILTER["CHECK_DATES"] = "Y";
+			if ($arParams['CHECK_DATES'] === 'Y')
+			{
+				$exFILTER['CHECK_DATES'] = 'Y';
+			}
 
 			$arOthersFilter[] = $exFILTER;
 
 			$j = 0;
 			$obTitle = new CSearchTitle;
-			$obTitle->setMinWordLength($_REQUEST["l"]);
-			if($obTitle->Search(
-				$arResult["alt_query"]? $arResult["alt_query"]: $arResult["query"]
-				,$arParams["TOP_COUNT"]
+			$obTitle->setMinWordLength($_REQUEST['l']);
+			if ($obTitle->Search(
+				$arResult['alt_query'] ? $arResult['alt_query'] : $arResult['query']
+				,$arParams['TOP_COUNT']
 				,$exFILTER
 				,false
-				,$arParams["ORDER"]
+				,$arParams['ORDER']
 			))
 			{
-				while($ar = $obTitle->Fetch())
+				while ($ar = $obTitle->Fetch())
 				{
 					$j++;
-					if($j > $arParams["TOP_COUNT"])
+					if ($j > $arParams['TOP_COUNT'])
 					{
-						$params = array("q" => $arResult["alt_query"]? $arResult["alt_query"]: $arResult["query"]);
+						$params = ['q' => $arResult['alt_query'] ? $arResult['alt_query'] : $arResult['query']];
 
 						$url = CHTTP::urlAddParams(
-								str_replace("#SITE_DIR#", SITE_DIR, $arParams["PAGE"])
+								str_replace('#SITE_DIR#', SITE_DIR, $arParams['PAGE'])
 								,$params
-								,array("encode"=>true)
-							).CSearchTitle::MakeFilterUrl("f", $exFILTER);
+								,['encode' => true]
+							) . CSearchTitle::MakeFilterUrl('f', $exFILTER);
 
-						$arResult["CATEGORIES"][$i]["ITEMS"][] = array(
-							"NAME" => GetMessage("CC_BST_MORE"),
-							"URL" => htmlspecialcharsex($url),
-							"TYPE" => "all"
-						);
+						$arResult['CATEGORIES'][$i]['ITEMS'][] = [
+							'NAME' => GetMessage('CC_BST_MORE'),
+							'URL' => htmlspecialcharsex($url),
+							'TYPE' => 'all'
+						];
 						break;
 					}
 					else
 					{
-						$arResult["CATEGORIES"][$i]["ITEMS"][] = array(
-							"NAME" => $ar["NAME"],
-							"URL" => htmlspecialcharsbx($ar["URL"]),
-							"MODULE_ID" => $ar["MODULE_ID"],
-							"PARAM1" => $ar["PARAM1"],
-							"PARAM2" => $ar["PARAM2"],
-							"ITEM_ID" => $ar["ITEM_ID"],
-						);
+						$arResult['CATEGORIES'][$i]['ITEMS'][] = [
+							'NAME' => $ar['NAME'],
+							'URL' => htmlspecialcharsbx($ar['URL']),
+							'MODULE_ID' => $ar['MODULE_ID'],
+							'PARAM1' => $ar['PARAM1'],
+							'PARAM2' => $ar['PARAM2'],
+							'ITEM_ID' => $ar['ITEM_ID'],
+						];
 					}
 				}
 			}
 
-			if(!$j)
+			if (!$j)
 			{
-				unset($arResult["CATEGORIES"][$i]);
+				unset($arResult['CATEGORIES'][$i]);
 			}
 		}
 
@@ -168,71 +189,71 @@ if(
 		*/
 	}
 
-	if($arParams["SHOW_OTHERS"] === "Y" && $isSearchInstalled)
+	if ($arParams['SHOW_OTHERS'] === 'Y' && $isSearchInstalled)
 	{
-		$arResult["CATEGORIES"]["others"] = array(
-			"TITLE" => htmlspecialcharsbx($arParams["CATEGORY_OTHERS_TITLE"]),
-			"ITEMS" => array(),
-		);
+		$arResult['CATEGORIES']['others'] = [
+			'TITLE' => htmlspecialcharsbx($arParams['CATEGORY_OTHERS_TITLE']),
+			'ITEMS' => [],
+		];
 
 		$j = 0;
 		$obTitle = new CSearchTitle;
-		$obTitle->setMinWordLength($_REQUEST["l"]);
-		if($obTitle->Search(
-			$arResult["alt_query"]? $arResult["alt_query"]: $arResult["query"]
-			,$arParams["TOP_COUNT"]
+		$obTitle->setMinWordLength($_REQUEST['l']);
+		if ($obTitle->Search(
+			$arResult['alt_query'] ? $arResult['alt_query'] : $arResult['query']
+			,$arParams['TOP_COUNT']
 			,$arOthersFilter
 			,true
-			,$arParams["ORDER"]
+			,$arParams['ORDER']
 		))
 		{
-			while($ar = $obTitle->Fetch())
+			while ($ar = $obTitle->Fetch())
 			{
 				$j++;
-				if($j > $arParams["TOP_COUNT"])
+				if ($j > $arParams['TOP_COUNT'])
 				{
 					//it's really hard to make it working
 					break;
 				}
 				else
 				{
-					$arResult["CATEGORIES"]["others"]["ITEMS"][] = array(
-						"NAME" => $ar["NAME"],
-						"URL" => htmlspecialcharsbx($ar["URL"]),
-						"MODULE_ID" => $ar["MODULE_ID"],
-						"PARAM1" => $ar["PARAM1"],
-						"PARAM2" => $ar["PARAM2"],
-						"ITEM_ID" => $ar["ITEM_ID"],
-					);
+					$arResult['CATEGORIES']['others']['ITEMS'][] = [
+						'NAME' => $ar['NAME'],
+						'URL' => htmlspecialcharsbx($ar['URL']),
+						'MODULE_ID' => $ar['MODULE_ID'],
+						'PARAM1' => $ar['PARAM1'],
+						'PARAM2' => $ar['PARAM2'],
+						'ITEM_ID' => $ar['ITEM_ID'],
+					];
 				}
 			}
 		}
 
-		if(!$j)
+		if (!$j)
 		{
-			unset($arResult["CATEGORIES"]["others"]);
+			unset($arResult['CATEGORIES']['others']);
 		}
 	}
 
-	if(!empty($arResult["CATEGORIES"]) && $isSearchInstalled)
+	if (!empty($arResult['CATEGORIES']) && $isSearchInstalled)
 	{
-		$arResult["CATEGORIES"]["all"] = array(
-			"TITLE" => "",
-			"ITEMS" => array()
-		);
+		$arResult['CATEGORIES']['all'] = [
+			'TITLE' => '',
+			'ITEMS' => []
+		];
 
-		$params = array(
-			"q" => $arResult["alt_query"]? $arResult["alt_query"]: $arResult["query"],
-		);
+		$params = [
+			'q' => $arResult['alt_query'] ? $arResult['alt_query'] : $arResult['query'],
+		];
 		$url = CHTTP::urlAddParams(
-			str_replace("#SITE_DIR#", SITE_DIR, $arParams["PAGE"])
+			str_replace('#SITE_DIR#', SITE_DIR, $arParams['PAGE'])
 			,$params
-			,array("encode"=>true)
+			,['encode' => true]
 		);
-		$arResult["CATEGORIES"]["all"]["ITEMS"][] = array(
-			"NAME" => GetMessage("CC_BST_ALL_RESULTS"),
-			"URL" => $url,
-		);
+		$arResult['CATEGORIES']['all']['ITEMS'][] = [
+			'NAME' => GetMessage('CC_BST_ALL_RESULTS'),
+			'URL' => $url,
+		];
 		/*
 		if($arResult["alt_query"] != "")
 		{
@@ -256,7 +277,7 @@ if(
 	}
 
 	$arResult['CATEGORIES_ITEMS_EXISTS'] = false;
-	foreach ($arResult["CATEGORIES"] as $category)
+	foreach ($arResult['CATEGORIES'] as $category)
 	{
 		if (!empty($category['ITEMS']) && is_array($category['ITEMS']))
 		{
@@ -266,27 +287,29 @@ if(
 	}
 }
 
-$arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", SITE_DIR, $arParams["PAGE"]));
+$arResult['FORM_ACTION'] = htmlspecialcharsbx(str_replace('#SITE_DIR#', SITE_DIR, $arParams['PAGE']));
 
 if (
-	isset($_REQUEST["ajax_call"])
-	&& $_REQUEST["ajax_call"] === "y"
+	isset($_REQUEST['ajax_call'])
+	&& $_REQUEST['ajax_call'] === 'y'
 	&& (
-		!isset($_REQUEST["INPUT_ID"])
-		|| $_REQUEST["INPUT_ID"] == $arParams["INPUT_ID"]
+		!isset($_REQUEST['INPUT_ID'])
+		|| $_REQUEST['INPUT_ID'] == $arParams['INPUT_ID']
 	)
 )
 {
 	$APPLICATION->RestartBuffer();
 
-	if(!empty($query))
+	if (!empty($query))
+	{
 		$this->IncludeComponentTemplate('ajax');
+	}
 	CMain::FinalActions();
 	die();
 }
 else
 {
-	$APPLICATION->AddHeadScript($this->GetPath().'/script.js');
-	CUtil::InitJSCore(array('ajax'));
+	$APPLICATION->AddHeadScript($this->GetPath() . '/script.js');
+	CUtil::InitJSCore(['ajax']);
 	$this->IncludeComponentTemplate();
 }

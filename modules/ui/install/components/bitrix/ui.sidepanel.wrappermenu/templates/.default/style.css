@@ -104,6 +104,7 @@
 	z-index: 999;
 	position: relative;
 	bottom: -2px;
+	flex-shrink: 0;
 }
 
 .ui-sidepanel-menu-link:hover .ui-sidepanel-toggle-btn {
@@ -132,7 +133,7 @@
 
 .ui-sidepanel-submenu-active .ui-sidepanel-submenu-link .ui-sidepanel-menu-link-text,
 .ui-sidepanel-menu-active .ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
-	padding: 0 8px 0 11px;
+	padding: 0 10px 0 10px;
 	border-radius: 18px;
 	background-color: rgba(94, 102, 117, .76);
 	font: 15px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));

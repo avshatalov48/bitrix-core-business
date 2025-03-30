@@ -5,7 +5,8 @@ namespace Bitrix\Iblock\Grid\Panel\UI\Actions\Item;
 use Bitrix\Iblock\Grid\Access\IblockRightsChecker;
 use Bitrix\Iblock\Grid\ActionType;
 use Bitrix\Iblock\Grid\Panel\UI\Actions\Helpers\ItemFinder;
-use Bitrix\Iblock\Grid\RowType;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\HttpRequest;
@@ -77,6 +78,8 @@ final class RemoveActionsItem extends \Bitrix\Main\Grid\Panel\Action\RemoveActio
 
 		$result = new Result();
 
+		$conn = Application::getConnection();
+
 		foreach ($ids as $id)
 		{
 			if (!$this->rights->canDeleteElement($id))
@@ -91,27 +94,46 @@ final class RemoveActionsItem extends \Bitrix\Main\Grid\Panel\Action\RemoveActio
 				continue;
 			}
 
-			if (!CIBlockElement::Delete($id))
+			$conn->startTransaction();
+			$error = '';
+			try
 			{
-				$ex = $APPLICATION->GetException();
-				if ($ex)
+				if (!CIBlockElement::Delete($id))
 				{
-					$result->addError(new Error(
-						$ex->GetString()
-					));
-				}
-				else
-				{
-					$result->addError(new Error(
-						Loc::getMessage(
-							'IBLOCK_GRID_PANEL_UI_ACTIONS_ITEM_REMOVE_ERROR_DELETE',
+					$ex = $APPLICATION->GetException();
+					if ($ex)
+					{
+						$error = $ex->GetString();
+					}
+					else
+					{
+						$error = Loc::getMessage(
+							'IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_DELETE_INTERNAL_ERROR',
 							[
 								'#ID#' => $id,
 							]
-						)
-					));
+						);
+					}
+					unset($ex);
 				}
-				unset($ex);
+			}
+			catch (SqlQueryException)
+			{
+				$error = Loc::getMessage(
+					'IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_DELETE_INTERNAL_ERROR',
+					[
+						'#ID#' => $id,
+					]
+				);
+			}
+			if ($error === '')
+			{
+				$conn->commitTransaction();
+			}
+			else
+			{
+				$conn->rollbackTransaction();
+				$result->addError(new Error($error));
 			}
 		}
 
@@ -127,6 +149,8 @@ final class RemoveActionsItem extends \Bitrix\Main\Grid\Panel\Action\RemoveActio
 
 		$result = new Result();
 
+		$conn = Application::getConnection();
+
 		foreach ($ids as $id)
 		{
 			if (!$this->rights->canDeleteSection($id))
@@ -141,27 +165,46 @@ final class RemoveActionsItem extends \Bitrix\Main\Grid\Panel\Action\RemoveActio
 				continue;
 			}
 
-			if (!CIBlockSection::Delete($id))
+			$conn->startTransaction();
+			$error = '';
+			try
 			{
-				$ex = $APPLICATION->GetException();
-				if ($ex)
+				if (!CIBlockSection::Delete($id))
 				{
-					$result->addError(new Error(
-						$ex->GetString()
-					));
-				}
-				else
-				{
-					$result->addError(new Error(
-						Loc::getMessage(
-							'IBLOCK_GRID_PANEL_UI_ACTIONS_ITEM_REMOVE_ERROR_DELETE',
+					$ex = $APPLICATION->GetException();
+					if ($ex)
+					{
+						$error = $ex->GetString();
+					}
+					else
+					{
+						$error = Loc::getMessage(
+							'IBLOCK_GRID_PANEL_UI_ACTIONS_SECTION_DELETE_INTERNAL_ERROR',
 							[
 								'#ID#' => $id,
 							]
-						)
-					));
+						);
+					}
+					unset($ex);
 				}
-				unset($ex);
+			}
+			catch (SqlQueryException)
+			{
+				$error = Loc::getMessage(
+					'IBLOCK_GRID_PANEL_UI_ACTIONS_SECTION_DELETE_INTERNAL_ERROR',
+					[
+						'#ID#' => $id,
+					]
+				);
+			}
+			if ($error === '')
+			{
+				$conn->commitTransaction();
+			}
+			else
+			{
+				$conn->rollbackTransaction();
+				$result->addError(new Error($error));
 			}
 		}
 

@@ -82,8 +82,10 @@ $arResult['CALENDAR'] = $EC;
 $arResult['CONTEXT'] = $arParams['CONTEXT'] ?? Context::getDefault();
 
 $arResult['IS_COLLAB'] = false;
+
 if (
 	$arParams['CALENDAR_TYPE'] === Dictionary::CALENDAR_TYPE['group']
+	&& !empty($arParams['OWNER_ID'])
 	&& $collab = Collab\Collabs::getInstance()->getById($arParams['OWNER_ID'])
 )
 {

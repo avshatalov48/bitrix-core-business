@@ -7,7 +7,7 @@ use Bitrix\Main\Engine\Response\ResizedImage;
 class Image extends Renderer
 {
 	const WIDTH  = 1920;
-	const HEIGHT = 1080;
+	const HEIGHT = 1920;
 
 	const JS_TYPE_IMAGE = 'image';
 
@@ -19,6 +19,11 @@ class Image extends Renderer
 	public function getHeight()
 	{
 		return $this->getOption('height', self::HEIGHT);
+	}
+
+	public function getResizeType()
+	{
+		return BX_RESIZE_IMAGE_PROPORTIONAL;
 	}
 
 	public function getOriginalImage()
@@ -51,7 +56,7 @@ class Image extends Renderer
 		}
 
 		$resizedImage = new ResizedImage($imageFile, $this->getWidth(), $this->getHeight());
-		$resizedImage->setResizeType(BX_RESIZE_IMAGE_PROPORTIONAL);
+		$resizedImage->setResizeType($this->getResizeType());
 
 		return $resizedImage;
 	}

@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Bitrix\Im\V2\Analytics;
 
+use Bitrix\Disk\Analytics\DiskAnalytics;
+use Bitrix\Disk\Analytics\Enum\ImSection;
+use Bitrix\Disk\File;
 use Bitrix\Im\V2\Analytics\Event\ChatEvent;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\CollabChat;
 use Bitrix\Im\V2\Relation\Reason;
+use Bitrix\Main\Loader;
 
 class ChatAnalytics extends AbstractAnalytics
 {
@@ -138,6 +142,24 @@ class ChatAnalytics extends AbstractAnalytics
 	public function addSetType(): void
 	{
 		$this->addChatEditEvent(self::SET_TYPE);
+	}
+
+	public function addUploadFile(File $file): void
+	{
+		if (Loader::includeModule('disk'))
+		{
+			$this->async(fn () => DiskAnalytics::sendUploadFileToImEvent($file, $this->getImSectionForDiskEvent()));
+		}
+	}
+
+	protected function getImSectionForDiskEvent(): ImSection
+	{
+		return match ($this->chat->getType())
+		{
+			Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL => ImSection::Channel,
+			Chat::IM_TYPE_OPEN_LINE => ImSection::Openline,
+			default => ImSection::Chat
+		};
 	}
 
 	protected function createChatEvent(

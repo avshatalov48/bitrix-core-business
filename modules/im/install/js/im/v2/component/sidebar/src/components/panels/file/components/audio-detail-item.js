@@ -62,6 +62,7 @@ export const AudioDetailItem = {
 				:messageId="sidebarFileItem.messageId"
 				:timelineType="timelineType" 
 				:authorId="sidebarFileItem.authorId"
+				:withPlaybackRateControl="true"
 				@contextMenuClick="onContextMenuClick"
 			/>
 		</div>

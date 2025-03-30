@@ -28,6 +28,7 @@ const serverComponentList = new Set([
 	MessageComponent.generalChannelCreationMessage,
 	MessageComponent.channelCreationMessage,
 	MessageComponent.callMessage,
+	MessageComponent.voteMessage,
 ]);
 
 export class MessageComponentManager

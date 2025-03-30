@@ -197,9 +197,13 @@ abstract class CashboxPaySystem extends Cashbox implements IPrintImmediately, IC
 	 */
 	protected function needPrintCheck(Check $check): bool
 	{
-		$isShipmentEntity = (bool)array_filter($check->getEntities(), static function ($entity) {
-			return $entity instanceof Sale\Shipment;
-		});
+		$isShipmentEntity = (bool)array_filter(
+			$check->getEntities(),
+			static function ($entity)
+			{
+				return $entity instanceof Sale\Shipment;
+			}
+		);
 
 		return $check::getType() === SellCheck::getType() && $isShipmentEntity;
 	}
@@ -298,5 +302,10 @@ abstract class CashboxPaySystem extends Cashbox implements IPrintImmediately, IC
 		);
 
 		return $supportedKkmModels;
+	}
+
+	public static function isOfdSettingsNeeded(): bool
+	{
+		return false;
 	}
 }

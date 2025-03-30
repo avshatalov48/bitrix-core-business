@@ -1,0 +1,22 @@
+<?php
+$MESS["BLOG_C_HIDE"] = "Пікірлерді орау";
+$MESS["BLOG_C_LOADING"] = "Жүктеу";
+$MESS["BLOG_C_REPLY"] = "Жауап беру";
+$MESS["BLOG_C_VIEW"] = "Пікірді қарау";
+$MESS["BPC_MES_COPYLINK"] = "Сілтемені көшіру";
+$MESS["BPC_MES_CREATETASK"] = "Міндетті құру";
+$MESS["BPC_MES_DELETE"] = "Жою";
+$MESS["BPC_MES_EDIT"] = "Редакциялау";
+$MESS["BPC_MES_HIDE"] = "Жасыру";
+$MESS["BPC_MES_RESULT"] = "Міндет туралы есеп ретінде белгілеу";
+$MESS["BPC_MES_RESULT_V2"] = "Нәтиже ретінде белгілеу";
+$MESS["BPC_MES_SHOW"] = "Көрсету";
+$MESS["BPC_MES_VOTE"] = "Кімге ұнайды";
+$MESS["BPC_MES_VOTE1"] = "Маған ұнайды";
+$MESS["BPC_MES_VOTE2"] = "Ұнамайды";
+$MESS["B_B_PC_COM_ERROR"] = "Қате:";
+$MESS["INCORRECT_SERVER_RESPONSE"] = "Сервердің дұрыс емес жауабы.";
+$MESS["INCORRECT_SERVER_RESPONSE_2"] = "Қате пайда болды, кейінірек қайталап көріңіз.";
+$MESS["MPL_HIDE_COLLAPSED_COMMENTS_MSGVER_1"] = "Пингтерді жасыру (#COLLAPSED_MESSAGES_COUNT#)";
+$MESS["MPL_MOBILE_PUBLISHING"] = "Жариялануда&hellip;";
+$MESS["MPL_SHOW_COLLAPSED_COMMENTS_MSGVER_1"] = "Пингтерді көрсету (#COLLAPSED_MESSAGES_COUNT#)";

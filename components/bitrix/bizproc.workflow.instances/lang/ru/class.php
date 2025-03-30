@@ -30,3 +30,5 @@ $MESS["BPWI_MODULE_CRM"] = "CRM";
 $MESS["BPWI_MODULE_IBLOCK"] = "Списки";
 $MESS["BPWI_MODULE_DISK"] = "Диск";
 $MESS["BPWI_MODULE_LISTS"] = "Процессы";
+$MESS["BPWI_TERMINATE_LABEL"] = "Остановить";
+$MESS["BPWI_LOG_LABEL"] = "Журнал";

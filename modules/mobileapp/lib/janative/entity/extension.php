@@ -13,6 +13,7 @@ class Extension extends Base
 {
 	protected static array $modificationDates = [];
 	protected static array $dependencies = [];
+	protected static array $resolvedDependencies = [];
 	protected static array $extensionCache = [];
 	protected static $paths = [];
 	public ?string $result = null;
@@ -202,20 +203,19 @@ JS;
 		return self::getResolvedDependencyList($name);
 	}
 
-	public function getDependencyList()
+	public function getDependencies(): array
 	{
-		$fullName = "$this->namespace:$this->name";
-		if (isset(self::$dependencies[$fullName]))
-		{
-			return self::$dependencies[$fullName];
-		}
-		else
-		{
-			$list = parent::getDependencyList();
-			self::$dependencies[$fullName] = $list;
-		}
+		$fullyQualifiedName = $this->getFullyQualifiedName();
+		self::$resolvedDependencies[$fullyQualifiedName] ??= array_values($this->resolveDependencies());
 
-		return self::$dependencies[$fullName];
+		return self::$resolvedDependencies[$fullyQualifiedName];
 	}
 
+	public function getDependencyList()
+	{
+		$fullyQualifiedName = $this->getFullyQualifiedName();
+		self::$dependencies[$fullyQualifiedName] ??= parent::getDependencyList();
+
+		return self::$dependencies[$fullyQualifiedName];
+	}
 }

@@ -44,7 +44,7 @@ final class Manager
 
 		$dbRes = CashboxTable::getList(array(
 			'select' => array('*'),
-			'filter' => array('ACTIVE' => 'Y'),
+			'filter' => array('=ACTIVE' => 'Y'),
 			'order' => array('SORT' => 'ASC', 'NAME' => 'ASC')
 		));
 

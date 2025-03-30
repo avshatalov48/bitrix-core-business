@@ -2,6 +2,8 @@
 
 global $APPLICATION;
 
+$dbType = \Bitrix\Main\Application::getConnection()->getType();
+
 IncludeModuleLangFile(__FILE__);
 
 if (file_exists(__DIR__."/deprecated.php"))
@@ -70,8 +72,12 @@ if(!defined("CACHED_b_forum_user"))
 		"textParser" => "classes/general/functions.php",
 		"forumTextParser" => "classes/general/functions.php",
 
-		"CForumNew" =>   "classes/mysql/forum_new.php",
-		"CForumGroup" => "classes/mysql/forum_new.php",
+		"CForumNew" =>   "classes/" . $dbType . "/forum_new.php",
+		"CForumGroup" => "classes/" . $dbType . "/forum_new.php",
+		"CForumUser" => "classes/" . $dbType . "/user.php",
+		"CForumSubscribe" => "classes/" . $dbType . "/user.php",
+		"CForumRank" => "classes/" . $dbType . "/user.php",
+		"CForumStat" => "classes/" . $dbType . "/user.php",
 		"CForumSmile" => "classes/general/forum_new.php",
 		"_CForumDBResult"=>"classes/general/forum_new.php",
 
@@ -94,11 +100,6 @@ if(!defined("CACHED_b_forum_user"))
 		"CForumPoints" => "classes/mysql/points.php",
 		"CForumPoints2Post" => "classes/mysql/points.php",
 		"CForumUserPoints" => "classes/mysql/points.php",
-
-		"CForumRank" => "classes/mysql/user.php",
-		"CForumStat" => "classes/mysql/user.php",
-		"CForumSubscribe" => "classes/mysql/user.php",
-		"CForumUser" => "classes/mysql/user.php",
 
 		"CForumParameters" => "tools/components_lib.php",
 		"CForumEMail" => "mail/mail.php",

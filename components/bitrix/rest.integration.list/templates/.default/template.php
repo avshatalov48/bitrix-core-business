@@ -43,6 +43,23 @@ foreach ($arResult['ERRORS'] as $error)
 {
 	ShowError($error);
 }
+
+$marketExpiredCurtain = \Bitrix\Rest\Notification\MarketExpiredCurtain::getByDefault();
+if ($marketExpiredCurtain->isReadyToShow("Integration"))
+{
+	\Bitrix\Main\UI\Extension::load([
+		'rest.market-expired-curtain'
+	]);
+	?>
+	<script>
+		BX.ready(function () {
+			const curtain = new BX.Rest.MarketExpiredCurtain("Integration");
+			curtain.show();
+		});
+	</script>
+	<?php
+}
+
 $sectionsTileManagerId = 'rest-integrators-sections-'.$arParams['CODE'];
 ?>
 <div class="rest-integration-list-wrapper">

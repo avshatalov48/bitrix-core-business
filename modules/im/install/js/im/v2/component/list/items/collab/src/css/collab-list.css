@@ -22,22 +22,24 @@
 
 .bx-im-list-collab__empty {
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 
-	margin-top: 43px;
+	margin-top: 14px;
 }
 
 .bx-im-list-collab__empty_icon {
-	width: 24px;
-	height: 24px;
-	margin-right: 8px;
+	width: 145px;
+	height: 150px;
+	margin-bottom: 13px;
 	background-image: url('./images/empty.svg');
 }
 
 .bx-im-list-collab__empty_text {
-	font: var(--im-font-size-md) var(--im-font-family-system);
-	font-weight: var(--im-font-weight-medium);
+	text-align: center;
+	max-width: 230px;
+	font: var(--im-font-size-xs)/16px var(--im-font-family-system);
 	color: var(--im-list-collab__font-color_empty-title);
 }
 

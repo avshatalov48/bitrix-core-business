@@ -1,0 +1,22 @@
+<?php
+$MESS["FORUM_CONTROL"] = "Форумдар";
+$MESS["FORUM_CONTROL_ALT"] = "Форумдарды басқару";
+$MESS["FORUM_LIST"] = "Форумдар тізімі";
+$MESS["FORUM_MENU_FILTER"] = "Балағат сөздер сүзгісі";
+$MESS["FORUM_MENU_FILTER_ALT"] = "Балағат сөздер сүзгісі.";
+$MESS["FORUM_MENU_FILTER_DT"] = "Транслит сөздігі";
+$MESS["FORUM_MENU_FILTER_DT_ALT"] = "Транслит сөздігі";
+$MESS["FORUM_MENU_FILTER_DW"] = "Балағат сөздер сөздігі";
+$MESS["FORUM_MENU_FILTER_DW_ALT"] = "Балағат сөздер сөздігі";
+$MESS["FORUM_MENU_GROUP"] = "Форум топтары";
+$MESS["FORUM_MENU_GROUP_ALT"] = "Форум топтары";
+$MESS["FORUM_MENU_RANK"] = "Атақтар";
+$MESS["FORUM_MENU_RANK_ALT"] = "Форум пайдаланушыларының атақтары";
+$MESS["FORUM_MENU_SMILES"] = "Смайликтер";
+$MESS["FORUM_MENU_SMILES_ALT"] = "Белгішелер мен смайликтерді басқару.";
+$MESS["FORUM_MENU_SUBSCRIBE"] = "Жазылымды басқару";
+$MESS["FORUM_MENU_SUBSCRIBE_ALT"] = "Жазылымды басқару";
+$MESS["FORUM_MENU_TOPICS"] = "Тақырыптарды басқару";
+$MESS["FORUM_MENU_TOPICS_ALT"] = "Тақырыптарды басқару";
+$MESS["POINTS_PER_MESSAGE"] = "Хабарламалар үшін ұпайлар";
+$MESS["POINTS_PER_MESSAGE_ALT"] = "Хабарламалар үшін ұпай жинау картасы";

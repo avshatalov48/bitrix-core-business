@@ -30,51 +30,76 @@ class CatalogCompilationComponent extends ElementList
 		parent::__construct($component);
 		$this->setExtendedMode(false)->setMultiIblockMode(false)->setPaginationMode(true);
 		$this->setSeparateLoading(true);
-		$this->setCompilationData();
 	}
 
-	private function setCompilationData(): void
+	public function onPrepareComponentParams($params)
+	{
+		if (!Loader::includeModule('salescenter'))
+		{
+			return parent::onPrepareComponentParams($params);
+		}
+
+		if (!isset($params['COMPILATION_ID']))
+		{
+			$params['COMPILATION_ID'] = $this->getCompilationIdFromRequest();
+		}
+
+		$this->setCompilationData($params['COMPILATION_ID']);
+
+		return parent::onPrepareComponentParams($params);
+	}
+
+	private function getCompilationIdFromRequest(): ?int
+	{
+		if (!Loader::includeModule('salescenter'))
+		{
+			return null;
+		}
+
+		$compilationHashString = \Bitrix\Main\Context::getCurrent()->getRequest()->get('compilationId');
+		if (!$compilationHashString)
+		{
+			return null;
+		}
+
+		$decodeCompilationIdResult = CatalogManager::getInstance()->decodeCompilationId($compilationHashString);
+		if (!$decodeCompilationIdResult->isSuccess())
+		{
+			return null;
+		}
+
+		return $decodeCompilationIdResult->getData()['COMPILATION_ID'] ?? null;
+	}
+
+	private function setCompilationData(?int $compilationId): void
 	{
 		$this->arResult['IS_COMPILATION_EXISTS'] = false;
-
-		if (!Loader::includeModule('salescenter'))
+		if (!$compilationId)
 		{
 			return;
 		}
 
-		$compilationProducts = [];
-		$compilationHashString = \Bitrix\Main\Context::getCurrent()->getRequest()->get('compilationId');
-		if ($compilationHashString)
+		$compilation = CatalogManager::getInstance()->getCompilationById($compilationId);
+		if (!$compilation)
 		{
-			$decodeCompilationIdResult = CatalogManager::getInstance()->decodeCompilationId($compilationHashString);
-			if (!$decodeCompilationIdResult->isSuccess())
-			{
-				return;
-			}
+			return;
+		}
+		$this->arResult['IS_COMPILATION_EXISTS'] = true;
 
-			$compilationId = $decodeCompilationIdResult->getData()['COMPILATION_ID'];
-			$compilation = CatalogManager::getInstance()->getCompilationById($compilationId);
-			if (!$compilation)
-			{
-				return;
-			}
-			$this->arResult['IS_COMPILATION_EXISTS'] = true;
-
-			$compilationProducts = $compilation['PRODUCT_IDS'];
-			$this->addViewedCompilationStateToTimeline($compilation);
-			if ($compilation['DEAL_ID'])
-			{
-				$dealId = (int)$compilation['DEAL_ID'];
-				$chatId = $compilation['CHAT_ID'] ? (int)$compilation['CHAT_ID'] : null;
-				$session = Main\Application::getInstance()->getSession();
-				$session->set(
-					'CATALOG_CURRENT_COMPILATION_DATA',
-					[
-						'DEAL_ID' => $dealId,
-						'CHAT_ID' => $chatId,
-					]
-				);
-			}
+		$compilationProducts = $compilation['PRODUCT_IDS'];
+		$this->addViewedCompilationStateToTimeline($compilation);
+		if ($compilation['DEAL_ID'])
+		{
+			$dealId = (int)$compilation['DEAL_ID'];
+			$chatId = $compilation['CHAT_ID'] ? (int)$compilation['CHAT_ID'] : null;
+			$session = Main\Application::getInstance()->getSession();
+			$session->set(
+				'CATALOG_CURRENT_COMPILATION_DATA',
+				[
+					'DEAL_ID' => $dealId,
+					'CHAT_ID' => $chatId,
+				]
+			);
 		}
 
 		if (empty($this->globalFilter) && !empty($compilationProducts))

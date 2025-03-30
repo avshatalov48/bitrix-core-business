@@ -30,7 +30,7 @@ class Helper
 				// 'height' => $file['HEIGHT'],
 				// 'size' => $file['FILE_SIZE'],
 				// 'type' => $file['CONTENT_TYPE'],
-				'src' => \CFile::GetFileSRC($file),
+				'src' => Main\UI\FileInputUnclouder::getSrc($file),
 				// 'meta' => $file['META']
 			];
 

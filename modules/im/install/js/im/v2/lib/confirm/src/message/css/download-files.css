@@ -1,0 +1,12 @@
+.bx-im-download-all-confirm__subtitle {
+	--im-download-all-confirm__color_subtitle: rgba(var(--im-color-palette-black-solid-rgb), 0.40);
+
+	font: var(--im-font-size-sm) var(--im-font-family-system);
+	color: var(--im-download-all-confirm__color_subtitle);
+	text-align: center;
+	margin-bottom: 25px;
+}
+
+.bx-im-download-all-confirm__subtitle a {
+	cursor: pointer;
+}

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Main\Validation;
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
 use Bitrix\Main\Validation\Rule\ClassValidationAttributeInterface;
 use Bitrix\Main\Validation\Rule\Recursive\Validatable;
 use Bitrix\Main\Validation\Rule\PropertyValidationAttributeInterface;
@@ -82,7 +82,7 @@ final class ValidationService
 			if (!$type->allowsNull())
 			{
 				$result->addError(new ValidationError(
-					Loc::getMessage('MAIN_VALIDATION_EMPTY_PROPERTY'),
+					new LocalizableMessage('MAIN_VALIDATION_EMPTY_PROPERTY'),
 					$property->getName()
 				));
 			}

@@ -1,5 +1,13 @@
 .bx-im-mention-popup-content__container {
+	height: 100%;
 	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bx-im-mention-popup-content__container > :only-child {
+	margin-top: auto;
 }
 
 .bx-im-mention-popup-content__loader {

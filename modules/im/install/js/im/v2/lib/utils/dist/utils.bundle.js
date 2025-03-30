@@ -716,6 +716,28 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      height: newHeight,
 	      width: newWidth
 	    };
+	  },
+	  downloadFiles(files) {
+	    const a = main_core.Dom.create('a');
+	    main_core.Dom.style(a, {
+	      display: 'none'
+	    });
+	    main_core.Dom.append(a, document.body);
+
+	    // we need delay for some browsers, like Safari
+	    const downloadFileWithDelay = index => {
+	      if (index >= files.length) {
+	        return;
+	      }
+	      main_core.Dom.attr(a, 'download', files[index].name);
+	      a.setAttribute('href', files[index].urlDownload);
+	      a.click();
+	      setTimeout(() => {
+	        downloadFileWithDelay(index + 1);
+	      }, 500);
+	    };
+	    downloadFileWithDelay(0);
+	    main_core.Dom.remove(a);
 	  }
 	};
 

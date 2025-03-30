@@ -8,6 +8,7 @@ use Bitrix\Im\V2\Chat\Converter;
 use Bitrix\Im\V2\Entity\File\ChatAvatar;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
 use Bitrix\Im\V2\Relation\AddUsersConfig;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\Result;
 
 class UpdateService
@@ -114,7 +115,7 @@ class UpdateService
 
 		foreach ($deletedUsers as $userId)
 		{
-			$this->chat->deleteUser((int)$userId, false);
+			$this->chat->deleteUser((int)$userId, new DeleteUserConfig(false));
 		}
 
 		return $this;

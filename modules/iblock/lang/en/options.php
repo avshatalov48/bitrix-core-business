@@ -33,4 +33,4 @@ $MESS["IBLOCK_PATH2RSS"] = "Save exported RSS files in folder:";
 $MESS["IBLOCK_PROPERTY_FEATURES"] = "Use property parameters in components and forms:";
 $MESS["IBLOCK_PROPERTY_FEATURES_HINT"] = "This option is global and will affect the system. It is strongly recommended to read up on the <a href=\"#LINK#\" target=\"_blank\">information block property parameters</a> before using this option.";
 $MESS["IBLOCK_SHOW_LOADING_CODE"] = "Show code from external DB source";
-$MESS["IBLOCK_USE_HTMLEDIT"] = "Use visual editor";
+$MESS['IBLOCK_USE_HTMLEDIT'] = "Use visual editor";

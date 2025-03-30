@@ -133,7 +133,7 @@ if (
 	$n = [];
 	if (!preg_match('/^[a-zA-Z0-9_\/.]+$/', $NS['url_data_file'], $n))
 	{
-		$error = Loc::getMessage('XML_FILENAME_IS_NOT_CORRECT');
+		$error = Loc::getMessage('XML_FILENAME_IS_NOT_XML');
 	}
 
 	// first level errors

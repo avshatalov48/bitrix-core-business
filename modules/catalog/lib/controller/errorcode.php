@@ -28,6 +28,13 @@ class ErrorCode
 	// price type error start from '201000'
 	public const PRICE_TYPE_ENTITY_NOT_EXISTS = '201000000000';
 
+	// store error start from '201100'
+	public const STORE_ENTITY_NOT_EXISTS = '201100000000';
+
+	// store error start from '201100'
+	public const PRICE_TYPE_LANG_ENTITY_NOT_EXISTS = '201200000000';
+	public const PRICE_TYPE_LANG_LANGUAGE_NOT_EXISTS = '201200000010';
+
 	// extra type error start from '202000'
 	public const EXTRA_TYPE_ENTITY_NOT_EXISTS = '202000000000';
 }

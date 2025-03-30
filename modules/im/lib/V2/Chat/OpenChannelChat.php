@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Chat;
 
 use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Relation\AddUsersConfig;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
@@ -36,7 +37,7 @@ class OpenChannelChat extends ChannelChat
 		return $extranetUsersToAdd;
 	}
 
-	protected function sendMessageUserDelete(int $userId, bool $skipRecent = false): void
+	protected function sendMessageUserDelete(int $userId, DeleteUserConfig $config): void
 	{
 		return;
 	}

@@ -20,6 +20,7 @@ $taskFields = $isMyTask ? ($task['controls']['fields'] ?? null) : null;
 
 $canDelegate = ($task
 	&& $task['isRunning']
+	&& (int)$task['delegationType'] !== CBPTaskDelegationType::ExactlyNone
 	&& ($arResult['isAdmin'] || (int)$task['delegationType'] !== CBPTaskDelegationType::None)
 );
 
@@ -35,6 +36,7 @@ use Bitrix\Main\Loader;
 	'ui.alerts',
 	'ui.dialogs.messagebox',
 	'bizproc.workflow.timeline',
+	'ui.hint',
 ]);
 ?>
 

@@ -121,7 +121,6 @@ if ($request->isPost() && $request->getPost('Update') !== null && $CAT_RIGHT>="W
 foreach($arAllOptions as $Option):
 	$val = COption::GetOptionString("sale", $Option[0], $Option[2]);
 	$type = $Option[3];
-	AddMessage2Log($type);
 	$params = $Option[4];
 	?>
 	<tr>

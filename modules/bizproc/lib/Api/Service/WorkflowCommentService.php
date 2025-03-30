@@ -125,6 +125,11 @@ class WorkflowCommentService
 		$workflowUsers = $this->getWorkflowUsers($comment->workflowId);
 		unset($workflowUsers[$comment->authorId]);
 
+		if (!$workflowUsers)
+		{
+			return [];
+		}
+
 		$mentions = array_map(static fn($userId) => (int)$userId, $comment->mentionUserIds);
 		$directly = array_intersect($mentions, array_keys($workflowUsers));
 
@@ -144,7 +149,12 @@ class WorkflowCommentService
 			return array_keys($activeUsers);
 		}
 
-		return array_keys($workflowUsers);
+		$author = array_filter(
+			$workflowUsers,
+			static fn ($user) => $user['IS_AUTHOR'] === 1,
+		);
+
+		return array_keys($author);
 	}
 
 	private function getWorkflowUsers(string $workflowId): array

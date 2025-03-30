@@ -1,0 +1,21 @@
+<?php
+$MESS["MARKETPLACE_ADD_RIGHTS"] = "Қол жеткізу құқығын орнату";
+$MESS["MARKETPLACE_APP_BUY"] = "Сатып алу";
+$MESS["MARKETPLACE_APP_CLEAN"] = "қосымшаның баптаулары мен деректерін жойыңыз";
+$MESS["MARKETPLACE_APP_DELETE_CONFIRM"] = "Сіз қосымшаны жойғыңыз келетініне сенімдісіз бе?";
+$MESS["MARKETPLACE_APP_DELETE_ERROR"] = "Қате! Қосымша жойылмады";
+$MESS["MARKETPLACE_APP_DEMO"] = "Демо";
+$MESS["MARKETPLACE_APP_FREE"] = "тегін";
+$MESS["MARKETPLACE_APP_INACTIVE"] = "жойылды";
+$MESS["MARKETPLACE_APP_INSTALL"] = "Орнату";
+$MESS["MARKETPLACE_APP_INSTALL_CANCEL"] = "Болдырмау";
+$MESS["MARKETPLACE_APP_INSTALL_PARTNER"] = "Қосымша жойылған. Каталогта қолжетімсіз қосымшаны <a href=\"http://partners.1c-bitrix.ru/personal/b24marketplace/\">серіктестің жеке бөлімінен</a> орнатуға болады";
+$MESS["MARKETPLACE_APP_ISTALL_ERROR"] = "Қате! Қосымша орнатылмаған";
+$MESS["MARKETPLACE_APP_POPUP_LOAD"] = "Жүктеу";
+$MESS["MARKETPLACE_APP_PRICE"] = "#PRICE#/ай";
+$MESS["MARKETPLACE_APP_PROLONG"] = "Ұзарту";
+$MESS["MARKETPLACE_APP_TRIAL"] = "Қолданып көру";
+$MESS["MARKETPLACE_APP_TRIAL_FINISH"] = "Үштік кезеңнің соңына дейін #NUM# қалды";
+$MESS["MARKETPLACE_BUYS_EMPTY"] = "Сізде бірде бір қосымша жоқ";
+$MESS["MARKETPLACE_DELETE_BUTTON"] = "Жою";
+$MESS["MARKETPLACE_INSTALL_BUTTON"] = "Орнату";

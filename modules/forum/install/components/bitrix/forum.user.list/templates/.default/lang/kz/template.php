@@ -1,0 +1,23 @@
+<?php
+$MESS["FLU_EMPTY"] = "Форумда тіркелген пайдаланушылар табылмады.";
+$MESS["FLU_HEAD_DATE_REGISTER"] = "Тіркелу";
+$MESS["FLU_HEAD_LAST_VISIT"] = "Соңғы кіру";
+$MESS["FLU_HEAD_NAME"] = "Аты";
+$MESS["FLU_HEAD_POINTS"] = "Ұпай";
+$MESS["FLU_HEAD_POST"] = "Хабарлама";
+$MESS["F_ALLOW_POST"] = "жазуға рұқсат етілген";
+$MESS["F_AUTHOR_PROFILE"] = "Профиль";
+$MESS["F_FORBID_POST"] = "жазуға тыйым салынған";
+$MESS["F_STATUS_NONE"] = "нақтыламау";
+$MESS["F_STATUS_USER"] = "Мәртебе";
+$MESS["LU_FILTER_AVATAR"] = "Аватар";
+$MESS["LU_FILTER_AVATAR_TITLE"] = "тек қана аватармен";
+$MESS["LU_FILTER_LAST_VISIT"] = "Кіру";
+$MESS["LU_FILTER_SORT"] = "Реттеу";
+$MESS["LU_FILTER_SORT_DATE_REGISTER"] = "тіркелу күні бойынша";
+$MESS["LU_FILTER_SORT_LAST_VISIT"] = "соңғы кіру күні бойынша";
+$MESS["LU_FILTER_SORT_NAME"] = "атау бойынша";
+$MESS["LU_FILTER_SORT_NUM_POSTS"] = "хабарламалар саны бойынша";
+$MESS["LU_FILTER_SORT_POINTS"] = "ұпай саны бойынша";
+$MESS["LU_FILTER_USER_NAME"] = "Атау қамтиды";
+$MESS["LU_TITLE_USER"] = "Пайдаланушылар";

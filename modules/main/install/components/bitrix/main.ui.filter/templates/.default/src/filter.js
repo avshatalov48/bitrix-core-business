@@ -1118,6 +1118,7 @@ import { Presets } from './presets';
 				}
 
 				this.checkboxListPopup = new BX.UI.CheckboxList({
+					columnCount: this.settings.popupColumnsCount ?? 4,
 					popupOptions: {
 						width: this.settings.popupWidth,
 					},

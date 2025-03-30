@@ -46,7 +46,6 @@ $data = [
 		'sberbank' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK'),
 		'sberbank_sms' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS'),
 		'sberbank_qr' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR'),
-		'qiwi' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI'),
 		'alfabank' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ALFABANK'),
 		'cash' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_CASH'),
 		'embedded' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_EMBEDDED'),
@@ -78,10 +77,6 @@ $data = [
 		'sberbank_qr' => [
 			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR_DESCRIPTION'),
 			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR_PUBLIC_DESCRIPTION'),
-		],
-		'qiwi' => [
-			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI_DESCRIPTION'),
-			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI_PUBLIC_DESCRIPTION'),
 		],
 		'alfabank' => [
 			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ALFABANK_DESCRIPTION'),

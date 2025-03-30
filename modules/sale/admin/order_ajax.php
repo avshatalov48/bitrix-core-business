@@ -3506,7 +3506,7 @@ class AjaxProcessor
 
 		if ($saleModulePermissions == 'P')
 		{
-			$userId = $USER->GetID();
+			$userId = (int)$USER->GetID();
 			$userCompanyList = Sale\Services\Company\Manager::getUserCompanyList($userId);
 			if ($order->getUserId() !== $userId && !in_array($order->getField('COMPANY_ID'), $userCompanyList))
 			{

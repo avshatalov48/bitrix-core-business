@@ -10,7 +10,6 @@ return [
 	],
 	'rel' => [
 		'im.v2.lib.feature',
-		'im.v2.lib.access',
 		'im.v2.provider.service',
 		'imopenlines.v2.lib.openlines',
 		'im.v2.lib.role-manager',
@@ -18,6 +17,7 @@ return [
 		'im.v2.lib.layout',
 		'im.public',
 		'im.v2.lib.copilot',
+		'im.v2.lib.access',
 		'ui.vue3.vuex',
 		'ui.notification',
 		'main.core',

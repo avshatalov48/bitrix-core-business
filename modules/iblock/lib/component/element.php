@@ -30,14 +30,17 @@ abstract class Element extends Base
 		$params = parent::onPrepareComponentParams($params);
 		$params['IBLOCK_TYPE'] = trim((string)($params['IBLOCK_TYPE'] ?? ''));
 
-		if ((int)$params['ELEMENT_ID'] > 0 && (int)$params['ELEMENT_ID'] != $params['ELEMENT_ID'] && Loader::includeModule('iblock'))
+		if (isset($params['ELEMENT_ID']))
 		{
-			$this->errorCollection->setError(new Error(Loc::getMessage('CATALOG_ELEMENT_NOT_FOUND'), self::ERROR_404));
+			if ((int)$params['ELEMENT_ID'] > 0 && (int)$params['ELEMENT_ID'] != $params['ELEMENT_ID'] && Loader::includeModule('iblock'))
+			{
+				$this->errorCollection->setError(new Error(Loc::getMessage('CATALOG_ELEMENT_NOT_FOUND'), self::ERROR_404));
 
-			return $params;
+				return $params;
+			}
 		}
 
-		$params['ELEMENT_ID'] = (int)$params['ELEMENT_ID'];
+		$params['ELEMENT_ID'] = (int)($params['ELEMENT_ID'] ?? 0);
 		$params['ELEMENT_CODE'] = trim((string)($params['ELEMENT_CODE'] ?? ''));
 
 		$params['CHECK_SECTION_ID_VARIABLE'] = isset($params['CHECK_SECTION_ID_VARIABLE']) && $params['CHECK_SECTION_ID_VARIABLE'] === 'Y' ? 'Y' : 'N';
@@ -974,7 +977,7 @@ abstract class Element extends Base
 
 		if ($this->arParams['SET_TITLE'])
 		{
-			$APPLICATION->SetTitle($arResult["META_TAGS"]["TITLE"], $this->storage['TITLE_OPTIONS']);
+			$APPLICATION->SetTitle($arResult["META_TAGS"]["TITLE"], $this->storage['TITLE_OPTIONS'] ?? null);
 		}
 
 		if ($this->arParams['SET_BROWSER_TITLE'] === 'Y')

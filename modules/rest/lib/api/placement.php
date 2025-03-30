@@ -101,6 +101,11 @@ class Placement extends \IRestService
 
 		$params = array_change_key_case($params, CASE_UPPER);
 
+		if(!is_string($params['PLACEMENT']))
+		{
+			throw new Exceptions\ArgumentTypeException('PLACEMENT', 'string');
+		}
+
 		$placement = mb_strtoupper($params['PLACEMENT']);
 		$placementHandler = $params['HANDLER'];
 

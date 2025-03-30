@@ -472,8 +472,7 @@ abstract class TypeDataManager extends DataManager
 
 		$cacheField = new ArrayField($userField['FIELD_NAME']);
 		$cacheField->configureRequired($userField['MANDATORY'] === 'Y');
-		$cacheField->configureSerializationPhp();
-
+		\Bitrix\Main\UserField\Internal\MultipleFieldSerializer::setMultipleFieldSerialization($cacheField, $utmValueField, $userField);
 		$typeEntity->addField($cacheField);
 
 		return $utmEntity;

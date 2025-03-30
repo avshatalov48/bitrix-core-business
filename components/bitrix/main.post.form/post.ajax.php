@@ -37,6 +37,12 @@ if (
 	CMain::FinalActions();
 }
 
+if (!\Bitrix\Socialnetwork\ComponentHelper::getModuleUsed())
+{
+	echo Json::encode(Array('ERROR' => 'ACCESS_ERROR'));
+	CMain::FinalActions();
+}
+
 if (check_bitrix_sessid())
 {
 	if (CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser())

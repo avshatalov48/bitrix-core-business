@@ -1844,6 +1844,7 @@ class CRatings
 
 		$bExtended = false;
 		$arUserID = array();
+		$includeReaction = ($arParam['INCLUDE_REACTION'] ?? 'N') === 'Y';
 
 		if (
 			(
@@ -1857,11 +1858,11 @@ class CRatings
 		)
 		{
 			$bExtended = true;
-			$sqlStr = CRatings::GetRatingVoteListSQLExtended($arParam, $bplus, $bIntranetInstalled);
+			$sqlStr = CRatings::GetRatingVoteListSQLExtended($arParam, $bplus, $bIntranetInstalled, $includeReaction);
 		}
 		else
 		{
-			$sqlStr = CRatings::GetRatingVoteListSQL($arParam, $bplus, $bIntranetInstalled);
+			$sqlStr = CRatings::GetRatingVoteListSQL($arParam, $bplus, $bIntranetInstalled, $includeReaction);
 		}
 
 		$arList = Array();
@@ -3004,11 +3005,13 @@ class CRatings
 		return true;
 	}
 
-	public static function GetRatingVoteListSQL($arParam, $bplus, $bIntranetInstalled)
+	public static function GetRatingVoteListSQL($arParam, $bplus, $bIntranetInstalled, $includeReaction = false)
 	{
 		global $DB, $USER;
 
 		$externalAuthTypes = array_diff(\Bitrix\Main\UserTable::getExternalUserTypes(), array('email', 'replica'));
+
+		$reactionField = $includeReaction ? "RV.REACTION," : "";
 
 		return "
 			SELECT
@@ -3018,6 +3021,7 @@ class CRatings
 				U.SECOND_NAME,
 				U.LOGIN,
 				U.PERSONAL_PHOTO,
+				$reactionField
 				RV.VALUE AS VOTE_VALUE,
 				RV.USER_ID,
 				SUM(case when RV0.ID is not null then 1 else 0 end) ".$DB->quote("RANK").",
@@ -3034,17 +3038,20 @@ class CRatings
 			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, ".$DB->quote("RANK")." DESC, RV_ID DESC" : $DB->quote("RANK")." DESC, RV.VALUE DESC, RV_ID DESC");
 	}
 
-	public static function GetRatingVoteListSQLExtended($arParam, $bplus, $bIntranetInstalled)
+	public static function GetRatingVoteListSQLExtended($arParam, $bplus, $bIntranetInstalled, $includeReaction = false)
 	{
 		global $DB, $USER;
 
 		$externalAuthTypes = array_diff(\Bitrix\Main\UserTable::getExternalUserTypes(), array('email', 'replica'));
+
+		$reactionField = $includeReaction ? "RV.REACTION," : "";
 
 		return "
 			SELECT
 				U.ID,
 				RV.VALUE AS VOTE_VALUE,
 				RV.USER_ID,
+				$reactionField
 				SUM(case when RV0.ID is not null then 1 else 0 end) ".$DB->quote("RANK").",
 				MIN(RV.ID) RV_ID
 			FROM

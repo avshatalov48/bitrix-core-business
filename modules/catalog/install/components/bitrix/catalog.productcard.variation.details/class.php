@@ -13,13 +13,17 @@ use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Currency\Integration\IblockMoneyProperty;
 use Bitrix\Iblock\Component\Property\ComponentLinksBuilder;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorableImplementation;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Result;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
+use Bitrix\Main\Application;
+use Bitrix\Main\Error;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -763,38 +767,55 @@ class CatalogProductVariationDetailsComponent
 					$variation->getMeasureRatioCollection()->setDefault($measureRatioField);
 				}
 
-				$result = $variation->save();
+				$connection = Application::getConnection();
+				$connection->startTransaction();
+				try
+				{
+					$result = $variation->save();
+				}
+				catch (SqlQueryException)
+				{
+					$result = new Result();
+					$result->addError(new Error(Loc::getMessage('CPVD_ERROR_SAVE')));
+				}
 
 				if ($result->isSuccess())
 				{
-					$redirect = !$this->hasVariationId();
-					$this->setVariationId($variation->getId());
+					$connection->commitTransaction();
+				}
+				else
+				{
+					$connection->rollbackTransaction();
+					$this->errorCollection->add($result->getErrors());
 
-					$response = [
-						'ENTITY_ID' => $variation->getId(),
-						'ENTITY_DATA' => $this->getForm()->getValues(false),
-						'IS_SIMPLE_PRODUCT' => $variation->isSimple(),
-					];
-
-					if (isset($response['ENTITY_DATA']['MEASURE']))
-					{
-						$response['ENTITY_DATA']['MEASURE'] = (string)$response['ENTITY_DATA']['MEASURE'];
-					}
-
-					if (isset($response['ENTITY_DATA']['VAT_ID']))
-					{
-						$response['ENTITY_DATA']['VAT_ID'] = (string)$response['ENTITY_DATA']['VAT_ID'];
-					}
-
-					if ($redirect)
-					{
-						$response['REDIRECT_URL'] = $this->getVariationDetailUrl();
-					}
-
-					return $response;
+					return null;
 				}
 
-				$this->errorCollection->add($result->getErrors());
+				$redirect = !$this->hasVariationId();
+				$this->setVariationId($variation->getId());
+
+				$response = [
+					'ENTITY_ID' => $variation->getId(),
+					'ENTITY_DATA' => $this->getForm()->getValues(false),
+					'IS_SIMPLE_PRODUCT' => $variation->isSimple(),
+				];
+
+				if (isset($response['ENTITY_DATA']['MEASURE']))
+				{
+					$response['ENTITY_DATA']['MEASURE'] = (string)$response['ENTITY_DATA']['MEASURE'];
+				}
+
+				if (isset($response['ENTITY_DATA']['VAT_ID']))
+				{
+					$response['ENTITY_DATA']['VAT_ID'] = (string)$response['ENTITY_DATA']['VAT_ID'];
+				}
+
+				if ($redirect)
+				{
+					$response['REDIRECT_URL'] = $this->getVariationDetailUrl();
+				}
+
+				return $response;
 			}
 		}
 

@@ -87,4 +87,20 @@ trait CashboxBusinessRuTrait
 	{
 		return 'business_ru_access_token';
 	}
+
+	protected static function extractCheckData(array $data): array
+	{
+		$result = parent::extractCheckData($data);
+
+		$result['LINK_PARAMS'] = [
+			Check::PARAM_OFD_RECEIPT_URL => $data['payload']['ofd_receipt_url'],
+		];
+
+		return $result;
+	}
+
+	protected static function isSupportedDirectCheckLink(): bool
+	{
+		return true;
+	}
 }

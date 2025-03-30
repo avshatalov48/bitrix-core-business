@@ -26,6 +26,7 @@ import { StartDialogMessage } from 'imopenlines.v2.component.message.start-dialo
 import { HiddenMessage } from 'imopenlines.v2.component.message.hidden';
 import { FeedbackFormMessage } from 'imopenlines.v2.component.message.feedback-form';
 import { CallMessage } from 'im.v2.component.message.call';
+import { VoteMessage } from 'im.v2.component.message.vote';
 
 export const MessageComponents = {
 	DefaultMessage,
@@ -56,4 +57,5 @@ export const MessageComponents = {
 	StartDialogMessage,
 	FeedbackFormMessage,
 	HiddenMessage,
+	VoteMessage,
 };

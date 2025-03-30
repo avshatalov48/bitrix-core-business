@@ -900,7 +900,7 @@ if (\Bitrix\Main\Grid\Context::isInternalRequest()) :
 		var defaultColumns = <?= Json::encode($arResult["DEFAULT_COLUMNS"]) ?>;
 		var Grid = BX.Main.gridManager.getById('<?=\CUtil::JSEscape($arParams["GRID_ID"])?>');
 		var messages = <?= Json::encode($arResult["MESSAGES"]) ?>;
-		var currentPage = '<?=\CUtil::JSEscape($arParams["CURRENT_PAGE"])?>';
+		var currentPage = '<?=\CUtil::JSEscape($arParams["CURRENT_PAGE"] ?? '')?>';
 
 		Grid = Grid ? Grid.instance : null;
 

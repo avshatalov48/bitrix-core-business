@@ -1,7 +1,10 @@
 import { RestClient } from 'rest.client';
 
+import { runAction } from 'im.v2.lib.rest';
 import { Core } from 'im.v2.application.core';
 import { RestMethod } from 'im.v2.const';
+
+type FileId = number | string;
 
 export class DiskService
 {
@@ -17,18 +20,23 @@ export class DiskService
 		const queryParams = { chat_id: chatId, file_id: fileId };
 
 		return this.#restClient.callMethod(RestMethod.imDiskFileDelete, queryParams).catch((error) => {
-			// eslint-disable-next-line no-console
 			console.error('DiskService: error deleting file', error);
 		});
 	}
 
-	save(fileId: number): Promise
+	async save(fileIds: FileId[]): Promise
 	{
-		const queryParams = { file_id: fileId };
+		try
+		{
+			const normalizedIds = fileIds.map((id) => Number.parseInt(id, 10));
 
-		return this.#restClient.callMethod(RestMethod.imDiskFileSave, queryParams).catch((error) => {
-			// eslint-disable-next-line no-console
+			await runAction(RestMethod.imV2DiskFileSave, {
+				data: { ids: normalizedIds },
+			});
+		}
+		catch (error)
+		{
 			console.error('DiskService: error saving file on disk', error);
-		});
+		}
 	}
 }

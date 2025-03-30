@@ -20,6 +20,16 @@ class PgsqlResult extends Result
 	}
 
 	/**
+	 * Returns the number of fields in the result.
+	 * 
+	 * @return int
+	 */
+	public function getFieldsCount(): int
+	{
+		return pg_num_fields($this->resource);
+	}
+
+	/**
 	 * Returns an array of fields according to columns in the result.
 	 *
 	 * @return \Bitrix\Main\ORM\Fields\ScalarField[]

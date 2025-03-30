@@ -11,7 +11,9 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	  _t3,
 	  _t4,
 	  _t5,
-	  _t6;
+	  _t6,
+	  _t7,
+	  _t8;
 	const defaulFormatDuration = [['s', 'sdiff'], ['i', 'idiff'], ['H', 'Hdiff'], ['d', 'ddiff'], ['m', 'mdiff'], ['Y', 'Ydiff']];
 	const autoRunIconType = {
 	  type: ui_imageStackSteps.imageTypeEnum.ICON,
@@ -24,6 +26,8 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	var _stack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("stack");
 	var _popupInstance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popupInstance");
 	var _popupListNode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popupListNode");
+	var _listSkeleton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("listSkeleton");
+	var _offset = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("offset");
 	var _initStack = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initStack");
 	var _getStackText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStackText");
 	var _getStackUserImages = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStackUserImages");
@@ -31,7 +35,9 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	var _handleClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleClick");
 	var _getPopupContent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupContent");
 	var _renderListSkeleton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderListSkeleton");
+	var _renderListPage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderListPage");
 	var _loadList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadList");
+	var _handleNextPage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleNextPage");
 	var _renderListItemFaces = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderListItemFaces");
 	var _formatDuration = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("formatDuration");
 	class Widget {
@@ -42,8 +48,14 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	    Object.defineProperty(this, _renderListItemFaces, {
 	      value: _renderListItemFaces2
 	    });
+	    Object.defineProperty(this, _handleNextPage, {
+	      value: _handleNextPage2
+	    });
 	    Object.defineProperty(this, _loadList, {
 	      value: _loadList2
+	    });
+	    Object.defineProperty(this, _renderListPage, {
+	      value: _renderListPage2
 	    });
 	    Object.defineProperty(this, _renderListSkeleton, {
 	      value: _renderListSkeleton2
@@ -81,6 +93,14 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	    Object.defineProperty(this, _popupListNode, {
 	      writable: true,
 	      value: void 0
+	    });
+	    Object.defineProperty(this, _listSkeleton, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _offset, {
+	      writable: true,
+	      value: 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _params)[_params] = params;
 	    babelHelpers.classPrivateFieldLooseBase(this, _initStack)[_initStack]();
@@ -180,8 +200,8 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _popupInstance)[_popupInstance].toggle();
 	}
 	function _getPopupContent2() {
-	  babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode] = main_core.Tag.render(_t2 || (_t2 = _`<div class="bizproc-workflow-instances-popup-list"></div>`));
-	  babelHelpers.classPrivateFieldLooseBase(this, _renderListSkeleton)[_renderListSkeleton](babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode]);
+	  babelHelpers.classPrivateFieldLooseBase(this, _listSkeleton)[_listSkeleton] = babelHelpers.classPrivateFieldLooseBase(this, _renderListSkeleton)[_renderListSkeleton]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode] = main_core.Tag.render(_t2 || (_t2 = _`<div class="bizproc-workflow-instances-popup-list">${0}</div>`), babelHelpers.classPrivateFieldLooseBase(this, _listSkeleton)[_listSkeleton]);
 	  babelHelpers.classPrivateFieldLooseBase(this, _loadList)[_loadList]();
 	  return main_core.Tag.render(_t3 || (_t3 = _`
 			<div class="bizproc-workflow-instances-popup-content">
@@ -206,9 +226,10 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 			</div>
 		`), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TITLE'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TEXT_P1'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TEXT_P2'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_AUTHOR'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_IN_PROGRESS'), main_core.Loc.getMessage('BIZPROC_JS_WORKFLOW_INST_WIDGET_POPUP_TIME'), babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode]);
 	}
-	function _renderListSkeleton2(target) {
+	function _renderListSkeleton2() {
 	  let i = 0;
 	  let opacity = 1.15;
+	  const target = main_core.Tag.render(_t4 || (_t4 = _`<div class="bizproc-workflow-instances-popup-list-page"></div>`));
 	  while (i < 5) {
 	    ++i;
 	    opacity -= 0.15;
@@ -219,7 +240,7 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	      fill: true,
 	      customClass: 'bizproc-workflow-instances-popup-list-item-time-skeleton'
 	    });
-	    const node = main_core.Tag.render(_t4 || (_t4 = _`
+	    const node = main_core.Tag.render(_t5 || (_t5 = _`
 				<div class="bizproc-workflow-instances-popup-list-item" style="opacity: ${0}">
 					${0}
 					<div class="bizproc-workflow-instances-popup-list-item-time">${0}</div>
@@ -227,30 +248,40 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 			`), opacity, facesNode, label.render());
 	    main_core.Dom.append(node, target);
 	  }
+	  return target;
+	}
+	function _renderListPage2(list) {
+	  const pageNode = main_core.Tag.render(_t6 || (_t6 = _`<div class="bizproc-workflow-instances-popup-list-page"></div>`));
+	  list.forEach(item => {
+	    const facesNode = babelHelpers.classPrivateFieldLooseBase(this, _renderListItemFaces)[_renderListItemFaces](item.avatars.author, item.avatars.running);
+	    const label = new ui_label.Label({
+	      text: babelHelpers.classPrivateFieldLooseBase(this, _formatDuration)[_formatDuration](item.time.current),
+	      color: ui_label.LabelColor.LIGHT_BLUE,
+	      size: ui_label.LabelSize.SM,
+	      fill: true
+	    });
+	    const itemNode = main_core.Tag.render(_t7 || (_t7 = _`
+				<div class="bizproc-workflow-instances-popup-list-item">
+					${0}
+					<div class="bizproc-workflow-instances-popup-list-item-time">${0}</div>
+				</div>
+			`), facesNode, label.render());
+	    main_core.Dom.append(itemNode, pageNode);
+	  });
+	  return pageNode;
 	}
 	function _loadList2() {
 	  main_core.ajax.runAction('bizproc.workflow.getTemplateInstances', {
 	    data: {
-	      templateId: babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].tplId
+	      templateId: babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].tplId,
+	      offset: babelHelpers.classPrivateFieldLooseBase(this, _offset)[_offset]
 	    }
 	  }).then(response => {
-	    main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode]);
-	    response.data.list.forEach(item => {
-	      const facesNode = babelHelpers.classPrivateFieldLooseBase(this, _renderListItemFaces)[_renderListItemFaces](item.avatars.author, item.avatars.running);
-	      const label = new ui_label.Label({
-	        text: babelHelpers.classPrivateFieldLooseBase(this, _formatDuration)[_formatDuration](item.time.current),
-	        color: ui_label.LabelColor.LIGHT_BLUE,
-	        size: ui_label.LabelSize.SM,
-	        fill: true
-	      });
-	      const itemNode = main_core.Tag.render(_t5 || (_t5 = _`
-					<div class="bizproc-workflow-instances-popup-list-item">
-						${0}
-						<div class="bizproc-workflow-instances-popup-list-item-time">${0}</div>
-					</div>
-				`), facesNode, label.render());
-	      main_core.Dom.append(itemNode, babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode]);
-	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _offset)[_offset] += response.data.list.length;
+	    main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderListPage)[_renderListPage](response.data.list), babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode]);
+	    main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _listSkeleton)[_listSkeleton], babelHelpers.classPrivateFieldLooseBase(this, _popupListNode)[_popupListNode]); // move skeleton to the end
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleNextPage)[_handleNextPage](response.data.hasNextPage);
 	  }).catch(response => {
 	    var _response$errors;
 	    if (((_response$errors = response.errors) == null ? void 0 : _response$errors.length) > 0) {
@@ -260,12 +291,28 @@ this.BX.Bizproc.Workflow = this.BX.Bizproc.Workflow || {};
 	        MessageBox.alert(main_core.Text.encode(response.errors[0].message));
 	      }).catch(() => {});
 	    } else {
-	      console.error(response);
+	      var _console;
+	      (_console = console) == null ? void 0 : _console.error(response);
 	    }
 	  });
 	}
+	function _handleNextPage2(hasNextPage) {
+	  if (hasNextPage && babelHelpers.classPrivateFieldLooseBase(this, _listSkeleton)[_listSkeleton]) {
+	    new IntersectionObserver((entries, observer) => {
+	      entries.forEach(entry => {
+	        if (entry.isIntersecting) {
+	          observer.disconnect();
+	          babelHelpers.classPrivateFieldLooseBase(this, _loadList)[_loadList]();
+	        }
+	      });
+	    }).observe(babelHelpers.classPrivateFieldLooseBase(this, _listSkeleton)[_listSkeleton]);
+	    return;
+	  }
+	  main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _listSkeleton)[_listSkeleton]);
+	  babelHelpers.classPrivateFieldLooseBase(this, _listSkeleton)[_listSkeleton] = null;
+	}
 	function _renderListItemFaces2(author, running) {
-	  const facesNode = main_core.Tag.render(_t6 || (_t6 = _`
+	  const facesNode = main_core.Tag.render(_t8 || (_t8 = _`
 			<div class="bizproc-workflow-instances-popup-list-item-faces"></div>
 		`));
 	  const stack = new ui_imageStackSteps.ImageStackSteps({

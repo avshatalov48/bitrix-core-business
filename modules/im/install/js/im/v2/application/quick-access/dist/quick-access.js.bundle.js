@@ -71,6 +71,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } else if (urlParams.has(im_v2_const.GetParameter.openCopilotChat)) {
 	      const dialogId = urlParams.get(im_v2_const.GetParameter.openCopilotChat);
 	      im_public.Messenger.openCopilot(dialogId);
+	    } else if (urlParams.has(im_v2_const.GetParameter.openCollab)) {
+	      const dialogId = urlParams.get(im_v2_const.GetParameter.openCollab);
+	      im_public.Messenger.openCollab(dialogId != null ? dialogId : '');
 	    }
 	  }
 	  ready() {

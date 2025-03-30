@@ -1,4 +1,4 @@
-<?
+<?php
 define("NO_KEEP_STATISTIC", true);
 define("NO_AGENT_STATISTIC", true);
 define("NOT_CHECK_PERMISSIONS", true);
@@ -8,7 +8,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.
 
 $start = microtime(true);
 
-$query = ltrim($_POST["q"]);
+$query = ltrim($_POST["q"] ?? '');
 if(
 	!empty($query)
 	&& $_REQUEST["ajax_call"] === "y"
@@ -16,8 +16,8 @@ if(
 ):
 
 /**
- * @var CAdminPage $adminPage
- * @var CAdminMenu $adminMenu
+ * @global CAdminPage $adminPage
+ * @global CAdminMenu $adminMenu
  */
 $adminPage->Init();
 $adminMenu->Init($adminPage->aModules);
@@ -41,13 +41,13 @@ $bFound  = false;
 
 function GetStrings(&$item, $key, $p)
 {
-	global $arStemFunc, $arPhrase, $preg_template, $arResult, $bFound;
+	global $arPhrase, $preg_template, $arResult, $bFound;
 
 	$category = $p[0];
 	$icon = $p[1];
 	$arRes = null;
 
-	if($item["url"] <> '')
+	if(!empty($item["url"]))
 	{
 		$searchstring = '';
 		if($item["text"])
@@ -66,13 +66,13 @@ function GetStrings(&$item, $key, $p)
 			$searchstring .= $item["text"];
 		}
 
-		if($item["title"])
+		if(!empty($item["title"]))
 			$searchstring .= " ".$item["title"];
 
-		if($item["keywords"])
+		if(!empty($item["keywords"]))
 			$searchstring .= " ".$item["keywords"];
 
-		if($item["icon"]=='')
+		if(empty($item["icon"]))
 			$item["icon"] = $icon;
 
 		if(preg_match_all($preg_template, mb_strtoupper($searchstring), $arMatches, PREG_OFFSET_CAPTURE))
@@ -89,7 +89,7 @@ function GetStrings(&$item, $key, $p)
 
 	if(is_array($arRes))
 	{
-		if($item['category'] == '')
+		if(empty($item['category']))
 			$item['category'] = $category;
 
 		if(!is_array($arResult["CATEGORIES"][$item['category']]))
@@ -102,8 +102,8 @@ function GetStrings(&$item, $key, $p)
 		$bFound = true;
 	}
 
-	if(is_array($item["items"]))
-		array_walk($item['items'], 'GetStrings', array($category, $item["icon"]));
+	if(isset($item["items"]) && is_array($item["items"]))
+		array_walk($item['items'], 'GetStrings', array($category, $item["icon"] ?? ''));
 }
 
 foreach($adminMenu->aGlobalMenu as $menu_id => $menu)
@@ -142,4 +142,3 @@ if($bFound)
 endif;
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
-?>

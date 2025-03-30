@@ -19,6 +19,7 @@ $APPLICATION->IncludeComponent(
 		'SEF_MODE' => ($arParams['SEF_MODE'] !== 'N' ? 'Y' : 'N'),
 		'SEF_FOLDER' => CComponentEngine::makePathFromTemplate($arResult['PATH_TO_USER_DISK_VOLUME'], array('ACTION' => '', 'user_id' => (int)$arResult['VARIABLES']['user_id'])),
 		'USER_ID' => (int)$arResult['VARIABLES']['user_id'],
+		'VARIANT' => \Bitrix\Disk\Type\DocumentGridVariant::DocumentsList,
 	),
 	$component,
 	array("HIDE_ICONS" => "Y")

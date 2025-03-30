@@ -1,39 +1,52 @@
-<?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @global CUser $USER */
+
+use Bitrix\Highloadblock as HL;
+use Bitrix\Main\Entity;
+use Bitrix\Main\Loader;
 
 $requiredModules = array('highloadblock');
 foreach ($requiredModules as $requiredModule)
 {
-	if (!CModule::IncludeModule($requiredModule))
+	if (!Loader::includeModule($requiredModule))
 	{
 		ShowError(GetMessage("F_NO_MODULE"));
+
 		return 0;
 	}
 }
-
-use Bitrix\Highloadblock as HL;
-use Bitrix\Main\Entity;
 
 // hlblock info
 $hlblock_id = $arParams['BLOCK_ID'];
 if (empty($hlblock_id))
 {
 	ShowError(GetMessage('HLBLOCK_LIST_NO_ID'));
+
 	return 0;
 }
 $hlblock = HL\HighloadBlockTable::getById($hlblock_id)->fetch();
 if (empty($hlblock))
 {
 	ShowError(GetMessage('HLBLOCK_LIST_404'));
+
 	return 0;
 }
 
 // check rights
-if (isset($arParams['CHECK_PERMISSIONS']) && $arParams['CHECK_PERMISSIONS'] == 'Y' && !$USER->isAdmin())
+if (isset($arParams['CHECK_PERMISSIONS']) && $arParams['CHECK_PERMISSIONS'] === 'Y' && !$USER->isAdmin())
 {
 	$operations = HL\HighloadBlockRightsTable::getOperationsName($hlblock_id);
 	if (empty($operations))
 	{
 		ShowError(GetMessage('HLBLOCK_LIST_404'));
+
 		return 0;
 	}
 }
@@ -73,7 +86,8 @@ if (isset($arParams['ROWS_PER_PAGE']) && $arParams['ROWS_PER_PAGE']>0)
 	$nav = new \Bitrix\Main\UI\PageNavigation($pagenId);
 	$nav->allowAllRecords(true)
 		->setPageSize($perPage)
-		->initFromUri();
+		->initFromUri()
+	;
 }
 else
 {

@@ -173,13 +173,6 @@
 		}
 
 		return new Promise((resolve, reject) => {
-			if (Application.getApiVersion() < 45)
-			{
-				reject({ error: 'API_VERSION is lower then 45' });
-
-				return;
-			}
-
 			if (loadedExtensions[ext] && force === false)
 			{
 				resolve();

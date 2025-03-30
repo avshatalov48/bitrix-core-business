@@ -491,6 +491,7 @@ BX.ready(function()
 		<?=$arParams['~SELECTED_RECIPIENTS_JSON'] ?: Json::encode([])?>,
 		<?=Json::encode(array(
 			'oldRecipientsMode' => $arParams['OLD_RECIPIENTS_MODE'],
+			'ownerCategoryId' => $arParams['OWNER_CATEGORY_ID'],
 			'submitAjax' => !empty($arParams['SUBMIT_AJAX']),
 			'foldQuote'  => !empty($arParams['FOLD_QUOTE']),
 			'foldFiles'  => !empty($arParams['FOLD_FILES']),

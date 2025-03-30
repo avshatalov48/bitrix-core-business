@@ -472,6 +472,10 @@ abstract class Base
 
 		foreach ($fields as $name)
 		{
+			if (!is_scalar($name))
+			{
+				continue;
+			}
 			$info = isset($listFieldsInfo[$name]) ? $listFieldsInfo[$name]:null;
 			if (!$info)
 			{

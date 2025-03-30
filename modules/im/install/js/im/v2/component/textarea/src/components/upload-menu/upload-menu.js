@@ -42,7 +42,6 @@ export const UploadMenu = {
 		return {
 			showMenu: false,
 			showDiskPopup: false,
-			onlyPhotoOrVideo: false,
 		};
 	},
 	computed:
@@ -51,19 +50,14 @@ export const UploadMenu = {
 		{
 			return [
 				{
-					icon: MenuItemIcon.upload,
-					title: this.loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO'),
-					clickHandler: this.onSelectFromPhotoOrVideo,
-				},
-				{
 					icon: MenuItemIcon.file,
-					title: this.loc('IM_TEXTAREA_SELECT_FILE'),
-					clickHandler: this.onSelectFromComputerClick,
+					title: this.loc('IM_TEXTAREA_SELECT_LOCAL_FILE'),
+					clickHandler: this.onSelectLocalFile,
 				},
 				{
-					icon: MenuItemIcon.disk,
-					title: this.loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK_1'),
-					clickHandler: this.onSelectFromDiskClick,
+					icon: MenuItemIcon.b24,
+					title: this.loc('IM_TEXTAREA_SELECT_FILE_FROM_B24'),
+					clickHandler: this.onSelectFromB24,
 				},
 				{
 					icon: MenuItemIcon.task,
@@ -86,6 +80,12 @@ export const UploadMenu = {
 					title: this.loc('IM_TEXTAREA_SELECT_DOCUMENT_SIGN'),
 					clickHandler: this.onCreateDocumentSignClick,
 					showCondition: () => this.isDocumentSignAvailable,
+				},
+				{
+					icon: MenuItemIcon.vote,
+					title: this.loc('IM_TEXTAREA_SELECT_VOTE'),
+					clickHandler: this.onCreateVoteClick,
+					showCondition: () => this.isVoteCreationAvailable,
 				},
 			];
 		},
@@ -135,26 +135,19 @@ export const UploadMenu = {
 		{
 			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.createCalendarSlots, this.dialogId);
 		},
+		isVoteCreationAvailable(): boolean
+		{
+			return FeatureManager.isFeatureAvailable(Feature.voteCreationAvailable);
+		},
 	},
 	methods:
 	{
-		onSelectFromPhotoOrVideo()
+		onSelectLocalFile()
 		{
-			this.onlyPhotoOrVideo = true;
-			const acceptedFormats = 'image/*, video/*';
-
-			this.$refs.fileInput.setAttribute('accept', acceptedFormats);
 			this.$refs.fileInput.click();
 			this.showMenu = false;
 		},
-		onSelectFromComputerClick()
-		{
-			this.onlyPhotoOrVideo = false;
-			this.$refs.fileInput.removeAttribute('accept');
-			this.$refs.fileInput.click();
-			this.showMenu = false;
-		},
-		onSelectFromDiskClick()
+		onSelectFromB24()
 		{
 			this.showDiskPopup = true;
 			this.showMenu = false;
@@ -163,7 +156,6 @@ export const UploadMenu = {
 		{
 			this.$emit('fileSelect', {
 				event,
-				sendAsFile: !this.onlyPhotoOrVideo,
 			});
 			this.showMenu = false;
 		},
@@ -236,6 +228,16 @@ export const UploadMenu = {
 		{
 			const preparedUrl = DOCUMENT_SIGN_SLIDER_URL + this.chatId;
 			BX.SidePanel.Instance.open(preparedUrl, { cacheable: false });
+		},
+		onCreateVoteClick(): void
+		{
+			const preparedUrl = `/bitrix/components/bitrix/voting.im.edit/slider.php?chatId=${this.chatId}`;
+			BX.SidePanel.Instance.open(preparedUrl, {
+				cacheable: false,
+				width: 800,
+				allowChangeHistory: false,
+			});
+			this.showMenu = false;
 		},
 		showNotification(content: string)
 		{

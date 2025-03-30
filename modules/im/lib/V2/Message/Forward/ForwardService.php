@@ -98,6 +98,7 @@ class ForwardService
 			'URL_PREVIEW' => 'N',
 			'TEMPLATE_ID' => $forwardingMessage->getForwardUuid() ?? '',
 			'FILE_MODELS' => $paramsResult->getResult()['FILE_MODELS'] ?? [],
+			'WAIT_FULL_EXECUTION' => 'N',
 		];
 
 		$result = new Result();

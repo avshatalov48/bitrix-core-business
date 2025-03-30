@@ -3,10 +3,10 @@
 
 function stemming_letter_tr()
 {
-	return "abcçdefgğhıijklmnoöprsştuüvyz"."ABCÇDEFGĞHIIJKLMNOÖPRSŞTUÜVYZ"."âîûİiIı";
+	return 'abcçdefgğhıijklmnoöprsştuüvyz' . 'ABCÇDEFGĞHIIJKLMNOÖPRSŞTUÜVYZ' . 'âîûİiIı';
 }
 
 function stemming_upper_tr($sText)
 {
-	return str_replace(array("İ"), array("I"), mb_strtoupper($sText));
+	return str_replace(['İ'], ['I'], mb_strtoupper($sText));
 }

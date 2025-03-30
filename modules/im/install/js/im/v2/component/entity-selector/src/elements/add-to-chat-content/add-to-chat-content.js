@@ -63,13 +63,17 @@ export const AddToChatContent = {
 		{
 			return this.dialog.type === ChatType.collab;
 		},
+		isOpenLines(): boolean
+		{
+			return this.dialog.type === ChatType.lines;
+		},
 		isChannel(): boolean
 		{
 			return ChannelManager.isChannel(this.dialogId);
 		},
 		showHistoryOption(): boolean
 		{
-			return !this.isCollab && this.isChat && !this.isChannel;
+			return !this.isCollab && this.isChat && !this.isChannel && !this.isOpenLines;
 		},
 		containerStyles(): {height: string}
 		{

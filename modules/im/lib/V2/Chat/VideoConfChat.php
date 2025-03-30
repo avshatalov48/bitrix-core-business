@@ -5,12 +5,12 @@ namespace Bitrix\Im\V2\Chat;
 use Bitrix\Im\Alias;
 use Bitrix\Im\Call\Conference;
 use Bitrix\Im\Color;
-use Bitrix\IM\Model\AliasTable;
 use Bitrix\Im\Model\BlockUserTable;
 use Bitrix\IM\Model\ConferenceTable;
 use Bitrix\IM\Model\ConferenceUserRoleTable;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Entity\User\User;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\Application;
@@ -237,9 +237,9 @@ class VideoConfChat extends GroupChat
 		return $this;
 	}
 
-	protected function updateStateAfterUserDelete(int $deletedUserId): Chat
+	protected function updateStateAfterUserDelete(int $deletedUserId, DeleteUserConfig $config): Chat
 	{
-		parent::updateStateAfterUserDelete($deletedUserId);
+		parent::updateStateAfterUserDelete($deletedUserId, $config);
 
 		$externalAuthId = User::getInstance($deletedUserId)->getExternalAuthId();
 		if ($externalAuthId === 'call')

@@ -3,21 +3,14 @@ import { sendData } from 'ui.analytics';
 import { ChatType, Layout, UserRole } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
 
-import {
-	AnalyticsEvent,
-	AnalyticsTool,
-	AnalyticsCategory,
-	AnalyticsType,
-	AnalyticsSection,
-	AnalyticsSubSection,
-	AnalyticsElement,
-} from './const';
+import { AnalyticsEvent, AnalyticsTool, AnalyticsCategory } from './const';
 
 import { getCollabId } from './helpers/get-collab-id';
 import { getUserType } from './helpers/get-user-type';
 import { getCategoryByChatType } from './helpers/get-category-by-chat-type';
 import { getChatType } from './helpers/get-chat-type';
 
+import { MessageFiles } from './classes/message-files';
 import { CollabEntities } from './classes/collab-entities';
 import { ChatEntities } from './classes/chat-entities';
 import { ChatDelete } from './classes/chat-delete';
@@ -56,6 +49,7 @@ export class Analytics
 	checkIn: CheckIn = new CheckIn();
 	copilot: Copilot = new Copilot();
 	attachMenu: AttachMenu = new AttachMenu();
+	messageFiles: MessageFiles = new MessageFiles();
 
 	static #instance: Analytics;
 

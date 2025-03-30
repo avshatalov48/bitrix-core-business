@@ -2,10 +2,11 @@ import { Dom, Event, Runtime } from 'main.core';
 import { Ears } from 'ui.ears';
 import { SyncHorizontalScroll } from '../util/sync-horizontal-scroll';
 import { Column } from './column';
+import { ColumnLayout } from '../layout/column-layout';
 
 export const ColumnList = {
 	name: 'ColumnList',
-	components: { Column, SyncHorizontalScroll },
+	components: { Column, SyncHorizontalScroll, ColumnLayout },
 	props: {
 		userGroups: {
 			type: Map,
@@ -165,6 +166,7 @@ export const ColumnList = {
 					:rights="rights"
 					:data-accessrights-user-group-id="groupId"
 				/>
+				<ColumnLayout/>
 			</SyncHorizontalScroll>
 		</div>
 	`,

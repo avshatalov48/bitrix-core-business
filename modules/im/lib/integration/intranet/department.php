@@ -16,7 +16,7 @@ class Department
 		;
 	}
 
-	public static function getList()
+	public static function getList(?array $ids = null)
 	{
 		if (!self::checkModules())
 		{
@@ -28,7 +28,14 @@ class Department
 			return [];
 		}
 
-		$departments = \Bitrix\Im\V2\Integration\HumanResources\Department\Department::getInstance()->getList();
+		if (!empty($ids))
+		{
+			$departments = \Bitrix\Im\V2\Integration\HumanResources\Department\Department::getInstance()->getListByIds($ids);
+		}
+		else
+		{
+			$departments = \Bitrix\Im\V2\Integration\HumanResources\Department\Department::getInstance()->getList();
+		}
 
 		$result = [];
 		foreach ($departments as $department)

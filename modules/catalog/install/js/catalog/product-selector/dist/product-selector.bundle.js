@@ -1835,6 +1835,7 @@ this.BX = this.BX || {};
 	  onProductSelect(event) {
 	    const item = event.getData().item;
 	    if (event.getTarget() === this.getDialog() && item.getCustomData().has('appSid')) {
+	      this.clearErrors();
 	      this.selector.emitOnProductSelectEvents();
 	      babelHelpers.classPrivateFieldLooseBase(this, _onExternalCatalogProductSelect)[_onExternalCatalogProductSelect](item);
 	      return;
@@ -2424,6 +2425,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  subscribeEvents() {
+	    this.internalUnsubscribeEvents();
 	    main_core_events.EventEmitter.incrementMaxListeners('ProductList::onChangeFields', 1);
 	    main_core_events.EventEmitter.incrementMaxListeners('ProductSelector::onNameChange', 1);
 	    main_core_events.EventEmitter.incrementMaxListeners('Catalog.ImageInput::save', 1);
@@ -2437,6 +2439,9 @@ this.BX = this.BX || {};
 	  }
 	  unsubscribeEvents() {
 	    this.unsubscribeToVariationChange();
+	    this.internalUnsubscribeEvents();
+	  }
+	  internalUnsubscribeEvents() {
 	    main_core_events.EventEmitter.unsubscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 	    main_core_events.EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 	    main_core_events.EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);

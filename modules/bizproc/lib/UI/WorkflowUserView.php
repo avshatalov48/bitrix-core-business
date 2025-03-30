@@ -353,7 +353,7 @@ class WorkflowUserView implements \JsonSerializable
 				}
 			}
 
-			$controls = $isRunning ? \CBPDocument::getTaskControls($task) : [];
+			$controls = $isRunning ? \CBPDocument::getTaskControls($task, $userId) : [];
 			$buttons = $controls['BUTTONS'] ?? null;
 			if (!empty($buttons))
 			{

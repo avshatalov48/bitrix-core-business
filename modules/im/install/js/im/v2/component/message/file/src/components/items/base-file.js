@@ -1,6 +1,6 @@
 import 'ui.icons.disk';
 
-import { FileType } from 'im.v2.const';
+import { Type } from 'main.core';
 import { Utils } from 'im.v2.lib.utils';
 
 import { ProgressBar } from './progress-bar';
@@ -65,9 +65,9 @@ export const BaseFileItem = {
 				backgroundImage: `url(${this.file.urlPreview})`,
 			};
 		},
-		isImage(): boolean
+		hasPreview(): boolean
 		{
-			return this.file.type === FileType.image;
+			return Type.isStringFilled(this.file.urlPreview);
 		},
 	},
 	created()
@@ -106,7 +106,7 @@ export const BaseFileItem = {
 		<div class="bx-im-base-file-item__container">
 			<div class="bx-im-base-file-item__icon-container" ref="loader-icon" v-bind="viewerAttributes" @click="download">
 				<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" :withLabels="false" />
-				<div v-if="isImage" :style="imageStyles" class="bx-im-base-file-item__image"></div>
+				<div v-if="hasPreview" :style="imageStyles" class="bx-im-base-file-item__image"></div>
 				<div v-else :class="iconClass" class="bx-im-base-file-item__type-icon ui-icon"><i></i></div>
 			</div>
 			<div class="bx-im-base-file-item__content" v-bind="viewerAttributes" @click="download">

@@ -1,0 +1,25 @@
+<?php
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CLOSE"] = "Импортты тоқтату";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CONTINUE"] = "Импортты жалғастыру";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_DESCRIPTION"] = "Егер сіз үдерісті тоқтатсаңыз, импорттау қайтадан басынан басталып, уақыт алады";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_TITLE"] = "Импортты тоқтатқыңыз келетініне сенімдісіз бе?";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_ACCEPT_CLEAR"] = "Битрикс24 ағымдағы баптауларын жүктелген салалық CRM баптауларына ауыстырғым келеді.";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_ACCEPT_CLEAR_ROLLBACK"] = "Битрикс24 ағымдағы баптауларын таңдалған салалық CRM баптауларына ауыстырғым келеді.";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_APP_DESCRIPTION"] = "\"Жалғастыру\" батырмасын басу арқылы Сіз Битрикс24 қолданыстағы баптауларының бір бөлігі жүктелетін салалық CRM конфигурациясына сәйкес өзгертілуі мүмкін екеніне және қалпына келтірілмейтініне келісесіз.";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_APP_DESCRIPTION_ROLLBACK"] = "\"Жалғастыру\" батырмасын басу арқылы сіз Битрикс24 баптауларының бір бөлігін жою кезінде негізгі күйге оралатынына, ал CRM деректерінің бір бөлігі тазартылып, қалпына келтіруге жатпайтынына келісесіз.";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CANCEL"] = "Болдырмау";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CONTINUE"] = "Жалғастыру";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_CHECKBOX_LABEL"] = "Мен деректердің жойылуын растаймын";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_TEXT"] = "Бұл конфигурация бос Битрикс24-ке орнатылуы керек. Орнату деректеріңіздің бір бөлігін жояды. Сіз деректерді жоюға рұқсат бергеніңізді растайсыз ба?";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_DESCRIPTION"] = "\"Жалғастыру\" батырмасын басу арқылы Сіз Битрикс24 қолданыстағы баптауларының бір бөлігі жүктелетін салалық CRM конфигурациясына сәйкес өзгертілуі мүмкін және қалпына келтірілмейді деп келісесіз.";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_DESCRIPTION_ROLLBACK"] = "\"Жалғастыру\" батырмасын басу арқылы сіз Битрикс24 баптауларының бір бөлігі қалпына келтіру кезінде негізгі күйге оралады, ал CRM деректерінің бір бөлігі тазартылады және бұл әрекетті болдырмау мүмкін емес деп келісесіз.";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_FATAL_ERROR"] = "Ішкі қате пайда болды. Өтініш, парақшаны жаңартып, тағы бір рет қайталап көріңіз. Егер қате қайта шыға берсе, көмек алу үшін қолдау бөліміне жүгініңіз.";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_FINISH_TEXT"] = "Салалық CRM баптауларының импорты сәтті аяқталды";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_LATER_BTN"] = "Кейінірек импорттаймын";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_LATER_POPUP_CLOSE_BTN"] = "Жақсы";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_PROGRESSBAR_TITLE"] = "Баптаулар импорты орындалуда";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_START_BTN"] = "Жалғастыру";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_STEP_MSGVER_1"] = "Сіз таңдаған қалыпты орнатып жатырмыз, сәл ғана қалды ";
+$MESS["REST_CONFIGURATION_IMPORT_PRE_INSTALL_APP_DESCRIPTION"] = "«#APP_NAME#» салалық шешімін орнату үшін «Жалғастыру» батырмасын басыңыз.";
+$MESS["REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_DESCRIPTION"] = "Сіз кез келген уақытта «#APP_NAME#» салалық шешімін орнатылған шешімдер тізімінен тауып, орната аласыз. Бұл туралы толығырақ біздің #HELP_DESK_LINK#";
+$MESS["REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_HELP_DESK_LINK_LABEL"] = "мақалада оқыңыз.";

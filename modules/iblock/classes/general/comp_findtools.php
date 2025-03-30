@@ -183,7 +183,7 @@ class CIBlockFindTools
 			&& $arVariables["SECTION_CODE_PATH"] != ""
 		)
 		{
-			$select .= ", BS.ID as SECTION_ID, BS.CODE";
+			$select .= ", BS.ID as SECTION_ID, BS.CODE as SECTION_CODE";
 			//The path may be incomplete so we join part of the section tree BS and BSP
 			$strFrom .= "
 				INNER JOIN b_iblock_section_element BSE ON BSE.IBLOCK_ELEMENT_ID = BE.ID AND BSE.ADDITIONAL_PROPERTY_ID IS NULL

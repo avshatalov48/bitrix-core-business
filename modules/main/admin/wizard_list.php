@@ -1,12 +1,17 @@
-<?
+<?php
 require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "settings/wizard_list.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/wizard.php");
 
-if(!$USER->CanDoOperation('edit_php') && !$USER->CanDoOperation('view_other_settings'))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+/**
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ */
 
 $isAdmin = $USER->CanDoOperation('edit_php');
+
+if(!$isAdmin && !$USER->CanDoOperation('view_other_settings'))
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 IncludeModuleLangFile(__FILE__);
 
@@ -16,14 +21,6 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
-	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
-	{
-		$arID = Array();
-		$rsData = CWizardUtil::GetWizardList(false, true);
-		while($arRes = $rsData->Fetch())
-			$arID[] = $arRes['ID'];
-	}
-
 	foreach($arID as $ID)
 	{
 		if($ID == '')
@@ -43,9 +40,6 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 			</script>
 			<?
 			break;
-		/*case "copy":
-			CWizardUtil::CopyWizard($ID, $ID."_copy");
-			break;*/
 		}
 	}
 }
@@ -67,7 +61,8 @@ $lAdmin->AddHeaders(
 
 while($arRes = $rsData->NavNext(true, "f_"))
 {
-	$row =& $lAdmin->AddRow($f_ID, $arRes);
+	/** @var string $f_ID */
+	$row = $lAdmin->AddRow($f_ID, $arRes);
 
 	$idTmp = $f_ID;
 	$arID = explode(":", $f_ID);
@@ -109,14 +104,6 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row->AddActions($arActions);
 }
 
-/*
-$groupAction = Array(
-	"copy" => GetMessage("MAIN_ADMIN_MENU_COPY"),
-	"delete" => GetMessage("MAIN_ADMIN_MENU_DELETE"),
-);
-$lAdmin->AddGroupActionTable($groupAction);
-*/
-
 $arContext = array(
 	array(
 		"TEXT"	=> GetMessage("MAIN_WIZARD_ADMIN_LOAD"),
@@ -134,12 +121,10 @@ $APPLICATION->SetTitle(GetMessage("MAIN_WIZARD_ADMIN_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>
 
 <script>
-<!--
 function exportWizard(val)
 {
 	window.open("wizard_export.php?ID="+val+"&<?=bitrix_sessid_get()?>");
 }
-//-->
 </script>
 
 <?$lAdmin->DisplayList();?>

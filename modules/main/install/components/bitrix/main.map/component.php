@@ -141,7 +141,7 @@ if (!function_exists('GetTreeRecursive'))
 								if($ar["LEVEL"] > $max_depth)
 									continue;
 
-								$ar["ID"] = md5($full_path.($ar["COUNTER"]));
+								$ar["ID"] = md5($full_path);
 								$ar["IS_DIR"] = is_dir($_SERVER["DOCUMENT_ROOT"].$full_path) ? "Y" : "N";
 								$ar["NAME"] = $aMenu[0];
 								$ar["PATH"] = $PARENT_PATH;
@@ -155,8 +155,7 @@ if (!function_exists('GetTreeRecursive'))
 									{
 										$arDirProperties = array();
 										include($_SERVER["DOCUMENT_ROOT"].$full_path.".section.php");
-										if($arDirProperties["description"] <> '')
-											$ar["DESCRIPTION"] = $arDirProperties["description"];
+										$ar["DESCRIPTION"] = $arDirProperties["description"] ?? '';
 									}
 								}
 

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Chat;
 
+use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\User;
 use Bitrix\Im\Recent;
 use Bitrix\Im\Notify;
@@ -147,6 +148,18 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		;
 	}
 
+	protected function onBeforeMessageSend(Message $message, SendingConfig $config): Result
+	{
+		$result = parent::onBeforeMessageSend($message, $config);
+
+		if (!$message->getAuthorId())
+		{
+			return $result->addError(new Message\MessageError(Message\MessageError::WRONG_SENDER));
+		}
+
+		return $result;
+	}
+
 	/**
 	 * @return int
 	 */
@@ -201,6 +214,14 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		$fields['ITEM_ID'] = $this->getCompanion($userId)->getId();
 
 		return $fields;
+	}
+
+	protected function insertRecent(array $fields): void
+	{
+		foreach ($fields as $item)
+		{
+			RecentTable::merge($item, $item, ['USER_ID', 'ITEM_TYPE', 'ITEM_ID']);
+		}
 	}
 
 	public function getDisplayedTitle(): ?string

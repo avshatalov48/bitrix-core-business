@@ -93,13 +93,25 @@ export class ReadService
 		}, READ_TIMEOUT);
 	}
 
-	async #readMessagesForChat(rawChatId: string, messageIds: Set<number>)
+	async readChatQueuedMessages(chatId: number): Promise<boolean>
+	{
+		if (!this.#messagesToRead[chatId])
+		{
+			return true;
+		}
+
+		clearTimeout(this.readTimeout);
+
+		return this.#readMessagesForChat(chatId, this.#messagesToRead[chatId]);
+	}
+
+	async #readMessagesForChat(rawChatId: string, messageIds: Set<number>): Promise<boolean>
 	{
 		const queueChatId = Number.parseInt(rawChatId, 10);
 		Logger.warn('ReadService: readMessages', messageIds);
 		if (messageIds.size === 0)
 		{
-			return;
+			return true;
 		}
 
 		const copiedMessageIds = [...messageIds];
@@ -117,6 +129,8 @@ export class ReadService
 			});
 
 		this.#checkChatCounter(readResult);
+
+		return true;
 	}
 
 	clearDialogMark(dialogId: string)

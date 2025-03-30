@@ -62,6 +62,10 @@ export const Avatar = {
 			type: Boolean,
 			default: true,
 		},
+		backgroundColor: {
+			type: String,
+			default: '',
+		},
 	},
 	data(): Object
 	{
@@ -108,6 +112,11 @@ export const Avatar = {
 		},
 		backgroundColorStyle(): {backgroundColor: string}
 		{
+			if (this.backgroundColor)
+			{
+				return { backgroundColor: this.backgroundColor };
+			}
+
 			return { backgroundColor: this.dialog.color };
 		},
 		avatarText(): string

@@ -63,7 +63,7 @@ class CEventLog
 			"MODULE_ID" => $arFields["MODULE_ID"] == ''? "UNKNOWN": $arFields["MODULE_ID"],
 			"ITEM_ID" => $arFields["ITEM_ID"] == ''? "UNKNOWN": $arFields["ITEM_ID"],
 			"REMOTE_ADDR" => $_SERVER["REMOTE_ADDR"],
-			"USER_AGENT" => $_SERVER["HTTP_USER_AGENT"],
+			"USER_AGENT" => $_SERVER["HTTP_USER_AGENT"] ?? false,
 			"REQUEST_URI" => $url,
 			"SITE_ID" => empty($arFields["SITE_ID"]) ? $SITE_ID : $arFields["SITE_ID"],
 			"USER_ID" => is_object($USER) && ($USER->GetID() > 0)? $USER->GetID(): false,

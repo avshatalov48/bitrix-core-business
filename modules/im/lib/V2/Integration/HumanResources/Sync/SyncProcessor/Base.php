@@ -61,7 +61,7 @@ abstract class Base implements SyncProcessor
 			->setSelect(['*'])
 			->where('ENTITY_TYPE', $this->getEntityType()->value)
 			->where('IS_LOCKED', false)
-			->setOrder(['DATE_CREATE'])
+			->setOrder(['ID'])
 			->setLimit(1)
 			->fetch()
 		;

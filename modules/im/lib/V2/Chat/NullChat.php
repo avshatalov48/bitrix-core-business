@@ -8,6 +8,7 @@ use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
+use Bitrix\Im\V2\Message\Send\SendResult;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Permission\Action;
 use Bitrix\Im\V2\Relation;
@@ -96,9 +97,9 @@ class NullChat extends Chat
 	 * Does nothing.
 	 * @inheritdoc
 	 */
-	public function sendMessage($message, $sendingConfig = null): Result
+	public function sendMessage($message, $sendingConfig = null): SendResult
 	{
-		return (new Result)->addError(new ChatError(ChatError::WRONG_TARGET_CHAT));
+		return (new SendResult())->addError(new ChatError(ChatError::WRONG_TARGET_CHAT));
 	}
 
 	/**

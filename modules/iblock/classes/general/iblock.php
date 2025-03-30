@@ -955,6 +955,7 @@ class CAllIBlock
 		//Default No
 		$arFields["BIZPROC"] = isset($arFields["BIZPROC"]) && $arFields["BIZPROC"] === "Y"? "Y": "N";
 		$arFields["INDEX_SECTION"] = isset($arFields["INDEX_SECTION"]) && $arFields["INDEX_SECTION"] === "Y"? "Y": "N";
+		$arFields["FULLTEXT_INDEX"] = isset($arFields["FULLTEXT_INDEX"]) && $arFields["FULLTEXT_INDEX"] === "Y" ? "Y" : "N";
 
 		if(!isset($arFields["SECTION_CHOOSER"]))
 			$arFields["SECTION_CHOOSER"] = "L";
@@ -1100,7 +1101,7 @@ class CAllIBlock
 
 			if($arFields["VERSION"] == 2)
 			{
-				if($this->_Add($ID))
+				if ($this->_Add($ID))
 				{
 					$Result = $ID;
 					$arFields["ID"] = &$ID;
@@ -1116,6 +1117,11 @@ class CAllIBlock
 			{
 				$Result = $ID;
 				$arFields["ID"] = &$ID;
+			}
+
+			if ($arFields["FULLTEXT_INDEX"] === "Y")
+			{
+				Iblock\FullIndex\FullText::createTable($ID);
 			}
 
 			CDiskQuota::recalculateDb();
@@ -1204,7 +1210,8 @@ class CAllIBlock
 		if(is_set($arFields, "PROPERTY_INDEX") && $arFields["PROPERTY_INDEX"]!="I" && $arFields["PROPERTY_INDEX"]!="Y")
 			$arFields["SECTION_PROPERTY"] = "N";
 
-		$RIGHTS_MODE = CIBlock::GetArrayByID($ID, "RIGHTS_MODE");
+		$iblockDataBeforeUpdate = CIBlock::GetArrayByID($ID);
+		$RIGHTS_MODE = $iblockDataBeforeUpdate["RIGHTS_MODE"];
 
 		if(!$this->CheckFields($arFields, $ID))
 		{
@@ -1318,6 +1325,23 @@ class CAllIBlock
 					"FROM b_lang ".
 					"WHERE LID IN (".$str_LID.") ";
 				$DB->Query($strSql);
+			}
+
+			if (
+				isset($arFields["FULLTEXT_INDEX"])
+				&& $arFields["FULLTEXT_INDEX"] === "Y"
+				&& $iblockDataBeforeUpdate["FULLTEXT_INDEX"] === "N"
+			)
+			{
+				Iblock\FullIndex\FullText::createTable($ID);
+			}
+			if (
+				isset($arFields["FULLTEXT_INDEX"])
+				&& $arFields["FULLTEXT_INDEX"] === "N"
+				&& $iblockDataBeforeUpdate["FULLTEXT_INDEX"] === "Y"
+			)
+			{
+				Iblock\FullIndex\FullText::drop($ID);
 			}
 
 			if(CModule::IncludeModule("search"))
@@ -1445,6 +1469,8 @@ class CAllIBlock
 			return false;
 		if(!$DB->Query("DELETE FROM b_iblock WHERE ID=".$ID))
 			return false;
+
+		Iblock\FullIndex\FullText::drop($ID);
 
 		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_s".$ID, true);
 		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_m".$ID, true);
@@ -1606,6 +1632,15 @@ class CAllIBlock
 					$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_REST_ON_WO_API_CODE").'<br>';
 				}
 			}
+		}
+
+		if (
+			isset($arFields["FULLTEXT_INDEX"])
+			&& $arFields["FULLTEXT_INDEX"] !== "Y"
+			&& $arFields["FULLTEXT_INDEX"] !== "N"
+		)
+		{
+			$this->LAST_ERROR .= Loc::getMessage("IBLOCK_BAD_FULLTEXT_INDEX") . '<br>';
 		}
 
 		unset($arFields['TIMESTAMP_X']);

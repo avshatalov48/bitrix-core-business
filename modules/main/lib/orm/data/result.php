@@ -20,11 +20,6 @@ class Result extends \Bitrix\Main\Result
 	/** @var EntityObject */
 	protected $object;
 
-	public function __construct()
-	{
-		parent::__construct();
-	}
-
 	/**
 	 * @return EntityObject
 	 */

@@ -349,9 +349,11 @@ JS;
 					}
 					elseif ($fileUrl["scheme"])
 					{
-						$req = new \CHTTP();
-						$req->http_timeout = 20;
-						$fileContent = $req->Get($cssFilePath);
+						$http = new \Bitrix\Main\Web\HttpClient([
+							"socketTimeout" => 20,
+							"streamTimeout" => 20,
+						]);
+						$fileContent = $http->get($cssFilePath);
 					}
 
 					if ($fileContent != false)

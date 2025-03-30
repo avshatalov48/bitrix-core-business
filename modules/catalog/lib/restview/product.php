@@ -1080,6 +1080,10 @@ final class Product extends Base
 			if ($r->isSuccess())
 			{
 				$value = $isMultiple ? $value : [$value];
+				if (!is_array($value))
+				{
+					$value = [$value];
+				}
 
 				if ($propertyType === PropertyTable::TYPE_STRING && $userType === PropertyTable::USER_TYPE_DATE)
 				{

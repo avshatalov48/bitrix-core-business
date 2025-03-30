@@ -3,6 +3,7 @@
 use Bitrix\Main;
 use Bitrix\Main\Config;
 use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Localization\Loc;
 
 class CUtil
 {
@@ -631,13 +632,10 @@ class CUtil
 
 		if (!isset($search[$lang]))
 		{
-			$mess = IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/js_core_translit.php", $lang, true);
-			$trans_from = explode(",", $mess["TRANS_FROM"]);
-			$trans_to = explode(",", $mess["TRANS_TO"]);
-			foreach ($trans_from as $i => $from)
-			{
-				$search[$lang][$from] = $trans_to[$i];
-			}
+			$mess = Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/js_core_translit.php", $lang, false);
+			$transFrom = explode(",", $mess["TRANS_FROM"]);
+			$transto = explode(",", $mess["TRANS_TO"]);
+			$search[$lang] = array_combine($transFrom, $transto);
 		}
 
 		$defaultParams = [
@@ -650,84 +648,85 @@ class CUtil
 		];
 		foreach ($defaultParams as $key => $value)
 		{
-			if (!array_key_exists($key, $params))
+			if (!isset($params[$key]))
 			{
 				$params[$key] = $value;
 			}
 		}
 
-		$len = mb_strlen($str);
-		$str_new = '';
-		$last_chr_new = '';
+		$chars = mb_str_split($str);
+		$len = count($chars);
+		$strNew = '';
+		$lastChrNew = '';
 
 		for ($i = 0; $i < $len; $i++)
 		{
-			$chr = mb_substr($str, $i, 1);
+			$chr = $chars[$i];
 
-			if (preg_match("/[a-zA-Z0-9]/u", $chr) || mb_strpos($params["safe_chars"], $chr) !== false)
+			if (preg_match("/[a-zA-Z0-9]/", $chr) || ($params["safe_chars"] != '' && mb_strpos($params["safe_chars"], $chr) !== false))
 			{
-				$chr_new = $chr;
+				$chrNew = $chr;
 			}
 			elseif (preg_match("/\\s/u", $chr))
 			{
 				if (
 					!$params["delete_repeat_replace"]
 					||
-					($i > 0 && $last_chr_new != $params["replace_space"])
+					($i > 0 && $lastChrNew != $params["replace_space"])
 				)
 				{
-					$chr_new = $params["replace_space"];
+					$chrNew = $params["replace_space"];
 				}
 				else
 				{
-					$chr_new = '';
+					$chrNew = '';
 				}
 			}
 			else
 			{
-				if (array_key_exists($chr, $search[$lang]))
+				if (isset($search[$lang][$chr]))
 				{
-					$chr_new = $search[$lang][$chr];
+					$chrNew = $search[$lang][$chr];
 				}
 				else
 				{
 					if (
 						!$params["delete_repeat_replace"]
 						||
-						($i > 0 && $i != $len - 1 && $last_chr_new != $params["replace_other"])
+						($i > 0 && $i != $len - 1 && $lastChrNew != $params["replace_other"])
 					)
 					{
-						$chr_new = $params["replace_other"];
+						$chrNew = $params["replace_other"];
 					}
 					else
 					{
-						$chr_new = '';
+						$chrNew = '';
 					}
 				}
 			}
 
-			if ($chr_new <> '')
+			if ($chrNew != '')
 			{
-				if ($params["change_case"] == "L" || $params["change_case"] == "l")
-				{
-					$chr_new = mb_strtolower($chr_new);
-				}
-				elseif ($params["change_case"] == "U" || $params["change_case"] == "u")
-				{
-					$chr_new = mb_strtoupper($chr_new);
-				}
-
-				$str_new .= $chr_new;
-				$last_chr_new = $chr_new;
+				$strNew .= $chrNew;
+				$lastChrNew = $chrNew;
 			}
 
-			if (mb_strlen($str_new) >= $params["max_len"])
+			if (mb_strlen($strNew) >= $params["max_len"])
 			{
 				break;
 			}
 		}
 
-		return $str_new;
+		if ($params["change_case"] == "L" || $params["change_case"] == "l")
+		{
+			$strNew = mb_strtolower($strNew);
+		}
+		elseif ($params["change_case"] == "U" || $params["change_case"] == "u")
+		{
+			$strNew = mb_strtoupper($strNew);
+		}
+
+		return $strNew;
 	}
 
 	/**

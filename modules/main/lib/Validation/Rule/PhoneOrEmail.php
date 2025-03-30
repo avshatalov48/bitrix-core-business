@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bitrix\Main\Validation\Rule;
 
 use Attribute;
+use Bitrix\Main\Localization\LocalizableMessageInterface;
 use Bitrix\Main\Validation\ValidationResult;
 use Bitrix\Main\Validation\Validator\PhoneValidator;
 use Bitrix\Main\Validation\Validator\EmailValidator;
@@ -17,7 +18,7 @@ class PhoneOrEmail implements PropertyValidationAttributeInterface
 	public function __construct(
 		private readonly bool $strict = false,
 		private readonly bool $domainCheck = false,
-		?string $errorMessage = null
+		string|LocalizableMessageInterface|null $errorMessage = null
 	)
 	{
 		$this->errorMessage = $errorMessage;

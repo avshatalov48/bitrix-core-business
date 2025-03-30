@@ -102,7 +102,13 @@ class Callback
 				[
 					'filter' => $filter,
 					'select' => [
-						'*',
+						'ID',
+						'APP_ID',
+						'EVENT_NAME',
+						'EVENT_HANDLER',
+						'USER_ID',
+						'APPLICATION_TOKEN',
+						'CONNECTOR_ID',
 						'APP_CODE' => 'REST_APP.CLIENT_ID',
 						'APP_ACTIVE' => 'REST_APP.ACTIVE',
 						'APP_INSTALLED' => 'REST_APP.INSTALLED',

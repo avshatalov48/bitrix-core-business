@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Pull\Model;
 
+use Bitrix\Pull\Internals\UpdateByFilterTrait;
 use Bitrix\Main;
 
 /**
@@ -36,6 +37,7 @@ use Bitrix\Main;
 class ChannelTable extends Main\Entity\DataManager
 {
 	use Main\ORM\Data\Internal\MergeTrait;
+	use UpdateByFilterTrait;
 
 	/**
 	 * Returns DB table name for entity.

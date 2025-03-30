@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Data;
 
 class CacheEngineNone implements CacheEngineInterface, CacheEngineStatInterface
@@ -15,12 +16,17 @@ class CacheEngineNone implements CacheEngineInterface, CacheEngineStatInterface
 
 	public function getCachePath()
 	{
-		return "";
+		return '';
 	}
 
 	public function isAvailable()
 	{
 		return true;
+	}
+
+	public function getConfig(): array
+	{
+		return [];
 	}
 
 	public function clean($baseDir, $initDir = false, $filename = false)

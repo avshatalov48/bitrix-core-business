@@ -17,7 +17,7 @@ function forumCommentsCommentMobile(
 	}
 
 	$parser->arUserfields = $comment["PROPS"];
-	$text = $parser->convert($comment["~POST_MESSAGE_TEXT"], $comment["ALLOW"], 'html', false, $arParams['ATTRIBUTES']);
+	$text = $parser->convert($comment["~POST_MESSAGE_TEXT"], $comment["ALLOW"], 'html', false, $arParams['ATTRIBUTES'] ?? null);
 
 	$res = array(
 		"ID" => $comment["ID"],

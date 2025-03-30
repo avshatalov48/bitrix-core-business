@@ -34,7 +34,8 @@ class Translation
 		return
 			($lang === 'ru') ||
 			($lang === 'en') ||
-			($lang === 'de');
+			($lang === 'de') ||
+			($lang === 'kz');
 	}
 
 	/**

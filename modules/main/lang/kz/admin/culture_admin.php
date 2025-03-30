@@ -1,0 +1,27 @@
+<?php
+$MESS["ADD_LANG"] = "Қосу";
+$MESS["ADD_LANG_TITLE"] = "Аймақтық баптауларды қосу";
+$MESS["CHANGE"] = "Өзгерту";
+$MESS["CONFIRM_DEL"] = "Аймақтық баптауларды жойғыңыз келетініне сенімдісіз бе?";
+$MESS["COPY"] = "Көшірмені қосу";
+$MESS["DELETE"] = "Жою";
+$MESS["LANG_EDIT_TITLE"] = "Аймақтық баптауларды редакциялау";
+$MESS["NAME"] = "Атауы";
+$MESS["PAGES"] = "Аймақтар";
+$MESS["TITLE"] = "Аймақтық баптаулар";
+$MESS["culture_charset"] = "Кодтау";
+$MESS["culture_code"] = "Символдық код";
+$MESS["culture_date"] = "Күн пішімі";
+$MESS["culture_datetime"] = "Күн мен уақыт пішімі";
+$MESS["culture_direction"] = "Бағыт";
+$MESS["culture_fr"] = "Жұма";
+$MESS["culture_left_to_right"] = "Солдан оңға қарай";
+$MESS["culture_mo"] = "Дүйсенбі";
+$MESS["culture_name"] = "Есім пішімі";
+$MESS["culture_right_to_left"] = "Оңнан солға қарай";
+$MESS["culture_sa"] = "Сенбі";
+$MESS["culture_su"] = "Жексенбі";
+$MESS["culture_th"] = "Бейсенбі";
+$MESS["culture_tu"] = "Сейсенбі";
+$MESS["culture_we"] = "Сәрсенбі";
+$MESS["culture_week"] = "Аптаның басы";

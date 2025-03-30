@@ -1049,6 +1049,25 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	      required: true
 	    }
 	  },
+	  directives: {
+	    hint: ui_vue3_directives_hint.hint
+	  },
+	  computed: {
+	    ...ui_vue3_vuex.mapState({
+	      maxVisibleUserGroups: state => state.application.options.maxVisibleUserGroups
+	    }),
+	    ...ui_vue3_vuex.mapGetters({
+	      isMaxVisibleUserGroupsReached: 'userGroups/isMaxVisibleUserGroupsReached'
+	    })
+	  },
+	  methods: {
+	    onCreateNewRoleClick() {
+	      if (this.isMaxVisibleUserGroupsReached) {
+	        return;
+	      }
+	      this.$store.dispatch('userGroups/addUserGroup');
+	    }
+	  },
 	  // data attributes are needed for e2e automated tests
 	  template: `
 		<div class="ui-access-rights-v2-section ui-access-rights-v2--head-section">
@@ -1067,6 +1086,24 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 								<RoleHeading :user-group="group"/>
 								<Members :user-group="group"/>
 							</CellLayout>
+						</ColumnLayout>
+						<ColumnLayout>
+							<div class="ui-access-rights-v2-header-role-add">
+								<button class="ui-btn ui-btn-light-border ui-btn-round ui-btn-disabled"
+										v-if="isMaxVisibleUserGroupsReached"
+										v-hint="$Bitrix.Loc.getMessage(
+									 'JS_UI_ACCESSRIGHTS_V2_ROLE_ADDING_DISABLED', 
+									 {'#COUNT#': maxVisibleUserGroups,})"
+								>
+									<div class="ui-icon-set --plus-20"/>
+								</button>
+								<button class="ui-btn ui-btn-light-border ui-btn-round"
+										v-else
+										@click="onCreateNewRoleClick"
+								>
+									<div class="ui-icon-set --plus-20"/>
+								</button>
+							</div>
 						</ColumnLayout>
 					</SyncHorizontalScroll>
 				</div>
@@ -1130,7 +1167,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	function getMultipleSelectedVariablesTitle(selectedVariables) {
 	  const lastVariable = [...selectedVariables.values()].pop();
 	  if (selectedVariables.size === 1) {
-	    return cutLongTitle(lastVariable.title);
+	    return lastVariable.title;
 	  }
 	  return main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_V2_HAS_SELECTED_ITEMS', {
 	    '#FIRST_ITEM_NAME#': cutLongTitle(lastVariable.title),
@@ -2001,7 +2038,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 					:key="variableId"
 					class="ui-access-rights-v2-dv-popup--line"
 				>
-					<span class="ui-access-rights-v2-text-ellipsis">{{ variable.title }}</span>
+					<span class="ui-access-rights-v2-text-ellipsis" :title="variable.title">{{ variable.title }}</span>
 					<Switcher
 						:is-checked="notSavedValues.has(variable.id)"
 						@check="addValue(variable.id)"
@@ -2886,7 +2923,8 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 	  name: 'ColumnList',
 	  components: {
 	    Column,
-	    SyncHorizontalScroll
+	    SyncHorizontalScroll,
+	    ColumnLayout
 	  },
 	  props: {
 	    userGroups: {
@@ -3034,6 +3072,7 @@ this.BX.UI.AccessRights = this.BX.UI.AccessRights || {};
 					:rights="rights"
 					:data-accessrights-user-group-id="groupId"
 				/>
+				<ColumnLayout/>
 			</SyncHorizontalScroll>
 		</div>
 	`

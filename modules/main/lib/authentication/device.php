@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Authentication;
@@ -35,6 +35,11 @@ class Device
 		{
 			$cookable = false;
 			$device = static::findByUserAgent($context);
+
+			if ($device === null && $context->getApplicationPasswordId())
+			{
+				$device = static::findByAppPasswordId($context);
+			}
 		}
 		else
 		{
@@ -57,7 +62,7 @@ class Device
 		else
 		{
 			// update to actual data
-			static::update($device, $cookable);
+			static::update($device, $context, $cookable);
 			static::addDeviceLogin($device, $context);
 		}
 
@@ -97,14 +102,45 @@ class Device
 
 		while ($device = $query->fetchObject())
 		{
-			$pattern = preg_replace('/\\d+/i', '\\d+', preg_quote($device->getUserAgent(), '/'));
-			if (preg_match("/{$pattern}/i", $userAgent))
+			if (static::match($userAgent, $device->getUserAgent()))
 			{
 				return $device;
 			}
 		}
 
 		return null;
+	}
+
+	protected static function findByAppPasswordId(Context $context): ?EO_UserDevice
+	{
+		$request = Main\Context::getCurrent()->getRequest();
+		$userAgent = $request->getUserAgent();
+
+		// only user agents with the same APP_PASSWORD_ID
+		$query = Internal\UserDeviceTable::query()
+			->setSelect(['*'])
+			->where('USER_ID', $context->getUserId())
+			->where('COOKABLE', true)
+			->where('APP_PASSWORD_ID', $context->getApplicationPasswordId())
+			->exec()
+		;
+
+		while ($device = $query->fetchObject())
+		{
+			if (static::match($userAgent, $device->getUserAgent()))
+			{
+				return $device;
+			}
+		}
+
+		return null;
+	}
+
+	protected static function match(?string $userAgent, ?string $patternAgent): bool
+	{
+		$pattern = preg_replace('/\\d+/i', '\\d+', preg_quote((string)$patternAgent, '/'));
+
+		return preg_match("/{$pattern}/i", (string)$userAgent);
 	}
 
 	protected static function add(Context $context): EO_UserDevice
@@ -119,13 +155,14 @@ class Device
 			->setBrowser($browser->getName())
 			->setPlatform($browser->getPlatform())
 			->setUserAgent($browser->getUserAgent())
+			->setAppPasswordId($context->getApplicationPasswordId())
 			->save()
 		;
 
 		return $device;
 	}
 
-	protected static function update(EO_UserDevice $device, bool $cookable): void
+	protected static function update(EO_UserDevice $device, Context $context, bool $cookable): void
 	{
 		$browser = Browser::detect();
 
@@ -135,6 +172,7 @@ class Device
 			->setPlatform($browser->getPlatform())
 			->setUserAgent($browser->getUserAgent())
 			->setCookable($cookable)
+			->setAppPasswordId($context->getApplicationPasswordId())
 			->save()
 		;
 	}
@@ -269,5 +307,78 @@ class Device
 			'LID' => $site,
 			'LANGUAGE_ID' => $lang,
 		]);
+	}
+
+	/**
+	 * @internal
+	 * @param int $lastId
+	 * @return string
+	 */
+	public static function deleteDuplicatesAgent(int $lastId = 0)
+	{
+		$connection = Main\Application::getConnection();
+
+		$users = $connection->query("
+			select USER_ID 
+			from b_user_device 
+			where USER_ID > {$lastId} 
+			group by USER_ID 
+			order by USER_ID 
+			limit 100
+		");
+
+		$userId = null;
+		while ($user = $users->fetch())
+		{
+			$userId = $user['USER_ID'];
+
+			$devices = $connection->query("
+				select * 
+				from b_user_device 
+				where USER_ID = {$userId}
+					and COOKABLE = 'Y'
+					and APP_PASSWORD_ID is not null 
+				order by ID 
+			")->fetchAll();
+
+			$deleted = [];
+			for ($i = 0, $count = count($devices); $i < $count; $i++)
+			{
+				$device = $devices[$i];
+
+				if (isset($deleted[$device['ID']]))
+				{
+					continue;
+				}
+
+				for ($j = $i + 1; $j < $count; $j++)
+				{
+					$deviceDouble = $devices[$j];
+
+					if ($deviceDouble['APP_PASSWORD_ID'] == $device['APP_PASSWORD_ID'] && static::match($deviceDouble['USER_AGENT'], $device['USER_AGENT']))
+					{
+						$connection->query("
+							update b_user_device_login 
+							set DEVICE_ID = {$device['ID']}
+							where DEVICE_ID = {$deviceDouble['ID']} 
+						");
+
+						$connection->query("
+							delete from b_user_device 
+							where ID = {$deviceDouble['ID']} 
+						");
+
+						$deleted[$deviceDouble['ID']] = 1;
+					}
+				}
+			}
+		}
+
+		if ($userId !== null)
+		{
+			return "\\Bitrix\\Main\\Authentication\\Device::deleteDuplicatesAgent({$userId});";
+		}
+
+		return '';
 	}
 }

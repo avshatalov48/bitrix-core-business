@@ -1,0 +1,25 @@
+<?php
+$MESS["TASK_BINDING_FILE"] = "Файл/Бума";
+$MESS["TASK_BINDING_MODULE"] = "Модуль";
+$MESS["TASK_DESC_FM_FOLDER_ACCESS_DENIED"] = "Файлға/бумаға қол жеткізуге тыйым салынған";
+$MESS["TASK_DESC_FM_FOLDER_ACCESS_FULL"] = "Файлға/бумаға толық қолжетімділік";
+$MESS["TASK_DESC_FM_FOLDER_ACCESS_READ"] = "Файлдың/буманың мазмұнын көруге болады";
+$MESS["TASK_DESC_FM_FOLDER_ACCESS_WORKFLOW"] = "Құжат айналымы арқылы файлдарды өзгертуге рұқсат етіледі";
+$MESS["TASK_DESC_FM_FOLDER_ACCESS_WRITE"] = "Файлды/буманы жазуға/жоюға рұқсат етілген";
+$MESS["TASK_DESC_MAIN_CHANGE_PROFILE"] = "Профильдегі ақпаратты өзгертуге рұқсат етіледі";
+$MESS["TASK_DESC_MAIN_DENIED"] = "Бас модульге қол жеткізуге тыйым салынған";
+$MESS["TASK_DESC_MAIN_EDIT_SUBORDINATE_USERS"] = "Барлық пайдаланушылар тізімінен басқа барлық модуль деректерін көруге және берілген профильдерді көруге/өзгертуге рұқсат етіледі";
+$MESS["TASK_DESC_MAIN_FULL_ACCESS"] = "Бас модульге толық қолжетімділік берілген";
+$MESS["TASK_DESC_MAIN_VIEW_ALL_SETTINGS"] = "Бас модульдің барлық параметрлерін өзгертусіз көруге рұқсат етіледі";
+$MESS["TASK_DESC_MAIN_VIEW_ALL_SETTINGS_CHANGE_PROFILE"] = "Профильді өзгертуге және модульдің барлық параметрлерін өзгертусіз көруге рұқсат етіледі";
+$MESS["TASK_NAME_FM_FOLDER_ACCESS_DENIED"] = "Қолжетімділік жабық";
+$MESS["TASK_NAME_FM_FOLDER_ACCESS_FULL"] = "Толық қолжетімділік";
+$MESS["TASK_NAME_FM_FOLDER_ACCESS_READ"] = "Оқу";
+$MESS["TASK_NAME_FM_FOLDER_ACCESS_WORKFLOW"] = "Құжат айналымы";
+$MESS["TASK_NAME_FM_FOLDER_ACCESS_WRITE"] = "Жазу";
+$MESS["TASK_NAME_MAIN_CHANGE_PROFILE"] = "Өзінің профилін өзгерту";
+$MESS["TASK_NAME_MAIN_DENIED"] = "Қолжетімділік жабық";
+$MESS["TASK_NAME_MAIN_EDIT_SUBORDINATE_USERS"] = "Модульдің барлық деректерін қарау, орнатылған профильдерді өзгерту";
+$MESS["TASK_NAME_MAIN_FULL_ACCESS"] = "Толық қолжетімділік";
+$MESS["TASK_NAME_MAIN_VIEW_ALL_SETTINGS"] = "Модульдің барлық деректерін қарау";
+$MESS["TASK_NAME_MAIN_VIEW_ALL_SETTINGS_CHANGE_PROFILE"] = "Модульдің барлық деректерін қарау, профиліңізді өзгерту";

@@ -17,6 +17,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var string $parentComponentName */
 /** @var string $parentComponentPath */
 /** @var string $parentComponentTemplate */
+
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
+
 $this->setFrameMode(false);
 
 if(!\Bitrix\Main\Loader::includeModule('lists'))
@@ -757,27 +761,49 @@ if(
 		{
 			$obElement = new CIBlockElement;
 
-			if($arResult["ELEMENT_ID"])
+			$conn = Application::getConnection();
+			$conn->startTransaction();
+
+			try
 			{
-				if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) &&
-					CIBlockElement::WF_IsLocked($ELEMENT_ID, $lockedBy, $dateLock))
+				if ($arResult["ELEMENT_ID"])
 				{
-					$strError = GetMessage("CC_BLEE_ELEMENT_LOCKED");
+					if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) &&
+						CIBlockElement::WF_IsLocked($ELEMENT_ID, $lockedBy, $dateLock))
+					{
+						$strError = GetMessage("CC_BLEE_ELEMENT_LOCKED");
+					}
+					else
+					{
+						$res = $obElement->Update($arResult["ELEMENT_ID"], $arElement, false, true, true);
+						if (!$res)
+							$strError = $obElement->LAST_ERROR;
+					}
 				}
 				else
 				{
-					$res = $obElement->Update($arResult["ELEMENT_ID"], $arElement, false, true, true);
-					if(!$res)
+					$res = $obElement->Add($arElement, false, true, true);
+					if ($res)
+						$arResult["ELEMENT_ID"] = $res;
+					else
 						$strError = $obElement->LAST_ERROR;
 				}
 			}
+			catch(SqlQueryException)
+			{
+				$strError =
+					$arResult['ELEMENT_ID']
+						? GetMessage('CC_BLEE_INTERNAL_ERROR_ELEMENT_UPDATE')
+						: GetMessage('CC_BLEE_INTERNAL_ERROR_ELEMENT_ADD')
+				;
+			}
+			if (!$strError)
+			{
+				$conn->commitTransaction();
+			}
 			else
 			{
-				$res = $obElement->Add($arElement, false, true, true);
-				if($res)
-					$arResult["ELEMENT_ID"] = $res;
-				else
-					$strError = $obElement->LAST_ERROR;
+				$conn->rollbackTransaction();
 			}
 		}
 

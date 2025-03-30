@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main;
@@ -238,7 +238,7 @@ class UserTable extends DataManager
 		return Application::getInstance()->getLicense()->getActiveUsersCount($lastLoginDate);
 	}
 
-	public static function getUserGroupIds($userId)
+	public static function getUserGroupIds($userId): array
 	{
 		$groups = [];
 
@@ -254,17 +254,13 @@ class UserTable extends DataManager
 
 		while ($row = $result->fetch())
 		{
-			$groups[] = $row['ID'];
+			$groups[] = (int)$row['ID'];
 		}
 
-		if (!in_array(2, $groups))
-		{
-			$groups[] = 2;
-		}
+		$groups[] = 2;
 
 		if ($userId > 0)
 		{
-			// private groups
 			$nowTimeExpression = new SqlExpression(
 				static::getEntity()->getConnection()->getSqlHelper()->getCurrentDateTimeFunction()
 			);
@@ -284,20 +280,16 @@ class UserTable extends DataManager
 						'=UserGroup:GROUP.DATE_ACTIVE_TO' => null,
 						'>=UserGroup:GROUP.DATE_ACTIVE_TO' => $nowTimeExpression,
 					],
-					[
-						'LOGIC' => 'OR',
-						'!=ANONYMOUS' => 'Y',
-						'=ANONYMOUS' => null,
-					],
 				],
 			]);
 
 			while ($row = $result->fetch())
 			{
-				$groups[] = $row['ID'];
+				$groups[] = (int)$row['ID'];
 			}
 		}
 
+		$groups = array_unique($groups, SORT_NUMERIC);
 		sort($groups);
 
 		return $groups;

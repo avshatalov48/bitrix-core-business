@@ -32,9 +32,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Placement_Query query()
- * @method static EO_Placement_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Placement_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Placement_Result getById($id)
- * @method static EO_Placement_Result getList(array $parameters = array())
+ * @method static EO_Placement_Result getList(array $parameters = [])
  * @method static EO_Placement_Entity getEntity()
  * @method static \Bitrix\Rest\EO_Placement createObject($setDefaultValues = true)
  * @method static \Bitrix\Rest\EO_Placement_Collection createCollection()

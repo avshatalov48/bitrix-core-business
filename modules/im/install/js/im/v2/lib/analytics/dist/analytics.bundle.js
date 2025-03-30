@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_messageComponentManager,ui_analytics,im_v2_const,im_v2_application_core) {
+(function (exports,im_v2_lib_analytics,im_v2_lib_messageComponentManager,ui_analytics,im_v2_const,im_v2_application_core) {
 	'use strict';
 
 	const CopilotChatType = Object.freeze({
@@ -36,7 +36,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  openFiles: 'open_files',
 	  clickCreateTask: 'click_create_task',
 	  clickCreateEvent: 'click_create_event',
-	  clickAttach: 'click_attach'
+	  clickAttach: 'click_attach',
+	  downloadFile: 'download_file',
+	  saveToDisk: 'save_to_disk'
 	});
 	const AnalyticsTool = Object.freeze({
 	  ai: 'ai',
@@ -83,7 +85,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  chatHeader: 'chat_header',
 	  chatSidebar: 'chat_sidebar',
 	  chatTextarea: 'chat_textarea',
-	  editor: 'editor'
+	  editor: 'editor',
+	  chatWindow: 'chat_window'
 	});
 	const AnalyticsSubSection = Object.freeze({
 	  contextMenu: 'context_menu',
@@ -157,6 +160,83 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function getChatType(chat) {
 	  var _ChatType$chat$type;
 	  return (_ChatType$chat$type = im_v2_const.ChatType[chat.type]) != null ? _ChatType$chat$type : CUSTOM_CHAT_TYPE;
+	}
+
+	const AnalyticsAmountFilesType = {
+	  single: 'files_single',
+	  many: 'files_all'
+	};
+	const AnalyticsFileType = {
+	  ...im_v2_const.FileType,
+	  media: 'media',
+	  any: 'any'
+	};
+	class MessageFiles {
+	  onClickDownload({
+	    messageId,
+	    dialogId
+	  }) {
+	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    const params = {
+	      tool: AnalyticsTool.im,
+	      category: getCategoryByChatType(chat.type),
+	      event: AnalyticsEvent.downloadFile,
+	      type: getAnalyticsFileType(messageId),
+	      c_section: AnalyticsSection.chatWindow,
+	      c_sub_section: AnalyticsSubSection.contextMenu,
+	      p1: `chatType_${chat.type}`,
+	      p2: getUserType(),
+	      p3: getFilesAmountParam(messageId),
+	      p5: `chatId_${chat.chatId}`
+	    };
+	    if (chat.type === im_v2_const.ChatType.collab) {
+	      params.p4 = im_v2_lib_analytics.getCollabId(chat.chatId);
+	    }
+	    ui_analytics.sendData(params);
+	  }
+	  onClickSaveOnDisk({
+	    messageId,
+	    dialogId
+	  }) {
+	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    const params = {
+	      tool: AnalyticsTool.im,
+	      category: getCategoryByChatType(chat.type),
+	      event: AnalyticsEvent.saveToDisk,
+	      type: getAnalyticsFileType(messageId),
+	      c_section: AnalyticsSection.chatWindow,
+	      c_sub_section: AnalyticsSubSection.contextMenu,
+	      p1: `chatType_${chat.type}`,
+	      p2: getUserType(),
+	      p3: getFilesAmountParam(messageId),
+	      p5: `chatId_${chat.chatId}`
+	    };
+	    if (chat.type === im_v2_const.ChatType.collab) {
+	      params.p4 = im_v2_lib_analytics.getCollabId(chat.chatId);
+	    }
+	    ui_analytics.sendData(params);
+	  }
+	}
+	function getFilesAmountParam(messageId) {
+	  const message = im_v2_application_core.Core.getStore().getters['messages/getById'](messageId);
+	  if (message.files.length === 1) {
+	    return AnalyticsAmountFilesType.single;
+	  }
+	  return AnalyticsAmountFilesType.many;
+	}
+	function getAnalyticsFileType(messageId) {
+	  const message = im_v2_application_core.Core.getStore().getters['messages/getById'](messageId);
+	  const fileTypes = message.files.map(fileId => {
+	    return im_v2_application_core.Core.getStore().getters['files/get'](fileId).type;
+	  });
+	  const uniqueTypes = [...new Set(fileTypes)];
+	  if (uniqueTypes.length === 1) {
+	    return uniqueTypes[0];
+	  }
+	  if (uniqueTypes.length === 2 && uniqueTypes.includes(im_v2_const.FileType.image) && uniqueTypes.includes(im_v2_const.FileType.video)) {
+	    return AnalyticsFileType.media;
+	  }
+	  return AnalyticsFileType.any;
 	}
 
 	const EntityToEventMap = {
@@ -700,6 +780,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.checkIn = new CheckIn();
 	    this.copilot = new Copilot();
 	    this.attachMenu = new AttachMenu();
+	    this.messageFiles = new MessageFiles();
 	  }
 	  static getInstance() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
@@ -776,5 +857,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.getCollabId = getCollabId;
 	exports.getUserType = getUserType;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.UI.Analytics,BX.Messenger.v2.Const,BX.Messenger.v2.Application));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI.Analytics,BX.Messenger.v2.Const,BX.Messenger.v2.Application));
 //# sourceMappingURL=analytics.bundle.js.map

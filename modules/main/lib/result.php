@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2015 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main;
@@ -15,8 +16,7 @@ class Result
 	/** @var bool */
 	protected $isSuccess = true;
 
-	/** @var ErrorCollection */
-	protected $errors;
+	protected ErrorCollection $errors;
 
 	/** @var  array */
 	protected $data = array();

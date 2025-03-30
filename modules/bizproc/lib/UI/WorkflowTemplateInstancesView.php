@@ -28,7 +28,7 @@ class WorkflowTemplateInstancesView implements \JsonSerializable
 		$query->addFilter('WORKFLOW_TEMPLATE_ID', $this->tplId)
 			->addSelect('STARTED_BY')
 			->addSelect('STARTED')
-			->setOrder(['STARTED' => 'DESC'])
+			->setOrder(['STARTED' => 'ASC'])
 			->setLimit(3)
 		;
 		$result = $query->exec();

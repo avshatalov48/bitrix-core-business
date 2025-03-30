@@ -1,5 +1,4 @@
-<?
+<?php
 $MESS["HLBLOCK_ROW_VIEW_NAME_COLUMN"] = "Field";
 $MESS["HLBLOCK_ROW_VIEW_VALUE_COLUMN"] = "Value";
 $MESS["HLBLOCK_ROW_VIEW_BACK_TO_LIST"] = "Back to list";
-?>

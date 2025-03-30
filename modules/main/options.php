@@ -288,6 +288,7 @@ $arAllOptions = array(
 		Array("update_stop_autocheck", GetMessage("MAIN_OPTIONS_STOP_AUTOCHECK"), "N", Array("checkbox", "Y")),
 		Array("update_is_gzip_installed", GetMessage("MAIN_UPDATE_IS_GZIP_INSTALLED1"), "Y", Array("checkbox", "Y")),
 		Array("update_load_timeout", GetMessage("MAIN_UPDATE_LOAD_TIMEOUT"), "30", Array("text", "30")),
+		Array("update_system_expert_mode", GetMessage("SUP_MENU_TURN_EXPERT_MODE_ON"), "N", Array("checkbox", "Y")),
 	),
 	"controller_auth" => Array(
 		Array("auth_controller_prefix", GetMessage("MAIN_OPTION_CTRL_PREF"), "controller", Array("text", "30")),

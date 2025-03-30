@@ -31,4 +31,4 @@ $MESS["currency_format_string"] = "The field \"Format\" for language #LANG# is e
 $MESS["currency_numcode"] = "Numeric code";
 $MESS["currency_rate"] = "Default rate";
 $MESS["currency_rate_cnt"] = "Amount";
-$MESS["currency_sort_ex"] = "Sorting index";
+$MESS['currency_sort_ex'] = "Sorting index";

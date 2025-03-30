@@ -1,0 +1,23 @@
+<?php
+$MESS["MAIN_RATING_RULE_EDIT_RECORD"] = "# #ID# өңдеу ережесін редакциялау";
+$MESS["MAIN_RATING_RULE_NEW_RECORD"] = "Өңдеу ережесін құру";
+$MESS["RATING_RULE_DEF_NAME"] = "Жаңа өңдеу ережесі";
+$MESS["RATING_RULE_EDIT_ADD"] = "Жаңа ереже";
+$MESS["RATING_RULE_EDIT_ADD_TITLE"] = "Жаңа өңдеу ережесін жасау";
+$MESS["RATING_RULE_EDIT_CAT_HOW_ACTIVATE"] = "Қалай белсендіріледі";
+$MESS["RATING_RULE_EDIT_CAT_WHAT_DO"] = "Нені орындайды";
+$MESS["RATING_RULE_EDIT_DEL"] = "Жою";
+$MESS["RATING_RULE_EDIT_DEL_CONF"] = "Бұл ережені жойғыңыз келетініне сенімдісіз бе?";
+$MESS["RATING_RULE_EDIT_DEL_TITLE"] = "Жою";
+$MESS["RATING_RULE_EDIT_ERROR"] = "Сақтау кезінде қате";
+$MESS["RATING_RULE_EDIT_FRM_ACTION_DESC"] = "Шартты орындау кезінде бұл әрекет орындалады.<br>Шартты орындау тоқтатылған кезде бұл әрекет жойылады.";
+$MESS["RATING_RULE_EDIT_FRM_ACTION_NAME"] = "Әрекет";
+$MESS["RATING_RULE_EDIT_FRM_ACTIVE"] = "Белсенділік:";
+$MESS["RATING_RULE_EDIT_FRM_CONDITION_NAME"] = "Шарт";
+$MESS["RATING_RULE_EDIT_FRM_NAME"] = "Атауы:";
+$MESS["RATING_RULE_EDIT_FRM_TYPE_ID"] = "Мақсатты объект:";
+$MESS["RATING_RULE_EDIT_SUCCESS"] = "Жазба сәтті сақталды.";
+$MESS["RATING_RULE_EDIT_TAB_MAIN"] = "Өңдеу ережесі";
+$MESS["RATING_RULE_EDIT_TAB_MAIN_TITLE"] = "Рейтинг және билік деректерін өңдеу ережесі";
+$MESS["RATING_RULE_LIST"] = "Ережелер тізімі";
+$MESS["RATING_RULE_LIST_TITLE"] = "Өңдеу ережелері тізіміне өту";

@@ -187,7 +187,7 @@ $totalQueryTime = 0.0;
 
 if ($bShowStat || $bShowCacheStat)
 {
-	if ($bShowStat)
+	if ($bShowStat && $sqlTracker)
 	{
 		$totalQueryCount = $sqlTracker->getCounter();
 		$totalQueryTime = $sqlTracker->getTime();

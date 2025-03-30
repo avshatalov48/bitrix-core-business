@@ -11,11 +11,11 @@ namespace Bitrix\Main\Web;
 
 use Bitrix\Main\ArgumentTypeException;
 
+/**
+ * @property Http\Cookie[] $values
+ */
 class HttpCookies extends \Bitrix\Main\Type\Dictionary
 {
-	/** @var Http\Cookie[]  */
-	protected $values = [];
-
 	/**
 	 * @param string[] | Http\Cookie[] | null $values
 	 */

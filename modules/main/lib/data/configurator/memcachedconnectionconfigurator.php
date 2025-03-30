@@ -10,6 +10,9 @@ class MemcachedConnectionConfigurator
 	protected array $config;
 	protected array $servers = [];
 
+	/**
+	 * @throws NotSupportedException
+	 */
 	public function __construct(array $config)
 	{
 		if (!extension_loaded('memcached'))
@@ -18,7 +21,6 @@ class MemcachedConnectionConfigurator
 		}
 
 		$this->config = $config;
-
 		$this->addServers($this->getConfig());
 	}
 
@@ -63,12 +65,11 @@ class MemcachedConnectionConfigurator
 			throw new NotSupportedException('Empty server list to memcache connection.');
 		}
 
-		$connectionTimeout = $this->getConfig()['connectionTimeout'] ?? 1000;
-		$serializer = $this->getConfig()['serializer'] ?? \Memcached::SERIALIZER_PHP;
+		$persistent = $this->getConfig()['persistent'] ?? true;
 
-		$connection = new \Memcached();
-		$connection->setOption(\Memcached::OPT_CONNECT_TIMEOUT, $connectionTimeout);
-		$connection->setOption(\Memcached::OPT_SERIALIZER, $serializer);
+		$connection = new \Memcached($persistent ? 'bx_cache' : '');
+		$connection->setOption(\Memcached::OPT_CONNECT_TIMEOUT, $this->getConfig()['connectionTimeout'] ?? 1000);
+		$connection->setOption(\Memcached::OPT_SERIALIZER, $this->getConfig()['serializer'] ?? \Memcached::SERIALIZER_PHP);
 
 		$result = false;
 		if (!empty($this->servers))

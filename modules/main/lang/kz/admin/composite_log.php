@@ -1,0 +1,19 @@
+<?php
+$MESS["MAIN_COMPOSITE_LOG_CLEAR_ALL"] = "Логты тазарту";
+$MESS["MAIN_COMPOSITE_LOG_CLEAR_ALL_CONFIRM"] = "Сіз шынымен барлық лог жазбаларын өшіргіңіз келе ме?";
+$MESS["MAIN_COMPOSITE_LOG_DEBUG_DESC"] = "Ретке келтіру режимінде қателер, кэшті қайта жазу, компоненттердің дауыс беруі және т. б. логтеледі.";
+$MESS["MAIN_COMPOSITE_LOG_DEBUG_DISABLED"] = "Ретке келтіру өшірулі";
+$MESS["MAIN_COMPOSITE_LOG_DEBUG_ENABLED"] = "Ретке келтіру қосулы";
+$MESS["MAIN_COMPOSITE_LOG_DISABLE_DEBUG"] = "Ретке келтіруді өшіру";
+$MESS["MAIN_COMPOSITE_LOG_ENABLE_DEBUG"] = "Ретке келтіруді қосу";
+$MESS["MAIN_COMPOSITE_LOG_INTERVAL_300_SEC"] = "5 минут ішінде";
+$MESS["MAIN_COMPOSITE_LOG_INTERVAL_600_SEC"] = "10 минут ішінде";
+$MESS["MAIN_COMPOSITE_LOG_INTERVAL_1200_SEC"] = "20 минут ішінде";
+$MESS["MAIN_COMPOSITE_LOG_INTERVAL_1800_SEC"] = "30 минут ішінде";
+$MESS["MAIN_COMPOSITE_LOG_INTERVAL_3600_SEC"] = "1 сағат ішінде";
+$MESS["MAIN_COMPOSITE_LOG_PAGES"] = "Жазбалар";
+$MESS["MAIN_COMPOSITE_LOG_PAGE_COLUMN"] = "Парақша";
+$MESS["MAIN_COMPOSITE_LOG_PLUGIN_AD"] = "Google Chrome браузері үшін #LINK_START#Bitrix Composite Notifier#LINK_END# плагинін орнату ұсынылады.";
+$MESS["MAIN_COMPOSITE_LOG_TIME_LEFT"] = "Ретке келтіруді өшіруге қалды";
+$MESS["MAIN_COMPOSITE_LOG_TITLE"] = "Ретке келтіру журналы";
+$MESS["MAIN_COMPOSITE_LOG_VIEW_DIFF"] = "Нұсқаларды салыстыру";

@@ -7,6 +7,11 @@ use Bitrix\Main\Localization\Loc;
 
 class FileError extends Error
 {
+	public const DISK_NOT_INSTALLED = 'DISK_NOT_INSTALLED';
+	public const ACCESS_ERROR = 'FILE_ACCESS_ERROR';
+	public const STORAGE_NOT_FOUND = 'STORAGE_NOT_FOUND';
+	public const FOLDER_NOT_FOUND = 'FOLDER_NOT_FOUND';
+	public const COPY_ERROR = 'COPY_ERROR';
 	public const UNKNOWN_FILE_SUBTYPE = 'UNKNOWN_FILE_SUBTYPE';
 	public const NOT_FOUND = 'FILE_NOT_FOUND';
 	public const CREATE_SYMLINK = 'CREATE_SYMLINK_ERROR';

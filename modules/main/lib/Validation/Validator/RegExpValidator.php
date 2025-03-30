@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix\Main\Validation\Validator;
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\LocalizableMessage;
 use Bitrix\Main\Validation\ValidationError;
 use Bitrix\Main\Validation\ValidationResult;
 
@@ -24,7 +24,7 @@ class RegExpValidator implements ValidatorInterface
 		if (!is_string($value))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_REG_EXP_INVALID_TYPE'),
+				new LocalizableMessage('MAIN_VALIDATION_REG_EXP_INVALID_TYPE'),
 				failedValidator: $this
 			));
 
@@ -34,7 +34,7 @@ class RegExpValidator implements ValidatorInterface
 		if (!preg_match($this->pattern, $value, flags: $this->flags, offset: $this->offset))
 		{
 			$result->addError(new ValidationError(
-				Loc::getMessage('MAIN_VALIDATION_REG_EXP_INVALID'),
+				new LocalizableMessage('MAIN_VALIDATION_REG_EXP_INVALID'),
 				failedValidator: $this
 			));
 		}

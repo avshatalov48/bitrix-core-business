@@ -5,13 +5,13 @@ $MESS["IM_CREATE_CHAT_CANCEL"] = "Отмена";
 
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION"] = "Настройки чата";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_OWNER"] = "Владелец";
-$MESS["IM_CREATE_CHAT_SETTINGS_SECTION_PRIVACY"] = "Приватность";
+$MESS["IM_CREATE_CHAT_SETTINGS_SECTION_PRIVACY_MSGVER_1"] = "Тип чата";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_PRIVATE_TITLE"] = "Закрытый";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_PRIVATE_SUBTITLE"] = "Чат не виден в общем списке чатов, участников можно только добавить. Подходит для обсуждения важных проектов и внутренней работы команды";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_OPEN_TITLE"] = "Открытый";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_OPEN_SUBTITLE"] = "Чат можно найти в общем списке, вступить в него может любой желающий. Подходит для взаимодействия между командами, адаптации новых сотрудников и общения";
 $MESS["IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION"] = "Описание";
-$MESS["IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION_PLACEHOLDER"] = "Напишите, для чего создан чат и что в нём будет обсуждаться.#BR#Так у участников будет меньше вопросов. Например, #QUOTE_START#Здесь будем обсуждать рабочие моменты по запуску нового продукта#QUOTE_END#.";
+$MESS["IM_CREATE_CHAT_SETTINGS_SECTION_DESCRIPTION_PLACEHOLDER_MSGVER_1"] = "Напишите, для чего создан чат и что в нём будет обсуждаться";
 
 $MESS["IM_CREATE_CHAT_RIGHTS_SECTION"] = "Права доступа";
 $MESS["IM_CREATE_CHAT_RIGHTS_SECTION_OWNER"] = "Владелец";

@@ -1,8 +1,8 @@
 <?php
 $MESS["SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE"] = "Apple Pay";
 $MESS["SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE_PUBLIC_DESCRIPTION"] = "Enable Apple Pay on your Apple device and pay confirming the transaction via Touch ID or Face ID.";
-$MESS["SALE_HPS_ROBOXCHANGE_BANKCARD_MODE"] = "Receive online payments via Robokassa. Accepted payment methods: Apple Pay, Samsung Pay, Alfa.Click and banking cards";
-$MESS["SALE_HPS_ROBOXCHANGE_BANKCARD_MODE_PUBLIC_DESCRIPTION"] = "Enter the card number, expiry date and CVV/CVC code. If you paid via YooMoney before, you will have an option to select the card you used the last time to pay, in which case you will only have to enter the CVV/CVC code.";
+$MESS["SALE_HPS_ROBOXCHANGE_BANKCARD_MODE_MSGVER_1"] = "Credit/debit card payment";
+$MESS["SALE_HPS_ROBOXCHANGE_BANKCARD_MODE_PUBLIC_DESCRIPTION_MSGVER_1"] = "Enter the card number, expiry date and CVV/CVC code.";
 $MESS["SALE_HPS_ROBOXCHANGE_CHANGE_STATUS_PAY"] = "Auto pay on receiving success status";
 $MESS["SALE_HPS_ROBOXCHANGE_COUNTRY_CODE"] = "Online store country";
 $MESS["SALE_HPS_ROBOXCHANGE_COUNTRY_CODE_DESC"] = "Defines the currency and documentation workflow. The value must match the one specified in your Robokassa account.";

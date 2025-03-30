@@ -23,9 +23,6 @@ $MESS["SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION_DESC"] = "Transaction descri
 $MESS["SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION_TEMPLATE"] = "Payment ##PAYMENT_NUMBER# for order ##ORDER_NUMBER# for #USER_EMAIL#";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_PAYMENT_ID"] = "Payment #";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_PAYMENT_TYPE"] = "Payment system type";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_QIWI"] = "QIWI";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_QIWI_DESCRIPTION"] = "Qiwi payment processed by YooMoney (version 3.x and higher)";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_QIWI_PUBLIC_DESCRIPTION"] = "Register a QIWI Wallet, enter your mobile phone number and an email to get a receipt. Proceed to QIWI website and log in using your credentials.";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_RECURRING"] = "Recurring payment";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_RECURRING_DESC"] = "Recurring payments are available only in CRM forms";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_REFERRER"] = "<a href=\"https://money.yandex.ru/joinups/?source=bitrix24\" target=\"_blank\">Quick registration</a>";

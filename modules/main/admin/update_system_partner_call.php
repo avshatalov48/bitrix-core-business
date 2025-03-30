@@ -45,8 +45,6 @@ else
 	$arRequestedModules = CUpdateClientPartner::GetRequestedModules($_REQUEST["addmodule"]);
 }
 
-COption::SetOptionString("main", "update_system_update", Date($GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat()), time()));
-
 $arUpdatedModulesList = array();
 $loadResult = CUpdateClientPartner::LoadModulesUpdates($errorMessage, $arUpdateDescription, LANG, $stableVersionsOnly, $arRequestedModules, array_key_exists("reqm", $_REQUEST));
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Currency;
 
 use Bitrix\Main;
@@ -283,6 +284,7 @@ class CurrencyManager
 		{
 			$bitrix24 = Main\ModuleManager::isModuleInstalled('bitrix24');
 
+			/** @todo Use SiteTable::getDefaultLanguageId() */
 			$languageID = '';
 			$siteIterator = Main\SiteTable::getList([
 				'select' => [
@@ -293,6 +295,7 @@ class CurrencyManager
 					'=DEF' => 'Y',
 					'=ACTIVE' => 'Y',
 				],
+				'cache' => ['ttl' => 86400],
 			]);
 			$site = $siteIterator->fetch();
 			if (!empty($site))

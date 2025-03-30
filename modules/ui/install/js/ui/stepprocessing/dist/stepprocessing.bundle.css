@@ -56,6 +56,10 @@
 {
 	line-height: 16px;
 	display: inline-block;
+	width: 100%;
+}
+
+.bx-stepprocessing-dialog-process-options .bx-stepprocessing-dialog-process-options-title + .bx-stepprocessing-dialog-process-options-input {
 	width: 50%;
 }
 

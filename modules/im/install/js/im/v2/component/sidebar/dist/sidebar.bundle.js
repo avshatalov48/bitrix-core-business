@@ -122,7 +122,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  openChannel: [im_v2_const.ChatType.openChannel],
 	  comment: [im_v2_const.ChatType.comment],
 	  generalChannel: [im_v2_const.ChatType.generalChannel],
-	  collab: [im_v2_const.ChatType.collab]
+	  collab: [im_v2_const.ChatType.collab],
+	  lines: [im_v2_const.ChatType.lines]
 	};
 	const MainPanelBlock = Object.freeze({
 	  support: 'support',
@@ -204,6 +205,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    [MainPanelBlock.file]: 30,
 	    [MainPanelBlock.fileUnsorted]: 30,
 	    [MainPanelBlock.collabHelpdesk]: 40
+	  },
+	  [MainPanelType.lines]: {
+	    [MainPanelBlock.chat]: 10,
+	    [MainPanelBlock.info]: 20,
+	    [MainPanelBlock.file]: 30
 	  }
 	};
 
@@ -2010,7 +2016,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  [im_v2_const.ChatType.collab]: main_core.Loc.getMessage('IM_SIDEBAR_COLLAB_HEADER_TITLE'),
 	  default: main_core.Loc.getMessage('IM_SIDEBAR_HEADER_TITLE')
 	};
-	const ChatTypesWithMenuDisabled = new Set([im_v2_const.ChatType.comment]);
+	const ChatTypesWithMenuDisabled = new Set([im_v2_const.ChatType.comment, im_v2_const.ChatType.lines]);
 
 	// @vue/component
 	const MainHeader = {
@@ -4439,8 +4445,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      fileId: sidebarFile.fileId
 	    });
 	  }
-	  saveOnDisk(fileId) {
-	    return this.diskService.save(fileId);
+	  saveOnDisk(fileIds) {
+	    return this.diskService.save(fileIds);
 	  }
 	}
 
@@ -4483,9 +4489,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return {
 	      text: main_core.Loc.getMessage('IM_SIDEBAR_MENU_SAVE_FILE_ON_DISK_MSGVER_1'),
 	      onclick: function () {
-	        this.mediaManager.saveOnDisk(this.context.sidebarFile.fileId).then(() => {
+	        void this.mediaManager.saveOnDisk([this.context.sidebarFile.fileId]).then(() => {
 	          BX.UI.Notification.Center.notify({
-	            content: main_core.Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS')
+	            content: main_core.Loc.getMessage('IM_SERVICE_FILE_SAVED_ON_DISK_SUCCESS_MSGVER_1')
 	          });
 	        });
 	        this.menuInstance.close();
@@ -4735,6 +4741,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				:messageId="sidebarFileItem.messageId"
 				:timelineType="timelineType" 
 				:authorId="sidebarFileItem.authorId"
+				:withPlaybackRateControl="true"
 				@contextMenuClick="onContextMenuClick"
 			/>
 		</div>

@@ -37,6 +37,7 @@ $MESS["ERROR_NO_NAME"] = "Не указано название кассы";
 $MESS["ERROR_NO_OFD"] = "Не указан ОФД";
 $MESS["ERROR_NO_HANDLER"] = "Не указан обработчик кассы";
 $MESS["ERROR_NO_HANDLER_EXIST"] = "Неверный обработчик кассы";
+$MESS["ERROR_NO_OFD_HANDLER_EXIST"] = "Неверный ОФД";
 $MESS['CASHBOX_CHECK_CONNECTION_TITLE'] = 'Результат проверки подключения';
 $MESS['CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE'] = 'Закрыть';
 $MESS["ERROR_NO_OFD_EXIST"] = "Неверный ОФД";

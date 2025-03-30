@@ -18,11 +18,6 @@ class UpdateResult extends Result
 	/** @var array */
 	protected $primary;
 
-	public function __construct()
-	{
-		parent::__construct();
-	}
-
 	public function setAffectedRowsCount(Connection $connection)
 	{
 		$this->affectedRowsCount = $connection->getAffectedRowsCount();

@@ -1,5 +1,4 @@
 import 'sidepanel';
-import { Text } from 'main.core';
 
 export class Router
 {

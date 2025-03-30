@@ -5,7 +5,6 @@ export const MenuItemIcon = {
 	channel: 'channel',
 	collab: 'collab',
 	conference: 'conference',
-	disk: 'disk',
 	upload: 'upload',
 	file: 'file',
 	task: 'task',
@@ -17,6 +16,7 @@ export const MenuItemIcon = {
 	copilot: 'copilot',
 	calendarSlot: 'calendar-slot',
 	documentSign: 'document-sign',
+	b24: 'b24',
 };
 
 // @vue/component

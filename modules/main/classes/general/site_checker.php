@@ -623,9 +623,11 @@ class CSiteCheckerTest
 				$tmp = $_SERVER['DOCUMENT_ROOT'] . '/bitrix/tmp/bitrix-env.version';
 				if (!file_exists($tmp) || time() - filemtime($tmp) > 86400)
 				{
-					$ob = new CHTTP();
-					$ob->http_timeout = 5;
-					$ob->Download('https://repos.1c-bitrix.ru/yum/bitrix-env.version', $tmp);
+					$http = new \Bitrix\Main\Web\HttpClient([
+						"socketTimeout" => 5,
+						"streamTimeout" => 5,
+					]);
+					$http->download('https://repos.1c-bitrix.ru/yum/bitrix-env.version', $tmp);
 				}
 
 				if (file_exists($tmp))
@@ -1008,9 +1010,11 @@ class CSiteCheckerTest
 			$url = 'https://www.bitrixsoft.com/upload/lib/cafile.pem';
 		}
 
-		$ob = new CHTTP();
-		$ob->http_timeout = 5;
-		if ($ob->Download($url, $this->cafile) && is_file($this->cafile) && filesize($this->cafile) > 0)
+		$http = new \Bitrix\Main\Web\HttpClient([
+			"socketTimeout" => 5,
+			"streamTimeout" => 5,
+		]);
+		if ($http->download($url, $this->cafile) && is_file($this->cafile) && filesize($this->cafile) > 0)
 		{
 			return true;
 		}
@@ -1088,7 +1092,7 @@ class CSiteCheckerTest
 			$boundary = '--------' . md5(checker_get_unique_id());
 
 			$POST = "--$boundary\r\n";
-			$POST .= 'Content-Disposition: form-data; name="test_file"; filename="site_checker.bin' . "\r\n";
+			$POST .= 'Content-Disposition: form-data; name="test_file"; filename="site_checker.bin"' . "\r\n";
 			$POST .= 'Content-Type: image/gif' . "\r\n";
 			$POST .= "\r\n";
 			$POST .= $binaryData . "\r\n";
@@ -3146,7 +3150,6 @@ class CSiteCheckerTest
 
 			foreach ($arTables as $table => $sql)
 			{
-				$tmp_table = 'site_checker_' . $table;
 				$arIndexes = [];
 				$rs = $DB->Query('SHOW INDEXES FROM ' . $DB->quote($table));
 				while ($f = $rs->Fetch())
@@ -3162,8 +3165,10 @@ class CSiteCheckerTest
 					}
 				}
 
+				$tmp_table = 'site_checker_' . $table;
 				$arIndexes_tmp = [];
 				$arFT = [];
+				$arUnique = [];
 				$rs = $DB->Query('SHOW INDEXES FROM ' . $DB->quote($tmp_table));
 				while ($f = $rs->Fetch())
 				{
@@ -3179,6 +3184,10 @@ class CSiteCheckerTest
 					if ($f['Index_type'] == 'FULLTEXT')
 					{
 						$arFT[$f['Key_name']] = true;
+					}
+					if ($f['Non_unique'] == 0)
+					{
+						$arUnique[$f['Key_name']] = true;
 					}
 				}
 
@@ -3222,8 +3231,9 @@ class CSiteCheckerTest
 				while ($f_tmp = $rs->Fetch())
 				{
 					$tmp = TableFieldConstruct($f_tmp);
-					if ($f = $arColumns[strtolower($f_tmp['Field'])])
+					if (isset($arColumns[strtolower($f_tmp['Field'])]))
 					{
+						$f = $arColumns[strtolower($f_tmp['Field'])];
 						if (($cur = TableFieldConstruct($f)) != $tmp)
 						{
 							$sql = 'ALTER TABLE ' . $DB->quote($table) . ' CHANGE ' . $DB->quote($f['Field']) . ' ' . $tmp;
@@ -3286,11 +3296,23 @@ class CSiteCheckerTest
 							continue;
 						}
 
-						$sql = (
-							$name == 'PRIMARY'
-							? 'ALTER TABLE ' . $DB->quote($table) . ' ADD PRIMARY KEY (' . $ix . ')'
-							: 'CREATE ' . (!empty($arFT[$name]) ? 'FULLTEXT ' : '') . 'INDEX ' . $DB->quote($name) . ' ON ' . $DB->quote($table) . ' (' . $ix . ')'
-						);
+						if ($name == 'PRIMARY')
+						{
+							$sql = 'ALTER TABLE ' . $DB->quote($table) . ' ADD PRIMARY KEY (' . $ix . ')';
+						}
+						else
+						{
+							$indexType = '';
+							if (!empty($arFT[$name]))
+							{
+								$indexType = 'FULLTEXT ';
+							}
+							elseif (!empty($arUnique[$name]))
+							{
+								$indexType = 'UNIQUE ';
+							}
+							$sql = 'CREATE ' . $indexType . 'INDEX ' . $DB->quote($name) . ' ON ' . $DB->quote($table) . ' (' . $ix . ')';
+						}
 						if ($this->fix_mode)
 						{
 							if (!$DB->Query($sql, true))
@@ -3386,6 +3408,7 @@ class CSiteCheckerTest
 
 		$step = 0;
 		$ar = null;
+		$success = true;
 		while (true)
 		{
 			$oTest = new CSiteCheckerTest($step, 1);
@@ -3427,6 +3450,8 @@ class CSiteCheckerTest
 					'NOTIFY_TYPE' => CAdminNotify::TYPE_NORMAL,
 				];
 				CAdminNotify::Add($error);
+
+				$success = false;
 				break;
 			}
 
@@ -3446,7 +3471,7 @@ class CSiteCheckerTest
 		$_SERVER['HTTP_USER_AGENT'] = '-';
 		CEventLog::Add([
 			"SEVERITY" => "WARNING",
-			"AUDIT_TYPE_ID" => isset($oTest->arTestVars['site_checker_success']) && $oTest->arTestVars['site_checker_success'] == 'Y' ? 'SITE_CHECKER_SUCCESS' : 'SITE_CHECKER_ERROR',
+			"AUDIT_TYPE_ID" => $success ? 'SITE_CHECKER_SUCCESS' : 'SITE_CHECKER_ERROR',
 			"MODULE_ID" => "main",
 			"ITEM_ID" => 'CSiteCheckerTest::CommonTest();',
 			"URL" => '-',

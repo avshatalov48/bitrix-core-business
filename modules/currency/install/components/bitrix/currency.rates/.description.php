@@ -1,16 +1,21 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-$arComponentDescription = array(
-	"NAME"			=> GetMessage("CURRENCY_SHOW_RATES_COMPONENT_NAME"),
-	"DESCRIPTION"	=> GetMessage("CURRENCY_SHOW_RATES_COMPONENT_DESCRIPTION"),
+use Bitrix\Main\Localization\Loc;
+
+$arComponentDescription = [
+	"NAME" => Loc::getMessage("CURRENCY_SHOW_RATES_COMPONENT_NAME"),
+	"DESCRIPTION" => Loc::getMessage("CURRENCY_SHOW_RATES_COMPONENT_DESCRIPTION"),
 	"ICON" => "/images/currency_rates.gif",
 	"CACHE_PATH" => "Y",
-	"PATH" => array(
+	"PATH" => [
 		"ID" => "content",
-		"CHILD" => array(
+		"CHILD" => [
 			"ID" => "CURRENCY",
-			"NAME" => GetMessage("CURRENCY_GROUP_NAME"),
-		),
-	),
-);
-?>
+			"NAME" => Loc::getMessage("CURRENCY_GROUP_NAME"),
+		],
+	],
+];

@@ -1,0 +1,21 @@
+<?php
+$MESS["CL_BEGIN"] = "Жобаны тапсыру";
+$MESS["CL_CURRENT_STATE"] = "Ағымдағы тестілеу нәтижелері";
+$MESS["CL_NOT_CHECKED_YET"] = "Сіздің сайтыңызды тексеру әлі жүргізілген жоқ";
+$MESS["CL_PROJECT_NOT_PASSED"] = "Жоба тапсырылмады";
+$MESS["CL_PROJECT_PASSED"] = "Жоба тапсырылды";
+$MESS["CL_REPORT_DATE"] = "Тапсыру күні";
+$MESS["CL_REPORT_TABLE_CHECKED"] = "Өтілген";
+$MESS["CL_REPORT_TABLE_DETAIL"] = "толығырақ";
+$MESS["CL_REPORT_TABLE_FAILED"] = "Өтілмеген";
+$MESS["CL_REPORT_TABLE_TESTER"] = "Жобаны тапсырды ";
+$MESS["CL_REPORT_TABLE_TOTAL"] = "Барлық тесттер";
+$MESS["CL_TEST_CHECKED"] = "Сәтті өтілген";
+$MESS["CL_TEST_FAILED"] = "Өтілмеген";
+$MESS["CL_TEST_NOT_REQUIRE"] = "Міндетті емес";
+$MESS["CL_TEST_REQUIRE"] = "Міндетті";
+$MESS["CL_TEST_SKIP_REQUIRE"] = "Өткізіліп жіберілген міндеттілер";
+$MESS["CL_TEST_TOTAL"] = "Барлық тесттер";
+$MESS["CL_TEST_WAITING"] = "Күтуде";
+$MESS["CL_TO_CHECKLIST_PAGE"] = "Жобаны тапсыру процесін бастау үшін <a href=\"/bitrix/admin/checklist.php?lang=#LANG#\">\"Сапа мониторы\"</a> бетіне өтіңіз.";
+$MESS["CL_TO_CHECKLIST_PAGE2"] = "Тесттер ағашын көру үшін <a href=\"/bitrix/admin/checklist.php?lang=#LANG#\">\"Сапа мониторы\"</a> бетіне өтіңіз";

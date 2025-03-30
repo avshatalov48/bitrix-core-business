@@ -274,18 +274,15 @@ class Element implements Controllable, Errorable
 
 		$elementObject = new \CIBlockElement;
 
-		global $DB, $APPLICATION;
-		$DB->startTransaction();
+		global $APPLICATION;
 		$APPLICATION->resetException();
 
 		if ($elementObject->delete($this->elementId))
 		{
-			$DB->commit();
 			return true;
 		}
 		else
 		{
-			$DB->rollback();
 			if ($exception = $APPLICATION->getException())
 				$this->errorCollection->setError(new Error($exception->getString(), self::ERROR_UPDATE_ELEMENT));
 			else

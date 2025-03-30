@@ -1,8 +1,11 @@
 <?php
+
 namespace Bitrix\Currency;
 
-use Bitrix\Main;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM;
+use Bitrix\Main\Type;
 
 /**
  * Class CurrencyRateTable
@@ -38,7 +41,7 @@ use Bitrix\Main\Localization\Loc;
  * @method static \Bitrix\Currency\EO_CurrencyRate_Collection wakeUpCollection($rows)
  */
 
-class CurrencyRateTable extends Main\Entity\DataManager
+class CurrencyRateTable extends ORM\Data\DataManager
 {
 	/**
 	 * Returns DB table name for entity
@@ -57,71 +60,65 @@ class CurrencyRateTable extends Main\Entity\DataManager
 	 */
 	public static function getMap(): array
 	{
-		return array(
-			'ID' => new Main\Entity\IntegerField('ID', array(
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_ID_FIELD')
-			)),
-			'CURRENCY' => new Main\Entity\StringField('CURRENCY', array(
-				'validation' => array(__CLASS__, 'validateCurrency'),
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_CURRENCY_FIELD')
-			)),
-			'BASE_CURRENCY' => new Main\Entity\StringField('BASE_CURRENCY', array(
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_BASE_CURRENCY_FIELD')
-			)),
-			'DATE_RATE' => new Main\Entity\DateField('DATE_RATE', array(
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_DATE_RATE_FIELD')
-			)),
-			'RATE_CNT' => new Main\Entity\IntegerField('RATE_CNT', array(
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_RATE_CNT_FIELD')
-			)),
-			'RATE' => new Main\Entity\FloatField('RATE', array(
-				'required' => true,
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_RATE_FIELD')
-			)),
-			'CREATED_BY' => new Main\Entity\IntegerField('CREATED_BY', array(
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_CREATED_BY_FIELD')
-			)),
-			'DATE_CREATE' => new Main\Entity\DatetimeField('DATE_CREATE', array(
-				'default_value' => function(){ return new Main\Type\DateTime(); },
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_DATE_CREATE_FIELD')
-			)),
-			'MODIFIED_BY' => new Main\Entity\IntegerField('MODIFIED_BY', array(
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_MODIFIED_BY_FIELD')
-			)),
-			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
-				'required' => true,
-				'default_value' => function(){ return new Main\Type\DateTime(); },
-				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_TIMESTAMP_X_FIELD')
-			)),
-			'CREATED_BY_USER' => new Main\Entity\ReferenceField(
-				'CREATED_BY_USER',
-				'Bitrix\Main\User',
-				array('=this.CREATED_BY' => 'ref.ID'),
-				array('join_type' => 'LEFT')
-			),
-			'MODIFIED_BY_USER' => new Main\Entity\ReferenceField(
-				'MODIFIED_BY_USER',
-				'Bitrix\Main\User',
-				array('=this.MODIFIED_BY' => 'ref.ID'),
-				array('join_type' => 'LEFT')
-			)
-		);
+		return [
+			'ID' => (new ORM\Fields\IntegerField('ID'))
+				->configurePrimary(true)
+				->configureAutocomplete(true)
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_ID_FIELD'))
+			,
+			'CURRENCY' => (new ORM\Fields\StringField('CURRENCY'))
+				->addValidator(new ORM\Fields\Validators\LengthValidator(null, 3))
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_CURRENCY_FIELD'))
+			,
+			'BASE_CURRENCY' => (new ORM\Fields\StringField('BASE_CURRENCY'))
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_BASE_CURRENCY_FIELD'))
+			,
+			'DATE_RATE' => (new ORM\Fields\DateField('DATE_RATE'))
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_DATE_RATE_FIELD'))
+			,
+			'RATE_CNT' => (new ORM\Fields\IntegerField('RATE_CNT'))
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_RATE_CNT_FIELD'))
+			,
+			'RATE' => (new ORM\Fields\FloatField('RATE'))
+				->configureRequired(true)
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_RATE_FIELD'))
+			,
+			'CREATED_BY' => (new ORM\Fields\IntegerField('CREATED_BY'))
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_CREATED_BY_FIELD'))
+			,
+			'DATE_CREATE' => (new ORM\Fields\DatetimeField('DATE_CREATE'))
+				->configureDefaultValue(static fn() => new Type\DateTime())
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_DATE_CREATE_FIELD'))
+			,
+			'MODIFIED_BY' => (new ORM\Fields\IntegerField('MODIFIED_BY'))
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_MODIFIED_BY_FIELD'))
+			,
+			'TIMESTAMP_X' => (new ORM\Fields\DatetimeField('TIMESTAMP_X'))
+				->configureRequired(true)
+				->configureDefaultValue(static fn() => new Type\DateTime())
+				->configureTitle(Loc::getMessage('CURRENCY_RATE_ENTITY_TIMESTAMP_X_FIELD'))
+			,
+			'CREATED_BY_USER' => (new ORM\Fields\Relations\Reference(
+					'CREATED_BY_USER',
+					'Bitrix\Main\User',
+					ORM\Query\Join::on('this.CREATED_BY', 'ref.ID')
+				))->configureJoinType(ORM\Query\Join::TYPE_LEFT)
+			,
+			'MODIFIED_BY_USER' => (new ORM\Fields\Relations\Reference(
+					'MODIFIED_BY_USER',
+					'Bitrix\Main\User',
+					ORM\Query\Join::on('this.MODIFIED_BY', 'ref.ID')
+				))->configureJoinType(ORM\Query\Join::TYPE_LEFT)
+			,
+		];
 	}
 
 	/**
-	 * Returns validators for CURRENCY field.
+	 * Deletes all rates for a currency.
 	 *
-	 * @return array
+	 * @param string $currency Deleted currency id.
+	 * @return void
 	 */
-	public static function validateCurrency()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 3),
-		);
-	}
-
 	public static function deleteByCurrency(string $currency): void
 	{
 		$currency = trim($currency);
@@ -129,11 +126,11 @@ class CurrencyRateTable extends Main\Entity\DataManager
 		{
 			return;
 		}
-		$conn = Main\Application::getConnection();
+		$conn = Application::getConnection();
 		$helper = $conn->getSqlHelper();
 		$conn->queryExecute(
 			'delete from ' . $helper->quote(self::getTableName())
-			. ' where '.$helper->quote('CURRENCY').' = \''. $helper->forSql($currency) . '\''
+			. ' where ' . $helper->quote('CURRENCY') . ' = \'' . $helper->forSql($currency) . '\''
 		);
 		unset($helper, $conn);
 

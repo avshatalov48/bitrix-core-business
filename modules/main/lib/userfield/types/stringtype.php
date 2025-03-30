@@ -150,10 +150,11 @@ class StringType extends BaseType
 				),
 			];
 		}
+
 		if(
 			!empty($userField['SETTINGS']['REGEXP'])
 			&& (string) $value !== ''
-			&& !preg_match($userField['SETTINGS']['REGEXP'], $value)
+			&& !preg_match($userField['SETTINGS']['REGEXP'] . 'u', $value)
 		)
 		{
 			$msg[] = [

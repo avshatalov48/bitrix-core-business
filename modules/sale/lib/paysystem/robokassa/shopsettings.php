@@ -151,6 +151,9 @@ final class ShopSettings
 				'@CODE_KEY' => self::getSettingsCoded(),
 			],
 			'group' => ['CONSUMER_KEY', 'PERSON_TYPE_ID'],
+			'cache' => [
+				'ttl' => 86400,
+			],
 		])->fetchAll();
 
 		if (!$businessValues)

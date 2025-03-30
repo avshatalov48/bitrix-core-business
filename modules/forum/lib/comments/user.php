@@ -3,26 +3,40 @@
 namespace Bitrix\Forum\Comments;
 
 use \Bitrix\Forum;
+use Bitrix\Main\Engine\CurrentUser;
+use CUser;
 
 class User
 {
-	protected $id = 0;
-	protected $groups = [2];
+	protected int $id = 0;
+	private static $groups;
 	protected $forumUser = null;
 
-	public function __construct($id)
+	public function __construct(int $id)
 	{
-		global $USER;
-		if (is_object($USER) && $id == $USER->getId())
+		$user = CurrentUser::get();
+		if ($id === (int)$user->getId())
 		{
-			$this->id = $USER->getId();
-			$this->groups = $USER->GetUserGroupArray();
+			$this->id = $user->getId();
+			if (empty(self::$groups[$id]))
+			{
+				self::$groups[$id] = $user->getUserGroups();
+			}
 		}
 		else if ($id > 0)
 		{
 			$this->id = $id;
-			$this->groups = \Bitrix\Main\UserTable::getUserGroupIds($id);
+			if (empty(self::$groups[$id]))
+			{
+				self::$groups[$id] = \Bitrix\Main\UserTable::getUserGroupIds($id);
+			}
 		}
+
+		if (empty(self::$groups[$id]))
+		{
+			self::$groups[$id] = [2];
+		}
+
 		$this->forumUser = Forum\User::getById($this->id);
 	}
 
@@ -33,12 +47,12 @@ class User
 
 	public function getGroups()
 	{
-		return implode(",", $this->groups);
+		return implode(",", self::$groups[$this->id]);
 	}
 
 	public function getUserGroupArray()
 	{
-		return $this->groups;
+		return self::$groups[$this->id];
 	}
 
 	public function isAuthorized()
@@ -60,7 +74,7 @@ class User
 	}
 	public function getUserGroup()
 	{
-		return $this->groups;
+		return self::$groups[$this->id];
 	}
 	public function getFirstName()
 	{

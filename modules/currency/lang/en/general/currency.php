@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BT_MOD_CURR_ERR_CURR_CUR_ID_BAD"] = "Invalid currency ID.";
 $MESS["BT_MOD_CURR_ERR_CURR_CUR_ID_ABSENT"] = "The currency ID is not specified.";
 $MESS["BT_MOD_CURR_ERR_CURR_AMOUNT_CNT_ABSENT"] = "The currency face value is not specified.";
@@ -12,4 +12,3 @@ $MESS["BT_MOD_CURR_ERR_CURR_NUMCODE_IS_BAD"] = "Currency numeric code needs to i
 $MESS["BT_MOD_CURR_ERR_CURR_LANG_BAD"] = "Incorrect language parameters specified for the currency.";
 $MESS["BX_CURRENCY_ERR_CURR_BASE_AMOUNT_CNT_BAD"] = "Incorrect face value specified for the base currency ";
 $MESS["BX_CURRENCY_ERR_CURR_BASE_AMOUNT_BAD"] = "Incorrect default exchange rate specified for the base currency ";
-?>

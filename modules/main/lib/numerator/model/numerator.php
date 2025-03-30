@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Numerator\Model;
 
 use Bitrix\Main\Entity\DataManager;
@@ -50,17 +51,17 @@ class NumeratorTable extends DataManager
 	{
 		return [
 			(new IntegerField('ID'))
-				->configurePrimary(true)
-				->configureAutocomplete(true)
+				->configurePrimary()
+				->configureAutocomplete()
 			,
 			(new StringField('NAME'))
-				->configureRequired(true)
+				->configureRequired()
 			,
 			(new StringField('TEMPLATE'))
-				->configureRequired(true)
+				->configureRequired()
 			,
 			(new StringField('SETTINGS'))
-				->configureRequired(true)
+				->configureRequired()
 			,
 			(new StringField('TYPE'))
 				->configureDefaultValue('DEFAULT')
@@ -138,6 +139,7 @@ class NumeratorTable extends DataManager
 		$params = [
 			'select' => ['*'],
 			'filter' => $filter,
+			'cache' => ['ttl' => 86400],
 		];
 		if ($sort)
 		{
@@ -158,7 +160,7 @@ class NumeratorTable extends DataManager
 	/**
 	 * @param $numeratorId
 	 * @param $numeratorFields
-	 * @return \Bitrix\Main\Entity\AddResult|\Bitrix\Main\Entity\UpdateResult
+	 * @return \Bitrix\Main\Entity\AddResult|UpdateResult
 	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectException

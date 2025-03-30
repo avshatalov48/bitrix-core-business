@@ -9,7 +9,6 @@ use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
-use Bitrix\Im\V2\Entity\User\UserCollection;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Relation;
@@ -19,8 +18,6 @@ use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Sync;
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
-use Bitrix\Main\Loader;
-use Bitrix\Main\ORM\Query\Query;
 
 class ReadService
 {

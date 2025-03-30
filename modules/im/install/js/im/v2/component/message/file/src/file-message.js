@@ -6,6 +6,7 @@ import { MediaMessage } from './components/media-message';
 import { BaseFileMessage } from './components/base-file-message';
 import { AudioMessage } from './components/audio-message';
 import { FileCollectionMessage } from './components/file-collection-message';
+import { MediaContent } from './components/media-content';
 
 import type { ImModelMessage, ImModelFile } from 'im.v2.model';
 
@@ -69,7 +70,15 @@ export const FileMessage = {
 		},
 		isGallery(): boolean
 		{
-			return this.messageFiles.every((file) => [FileType.image, FileType.video].includes(file.type));
+			const allowedGalleryTypes: Set<string> = new Set([FileType.image, FileType.video]);
+			const isMediaOnly: boolean = this.messageFiles.every((file) => {
+				return allowedGalleryTypes.has(file.type);
+			});
+			const hasImageProp: boolean = this.messageFiles.some((file) => {
+				return file.image !== false;
+			});
+
+			return isMediaOnly && hasImageProp;
 		},
 		componentName(): string
 		{
@@ -117,3 +126,5 @@ export const FileMessage = {
 		/>
 	`,
 };
+
+export { MediaContent };

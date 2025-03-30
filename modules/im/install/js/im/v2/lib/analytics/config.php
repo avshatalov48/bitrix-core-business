@@ -11,6 +11,7 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'im.v2.lib.analytics',
 		'im.v2.lib.message-component-manager',
 		'ui.analytics',
 		'im.v2.const',

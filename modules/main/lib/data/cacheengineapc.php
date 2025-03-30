@@ -3,7 +3,7 @@ namespace Bitrix\Main\Data;
 
 class CacheEngineApc extends CacheEngine
 {
-	public function getConnectionName() : string
+	public function getConnectionName(): string
 	{
 		return '';
 	}
@@ -41,15 +41,6 @@ class CacheEngineApc extends CacheEngine
 
 	public function checkInSet($key, $value) : bool
 	{
-		$cacheKey = sha1($key . '|' . $value);
-		$iexKey = $key . '|iex|' . $cacheKey;
-		$itemExist = apcu_fetch($iexKey);
-
-		if ($itemExist === $cacheKey)
-		{
-			return true;
-		}
-
 		$list = apcu_fetch($key);
 
 		if (!is_array($list))
@@ -59,7 +50,6 @@ class CacheEngineApc extends CacheEngine
 
 		if (array_key_exists($value, $list))
 		{
-			apcu_store($iexKey, $cacheKey, 2591000);
 			return true;
 		}
 
@@ -68,14 +58,6 @@ class CacheEngineApc extends CacheEngine
 
 	public function addToSet($key, $value)
 	{
-		$cacheKey = sha1($key . '|' . $value);
-		$iexKey = $key . '|iex|' . $cacheKey;
-		$itemExist = apcu_fetch($iexKey);
-		if ($itemExist === $cacheKey)
-		{
-			return;
-		}
-
 		$list = apcu_fetch($key);
 
 		if (!is_array($list))
@@ -88,7 +70,6 @@ class CacheEngineApc extends CacheEngine
 			$list[$value] = 1;
 			apcu_store($key, $list, 0);
 		}
-		apcu_store($iexKey, $cacheKey, 2591000);
 	}
 
 	public function getSet($key) : array
@@ -109,24 +90,11 @@ class CacheEngineApc extends CacheEngine
 
 		if (is_array($list) && !empty($list))
 		{
-			$list = array_keys($list);
-			foreach ($list as $iKey)
-			{
-				$delKey = $prefix . $iKey;
-				apcu_delete($key . '|iex|' . sha1($key . '|' . $iKey));
-
-				if ($this->useLock)
-				{
-					if ($cachedData = apcu_fetch($delKey))
-					{
-						apcu_store($delKey . '|old', $cachedData, $this->ttlOld);
-					}
-				}
-
-				apcu_delete($delKey);
-			}
+			array_walk($list, function ($value, $key) {
+				apcu_delete($key);
+			});
+			unset($list);
 		}
-		unset($list);
 	}
 
 	public function delFromSet($key, $member)
@@ -136,28 +104,18 @@ class CacheEngineApc extends CacheEngine
 		if (is_array($list) && !empty($list))
 		{
 			$rewrite = false;
-			$tmpKey = $key . '|iex|';
-			if (is_array($member))
+			if (!is_array($member))
 			{
-				foreach ($member as $keyID)
-				{
-					if (array_key_exists($keyID, $list))
-					{
-						$rewrite = true;
-						$cacheKey = sha1($key . '|' . $keyID);
-						unset($list[$keyID]);
-
-						apcu_delete($tmpKey . $cacheKey);
-					}
-				}
+				$member = [0 => $member];
 			}
-			elseif (array_key_exists($member, $list))
-			{
-				$rewrite = true;
-				$cacheKey = sha1($key . '|' . $member);
-				unset($list[$member]);
 
-				apcu_delete($tmpKey . $cacheKey);
+			foreach ($member as $keyID)
+			{
+				if (array_key_exists($keyID, $list))
+				{
+					$rewrite = true;
+					unset($list[$keyID]);
+				}
 			}
 
 			if ($rewrite)

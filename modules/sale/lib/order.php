@@ -134,8 +134,6 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 		$registry = Registry::getInstance(static::getRegistryType());
 
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
 		/** @var EntityMarker $entityMarker */
 		$entityMarker = $registry->getEntityMarkerClassName();
 
@@ -264,11 +262,11 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			{
 				if ($this->getShipmentCollection()->isAllowDelivery())
 				{
-					$orderStatus = $optionClassName::get('sale', 'status_on_allow_delivery', '');
+					$orderStatus = Main\Config\Option::get('sale', 'status_on_allow_delivery', '');
 				}
 				elseif ($this->getShipmentCollection()->hasAllowDelivery())
 				{
-					$orderStatus = $optionClassName::get('sale', 'status_on_allow_delivery_one_of', '');
+					$orderStatus = Main\Config\Option::get('sale', 'status_on_allow_delivery_one_of', '');
 				}
 			}
 
@@ -450,11 +448,11 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			{
 				if ($this->getShipmentCollection()->isShipped())
 				{
-					$orderStatus = $optionClassName::get('sale', 'status_on_shipped_shipment', '');
+					$orderStatus = Main\Config\Option::get('sale', 'status_on_shipped_shipment', '');
 				}
 				elseif ($this->getShipmentCollection()->hasShipped())
 				{
-					$orderStatus = $optionClassName::get('sale', 'status_on_shipped_shipment_one_of', '');
+					$orderStatus = Main\Config\Option::get('sale', 'status_on_shipped_shipment_one_of', '');
 				}
 				$allowSetStatus = ($this->getField('STATUS_ID') != static::getFinalStatus());
 			}
@@ -1514,10 +1512,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	 */
 	protected function getStatusOnPaid()
 	{
-		$registry = Registry::getInstance(static::getRegistryType());
-
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-		return $optionClassName::get('sale', 'status_on_paid', '');
+		return Main\Config\Option::get('sale', 'status_on_paid', '');
 	}
 
 	/**
@@ -1527,10 +1522,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	 */
 	protected function getStatusOnPartialPaid()
 	{
-		$registry = Registry::getInstance(static::getRegistryType());
-
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-		return $optionClassName::get('sale', 'status_on_half_paid', '');
+		return Main\Config\Option::get('sale', 'status_on_half_paid', '');
 	}
 
 	/**

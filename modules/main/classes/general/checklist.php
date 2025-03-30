@@ -1304,7 +1304,6 @@ class CAutoCheck
 	public static function KeyCheck()
 	{
 		$arResult = array("STATUS" => false);
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
 		$arUpdateList = CUpdateClient::GetUpdatesList($errorMessage, LANG);
 		if(array_key_exists("CLIENT", $arUpdateList)&&$arUpdateList["CLIENT"][0]["@"]["RESERVED"] == "N")
 		{

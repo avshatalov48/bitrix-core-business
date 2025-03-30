@@ -40,24 +40,27 @@ class BizprocWorkflowStart extends \CBitrixComponent
 
 		$arParams['SET_TITLE'] = (($arParams['SET_TITLE'] ?? 'Y') === 'N' ? 'N' : 'Y');
 
-		if (is_string($arParams['SIGNED_DOCUMENT_TYPE'] ?? null) && $arParams['SIGNED_DOCUMENT_TYPE'])
+		if (Main\Loader::includeModule('bizproc'))
 		{
-			$unsignedDocumentType = CBPDocument::unSignDocumentType(
-				htmlspecialcharsback($arParams['SIGNED_DOCUMENT_TYPE'])
-			);
+			if (is_string($arParams['SIGNED_DOCUMENT_TYPE'] ?? null) && $arParams['SIGNED_DOCUMENT_TYPE'])
+			{
+				$unsignedDocumentType = CBPDocument::unSignDocumentType(
+					htmlspecialcharsback($arParams['SIGNED_DOCUMENT_TYPE'])
+				);
 
-			$arParams['MODULE_ID'] = $unsignedDocumentType ? $unsignedDocumentType[0] : '';
-			$arParams['ENTITY'] = $unsignedDocumentType ? $unsignedDocumentType[1] : '';
-			$arParams['DOCUMENT_TYPE'] = $unsignedDocumentType ? $unsignedDocumentType[2] : '';
-		}
+				$arParams['MODULE_ID'] = $unsignedDocumentType ? $unsignedDocumentType[0] : '';
+				$arParams['ENTITY'] = $unsignedDocumentType ? $unsignedDocumentType[1] : '';
+				$arParams['DOCUMENT_TYPE'] = $unsignedDocumentType ? $unsignedDocumentType[2] : '';
+			}
 
-		if (is_string($arParams['SIGNED_DOCUMENT_ID'] ?? null) && $arParams['SIGNED_DOCUMENT_ID'])
-		{
-			$unsignedDocumentId = CBPDocument::unSignDocumentType(
-				htmlspecialcharsback($arParams['SIGNED_DOCUMENT_ID'])
-			);
+			if (is_string($arParams['SIGNED_DOCUMENT_ID'] ?? null) && $arParams['SIGNED_DOCUMENT_ID'])
+			{
+				$unsignedDocumentId = CBPDocument::unSignDocumentType(
+					htmlspecialcharsback($arParams['SIGNED_DOCUMENT_ID'])
+				);
 
-			$arParams['DOCUMENT_ID'] = $unsignedDocumentId ? $unsignedDocumentId[2] : '';
+				$arParams['DOCUMENT_ID'] = $unsignedDocumentId ? $unsignedDocumentId[2] : '';
+			}
 		}
 
 		return $arParams;

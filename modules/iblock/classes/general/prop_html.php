@@ -312,7 +312,11 @@ class CIBlockPropertyHTML
 			$value['VALUE'] = (string)$value['VALUE'];
 			if ($value['VALUE'] !== '')
 			{
-				if (CheckSerializedData($value["VALUE"]))
+				if (
+					CheckSerializedData($value['VALUE'])
+					&& str_contains($value['VALUE'], 'TEXT')
+					&& str_contains($value['VALUE'], 'TYPE')
+				)
 				{
 					$return = [
 						'VALUE' => unserialize($value['VALUE'], ['allowed_classes' => false]),
